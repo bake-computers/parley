@@ -1,0 +1,101 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "react", "import", "promise", "unicorn", "jsdoc", "oxc"],
+  "categories": {
+    "correctness": "error",
+    "perf": "error",
+    "suspicious": "warn",
+    "style": "warn"
+  },
+  "rules": {
+    "correctness/no-unused-variables": "error",
+    "correctness/no-unreachable": "error",
+    "correctness/no-const-assign": "error",
+    "correctness/no-obj-calls": "error",
+    "correctness/no-setter-return": "error",
+    "typescript/no-explicit-any": "error",
+    "typescript/explicit-function-return-types": [
+      "warn",
+      {
+        "allowExpressions": true,
+        "allowTypedFunctionExpressions": true,
+        "allowHigherOrderFunctions": true
+      }
+    ],
+    "typescript/no-unused-vars": "error",
+    "typescript/array-type": [
+      "error",
+      {
+        "default": "generic"
+      }
+    ],
+    "typescript/consistent-type-assertions": [
+      "error",
+      {
+        "assertionStyle": "as"
+      }
+    ],
+    "typescript/no-non-null-assertion": "warn",
+    "typescript/prefer-nullish-coalescing": "warn",
+    "typescript/prefer-optional-chain": "warn",
+    "typescript/consistent-indexed-object-style": ["error", "record"],
+    "typescript/ban-ts-comment": [
+      "error",
+      {
+        "ts-expect-error": "allow-with-description"
+      }
+    ],
+    "typescript/no-floating-promises": "warn",
+    "no-var": "error",
+    "prefer-const": [
+      "error",
+      {
+        "destructuring": "all"
+      }
+    ],
+    "no-console": "warn",
+    "curly": ["error", "multi-line"],
+    "eqeqeq": ["error", "always"],
+    "import/no-cycle": "error",
+    "import/no-unresolved": "error",
+    "import/no-absolute-path": "error",
+    "import/no-self-import": "error",
+    "promise/always-return": "warn",
+    "promise/catch-or-return": "warn",
+    "promise/param-names": "warn",
+    "unicorn/better-regex": "warn",
+    "unicorn/catch-error-name": "error",
+    "unicorn/consistent-function-scoping": "warn",
+    "unicorn/escape-case": "error",
+    "unicorn/new-for-builtins": "error",
+    "unicorn/no-empty-file": "error",
+    "unicorn/no-lonely-if": "warn",
+    "unicorn/no-process-exit": "warn",
+    "unicorn/prefer-includes": "warn",
+    "unicorn/prefer-string-trim-start-end": "warn",
+    "unicorn/prefer-ternary": "warn",
+    "unicorn/throw-new-error": "error",
+    "perf/no-accumulating-spread": "error",
+    "perf/no-function-assign": "error"
+  },
+  "overrides": [
+    {
+      "files": ["**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx"],
+      "rules": {
+        "typescript/explicit-function-return-types": "off",
+        "no-console": "off"
+      }
+    },
+    {
+      "files": ["**/*.worker.ts", "**/worker.ts", "**/index.ts"],
+      "rules": {
+        "typescript/no-explicit-any": "warn",
+        "typescript/no-unused-vars": "warn"
+      }
+    }
+  ],
+  "options": {
+    "typeAware": true,
+    "typeCheck": true
+  }
+}

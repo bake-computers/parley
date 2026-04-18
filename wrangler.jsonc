@@ -1,0 +1,32 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "teamanica",
+  "main": "dist/index.js",
+  "compatibility_date": "2026-04-15",
+  "compatibility_flags": ["nodejs_compat"],
+  "build": {
+    "command": "bun run build",
+    "cwd": "./",
+    "watch_dir": "./src",
+  },
+  "observability": {
+    "enabled": true,
+  },
+  "logpush": true,
+  "d1_databases": [
+    {
+      "binding": "Database",
+      "database_name": "teamanica",
+      "database_id": "33479528-a40d-4d83-b504-a23c31033bed",
+      "remote": true,
+      "migrations_dir": "drizzle/migrations",
+    },
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "Cache",
+      "id": "61663c82d70c4483bb094c5afbcfd744",
+      "remote": true,
+    },
+  ],
+}
