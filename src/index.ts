@@ -1,10 +1,18 @@
-import { Honocord } from "honocord";
+import { DiscordBot } from "./lib/discord";
 import * as interactions from "./interactions";
+import {
+  handleStatsRefreshQueue,
+  logScheduledHealth,
+  type StatsRefreshMessage,
+} from "./queues/stats-refresh";
 
-export const client = new Honocord({
-  isCFWorker: true,
-});
+export const bot = new DiscordBot();
 
-client.loadHandlers(...Object.values(interactions));
+bot.loadHandlers(...Object.values(interactions));
 
-export default client.getApp();
+export default {
+  fetch: (request, env, ctx) => bot.fetch(request, env, ctx),
+  queue: (batch, env, ctx) =>
+    handleStatsRefreshQueue(batch as MessageBatch<StatsRefreshMessage>, env, ctx),
+  scheduled: (controller, _env, _ctx) => logScheduledHealth(controller),
+} satisfies ExportedHandler<Env>;

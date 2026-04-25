@@ -7,6 +7,8 @@
     "build": "tsup",
     "dev": "wrangler dev",
     "deploy": "bun run build && wrangler deploy",
+    "register": "bun run src/register.ts",
+    "typecheck": "tsc --noEmit --pretty false",
     "db:generate": "drizzle-kit generate",
     "db:migrate:local": "wrangler d1 migrations apply teamanica --local",
     "db:migrate:remote": "wrangler d1 migrations apply teamanica --remote",
@@ -24,7 +26,7 @@
     "cheerio": "^1.2.0",
     "discord-api-types": "^0.38.47",
     "drizzle-orm": "^0.45.2",
-    "honocord": "^2.2.0",
+    "neverthrow": "^8.2.0",
     "user-agents": "^2.1.35"
   },
   "devDependencies": {

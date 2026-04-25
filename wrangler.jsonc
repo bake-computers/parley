@@ -29,4 +29,23 @@
       "remote": true,
     },
   ],
+  "queues": {
+    "producers": [
+      {
+        "queue": "teamanica-stat-refresh",
+        "binding": "Queue",
+      },
+    ],
+    "consumers": [
+      {
+        "queue": "teamanica-stat-refresh",
+        "max_batch_size": 5,
+        "max_batch_timeout": 30,
+        "max_retries": 3,
+      },
+    ],
+  },
+  "triggers": {
+    "crons": ["0 3 * * *"],
+  },
 }

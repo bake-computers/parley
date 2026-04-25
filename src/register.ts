@@ -1,8 +1,21 @@
-import { registerCommands } from "honocord";
+import { registerApplicationCommands } from "./lib/discord";
+import { logger } from "./lib/logger";
 import * as interactions from "./interactions";
 
-await registerCommands(
-  process.env.DISCORD_TOKEN,
+const result = await registerApplicationCommands(
+  process.env.DISCORD_BOT_TOKEN ?? process.env.DISCORD_TOKEN,
   process.env.DISCORD_APPLICATION_ID,
   ...Object.values(interactions),
 );
+
+if (result.isErr()) {
+  logger.error("discord.command.register_failed", "Failed to register Discord commands", {
+    error: result.error,
+  });
+  process.exit(1);
+}
+
+logger.info("discord.command.registered", "Registered Discord commands", {
+  globalCommandCount: result.value.globalCommandCount,
+  guildCommandCounts: result.value.guildCommandCounts,
+});

@@ -75,24 +75,17 @@
       "indexes": {
         "players_profile_id_unique": {
           "name": "players_profile_id_unique",
-          "columns": [
-            "profile_id"
-          ],
+          "columns": ["profile_id"],
           "isUnique": true
         },
         "players_username_platform_unique": {
           "name": "players_username_platform_unique",
-          "columns": [
-            "username_normalized",
-            "platform"
-          ],
+          "columns": ["username_normalized", "platform"],
           "isUnique": true
         },
         "players_username_lookup_idx": {
           "name": "players_username_lookup_idx",
-          "columns": [
-            "username_normalized"
-          ],
+          "columns": ["username_normalized"],
           "isUnique": false
         }
       },
@@ -260,17 +253,12 @@
       "indexes": {
         "stat_snapshots_player_idx": {
           "name": "stat_snapshots_player_idx",
-          "columns": [
-            "player_id"
-          ],
+          "columns": ["player_id"],
           "isUnique": false
         },
         "stat_snapshots_player_fetched_idx": {
           "name": "stat_snapshots_player_fetched_idx",
-          "columns": [
-            "player_id",
-            "fetched_at"
-          ],
+          "columns": ["player_id", "fetched_at"],
           "isUnique": false
         }
       },
@@ -279,12 +267,8 @@
           "name": "stat_snapshots_player_id_players_id_fk",
           "tableFrom": "stat_snapshots",
           "tableTo": "players",
-          "columnsFrom": [
-            "player_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["player_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
