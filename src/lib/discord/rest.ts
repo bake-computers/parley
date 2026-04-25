@@ -158,6 +158,21 @@ export class DiscordRestClient {
     return this.request<T>("POST", `/webhooks/${applicationId}/${token}`, body, false);
   }
 
+  createChannelMessage<T = JsonValue>(
+    channelId: string,
+    body: JsonObject,
+  ): Promise<Result<T, DiscordApiError>> {
+    return this.request<T>("POST", `/channels/${channelId}/messages`, body, true);
+  }
+
+  editChannelMessage<T = JsonValue>(
+    channelId: string,
+    messageId: string,
+    body: JsonObject,
+  ): Promise<Result<T, DiscordApiError>> {
+    return this.request<T>("PATCH", `/channels/${channelId}/messages/${messageId}`, body, true);
+  }
+
   listApplicationEmojis(
     applicationId: string,
   ): Promise<Result<RESTGetAPIApplicationEmojisResult, DiscordApiError>> {

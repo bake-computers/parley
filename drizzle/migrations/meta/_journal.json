@@ -8,6 +8,13 @@
       "when": 1776624138882,
       "tag": "0000_bent_falcon",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1777160688602,
+      "tag": "0001_lonely_vertigo",
+      "breakpoints": true
     }
   ]
 }

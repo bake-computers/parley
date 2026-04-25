@@ -17,6 +17,7 @@ import {
 } from "../lib/http";
 import { logger } from "../lib/logger";
 import { persistStatsSnapshot } from "../lib/db/stats-snapshot";
+import { reconcileAutoPlayerRegistrations } from "../lib/db/player-identity";
 import {
   buildStatsCacheKey,
   readGlobalSeasonCatalog,
@@ -26,6 +27,7 @@ import {
   STATS_CACHE_SCHEMA_VERSION,
   type StatsCacheEnvelope,
 } from "../lib/stats-cache";
+import { deleteGuildRosterCaches } from "../lib/guild-roster-cache";
 import {
   buildRefreshFailureEmbed,
   buildSeasonNotFoundEmbed,
@@ -696,6 +698,9 @@ export async function processStatsRefreshMessage(
       throw error instanceof Error ? error : new Error("Stats refresh persistence failed");
     },
   );
+
+  const invalidatedGuildIds = await reconcileAutoPlayerRegistrations(env.Database, latestEnvelope);
+  await deleteGuildRosterCaches(env.Cache, invalidatedGuildIds);
 
   if (env.Cache && !bypassRateLimits) {
     const resolvedPlatform =
