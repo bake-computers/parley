@@ -2,6 +2,7 @@ import { load } from "cheerio";
 import { err, ok, ResultAsync, type Result } from "neverthrow";
 import UserAgents from "user-agents";
 import { logger } from "./logger";
+import { canonicalizeSeasonSelector, type SeasonCatalogEntry } from "./stats-season";
 
 const PLATFORM_SEARCH_ORDER = ["pc", "xbox", "playstation"] as const;
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -27,11 +28,36 @@ export interface ResolvedProfileTarget {
 }
 
 export interface StatsFetchError {
-  kind: "network" | "http-status" | "profile-not-found" | "invalid-profile" | "invalid-payload";
+  kind:
+    | "network"
+    | "http-status"
+    | "profile-not-found"
+    | "invalid-profile"
+    | "invalid-payload"
+    | "season-not-found";
   message: string;
   retryable: boolean;
   status?: number;
+  requestedSeason?: string;
+  availableSeasons?: SeasonCatalogEntry[];
   cause?: unknown;
+}
+
+export interface ScrapedStatsCollection {
+  latest: ScrapedStats;
+  bySeason: Record<string, ScrapedStats>;
+  seasonCatalog: SeasonCatalogEntry[];
+}
+
+interface ParsedStatsSource {
+  payload: unknown[];
+  resolver: NuxtResolver;
+  profile: DataMap;
+  rankedSeasons: DataMap;
+  seasonModeRecords: DataMap;
+  seasonsMeta: DataMap;
+  ranks: DataMap;
+  rankTiers: DataMap;
 }
 
 interface ModeRecordSelection {
@@ -295,6 +321,26 @@ export function sortSeasonSlugsByStartDesc(seasonSlugs: string[], seasonsMeta: D
   });
 }
 
+function seasonDisplay(slug: string, seasonsMeta: DataMap): string {
+  return toStringValue(asDataMap(seasonsMeta[slug]).display, slug);
+}
+
+function seasonStartedAt(slug: string, seasonsMeta: DataMap): string {
+  return toStringValue(asDataMap(seasonsMeta[slug]).started_at);
+}
+
+export function buildSeasonCatalog(
+  rankedSeasons: DataMap,
+  seasonsMeta: DataMap,
+): SeasonCatalogEntry[] {
+  const seasonSlugs = sortSeasonSlugsByStartDesc(Object.keys(rankedSeasons), seasonsMeta);
+  return seasonSlugs.map((slug) => ({
+    slug,
+    display: seasonDisplay(slug, seasonsMeta),
+    startedAt: seasonStartedAt(slug, seasonsMeta),
+  }));
+}
+
 export function findModeRecord(
   seasonModeRecords: DataMap,
   seasonsMeta: DataMap,
@@ -450,89 +496,27 @@ export async function resolveProfileTarget(
   return result.isOk() ? result.value : null;
 }
 
-async function fetchAndScrapeStatsInternal(
-  username: string,
-  platform: StatsPlatform,
-): Promise<Result<ScrapedStats, StatsFetchError>> {
-  const resolvedTargetResult = await resolveProfileTargetResult(username, platform);
-  if (resolvedTargetResult.isErr()) {
-    return err(resolvedTargetResult.error);
-  }
-
-  const resolvedTarget = resolvedTargetResult.value;
-
-  try {
-    const rankedProfileUrl = new URL(resolvedTarget.profileUrl);
-    rankedProfileUrl.searchParams.set("addToRecents", "true");
-    rankedProfileUrl.searchParams.set("playlist", "ranked");
-
-    const response = await fetch(rankedProfileUrl.toString(), {
-      headers: {
-        "User-Agent": USER_AGENT,
-      },
-    });
-    if (!response.ok) {
-      return err(
-        statsFetchError(
-          "http-status",
-          "Stats page returned an error status",
-          isRetryableStatus(response.status),
-          {
-            status: response.status,
-          },
-        ),
-      );
-    }
-
-    const html = await response.text();
-    const stats = scrapeHtmlStats(html);
-    stats.profile.profile_id = resolvedTarget.uuid;
-    stats.profile.platform = resolvedTarget.platform;
-    stats.profile.profile_url = resolvedTarget.profileUrl;
-
-    return ok(stats);
-  } catch (error) {
-    return err(statsFetchError("network", "Stats page request failed", true, { cause: error }));
-  }
-}
-
-export function fetchAndScrapeStatsResult(
-  username: string,
-  platform: StatsPlatform = "auto",
-): ResultAsync<ScrapedStats, StatsFetchError> {
-  return ResultAsync.fromPromise(fetchAndScrapeStatsInternal(username, platform), (cause) =>
-    statsFetchError("network", "Unexpected stats fetch failure", true, { cause }),
-  ).andThen((result) => result);
-}
-
-export async function fetchAndScrapeStats(
-  username: string,
-  platform: StatsPlatform = "auto",
-): Promise<ScrapedStats | null> {
-  const result = await fetchAndScrapeStatsResult(username, platform);
-  if (result.isErr()) {
-    logger.warn("stats.fetch.failed", "Failed to fetch stats", {
-      username,
-      platform,
-      error: result.error,
-    });
-    return null;
-  }
-
-  return result.value;
-}
-
-export function scrapeHtmlStats(html: string): ScrapedStats {
-  const stats: ScrapedStats = {
-    profile: {},
+function createEmptyScrapedStats(profile: DataMap = {}): ScrapedStats {
+  return {
+    profile,
     ranked_stats: {},
     calculated_metrics: {},
   };
+}
 
+function toScrapedStats(profile: DataMap, rankedStats: DataMap): ScrapedStats {
+  return {
+    profile: { ...profile },
+    ranked_stats: rankedStats,
+    calculated_metrics: {},
+  };
+}
+
+function parseStatsSourceFromHtml(html: string): ParsedStatsSource | null {
   const payload = extractNuxtPayload(html);
   if (!payload) {
     logger.warn("stats.scrape.missing_payload", "Could not locate __NUXT_DATA__ payload");
-    return stats;
+    return null;
   }
 
   const resolver = new NuxtResolver(payload);
@@ -540,227 +524,231 @@ export function scrapeHtmlStats(html: string): ScrapedStats {
 
   if (!profile || !constants) {
     logger.warn("stats.scrape.invalid_payload", "Could not resolve structured profile data");
-    return stats;
+    return null;
   }
 
-  const username = toStringValue(profile.username, "Unknown");
-  stats.profile.username = username;
-  stats.profile.level = profile.level ?? 0;
+  return {
+    payload,
+    resolver,
+    profile,
+    rankedSeasons: asDataMap(profile.ranked_season_records),
+    seasonModeRecords: asDataMap(profile.season_mode_records),
+    seasonsMeta: asDataMap(constants.seasons),
+    ranks: asDataMap(constants.ranks),
+    rankTiers: asDataMap(constants.rank_tiers),
+  };
+}
 
-  const rankedSeasons = asDataMap(profile.ranked_season_records);
-  const seasonModeRecords = asDataMap(profile.season_mode_records);
-  const seasonsMeta = asDataMap(constants.seasons);
-  const ranks = asDataMap(constants.ranks);
-  const rankTiers = asDataMap(constants.rank_tiers);
+function baseProfileFromSource(source: ParsedStatsSource): DataMap {
+  return {
+    username: toStringValue(source.profile.username, "Unknown"),
+    level: source.profile.level ?? 0,
+  };
+}
 
-  const seasonKeys = Object.keys(rankedSeasons);
-  if (seasonKeys.length === 0) {
-    const quickModeSelection = findModeRecord(
-      seasonModeRecords,
-      seasonsMeta,
-      (modeSlug) => modeSlug.includes("quick-match") || modeSlug.includes("quickmatch"),
-    );
-    const fallbackModeSelection =
-      quickModeSelection ?? findModeRecord(seasonModeRecords, seasonsMeta, () => true);
+function buildFallbackRankedModeStats(source: ParsedStatsSource): DataMap | null {
+  const quickModeSelection = findModeRecord(
+    source.seasonModeRecords,
+    source.seasonsMeta,
+    (modeSlug) => modeSlug.includes("quick-match") || modeSlug.includes("quickmatch"),
+  );
+  const fallbackModeSelection =
+    quickModeSelection ?? findModeRecord(source.seasonModeRecords, source.seasonsMeta, () => true);
 
-    if (fallbackModeSelection) {
-      const { seasonSlug, modeSlug, record } = fallbackModeSelection;
-
-      const quickMatches = extractMatchesByPlaylist(payload, resolver, "quickmatch");
-      const pastMatches =
-        quickMatches.length > 0 ? quickMatches : extractMatchesByPlaylist(payload, resolver, null);
-
-      const seasonStart = parseIsoDatetime(asDataMap(seasonsMeta[seasonSlug]).started_at);
-      const seasonMatches = seasonStart
-        ? pastMatches.filter((match) => {
-            const startedAt = parseIsoDatetime(match.started_at);
-            return startedAt ? startedAt >= seasonStart : false;
-          })
-        : pastMatches;
-
-      const rounds = summarizeMatchRounds(seasonMatches);
-
-      const matches = Number(record.matches ?? seasonMatches.length ?? 0);
-      const wins = Number(record.wins ?? 0);
-      const losses = Number(record.losses ?? 0);
-      const kills = Number(record.kills ?? 0);
-      const deaths = Number(record.deaths ?? 0);
-      const assists = Number(record.assists ?? 0);
-      const headshots = Number(record.headshots ?? 0);
-
-      const kdRatio = deaths > 0 ? kills / deaths : kills;
-      const headshotRate = kills > 0 ? (headshots / kills) * 100 : 0;
-      const winRate = matches > 0 ? (wins / matches) * 100 : 0;
-
-      stats.ranked_stats = {
-        season: seasonSlug,
-        mode: modeSlug,
-        matches,
-        wins,
-        losses,
-        abandons: Number(record.abandons ?? 0),
-        kills,
-        deaths,
-        assists,
-        headshots,
-        kd_ratio: Number(Number(record.kd ?? kdRatio).toFixed(4)),
-        headshot_percentage: Number(Number(record.hs ?? headshotRate).toFixed(2)),
-        win_rate: Number(Number(record.wr ?? winRate).toFixed(2)),
-        rank_points: 0,
-        peak_rank_points: 0,
-        current_rank_slug: null,
-        current_rank: "Unranked",
-        current_rank_tier: "Unranked",
-        peak_rank_slug: null,
-        peak_rank: "Unranked",
-        peak_rank_tier: "Unranked",
-        all_time_peak_rank_slug: null,
-        all_time_peak_rank: "Unranked",
-        all_time_peak_rank_tier: "Unranked",
-        all_time_peak_rank_points: 0,
-        all_time_peak_rank_season: null,
-        rounds_played: rounds.roundsPlayed,
-        kill_rounds: rounds.killRounds,
-        survival_rounds: rounds.survivalRounds,
-        traded_rounds: rounds.tradedRounds,
-        opening_kill_rounds: rounds.openingKillRounds,
-        matches_in_cache: seasonMatches.length,
-      };
-
-      const sourceLabel = quickModeSelection ? "quickmatch" : "past mode";
-      logger.info("stats.scrape.fallback_mode", "Using fallback mode stats", {
-        username,
-        sourceLabel,
-        seasonSlug,
-        modeSlug,
-      });
-      return stats;
-    }
-
-    const pastMatches = extractMatchesByPlaylist(payload, resolver, null);
-    if (pastMatches.length > 0) {
-      let kills = 0;
-      let deaths = 0;
-      let assists = 0;
-      let headshots = 0;
-      let wins = 0;
-      let losses = 0;
-      let abandons = 0;
-
-      for (const match of pastMatches) {
-        const summary = asDataMap(match.player_summary);
-        kills += Number(summary.kills ?? 0);
-        deaths += Number(summary.deaths ?? 0);
-        assists += Number(summary.assists ?? 0);
-        headshots += Number(summary.headshots ?? 0);
-        abandons += Number(summary.abandons ?? 0);
-
-        const won = summary.won ?? summary.win;
-        if (won === true || won === 1 || won === "win") {
-          wins += 1;
-        } else if (won === false || won === 0 || won === "loss") {
-          losses += 1;
-        }
-      }
-
-      const rounds = summarizeMatchRounds(pastMatches);
-      const matches = pastMatches.length;
-      const kdRatio = deaths > 0 ? kills / deaths : kills;
-      const headshotRate = kills > 0 ? (headshots / kills) * 100 : 0;
-      const winRate = matches > 0 ? (wins / matches) * 100 : 0;
-
-      stats.ranked_stats = {
-        season: "",
-        mode: "past-matches",
-        matches,
-        wins,
-        losses,
-        abandons,
-        kills,
-        deaths,
-        assists,
-        headshots,
-        kd_ratio: Number(kdRatio.toFixed(4)),
-        headshot_percentage: Number(headshotRate.toFixed(2)),
-        win_rate: Number(winRate.toFixed(2)),
-        rank_points: 0,
-        peak_rank_points: 0,
-        current_rank_slug: null,
-        current_rank: "Unranked",
-        current_rank_tier: "Unranked",
-        peak_rank_slug: null,
-        peak_rank: "Unranked",
-        peak_rank_tier: "Unranked",
-        all_time_peak_rank_slug: null,
-        all_time_peak_rank: "Unranked",
-        all_time_peak_rank_tier: "Unranked",
-        all_time_peak_rank_points: 0,
-        all_time_peak_rank_season: null,
-        rounds_played: rounds.roundsPlayed,
-        kill_rounds: rounds.killRounds,
-        survival_rounds: rounds.survivalRounds,
-        traded_rounds: rounds.tradedRounds,
-        opening_kill_rounds: rounds.openingKillRounds,
-        matches_in_cache: pastMatches.length,
-      };
-
-      logger.info("stats.scrape.fallback_matches", "Using past matches summary", { username });
-      return stats;
-    }
-
-    logger.warn(
-      "stats.scrape.no_records",
-      "No ranked season records, quickmatch records, or past matches found in payload",
-      { username },
-    );
-    return stats;
+  if (!fallbackModeSelection) {
+    return null;
   }
 
-  const currentSeasonSlug = seasonKeys.reduce((latest, slug) => {
-    const latestStarted = toStringValue(asDataMap(seasonsMeta[latest]).started_at);
-    const started = toStringValue(asDataMap(seasonsMeta[slug]).started_at);
-    return started > latestStarted ? slug : latest;
+  const { seasonSlug, modeSlug, record } = fallbackModeSelection;
+  const quickMatches = extractMatchesByPlaylist(source.payload, source.resolver, "quickmatch");
+  const pastMatches =
+    quickMatches.length > 0
+      ? quickMatches
+      : extractMatchesByPlaylist(source.payload, source.resolver, null);
+
+  const seasonStart = parseIsoDatetime(seasonStartedAt(seasonSlug, source.seasonsMeta));
+  const seasonMatches = seasonStart
+    ? pastMatches.filter((match) => {
+        const startedAt = parseIsoDatetime(match.started_at);
+        return startedAt ? startedAt >= seasonStart : false;
+      })
+    : pastMatches;
+
+  const rounds = summarizeMatchRounds(seasonMatches);
+  const matches = Number(record.matches ?? seasonMatches.length ?? 0);
+  const wins = Number(record.wins ?? 0);
+  const losses = Number(record.losses ?? 0);
+  const kills = Number(record.kills ?? 0);
+  const deaths = Number(record.deaths ?? 0);
+  const assists = Number(record.assists ?? 0);
+  const headshots = Number(record.headshots ?? 0);
+
+  const kdRatio = deaths > 0 ? kills / deaths : kills;
+  const headshotRate = kills > 0 ? (headshots / kills) * 100 : 0;
+  const winRate = matches > 0 ? (wins / matches) * 100 : 0;
+
+  logger.info("stats.scrape.fallback_mode", "Using fallback mode stats", {
+    username: toStringValue(source.profile.username, "Unknown"),
+    sourceLabel: quickModeSelection ? "quickmatch" : "past mode",
+    seasonSlug,
+    modeSlug,
   });
 
-  const currentSeason = asDataMap(rankedSeasons[currentSeasonSlug]);
+  return {
+    season: seasonSlug,
+    season_slug: seasonSlug,
+    season_display: seasonDisplay(seasonSlug, source.seasonsMeta),
+    season_started_at: seasonStartedAt(seasonSlug, source.seasonsMeta),
+    mode: modeSlug,
+    matches,
+    wins,
+    losses,
+    abandons: Number(record.abandons ?? 0),
+    kills,
+    deaths,
+    assists,
+    headshots,
+    kd_ratio: Number(Number(record.kd ?? kdRatio).toFixed(4)),
+    headshot_percentage: Number(Number(record.hs ?? headshotRate).toFixed(2)),
+    win_rate: Number(Number(record.wr ?? winRate).toFixed(2)),
+    rank_points: 0,
+    peak_rank_points: 0,
+    current_rank_slug: null,
+    current_rank: "Unranked",
+    current_rank_tier: "Unranked",
+    peak_rank_slug: null,
+    peak_rank: "Unranked",
+    peak_rank_tier: "Unranked",
+    all_time_peak_rank_slug: null,
+    all_time_peak_rank: "Unranked",
+    all_time_peak_rank_tier: "Unranked",
+    all_time_peak_rank_points: 0,
+    all_time_peak_rank_season: null,
+    rounds_played: rounds.roundsPlayed,
+    kill_rounds: rounds.killRounds,
+    survival_rounds: rounds.survivalRounds,
+    traded_rounds: rounds.tradedRounds,
+    opening_kill_rounds: rounds.openingKillRounds,
+    matches_in_cache: seasonMatches.length,
+  };
+}
 
+function buildFallbackPastMatchesStats(source: ParsedStatsSource): DataMap | null {
+  const pastMatches = extractMatchesByPlaylist(source.payload, source.resolver, null);
+  if (pastMatches.length === 0) {
+    return null;
+  }
+
+  let kills = 0;
+  let deaths = 0;
+  let assists = 0;
+  let headshots = 0;
+  let wins = 0;
+  let losses = 0;
+  let abandons = 0;
+
+  for (const match of pastMatches) {
+    const summary = asDataMap(match.player_summary);
+    kills += Number(summary.kills ?? 0);
+    deaths += Number(summary.deaths ?? 0);
+    assists += Number(summary.assists ?? 0);
+    headshots += Number(summary.headshots ?? 0);
+    abandons += Number(summary.abandons ?? 0);
+
+    const won = summary.won ?? summary.win;
+    if (won === true || won === 1 || won === "win") {
+      wins += 1;
+    } else if (won === false || won === 0 || won === "loss") {
+      losses += 1;
+    }
+  }
+
+  const rounds = summarizeMatchRounds(pastMatches);
+  const matches = pastMatches.length;
+  const kdRatio = deaths > 0 ? kills / deaths : kills;
+  const headshotRate = kills > 0 ? (headshots / kills) * 100 : 0;
+  const winRate = matches > 0 ? (wins / matches) * 100 : 0;
+
+  logger.info("stats.scrape.fallback_matches", "Using past matches summary", {
+    username: toStringValue(source.profile.username, "Unknown"),
+  });
+
+  return {
+    season: "",
+    season_slug: "",
+    season_display: "Recent Matches",
+    season_started_at: "",
+    mode: "past-matches",
+    matches,
+    wins,
+    losses,
+    abandons,
+    kills,
+    deaths,
+    assists,
+    headshots,
+    kd_ratio: Number(kdRatio.toFixed(4)),
+    headshot_percentage: Number(headshotRate.toFixed(2)),
+    win_rate: Number(winRate.toFixed(2)),
+    rank_points: 0,
+    peak_rank_points: 0,
+    current_rank_slug: null,
+    current_rank: "Unranked",
+    current_rank_tier: "Unranked",
+    peak_rank_slug: null,
+    peak_rank: "Unranked",
+    peak_rank_tier: "Unranked",
+    all_time_peak_rank_slug: null,
+    all_time_peak_rank: "Unranked",
+    all_time_peak_rank_tier: "Unranked",
+    all_time_peak_rank_points: 0,
+    all_time_peak_rank_season: null,
+    rounds_played: rounds.roundsPlayed,
+    kill_rounds: rounds.killRounds,
+    survival_rounds: rounds.survivalRounds,
+    traded_rounds: rounds.tradedRounds,
+    opening_kill_rounds: rounds.openingKillRounds,
+    matches_in_cache: pastMatches.length,
+  };
+}
+
+function buildRankedStatsForSeason(source: ParsedStatsSource, seasonSlug: string): DataMap {
+  const currentSeason = asDataMap(source.rankedSeasons[seasonSlug]);
   const currentRankSlug = toOptionalString(currentSeason.rank);
   const peakRankSlug = toOptionalString(currentSeason.max_rank);
-
-  const currentRank = rankLabel(currentRankSlug, ranks, rankTiers);
-  const peakRank = rankLabel(peakRankSlug, ranks, rankTiers);
+  const currentRank = rankLabel(currentRankSlug, source.ranks, source.rankTiers);
+  const peakRank = rankLabel(peakRankSlug, source.ranks, source.rankTiers);
 
   let allTimePeakSeason: string | null = null;
   let allTimePeakRecord: DataMap | null = null;
   let allTimePeakPoints = -1;
 
-  for (const [seasonSlug, record] of Object.entries(rankedSeasons)) {
+  for (const [slug, record] of Object.entries(source.rankedSeasons)) {
     const rankedRecord = asDataMap(record);
     const points = Number(rankedRecord.max_rank_points ?? 0);
     if (points > allTimePeakPoints) {
       allTimePeakPoints = points;
-      allTimePeakSeason = seasonSlug;
+      allTimePeakSeason = slug;
       allTimePeakRecord = rankedRecord;
     }
   }
 
   const allTimePeakSlug = toOptionalString(allTimePeakRecord?.max_rank);
-  const allTimePeakRank = rankLabel(allTimePeakSlug, ranks, rankTiers);
+  const allTimePeakRank = rankLabel(allTimePeakSlug, source.ranks, source.rankTiers);
 
-  let currentModeRecord = asDataMap(asDataMap(seasonModeRecords[currentSeasonSlug])["ranked-bomb"]);
-  if (!currentModeRecord || Object.keys(currentModeRecord).length === 0) {
-    const seasonModes = asDataMap(seasonModeRecords[currentSeasonSlug]);
+  let modeRecord = asDataMap(asDataMap(source.seasonModeRecords[seasonSlug])["ranked-bomb"]);
+  if (Object.keys(modeRecord).length === 0) {
+    const seasonModes = asDataMap(source.seasonModeRecords[seasonSlug]);
     for (const [modeSlug, record] of Object.entries(seasonModes)) {
       if (modeSlug.includes("ranked") && isDataMap(record)) {
-        currentModeRecord = record;
+        modeRecord = record;
         break;
       }
     }
   }
 
-  const rankedMatches = extractMatchesByPlaylist(payload, resolver, "ranked");
-  const seasonStart = parseIsoDatetime(asDataMap(seasonsMeta[currentSeasonSlug]).started_at);
-
+  const rankedMatches = extractMatchesByPlaylist(source.payload, source.resolver, "ranked");
+  const seasonStart = parseIsoDatetime(seasonStartedAt(seasonSlug, source.seasonsMeta));
   const seasonMatches = seasonStart
     ? rankedMatches.filter((match) => {
         const startedAt = parseIsoDatetime(match.started_at);
@@ -770,19 +758,22 @@ export function scrapeHtmlStats(html: string): ScrapedStats {
 
   const rounds = summarizeMatchRounds(seasonMatches);
 
-  stats.ranked_stats = {
-    season: currentSeasonSlug,
-    matches: Number(currentModeRecord.matches ?? 0),
-    wins: Number(currentModeRecord.wins ?? 0),
-    losses: Number(currentModeRecord.losses ?? 0),
-    abandons: Number(currentModeRecord.abandons ?? 0),
-    kills: Number(currentModeRecord.kills ?? 0),
-    deaths: Number(currentModeRecord.deaths ?? 0),
-    assists: Number(currentModeRecord.assists ?? 0),
-    headshots: Number(currentModeRecord.headshots ?? 0),
-    kd_ratio: Number(Number(currentModeRecord.kd ?? 0).toFixed(4)),
-    headshot_percentage: Number(Number(currentModeRecord.hs ?? 0).toFixed(2)),
-    win_rate: Number(Number(currentModeRecord.wr ?? 0).toFixed(2)),
+  return {
+    season: seasonSlug,
+    season_slug: seasonSlug,
+    season_display: seasonDisplay(seasonSlug, source.seasonsMeta),
+    season_started_at: seasonStartedAt(seasonSlug, source.seasonsMeta),
+    matches: Number(modeRecord.matches ?? 0),
+    wins: Number(modeRecord.wins ?? 0),
+    losses: Number(modeRecord.losses ?? 0),
+    abandons: Number(modeRecord.abandons ?? 0),
+    kills: Number(modeRecord.kills ?? 0),
+    deaths: Number(modeRecord.deaths ?? 0),
+    assists: Number(modeRecord.assists ?? 0),
+    headshots: Number(modeRecord.headshots ?? 0),
+    kd_ratio: Number(Number(modeRecord.kd ?? 0).toFixed(4)),
+    headshot_percentage: Number(Number(modeRecord.hs ?? 0).toFixed(2)),
+    win_rate: Number(Number(modeRecord.wr ?? 0).toFixed(2)),
     rank_points: Number(currentSeason.rank_points ?? 0),
     peak_rank_points: Number(currentSeason.max_rank_points ?? 0),
     current_rank_slug: currentRankSlug,
@@ -803,8 +794,287 @@ export function scrapeHtmlStats(html: string): ScrapedStats {
     opening_kill_rounds: rounds.openingKillRounds,
     matches_in_cache: seasonMatches.length,
   };
+}
 
-  return stats;
+export function scrapeHtmlStatsCollection(html: string): ScrapedStatsCollection {
+  const source = parseStatsSourceFromHtml(html);
+  if (!source) {
+    return {
+      latest: createEmptyScrapedStats(),
+      bySeason: {},
+      seasonCatalog: [],
+    };
+  }
+
+  const profile = baseProfileFromSource(source);
+  const seasonCatalog = buildSeasonCatalog(source.rankedSeasons, source.seasonsMeta);
+  const bySeason: Record<string, ScrapedStats> = {};
+
+  for (const season of seasonCatalog) {
+    bySeason[season.slug] = toScrapedStats(profile, buildRankedStatsForSeason(source, season.slug));
+  }
+
+  if (seasonCatalog.length > 0) {
+    return {
+      latest: bySeason[seasonCatalog[0]!.slug] ?? createEmptyScrapedStats(profile),
+      bySeason,
+      seasonCatalog,
+    };
+  }
+
+  const fallbackRanked =
+    buildFallbackRankedModeStats(source) ??
+    buildFallbackPastMatchesStats(source) ??
+    (() => {
+      logger.warn(
+        "stats.scrape.no_records",
+        "No ranked season records, quickmatch records, or past matches found in payload",
+        { username: toStringValue(source.profile.username, "Unknown") },
+      );
+      return {};
+    })();
+
+  return {
+    latest: toScrapedStats(profile, fallbackRanked),
+    bySeason,
+    seasonCatalog,
+  };
+}
+
+function attachResolvedTargetToCollection(
+  collection: ScrapedStatsCollection,
+  resolvedTarget: ResolvedProfileTarget,
+): ScrapedStatsCollection {
+  collection.latest.profile.profile_id = resolvedTarget.uuid;
+  collection.latest.profile.platform = resolvedTarget.platform;
+  collection.latest.profile.profile_url = resolvedTarget.profileUrl;
+
+  for (const stats of Object.values(collection.bySeason)) {
+    stats.profile.profile_id = resolvedTarget.uuid;
+    stats.profile.platform = resolvedTarget.platform;
+    stats.profile.profile_url = resolvedTarget.profileUrl;
+  }
+
+  return collection;
+}
+
+function resolveRequestedSeason(
+  seasonSelector: string | null | undefined,
+  seasonCatalog: readonly SeasonCatalogEntry[],
+): string | null {
+  const selector = seasonSelector?.trim();
+  if (!selector) {
+    return null;
+  }
+
+  return canonicalizeSeasonSelector(selector, seasonCatalog);
+}
+
+export function scrapeHtmlStatsResult(
+  html: string,
+  seasonSelector?: string | null,
+): Result<ScrapedStats, StatsFetchError> {
+  const collection = scrapeHtmlStatsCollection(html);
+  const requestedSeason = seasonSelector?.trim();
+
+  if (!requestedSeason) {
+    return ok(collection.latest);
+  }
+
+  const canonicalSeason = resolveRequestedSeason(requestedSeason, collection.seasonCatalog);
+  if (!canonicalSeason) {
+    return err(
+      statsFetchError(
+        "season-not-found",
+        `Requested season "${requestedSeason}" was not found for this player`,
+        false,
+        {
+          requestedSeason,
+          availableSeasons: collection.seasonCatalog,
+        },
+      ),
+    );
+  }
+
+  const selectedStats = collection.bySeason[canonicalSeason];
+  if (!selectedStats) {
+    return err(
+      statsFetchError(
+        "season-not-found",
+        `Requested season "${requestedSeason}" is unavailable`,
+        false,
+        {
+          requestedSeason,
+          availableSeasons: collection.seasonCatalog,
+        },
+      ),
+    );
+  }
+
+  return ok(selectedStats);
+}
+
+interface FetchedStatsPage {
+  resolvedTarget: ResolvedProfileTarget;
+  html: string;
+}
+
+async function fetchStatsPageInternal(
+  username: string,
+  platform: StatsPlatform,
+): Promise<Result<FetchedStatsPage, StatsFetchError>> {
+  const resolvedTargetResult = await resolveProfileTargetResult(username, platform);
+  if (resolvedTargetResult.isErr()) {
+    return err(resolvedTargetResult.error);
+  }
+
+  const resolvedTarget = resolvedTargetResult.value;
+
+  try {
+    const rankedProfileUrl = new URL(resolvedTarget.profileUrl);
+    rankedProfileUrl.searchParams.set("addToRecents", "true");
+    rankedProfileUrl.searchParams.set("playlist", "ranked");
+
+    const response = await fetch(rankedProfileUrl.toString(), {
+      headers: { "User-Agent": USER_AGENT },
+    });
+    if (!response.ok) {
+      return err(
+        statsFetchError(
+          "http-status",
+          "Stats page returned an error status",
+          isRetryableStatus(response.status),
+          {
+            status: response.status,
+          },
+        ),
+      );
+    }
+
+    return ok({
+      resolvedTarget,
+      html: await response.text(),
+    });
+  } catch (error) {
+    return err(statsFetchError("network", "Stats page request failed", true, { cause: error }));
+  }
+}
+
+async function fetchAndScrapeStatsCollectionInternal(
+  username: string,
+  platform: StatsPlatform,
+): Promise<Result<ScrapedStatsCollection, StatsFetchError>> {
+  const pageResult = await fetchStatsPageInternal(username, platform);
+  if (pageResult.isErr()) {
+    return err(pageResult.error);
+  }
+
+  const collection = scrapeHtmlStatsCollection(pageResult.value.html);
+  return ok(attachResolvedTargetToCollection(collection, pageResult.value.resolvedTarget));
+}
+
+async function fetchAndScrapeStatsInternal(
+  username: string,
+  platform: StatsPlatform,
+  seasonSelector?: string | null,
+): Promise<Result<ScrapedStats, StatsFetchError>> {
+  const collectionResult = await fetchAndScrapeStatsCollectionInternal(username, platform);
+  if (collectionResult.isErr()) {
+    return err(collectionResult.error);
+  }
+
+  const requestedSeason = seasonSelector?.trim();
+  if (!requestedSeason) {
+    return ok(collectionResult.value.latest);
+  }
+
+  const canonicalSeason = resolveRequestedSeason(
+    requestedSeason,
+    collectionResult.value.seasonCatalog,
+  );
+  if (!canonicalSeason) {
+    return err(
+      statsFetchError(
+        "season-not-found",
+        `Requested season "${requestedSeason}" was not found`,
+        false,
+        {
+          requestedSeason,
+          availableSeasons: collectionResult.value.seasonCatalog,
+        },
+      ),
+    );
+  }
+
+  const stats = collectionResult.value.bySeason[canonicalSeason];
+  if (!stats) {
+    return err(
+      statsFetchError(
+        "season-not-found",
+        `Requested season "${requestedSeason}" is unavailable`,
+        false,
+        {
+          requestedSeason,
+          availableSeasons: collectionResult.value.seasonCatalog,
+        },
+      ),
+    );
+  }
+
+  return ok(stats);
+}
+
+export function fetchAndScrapeStatsCollectionResult(
+  username: string,
+  platform: StatsPlatform = "auto",
+): ResultAsync<ScrapedStatsCollection, StatsFetchError> {
+  return ResultAsync.fromPromise(
+    fetchAndScrapeStatsCollectionInternal(username, platform),
+    (cause) => statsFetchError("network", "Unexpected stats fetch failure", true, { cause }),
+  ).andThen((result) => result);
+}
+
+export function fetchAndScrapeStatsResult(
+  username: string,
+  platform: StatsPlatform = "auto",
+  seasonSelector?: string | null,
+): ResultAsync<ScrapedStats, StatsFetchError> {
+  return ResultAsync.fromPromise(
+    fetchAndScrapeStatsInternal(username, platform, seasonSelector),
+    (cause) => statsFetchError("network", "Unexpected stats fetch failure", true, { cause }),
+  ).andThen((result) => result);
+}
+
+export async function fetchAndScrapeStats(
+  username: string,
+  platform: StatsPlatform = "auto",
+  seasonSelector?: string | null,
+): Promise<ScrapedStats | null> {
+  const result = await fetchAndScrapeStatsResult(username, platform, seasonSelector);
+  if (result.isErr()) {
+    logger.warn("stats.fetch.failed", "Failed to fetch stats", {
+      username,
+      platform,
+      seasonSelector: seasonSelector ?? null,
+      error: result.error,
+    });
+    return null;
+  }
+
+  return result.value;
+}
+
+export function scrapeHtmlStats(html: string, seasonSelector?: string | null): ScrapedStats {
+  const result = scrapeHtmlStatsResult(html, seasonSelector);
+  if (result.isErr()) {
+    logger.warn("stats.scrape.failed", "Failed to scrape stats for selected season", {
+      seasonSelector: seasonSelector ?? null,
+      error: result.error,
+    });
+    return createEmptyScrapedStats();
+  }
+
+  return result.value;
 }
 
 export function calculateKost(rankedStats: DataMap): number {
@@ -866,6 +1136,10 @@ export function formatOutput(scrapedStats: ScrapedStats): DataMap {
       win_rate: ranked.win_rate ?? 0,
       matches: ranked.matches ?? 0,
       season: ranked.season ?? "",
+      season_slug: ranked.season_slug ?? ranked.season ?? "",
+      season_display: ranked.season_display ?? ranked.season ?? "",
+      season_started_at: ranked.season_started_at ?? "",
+      mode: ranked.mode ?? "",
       rank_points: ranked.rank_points ?? 0,
       current_rank: ranked.current_rank ?? "Unknown",
       current_rank_tier: ranked.current_rank_tier ?? "Unknown",

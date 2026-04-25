@@ -1,196 +1,90 @@
-import { EmbedBuilder, SlashCommand } from "../lib/discord";
-import { calculateKost, type StatsPlatform } from "../lib/http";
+import { autocompleteChoice, SlashCommand } from "../lib/discord";
+import { type StatsPlatform } from "../lib/http";
 import { logger } from "../lib/logger";
+import {
+  buildProcessingStatsEmbed,
+  buildQueueUnavailableEmbed,
+  buildStatsEmbed,
+} from "../lib/stats-embeds";
 import {
   buildStatsCacheKey,
   isStatsCacheStale,
+  readGlobalSeasonCatalog,
+  readPlayerSeasonCatalog,
   readStatsCache,
-  statsCacheAgeMinutes,
-  type StatsCacheEnvelope,
 } from "../lib/stats-cache";
+import {
+  buildBuiltinRecentSeasonCatalog,
+  canonicalizeSeasonSelector,
+  normalizeSeasonDisplay,
+  normalizeSeasonSelector,
+  type SeasonCatalogEntry,
+} from "../lib/stats-season";
 import {
   createStatsRefreshMessage,
   enqueueStatsRefresh,
+  registerPendingStatsReply,
   type StatsRefreshEnv,
 } from "../queues/stats-refresh";
-
-const numberFormatter = new Intl.NumberFormat("en-US");
-
-type StatsDataSource = "live" | "cache";
-
-function toNumber(value: unknown, fallback = 0): number {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : fallback;
-}
-
-function formatInteger(value: unknown): string {
-  return numberFormatter.format(toNumber(value));
-}
-
-function formatDecimal(value: unknown, digits = 2): string {
-  return toNumber(value).toFixed(digits);
-}
-
-function formatPercent(value: unknown, digits = 2): string {
-  return `${formatDecimal(value, digits)}%`;
-}
-
-function formatText(value: unknown, fallback = "N/A"): string {
-  if (typeof value === "string" && value.trim().length > 0) {
-    return value;
-  }
-
-  if (typeof value === "number" && Number.isFinite(value)) {
-    return String(value);
-  }
-
-  return fallback;
-}
-
-function formatRank(rank: unknown, tier: unknown): string {
-  const rankLabel = formatText(rank, "Unknown");
-  const tierLabel = formatText(tier, "").trim();
-
-  if (!tierLabel || tierLabel.toLowerCase() === rankLabel.toLowerCase()) {
-    return rankLabel;
-  }
-
-  return `${rankLabel} ${tierLabel}`;
-}
-
-function buildStatsEmbed(
-  envelope: StatsCacheEnvelope,
-  source: StatsDataSource,
-  stale: boolean,
-): EmbedBuilder {
-  const profile = envelope.profile;
-  const ranked = envelope.rankedStats;
-  const calculated = envelope.calculatedMetrics;
-
-  const profileName = formatText(profile.username, envelope.username);
-  const currentRank = formatRank(ranked.current_rank, ranked.current_rank_tier);
-  const computedKost = calculateKost(ranked);
-  const cachedAgeMinutes = statsCacheAgeMinutes(envelope.cachedAt);
-  const sourceLabel =
-    source === "cache"
-      ? stale
-        ? `Cached ${cachedAgeMinutes}m ago. Refreshing in background.`
-        : `Cached ${cachedAgeMinutes}m ago.`
-      : "Live snapshot from stats.cc";
-
-  const embed = new EmbedBuilder()
-    .setColor(stale ? 0x92400e : source === "cache" ? 0x334155 : 0x0f766e)
-    .setTitle(`Siege Stats: ${profileName}`)
-    .setDescription(
-      `Platform: ${formatText(profile.platform, "Unknown")} • Level: ${formatInteger(profile.level)}`,
-    )
-    .addFields(
-      {
-        name: "Current Rank",
-        value: `${currentRank}\nRank Points: ${formatInteger(ranked.rank_points)}`,
-        inline: true,
-      },
-      {
-        name: "Record",
-        value:
-          `Matches: ${formatInteger(ranked.matches)}\n` +
-          `Wins/Losses: ${formatInteger(ranked.wins)} / ${formatInteger(ranked.losses)}\n` +
-          `Win Rate: ${formatPercent(ranked.win_rate)}`,
-        inline: true,
-      },
-      {
-        name: "Combat",
-        value:
-          `Kills: ${formatInteger(ranked.kills)}\n` +
-          `Deaths: ${formatInteger(ranked.deaths)}\n` +
-          `Assists: ${formatInteger(ranked.assists)}\n` +
-          `K/D: ${formatDecimal(ranked.kd_ratio, 2)}`,
-        inline: true,
-      },
-      {
-        name: "Precision",
-        value:
-          `Headshots: ${formatInteger(ranked.headshots)}\n` +
-          `Headshot Rate: ${formatPercent(ranked.headshot_percentage)}`,
-        inline: true,
-      },
-      {
-        name: "Impact",
-        value:
-          `Estimated KOST: ${formatPercent(computedKost)}\n` +
-          `KOST Range: ${formatPercent(calculated.kost_lower_bound)} to ${formatPercent(calculated.kost_upper_bound)}`,
-        inline: true,
-      },
-      {
-        name: "Round Snapshot",
-        value:
-          `Rounds Played: ${formatInteger(ranked.rounds_played)}\n` +
-          `Kill Rounds: ${formatInteger(ranked.kill_rounds)}\n` +
-          `Survival Rounds: ${formatInteger(ranked.survival_rounds)}\n` +
-          `Traded Rounds: ${formatInteger(ranked.traded_rounds)}`,
-        inline: true,
-      },
-    )
-    .setFooter({ text: sourceLabel })
-    .setTimestamp(new Date(envelope.cachedAt));
-
-  const profileUrl = formatText(profile.profile_url, "");
-  if (profileUrl) {
-    embed.setURL(profileUrl);
-  }
-
-  return embed;
-}
-
-function buildQueuedEmbed(username: string, platform: StatsPlatform): EmbedBuilder {
-  return new EmbedBuilder()
-    .setColor(0x334155)
-    .setTitle("Stats refresh queued")
-    .setDescription(
-      `No cached stats are available for ${username} on ${platform}. A background refresh has started. Try again shortly.`,
-    );
-}
-
-function buildQueueUnavailableEmbed(): EmbedBuilder {
-  return new EmbedBuilder()
-    .setColor(0xb91c1c)
-    .setTitle("Refresh unavailable")
-    .setDescription("Could not queue a stat refresh. Try again later.");
-}
-
-async function enqueueRefreshInBackground(
-  username: string,
-  platform: StatsPlatform,
-  reason: "cache-miss" | "stale-cache",
-  interaction: { guildId?: string; channelId?: string; userId?: string },
-  env: StatsRefreshEnv,
-): Promise<void> {
-  const result = await enqueueStatsRefresh(
-    env,
-    createStatsRefreshMessage({
-      username,
-      platform,
-      reason,
-      guildId: interaction.guildId,
-      channelId: interaction.channelId,
-      userId: interaction.userId,
-    }),
-  );
-  if (result.isErr()) {
-    logger.error("stats.command.queue_failed", "Failed to queue stats refresh", {
-      username,
-      platform,
-      reason,
-      error: result.error,
-    });
-  }
-}
 
 function parsePlatform(value: string | null): StatsPlatform {
   if (value === "pc" || value === "xbox" || value === "playstation") {
     return value;
   }
   return "auto";
+}
+
+function trimToNull(value: string | null): string | null {
+  const trimmed = value?.trim() ?? "";
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+async function resolveSeasonCatalog(
+  cache: KVNamespace | null | undefined,
+  username: string,
+  platform: StatsPlatform,
+): Promise<SeasonCatalogEntry[]> {
+  const playerCatalog = await readPlayerSeasonCatalog(cache, username, platform);
+  if (playerCatalog && playerCatalog.length > 0) {
+    return playerCatalog;
+  }
+
+  const globalCatalog = await readGlobalSeasonCatalog(cache);
+  if (globalCatalog && globalCatalog.length > 0) {
+    return globalCatalog;
+  }
+
+  return buildBuiltinRecentSeasonCatalog();
+}
+
+function filterSeasonChoices(
+  catalog: readonly SeasonCatalogEntry[],
+  query: string,
+): { name: string; value: string }[] {
+  const normalizedQuery = normalizeSeasonDisplay(query);
+  const deduped = new Map<string, SeasonCatalogEntry>();
+  for (const season of catalog) {
+    if (!deduped.has(season.slug)) {
+      deduped.set(season.slug, season);
+    }
+  }
+
+  return [...deduped.values()]
+    .filter((season) => {
+      if (!normalizedQuery) {
+        return true;
+      }
+
+      return (
+        normalizeSeasonDisplay(season.display).includes(normalizedQuery) ||
+        normalizeSeasonSelector(season.slug).includes(normalizeSeasonSelector(normalizedQuery))
+      );
+    })
+    .slice(0, 25)
+    .map((season) => ({
+      name: season.display,
+      value: season.slug,
+    }));
 }
 
 export const statsCommand = new SlashCommand()
@@ -216,37 +110,95 @@ export const statsCommand = new SlashCommand()
         { name: "PlayStation", value: "playstation" },
       ),
   )
+  .addStringOption((option) =>
+    option
+      .setName("season")
+      .setDescription("Season name (for example: Deep Freeze)")
+      .setRequired(false)
+      .setAutocomplete(true),
+  )
+  .addAutocompleteHandler(async (interaction) => {
+    const focused = interaction.options.getFocused();
+    if (!focused || focused.name !== "season") {
+      await interaction.respond([]);
+      return;
+    }
+
+    const username = trimToNull(interaction.options.getString("username", false));
+    const platform = parsePlatform(interaction.options.getString("platform", false));
+    const query = typeof focused.value === "string" ? focused.value : String(focused.value ?? "");
+    const env = interaction.context.env as Partial<Env> & StatsRefreshEnv;
+
+    const catalog = username
+      ? await resolveSeasonCatalog(env.Cache, username, platform)
+      : ((await readGlobalSeasonCatalog(env.Cache)) ?? buildBuiltinRecentSeasonCatalog());
+
+    await interaction.respond(
+      filterSeasonChoices(catalog, query).map((choice) =>
+        autocompleteChoice(choice.name, choice.value),
+      ),
+    );
+  })
   .addHandler(async (interaction) => {
     const username = interaction.options.getString("username", true)!.trim();
     const platform = parsePlatform(interaction.options.getString("platform", false));
+    const requestedSeason = trimToNull(interaction.options.getString("season", false));
     const env = interaction.context.env as Partial<Env> & StatsRefreshEnv;
     const cache = env.Cache;
-    const cacheKey = buildStatsCacheKey(username, platform);
 
     await interaction.deferReply(false);
 
+    const seasonCatalog = await resolveSeasonCatalog(cache, username, platform);
+    const canonicalRequestedSeason = requestedSeason
+      ? (canonicalizeSeasonSelector(requestedSeason, seasonCatalog) ??
+        normalizeSeasonSelector(requestedSeason))
+      : null;
+    const cacheKey = buildStatsCacheKey(username, platform, canonicalRequestedSeason ?? "latest");
     const cachedEnvelope = await readStatsCache(cache, cacheKey);
+
     if (cachedEnvelope) {
       const stale = isStatsCacheStale(cachedEnvelope.cachedAt);
-
       await interaction.editReply({
         embeds: [buildStatsEmbed(cachedEnvelope, "cache", stale)],
       });
 
-      if (stale) {
-        interaction.context.waitUntil(
-          enqueueRefreshInBackground(
-            username,
-            platform,
-            "stale-cache",
-            {
-              guildId: interaction.guildId,
-              channelId: interaction.channelId,
-              userId: interaction.userId,
-            },
-            env,
-          ),
-        );
+      if (!stale) {
+        return;
+      }
+
+      const enqueueResult = await enqueueStatsRefresh(
+        env,
+        createStatsRefreshMessage({
+          username,
+          platform,
+          reason: "stale-cache",
+          guildId: interaction.guildId,
+          channelId: interaction.channelId,
+          userId: interaction.userId,
+        }),
+      );
+
+      if (enqueueResult.isErr()) {
+        logger.error("stats.command.queue_failed", "Failed to queue stale stats refresh", {
+          username,
+          platform,
+          reason: "stale-cache",
+          error: enqueueResult.error,
+        });
+        return;
+      }
+
+      if (enqueueResult.value.status === "queued" || enqueueResult.value.status === "deduped") {
+        await registerPendingStatsReply(cache, {
+          interactionId: interaction.id,
+          applicationId: interaction.applicationId,
+          token: interaction.token,
+          username,
+          platform,
+          requestedSeasonRaw: requestedSeason,
+          requestedSeasonCanonical: canonicalRequestedSeason,
+          requestedAt: Date.now(),
+        });
       }
 
       return;
@@ -277,7 +229,29 @@ export const statsCommand = new SlashCommand()
       return;
     }
 
+    if (enqueueResult.value.status === "daily-capped") {
+      await interaction.editReply({
+        embeds: [
+          buildQueueUnavailableEmbed(
+            "Refresh is capped for this player today and no cached stats are available.",
+          ),
+        ],
+      });
+      return;
+    }
+
+    await registerPendingStatsReply(cache, {
+      interactionId: interaction.id,
+      applicationId: interaction.applicationId,
+      token: interaction.token,
+      username,
+      platform,
+      requestedSeasonRaw: requestedSeason,
+      requestedSeasonCanonical: canonicalRequestedSeason,
+      requestedAt: Date.now(),
+    });
+
     await interaction.editReply({
-      embeds: [buildQueuedEmbed(username, platform)],
+      embeds: [buildProcessingStatsEmbed(username, platform, requestedSeason)],
     });
   });
