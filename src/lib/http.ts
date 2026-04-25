@@ -1,5 +1,7 @@
 import { load } from "cheerio";
+import { err, ok, ResultAsync, type Result } from "neverthrow";
 import UserAgents from "user-agents";
+import { logger } from "./logger";
 
 const PLATFORM_SEARCH_ORDER = ["pc", "xbox", "playstation"] as const;
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -7,19 +9,29 @@ const USER_AGENT = new UserAgents({ deviceCategory: "desktop" }).toString();
 
 const NUXT_WRAPPER_TAGS = new Set(["Reactive", "ShallowReactive", "Ref", "EmptyRef", "Set", "Map"]);
 
-type DataMap = Record<string, any>;
+export type StatsPlatform = "auto" | (typeof PLATFORM_SEARCH_ORDER)[number];
+export type ResolvedStatsPlatform = (typeof PLATFORM_SEARCH_ORDER)[number];
+export type DataMap = Record<string, unknown>;
 
-interface ScrapedStats {
+export interface ScrapedStats {
   profile: DataMap;
   ranked_stats: DataMap;
   calculated_metrics: DataMap;
 }
 
-interface ResolvedProfileTarget {
+export interface ResolvedProfileTarget {
   username: string;
   uuid: string;
-  platform: string;
+  platform: ResolvedStatsPlatform;
   profileUrl: string;
+}
+
+export interface StatsFetchError {
+  kind: "network" | "http-status" | "profile-not-found" | "invalid-profile" | "invalid-payload";
+  message: string;
+  retryable: boolean;
+  status?: number;
+  cause?: unknown;
 }
 
 interface ModeRecordSelection {
@@ -36,13 +48,52 @@ interface MatchRoundTotals {
   killRounds: number;
 }
 
+function isDataMap(value: unknown): value is DataMap {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function asDataMap(value: unknown): DataMap {
+  return isDataMap(value) ? value : {};
+}
+
+function toOptionalString(value: unknown): string | undefined {
+  return typeof value === "string" && value.length > 0 ? value : undefined;
+}
+
+function toStringValue(value: unknown, fallback = ""): string {
+  if (typeof value === "string") {
+    return value;
+  }
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return String(value);
+  }
+  return fallback;
+}
+
+function statsFetchError(
+  kind: StatsFetchError["kind"],
+  message: string,
+  retryable: boolean,
+  extra: Omit<StatsFetchError, "kind" | "message" | "retryable"> = {},
+): StatsFetchError {
+  return { kind, message, retryable, ...extra };
+}
+
+function isRetryableStatus(status: number): boolean {
+  return status === 429 || status >= 500;
+}
+
+function platformSearchOrder(platform: StatsPlatform): ResolvedStatsPlatform[] {
+  return platform === "auto" ? [...PLATFORM_SEARCH_ORDER] : [platform];
+}
+
 export class NuxtResolver {
-  private memo = new Map<number, any>();
+  private memo = new Map<number, unknown>();
   private inProgress = new Set<number>();
 
-  constructor(private readonly payload: any[]) {}
+  constructor(private readonly payload: unknown[]) {}
 
-  resolve(value: any): any {
+  resolve(value: unknown): unknown {
     if (typeof value === "number" && Number.isInteger(value)) {
       if (value === -1) {
         return null;
@@ -82,7 +133,7 @@ export class NuxtResolver {
     return value;
   }
 
-  resolveIndex(index: number): any {
+  resolveIndex(index: number): unknown {
     if (this.memo.has(index)) {
       return this.memo.get(index);
     }
@@ -94,7 +145,7 @@ export class NuxtResolver {
     this.inProgress.add(index);
 
     const entry = this.payload[index];
-    let resolved: any;
+    let resolved: unknown;
 
     if (
       entry === null ||
@@ -113,8 +164,8 @@ export class NuxtResolver {
   }
 }
 
-export function parseIsoDatetime(value: string | undefined): Date | null {
-  if (!value) {
+export function parseIsoDatetime(value: unknown): Date | null {
+  if (typeof value !== "string" && typeof value !== "number") {
     return null;
   }
 
@@ -122,7 +173,7 @@ export function parseIsoDatetime(value: string | undefined): Date | null {
   return Number.isNaN(dt.getTime()) ? null : dt;
 }
 
-export function extractNuxtPayload(html: string): any[] | null {
+export function extractNuxtPayload(html: string): unknown[] | null {
   const $ = load(html);
   const scriptContent = $("#__NUXT_DATA__").html();
 
@@ -139,7 +190,7 @@ export function extractNuxtPayload(html: string): any[] | null {
 }
 
 export function findProfileAndConstants(
-  payload: any[],
+  payload: unknown[],
   resolver: NuxtResolver,
 ): { profile: DataMap | null; constants: DataMap | null } {
   let profile: DataMap | null = null;
@@ -152,11 +203,13 @@ export function findProfileAndConstants(
     }
 
     if ("username" in item && "ranked_season_records" in item && "season_mode_records" in item) {
-      profile = resolver.resolveIndex(index);
+      const resolved = resolver.resolveIndex(index);
+      profile = isDataMap(resolved) ? resolved : null;
     }
 
     if ("rank_tiers" in item && "ranks" in item && "seasons" in item) {
-      constants = resolver.resolveIndex(index);
+      const resolved = resolver.resolveIndex(index);
+      constants = isDataMap(resolved) ? resolved : null;
     }
   }
 
@@ -172,16 +225,18 @@ export function rankLabel(
     return { display: "Unknown", tier: "Unknown" };
   }
 
-  const rankEntry = ranks[rankSlug] ?? {};
-  const display = rankEntry.display ?? rankSlug;
-  const tierSlug = rankEntry.tier;
-  const tier = (tierSlug && rankTiers[tierSlug]?.display) ?? tierSlug ?? "Unknown";
+  const rankEntry = asDataMap(ranks[rankSlug]);
+  const display = toStringValue(rankEntry.display, rankSlug);
+  const tierSlug = toOptionalString(rankEntry.tier);
+  const tier = tierSlug
+    ? toStringValue(asDataMap(rankTiers[tierSlug]).display, tierSlug)
+    : "Unknown";
 
   return { display, tier };
 }
 
 export function extractMatchesByPlaylist(
-  payload: any[],
+  payload: unknown[],
   resolver: NuxtResolver,
   playlist: "ranked" | "quickmatch" | null,
 ): DataMap[] {
@@ -209,7 +264,7 @@ export function extractMatchesByPlaylist(
         continue;
       }
 
-      const pages = queryData.pages;
+      const pages = asDataMap(queryData).pages;
       if (!Array.isArray(pages) || pages.length === 0) {
         continue;
       }
@@ -219,7 +274,7 @@ export function extractMatchesByPlaylist(
         if (firstPage.length === 0) {
           continue;
         }
-        return firstPage as DataMap[];
+        return firstPage.filter(isDataMap);
       }
     }
   }
@@ -229,8 +284,8 @@ export function extractMatchesByPlaylist(
 
 export function sortSeasonSlugsByStartDesc(seasonSlugs: string[], seasonsMeta: DataMap): string[] {
   return [...seasonSlugs].sort((left, right) => {
-    const leftStarted = seasonsMeta[left]?.started_at ?? "";
-    const rightStarted = seasonsMeta[right]?.started_at ?? "";
+    const leftStarted = toStringValue(asDataMap(seasonsMeta[left]).started_at);
+    const rightStarted = toStringValue(asDataMap(seasonsMeta[right]).started_at);
 
     if (leftStarted === rightStarted) {
       return right.localeCompare(left);
@@ -249,19 +304,19 @@ export function findModeRecord(
   let bestZeroMatchCandidate: ModeRecordSelection | null = null;
 
   for (const seasonSlug of seasonSlugs) {
-    const seasonModes = seasonModeRecords[seasonSlug] ?? {};
+    const seasonModes = asDataMap(seasonModeRecords[seasonSlug]);
     for (const [modeSlug, record] of Object.entries(seasonModes)) {
-      if (!modeMatcher(modeSlug) || !record || typeof record !== "object") {
+      if (!modeMatcher(modeSlug) || !isDataMap(record)) {
         continue;
       }
 
       const candidate: ModeRecordSelection = {
         seasonSlug,
         modeSlug,
-        record: record as DataMap,
+        record,
       };
 
-      if (Number((record as DataMap).matches ?? 0) > 0) {
+      if (Number(record.matches ?? 0) > 0) {
         return candidate;
       }
 
@@ -282,7 +337,7 @@ export function summarizeMatchRounds(matches: DataMap[]): MatchRoundTotals {
   let killRounds = 0;
 
   for (const match of matches) {
-    const summary: DataMap = match.player_summary ?? {};
+    const summary = asDataMap(match.player_summary);
 
     const rounds = Number(summary.rounds ?? 0);
     roundsPlayed += rounds;
@@ -310,7 +365,9 @@ export function summarizeMatchRounds(matches: DataMap[]): MatchRoundTotals {
   };
 }
 
-export function parseResolvedProfileUrl(urlValue: string): { username: string; uuid: string } | null {
+export function parseResolvedProfileUrl(
+  urlValue: string,
+): { username: string; uuid: string } | null {
   try {
     const parsed = new URL(urlValue);
     const parts = parsed.pathname.split("/").filter(Boolean);
@@ -334,13 +391,16 @@ export function normalizeDisplayName(value: string): string {
   return value.normalize("NFKC").trim().toLowerCase();
 }
 
-export async function resolveProfileTarget(username: string): Promise<ResolvedProfileTarget | null> {
+export async function resolveProfileTargetResult(
+  username: string,
+  platform: StatsPlatform = "auto",
+): Promise<Result<ResolvedProfileTarget, StatsFetchError>> {
   const expectedDisplayName = normalizeDisplayName(username);
 
-  for (const platform of PLATFORM_SEARCH_ORDER) {
+  for (const currentPlatform of platformSearchOrder(platform)) {
     const lookupUrl = new URL("https://stats.cc/siege");
     lookupUrl.searchParams.set("displayName", username);
-    lookupUrl.searchParams.set("platform", platform);
+    lookupUrl.searchParams.set("platform", currentPlatform);
 
     try {
       const response = await fetch(lookupUrl.toString(), {
@@ -348,6 +408,13 @@ export async function resolveProfileTarget(username: string): Promise<ResolvedPr
         headers: { "User-Agent": USER_AGENT },
       });
       if (!response.ok) {
+        if (isRetryableStatus(response.status)) {
+          return err(
+            statsFetchError("http-status", "Profile lookup returned retryable status", true, {
+              status: response.status,
+            }),
+          );
+        }
         continue;
       }
 
@@ -361,26 +428,38 @@ export async function resolveProfileTarget(username: string): Promise<ResolvedPr
       }
 
       const profileUrl = `https://stats.cc/siege/${encodeURIComponent(resolved.username)}/${resolved.uuid}`;
-      return {
+      return ok({
         username: resolved.username,
         uuid: resolved.uuid,
-        platform,
+        platform: currentPlatform,
         profileUrl,
-      };
+      });
     } catch {
-      return null;
+      return err(statsFetchError("network", "Profile lookup request failed", true));
     }
   }
 
-  return null;
+  return err(statsFetchError("profile-not-found", "Could not resolve profile target", false));
 }
 
-export async function fetchAndScrapeStats(username: string): Promise<ScrapedStats | null> {
-  const resolvedTarget = await resolveProfileTarget(username);
-  if (!resolvedTarget) {
-    console.error(`Could not resolve UUID for username: ${username}`);
-    return null;
+export async function resolveProfileTarget(
+  username: string,
+  platform: StatsPlatform = "auto",
+): Promise<ResolvedProfileTarget | null> {
+  const result = await resolveProfileTargetResult(username, platform);
+  return result.isOk() ? result.value : null;
+}
+
+async function fetchAndScrapeStatsInternal(
+  username: string,
+  platform: StatsPlatform,
+): Promise<Result<ScrapedStats, StatsFetchError>> {
+  const resolvedTargetResult = await resolveProfileTargetResult(username, platform);
+  if (resolvedTargetResult.isErr()) {
+    return err(resolvedTargetResult.error);
   }
+
+  const resolvedTarget = resolvedTargetResult.value;
 
   try {
     const rankedProfileUrl = new URL(resolvedTarget.profileUrl);
@@ -393,8 +472,16 @@ export async function fetchAndScrapeStats(username: string): Promise<ScrapedStat
       },
     });
     if (!response.ok) {
-      console.error(`Error fetching page: ${response.status}`);
-      return null;
+      return err(
+        statsFetchError(
+          "http-status",
+          "Stats page returned an error status",
+          isRetryableStatus(response.status),
+          {
+            status: response.status,
+          },
+        ),
+      );
     }
 
     const html = await response.text();
@@ -403,11 +490,36 @@ export async function fetchAndScrapeStats(username: string): Promise<ScrapedStat
     stats.profile.platform = resolvedTarget.platform;
     stats.profile.profile_url = resolvedTarget.profileUrl;
 
-    return stats;
+    return ok(stats);
   } catch (error) {
-    console.error("Error fetching data:", error);
+    return err(statsFetchError("network", "Stats page request failed", true, { cause: error }));
+  }
+}
+
+export function fetchAndScrapeStatsResult(
+  username: string,
+  platform: StatsPlatform = "auto",
+): ResultAsync<ScrapedStats, StatsFetchError> {
+  return ResultAsync.fromPromise(fetchAndScrapeStatsInternal(username, platform), (cause) =>
+    statsFetchError("network", "Unexpected stats fetch failure", true, { cause }),
+  ).andThen((result) => result);
+}
+
+export async function fetchAndScrapeStats(
+  username: string,
+  platform: StatsPlatform = "auto",
+): Promise<ScrapedStats | null> {
+  const result = await fetchAndScrapeStatsResult(username, platform);
+  if (result.isErr()) {
+    logger.warn("stats.fetch.failed", "Failed to fetch stats", {
+      username,
+      platform,
+      error: result.error,
+    });
     return null;
   }
+
+  return result.value;
 }
 
 export function scrapeHtmlStats(html: string): ScrapedStats {
@@ -419,7 +531,7 @@ export function scrapeHtmlStats(html: string): ScrapedStats {
 
   const payload = extractNuxtPayload(html);
   if (!payload) {
-    console.error("Could not locate __NUXT_DATA__ payload");
+    logger.warn("stats.scrape.missing_payload", "Could not locate __NUXT_DATA__ payload");
     return stats;
   }
 
@@ -427,19 +539,19 @@ export function scrapeHtmlStats(html: string): ScrapedStats {
   const { profile, constants } = findProfileAndConstants(payload, resolver);
 
   if (!profile || !constants) {
-    console.error("Could not resolve structured profile data");
+    logger.warn("stats.scrape.invalid_payload", "Could not resolve structured profile data");
     return stats;
   }
 
-  const username = profile.username ?? "Unknown";
+  const username = toStringValue(profile.username, "Unknown");
   stats.profile.username = username;
   stats.profile.level = profile.level ?? 0;
 
-  const rankedSeasons: DataMap = profile.ranked_season_records ?? {};
-  const seasonModeRecords: DataMap = profile.season_mode_records ?? {};
-  const seasonsMeta: DataMap = constants.seasons ?? {};
-  const ranks: DataMap = constants.ranks ?? {};
-  const rankTiers: DataMap = constants.rank_tiers ?? {};
+  const rankedSeasons = asDataMap(profile.ranked_season_records);
+  const seasonModeRecords = asDataMap(profile.season_mode_records);
+  const seasonsMeta = asDataMap(constants.seasons);
+  const ranks = asDataMap(constants.ranks);
+  const rankTiers = asDataMap(constants.rank_tiers);
 
   const seasonKeys = Object.keys(rankedSeasons);
   if (seasonKeys.length === 0) {
@@ -458,7 +570,7 @@ export function scrapeHtmlStats(html: string): ScrapedStats {
       const pastMatches =
         quickMatches.length > 0 ? quickMatches : extractMatchesByPlaylist(payload, resolver, null);
 
-      const seasonStart = parseIsoDatetime(seasonsMeta[seasonSlug]?.started_at);
+      const seasonStart = parseIsoDatetime(asDataMap(seasonsMeta[seasonSlug]).started_at);
       const seasonMatches = seasonStart
         ? pastMatches.filter((match) => {
             const startedAt = parseIsoDatetime(match.started_at);
@@ -516,10 +628,12 @@ export function scrapeHtmlStats(html: string): ScrapedStats {
       };
 
       const sourceLabel = quickModeSelection ? "quickmatch" : "past mode";
-      console.log(
-        `No ranked season records for ${username}; using ${sourceLabel} stats from ` +
-          `${seasonSlug}/${modeSlug}`,
-      );
+      logger.info("stats.scrape.fallback_mode", "Using fallback mode stats", {
+        username,
+        sourceLabel,
+        seasonSlug,
+        modeSlug,
+      });
       return stats;
     }
 
@@ -534,7 +648,7 @@ export function scrapeHtmlStats(html: string): ScrapedStats {
       let abandons = 0;
 
       for (const match of pastMatches) {
-        const summary: DataMap = match.player_summary ?? {};
+        const summary = asDataMap(match.player_summary);
         kills += Number(summary.kills ?? 0);
         deaths += Number(summary.deaths ?? 0);
         assists += Number(summary.assists ?? 0);
@@ -590,26 +704,28 @@ export function scrapeHtmlStats(html: string): ScrapedStats {
         matches_in_cache: pastMatches.length,
       };
 
-      console.log(
-        `No ranked or quickmatch season records for ${username}; using past matches summary`,
-      );
+      logger.info("stats.scrape.fallback_matches", "Using past matches summary", { username });
       return stats;
     }
 
-    console.error("No ranked season records, quickmatch records, or past matches found in payload");
+    logger.warn(
+      "stats.scrape.no_records",
+      "No ranked season records, quickmatch records, or past matches found in payload",
+      { username },
+    );
     return stats;
   }
 
   const currentSeasonSlug = seasonKeys.reduce((latest, slug) => {
-    const latestStarted = seasonsMeta[latest]?.started_at ?? "";
-    const started = seasonsMeta[slug]?.started_at ?? "";
+    const latestStarted = toStringValue(asDataMap(seasonsMeta[latest]).started_at);
+    const started = toStringValue(asDataMap(seasonsMeta[slug]).started_at);
     return started > latestStarted ? slug : latest;
   });
 
-  const currentSeason = rankedSeasons[currentSeasonSlug] ?? {};
+  const currentSeason = asDataMap(rankedSeasons[currentSeasonSlug]);
 
-  const currentRankSlug = currentSeason.rank;
-  const peakRankSlug = currentSeason.max_rank;
+  const currentRankSlug = toOptionalString(currentSeason.rank);
+  const peakRankSlug = toOptionalString(currentSeason.max_rank);
 
   const currentRank = rankLabel(currentRankSlug, ranks, rankTiers);
   const peakRank = rankLabel(peakRankSlug, ranks, rankTiers);
@@ -619,30 +735,31 @@ export function scrapeHtmlStats(html: string): ScrapedStats {
   let allTimePeakPoints = -1;
 
   for (const [seasonSlug, record] of Object.entries(rankedSeasons)) {
-    const points = Number((record as DataMap).max_rank_points ?? 0);
+    const rankedRecord = asDataMap(record);
+    const points = Number(rankedRecord.max_rank_points ?? 0);
     if (points > allTimePeakPoints) {
       allTimePeakPoints = points;
       allTimePeakSeason = seasonSlug;
-      allTimePeakRecord = record as DataMap;
+      allTimePeakRecord = rankedRecord;
     }
   }
 
-  const allTimePeakSlug = allTimePeakRecord?.max_rank;
+  const allTimePeakSlug = toOptionalString(allTimePeakRecord?.max_rank);
   const allTimePeakRank = rankLabel(allTimePeakSlug, ranks, rankTiers);
 
-  let currentModeRecord: DataMap = seasonModeRecords[currentSeasonSlug]?.["ranked-bomb"] ?? {};
+  let currentModeRecord = asDataMap(asDataMap(seasonModeRecords[currentSeasonSlug])["ranked-bomb"]);
   if (!currentModeRecord || Object.keys(currentModeRecord).length === 0) {
-    const seasonModes = seasonModeRecords[currentSeasonSlug] ?? {};
+    const seasonModes = asDataMap(seasonModeRecords[currentSeasonSlug]);
     for (const [modeSlug, record] of Object.entries(seasonModes)) {
-      if (modeSlug.includes("ranked") && record && typeof record === "object") {
-        currentModeRecord = record as DataMap;
+      if (modeSlug.includes("ranked") && isDataMap(record)) {
+        currentModeRecord = record;
         break;
       }
     }
   }
 
   const rankedMatches = extractMatchesByPlaylist(payload, resolver, "ranked");
-  const seasonStart = parseIsoDatetime(seasonsMeta[currentSeasonSlug]?.started_at);
+  const seasonStart = parseIsoDatetime(asDataMap(seasonsMeta[currentSeasonSlug]).started_at);
 
   const seasonMatches = seasonStart
     ? rankedMatches.filter((match) => {

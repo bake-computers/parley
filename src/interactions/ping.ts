@@ -1,6 +1,6 @@
-import { SlashCommandHandler } from "honocord";
+import { SlashCommand } from "../lib/discord";
 
-export const pingCommand = new SlashCommandHandler()
+export const pingCommand = new SlashCommand()
   .setName("ping")
   .setDescription("Check bot latency")
   .addHandler(async (interaction) => {

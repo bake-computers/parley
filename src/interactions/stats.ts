@@ -1,17 +1,18 @@
-import { EmbedBuilder, SlashCommandHandler } from "honocord";
-import type { D1Database } from "@cloudflare/workers-types";
-import { persistStatsSnapshot } from "../lib/db/stats-snapshot";
-import { calculateKost, fetchAndScrapeStats, formatOutput } from "../lib/http";
+import { EmbedBuilder, SlashCommand } from "../lib/discord";
+import { calculateKost, type StatsPlatform } from "../lib/http";
+import { logger } from "../lib/logger";
 import {
   buildStatsCacheKey,
   isStatsCacheStale,
   readStatsCache,
-  STATS_CACHE_SCHEMA_VERSION,
   statsCacheAgeMinutes,
-  type DataMap,
   type StatsCacheEnvelope,
-  writeStatsCache,
 } from "../lib/stats-cache";
+import {
+  createStatsRefreshMessage,
+  enqueueStatsRefresh,
+  type StatsRefreshEnv,
+} from "../queues/stats-refresh";
 
 const numberFormatter = new Intl.NumberFormat("en-US");
 
@@ -55,40 +56,6 @@ function formatRank(rank: unknown, tier: unknown): string {
   }
 
   return `${rankLabel} ${tierLabel}`;
-}
-
-function buildStatsEnvelope(
-  username: string,
-  profile: DataMap,
-  rankedStats: DataMap,
-): StatsCacheEnvelope {
-  const formatted = formatOutput({
-    profile,
-    ranked_stats: rankedStats,
-    calculated_metrics: {},
-  });
-
-  return {
-    version: STATS_CACHE_SCHEMA_VERSION,
-    cachedAt: Date.now(),
-    username,
-    profile,
-    rankedStats,
-    calculatedMetrics: (formatted.calculated_metrics ?? {}) as DataMap,
-  };
-}
-
-async function fetchLiveEnvelope(username: string): Promise<StatsCacheEnvelope | null> {
-  const scrapedStats = await fetchAndScrapeStats(username);
-  if (!scrapedStats) {
-    return null;
-  }
-
-  return buildStatsEnvelope(
-    username,
-    (scrapedStats.profile ?? {}) as DataMap,
-    (scrapedStats.ranked_stats ?? {}) as DataMap,
-  );
 }
 
 function buildStatsEmbed(
@@ -175,41 +142,58 @@ function buildStatsEmbed(
   return embed;
 }
 
-async function persistEnvelope(
-  database: D1Database | null | undefined,
-  envelope: StatsCacheEnvelope,
-  source: "live" | "refresh",
-): Promise<void> {
-  try {
-    await persistStatsSnapshot(database, {
-      profile: envelope.profile,
-      rankedStats: envelope.rankedStats,
-      calculatedMetrics: envelope.calculatedMetrics,
-      cacheVersion: envelope.version,
-      fetchedAt: envelope.cachedAt,
-      source,
-    });
-  } catch (error) {
-    console.error("Failed to persist stats snapshot", error);
-  }
+function buildQueuedEmbed(username: string, platform: StatsPlatform): EmbedBuilder {
+  return new EmbedBuilder()
+    .setColor(0x334155)
+    .setTitle("Stats refresh queued")
+    .setDescription(
+      `No cached stats are available for ${username} on ${platform}. A background refresh has started. Try again shortly.`,
+    );
 }
 
-async function refreshCacheInBackground(
+function buildQueueUnavailableEmbed(): EmbedBuilder {
+  return new EmbedBuilder()
+    .setColor(0xb91c1c)
+    .setTitle("Refresh unavailable")
+    .setDescription("Could not queue a stat refresh. Try again later.");
+}
+
+async function enqueueRefreshInBackground(
   username: string,
-  cacheKey: string,
-  cache: KVNamespace | null | undefined,
-  database: D1Database | null | undefined,
+  platform: StatsPlatform,
+  reason: "cache-miss" | "stale-cache",
+  interaction: { guildId?: string; channelId?: string; userId?: string },
+  env: StatsRefreshEnv,
 ): Promise<void> {
-  const liveEnvelope = await fetchLiveEnvelope(username);
-  if (!liveEnvelope) {
-    return;
+  const result = await enqueueStatsRefresh(
+    env,
+    createStatsRefreshMessage({
+      username,
+      platform,
+      reason,
+      guildId: interaction.guildId,
+      channelId: interaction.channelId,
+      userId: interaction.userId,
+    }),
+  );
+  if (result.isErr()) {
+    logger.error("stats.command.queue_failed", "Failed to queue stats refresh", {
+      username,
+      platform,
+      reason,
+      error: result.error,
+    });
   }
-
-  await writeStatsCache(cache, cacheKey, liveEnvelope);
-  await persistEnvelope(database, liveEnvelope, "refresh");
 }
 
-export const statsCommand = new SlashCommandHandler()
+function parsePlatform(value: string | null): StatsPlatform {
+  if (value === "pc" || value === "xbox" || value === "playstation") {
+    return value;
+  }
+  return "auto";
+}
+
+export const statsCommand = new SlashCommand()
   .setName("stats")
   .setDescription("Show ranked Siege stats for a player")
   .addStringOption((option) =>
@@ -220,12 +204,24 @@ export const statsCommand = new SlashCommandHandler()
       .setMinLength(2)
       .setMaxLength(64),
   )
+  .addStringOption((option) =>
+    option
+      .setName("platform")
+      .setDescription("Platform to look up")
+      .setRequired(false)
+      .addChoices(
+        { name: "Auto", value: "auto" },
+        { name: "PC", value: "pc" },
+        { name: "Xbox", value: "xbox" },
+        { name: "PlayStation", value: "playstation" },
+      ),
+  )
   .addHandler(async (interaction) => {
-    const username = interaction.options.getString("username", true).trim();
-    const env = interaction.context.env as Partial<Env>;
+    const username = interaction.options.getString("username", true)!.trim();
+    const platform = parsePlatform(interaction.options.getString("platform", false));
+    const env = interaction.context.env as Partial<Env> & StatsRefreshEnv;
     const cache = env.Cache;
-    const database = env.Database as D1Database | null | undefined;
-    const cacheKey = buildStatsCacheKey(username);
+    const cacheKey = buildStatsCacheKey(username, platform);
 
     await interaction.deferReply(false);
 
@@ -238,31 +234,50 @@ export const statsCommand = new SlashCommandHandler()
       });
 
       if (stale) {
-        void refreshCacheInBackground(username, cacheKey, cache, database);
+        interaction.context.waitUntil(
+          enqueueRefreshInBackground(
+            username,
+            platform,
+            "stale-cache",
+            {
+              guildId: interaction.guildId,
+              channelId: interaction.channelId,
+              userId: interaction.userId,
+            },
+            env,
+          ),
+        );
       }
 
       return;
     }
 
-    const liveEnvelope = await fetchLiveEnvelope(username);
-    if (!liveEnvelope) {
+    const enqueueResult = await enqueueStatsRefresh(
+      env,
+      createStatsRefreshMessage({
+        username,
+        platform,
+        reason: "cache-miss",
+        guildId: interaction.guildId,
+        channelId: interaction.channelId,
+        userId: interaction.userId,
+      }),
+    );
+
+    if (enqueueResult.isErr()) {
+      logger.error("stats.command.queue_failed", "Failed to queue stats refresh", {
+        username,
+        platform,
+        reason: "cache-miss",
+        error: enqueueResult.error,
+      });
       await interaction.editReply({
-        embeds: [
-          new EmbedBuilder()
-            .setColor(0xb91c1c)
-            .setTitle("Stats unavailable")
-            .setDescription(
-              "Could not retrieve data for that username. Confirm the name and try again.",
-            ),
-        ],
+        embeds: [buildQueueUnavailableEmbed()],
       });
       return;
     }
 
     await interaction.editReply({
-      embeds: [buildStatsEmbed(liveEnvelope, "live", false)],
+      embeds: [buildQueuedEmbed(username, platform)],
     });
-
-    void writeStatsCache(cache, cacheKey, liveEnvelope);
-    void persistEnvelope(database, liveEnvelope, "live");
   });
