@@ -1,6 +1,12 @@
 import type { D1Database } from "@cloudflare/workers-types";
 import { err, ok, ResultAsync, type Result } from "neverthrow";
-import { DiscordRestClient, type JsonObject } from "../lib/discord";
+import {
+  DiscordRestClient,
+  resolveApplicationEmojiCatalog,
+  type ApplicationEmojiCatalog,
+  type DiscordRuntimeEnv,
+  type JsonObject,
+} from "../lib/discord";
 import {
   fetchAndScrapeStatsCollectionResult,
   formatOutput,
@@ -29,6 +35,7 @@ import {
   buildTrackedPlayerDailyKey,
   buildTrackedPlayerRefreshLockKey,
   checkTrackedPlayerDailyCap,
+  isBotOwner,
   normalizeStatsLookupValue,
   secondsUntilNextUtcDay,
 } from "../lib/stats-rate-limit";
@@ -61,11 +68,13 @@ export interface StatsRefreshMessage {
   };
 }
 
-export interface StatsRefreshEnv {
+export interface StatsRefreshEnv extends Partial<DiscordRuntimeEnv> {
   Cache?: KVNamespace;
   Queue?: Queue<StatsRefreshMessage>;
   Database?: D1Database;
 }
+
+type StatsRefreshRuntimeEnv = StatsRefreshEnv & Partial<DiscordRuntimeEnv>;
 
 export type StatsRefreshEnqueueStatus = "queued" | "deduped" | "daily-capped";
 
@@ -107,6 +116,13 @@ export interface StatsRefreshDeps {
     envelope: StatsCacheEnvelope,
   ) => Promise<void>;
   editPendingReply?: (pending: PendingStatsReplyRecord, payload: JsonObject) => Promise<void>;
+}
+
+function isOwnerRequestedRefresh(
+  userId: string | null | undefined,
+  ownerId: string | null | undefined,
+): boolean {
+  return isBotOwner(userId, ownerId);
 }
 
 function isDataMap(value: unknown): value is Record<string, unknown> {
@@ -304,6 +320,11 @@ export async function enqueueStatsRefresh(
   env: StatsRefreshEnv,
   message: StatsRefreshMessage,
 ): Promise<Result<StatsRefreshEnqueueResult, StatsRefreshQueueError>> {
+  const bypassRateLimits = isOwnerRequestedRefresh(
+    message.requestedBy?.userId,
+    env.DISCORD_BOT_OWNER_ID,
+  );
+
   if (!env.Queue) {
     return err({
       kind: "stats-refresh-queue",
@@ -312,22 +333,24 @@ export async function enqueueStatsRefresh(
     });
   }
 
-  const trackedPlayerCap = await checkTrackedPlayerDailyCap(
-    env.Cache,
-    message.username,
-    message.platform,
-  );
-  if (trackedPlayerCap.isLimited) {
-    logger.info("stats.refresh.daily_capped", "Stats refresh skipped by daily cap", {
-      username: message.username,
-      platform: message.platform,
-      dailyKey: trackedPlayerCap.key,
-    });
-    return ok({ status: "daily-capped", dailyKey: trackedPlayerCap.key });
+  if (!bypassRateLimits) {
+    const trackedPlayerCap = await checkTrackedPlayerDailyCap(
+      env.Cache,
+      message.username,
+      message.platform,
+    );
+    if (trackedPlayerCap.isLimited) {
+      logger.info("stats.refresh.daily_capped", "Stats refresh skipped by daily cap", {
+        username: message.username,
+        platform: message.platform,
+        dailyKey: trackedPlayerCap.key,
+      });
+      return ok({ status: "daily-capped", dailyKey: trackedPlayerCap.key });
+    }
   }
 
   const lockKey = buildScrapeLockKey(message.username, message.platform);
-  if (env.Cache) {
+  if (env.Cache && !bypassRateLimits) {
     const existingLock = await env.Cache.get(lockKey);
     if (existingLock) {
       logger.info("stats.refresh.deduped", "Stats refresh already queued", {
@@ -446,10 +469,11 @@ function failureMessageFromError(error: StatsFetchError): string {
 }
 
 async function updatePendingRepliesAfterFailure(
-  env: StatsRefreshEnv,
+  env: StatsRefreshRuntimeEnv,
   message: StatsRefreshMessage,
   error: StatsFetchError,
   editPendingReply: (pending: PendingStatsReplyRecord, payload: JsonObject) => Promise<void>,
+  emojis: ApplicationEmojiCatalog,
 ): Promise<void> {
   const pendingReplies = await listPendingStatsReplies(
     env.Cache,
@@ -460,7 +484,9 @@ async function updatePendingRepliesAfterFailure(
     return;
   }
 
-  const failurePayload = embedPayload(buildRefreshFailureEmbed(failureMessageFromError(error)));
+  const failurePayload = embedPayload(
+    buildRefreshFailureEmbed(failureMessageFromError(error), emojis),
+  );
   for (const pending of pendingReplies) {
     try {
       await editPendingReply(pending, failurePayload);
@@ -482,12 +508,13 @@ async function updatePendingRepliesAfterFailure(
 }
 
 async function updatePendingRepliesAfterSuccess(
-  env: StatsRefreshEnv,
+  env: StatsRefreshRuntimeEnv,
   message: StatsRefreshMessage,
   latestEnvelope: StatsCacheEnvelope,
   seasonCatalog: readonly SeasonCatalogEntry[],
   envelopesBySeason: ReadonlyMap<string, StatsCacheEnvelope>,
   editPendingReply: (pending: PendingStatsReplyRecord, payload: JsonObject) => Promise<void>,
+  emojis: ApplicationEmojiCatalog,
 ): Promise<void> {
   const pendingReplies = await listPendingStatsReplies(
     env.Cache,
@@ -506,7 +533,7 @@ async function updatePendingRepliesAfterSuccess(
     if (!rawSeason) {
       targetCacheKey = buildStatsCacheKey(message.username, message.platform, "latest");
       payload = statsPayload(
-        buildStatsMessagePayload(latestEnvelope, "cache", false, pending.interactionId, 0),
+        buildStatsMessagePayload(latestEnvelope, "cache", false, pending.interactionId, 0, emojis),
       );
     } else {
       const canonicalSeason =
@@ -518,10 +545,17 @@ async function updatePendingRepliesAfterSuccess(
       if (seasonEnvelope) {
         targetCacheKey = buildStatsCacheKey(message.username, message.platform, canonicalSeason);
         payload = statsPayload(
-          buildStatsMessagePayload(seasonEnvelope, "cache", false, pending.interactionId, 0),
+          buildStatsMessagePayload(
+            seasonEnvelope,
+            "cache",
+            false,
+            pending.interactionId,
+            0,
+            emojis,
+          ),
         );
       } else {
-        payload = embedPayload(buildSeasonNotFoundEmbed(rawSeason, seasonCatalog));
+        payload = embedPayload(buildSeasonNotFoundEmbed(rawSeason, seasonCatalog, emojis));
       }
     }
 
@@ -548,11 +582,21 @@ export async function processStatsRefreshMessage(
   message: StatsRefreshMessage,
   deps: StatsRefreshDeps = {},
 ): Promise<void> {
+  const runtimeEnv = env as StatsRefreshRuntimeEnv;
+  const bypassRateLimits = isOwnerRequestedRefresh(
+    message.requestedBy?.userId,
+    runtimeEnv.DISCORD_BOT_OWNER_ID,
+  );
   const fetchStatsCollection =
     deps.fetchStatsCollection ??
     ((username, platform) => fetchAndScrapeStatsCollectionResult(username, platform));
   const persistSnapshot = deps.persistSnapshot ?? defaultPersistSnapshot;
   const editPendingReply = deps.editPendingReply ?? defaultEditPendingReply;
+  const emojis = await resolveApplicationEmojiCatalog({
+    applicationId: runtimeEnv.DISCORD_APPLICATION_ID,
+    botToken: runtimeEnv.DISCORD_BOT_TOKEN ?? runtimeEnv.DISCORD_TOKEN,
+    cache: runtimeEnv.Cache,
+  });
   const fetchResult = await fetchStatsCollection(message.username, message.platform);
 
   if (fetchResult.isErr()) {
@@ -565,7 +609,13 @@ export async function processStatsRefreshMessage(
       throw new Error(fetchResult.error.message);
     }
 
-    await updatePendingRepliesAfterFailure(env, message, fetchResult.error, editPendingReply);
+    await updatePendingRepliesAfterFailure(
+      runtimeEnv,
+      message,
+      fetchResult.error,
+      editPendingReply,
+      emojis,
+    );
     return;
   }
 
@@ -647,7 +697,7 @@ export async function processStatsRefreshMessage(
     },
   );
 
-  if (env.Cache) {
+  if (env.Cache && !bypassRateLimits) {
     const resolvedPlatform =
       typeof latestEnvelope.profile.platform === "string"
         ? latestEnvelope.profile.platform
@@ -660,12 +710,13 @@ export async function processStatsRefreshMessage(
   }
 
   await updatePendingRepliesAfterSuccess(
-    env,
+    runtimeEnv,
     message,
     latestEnvelope,
     collection.seasonCatalog,
     envelopesBySeason,
     editPendingReply,
+    emojis,
   );
 
   logger.info("stats.refresh.completed", "Stats refresh completed", {

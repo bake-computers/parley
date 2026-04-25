@@ -28,6 +28,17 @@ export function normalizeStatsLookupValue(value: string): string {
   return value.normalize("NFKC").trim().toLowerCase();
 }
 
+export function isBotOwner(
+  userId: string | null | undefined,
+  ownerId: string | null | undefined,
+): boolean {
+  if (!userId || !ownerId) {
+    return false;
+  }
+
+  return userId === ownerId;
+}
+
 function formatUtcDay(nowMs: number): string {
   return new Date(nowMs).toISOString().slice(0, 10);
 }

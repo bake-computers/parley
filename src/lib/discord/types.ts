@@ -19,6 +19,7 @@ export interface DiscordRuntimeEnv {
   DISCORD_BOT_TOKEN?: string;
   DISCORD_TOKEN?: string;
   DISCORD_APPLICATION_ID?: string;
+  DISCORD_BOT_OWNER_ID?: string;
 }
 
 export interface DiscordRequestContext<Env = DiscordRuntimeEnv> {

@@ -1,4 +1,5 @@
 import { err, ok, type Result } from "neverthrow";
+import type { RESTGetAPIApplicationEmojisResult } from "discord-api-types/v10";
 import type { DiscordApiError, JsonObject, JsonValue } from "./types";
 
 const DISCORD_API_BASE = "https://discord.com/api/v10";
@@ -155,6 +156,15 @@ export class DiscordRestClient {
     body: JsonObject,
   ): Promise<Result<T, DiscordApiError>> {
     return this.request<T>("POST", `/webhooks/${applicationId}/${token}`, body, false);
+  }
+
+  listApplicationEmojis(
+    applicationId: string,
+  ): Promise<Result<RESTGetAPIApplicationEmojisResult, DiscordApiError>> {
+    return this.request<RESTGetAPIApplicationEmojisResult>(
+      "GET",
+      `/applications/${applicationId}/emojis`,
+    );
   }
 
   deleteWebhookMessage(

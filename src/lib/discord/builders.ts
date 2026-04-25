@@ -1,5 +1,6 @@
 import {
   ApplicationCommandOptionType,
+  type APIMessageComponentEmoji,
   ButtonStyle,
   ChannelType,
   ComponentType,
@@ -146,6 +147,11 @@ export class ButtonBuilder implements JSONEncodable<JsonObject> {
 
   setURL(url: string): this {
     this.data.url = url;
+    return this;
+  }
+
+  setEmoji(emoji: APIMessageComponentEmoji): this {
+    this.data.emoji = encodeValue(emoji);
     return this;
   }
 

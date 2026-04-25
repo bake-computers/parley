@@ -16,6 +16,8 @@ import {
   ButtonInteraction,
   ChannelSelectInteraction,
   ChatInputCommandInteraction,
+  INITIAL_RESPONSE_CONTEXT_KEY,
+  INITIAL_RESPONSE_RESOLVE_CONTEXT_KEY,
   CommandInteraction,
   MentionableSelectInteraction,
   MessageComponentInteraction,
@@ -206,8 +208,28 @@ export class DiscordBot {
       return jsonResponse({ type: InteractionResponseType.Pong });
     }
 
-    executionContext.waitUntil(this.processInteraction(interaction, context));
-    return jsonResponse({}, 202);
+    const initialResponse = new Promise<JsonObject | null>((resolve) => {
+      context.set(INITIAL_RESPONSE_RESOLVE_CONTEXT_KEY, resolve);
+    });
+    const processing = this.processInteraction(interaction, context).finally(() => {
+      const response = context.get<JsonObject | undefined>(INITIAL_RESPONSE_CONTEXT_KEY) ?? null;
+      const resolver = context.get<((response: JsonObject | null) => void) | undefined>(
+        INITIAL_RESPONSE_RESOLVE_CONTEXT_KEY,
+      );
+      if (resolver) {
+        context.set(INITIAL_RESPONSE_RESOLVE_CONTEXT_KEY, undefined);
+        resolver(response);
+      }
+    });
+
+    executionContext.waitUntil(processing);
+
+    const response = await initialResponse;
+    if (response) {
+      return jsonResponse(response);
+    }
+
+    return new Response(null, { status: 204 });
   }
 
   private async runMiddleware(

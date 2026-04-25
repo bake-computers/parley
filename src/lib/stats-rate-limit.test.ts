@@ -5,6 +5,7 @@ import {
   checkTrackedPlayerDailyCap,
   consumeExecutorDailyQuota,
   formatDiscordRetryAt,
+  isBotOwner,
 } from "./stats-rate-limit";
 
 class FakeKV {
@@ -76,5 +77,11 @@ describe("stats rate limit", () => {
 
   test("retry time formatter renders Discord absolute and relative timestamps", () => {
     expect(formatDiscordRetryAt(1_744_800_000)).toBe("<t:1744800000:F> (<t:1744800000:R>)");
+  });
+
+  test("bot owner check only matches the configured owner ID", () => {
+    expect(isBotOwner("123", "123")).toBe(true);
+    expect(isBotOwner("123", "456")).toBe(false);
+    expect(isBotOwner("123", undefined)).toBe(false);
   });
 });

@@ -200,6 +200,33 @@ describe("stats refresh queue", () => {
     expect(queue.messages).toHaveLength(0);
   });
 
+  test("enqueue bypasses owner rate limits and dedupe lock", async () => {
+    const cache = new FakeKV();
+    const queue = new FakeQueue();
+    await cache.put(buildScrapeDayKey("Player", "pc"), "1");
+    await cache.put("scrape:pc:player", "1");
+    const message = createStatsRefreshMessage({
+      username: "Player",
+      platform: "pc",
+      reason: "cache-miss",
+      userId: "owner-1",
+    });
+
+    const result = await enqueueStatsRefresh(
+      {
+        Cache: cache as unknown as KVNamespace,
+        Queue: queue as unknown as Queue<StatsRefreshMessage>,
+        DISCORD_BOT_OWNER_ID: "owner-1",
+      },
+      message,
+    );
+
+    expect(result.isOk()).toBe(true);
+    expect(result.isOk() ? result.value.status : "error").toBe("queued");
+    expect(queue.messages).toEqual([message]);
+    expect(cache.values.get("scrape:pc:player")).toBe("1");
+  });
+
   test("handleStatsRefreshQueue skips invalid messages", async () => {
     const message = fakeMessage({ nope: true });
     await handleStatsRefreshQueue(
@@ -390,6 +417,31 @@ describe("stats refresh queue", () => {
 
     expect(cache.values.has(buildStatsCacheKey("Missing", "pc", "latest"))).toBe(false);
     expect(editedTitle).toBe("Stats refresh failed");
+  });
+
+  test("owner-triggered refresh does not write the tracked-player daily marker", async () => {
+    const cache = new FakeKV();
+    const message = createStatsRefreshMessage({
+      username: "Player",
+      platform: "pc",
+      reason: "cache-miss",
+      userId: "owner-1",
+    });
+
+    await processStatsRefreshMessage(
+      {
+        Cache: cache as unknown as KVNamespace,
+        DISCORD_BOT_OWNER_ID: "owner-1",
+      },
+      message,
+      {
+        fetchStatsCollection: async () => ok(collectionFixture()),
+        persistSnapshot: async () => {},
+        editPendingReply: async () => {},
+      },
+    );
+
+    expect(cache.values.has(buildScrapeDayKey("Player", "pc"))).toBe(false);
   });
 });
 

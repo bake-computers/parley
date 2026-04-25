@@ -1,9 +1,16 @@
 import { describe, expect, test } from "bun:test";
-import { ApplicationCommandOptionType } from "discord-api-types/v10";
-import { EmbedBuilder, SlashCommand } from ".";
+import {
+  ApplicationCommandOptionType,
+  InteractionResponseType,
+  MessageFlags,
+  InteractionType,
+} from "discord-api-types/v10";
+import { BaseInteraction, EmbedBuilder, INITIAL_RESPONSE_CONTEXT_KEY, SlashCommand } from ".";
+import { ButtonBuilder } from "./builders";
 import { CommandInteractionOptionResolver } from "./handlers";
 import { registerApplicationCommandsWithOptions } from "./register";
 import { verifyDiscordRequest } from "./verify";
+import type { DiscordRequestContext, DiscordRuntimeEnv } from "./types";
 
 describe("local discord runtime", () => {
   test("SlashCommand serializes string choices", () => {
@@ -52,6 +59,74 @@ describe("local discord runtime", () => {
       description: "Description",
       fields: [{ name: "Field", value: "Value", inline: true }],
       footer: { text: "Footer" },
+    });
+  });
+
+  test("ButtonBuilder serializes component emoji data", () => {
+    const button = new ButtonBuilder()
+      .setCustomId("confirm")
+      .setLabel("Confirm")
+      .setEmoji({
+        id: "123",
+        name: "confirm",
+        animated: false,
+      })
+      .toJSON();
+
+    expect(button).toEqual({
+      type: 2,
+      custom_id: "confirm",
+      label: "Confirm",
+      emoji: {
+        id: "123",
+        name: "confirm",
+        animated: false,
+      },
+    });
+  });
+
+  test("BaseInteraction captures the initial defer response in request context", async () => {
+    const values = new Map<string, unknown>();
+    const context: DiscordRequestContext<DiscordRuntimeEnv> = {
+      env: {},
+      executionContext: {
+        waitUntil() {},
+        passThroughOnException() {},
+        exports: {},
+        props: {},
+      } as unknown as ExecutionContext,
+      request: new Request("https://example.com/interactions"),
+      requestId: "request-1",
+      waitUntil() {},
+      get<T = unknown>(key: string): T | undefined {
+        return values.get(key) as T | undefined;
+      },
+      set(key, value) {
+        values.set(key, value);
+      },
+    };
+
+    const interaction = new BaseInteraction(
+      {
+        createInteractionResponse: async () => {
+          throw new Error("REST callback should not be used for the initial response");
+        },
+      } as never,
+      {
+        type: InteractionType.ApplicationCommand,
+        id: "interaction-1",
+        token: "token-1",
+        application_id: "app-1",
+      } as never,
+      context,
+    );
+
+    const result = await interaction.deferReply(true);
+
+    expect(result.isOk()).toBe(true);
+    expect(values.get(INITIAL_RESPONSE_CONTEXT_KEY)).toEqual({
+      type: InteractionResponseType.DeferredChannelMessageWithSource,
+      data: { flags: MessageFlags.Ephemeral },
     });
   });
 

@@ -12,7 +12,7 @@ import {
   type APIModalSubmitInteraction,
   type APIUser,
 } from "discord-api-types/v10";
-import { err, type Result } from "neverthrow";
+import { err, ok, type Result } from "neverthrow";
 import { isJSONEncodable, ModalBuilder, type JSONEncodable } from "./builders";
 import { CommandInteractionOptionResolver, ModalComponentResolver } from "./handlers";
 import { DiscordRestClient } from "./rest";
@@ -24,6 +24,11 @@ import type {
   JsonValue,
 } from "./types";
 import { logger } from "../logger";
+
+export const INITIAL_RESPONSE_CONTEXT_KEY = "__discord_initial_response__";
+export const INITIAL_RESPONSE_RESOLVE_CONTEXT_KEY = "__discord_initial_response_resolve__";
+
+type InitialResponseResolver = (response: JsonObject | null) => void;
 
 export interface InteractionResponseOptions {
   content?: string;
@@ -106,6 +111,29 @@ function interactionErrorResult(
   });
 }
 
+function resolveInitialResponse(context: DiscordRequestContext, response: JsonObject | null): void {
+  const resolver = context.get<InitialResponseResolver | undefined>(
+    INITIAL_RESPONSE_RESOLVE_CONTEXT_KEY,
+  );
+  if (!resolver) {
+    return;
+  }
+
+  context.set(INITIAL_RESPONSE_RESOLVE_CONTEXT_KEY, undefined);
+  resolver(response);
+}
+
+function tryCaptureInitialResponse(context: DiscordRequestContext, response: JsonObject): boolean {
+  const existing = context.get<JsonObject | undefined>(INITIAL_RESPONSE_CONTEXT_KEY);
+  if (existing) {
+    return false;
+  }
+
+  context.set(INITIAL_RESPONSE_CONTEXT_KEY, response);
+  resolveInitialResponse(context, response);
+  return true;
+}
+
 export class BaseInteraction<Raw extends APIInteraction = APIInteraction> {
   readonly raw: Raw;
   readonly type: InteractionType;
@@ -174,10 +202,21 @@ export class BaseInteraction<Raw extends APIInteraction = APIInteraction> {
       data.flags = (data.flags ?? 0) | MessageFlags.Ephemeral;
     }
 
-    const result = await this.rest.createInteractionResponse<JsonValue>(this.id, this.token, {
+    const payload = {
       type: InteractionResponseType.ChannelMessageWithSource,
       data: prepareResponsePayload(data),
-    });
+    } satisfies JsonObject;
+
+    if (!this.deferred && !this.replied && tryCaptureInitialResponse(this.context, payload)) {
+      this.replied = true;
+      return ok(payload);
+    }
+
+    const result = await this.rest.createInteractionResponse<JsonValue>(
+      this.id,
+      this.token,
+      payload,
+    );
     if (result.isErr()) {
       logger.error("discord.interaction.reply_failed", "Failed to reply to interaction", {
         interactionId: this.id,
@@ -190,10 +229,22 @@ export class BaseInteraction<Raw extends APIInteraction = APIInteraction> {
   }
 
   async deferReply(forceEphemeral = true): Promise<Result<JsonValue, DiscordApiError>> {
-    const result = await this.rest.createInteractionResponse<JsonValue>(this.id, this.token, {
+    const data: JsonObject = forceEphemeral ? { flags: MessageFlags.Ephemeral } : {};
+    const payload = {
       type: InteractionResponseType.DeferredChannelMessageWithSource,
-      data: forceEphemeral ? { flags: MessageFlags.Ephemeral } : {},
-    });
+      data,
+    } as JsonObject;
+
+    if (!this.deferred && !this.replied && tryCaptureInitialResponse(this.context, payload)) {
+      this.deferred = true;
+      return ok(payload);
+    }
+
+    const result = await this.rest.createInteractionResponse<JsonValue>(
+      this.id,
+      this.token,
+      payload,
+    );
     if (result.isErr()) {
       logger.error("discord.interaction.defer_failed", "Failed to defer interaction", {
         interactionId: this.id,
@@ -206,9 +257,16 @@ export class BaseInteraction<Raw extends APIInteraction = APIInteraction> {
   }
 
   async deferUpdate(): Promise<Result<JsonValue, DiscordApiError>> {
-    return this.rest.createInteractionResponse<JsonValue>(this.id, this.token, {
+    const payload = {
       type: InteractionResponseType.DeferredMessageUpdate,
-    });
+    } as JsonObject;
+
+    if (!this.deferred && !this.replied && tryCaptureInitialResponse(this.context, payload)) {
+      this.deferred = true;
+      return ok(payload);
+    }
+
+    return this.rest.createInteractionResponse<JsonValue>(this.id, this.token, payload);
   }
 
   async editReply(
@@ -254,10 +312,21 @@ export class BaseInteraction<Raw extends APIInteraction = APIInteraction> {
   async update(
     options: string | InteractionResponseOptions,
   ): Promise<Result<JsonValue, DiscordApiError>> {
-    const result = await this.rest.createInteractionResponse<JsonValue>(this.id, this.token, {
+    const payload = {
       type: InteractionResponseType.UpdateMessage,
       data: prepareResponsePayload(normalizePayload(options)),
-    });
+    } as JsonObject;
+
+    if (!this.deferred && !this.replied && tryCaptureInitialResponse(this.context, payload)) {
+      this.replied = true;
+      return ok(payload);
+    }
+
+    const result = await this.rest.createInteractionResponse<JsonValue>(
+      this.id,
+      this.token,
+      payload,
+    );
     if (result.isOk()) {
       this.replied = true;
     }
@@ -297,10 +366,17 @@ export class ModalCapableInteraction<
       );
     }
 
-    return this.rest.createInteractionResponse<JsonValue>(this.id, this.token, {
+    const payload = {
       type: InteractionResponseType.Modal,
       data: modal,
-    });
+    } as JsonObject;
+
+    if (!this.deferred && !this.replied && tryCaptureInitialResponse(this.context, payload)) {
+      this.replied = true;
+      return ok(payload);
+    }
+
+    return this.rest.createInteractionResponse<JsonValue>(this.id, this.token, payload);
   }
 }
 
@@ -353,10 +429,21 @@ export class AutocompleteInteraction extends BaseInteraction<APIApplicationComma
   async respond(
     choices: { name: string; value: string | number }[],
   ): Promise<Result<JsonValue, DiscordApiError>> {
-    const result = await this.rest.createInteractionResponse<JsonValue>(this.id, this.token, {
+    const payload = {
       type: InteractionResponseType.ApplicationCommandAutocompleteResult,
       data: { choices },
-    });
+    } as JsonObject;
+
+    if (!this.responded && tryCaptureInitialResponse(this.context, payload)) {
+      this.responded = true;
+      return ok(payload);
+    }
+
+    const result = await this.rest.createInteractionResponse<JsonValue>(
+      this.id,
+      this.token,
+      payload,
+    );
     if (result.isOk()) {
       this.responded = true;
     }

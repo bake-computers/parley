@@ -1,4 +1,10 @@
-import { autocompleteChoice, ComponentHandler, ComponentType, SlashCommand } from "../lib/discord";
+import {
+  autocompleteChoice,
+  ComponentHandler,
+  ComponentType,
+  resolveApplicationEmojiCatalog,
+  SlashCommand,
+} from "../lib/discord";
 import { type StatsPlatform } from "../lib/http";
 import { logger } from "../lib/logger";
 import {
@@ -19,6 +25,7 @@ import {
   checkTrackedPlayerDailyCap,
   consumeExecutorDailyQuota,
   formatDiscordRetryAt,
+  isBotOwner,
   nextUtcDayUnix,
 } from "../lib/stats-rate-limit";
 import {
@@ -113,11 +120,20 @@ async function checkRefreshTriggerLimits(
   username: string,
   platform: StatsPlatform,
   executorId: string | undefined,
+  ownerId: string | undefined,
 ): Promise<{
   blocked: boolean;
   reason: "executor" | "tracked-player" | null;
   retryAtUnix: number;
 }> {
+  if (isBotOwner(executorId, ownerId)) {
+    return {
+      blocked: false,
+      reason: null,
+      retryAtUnix: nextUtcDayUnix(),
+    };
+  }
+
   const executorQuota = await consumeExecutorDailyQuota(cache, executorId);
   if (executorQuota.isLimited) {
     return {
@@ -141,6 +157,17 @@ async function checkRefreshTriggerLimits(
     reason: null,
     retryAtUnix: nextUtcDayUnix(),
   };
+}
+
+async function resolveStatsEmojiCatalog(
+  env: Partial<Env> & StatsRefreshEnv,
+  applicationId: string,
+) {
+  return resolveApplicationEmojiCatalog({
+    applicationId,
+    botToken: env.DISCORD_BOT_TOKEN ?? env.DISCORD_TOKEN,
+    cache: env.Cache,
+  });
 }
 
 export const statsCommand = new SlashCommand()
@@ -203,6 +230,7 @@ export const statsCommand = new SlashCommand()
     const cache = env.Cache;
 
     await interaction.deferReply(true);
+    const emojis = await resolveStatsEmojiCatalog(env, interaction.applicationId);
 
     const seasonCatalog = await resolveSeasonCatalog(cache, username, platform);
     const canonicalRequestedSeason = requestedSeason
@@ -215,10 +243,18 @@ export const statsCommand = new SlashCommand()
     if (cachedEnvelope) {
       const stale = isStatsCacheStale(cachedEnvelope.cachedAt);
       await writeStatsViewState(cache, interaction.id, { cacheKey });
-      const payload = buildStatsMessagePayload(cachedEnvelope, "cache", stale, interaction.id, 0);
+      const payload = buildStatsMessagePayload(
+        cachedEnvelope,
+        "cache",
+        stale,
+        interaction.id,
+        0,
+        emojis,
+      );
       await interaction.editReply({
         embeds: payload.embeds,
         components: payload.components,
+        flags: 64, // ephemeral
       });
 
       if (!stale) {
@@ -230,6 +266,7 @@ export const statsCommand = new SlashCommand()
         username,
         platform,
         interaction.userId,
+        env.DISCORD_BOT_OWNER_ID,
       );
       if (refreshLimit.blocked) {
         const message =
@@ -238,7 +275,8 @@ export const statsCommand = new SlashCommand()
             : buildTrackedPlayerLimitMessage(true, refreshLimit.retryAtUnix);
         await interaction.followUp(
           {
-            embeds: [buildQueueUnavailableEmbed(message)],
+            embeds: [buildQueueUnavailableEmbed(message, emojis)],
+            flags: 64, // ephemeral
           },
           true,
         );
@@ -273,8 +311,10 @@ export const statsCommand = new SlashCommand()
             embeds: [
               buildQueueUnavailableEmbed(
                 buildTrackedPlayerLimitMessage(true, nextUtcDayUnix(Date.now())),
+                emojis,
               ),
             ],
+            flags: 64, // ephemeral
           },
           true,
         );
@@ -302,6 +342,7 @@ export const statsCommand = new SlashCommand()
       username,
       platform,
       interaction.userId,
+      env.DISCORD_BOT_OWNER_ID,
     );
     if (refreshLimit.blocked) {
       const message =
@@ -309,7 +350,8 @@ export const statsCommand = new SlashCommand()
           ? buildExecutorLimitMessage(refreshLimit.retryAtUnix)
           : buildTrackedPlayerLimitMessage(false, refreshLimit.retryAtUnix);
       await interaction.editReply({
-        embeds: [buildQueueUnavailableEmbed(message)],
+        embeds: [buildQueueUnavailableEmbed(message, emojis)],
+        flags: 64, // ephemeral
       });
       return;
     }
@@ -334,7 +376,8 @@ export const statsCommand = new SlashCommand()
         error: enqueueResult.error,
       });
       await interaction.editReply({
-        embeds: [buildQueueUnavailableEmbed()],
+        embeds: [buildQueueUnavailableEmbed(undefined, emojis)],
+        flags: 64, // ephemeral
       });
       return;
     }
@@ -342,8 +385,12 @@ export const statsCommand = new SlashCommand()
     if (enqueueResult.value.status === "daily-capped") {
       await interaction.editReply({
         embeds: [
-          buildQueueUnavailableEmbed(buildTrackedPlayerLimitMessage(false, nextUtcDayUnix())),
+          buildQueueUnavailableEmbed(
+            buildTrackedPlayerLimitMessage(false, nextUtcDayUnix()),
+            emojis,
+          ),
         ],
+        flags: 64, // ephemeral
       });
       return;
     }
@@ -360,7 +407,8 @@ export const statsCommand = new SlashCommand()
     });
 
     await interaction.editReply({
-      embeds: [buildProcessingStatsEmbed(username, platform, requestedSeason)],
+      embeds: [buildProcessingStatsEmbed(username, platform, requestedSeason, emojis)],
+      flags: 64, // ephemeral
     });
   });
 
@@ -387,15 +435,18 @@ export const statsPaginationHandler = new ComponentHandler(
     return;
   }
 
+  const emojis = await resolveStatsEmojiCatalog(env, interaction.applicationId);
   const payload = buildStatsMessagePayload(
     envelope,
     "cache",
     isStatsCacheStale(envelope.cachedAt),
     parsedCustomId.viewId,
     parsedCustomId.page,
+    emojis,
   );
   await interaction.update({
     embeds: payload.embeds,
     components: payload.components,
+    flags: 64, // ephemeral
   });
 });

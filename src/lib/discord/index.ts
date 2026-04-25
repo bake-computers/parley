@@ -1,6 +1,7 @@
 export * from "discord-api-types/v10";
 export * from "./bot";
 export * from "./builders";
+export * from "./emojis";
 export * from "./handlers";
 export * from "./interactions";
 export * from "./register";

@@ -45,6 +45,14 @@ wrangler secret put DISCORD_BOT_TOKEN
 wrangler secret put DISCORD_APPLICATION_ID
 ```
 
+Optional Worker secret:
+
+```bash
+wrangler secret put DISCORD_BOT_OWNER_ID
+```
+
+When `DISCORD_BOT_OWNER_ID` is set to your Discord user ID, `/stats` refresh caps and refresh dedupe limits are bypassed for that user only. Owner-triggered refreshes also do not consume the tracked-player daily refresh marker.
+
 Create the refresh queue before deploying:
 
 ```bash

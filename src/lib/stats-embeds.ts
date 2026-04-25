@@ -1,4 +1,12 @@
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } from "./discord";
+import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  type ApplicationEmojiCatalog,
+  EmbedBuilder,
+  formatApplicationEmoji,
+  toComponentEmoji,
+} from "./discord";
 import { calculateKost, type StatsPlatform } from "./http";
 import { statsCacheAgeMinutes, type StatsCacheEnvelope } from "./stats-cache";
 import type { SeasonCatalogEntry } from "./stats-season";
@@ -19,6 +27,25 @@ export interface StatsPaginationCustomId {
 export interface StatsMessagePayload {
   embeds: [EmbedBuilder];
   components: [ActionRowBuilder<ButtonBuilder>];
+}
+
+function prefixWithEmoji(
+  title: string,
+  emojis: ApplicationEmojiCatalog | null | undefined,
+  emojiName: "cancel" | "question_mark" | "search" | "timer" | "warning",
+): string {
+  const emoji = formatApplicationEmoji(emojis, emojiName);
+  return emoji ? `${emoji} ${title}` : title;
+}
+
+function applyButtonEmoji(
+  button: ButtonBuilder,
+  emoji: ReturnType<typeof toComponentEmoji>,
+): ButtonBuilder {
+  if (emoji) {
+    button.setEmoji(emoji);
+  }
+  return button;
 }
 
 function toNumber(value: unknown, fallback = 0): number {
@@ -85,9 +112,13 @@ export function clampStatsPage(value: number): number {
   return Math.min(STATS_PAGE_COUNT - 1, Math.max(0, Math.floor(value)));
 }
 
-export function buildStatsPaginationCustomId(viewId: string, page: number): string {
+export function buildStatsPaginationCustomId(viewId: string, page: number, slot?: string): string {
   const safePage = clampStatsPage(page);
-  return `${STATS_PAGINATION_PREFIX}/${encodeURIComponent(viewId)}?page=${safePage}`;
+  const params = new URLSearchParams({ page: String(safePage) });
+  if (slot) {
+    params.set("slot", slot);
+  }
+  return `${STATS_PAGINATION_PREFIX}/${encodeURIComponent(viewId)}?${params.toString()}`;
 }
 
 export function parseStatsPaginationCustomId(customId: string): StatsPaginationCustomId | null {
@@ -123,35 +154,45 @@ export function parseStatsPaginationCustomId(customId: string): StatsPaginationC
 export function buildStatsPaginationRow(
   viewId: string,
   page: number,
+  emojis?: ApplicationEmojiCatalog | null,
 ): ActionRowBuilder<ButtonBuilder> {
   const activePage = clampStatsPage(page);
   const isFirst = activePage === 0;
   const isLast = activePage >= STATS_PAGE_COUNT - 1;
   const currentLabel = `Page ${activePage + 1}/${STATS_PAGE_COUNT}`;
+  const homeEmoji = toComponentEmoji(emojis, "home");
+  const prevEmoji = toComponentEmoji(emojis, "minus");
+  const nextEmoji = toComponentEmoji(emojis, "plus");
 
   return new ActionRowBuilder<ButtonBuilder>().addComponents(
-    new ButtonBuilder()
-      .setCustomId(buildStatsPaginationCustomId(viewId, 0))
+    applyButtonEmoji(
+      new ButtonBuilder().setCustomId(buildStatsPaginationCustomId(viewId, 0, "first")),
+      homeEmoji,
+    )
       .setLabel("First")
       .setStyle(ButtonStyle.Secondary)
       .setDisabled(isFirst),
-    new ButtonBuilder()
-      .setCustomId(buildStatsPaginationCustomId(viewId, activePage - 1))
+    applyButtonEmoji(
+      new ButtonBuilder().setCustomId(buildStatsPaginationCustomId(viewId, activePage - 1, "prev")),
+      prevEmoji,
+    )
       .setLabel("Prev")
       .setStyle(ButtonStyle.Primary)
       .setDisabled(isFirst),
     new ButtonBuilder()
-      .setCustomId(buildStatsPaginationCustomId(viewId, activePage))
+      .setCustomId(buildStatsPaginationCustomId(viewId, activePage, "current"))
       .setLabel(currentLabel)
       .setStyle(ButtonStyle.Secondary)
       .setDisabled(true),
-    new ButtonBuilder()
-      .setCustomId(buildStatsPaginationCustomId(viewId, activePage + 1))
+    applyButtonEmoji(
+      new ButtonBuilder().setCustomId(buildStatsPaginationCustomId(viewId, activePage + 1, "next")),
+      nextEmoji,
+    )
       .setLabel("Next")
       .setStyle(ButtonStyle.Primary)
       .setDisabled(isLast),
     new ButtonBuilder()
-      .setCustomId(buildStatsPaginationCustomId(viewId, STATS_PAGE_COUNT - 1))
+      .setCustomId(buildStatsPaginationCustomId(viewId, STATS_PAGE_COUNT - 1, "last"))
       .setLabel("Last")
       .setStyle(ButtonStyle.Secondary)
       .setDisabled(isLast),
@@ -163,6 +204,7 @@ export function buildStatsEmbed(
   source: StatsDataSource,
   stale: boolean,
   page = 0,
+  emojis?: ApplicationEmojiCatalog | null,
 ): EmbedBuilder {
   const profile = envelope.profile;
   const ranked = envelope.rankedStats;
@@ -184,7 +226,7 @@ export function buildStatsEmbed(
 
   const embed = new EmbedBuilder()
     .setColor(stale ? 0x92400e : source === "cache" ? 0x334155 : 0x0f766e)
-    .setTitle(`Siege Stats: ${profileName}`)
+    .setTitle(prefixWithEmoji(`Siege Stats: ${profileName}`, emojis, "search"))
     .setDescription(
       `Season: ${seasonLabel}\nPlatform: ${formatText(profile.platform, "Unknown")} • Level: ${formatInteger(profile.level)}\nSection: ${sectionLabel}`,
     )
@@ -281,11 +323,12 @@ export function buildStatsMessagePayload(
   stale: boolean,
   viewId: string,
   page = 0,
+  emojis?: ApplicationEmojiCatalog | null,
 ): StatsMessagePayload {
   const activePage = clampStatsPage(page);
   return {
-    embeds: [buildStatsEmbed(envelope, source, stale, activePage)],
-    components: [buildStatsPaginationRow(viewId, activePage)],
+    embeds: [buildStatsEmbed(envelope, source, stale, activePage, emojis)],
+    components: [buildStatsPaginationRow(viewId, activePage, emojis)],
   };
 }
 
@@ -293,38 +336,44 @@ export function buildProcessingStatsEmbed(
   username: string,
   platform: StatsPlatform,
   season: string | null,
+  emojis?: ApplicationEmojiCatalog | null,
 ): EmbedBuilder {
   const seasonLine = season?.trim() ? `\nSeason: ${season.trim()}` : "";
   return new EmbedBuilder()
     .setColor(0x334155)
-    .setTitle("Processing stats request")
+    .setTitle(prefixWithEmoji("Processing stats request", emojis, "timer"))
     .setDescription(`Username: ${username}\nPlatform: ${platform}${seasonLine}`);
 }
 
 export function buildQueueUnavailableEmbed(
   message = "Could not queue a stat refresh. Try again later.",
+  emojis?: ApplicationEmojiCatalog | null,
 ): EmbedBuilder {
   return new EmbedBuilder()
     .setColor(0xb91c1c)
-    .setTitle("Refresh unavailable")
+    .setTitle(prefixWithEmoji("Refresh unavailable", emojis, "warning"))
     .setDescription(message);
 }
 
 export function buildSeasonNotFoundEmbed(
   requestedSeason: string,
   availableSeasons: readonly SeasonCatalogEntry[],
+  emojis?: ApplicationEmojiCatalog | null,
 ): EmbedBuilder {
   return new EmbedBuilder()
     .setColor(0xb45309)
-    .setTitle("Season not found")
+    .setTitle(prefixWithEmoji("Season not found", emojis, "question_mark"))
     .setDescription(
       `Requested season: ${requestedSeason}\nAvailable seasons: ${availableSeasonsLine(availableSeasons)}`,
     );
 }
 
-export function buildRefreshFailureEmbed(message: string): EmbedBuilder {
+export function buildRefreshFailureEmbed(
+  message: string,
+  emojis?: ApplicationEmojiCatalog | null,
+): EmbedBuilder {
   return new EmbedBuilder()
     .setColor(0xb91c1c)
-    .setTitle("Stats refresh failed")
+    .setTitle(prefixWithEmoji("Stats refresh failed", emojis, "cancel"))
     .setDescription(message);
 }
