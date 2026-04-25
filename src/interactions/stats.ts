@@ -1,10 +1,12 @@
-import { autocompleteChoice, SlashCommand } from "../lib/discord";
+import { autocompleteChoice, ComponentHandler, ComponentType, SlashCommand } from "../lib/discord";
 import { type StatsPlatform } from "../lib/http";
 import { logger } from "../lib/logger";
 import {
   buildProcessingStatsEmbed,
   buildQueueUnavailableEmbed,
-  buildStatsEmbed,
+  buildStatsMessagePayload,
+  parseStatsPaginationCustomId,
+  STATS_PAGINATION_PREFIX,
 } from "../lib/stats-embeds";
 import {
   buildStatsCacheKey,
@@ -14,12 +16,19 @@ import {
   readStatsCache,
 } from "../lib/stats-cache";
 import {
+  checkTrackedPlayerDailyCap,
+  consumeExecutorDailyQuota,
+  formatDiscordRetryAt,
+  nextUtcDayUnix,
+} from "../lib/stats-rate-limit";
+import {
   buildBuiltinRecentSeasonCatalog,
   canonicalizeSeasonSelector,
   normalizeSeasonDisplay,
   normalizeSeasonSelector,
   type SeasonCatalogEntry,
 } from "../lib/stats-season";
+import { readStatsViewState, writeStatsViewState } from "../lib/stats-view-state";
 import {
   createStatsRefreshMessage,
   enqueueStatsRefresh,
@@ -37,6 +46,18 @@ function parsePlatform(value: string | null): StatsPlatform {
 function trimToNull(value: string | null): string | null {
   const trimmed = value?.trim() ?? "";
   return trimmed.length > 0 ? trimmed : null;
+}
+
+function buildTrackedPlayerLimitMessage(hasCachedStats: boolean, retryAtUnix: number): string {
+  const retryAt = formatDiscordRetryAt(retryAtUnix);
+  if (hasCachedStats) {
+    return `Refresh is capped for this tracked player today. Cached stats are shown above.\nRetry at ${retryAt}.`;
+  }
+  return `Refresh is capped for this tracked player today and no cached stats are available.\nRetry at ${retryAt}.`;
+}
+
+function buildExecutorLimitMessage(retryAtUnix: number): string {
+  return `You've reached the /stats refresh cap (3 requests per day).\nRetry at ${formatDiscordRetryAt(retryAtUnix)}.`;
 }
 
 async function resolveSeasonCatalog(
@@ -85,6 +106,41 @@ function filterSeasonChoices(
       name: season.display,
       value: season.slug,
     }));
+}
+
+async function checkRefreshTriggerLimits(
+  cache: KVNamespace | null | undefined,
+  username: string,
+  platform: StatsPlatform,
+  executorId: string | undefined,
+): Promise<{
+  blocked: boolean;
+  reason: "executor" | "tracked-player" | null;
+  retryAtUnix: number;
+}> {
+  const executorQuota = await consumeExecutorDailyQuota(cache, executorId);
+  if (executorQuota.isLimited) {
+    return {
+      blocked: true,
+      reason: "executor",
+      retryAtUnix: executorQuota.retryAtUnix,
+    };
+  }
+
+  const trackedPlayerCap = await checkTrackedPlayerDailyCap(cache, username, platform);
+  if (trackedPlayerCap.isLimited) {
+    return {
+      blocked: true,
+      reason: "tracked-player",
+      retryAtUnix: trackedPlayerCap.retryAtUnix,
+    };
+  }
+
+  return {
+    blocked: false,
+    reason: null,
+    retryAtUnix: nextUtcDayUnix(),
+  };
 }
 
 export const statsCommand = new SlashCommand()
@@ -146,7 +202,7 @@ export const statsCommand = new SlashCommand()
     const env = interaction.context.env as Partial<Env> & StatsRefreshEnv;
     const cache = env.Cache;
 
-    await interaction.deferReply(false);
+    await interaction.deferReply(true);
 
     const seasonCatalog = await resolveSeasonCatalog(cache, username, platform);
     const canonicalRequestedSeason = requestedSeason
@@ -158,11 +214,34 @@ export const statsCommand = new SlashCommand()
 
     if (cachedEnvelope) {
       const stale = isStatsCacheStale(cachedEnvelope.cachedAt);
+      await writeStatsViewState(cache, interaction.id, { cacheKey });
+      const payload = buildStatsMessagePayload(cachedEnvelope, "cache", stale, interaction.id, 0);
       await interaction.editReply({
-        embeds: [buildStatsEmbed(cachedEnvelope, "cache", stale)],
+        embeds: payload.embeds,
+        components: payload.components,
       });
 
       if (!stale) {
+        return;
+      }
+
+      const refreshLimit = await checkRefreshTriggerLimits(
+        cache,
+        username,
+        platform,
+        interaction.userId,
+      );
+      if (refreshLimit.blocked) {
+        const message =
+          refreshLimit.reason === "executor"
+            ? buildExecutorLimitMessage(refreshLimit.retryAtUnix)
+            : buildTrackedPlayerLimitMessage(true, refreshLimit.retryAtUnix);
+        await interaction.followUp(
+          {
+            embeds: [buildQueueUnavailableEmbed(message)],
+          },
+          true,
+        );
         return;
       }
 
@@ -188,6 +267,20 @@ export const statsCommand = new SlashCommand()
         return;
       }
 
+      if (enqueueResult.value.status === "daily-capped") {
+        await interaction.followUp(
+          {
+            embeds: [
+              buildQueueUnavailableEmbed(
+                buildTrackedPlayerLimitMessage(true, nextUtcDayUnix(Date.now())),
+              ),
+            ],
+          },
+          true,
+        );
+        return;
+      }
+
       if (enqueueResult.value.status === "queued" || enqueueResult.value.status === "deduped") {
         await registerPendingStatsReply(cache, {
           interactionId: interaction.id,
@@ -201,6 +294,23 @@ export const statsCommand = new SlashCommand()
         });
       }
 
+      return;
+    }
+
+    const refreshLimit = await checkRefreshTriggerLimits(
+      cache,
+      username,
+      platform,
+      interaction.userId,
+    );
+    if (refreshLimit.blocked) {
+      const message =
+        refreshLimit.reason === "executor"
+          ? buildExecutorLimitMessage(refreshLimit.retryAtUnix)
+          : buildTrackedPlayerLimitMessage(false, refreshLimit.retryAtUnix);
+      await interaction.editReply({
+        embeds: [buildQueueUnavailableEmbed(message)],
+      });
       return;
     }
 
@@ -232,9 +342,7 @@ export const statsCommand = new SlashCommand()
     if (enqueueResult.value.status === "daily-capped") {
       await interaction.editReply({
         embeds: [
-          buildQueueUnavailableEmbed(
-            "Refresh is capped for this player today and no cached stats are available.",
-          ),
+          buildQueueUnavailableEmbed(buildTrackedPlayerLimitMessage(false, nextUtcDayUnix())),
         ],
       });
       return;
@@ -255,3 +363,39 @@ export const statsCommand = new SlashCommand()
       embeds: [buildProcessingStatsEmbed(username, platform, requestedSeason)],
     });
   });
+
+export const statsPaginationHandler = new ComponentHandler(
+  STATS_PAGINATION_PREFIX,
+  ComponentType.Button,
+).addHandler(async (interaction) => {
+  const parsedCustomId = parseStatsPaginationCustomId(interaction.customId);
+  if (!parsedCustomId) {
+    await interaction.reply("This stats control is no longer valid.", true);
+    return;
+  }
+
+  const env = interaction.context.env as Partial<Env> & StatsRefreshEnv;
+  const state = await readStatsViewState(env.Cache, parsedCustomId.viewId);
+  if (!state) {
+    await interaction.reply("This stats view expired. Run /stats again.", true);
+    return;
+  }
+
+  const envelope = await readStatsCache(env.Cache, state.cacheKey);
+  if (!envelope) {
+    await interaction.reply("Stats are no longer cached. Run /stats again.", true);
+    return;
+  }
+
+  const payload = buildStatsMessagePayload(
+    envelope,
+    "cache",
+    isStatsCacheStale(envelope.cachedAt),
+    parsedCustomId.viewId,
+    parsedCustomId.page,
+  );
+  await interaction.update({
+    embeds: payload.embeds,
+    components: payload.components,
+  });
+});

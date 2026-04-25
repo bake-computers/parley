@@ -23,14 +23,22 @@ import {
 import {
   buildRefreshFailureEmbed,
   buildSeasonNotFoundEmbed,
-  buildStatsEmbed,
+  buildStatsMessagePayload,
 } from "../lib/stats-embeds";
+import {
+  buildTrackedPlayerDailyKey,
+  buildTrackedPlayerRefreshLockKey,
+  checkTrackedPlayerDailyCap,
+  normalizeStatsLookupValue,
+  secondsUntilNextUtcDay,
+} from "../lib/stats-rate-limit";
 import {
   canonicalizeSeasonSelector,
   mergeSeasonCatalog,
   normalizeSeasonSelector,
   type SeasonCatalogEntry,
 } from "../lib/stats-season";
+import { writeStatsViewState } from "../lib/stats-view-state";
 
 const SCRAPE_LOCK_TTL_SECONDS = 30 * 60;
 const PENDING_REPLY_TTL_SECONDS = 30 * 60;
@@ -103,10 +111,6 @@ export interface StatsRefreshDeps {
 
 function isDataMap(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
-}
-
-export function normalizeStatsLookupValue(value: string): string {
-  return value.normalize("NFKC").trim().toLowerCase();
 }
 
 function buildPendingReplyPrefix(username: string, platform: StatsPlatform): string {
@@ -262,21 +266,15 @@ export async function deletePendingStatsReply(
 }
 
 export function buildScrapeLockKey(username: string, platform: StatsPlatform): string {
-  return `scrape:${platform}:${normalizeStatsLookupValue(username)}`;
+  return buildTrackedPlayerRefreshLockKey(username, platform);
 }
 
 export function buildScrapeDayKey(
   username: string,
   platform: StatsPlatform,
-  now = new Date(),
+  now = Date.now(),
 ): string {
-  return `scrape-day:${platform}:${normalizeStatsLookupValue(username)}:${now.toISOString().slice(0, 10)}`;
-}
-
-export function secondsUntilNextUtcDay(now = Date.now()): number {
-  const date = new Date(now);
-  const nextDay = Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() + 1);
-  return Math.max(60, Math.ceil((nextDay - now) / 1000));
+  return buildTrackedPlayerDailyKey(username, platform, now);
 }
 
 function isStatsPlatform(value: unknown): value is StatsPlatform {
@@ -302,37 +300,6 @@ export function isStatsRefreshMessage(value: unknown): value is StatsRefreshMess
   );
 }
 
-function platformDailyKeys(username: string, platform: StatsPlatform, now = new Date()): string[] {
-  if (platform !== "auto") {
-    return [buildScrapeDayKey(username, platform, now)];
-  }
-
-  return [
-    buildScrapeDayKey(username, "pc", now),
-    buildScrapeDayKey(username, "xbox", now),
-    buildScrapeDayKey(username, "playstation", now),
-  ];
-}
-
-async function hasDailyCap(
-  cache: KVNamespace | null | undefined,
-  username: string,
-  platform: StatsPlatform,
-): Promise<string | null> {
-  if (!cache) {
-    return null;
-  }
-
-  for (const key of platformDailyKeys(username, platform)) {
-    const value = await cache.get(key);
-    if (value) {
-      return key;
-    }
-  }
-
-  return null;
-}
-
 export async function enqueueStatsRefresh(
   env: StatsRefreshEnv,
   message: StatsRefreshMessage,
@@ -345,14 +312,18 @@ export async function enqueueStatsRefresh(
     });
   }
 
-  const dailyKey = await hasDailyCap(env.Cache, message.username, message.platform);
-  if (dailyKey) {
+  const trackedPlayerCap = await checkTrackedPlayerDailyCap(
+    env.Cache,
+    message.username,
+    message.platform,
+  );
+  if (trackedPlayerCap.isLimited) {
     logger.info("stats.refresh.daily_capped", "Stats refresh skipped by daily cap", {
       username: message.username,
       platform: message.platform,
-      dailyKey,
+      dailyKey: trackedPlayerCap.key,
     });
-    return ok({ status: "daily-capped", dailyKey });
+    return ok({ status: "daily-capped", dailyKey: trackedPlayerCap.key });
   }
 
   const lockKey = buildScrapeLockKey(message.username, message.platform);
@@ -443,6 +414,14 @@ async function defaultEditPendingReply(
 function embedPayload(embed: { toJSON(): JsonObject }): JsonObject {
   return {
     embeds: [embed.toJSON()],
+    components: [],
+  };
+}
+
+function statsPayload(payload: ReturnType<typeof buildStatsMessagePayload>): JsonObject {
+  return {
+    embeds: payload.embeds.map((embed) => embed.toJSON()),
+    components: payload.components.map((component) => component.toJSON()),
   };
 }
 
@@ -521,10 +500,14 @@ async function updatePendingRepliesAfterSuccess(
 
   for (const pending of pendingReplies) {
     let payload: JsonObject;
+    let targetCacheKey: string | null = null;
 
     const rawSeason = pending.requestedSeasonRaw?.trim() ?? "";
     if (!rawSeason) {
-      payload = embedPayload(buildStatsEmbed(latestEnvelope, "cache", false));
+      targetCacheKey = buildStatsCacheKey(message.username, message.platform, "latest");
+      payload = statsPayload(
+        buildStatsMessagePayload(latestEnvelope, "cache", false, pending.interactionId, 0),
+      );
     } else {
       const canonicalSeason =
         pending.requestedSeasonCanonical ??
@@ -532,12 +515,20 @@ async function updatePendingRepliesAfterSuccess(
         normalizeSeasonSelector(rawSeason);
       const seasonEnvelope = envelopesBySeason.get(canonicalSeason);
 
-      payload = seasonEnvelope
-        ? embedPayload(buildStatsEmbed(seasonEnvelope, "cache", false))
-        : embedPayload(buildSeasonNotFoundEmbed(rawSeason, seasonCatalog));
+      if (seasonEnvelope) {
+        targetCacheKey = buildStatsCacheKey(message.username, message.platform, canonicalSeason);
+        payload = statsPayload(
+          buildStatsMessagePayload(seasonEnvelope, "cache", false, pending.interactionId, 0),
+        );
+      } else {
+        payload = embedPayload(buildSeasonNotFoundEmbed(rawSeason, seasonCatalog));
+      }
     }
 
     try {
+      if (targetCacheKey) {
+        await writeStatsViewState(env.Cache, pending.interactionId, { cacheKey: targetCacheKey });
+      }
       await editPendingReply(pending, payload);
     } catch (editError) {
       logger.warn("stats.pending_reply.edit_failed", "Failed to edit pending stats reply", {

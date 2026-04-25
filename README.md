@@ -55,4 +55,4 @@ The daily cron in `wrangler.jsonc` runs at `03:00 UTC`.
 
 ## Stats Refresh
 
-`/stats` reads KV first. Cache misses and stale cache refreshes enqueue a background job instead of scraping inline. The Queue consumer scrapes stats.cc, writes KV, and persists the snapshot to D1.
+`/stats` reads KV first. Fresh cache hits return immediately. Cache misses and stale cache refreshes enqueue a background job instead of scraping inline, with global guardrails of 1 tracked-player refresh/day and 3 refresh-triggering requests/day per executor. Responses now use paginated button components so users can navigate multiple stats sections without re-running the command.

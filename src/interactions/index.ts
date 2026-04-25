@@ -1,2 +1,2 @@
 export { pingCommand } from "./ping";
-export { statsCommand } from "./stats";
+export { statsCommand, statsPaginationHandler } from "./stats";

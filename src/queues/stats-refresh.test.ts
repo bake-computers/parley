@@ -3,6 +3,7 @@ import { err, ok } from "neverthrow";
 import type { ScrapedStatsCollection } from "../lib/http";
 import { buildStatsCacheKey } from "../lib/stats-cache";
 import {
+  buildScrapeDayKey,
   createStatsRefreshMessage,
   enqueueStatsRefresh,
   handleStatsRefreshQueue,
@@ -174,6 +175,28 @@ describe("stats refresh queue", () => {
     );
 
     expect(result.isOk() ? result.value.status : "error").toBe("deduped");
+    expect(queue.messages).toHaveLength(0);
+  });
+
+  test("enqueue skips when tracked-player daily cap exists", async () => {
+    const cache = new FakeKV();
+    const queue = new FakeQueue();
+    await cache.put(buildScrapeDayKey("Player", "pc"), "1");
+    const message = createStatsRefreshMessage({
+      username: "Player",
+      platform: "pc",
+      reason: "cache-miss",
+    });
+
+    const result = await enqueueStatsRefresh(
+      {
+        Cache: cache as unknown as KVNamespace,
+        Queue: queue as unknown as Queue<StatsRefreshMessage>,
+      },
+      message,
+    );
+
+    expect(result.isOk() ? result.value.status : "error").toBe("daily-capped");
     expect(queue.messages).toHaveLength(0);
   });
 
