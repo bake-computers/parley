@@ -1,10 +1,6 @@
 import { DiscordBot } from "./lib/discord";
 import * as interactions from "./interactions";
-import {
-  handleStatsRefreshQueue,
-  logScheduledHealth,
-  type StatsRefreshMessage,
-} from "./queues/stats-refresh";
+import { handleStatsRefreshQueue, type StatsRefreshMessage } from "./queues/stats-refresh";
 
 export const bot = new DiscordBot();
 
@@ -14,5 +10,4 @@ export default {
   fetch: (request, env, ctx) => bot.fetch(request, env, ctx),
   queue: (batch, env, ctx) =>
     handleStatsRefreshQueue(batch as MessageBatch<StatsRefreshMessage>, env, ctx),
-  scheduled: (controller, _env, _ctx) => logScheduledHealth(controller),
 } satisfies ExportedHandler<Env>;

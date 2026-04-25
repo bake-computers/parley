@@ -734,10 +734,3 @@ export function createStatsRefreshMessage(input: {
     },
   };
 }
-
-export function logScheduledHealth(controller: ScheduledController): void {
-  logger.info("worker.scheduled.health", "Scheduled worker health check", {
-    scheduledTime: new Date(controller.scheduledTime).toISOString(),
-    cron: controller.cron,
-  });
-}
