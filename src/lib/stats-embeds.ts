@@ -25,8 +25,18 @@ export interface StatsPaginationCustomId {
 }
 
 export interface StatsMessagePayload {
-  embeds: [EmbedBuilder];
+  embeds: EmbedBuilder[];
   components: [ActionRowBuilder<ButtonBuilder>];
+}
+
+export interface InternalStatsSummary {
+  username: string;
+  platform: string;
+  internalElo: number;
+  internalMatches: number;
+  internalWins: number;
+  internalLosses: number;
+  externalRefreshLocked: boolean;
 }
 
 function prefixWithEmoji(
@@ -323,13 +333,78 @@ export function buildStatsMessagePayload(
   stale: boolean,
   viewId: string,
   page = 0,
+  internalSummary?: InternalStatsSummary | null,
   emojis?: ApplicationEmojiCatalog | null,
 ): StatsMessagePayload {
   const activePage = clampStatsPage(page);
+  const embeds = [buildStatsEmbed(envelope, source, stale, activePage, emojis)];
+  if (internalSummary) {
+    embeds.push(buildInternalStatsEmbed(internalSummary));
+  }
+
   return {
-    embeds: [buildStatsEmbed(envelope, source, stale, activePage, emojis)],
+    embeds,
     components: [buildStatsPaginationRow(viewId, activePage, emojis)],
   };
+}
+
+export function buildInternalStatsEmbed(summary: InternalStatsSummary): EmbedBuilder {
+  const refreshStatus = summary.externalRefreshLocked
+    ? "Locked after 10 recorded internal matches"
+    : "Available";
+
+  return new EmbedBuilder()
+    .setColor(0x1d4ed8)
+    .setTitle(`Internal ELO: ${summary.username}`)
+    .setDescription(`Platform: ${summary.platform}`)
+    .addFields(
+      {
+        name: "Current Rating",
+        value: String(Math.round(summary.internalElo)),
+        inline: true,
+      },
+      {
+        name: "Record",
+        value: `${summary.internalWins}-${summary.internalLosses}`,
+        inline: true,
+      },
+      {
+        name: "Recorded Matches",
+        value: String(summary.internalMatches),
+        inline: true,
+      },
+      {
+        name: "External Refresh",
+        value: refreshStatus,
+        inline: false,
+      },
+    );
+}
+
+export function buildInternalStatsOnlyEmbed(summary: InternalStatsSummary): EmbedBuilder {
+  return new EmbedBuilder()
+    .setColor(0x1d4ed8)
+    .setTitle(`Internal ELO: ${summary.username}`)
+    .setDescription(
+      `stats.cc refresh is disabled for this player after 10 recorded internal matches.\nPlatform: ${summary.platform}`,
+    )
+    .addFields(
+      {
+        name: "Current Rating",
+        value: String(Math.round(summary.internalElo)),
+        inline: true,
+      },
+      {
+        name: "Record",
+        value: `${summary.internalWins}-${summary.internalLosses}`,
+        inline: true,
+      },
+      {
+        name: "Recorded Matches",
+        value: String(summary.internalMatches),
+        inline: true,
+      },
+    );
 }
 
 export function buildProcessingStatsEmbed(

@@ -3,6 +3,7 @@ import {
   buildStatsMessagePayload,
   buildStatsPaginationCustomId,
   buildStatsPaginationRow,
+  type InternalStatsSummary,
   parseStatsPaginationCustomId,
 } from "./stats-embeds";
 import type { ApplicationEmojiCatalog } from "./discord";
@@ -56,6 +57,18 @@ function emojiCatalogFixture(): ApplicationEmojiCatalog {
   };
 }
 
+function internalSummaryFixture(): InternalStatsSummary {
+  return {
+    username: "Player",
+    platform: "pc",
+    internalElo: 1142,
+    internalMatches: 10,
+    internalWins: 6,
+    internalLosses: 4,
+    externalRefreshLocked: true,
+  };
+}
+
 describe("stats embeds pagination", () => {
   test("stats pagination custom IDs roundtrip", () => {
     const customId = buildStatsPaginationCustomId("interaction-1", 2);
@@ -97,10 +110,11 @@ describe("stats embeds pagination", () => {
       false,
       "interaction-1",
       0,
+      undefined,
       emojiCatalogFixture(),
     );
-    const embed = payload.embeds[0].toJSON();
-    const row = payload.components[0].toJSON();
+    const embed = payload.embeds[0]!.toJSON();
+    const row = payload.components[0]!.toJSON();
     const buttons = row.components as Record<string, unknown>[];
 
     expect(embed.title).toBe("<:search:4> Siege Stats: Player");
@@ -113,11 +127,25 @@ describe("stats embeds pagination", () => {
 
   test("message payload includes paged embed and components", () => {
     const payload = buildStatsMessagePayload(envelopeFixture(), "cache", false, "interaction-1", 1);
-    const embed = payload.embeds[0].toJSON();
-    const row = payload.components[0].toJSON();
+    const embed = payload.embeds[0]!.toJSON();
+    const row = payload.components[0]!.toJSON();
 
     expect(embed.description).toContain("Section: Combat");
     expect(row.components).toHaveLength(5);
+  });
+
+  test("message payload appends internal ELO embed when provided", () => {
+    const payload = buildStatsMessagePayload(
+      envelopeFixture(),
+      "cache",
+      false,
+      "interaction-1",
+      0,
+      internalSummaryFixture(),
+    );
+
+    expect(payload.embeds).toHaveLength(2);
+    expect(payload.embeds[1]!.toJSON().title).toBe("Internal ELO: Player");
   });
 
   test("builders keep valid payloads when emojis are missing", () => {
@@ -127,10 +155,11 @@ describe("stats embeds pagination", () => {
       false,
       "interaction-1",
       0,
+      undefined,
       {},
     );
-    const embed = payload.embeds[0].toJSON();
-    const row = payload.components[0].toJSON();
+    const embed = payload.embeds[0]!.toJSON();
+    const row = payload.components[0]!.toJSON();
     const buttons = row.components as Record<string, unknown>[];
 
     expect(embed.title).toBe("Siege Stats: Player");

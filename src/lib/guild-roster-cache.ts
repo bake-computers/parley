@@ -1,5 +1,6 @@
 import { calculateSeedMetrics, type TeamSeedMetrics } from "./team-balance";
 import type { GuildRosterEntry } from "./db/guild-roster";
+import { seedScoreToInternalElo } from "./internal-elo";
 
 const GUILD_ROSTER_CACHE_PREFIX = "team:guild-roster:v1";
 const GUILD_ROSTER_CACHE_TTL_SECONDS = 5 * 60;
@@ -12,6 +13,12 @@ export interface CachedGuildRosterMember {
   platform: string;
   profileUrl: string | null;
   level: number;
+  internalElo: number;
+  internalMatches: number;
+  internalWins: number;
+  internalLosses: number;
+  internalUpdatedAt: number | null;
+  balanceRating: number | null;
   registeredAt: number;
   updatedAt: number;
   ready: boolean;
@@ -64,6 +71,10 @@ function parseMember(value: unknown): CachedGuildRosterMember | null {
     typeof value.username !== "string" ||
     typeof value.platform !== "string" ||
     typeof value.level !== "number" ||
+    typeof value.internalElo !== "number" ||
+    typeof value.internalMatches !== "number" ||
+    typeof value.internalWins !== "number" ||
+    typeof value.internalLosses !== "number" ||
     typeof value.registeredAt !== "number" ||
     typeof value.updatedAt !== "number" ||
     typeof value.ready !== "boolean"
@@ -79,6 +90,12 @@ function parseMember(value: unknown): CachedGuildRosterMember | null {
     platform: value.platform,
     profileUrl: typeof value.profileUrl === "string" ? value.profileUrl : null,
     level: value.level,
+    internalElo: value.internalElo,
+    internalMatches: value.internalMatches,
+    internalWins: value.internalWins,
+    internalLosses: value.internalLosses,
+    internalUpdatedAt: typeof value.internalUpdatedAt === "number" ? value.internalUpdatedAt : null,
+    balanceRating: typeof value.balanceRating === "number" ? value.balanceRating : null,
     registeredAt: value.registeredAt,
     updatedAt: value.updatedAt,
     ready: value.ready,
@@ -87,22 +104,22 @@ function parseMember(value: unknown): CachedGuildRosterMember | null {
   };
 }
 
+function resolveBalanceRating(
+  entry: GuildRosterEntry,
+  metrics: TeamSeedMetrics | null,
+): number | null {
+  if (entry.internalMatches > 0) {
+    return entry.internalElo;
+  }
+
+  return metrics ? seedScoreToInternalElo(metrics.seedScore) : null;
+}
+
 export function buildCachedGuildRosterMembers(
   roster: readonly GuildRosterEntry[],
 ): CachedGuildRosterMember[] {
-  return roster.map((entry) => ({
-    guildId: entry.guildId,
-    discordUserId: entry.discordUserId,
-    playerId: entry.playerId,
-    username: entry.username,
-    platform: entry.platform,
-    profileUrl: entry.profileUrl,
-    level: entry.level,
-    registeredAt: entry.registeredAt,
-    updatedAt: entry.updatedAt,
-    ready: entry.snapshot !== null,
-    snapshotFetchedAt: entry.snapshot?.fetchedAt ?? null,
-    metrics:
+  return roster.map((entry) => {
+    const metrics =
       entry.snapshot === null
         ? null
         : calculateSeedMetrics({
@@ -112,8 +129,32 @@ export function buildCachedGuildRosterMembers(
             kills: entry.snapshot.kills,
             headshotPercentage: entry.snapshot.headshotPercentage,
             payloadJson: entry.snapshot.payloadJson,
-          }),
-  }));
+          });
+    const balanceRating = resolveBalanceRating(entry, metrics);
+    const internalElo =
+      entry.internalMatches > 0 ? entry.internalElo : (balanceRating ?? entry.internalElo);
+
+    return {
+      guildId: entry.guildId,
+      discordUserId: entry.discordUserId,
+      playerId: entry.playerId,
+      username: entry.username,
+      platform: entry.platform,
+      profileUrl: entry.profileUrl,
+      level: entry.level,
+      internalElo,
+      internalMatches: entry.internalMatches,
+      internalWins: entry.internalWins,
+      internalLosses: entry.internalLosses,
+      internalUpdatedAt: entry.internalUpdatedAt,
+      balanceRating,
+      registeredAt: entry.registeredAt,
+      updatedAt: entry.updatedAt,
+      ready: balanceRating !== null,
+      snapshotFetchedAt: entry.snapshot?.fetchedAt ?? null,
+      metrics,
+    };
+  });
 }
 
 export async function readGuildRosterCache(

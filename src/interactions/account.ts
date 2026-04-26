@@ -12,6 +12,10 @@ import {
   resolveStatsEnvelopePlayerId,
   upsertRegistrationPlayer,
 } from "../lib/db/player-identity";
+import {
+  getInternalPlayerSummaryByPlayerId,
+  isExternalStatsRefreshLocked,
+} from "../lib/db/player-ratings";
 import { buildStatsCacheKey, readStatsCache } from "../lib/stats-cache";
 import {
   consumeExecutorDailyQuota,
@@ -37,6 +41,10 @@ function parsePlatform(value: string | null): RegistrationPlatform {
 
 function buildExecutorLimitMessage(retryAtUnix: number): string {
   return `You've reached the /account refresh cap (3 requests per day).\nRetry at ${formatDiscordRetryAt(retryAtUnix)}.`;
+}
+
+function buildLockedExternalStatsMessage(): string {
+  return "External stats refresh is disabled for this player after 10 recorded internal matches.";
 }
 
 async function ensureGuildOnly(
@@ -167,6 +175,14 @@ export const accountCommand = new SlashCommand()
         return;
       }
 
+      const playerSummary = await getInternalPlayerSummaryByPlayerId(env.Database, playerId);
+      if (isExternalStatsRefreshLocked(playerSummary)) {
+        await interaction.editReply(
+          `Registered **${username}** for this server. ${buildLockedExternalStatsMessage()} Your internal ELO is ready for \`/team create\`.`,
+        );
+        return;
+      }
+
       const enqueueResult = await enqueueStatsRefresh(
         env,
         createStatsRefreshMessage({
@@ -243,16 +259,39 @@ export const accountCommand = new SlashCommand()
         `Registered in this server: ${guildRegistration ? "Yes" : "No"}`,
       ];
 
+      const accountSummary = account
+        ? await getInternalPlayerSummaryByPlayerId(env.Database, account.playerId)
+        : null;
+      const guildSummary = guildRegistration
+        ? {
+            playerId: guildRegistration.playerId,
+            username: guildRegistration.username,
+            platform: guildRegistration.platform,
+            internalElo: guildRegistration.internalElo,
+            internalMatches: guildRegistration.internalMatches,
+            internalWins: guildRegistration.internalWins,
+            internalLosses: guildRegistration.internalLosses,
+            internalUpdatedAt: guildRegistration.internalUpdatedAt,
+          }
+        : null;
+      const internalSummary =
+        guildSummary && (accountSummary === null || accountSummary.internalMatches === 0)
+          ? guildSummary
+          : accountSummary;
+
+      if (internalSummary) {
+        lines.push(
+          `Internal ELO: **${Math.round(internalSummary.internalElo)}**`,
+          `Internal record: **${internalSummary.internalWins}-${internalSummary.internalLosses}**`,
+          `Recorded internal matches: **${internalSummary.internalMatches}**`,
+        );
+      }
+
       if (guildRegistration) {
-        if (guildRegistration.ready && guildRegistration.metrics) {
-          lines.push(
-            `Status: Ready`,
-            `Seed score: **${guildRegistration.metrics.seedScore.toFixed(2)}**`,
-            `Eligible for /team create: Yes`,
-          );
-        } else {
-          lines.push(`Status: Pending stats refresh`, `Eligible for /team create: No`);
-        }
+        lines.push(
+          `Status: ${guildRegistration.ready ? "Ready" : "Pending stats refresh"}`,
+          `Eligible for /team create: ${guildRegistration.ready ? "Yes" : "No"}`,
+        );
       }
 
       await interaction.editReply(lines.join("\n"));
@@ -267,6 +306,15 @@ export const accountCommand = new SlashCommand()
         await interaction.editReply(
           "You do not have a linked R6 account yet. Use `/account register`.",
         );
+        return;
+      }
+
+      const playerSummary = await getInternalPlayerSummaryByPlayerId(
+        env.Database,
+        account.playerId,
+      );
+      if (isExternalStatsRefreshLocked(playerSummary)) {
+        await interaction.editReply(buildLockedExternalStatsMessage());
         return;
       }
 

@@ -46,15 +46,16 @@ export interface TeamCandidate {
   playerId: number;
   username: string;
   platform: string;
+  balanceRating: number;
   metrics: TeamSeedMetrics;
 }
 
 export interface BalancedTeamResult {
   teamA: TeamCandidate[];
   teamB: TeamCandidate[];
-  teamASeedTotal: number;
-  teamBSeedTotal: number;
-  seedGap: number;
+  teamABalanceTotal: number;
+  teamBBalanceTotal: number;
+  balanceGap: number;
 }
 
 export function calculateKprFromPayloadJson(payloadJson: string, kills: number): number {
@@ -85,14 +86,14 @@ export function calculateSeedMetrics(input: SeedMetricsInput): TeamSeedMetrics {
   };
 }
 
-function sumSeedScores(players: readonly TeamCandidate[]): number {
-  return roundScore(players.reduce((total, player) => total + player.metrics.seedScore, 0));
+function sumBalanceRatings(players: readonly TeamCandidate[]): number {
+  return roundScore(players.reduce((total, player) => total + player.balanceRating, 0));
 }
 
 function sortTeamPlayers(players: readonly TeamCandidate[]): TeamCandidate[] {
   return [...players].sort((left, right) => {
-    if (right.metrics.seedScore !== left.metrics.seedScore) {
-      return right.metrics.seedScore - left.metrics.seedScore;
+    if (right.balanceRating !== left.balanceRating) {
+      return right.balanceRating - left.balanceRating;
     }
     return left.discordUserId.localeCompare(right.discordUserId);
   });
@@ -127,17 +128,33 @@ function chooseCombinations<T>(
 }
 
 export function balanceTeams(players: readonly TeamCandidate[]): BalancedTeamResult {
-  if (players.length !== 10) {
-    throw new Error("Team balancing requires exactly 10 players.");
+  if (players.length < 2 || players.length > 10) {
+    throw new Error("Team balancing requires between 2 and 10 players.");
   }
 
+  if (players.length === 2) {
+    const teamA = [players[0]!];
+    const teamB = [players[1]!];
+    const teamABalanceTotal = sumBalanceRatings(teamA);
+    const teamBBalanceTotal = sumBalanceRatings(teamB);
+
+    return {
+      teamA,
+      teamB,
+      teamABalanceTotal,
+      teamBBalanceTotal,
+      balanceGap: roundScore(Math.abs(teamABalanceTotal - teamBBalanceTotal)),
+    };
+  }
+
+  const teamASize = Math.ceil(players.length / 2);
   const sortedPlayers = sortTeamPlayers(players);
   const anchor = sortedPlayers[0]!;
   const remaining = sortedPlayers.slice(1);
-  const combinations = chooseCombinations(remaining, 4);
+  const combinations = chooseCombinations(remaining, teamASize - 1);
 
   let best: BalancedTeamResult | null = null;
-  let bestHighestSeedGap = Number.POSITIVE_INFINITY;
+  let bestHighestRatingGap = Number.POSITIVE_INFINITY;
   let bestLexKey = "";
 
   for (const combo of combinations) {
@@ -146,20 +163,20 @@ export function balanceTeams(players: readonly TeamCandidate[]): BalancedTeamRes
     const teamB = sortTeamPlayers(
       remaining.filter((player) => !teamAIds.has(player.discordUserId)),
     );
-    const teamASeedTotal = sumSeedScores(teamA);
-    const teamBSeedTotal = sumSeedScores(teamB);
-    const seedGap = roundScore(Math.abs(teamASeedTotal - teamBSeedTotal));
-    const highestSeedGap = roundScore(
-      Math.abs(teamA[0]!.metrics.seedScore - teamB[0]!.metrics.seedScore),
+    const teamABalanceTotal = sumBalanceRatings(teamA);
+    const teamBBalanceTotal = sumBalanceRatings(teamB);
+    const balanceGap = roundScore(Math.abs(teamABalanceTotal - teamBBalanceTotal));
+    const highestRatingGap = roundScore(
+      Math.abs(teamA[0]!.balanceRating - teamB[0]!.balanceRating),
     );
     const lexKey = teamLexKey(teamA);
 
     const shouldReplace =
       best === null ||
-      seedGap < best.seedGap ||
-      (seedGap === best.seedGap && highestSeedGap < bestHighestSeedGap) ||
-      (seedGap === best.seedGap &&
-        highestSeedGap === bestHighestSeedGap &&
+      balanceGap < best.balanceGap ||
+      (balanceGap === best.balanceGap && highestRatingGap < bestHighestRatingGap) ||
+      (balanceGap === best.balanceGap &&
+        highestRatingGap === bestHighestRatingGap &&
         lexKey.localeCompare(bestLexKey) < 0);
 
     if (!shouldReplace) {
@@ -169,11 +186,11 @@ export function balanceTeams(players: readonly TeamCandidate[]): BalancedTeamRes
     best = {
       teamA,
       teamB,
-      teamASeedTotal,
-      teamBSeedTotal,
-      seedGap,
+      teamABalanceTotal,
+      teamBBalanceTotal,
+      balanceGap,
     };
-    bestHighestSeedGap = highestSeedGap;
+    bestHighestRatingGap = highestRatingGap;
     bestLexKey = lexKey;
   }
 

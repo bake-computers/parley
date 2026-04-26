@@ -2,6 +2,8 @@ import { and, eq } from "drizzle-orm";
 import type { D1Database } from "@cloudflare/workers-types";
 import { createDb } from "./client";
 import { players, statSnapshots } from "./schema";
+import { seedScoreToInternalElo } from "../internal-elo";
+import { calculateSeedMetrics } from "../team-balance";
 
 type DataMap = Record<string, unknown>;
 
@@ -142,6 +144,19 @@ export async function persistStatsSnapshot(
   }
 
   const ranked = input.rankedStats;
+  const payloadJson = JSON.stringify({
+    profile: input.profile,
+    ranked_stats: input.rankedStats,
+    calculated_metrics: input.calculatedMetrics,
+  });
+  const seedMetrics = calculateSeedMetrics({
+    rankPoints: toNumber(ranked.rank_points, 0),
+    kdRatio: toNumber(ranked.kd_ratio, 0),
+    kost: toNumber(input.calculatedMetrics.kost, 0),
+    kills: toNumber(ranked.kills, 0),
+    headshotPercentage: toNumber(ranked.headshot_percentage, 0),
+    payloadJson,
+  });
 
   await db.insert(statSnapshots).values({
     playerId,
@@ -161,11 +176,15 @@ export async function persistStatsSnapshot(
     headshotPercentage: toNumber(ranked.headshot_percentage, 0),
     winRate: toNumber(ranked.win_rate, 0),
     kost: toNumber(input.calculatedMetrics.kost, 0),
-    payloadJson: JSON.stringify({
-      profile: input.profile,
-      ranked_stats: input.rankedStats,
-      calculated_metrics: input.calculatedMetrics,
-    }),
+    payloadJson,
     createdAt: Date.now(),
   });
+
+  await db
+    .update(players)
+    .set({
+      internalElo: seedScoreToInternalElo(seedMetrics.seedScore),
+      updatedAt: Date.now(),
+    })
+    .where(and(eq(players.id, playerId), eq(players.internalMatches, 0)));
 }

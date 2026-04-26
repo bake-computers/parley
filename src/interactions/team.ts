@@ -17,6 +17,7 @@ import {
   parseCustomId,
 } from "../lib/discord";
 import { balanceTeams, type TeamCandidate } from "../lib/team-balance";
+import { listGuildIdsForPlayerIds } from "../lib/db/account-links";
 import {
   completeCustomMatch,
   countCompletedMatchesSince,
@@ -46,6 +47,16 @@ const TEAM_RESULTS_PREFIX = "team-results";
 const TEAM_RESULTS_MODAL_PREFIX = "team-results-modal";
 
 type TeamEnv = Partial<Env> & Partial<DiscordRuntimeEnv>;
+type WinningTeam = "A" | "B";
+
+const EMPTY_SEED_METRICS = {
+  rankPoints: 0,
+  kdRatio: 0,
+  kost: 0,
+  kpr: 0,
+  headshotPercentage: 0,
+  seedScore: 0,
+} as const;
 
 function buildDraftButtonCustomId(action: string, draftId: string): string {
   return `${TEAM_DRAFT_PREFIX}/${action}/${draftId}`;
@@ -55,12 +66,24 @@ function buildDraftSelectCustomId(draftId: string): string {
   return `${TEAM_DRAFT_SELECT_PREFIX}/${draftId}`;
 }
 
-function buildResultsButtonCustomId(action: "enter" | "team-b", matchId: number): string {
-  return `${TEAM_RESULTS_PREFIX}/${action}/${matchId}`;
+function buildResultsButtonCustomId(
+  action: "enter" | "team-b",
+  matchId: number,
+  winner?: WinningTeam,
+): string {
+  const params = new URLSearchParams();
+  if (winner) {
+    params.set("winner", winner);
+  }
+  return `${TEAM_RESULTS_PREFIX}/${action}/${matchId}${params.size > 0 ? `?${params.toString()}` : ""}`;
 }
 
-function buildResultsModalCustomId(team: "A" | "B", matchId: number): string {
-  return `${TEAM_RESULTS_MODAL_PREFIX}/${matchId}?team=${team}`;
+function buildResultsModalCustomId(team: "A" | "B", matchId: number, winner?: WinningTeam): string {
+  const params = new URLSearchParams({ team });
+  if (winner) {
+    params.set("winner", winner);
+  }
+  return `${TEAM_RESULTS_MODAL_PREFIX}/${matchId}?${params.toString()}`;
 }
 
 function startOfUtcDayMs(nowMs = Date.now()): number {
@@ -137,6 +160,14 @@ function renderSelectedSummary(state: TeamDraftState): string {
   return selectedMembers.map((member) => member.username).join(", ");
 }
 
+function formatBalanceRating(value: number | null | undefined): string {
+  return typeof value === "number" ? String(Math.round(value)) : "pending";
+}
+
+function sumSeedScore(players: readonly TeamCandidate[]): number {
+  return players.reduce((total, player) => total + player.metrics.seedScore, 0);
+}
+
 function buildDraftMessage(state: TeamDraftState) {
   const totalPages = Math.max(1, Math.ceil(state.members.length / TEAM_PAGE_SIZE));
   const activePage = Math.min(Math.max(state.page, 0), totalPages - 1);
@@ -152,7 +183,7 @@ function buildDraftMessage(state: TeamDraftState) {
 
   const select = new StringSelectMenuBuilder()
     .setCustomId(buildDraftSelectCustomId(state.draftId))
-    .setPlaceholder("Select exactly 10 ready players")
+    .setPlaceholder("Select 2-10 ready players")
     .setMinValues(0)
     .setMaxValues(pageMembers.length)
     .setDisabled(pageMembers.length === 0);
@@ -162,7 +193,7 @@ function buildDraftMessage(state: TeamDraftState) {
       .setLabel(member.username)
       .setValue(member.discordUserId)
       .setDescription(
-        `${member.platform.toUpperCase()} • Seed ${member.metrics?.seedScore.toFixed(2) ?? "pending"}`,
+        `${member.platform.toUpperCase()} • ELO ${formatBalanceRating(member.balanceRating)}`,
       );
     if (selectedOnPage.has(member.discordUserId)) {
       option.setDefault(true);
@@ -191,7 +222,9 @@ function buildDraftMessage(state: TeamDraftState) {
       .setCustomId(buildDraftButtonCustomId("build", state.draftId))
       .setLabel("Build Teams")
       .setStyle(ButtonStyle.Primary)
-      .setDisabled(state.selectedDiscordUserIds.length !== 10),
+      .setDisabled(
+        state.selectedDiscordUserIds.length < 2 || state.selectedDiscordUserIds.length > 10,
+      ),
     new ButtonBuilder()
       .setCustomId(buildDraftButtonCustomId("cancel", state.draftId))
       .setLabel("Cancel")
@@ -200,7 +233,7 @@ function buildDraftMessage(state: TeamDraftState) {
 
   return {
     content:
-      `Select exactly 10 ready players for this R6 custom.\n` +
+      `Select 2-10 ready players for this R6 custom.\n` +
       `Selected: **${state.selectedDiscordUserIds.length}/10**\n` +
       `Players: ${renderSelectedSummary(state)}\n` +
       `Page ${activePage + 1}/${totalPages}`,
@@ -209,21 +242,26 @@ function buildDraftMessage(state: TeamDraftState) {
 }
 
 function createTeamCandidates(state: TeamDraftState): TeamCandidate[] {
-  return state.members
-    .filter((member) => state.selectedDiscordUserIds.includes(member.discordUserId))
-    .map((member) => {
-      if (!member.metrics) {
-        throw new Error(`Missing seed metrics for ${member.username}`);
-      }
+  const membersById = new Map(state.members.map((member) => [member.discordUserId, member]));
+  return state.selectedDiscordUserIds.map((discordUserId) => {
+    const member = membersById.get(discordUserId);
+    if (!member) {
+      throw new Error(`Missing roster member for ${discordUserId}`);
+    }
 
-      return {
-        discordUserId: member.discordUserId,
-        playerId: member.playerId,
-        username: member.username,
-        platform: member.platform,
-        metrics: member.metrics,
-      };
-    });
+    if (member.balanceRating === null) {
+      throw new Error(`Missing balance rating for ${member.username}`);
+    }
+
+    return {
+      discordUserId: member.discordUserId,
+      playerId: member.playerId,
+      username: member.username,
+      platform: member.platform,
+      balanceRating: member.balanceRating,
+      metrics: member.metrics ?? EMPTY_SEED_METRICS,
+    };
+  });
 }
 
 function buildPublicMatchMessage(
@@ -241,14 +279,14 @@ function buildPublicMatchMessage(
       "kills" in player && player.kills !== null && player.deaths !== null
         ? ` - ${player.kills}/${player.deaths}`
         : "";
-    return `<@${player.discordUserId}> (${("seedScore" in player ? player.seedScore : player.metrics.seedScore).toFixed(2)})${kd}`;
+    return `<@${player.discordUserId}> (ELO ${formatBalanceRating(player.balanceRating)})${kd}`;
   });
   const teamBLines = teamB.map((player) => {
     const kd =
       "kills" in player && player.kills !== null && player.deaths !== null
         ? ` - ${player.kills}/${player.deaths}`
         : "";
-    return `<@${player.discordUserId}> (${("seedScore" in player ? player.seedScore : player.metrics.seedScore).toFixed(2)})${kd}`;
+    return `<@${player.discordUserId}> (ELO ${formatBalanceRating(player.balanceRating)})${kd}`;
   });
 
   const button = new ButtonBuilder()
@@ -260,9 +298,9 @@ function buildPublicMatchMessage(
   return {
     content:
       `**${title}**\n` +
-      `Seed gap: **${seedGap.toFixed(2)}**\n\n` +
-      `**Team A** (${teamASeedTotal.toFixed(2)})\n${teamALines.join("\n")}\n\n` +
-      `**Team B** (${teamBSeedTotal.toFixed(2)})\n${teamBLines.join("\n")}`,
+      `ELO gap: **${formatBalanceRating(seedGap)}**\n\n` +
+      `**Team A** (${formatBalanceRating(teamASeedTotal)})\n${teamALines.join("\n")}\n\n` +
+      `**Team B** (${formatBalanceRating(teamBSeedTotal)})\n${teamBLines.join("\n")}`,
     components: [new ActionRowBuilder().addComponents(button)],
   };
 }
@@ -271,9 +309,10 @@ function buildResultModal(
   team: "A" | "B",
   matchId: number,
   players: readonly CustomMatchPlayerRecord[],
+  winner?: WinningTeam,
 ) {
   const modal = new ModalBuilder()
-    .setCustomId(buildResultsModalCustomId(team, matchId))
+    .setCustomId(buildResultsModalCustomId(team, matchId, winner))
     .setTitle(team === "A" ? "Team A Results" : "Team B Results");
 
   for (const player of players) {
@@ -396,11 +435,11 @@ export const teamCommand = new SlashCommand()
     await interaction.deferReply(true);
 
     const roster = await getOrBuildGuildRoster(env.Cache, env.Database, interaction.guildId);
-    const readyMembers = roster.filter((member) => member.ready && member.metrics !== null);
+    const readyMembers = roster.filter((member) => member.ready && member.balanceRating !== null);
 
-    if (readyMembers.length < 10) {
+    if (readyMembers.length < 2) {
       await interaction.editReply(
-        `This server only has **${readyMembers.length}** ready registered players. You need at least 10.`,
+        `This server only has **${readyMembers.length}** ready registered players. You need at least 2.`,
       );
       return;
     }
@@ -487,8 +526,8 @@ export const teamDraftButtonHandler = new ComponentHandler(
     return;
   }
 
-  if (state.selectedDiscordUserIds.length !== 10) {
-    await interaction.reply("Select exactly 10 players before building teams.", true);
+  if (state.selectedDiscordUserIds.length < 2 || state.selectedDiscordUserIds.length > 10) {
+    await interaction.reply("Select between 2 and 10 players before building teams.", true);
     return;
   }
 
@@ -507,9 +546,12 @@ export const teamDraftButtonHandler = new ComponentHandler(
     messageId: `pending:${interaction.id}`,
     createdByDiscordUserId: interaction.userId ?? "",
     status: "pending_results",
-    teamASeedTotal: balanced.teamASeedTotal,
-    teamBSeedTotal: balanced.teamBSeedTotal,
-    seedGap: balanced.seedGap,
+    teamASeedTotal: sumSeedScore(balanced.teamA),
+    teamBSeedTotal: sumSeedScore(balanced.teamB),
+    seedGap: Math.abs(sumSeedScore(balanced.teamA) - sumSeedScore(balanced.teamB)),
+    teamABalanceTotal: balanced.teamABalanceTotal,
+    teamBBalanceTotal: balanced.teamBBalanceTotal,
+    balanceGap: balanced.balanceGap,
     players: [
       ...balanced.teamA.map((player, index) => ({
         discordUserId: player.discordUserId,
@@ -522,6 +564,7 @@ export const teamDraftButtonHandler = new ComponentHandler(
         seedKpr: player.metrics.kpr,
         seedHeadshotPercentage: player.metrics.headshotPercentage,
         seedScore: player.metrics.seedScore,
+        balanceRating: player.balanceRating,
       })),
       ...balanced.teamB.map((player, index) => ({
         discordUserId: player.discordUserId,
@@ -534,6 +577,7 @@ export const teamDraftButtonHandler = new ComponentHandler(
         seedKpr: player.metrics.kpr,
         seedHeadshotPercentage: player.metrics.headshotPercentage,
         seedScore: player.metrics.seedScore,
+        balanceRating: player.balanceRating,
       })),
     ],
   });
@@ -543,9 +587,9 @@ export const teamDraftButtonHandler = new ComponentHandler(
     matchId,
     balanced.teamA,
     balanced.teamB,
-    balanced.teamASeedTotal,
-    balanced.teamBSeedTotal,
-    balanced.seedGap,
+    balanced.teamABalanceTotal,
+    balanced.teamBBalanceTotal,
+    balanced.balanceGap,
   );
   const rest = createRestClient(env);
   const publicMessageResult = await rest.createChannelMessage(state.channelId, {
@@ -566,7 +610,7 @@ export const teamDraftButtonHandler = new ComponentHandler(
 
   await updateCustomMatchMessageId(env.Database, { matchId, messageId });
   await deleteTeamDraftState(env.Cache, draftId);
-  await interaction.editReply("Posted the balanced teams to this channel.");
+  await interaction.editReply("Posted the teams to this channel.");
 });
 
 export const teamDraftSelectHandler = new ComponentHandler(
@@ -688,8 +732,14 @@ export const teamResultsButtonHandler = new ComponentHandler(
     return;
   }
 
+  const winner = parsed.params.get("winner");
+  if (winner !== "A" && winner !== "B") {
+    await interaction.reply("This results control is missing the winning team.", true);
+    return;
+  }
+
   const teamBPlayers = match.players.filter((player) => player.team === "B");
-  await interaction.showModal(buildResultModal("B", matchId, teamBPlayers));
+  await interaction.showModal(buildResultModal("B", matchId, teamBPlayers, winner));
 });
 
 export const teamResultsModalHandler = new ModalHandler(TEAM_RESULTS_MODAL_PREFIX).addHandler(
@@ -702,6 +752,7 @@ export const teamResultsModalHandler = new ModalHandler(TEAM_RESULTS_MODAL_PREFI
 
     const matchId = Number(parsed.path[1]);
     const team = parsed.params.get("team");
+    const winner = parsed.params.get("winner");
     if (!Number.isInteger(matchId) || (team !== "A" && team !== "B")) {
       await interaction.reply("This results form is invalid.", true);
       return;
@@ -743,12 +794,21 @@ export const teamResultsModalHandler = new ModalHandler(TEAM_RESULTS_MODAL_PREFI
         components: [
           new ActionRowBuilder().addComponents(
             new ButtonBuilder()
-              .setCustomId(buildResultsButtonCustomId("team-b", matchId))
-              .setLabel("Enter Team B Results")
+              .setCustomId(buildResultsButtonCustomId("team-b", matchId, "A"))
+              .setLabel("Team A Won")
+              .setStyle(ButtonStyle.Success),
+            new ButtonBuilder()
+              .setCustomId(buildResultsButtonCustomId("team-b", matchId, "B"))
+              .setLabel("Team B Won")
               .setStyle(ButtonStyle.Primary),
           ),
         ],
       });
+      return;
+    }
+
+    if (winner !== "A" && winner !== "B") {
+      await interaction.editReply("This results form is missing the winning team.");
       return;
     }
 
@@ -799,6 +859,7 @@ export const teamResultsModalHandler = new ModalHandler(TEAM_RESULTS_MODAL_PREFI
     await completeCustomMatch(env.Database, {
       matchId,
       resultsByDiscordUserId: merged,
+      winningTeam: winner,
     });
     await deleteTeamResultSession(env.Cache, matchId);
 
@@ -814,9 +875,9 @@ export const teamResultsModalHandler = new ModalHandler(TEAM_RESULTS_MODAL_PREFI
       completedMatch.id,
       completedMatch.players.filter((player) => player.team === "A"),
       completedMatch.players.filter((player) => player.team === "B"),
-      completedMatch.teamASeedTotal,
-      completedMatch.teamBSeedTotal,
-      completedMatch.seedGap,
+      completedMatch.teamABalanceTotal,
+      completedMatch.teamBBalanceTotal,
+      completedMatch.balanceGap,
       true,
     );
     const editResult = await rest.editChannelMessage(
@@ -835,7 +896,11 @@ export const teamResultsModalHandler = new ModalHandler(TEAM_RESULTS_MODAL_PREFI
       return;
     }
 
-    await deleteGuildRosterCaches(env.Cache, [completedMatch.guildId]);
+    const affectedGuildIds = await listGuildIdsForPlayerIds(
+      env.Database,
+      completedMatch.players.map((player) => player.playerId),
+    );
+    await deleteGuildRosterCaches(env.Cache, [completedMatch.guildId, ...affectedGuildIds]);
     await interaction.editReply("Saved match results and updated the public match message.");
   },
 );

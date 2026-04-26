@@ -34,6 +34,11 @@ describe("guild roster cache", () => {
         platform: "pc",
         profileUrl: null,
         level: 100,
+        internalElo: 1254,
+        internalMatches: 0,
+        internalWins: 0,
+        internalLosses: 0,
+        internalUpdatedAt: null,
         registeredAt: 1,
         updatedAt: 2,
         snapshot: {
@@ -55,6 +60,28 @@ describe("guild roster cache", () => {
         platform: "xbox",
         profileUrl: null,
         level: 90,
+        internalElo: 1000,
+        internalMatches: 0,
+        internalWins: 0,
+        internalLosses: 0,
+        internalUpdatedAt: null,
+        registeredAt: 1,
+        updatedAt: 2,
+        snapshot: null,
+      },
+      {
+        guildId: "guild-1",
+        discordUserId: "user-3",
+        playerId: 3,
+        username: "Internal",
+        platform: "playstation",
+        profileUrl: null,
+        level: 80,
+        internalElo: 1115,
+        internalMatches: 4,
+        internalWins: 3,
+        internalLosses: 1,
+        internalUpdatedAt: 4,
         registeredAt: 1,
         updatedAt: 2,
         snapshot: null,
@@ -65,8 +92,11 @@ describe("guild roster cache", () => {
 
     expect(members[0]?.ready).toBe(true);
     expect(members[0]?.metrics?.kpr).toBe(0.75);
+    expect(members[0]?.balanceRating).toBe(1248);
     expect(members[1]?.ready).toBe(false);
     expect(members[1]?.metrics).toBeNull();
+    expect(members[2]?.ready).toBe(true);
+    expect(members[2]?.balanceRating).toBe(1115);
   });
 
   test("writes, reads, and deletes a cached guild roster", async () => {
@@ -80,6 +110,12 @@ describe("guild roster cache", () => {
         platform: "pc",
         profileUrl: null,
         level: 100,
+        internalElo: 1254,
+        internalMatches: 0,
+        internalWins: 0,
+        internalLosses: 0,
+        internalUpdatedAt: null,
+        balanceRating: 1254,
         registeredAt: 1,
         updatedAt: 2,
         ready: true,

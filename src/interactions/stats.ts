@@ -8,12 +8,21 @@ import {
 import { type StatsPlatform } from "../lib/http";
 import { logger } from "../lib/logger";
 import {
+  buildInternalStatsOnlyEmbed,
   buildProcessingStatsEmbed,
   buildQueueUnavailableEmbed,
   buildStatsMessagePayload,
+  type InternalStatsSummary,
   parseStatsPaginationCustomId,
   STATS_PAGINATION_PREFIX,
 } from "../lib/stats-embeds";
+import { resolveStatsEnvelopePlayerId } from "../lib/db/player-identity";
+import {
+  getInternalPlayerSummaryByIdentity,
+  getInternalPlayerSummaryByPlayerId,
+  isExternalStatsRefreshLocked,
+} from "../lib/db/player-ratings";
+import { seedScoreToInternalElo } from "../lib/internal-elo";
 import {
   buildStatsCacheKey,
   isStatsCacheStale,
@@ -36,6 +45,7 @@ import {
   type SeasonCatalogEntry,
 } from "../lib/stats-season";
 import { readStatsViewState, writeStatsViewState } from "../lib/stats-view-state";
+import { calculateSeedMetrics } from "../lib/team-balance";
 import {
   createStatsRefreshMessage,
   enqueueStatsRefresh,
@@ -65,6 +75,58 @@ function buildTrackedPlayerLimitMessage(hasCachedStats: boolean, retryAtUnix: nu
 
 function buildExecutorLimitMessage(retryAtUnix: number): string {
   return `You've reached the /stats refresh cap (3 requests per day).\nRetry at ${formatDiscordRetryAt(retryAtUnix)}.`;
+}
+
+function toInternalStatsSummary(
+  summary: Awaited<ReturnType<typeof getInternalPlayerSummaryByPlayerId>>,
+): InternalStatsSummary | null {
+  if (!summary) {
+    return null;
+  }
+
+  return {
+    username: summary.username,
+    platform: summary.platform,
+    internalElo: summary.internalElo,
+    internalMatches: summary.internalMatches,
+    internalWins: summary.internalWins,
+    internalLosses: summary.internalLosses,
+    externalRefreshLocked: isExternalStatsRefreshLocked(summary),
+  };
+}
+
+function toProvisionalInternalStatsSummary(
+  envelope: NonNullable<Awaited<ReturnType<typeof readStatsCache>>>,
+  summary: Awaited<ReturnType<typeof getInternalPlayerSummaryByPlayerId>>,
+): InternalStatsSummary {
+  if (summary && summary.internalMatches > 0) {
+    return toInternalStatsSummary(summary)!;
+  }
+
+  const seedMetrics = calculateSeedMetrics({
+    rankPoints: Number(envelope.rankedStats.rank_points ?? 0),
+    kdRatio: Number(envelope.rankedStats.kd_ratio ?? 0),
+    kost: Number(envelope.calculatedMetrics.kost ?? 0),
+    kills: Number(envelope.rankedStats.kills ?? 0),
+    headshotPercentage: Number(envelope.rankedStats.headshot_percentage ?? 0),
+    payloadJson: JSON.stringify({
+      profile: envelope.profile,
+      ranked_stats: envelope.rankedStats,
+      calculated_metrics: envelope.calculatedMetrics,
+    }),
+  });
+
+  return {
+    username: summary?.username ?? envelope.username,
+    platform:
+      summary?.platform ??
+      (typeof envelope.profile.platform === "string" ? envelope.profile.platform : "unknown"),
+    internalElo: seedScoreToInternalElo(seedMetrics.seedScore),
+    internalMatches: summary?.internalMatches ?? 0,
+    internalWins: summary?.internalWins ?? 0,
+    internalLosses: summary?.internalLosses ?? 0,
+    externalRefreshLocked: isExternalStatsRefreshLocked(summary),
+  };
 }
 
 async function resolveSeasonCatalog(
@@ -239,16 +301,25 @@ export const statsCommand = new SlashCommand()
       : null;
     const cacheKey = buildStatsCacheKey(username, platform, canonicalRequestedSeason ?? "latest");
     const cachedEnvelope = await readStatsCache(cache, cacheKey);
+    let playerSummary = await getInternalPlayerSummaryByIdentity(env.Database, username, platform);
 
     if (cachedEnvelope) {
+      const cachedPlayerId = await resolveStatsEnvelopePlayerId(env.Database, cachedEnvelope);
+      if (cachedPlayerId !== null) {
+        playerSummary =
+          (await getInternalPlayerSummaryByPlayerId(env.Database, cachedPlayerId)) ?? playerSummary;
+      }
+
+      const refreshLocked = isExternalStatsRefreshLocked(playerSummary);
       const stale = isStatsCacheStale(cachedEnvelope.cachedAt);
       await writeStatsViewState(cache, interaction.id, { cacheKey });
       const payload = buildStatsMessagePayload(
         cachedEnvelope,
         "cache",
-        stale,
+        stale && !refreshLocked,
         interaction.id,
         0,
+        toProvisionalInternalStatsSummary(cachedEnvelope, playerSummary),
         emojis,
       );
       await interaction.editReply({
@@ -257,7 +328,7 @@ export const statsCommand = new SlashCommand()
         flags: 64, // ephemeral
       });
 
-      if (!stale) {
+      if (!stale || refreshLocked) {
         return;
       }
 
@@ -334,6 +405,23 @@ export const statsCommand = new SlashCommand()
         });
       }
 
+      return;
+    }
+
+    if (isExternalStatsRefreshLocked(playerSummary)) {
+      const internalSummary = toInternalStatsSummary(playerSummary);
+      if (!internalSummary) {
+        await interaction.editReply({
+          embeds: [buildQueueUnavailableEmbed(undefined, emojis)],
+          flags: 64, // ephemeral
+        });
+        return;
+      }
+
+      await interaction.editReply({
+        embeds: [buildInternalStatsOnlyEmbed(internalSummary)],
+        flags: 64, // ephemeral
+      });
       return;
     }
 
@@ -435,13 +523,17 @@ export const statsPaginationHandler = new ComponentHandler(
     return;
   }
 
+  const playerId = await resolveStatsEnvelopePlayerId(env.Database, envelope);
+  const playerSummary =
+    playerId === null ? null : await getInternalPlayerSummaryByPlayerId(env.Database, playerId);
   const emojis = await resolveStatsEmojiCatalog(env, interaction.applicationId);
   const payload = buildStatsMessagePayload(
     envelope,
     "cache",
-    isStatsCacheStale(envelope.cachedAt),
+    isStatsCacheStale(envelope.cachedAt) && !isExternalStatsRefreshLocked(playerSummary),
     parsedCustomId.viewId,
     parsedCustomId.page,
+    toProvisionalInternalStatsSummary(envelope, playerSummary),
     emojis,
   );
   await interaction.update({

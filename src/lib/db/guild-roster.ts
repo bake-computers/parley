@@ -22,6 +22,11 @@ export interface GuildRosterEntry {
   platform: string;
   profileUrl: string | null;
   level: number;
+  internalElo: number;
+  internalMatches: number;
+  internalWins: number;
+  internalLosses: number;
+  internalUpdatedAt: number | null;
   registeredAt: number;
   updatedAt: number;
   snapshot: GuildRosterSeedSnapshot | null;
@@ -45,6 +50,11 @@ export async function listGuildRoster(
       platform: players.platform,
       profileUrl: players.profileUrl,
       level: players.level,
+      internalElo: players.internalElo,
+      internalMatches: players.internalMatches,
+      internalWins: players.internalWins,
+      internalLosses: players.internalLosses,
+      internalUpdatedAt: players.internalUpdatedAt,
       registeredAt: guildPlayers.createdAt,
       updatedAt: guildPlayers.updatedAt,
       snapshotFetchedAt: statSnapshots.fetchedAt,
@@ -76,6 +86,11 @@ export async function listGuildRoster(
       platform: row.platform,
       profileUrl: row.profileUrl,
       level: row.level,
+      internalElo: row.internalElo,
+      internalMatches: row.internalMatches,
+      internalWins: row.internalWins,
+      internalLosses: row.internalLosses,
+      internalUpdatedAt: row.internalUpdatedAt,
       registeredAt: row.registeredAt,
       updatedAt: row.updatedAt,
       snapshot:

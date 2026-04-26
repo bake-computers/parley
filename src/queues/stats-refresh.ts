@@ -535,7 +535,15 @@ async function updatePendingRepliesAfterSuccess(
     if (!rawSeason) {
       targetCacheKey = buildStatsCacheKey(message.username, message.platform, "latest");
       payload = statsPayload(
-        buildStatsMessagePayload(latestEnvelope, "cache", false, pending.interactionId, 0, emojis),
+        buildStatsMessagePayload(
+          latestEnvelope,
+          "cache",
+          false,
+          pending.interactionId,
+          0,
+          undefined,
+          emojis,
+        ),
       );
     } else {
       const canonicalSeason =
@@ -553,6 +561,7 @@ async function updatePendingRepliesAfterSuccess(
             false,
             pending.interactionId,
             0,
+            undefined,
             emojis,
           ),
         );

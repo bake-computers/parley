@@ -1,7 +1,8 @@
-import { and, eq, gte } from "drizzle-orm";
+import { and, eq, gte, inArray } from "drizzle-orm";
 import type { D1Database } from "@cloudflare/workers-types";
 import { createDb } from "./client";
 import { customMatchPlayers, customMatches, players } from "./schema";
+import { calculateTeamEloDelta, roundInternalElo, type MatchWinner } from "../internal-elo";
 
 export type CustomMatchStatus = "cancelled" | "completed" | "pending_results";
 export type CustomMatchTeam = "A" | "B";
@@ -19,6 +20,7 @@ export interface CustomMatchPlayerRecord {
   seedKpr: number;
   seedHeadshotPercentage: number;
   seedScore: number;
+  balanceRating: number;
   kills: number | null;
   deaths: number | null;
   createdAt: number;
@@ -36,6 +38,10 @@ export interface CustomMatchRecord {
   teamASeedTotal: number;
   teamBSeedTotal: number;
   seedGap: number;
+  winningTeam: string | null;
+  teamABalanceTotal: number;
+  teamBBalanceTotal: number;
+  balanceGap: number;
   createdAt: number;
   updatedAt: number;
 }
@@ -55,6 +61,9 @@ export async function createCustomMatch(
     teamASeedTotal: number;
     teamBSeedTotal: number;
     seedGap: number;
+    teamABalanceTotal: number;
+    teamBBalanceTotal: number;
+    balanceGap: number;
     players: Array<{
       discordUserId: string;
       playerId: number;
@@ -66,6 +75,7 @@ export async function createCustomMatch(
       seedKpr: number;
       seedHeadshotPercentage: number;
       seedScore: number;
+      balanceRating: number;
     }>;
   },
 ): Promise<number> {
@@ -82,6 +92,9 @@ export async function createCustomMatch(
       teamASeedTotal: input.teamASeedTotal,
       teamBSeedTotal: input.teamBSeedTotal,
       seedGap: input.seedGap,
+      teamABalanceTotal: input.teamABalanceTotal,
+      teamBBalanceTotal: input.teamBBalanceTotal,
+      balanceGap: input.balanceGap,
       createdAt: now,
       updatedAt: now,
     })
@@ -105,6 +118,7 @@ export async function createCustomMatch(
       seedKpr: player.seedKpr,
       seedHeadshotPercentage: player.seedHeadshotPercentage,
       seedScore: player.seedScore,
+      balanceRating: player.balanceRating,
       createdAt: now,
       updatedAt: now,
     })),
@@ -163,6 +177,7 @@ export async function getCustomMatch(
       seedKpr: customMatchPlayers.seedKpr,
       seedHeadshotPercentage: customMatchPlayers.seedHeadshotPercentage,
       seedScore: customMatchPlayers.seedScore,
+      balanceRating: customMatchPlayers.balanceRating,
       kills: customMatchPlayers.kills,
       deaths: customMatchPlayers.deaths,
       createdAt: customMatchPlayers.createdAt,
@@ -191,6 +206,7 @@ export async function completeCustomMatch(
   input: {
     matchId: number;
     resultsByDiscordUserId: ReadonlyMap<string, { kills: number; deaths: number }>;
+    winningTeam: MatchWinner;
   },
 ): Promise<void> {
   const db = createDb(database);
@@ -216,10 +232,58 @@ export async function completeCustomMatch(
       .where(eq(customMatchPlayers.id, player.id));
   }
 
+  const teamAPlayers = match.players.filter((player) => player.team === "A");
+  const teamBPlayers = match.players.filter((player) => player.team === "B");
+  const teamARating =
+    teamAPlayers.reduce((total, player) => total + player.balanceRating, 0) / teamAPlayers.length;
+  const teamBRating =
+    teamBPlayers.reduce((total, player) => total + player.balanceRating, 0) / teamBPlayers.length;
+  const teamADelta = calculateTeamEloDelta({
+    teamARating,
+    teamBRating,
+    winner: input.winningTeam,
+  });
+  const playerIds = match.players.map((player) => player.playerId);
+  const currentPlayers = await db
+    .select({
+      id: players.id,
+      internalElo: players.internalElo,
+      internalMatches: players.internalMatches,
+      internalWins: players.internalWins,
+      internalLosses: players.internalLosses,
+    })
+    .from(players)
+    .where(inArray(players.id, playerIds));
+  const currentPlayersById = new Map(currentPlayers.map((player) => [player.id, player]));
+
+  for (const player of match.players) {
+    const currentPlayer = currentPlayersById.get(player.playerId);
+    if (!currentPlayer) {
+      throw new Error("Missing player rating for one or more match players");
+    }
+
+    const playerDelta = player.team === "A" ? teamADelta : -teamADelta;
+    const won = player.team === input.winningTeam;
+    const currentRatingBase =
+      currentPlayer.internalMatches > 0 ? currentPlayer.internalElo : player.balanceRating;
+    await db
+      .update(players)
+      .set({
+        internalElo: roundInternalElo(currentRatingBase + playerDelta),
+        internalMatches: currentPlayer.internalMatches + 1,
+        internalWins: currentPlayer.internalWins + (won ? 1 : 0),
+        internalLosses: currentPlayer.internalLosses + (won ? 0 : 1),
+        internalUpdatedAt: now,
+        updatedAt: now,
+      })
+      .where(eq(players.id, player.playerId));
+  }
+
   await db
     .update(customMatches)
     .set({
       status: "completed",
+      winningTeam: input.winningTeam,
       updatedAt: now,
     })
     .where(eq(customMatches.id, input.matchId));
