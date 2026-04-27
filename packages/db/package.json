@@ -1,0 +1,19 @@
+{
+  "name": "@parley/db",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "test": "bun --eval 'process.exit(0)'",
+    "typecheck": "tsc --noEmit --pretty false -p tsconfig.json"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.45.2"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260418.1"
+  }
+}

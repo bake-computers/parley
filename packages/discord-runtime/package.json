@@ -1,0 +1,20 @@
+{
+  "name": "@parley/discord-runtime",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "test": "bun test tests",
+    "typecheck": "tsc --noEmit --pretty false -p tsconfig.json"
+  },
+  "dependencies": {
+    "discord-api-types": "^0.38.47",
+    "neverthrow": "^8.2.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260418.1"
+  }
+}

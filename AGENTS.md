@@ -4,7 +4,7 @@
 
 - Runtime: **Bun**. Always use `bun` instead of `npm` or `node`.
 - Framework: **Honocord** (custom Discord interactions layer). It is being partially rewritten — do not refactor, replace, or update it unless explicitly asked.
-- ORM: **Drizzle** on top of Cloudflare D1. Never write raw SQL strings — use Drizzle query builder. Schema lives in `src/db/schema.ts`.
+- ORM: **Drizzle** on top of Cloudflare D1. Never write raw SQL strings — use Drizzle query builder. Schema lives in `packages/db/src/schema.ts`.
 - Deploy target: Cloudflare Workers (interactions endpoint). No gateway, no WebSocket, no discord.js.
 
 ```bash
@@ -12,7 +12,8 @@ bun install              # install deps
 bun run dev              # local dev via wrangler dev
 bun run deploy           # deploy to Cloudflare Workers
 bun run db:generate      # generate Drizzle migrations
-bun run db:migrate       # apply migrations to D1
+bun run db:migrate:local # apply migrations to local D1
+bun run db:migrate:remote # apply migrations to remote D1
 bun run register         # register Discord slash commands (run once after command changes)
 bun run lint             # run oxlint
 bun run fmt              # run oxfmt
@@ -21,11 +22,11 @@ bun run fmt              # run oxfmt
 ## Testing
 
 ```bash
-bun test                 # run all tests
-bun test src/lib         # run a specific folder
+bun run test             # run all workspace tests
+bun --cwd packages/core test tests  # run one package's tests
 ```
 
-- Write tests for any new lib function in `src/lib/`.
+- Write tests for any new shared lib function in the owning package's `tests/` folder.
 - Command handlers do not need unit tests — test the underlying lib functions they call.
 - Fix all type errors and test failures before finishing a task.
 
@@ -34,10 +35,10 @@ bun test src/lib         # run a specific folder
 - TypeScript strict mode is on. No `any` unless absolutely unavoidable.
 - Every external API call must handle failure gracefully — return `null`, never throw to the command handler.
 - Interactions that call external APIs or the scraper **must** defer (`type: 5`) first, then follow up. Discord requires a response within 3 seconds.
-- KV cache must be checked before D1 for any read-heavy operation (see `src/lib/cache.ts`).
+- KV cache must be checked before D1 for any read-heavy operation.
 - All scraping is offloaded to the **Cloudflare Queue consumer** — never inline in a command handler.
 
-## Bindings (wrangler.toml)
+## Bindings (`apps/worker/wrangler.jsonc`)
 
 | Binding    | Type  | Purpose                  |
 | ---------- | ----- | ------------------------ |
@@ -64,7 +65,7 @@ DISCORD_APPLICATION_ID
 ## PR instructions
 
 - Branch format: `feat/<name>`, `fix/<name>`, `chore/<name>`
-- Run `bun test`, `bun run typecheck`, `oxlint .`, and `oxfmt --check .` before opening a PR.
+- Run `bun run test`, `bun run typecheck`, `oxlint .`, and `oxfmt --check .` before opening a PR.
 - Keep PRs scoped — one feature or fix per PR.
 
 ## Linting and formatting

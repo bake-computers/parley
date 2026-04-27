@@ -1,0 +1,24 @@
+{
+  "name": "@parley/core",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "test": "bun test tests",
+    "typecheck": "tsc --noEmit --pretty false -p tsconfig.json"
+  },
+  "dependencies": {
+    "@parley/db": "workspace:*",
+    "@parley/discord-runtime": "workspace:*",
+    "cheerio": "^1.2.0",
+    "drizzle-orm": "^0.45.2",
+    "neverthrow": "^8.2.0",
+    "user-agents": "^2.1.35"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260418.1"
+  }
+}

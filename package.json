@@ -1,45 +1,40 @@
 {
   "name": "parley",
   "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "type": "module",
-  "module": "src/index.ts",
   "scripts": {
-    "build": "tsup",
-    "dev": "wrangler dev",
-    "deploy": "bun run build && wrangler deploy",
-    "register": "bun run src/register.ts",
-    "typecheck": "tsc --noEmit --pretty false",
-    "db:generate": "drizzle-kit generate",
-    "db:migrate:local": "wrangler d1 migrations apply parley --local",
-    "db:migrate:remote": "wrangler d1 migrations apply parley --remote",
-    "db:studio": "drizzle-kit studio",
-    "cf-typegen": "wrangler types",
-    "wrangler:deploy": "wrangler deploy",
-    "wrangler:dev": "wrangler dev",
-    "wrangler:tail": "wrangler tail",
-    "lint": "oxlint",
-    "lint:fix": "oxlint --fix",
-    "format": "oxfmt",
-    "format:check": "oxfmt --check"
-  },
-  "dependencies": {
-    "cheerio": "^1.2.0",
-    "discord-api-types": "^0.38.47",
-    "drizzle-orm": "^0.45.2",
-    "neverthrow": "^8.2.0",
-    "user-agents": "^2.1.35"
+    "build": "turbo run build",
+    "dev": "turbo run dev --filter=@parley/worker",
+    "deploy": "turbo run deploy --filter=@parley/worker",
+    "register": "turbo run register --filter=@parley/worker",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck",
+    "db:generate": "turbo run db:generate --filter=@parley/worker",
+    "db:migrate:local": "turbo run db:migrate:local --filter=@parley/worker",
+    "db:migrate:remote": "turbo run db:migrate:remote --filter=@parley/worker",
+    "db:studio": "turbo run db:studio --filter=@parley/worker",
+    "cf-typegen": "turbo run cf-typegen --filter=@parley/worker",
+    "wrangler:deploy": "turbo run wrangler:deploy --filter=@parley/worker",
+    "wrangler:dev": "turbo run wrangler:dev --filter=@parley/worker",
+    "wrangler:tail": "turbo run wrangler:tail --filter=@parley/worker",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint --fix .",
+    "format": "oxfmt .",
+    "format:check": "oxfmt --check .",
+    "fmt": "oxfmt .",
+    "fmt:check": "oxfmt --check ."
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260418.1",
     "@types/bun": "latest",
     "@types/node": "^25.6.0",
-    "drizzle-kit": "^0.31.10",
     "oxfmt": "^0.45.0",
     "oxlint": "^1.60.0",
-    "tsup": "^8.5.1",
-    "wrangler": "^4.83.0"
+    "turbo": "^2.9.6",
+    "typescript": "^5.9.3"
   },
-  "peerDependencies": {
-    "typescript": "^5"
-  }
+  "packageManager": "bun@1.3.12"
 }

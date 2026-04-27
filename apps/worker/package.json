@@ -1,0 +1,33 @@
+{
+  "name": "@parley/worker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsup --config tsup.config.ts",
+    "dev": "wrangler dev --config wrangler.jsonc",
+    "deploy": "bun run build && wrangler deploy --config wrangler.jsonc",
+    "register": "bun run src/register.ts",
+    "typecheck": "tsc --noEmit --pretty false -p tsconfig.json",
+    "test": "bun test tests",
+    "db:generate": "drizzle-kit generate --config drizzle.config.ts",
+    "db:migrate:local": "wrangler d1 migrations apply parley --local --config wrangler.jsonc",
+    "db:migrate:remote": "wrangler d1 migrations apply parley --remote --config wrangler.jsonc",
+    "db:studio": "drizzle-kit studio --config drizzle.config.ts",
+    "cf-typegen": "wrangler types --config wrangler.jsonc",
+    "wrangler:deploy": "wrangler deploy --config wrangler.jsonc",
+    "wrangler:dev": "wrangler dev --config wrangler.jsonc",
+    "wrangler:tail": "wrangler tail --config wrangler.jsonc"
+  },
+  "dependencies": {
+    "@parley/core": "workspace:*",
+    "@parley/db": "workspace:*",
+    "@parley/discord-runtime": "workspace:*",
+    "neverthrow": "^8.2.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260418.1",
+    "drizzle-kit": "^0.31.10",
+    "tsup": "^8.5.1",
+    "wrangler": "^4.83.0"
+  }
+}
