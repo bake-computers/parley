@@ -1,6 +1,6 @@
 import type { KVNamespace } from "@cloudflare/workers-types";
-import { logger } from "./logger";
-import { STATS_CACHE_HARD_TTL_SECONDS } from "./stats-cache";
+import { logger } from "../lib/logger";
+import { STATS_CACHE_HARD_TTL_SECONDS } from "./cache";
 
 const STATS_VIEW_STATE_PREFIX = "stats:view-state:v1";
 

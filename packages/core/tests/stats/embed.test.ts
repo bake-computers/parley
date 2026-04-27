@@ -5,9 +5,9 @@ import {
   buildStatsPaginationRow,
   type InternalStatsSummary,
   parseStatsPaginationCustomId,
-} from "../src/stats-embeds";
+} from "../../src/stats/embed";
 import type { ApplicationEmojiCatalog } from "@parley/discord-runtime";
-import type { StatsCacheEnvelope } from "../src/stats-cache";
+import type { StatsCacheEnvelope } from "../../src/stats/cache";
 
 function envelopeFixture(): StatsCacheEnvelope {
   return {

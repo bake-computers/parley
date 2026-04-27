@@ -1,8 +1,8 @@
 import { load } from "cheerio";
 import { err, ok, ResultAsync, type Result } from "neverthrow";
 import UserAgents from "user-agents";
-import { logger } from "./logger";
-import { canonicalizeSeasonSelector, type SeasonCatalogEntry } from "./stats-season";
+import { logger } from "../lib/logger";
+import { canonicalizeSeasonSelector, type SeasonCatalogEntry } from "../stats/season";
 
 const PLATFORM_SEARCH_ORDER = ["pc", "xbox", "playstation"] as const;
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;

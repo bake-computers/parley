@@ -2,8 +2,8 @@ import { and, eq } from "drizzle-orm";
 import type { D1Database } from "@cloudflare/workers-types";
 import { createDb } from "@parley/db/client";
 import { players, statSnapshots } from "@parley/db/schema";
-import { seedScoreToInternalElo } from "./internal-elo";
-import { calculateSeedMetrics } from "./team-balance";
+import { seedScoreToInternalElo } from "../lib/elo";
+import { calculateSeedMetrics } from "../team/balance";
 
 type DataMap = Record<string, unknown>;
 

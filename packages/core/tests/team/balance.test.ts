@@ -3,7 +3,7 @@ import {
   balanceTeams,
   calculateKprFromPayloadJson,
   calculateSeedMetrics,
-} from "../src/team-balance";
+} from "../../src/team/balance";
 
 function payloadWithRounds(roundsPlayed: number): string {
   return JSON.stringify({

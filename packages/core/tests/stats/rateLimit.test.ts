@@ -7,7 +7,7 @@ import {
   consumeExecutorDailyQuota,
   formatDiscordRetryAt,
   isBotOwner,
-} from "../src/stats-rate-limit";
+} from "../../src/stats/rateLimit";
 
 class FakeKV {
   readonly values = new Map<string, string>();

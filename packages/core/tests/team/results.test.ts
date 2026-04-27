@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { mergeTeamResults, parsePlayerResultInput } from "../src/team-results";
+import { mergeTeamResults, parsePlayerResultInput } from "../../src/team/results";
 
 describe("team results", () => {
   test("parses kills and deaths", () => {

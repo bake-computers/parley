@@ -7,9 +7,9 @@ import {
   formatApplicationEmoji,
   toComponentEmoji,
 } from "@parley/discord-runtime";
-import { calculateKost, type StatsPlatform } from "./http";
-import { statsCacheAgeMinutes, type StatsCacheEnvelope } from "./stats-cache";
-import type { SeasonCatalogEntry } from "./stats-season";
+import { calculateKost, type StatsPlatform } from "../lib/http";
+import { statsCacheAgeMinutes, type StatsCacheEnvelope } from "./cache";
+import type { SeasonCatalogEntry } from "./season";
 
 const numberFormatter = new Intl.NumberFormat("en-US");
 const STATS_PAGE_LABELS = ["Overview", "Combat", "Rounds"] as const;

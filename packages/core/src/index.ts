@@ -5,4 +5,4 @@ export {
   type LogFields,
   type LogLevel,
   type LogRecord,
-} from "./logger";
+} from "./lib/logger";

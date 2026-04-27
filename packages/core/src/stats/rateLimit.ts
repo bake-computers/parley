@@ -1,5 +1,5 @@
 import type { KVNamespace } from "@cloudflare/workers-types";
-import type { StatsPlatform } from "./http";
+import type { StatsPlatform } from "../lib/http";
 
 const STATS_EXECUTOR_DAILY_KEY_PREFIX = "stats-executor-day:v1";
 const TRACKED_PLAYER_DAILY_KEY_PREFIX = "scrape-day";

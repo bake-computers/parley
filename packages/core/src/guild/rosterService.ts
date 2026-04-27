@@ -4,7 +4,7 @@ import {
   readGuildRosterCache,
   writeGuildRosterCache,
   type CachedGuildRosterMember,
-} from "./guild-roster-cache";
+} from "./rosterCache";
 import { listGuildRoster } from "@parley/db/guild-roster";
 
 export async function getOrBuildGuildRoster(

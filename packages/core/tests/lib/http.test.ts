@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { scrapeHtmlStatsCollection, scrapeHtmlStatsResult } from "../src/http";
+import { scrapeHtmlStatsCollection, scrapeHtmlStatsResult } from "../../src/lib/http";
 
 function buildTestHtml(): string {
   const payload = [
