@@ -7,7 +7,7 @@ import {
   readStatsCache,
   writeGlobalSeasonCatalog,
   writePlayerSeasonCatalog,
-} from "../src/stats-cache";
+} from "../../src/stats/cache";
 
 class FakeKV {
   readonly values = new Map<string, string>();

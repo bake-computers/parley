@@ -7,7 +7,7 @@ import {
   readTeamResultSession,
   writeTeamDraftState,
   writeTeamResultSession,
-} from "../src/team-state";
+} from "../../src/team/state";
 
 class FakeKV {
   readonly values = new Map<string, string>();

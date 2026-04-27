@@ -4,7 +4,7 @@ import {
   calculateTeamEloDelta,
   roundInternalElo,
   seedScoreToInternalElo,
-} from "../src/internal-elo";
+} from "../../src/lib/elo";
 
 describe("internal elo", () => {
   test("maps seed score into provisional internal elo", () => {

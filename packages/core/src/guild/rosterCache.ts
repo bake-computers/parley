@@ -1,7 +1,7 @@
 import type { KVNamespace } from "@cloudflare/workers-types";
-import { calculateSeedMetrics, type TeamSeedMetrics } from "./team-balance";
+import { calculateSeedMetrics, type TeamSeedMetrics } from "../team/balance";
 import type { GuildRosterEntry } from "@parley/db/guild-roster";
-import { seedScoreToInternalElo } from "./internal-elo";
+import { seedScoreToInternalElo } from "../lib/elo";
 
 const GUILD_ROSTER_CACHE_PREFIX = "team:guild-roster:v1";
 const GUILD_ROSTER_CACHE_TTL_SECONDS = 5 * 60;

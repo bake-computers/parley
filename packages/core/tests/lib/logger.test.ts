@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, test } from "bun:test";
-import { logger, setLogSinkForTests, type LogRecord } from "../src/logger";
+import { logger, setLogSinkForTests, type LogRecord } from "../../src/lib/logger";
 
 describe("logger", () => {
   afterEach(() => {

@@ -2,8 +2,8 @@ import { and, eq } from "drizzle-orm";
 import type { D1Database } from "@cloudflare/workers-types";
 import { createDb } from "@parley/db/client";
 import { guildPlayers, players, statSnapshots } from "@parley/db/schema";
-import { normalizeStatsLookupValue } from "./stats-rate-limit";
-import type { StatsCacheEnvelope } from "./stats-cache";
+import { normalizeStatsLookupValue } from "../stats/rateLimit";
+import type { StatsCacheEnvelope } from "../stats/cache";
 
 export interface PlayerRecord {
   id: number;

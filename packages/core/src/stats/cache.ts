@@ -1,11 +1,7 @@
 import type { KVNamespace } from "@cloudflare/workers-types";
 import { err, ok, type Result } from "neverthrow";
-import { logger } from "./logger";
-import {
-  mergeSeasonCatalog,
-  normalizeSeasonSelector,
-  type SeasonCatalogEntry,
-} from "./stats-season";
+import { logger } from "../lib/logger";
+import { mergeSeasonCatalog, normalizeSeasonSelector, type SeasonCatalogEntry } from "./season";
 
 const STATS_CACHE_KEY_PREFIX = "stats:v2";
 const PLAYER_SEASON_CATALOG_PREFIX = "stats:season-catalog:v1:player";

@@ -5,7 +5,7 @@ import {
   deleteGuildRosterCache,
   readGuildRosterCache,
   writeGuildRosterCache,
-} from "../src/guild-roster-cache";
+} from "../../src/guild/rosterCache";
 import type { GuildRosterEntry } from "@parley/db/guild-roster";
 
 class FakeKV {

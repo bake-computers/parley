@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { isExternalStatsRefreshLocked } from "../src/player-ratings";
+import { isExternalStatsRefreshLocked } from "../../src/player/ratings";
 
 describe("player ratings", () => {
   test("locks external refreshes after ten internal matches", () => {

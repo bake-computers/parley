@@ -2,7 +2,7 @@ import { and, eq, gte, inArray } from "drizzle-orm";
 import type { D1Database } from "@cloudflare/workers-types";
 import { createDb } from "@parley/db/client";
 import { customMatchPlayers, customMatches, players } from "@parley/db/schema";
-import { calculateTeamEloDelta, roundInternalElo, type MatchWinner } from "./internal-elo";
+import { calculateTeamEloDelta, roundInternalElo, type MatchWinner } from "./elo";
 
 export type CustomMatchStatus = "cancelled" | "completed" | "pending_results";
 export type CustomMatchTeam = "A" | "B";

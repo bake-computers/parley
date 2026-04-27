@@ -2,7 +2,7 @@ import { and, eq } from "drizzle-orm";
 import type { D1Database } from "@cloudflare/workers-types";
 import { createDb } from "@parley/db/client";
 import { players } from "@parley/db/schema";
-import { normalizePlayerUsername } from "./player-identity";
+import { normalizePlayerUsername } from "../player/identity";
 
 export const EXTERNAL_STATS_REFRESH_INTERNAL_MATCH_CAP = 10;
 

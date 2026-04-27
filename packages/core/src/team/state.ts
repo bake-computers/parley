@@ -1,6 +1,6 @@
 import type { KVNamespace } from "@cloudflare/workers-types";
-import type { CachedGuildRosterMember } from "./guild-roster-cache";
-import type { ParsedPlayerResult } from "./team-results";
+import type { CachedGuildRosterMember } from "../guild/rosterCache";
+import type { ParsedPlayerResult } from "./results";
 
 const TEAM_DRAFT_STATE_PREFIX = "team:draft:v1";
 const TEAM_RESULT_SESSION_PREFIX = "team:results:v1";
