@@ -35,8 +35,8 @@ import {
 } from "@parley/core/stats-cache";
 import { deleteGuildRosterCaches } from "@parley/core/guild-roster-cache";
 import {
-  buildRefreshFailureEmbed,
-  buildSeasonNotFoundEmbed,
+  buildRefreshFailureMessage,
+  buildSeasonNotFoundMessage,
   buildStatsMessagePayload,
 } from "@parley/core/stats-embeds";
 import {
@@ -54,6 +54,7 @@ import {
   type SeasonCatalogEntry,
 } from "@parley/core/stats-season";
 import { writeStatsViewState } from "@parley/core/stats-view-state";
+import { EPHEMERAL_COMPONENTS_V2_FLAGS } from "../interactions/ui";
 
 const SCRAPE_LOCK_TTL_SECONDS = 30 * 60;
 const PENDING_REPLY_TTL_SECONDS = 30 * 60;
@@ -442,17 +443,17 @@ async function defaultEditPendingReply(
   }
 }
 
-function embedPayload(embed: { toJSON(): JsonObject }): JsonObject {
+function componentPayload(component: { toJSON(): JsonObject }): JsonObject {
   return {
-    embeds: [embed.toJSON()],
-    components: [],
+    components: [component.toJSON()],
+    flags: EPHEMERAL_COMPONENTS_V2_FLAGS,
   };
 }
 
 function statsPayload(payload: ReturnType<typeof buildStatsMessagePayload>): JsonObject {
   return {
-    embeds: payload.embeds.map((embed) => embed.toJSON()),
     components: payload.components.map((component) => component.toJSON()),
+    flags: EPHEMERAL_COMPONENTS_V2_FLAGS,
   };
 }
 
@@ -492,8 +493,8 @@ async function updatePendingRepliesAfterFailure(
     return;
   }
 
-  const failurePayload = embedPayload(
-    buildRefreshFailureEmbed(failureMessageFromError(error), emojis),
+  const failurePayload = componentPayload(
+    buildRefreshFailureMessage(failureMessageFromError(error), emojis),
   );
   for (const pending of pendingReplies) {
     try {
@@ -572,7 +573,7 @@ async function updatePendingRepliesAfterSuccess(
           ),
         );
       } else {
-        payload = embedPayload(buildSeasonNotFoundEmbed(rawSeason, seasonCatalog, emojis));
+        payload = componentPayload(buildSeasonNotFoundMessage(rawSeason, seasonCatalog, emojis));
       }
     }
 

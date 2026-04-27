@@ -6,6 +6,7 @@ import type {
   MessageBatch,
   Queue,
 } from "@cloudflare/workers-types";
+import { ComponentType } from "@parley/discord-runtime";
 import { err, ok } from "neverthrow";
 import type { ScrapedStatsCollection } from "@parley/core/http";
 import { buildStatsCacheKey } from "@parley/core/stats-cache";
@@ -139,6 +140,27 @@ function collectionFixture(): ScrapedStatsCollection {
       { slug: "deep-freeze", display: "Deep Freeze", startedAt: "2024-12-01T00:00:00.000Z" },
     ],
   };
+}
+
+function collectTextContent(component: Record<string, unknown>): string[] {
+  const content =
+    component.type === ComponentType.TextDisplay && typeof component.content === "string"
+      ? [component.content]
+      : [];
+  const children = Array.isArray(component.components)
+    ? component.components.flatMap((child) => collectTextContent(child as Record<string, unknown>))
+    : [];
+  return [...content, ...children];
+}
+
+function payloadText(payload: JsonObject | undefined): string {
+  if (!payload || !Array.isArray(payload.components)) {
+    return "";
+  }
+
+  return (payload.components as Record<string, unknown>[])
+    .flatMap((component) => collectTextContent(component))
+    .join("\n");
 }
 
 describe("stats refresh queue", () => {
@@ -312,7 +334,7 @@ describe("stats refresh queue", () => {
     expect(edits.sort()).toEqual(["i-1", "i-2"]);
   });
 
-  test("different requested seasons receive different final embeds from one scrape", async () => {
+  test("different requested seasons receive different final component cards from one scrape", async () => {
     const cache = new FakeKV();
     const payloadByInteraction = new Map<string, JsonObject>();
     const message = createStatsRefreshMessage({
@@ -352,14 +374,16 @@ describe("stats refresh queue", () => {
 
     const latestPayload = payloadByInteraction.get("latest");
     const deepPayload = payloadByInteraction.get("deep");
-    const latestDescription = (latestPayload?.embeds as JsonObject[] | undefined)?.[0]?.description;
-    const deepDescription = (deepPayload?.embeds as JsonObject[] | undefined)?.[0]?.description;
+    const latestDescription = payloadText(latestPayload);
+    const deepDescription = payloadText(deepPayload);
 
-    expect(String(latestDescription)).toContain("Season: New Blood");
-    expect(String(deepDescription)).toContain("Season: Deep Freeze");
+    expect(latestDescription).toContain("Season");
+    expect(latestDescription).toContain("New Blood");
+    expect(deepDescription).toContain("Season");
+    expect(deepDescription).toContain("Deep Freeze");
   });
 
-  test("invalid requested season updates original reply with season-not-found embed", async () => {
+  test("invalid requested season updates original reply with season-not-found card", async () => {
     const cache = new FakeKV();
     let editedTitle = "";
     const message = createStatsRefreshMessage({
@@ -383,11 +407,11 @@ describe("stats refresh queue", () => {
       fetchStatsCollection: async () => ok(collectionFixture()),
       persistSnapshot: async () => {},
       editPendingReply: async (_pending, payload) => {
-        editedTitle = String((payload.embeds as JsonObject[] | undefined)?.[0]?.title ?? "");
+        editedTitle = payloadText(payload);
       },
     });
 
-    expect(editedTitle).toBe("Season not found");
+    expect(editedTitle).toContain("Season not found");
   });
 
   test("non-retryable fetch failure edits waiting replies and does not cache", async () => {
@@ -418,12 +442,12 @@ describe("stats refresh queue", () => {
           retryable: false,
         }),
       editPendingReply: async (_pending, payload) => {
-        editedTitle = String((payload.embeds as JsonObject[] | undefined)?.[0]?.title ?? "");
+        editedTitle = payloadText(payload);
       },
     });
 
     expect(cache.values.has(buildStatsCacheKey("Missing", "pc", "latest"))).toBe(false);
-    expect(editedTitle).toBe("Stats refresh failed");
+    expect(editedTitle).toContain("Stats refresh failed");
   });
 
   test("owner-triggered refresh does not write the tracked-player daily marker", async () => {

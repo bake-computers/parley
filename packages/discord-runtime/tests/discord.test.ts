@@ -2,17 +2,23 @@ import { describe, expect, test } from "bun:test";
 import type { ExecutionContext } from "@cloudflare/workers-types";
 import {
   ApplicationCommandOptionType,
+  ComponentType,
   InteractionResponseType,
-  MessageFlags,
   InteractionType,
+  MessageFlags,
+  SeparatorSpacingSize,
 } from "discord-api-types/v10";
 import {
+  ActionRowBuilder,
   BaseInteraction,
+  ContainerBuilder,
   EmbedBuilder,
   INITIAL_RESPONSE_CONTEXT_KEY,
+  SectionBuilder,
   SlashCommand,
+  TextDisplayBuilder,
 } from "../src/index.ts";
-import { ButtonBuilder } from "../src/builders";
+import { ButtonBuilder, SeparatorBuilder } from "../src/builders";
 import { CommandInteractionOptionResolver } from "../src/handlers";
 import { registerApplicationCommandsWithOptions } from "../src/register";
 import { verifyDiscordRequest } from "../src/verify";
@@ -88,6 +94,112 @@ describe("local discord runtime", () => {
         name: "confirm",
         animated: false,
       },
+    });
+  });
+
+  test("TextDisplayBuilder serializes component content", () => {
+    const component = new TextDisplayBuilder().setContent("**Header**\nDetails").toJSON();
+
+    expect(component).toEqual({
+      type: ComponentType.TextDisplay,
+      content: "**Header**\nDetails",
+    });
+  });
+
+  test("SectionBuilder serializes text components with an accessory", () => {
+    const section = new SectionBuilder()
+      .addText(
+        new TextDisplayBuilder().setContent("**Season**\nNew Blood"),
+        new TextDisplayBuilder().setContent("**Platform**\nPC"),
+      )
+      .setAccessory(
+        new ButtonBuilder()
+          .setStyle(5)
+          .setLabel("Open Profile")
+          .setURL("https://example.com/profile"),
+      )
+      .toJSON();
+
+    expect(section).toEqual({
+      type: ComponentType.Section,
+      components: [
+        {
+          type: ComponentType.TextDisplay,
+          content: "**Season**\nNew Blood",
+        },
+        {
+          type: ComponentType.TextDisplay,
+          content: "**Platform**\nPC",
+        },
+      ],
+      accessory: {
+        type: ComponentType.Button,
+        style: 5,
+        label: "Open Profile",
+        url: "https://example.com/profile",
+      },
+    });
+  });
+
+  test("SeparatorBuilder serializes divider spacing", () => {
+    const separator = new SeparatorBuilder()
+      .setDivider(false)
+      .setSpacing(SeparatorSpacingSize.Large)
+      .toJSON();
+
+    expect(separator).toEqual({
+      type: ComponentType.Separator,
+      divider: false,
+      spacing: SeparatorSpacingSize.Large,
+    });
+  });
+
+  test("ContainerBuilder serializes nested v2 components", () => {
+    const container = new ContainerBuilder()
+      .setAccentColor(0x1d4ed8)
+      .addComponents(
+        new TextDisplayBuilder().setContent("**Title**"),
+        new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small),
+        new SectionBuilder().addText(new TextDisplayBuilder().setContent("Body")),
+        new ActionRowBuilder().addComponents(
+          new ButtonBuilder().setCustomId("next").setLabel("Next").setStyle(1),
+        ),
+      )
+      .toJSON();
+
+    expect(container).toEqual({
+      type: ComponentType.Container,
+      accent_color: 0x1d4ed8,
+      components: [
+        {
+          type: ComponentType.TextDisplay,
+          content: "**Title**",
+        },
+        {
+          type: ComponentType.Separator,
+          spacing: SeparatorSpacingSize.Small,
+        },
+        {
+          type: ComponentType.Section,
+          components: [
+            {
+              type: ComponentType.TextDisplay,
+              content: "Body",
+            },
+          ],
+        },
+        {
+          type: ComponentType.ActionRow,
+          components: [
+            {
+              type: ComponentType.Button,
+              custom_id: "next",
+              label: "Next",
+              style: 1,
+            },
+          ],
+        },
+      ],
     });
   });
 

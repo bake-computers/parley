@@ -1,5 +1,10 @@
 import type { WorkerEnv } from "../env";
-import { SlashCommand } from "@parley/discord-runtime";
+import {
+  resolveApplicationEmojiCatalog,
+  SlashCommand,
+  type AppEmojiName,
+  type ApplicationEmojiCatalog,
+} from "@parley/discord-runtime";
 import {
   getAccountLinkByDiscordUserId,
   linkDiscordAccount,
@@ -29,6 +34,7 @@ import {
   enqueueStatsRefresh,
   type StatsRefreshEnv,
 } from "../queues/stats-refresh";
+import { buildComponentsV2Reply, buildNoticeCard } from "./ui";
 
 type AccountEnv = Partial<WorkerEnv> & StatsRefreshEnv;
 type RegistrationPlatform = "auto" | "pc" | "playstation" | "xbox";
@@ -48,6 +54,37 @@ function buildLockedExternalStatsMessage(): string {
   return "External stats refresh is disabled for this player after 10 recorded internal matches.";
 }
 
+async function resolveAccountEmojiCatalog(
+  env: AccountEnv,
+  applicationId: string,
+): Promise<ApplicationEmojiCatalog> {
+  return resolveApplicationEmojiCatalog({
+    applicationId,
+    botToken: env.DISCORD_BOT_TOKEN ?? env.DISCORD_TOKEN,
+    cache: env.Cache,
+  });
+}
+
+function buildAccountReply(input: {
+  title: string;
+  message: string;
+  tone: "danger" | "info" | "primary" | "success" | "warning";
+  emojiName: AppEmojiName;
+  emojis?: ApplicationEmojiCatalog | null;
+  details?: string[];
+}) {
+  return buildComponentsV2Reply([
+    buildNoticeCard({
+      title: input.title,
+      message: input.message,
+      tone: input.tone,
+      emojiName: input.emojiName,
+      emojis: input.emojis,
+      details: input.details,
+    }),
+  ]);
+}
+
 async function ensureGuildOnly(
   interaction: Parameters<Parameters<typeof accountCommand.addHandler>[0]>[0],
 ) {
@@ -55,7 +92,18 @@ async function ensureGuildOnly(
     return true;
   }
 
-  await interaction.reply("This command only works in a server.", true);
+  const env = interaction.context.env as AccountEnv;
+  const emojis = await resolveAccountEmojiCatalog(env, interaction.applicationId);
+  await interaction.reply(
+    buildAccountReply({
+      title: "Server only",
+      message: "This command only works in a server.",
+      tone: "warning",
+      emojiName: "warning",
+      emojis,
+    }),
+    true,
+  );
   return false;
 }
 
@@ -123,6 +171,7 @@ export const accountCommand = new SlashCommand()
     const guildId = interaction.guildId!;
     const channelId = interaction.channelId!;
     const userId = interaction.userId!;
+    const emojis = await resolveAccountEmojiCatalog(env, interaction.applicationId);
 
     if (subcommand === "register") {
       const username = interaction.options.getString("username", true)!.trim();
@@ -131,7 +180,15 @@ export const accountCommand = new SlashCommand()
       await interaction.deferReply(true);
 
       if (!env.Database) {
-        await interaction.editReply("Database binding is missing.");
+        await interaction.editReply(
+          buildAccountReply({
+            title: "Configuration error",
+            message: "Database binding is missing.",
+            tone: "danger",
+            emojiName: "warning",
+            emojis,
+          }),
+        );
         return;
       }
 
@@ -164,14 +221,31 @@ export const accountCommand = new SlashCommand()
         await deleteGuildRosterCaches(env.Cache, linkResult.linkedGuildIds);
       } catch (error) {
         await interaction.editReply(
-          error instanceof Error ? error.message : "Failed to link this R6 account.",
+          buildAccountReply({
+            title: "Registration failed",
+            message: error instanceof Error ? error.message : "Failed to link this R6 account.",
+            tone: "danger",
+            emojiName: "cancel",
+            emojis,
+          }),
         );
         return;
       }
 
       if (cachedEnvelope) {
         await interaction.editReply(
-          `Registered **${username}** for this server. Stats were already cached, so you're ready for \`/team create\` now.`,
+          buildAccountReply({
+            title: "Account registered",
+            message: `Registered **${username}** for this server.`,
+            tone: "success",
+            emojiName: "confirm",
+            emojis,
+            details: [
+              `**Platform**\n${platform}`,
+              "**Status**\nReady for `/team create` now.",
+              "**Next Step**\nUse `/team create` when your lobby is ready.",
+            ],
+          }),
         );
         return;
       }
@@ -179,7 +253,18 @@ export const accountCommand = new SlashCommand()
       const playerSummary = await getInternalPlayerSummaryByPlayerId(env.Database, playerId);
       if (isExternalStatsRefreshLocked(playerSummary)) {
         await interaction.editReply(
-          `Registered **${username}** for this server. ${buildLockedExternalStatsMessage()} Your internal ELO is ready for \`/team create\`.`,
+          buildAccountReply({
+            title: "Account registered",
+            message: `Registered **${username}** for this server.`,
+            tone: "success",
+            emojiName: "confirm",
+            emojis,
+            details: [
+              `**Platform**\n${platform}`,
+              `**Refresh Status**\n${buildLockedExternalStatsMessage()}`,
+              "**Next Step**\nYour internal ELO is already ready for `/team create`.",
+            ],
+          }),
         );
         return;
       }
@@ -198,20 +283,53 @@ export const accountCommand = new SlashCommand()
 
       if (enqueueResult.isErr()) {
         await interaction.editReply(
-          `Registered **${username}** for this server, but I couldn't queue the initial stats refresh right now.`,
+          buildAccountReply({
+            title: "Account registered",
+            message: `Registered **${username}** for this server, but I couldn't queue the initial stats refresh right now.`,
+            tone: "warning",
+            emojiName: "warning",
+            emojis,
+            details: [
+              `**Platform**\n${platform}`,
+              "**Status**\nPending stats refresh.",
+              "**Next Step**\nTry `/account refresh` again later.",
+            ],
+          }),
         );
         return;
       }
 
       if (enqueueResult.value.status === "daily-capped") {
         await interaction.editReply(
-          `Registered **${username}** for this server. The account is pending because stat refresh is capped for today.`,
+          buildAccountReply({
+            title: "Account registered",
+            message: `Registered **${username}** for this server.`,
+            tone: "warning",
+            emojiName: "timer",
+            emojis,
+            details: [
+              `**Platform**\n${platform}`,
+              "**Status**\nPending because stat refresh is capped for today.",
+              `**Retry**\n${formatDiscordRetryAt(nextUtcDayUnix())}`,
+            ],
+          }),
         );
         return;
       }
 
       await interaction.editReply(
-        `Registered **${username}** for this server. The account is pending until the queued R6 stats refresh completes.`,
+        buildAccountReply({
+          title: "Account registered",
+          message: `Registered **${username}** for this server.`,
+          tone: "info",
+          emojiName: "timer",
+          emojis,
+          details: [
+            `**Platform**\n${platform}`,
+            "**Status**\nPending until the queued R6 stats refresh completes.",
+            "**Next Step**\nThis server entry will become ready automatically after sync.",
+          ],
+        }),
       );
       return;
     }
@@ -220,7 +338,15 @@ export const accountCommand = new SlashCommand()
       await interaction.deferReply(true);
 
       if (!env.Database) {
-        await interaction.editReply("Database binding is missing.");
+        await interaction.editReply(
+          buildAccountReply({
+            title: "Configuration error",
+            message: "Database binding is missing.",
+            tone: "danger",
+            emojiName: "warning",
+            emojis,
+          }),
+        );
         return;
       }
 
@@ -230,12 +356,28 @@ export const accountCommand = new SlashCommand()
       });
 
       if (result.removedPlayerId === null) {
-        await interaction.editReply("You are not registered in this server.");
+        await interaction.editReply(
+          buildAccountReply({
+            title: "Nothing to remove",
+            message: "You are not registered in this server.",
+            tone: "warning",
+            emojiName: "question_mark",
+            emojis,
+          }),
+        );
         return;
       }
 
       await deleteGuildRosterCaches(env.Cache, [guildId]);
-      await interaction.editReply("Removed your registration from this server.");
+      await interaction.editReply(
+        buildAccountReply({
+          title: "Registration removed",
+          message: "Removed your registration from this server.",
+          tone: "success",
+          emojiName: "confirm",
+          emojis,
+        }),
+      );
       return;
     }
 
@@ -248,7 +390,14 @@ export const accountCommand = new SlashCommand()
 
       if (!account && !guildRegistration) {
         await interaction.editReply(
-          "You do not have a linked R6 account yet. Use `/account register`.",
+          buildAccountReply({
+            title: "No linked account",
+            message: "You do not have a linked R6 account yet.",
+            tone: "warning",
+            emojiName: "question_mark",
+            emojis,
+            details: ["**Next Step**\nUse `/account register` to link your account."],
+          }),
         );
         return;
       }
@@ -295,7 +444,19 @@ export const accountCommand = new SlashCommand()
         );
       }
 
-      await interaction.editReply(lines.join("\n"));
+      await interaction.editReply(
+        buildAccountReply({
+          title: "Account summary",
+          message: "Current link, rating, and server readiness.",
+          tone: "primary",
+          emojiName: "home",
+          emojis,
+          details: lines.map((line) => {
+            const [label, ...rest] = line.split(": ");
+            return rest.length > 0 ? `**${label}**\n${rest.join(": ")}` : `**Details**\n${line}`;
+          }),
+        }),
+      );
       return;
     }
 
@@ -305,7 +466,14 @@ export const accountCommand = new SlashCommand()
       const account = await getAccountLinkByDiscordUserId(env.Database, userId);
       if (!account) {
         await interaction.editReply(
-          "You do not have a linked R6 account yet. Use `/account register`.",
+          buildAccountReply({
+            title: "No linked account",
+            message: "You do not have a linked R6 account yet.",
+            tone: "warning",
+            emojiName: "question_mark",
+            emojis,
+            details: ["**Next Step**\nUse `/account register` to link your account."],
+          }),
         );
         return;
       }
@@ -315,14 +483,32 @@ export const accountCommand = new SlashCommand()
         account.playerId,
       );
       if (isExternalStatsRefreshLocked(playerSummary)) {
-        await interaction.editReply(buildLockedExternalStatsMessage());
+        await interaction.editReply(
+          buildAccountReply({
+            title: "Refresh unavailable",
+            message: buildLockedExternalStatsMessage(),
+            tone: "warning",
+            emojiName: "warning",
+            emojis,
+            details: [`**Account**\n${account.username} (${account.platform})`],
+          }),
+        );
         return;
       }
 
       if (!isBotOwner(userId, env.DISCORD_BOT_OWNER_ID)) {
         const quota = await consumeExecutorDailyQuota(env.Cache, userId);
         if (quota.isLimited) {
-          await interaction.editReply(buildExecutorLimitMessage(quota.retryAtUnix));
+          await interaction.editReply(
+            buildAccountReply({
+              title: "Refresh capped",
+              message: buildExecutorLimitMessage(quota.retryAtUnix),
+              tone: "warning",
+              emojiName: "timer",
+              emojis,
+              details: [`**Account**\n${account.username} (${account.platform})`],
+            }),
+          );
           return;
         }
       }
@@ -340,21 +526,49 @@ export const accountCommand = new SlashCommand()
       );
 
       if (enqueueResult.isErr()) {
-        await interaction.editReply("I couldn't queue a refresh right now.");
+        await interaction.editReply(
+          buildAccountReply({
+            title: "Refresh queue failed",
+            message: "I couldn't queue a refresh right now.",
+            tone: "danger",
+            emojiName: "cancel",
+            emojis,
+            details: [`**Account**\n${account.username} (${account.platform})`],
+          }),
+        );
         return;
       }
 
       if (enqueueResult.value.status === "daily-capped") {
         await interaction.editReply(
-          `Refresh is capped for this tracked player today.\nRetry at ${formatDiscordRetryAt(nextUtcDayUnix())}.`,
+          buildAccountReply({
+            title: "Refresh capped",
+            message: "Refresh is capped for this tracked player today.",
+            tone: "warning",
+            emojiName: "timer",
+            emojis,
+            details: [
+              `**Account**\n${account.username} (${account.platform})`,
+              `**Retry**\n${formatDiscordRetryAt(nextUtcDayUnix())}`,
+            ],
+          }),
         );
         return;
       }
 
       await interaction.editReply(
-        enqueueResult.value.status === "deduped"
-          ? "A refresh for this account is already queued."
-          : "Queued a fresh R6 stats sync for your account.",
+        buildAccountReply({
+          title:
+            enqueueResult.value.status === "deduped" ? "Refresh already queued" : "Refresh queued",
+          message:
+            enqueueResult.value.status === "deduped"
+              ? "A refresh for this account is already queued."
+              : "Queued a fresh R6 stats sync for your account.",
+          tone: enqueueResult.value.status === "deduped" ? "info" : "success",
+          emojiName: enqueueResult.value.status === "deduped" ? "information" : "timer",
+          emojis,
+          details: [`**Account**\n${account.username} (${account.platform})`],
+        }),
       );
     }
   });

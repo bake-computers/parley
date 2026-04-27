@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import { ComponentType } from "@parley/discord-runtime";
 import {
   buildStatsMessagePayload,
   buildStatsPaginationCustomId,
@@ -69,6 +70,26 @@ function internalSummaryFixture(): InternalStatsSummary {
   };
 }
 
+function collectTextContent(component: Record<string, unknown>): string[] {
+  const content =
+    component.type === ComponentType.TextDisplay && typeof component.content === "string"
+      ? [component.content]
+      : [];
+  const children = Array.isArray(component.components)
+    ? component.components.flatMap((child) => collectTextContent(child as Record<string, unknown>))
+    : [];
+  return [...content, ...children];
+}
+
+function findActionRow(container: Record<string, unknown>): Record<string, unknown> {
+  const components = Array.isArray(container.components)
+    ? (container.components as Record<string, unknown>[])
+    : [];
+  const row = components.find((component) => component.type === ComponentType.ActionRow);
+  expect(row).toBeDefined();
+  return row!;
+}
+
 describe("stats embeds pagination", () => {
   test("stats pagination custom IDs roundtrip", () => {
     const customId = buildStatsPaginationCustomId("interaction-1", 2);
@@ -113,11 +134,12 @@ describe("stats embeds pagination", () => {
       undefined,
       emojiCatalogFixture(),
     );
-    const embed = payload.embeds[0]!.toJSON();
-    const row = payload.components[0]!.toJSON();
+    const card = payload.components[0]!.toJSON() as Record<string, unknown>;
+    const text = collectTextContent(card).join("\n");
+    const row = findActionRow(card);
     const buttons = row.components as Record<string, unknown>[];
 
-    expect(embed.title).toBe("<:search:4> Siege Stats: Player");
+    expect(text).toContain("<:search:4> Siege Stats: Player");
     expect(buttons[0]?.emoji).toEqual({ id: "1", name: "home", animated: false });
     expect(buttons[1]?.emoji).toEqual({ id: "2", name: "minus", animated: false });
     expect(buttons[3]?.emoji).toEqual({ id: "3", name: "plus", animated: false });
@@ -127,10 +149,12 @@ describe("stats embeds pagination", () => {
 
   test("message payload includes paged embed and components", () => {
     const payload = buildStatsMessagePayload(envelopeFixture(), "cache", false, "interaction-1", 1);
-    const embed = payload.embeds[0]!.toJSON();
-    const row = payload.components[0]!.toJSON();
+    const card = payload.components[0]!.toJSON() as Record<string, unknown>;
+    const text = collectTextContent(card).join("\n");
+    const row = findActionRow(card);
 
-    expect(embed.description).toContain("Section: Combat");
+    expect(text).toContain("Combat");
+    expect(text).toContain("Headshots: 35");
     expect(row.components).toHaveLength(5);
   });
 
@@ -144,8 +168,13 @@ describe("stats embeds pagination", () => {
       internalSummaryFixture(),
     );
 
-    expect(payload.embeds).toHaveLength(2);
-    expect(payload.embeds[1]!.toJSON().title).toBe("Internal ELO: Player");
+    expect((payload as { embeds?: unknown }).embeds).toBeUndefined();
+    expect(payload.components).toHaveLength(2);
+
+    const secondaryText = collectTextContent(
+      payload.components[1]!.toJSON() as Record<string, unknown>,
+    ).join("\n");
+    expect(secondaryText).toContain("Internal ELO: Player");
   });
 
   test("builders keep valid payloads when emojis are missing", () => {
@@ -158,11 +187,12 @@ describe("stats embeds pagination", () => {
       undefined,
       {},
     );
-    const embed = payload.embeds[0]!.toJSON();
-    const row = payload.components[0]!.toJSON();
+    const card = payload.components[0]!.toJSON() as Record<string, unknown>;
+    const text = collectTextContent(card).join("\n");
+    const row = findActionRow(card);
     const buttons = row.components as Record<string, unknown>[];
 
-    expect(embed.title).toBe("Siege Stats: Player");
+    expect(text).toContain("Siege Stats: Player");
     expect(buttons[0]?.emoji).toBeUndefined();
     expect(buttons[1]?.emoji).toBeUndefined();
     expect(buttons[3]?.emoji).toBeUndefined();

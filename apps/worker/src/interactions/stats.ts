@@ -3,6 +3,7 @@ import {
   autocompleteChoice,
   ComponentHandler,
   ComponentType,
+  type AppEmojiName,
   resolveApplicationEmojiCatalog,
   SlashCommand,
 } from "@parley/discord-runtime";
@@ -10,9 +11,9 @@ import type { WorkerEnv } from "../env";
 import { type StatsPlatform } from "@parley/core/http";
 import { logger } from "@parley/core/logger";
 import {
-  buildInternalStatsOnlyEmbed,
-  buildProcessingStatsEmbed,
-  buildQueueUnavailableEmbed,
+  buildInternalStatsOnlyMessage,
+  buildProcessingStatsMessage,
+  buildQueueUnavailableMessage,
   buildStatsMessagePayload,
   type InternalStatsSummary,
   parseStatsPaginationCustomId,
@@ -54,6 +55,7 @@ import {
   registerPendingStatsReply,
   type StatsRefreshEnv,
 } from "../queues/stats-refresh";
+import { buildComponentsV2Reply, buildNoticeCard, EPHEMERAL_COMPONENTS_V2_FLAGS } from "./ui";
 
 function parsePlatform(value: string | null): StatsPlatform {
   if (value === "pc" || value === "xbox" || value === "playstation") {
@@ -77,6 +79,24 @@ function buildTrackedPlayerLimitMessage(hasCachedStats: boolean, retryAtUnix: nu
 
 function buildExecutorLimitMessage(retryAtUnix: number): string {
   return `You've reached the /stats refresh cap (3 requests per day).\nRetry at ${formatDiscordRetryAt(retryAtUnix)}.`;
+}
+
+function buildStatsNoticeReply(
+  title: string,
+  message: string,
+  tone: "danger" | "info" | "warning",
+  emojiName: AppEmojiName,
+  emojis: Awaited<ReturnType<typeof resolveStatsEmojiCatalog>>,
+) {
+  return buildComponentsV2Reply([
+    buildNoticeCard({
+      title,
+      message,
+      tone,
+      emojis,
+      emojiName,
+    }),
+  ]);
 }
 
 function toInternalStatsSummary(
@@ -324,11 +344,7 @@ export const statsCommand = new SlashCommand()
         toProvisionalInternalStatsSummary(cachedEnvelope, playerSummary),
         emojis,
       );
-      await interaction.editReply({
-        embeds: payload.embeds,
-        components: payload.components,
-        flags: 64, // ephemeral
-      });
+      await interaction.editReply(buildComponentsV2Reply(payload.components));
 
       if (!stale || refreshLocked) {
         return;
@@ -347,10 +363,7 @@ export const statsCommand = new SlashCommand()
             ? buildExecutorLimitMessage(refreshLimit.retryAtUnix)
             : buildTrackedPlayerLimitMessage(true, refreshLimit.retryAtUnix);
         await interaction.followUp(
-          {
-            embeds: [buildQueueUnavailableEmbed(message, emojis)],
-            flags: 64, // ephemeral
-          },
+          buildComponentsV2Reply([buildQueueUnavailableMessage(message, emojis)]),
           true,
         );
         return;
@@ -380,15 +393,12 @@ export const statsCommand = new SlashCommand()
 
       if (enqueueResult.value.status === "daily-capped") {
         await interaction.followUp(
-          {
-            embeds: [
-              buildQueueUnavailableEmbed(
-                buildTrackedPlayerLimitMessage(true, nextUtcDayUnix(Date.now())),
-                emojis,
-              ),
-            ],
-            flags: 64, // ephemeral
-          },
+          buildComponentsV2Reply([
+            buildQueueUnavailableMessage(
+              buildTrackedPlayerLimitMessage(true, nextUtcDayUnix(Date.now())),
+              emojis,
+            ),
+          ]),
           true,
         );
         return;
@@ -413,17 +423,15 @@ export const statsCommand = new SlashCommand()
     if (isExternalStatsRefreshLocked(playerSummary)) {
       const internalSummary = toInternalStatsSummary(playerSummary);
       if (!internalSummary) {
-        await interaction.editReply({
-          embeds: [buildQueueUnavailableEmbed(undefined, emojis)],
-          flags: 64, // ephemeral
-        });
+        await interaction.editReply(
+          buildComponentsV2Reply([buildQueueUnavailableMessage(undefined, emojis)]),
+        );
         return;
       }
 
-      await interaction.editReply({
-        embeds: [buildInternalStatsOnlyEmbed(internalSummary)],
-        flags: 64, // ephemeral
-      });
+      await interaction.editReply(
+        buildComponentsV2Reply([buildInternalStatsOnlyMessage(internalSummary, emojis)]),
+      );
       return;
     }
 
@@ -439,10 +447,9 @@ export const statsCommand = new SlashCommand()
         refreshLimit.reason === "executor"
           ? buildExecutorLimitMessage(refreshLimit.retryAtUnix)
           : buildTrackedPlayerLimitMessage(false, refreshLimit.retryAtUnix);
-      await interaction.editReply({
-        embeds: [buildQueueUnavailableEmbed(message, emojis)],
-        flags: 64, // ephemeral
-      });
+      await interaction.editReply(
+        buildComponentsV2Reply([buildQueueUnavailableMessage(message, emojis)]),
+      );
       return;
     }
 
@@ -465,23 +472,21 @@ export const statsCommand = new SlashCommand()
         reason: "cache-miss",
         error: enqueueResult.error,
       });
-      await interaction.editReply({
-        embeds: [buildQueueUnavailableEmbed(undefined, emojis)],
-        flags: 64, // ephemeral
-      });
+      await interaction.editReply(
+        buildComponentsV2Reply([buildQueueUnavailableMessage(undefined, emojis)]),
+      );
       return;
     }
 
     if (enqueueResult.value.status === "daily-capped") {
-      await interaction.editReply({
-        embeds: [
-          buildQueueUnavailableEmbed(
+      await interaction.editReply(
+        buildComponentsV2Reply([
+          buildQueueUnavailableMessage(
             buildTrackedPlayerLimitMessage(false, nextUtcDayUnix()),
             emojis,
           ),
-        ],
-        flags: 64, // ephemeral
-      });
+        ]),
+      );
       return;
     }
 
@@ -496,10 +501,11 @@ export const statsCommand = new SlashCommand()
       requestedAt: Date.now(),
     });
 
-    await interaction.editReply({
-      embeds: [buildProcessingStatsEmbed(username, platform, requestedSeason, emojis)],
-      flags: 64, // ephemeral
-    });
+    await interaction.editReply(
+      buildComponentsV2Reply([
+        buildProcessingStatsMessage(username, platform, requestedSeason, emojis),
+      ]),
+    );
   });
 
 export const statsPaginationHandler = new ComponentHandler(
@@ -508,20 +514,53 @@ export const statsPaginationHandler = new ComponentHandler(
 ).addHandler(async (interaction) => {
   const parsedCustomId = parseStatsPaginationCustomId(interaction.customId);
   if (!parsedCustomId) {
-    await interaction.reply("This stats control is no longer valid.", true);
+    const emojis = await resolveStatsEmojiCatalog(
+      interaction.context.env as Partial<WorkerEnv> & StatsRefreshEnv,
+      interaction.applicationId,
+    );
+    await interaction.reply(
+      buildStatsNoticeReply(
+        "Stats control expired",
+        "This stats control is no longer valid.",
+        "warning",
+        "warning",
+        emojis,
+      ),
+      true,
+    );
     return;
   }
 
   const env = interaction.context.env as Partial<WorkerEnv> & StatsRefreshEnv;
   const state = await readStatsViewState(env.Cache, parsedCustomId.viewId);
   if (!state) {
-    await interaction.reply("This stats view expired. Run /stats again.", true);
+    const emojis = await resolveStatsEmojiCatalog(env, interaction.applicationId);
+    await interaction.reply(
+      buildStatsNoticeReply(
+        "Stats view expired",
+        "This stats view expired. Run `/stats` again.",
+        "warning",
+        "timer",
+        emojis,
+      ),
+      true,
+    );
     return;
   }
 
   const envelope = await readStatsCache(env.Cache, state.cacheKey);
   if (!envelope) {
-    await interaction.reply("Stats are no longer cached. Run /stats again.", true);
+    const emojis = await resolveStatsEmojiCatalog(env, interaction.applicationId);
+    await interaction.reply(
+      buildStatsNoticeReply(
+        "Stats cache expired",
+        "Stats are no longer cached. Run `/stats` again.",
+        "danger",
+        "cancel",
+        emojis,
+      ),
+      true,
+    );
     return;
   }
 
@@ -539,8 +578,7 @@ export const statsPaginationHandler = new ComponentHandler(
     emojis,
   );
   await interaction.update({
-    embeds: payload.embeds,
-    components: payload.components,
-    flags: 64, // ephemeral
+    ...buildComponentsV2Reply(payload.components),
+    flags: EPHEMERAL_COMPONENTS_V2_FLAGS,
   });
 });

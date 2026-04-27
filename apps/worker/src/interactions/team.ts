@@ -1,5 +1,7 @@
 import {
   ActionRowBuilder,
+  type AppEmojiName,
+  type ApplicationEmojiCatalog,
   ButtonBuilder,
   ButtonStyle,
   ComponentHandler,
@@ -9,12 +11,14 @@ import {
   ModalBuilder,
   ModalHandler,
   PermissionFlagsBits,
+  resolveApplicationEmojiCatalog,
   SlashCommand,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
   TextInputBuilder,
   TextInputStyle,
   parseCustomId,
+  toComponentEmoji,
 } from "@parley/discord-runtime";
 import type { WorkerEnv } from "../env";
 import { balanceTeams, type TeamCandidate } from "@parley/core/team-balance";
@@ -40,6 +44,7 @@ import {
   type TeamDraftState,
 } from "@parley/core/team-state";
 import { mergeTeamResults, parsePlayerResultInput } from "@parley/core/team-results";
+import { buildComponentsV2Reply, buildNoticeCard, COMPONENTS_V2_FLAGS } from "./ui";
 
 const TEAM_PAGE_SIZE = 25;
 const TEAM_DRAFT_PREFIX = "team-draft";
@@ -94,6 +99,59 @@ function startOfUtcDayMs(nowMs = Date.now()): number {
 
 function createRestClient(env: TeamEnv): DiscordRestClient {
   return new DiscordRestClient(env.DISCORD_BOT_TOKEN ?? env.DISCORD_TOKEN);
+}
+
+async function resolveTeamEmojiCatalog(
+  env: TeamEnv,
+  applicationId: string,
+): Promise<ApplicationEmojiCatalog> {
+  return resolveApplicationEmojiCatalog({
+    applicationId,
+    botToken: env.DISCORD_BOT_TOKEN ?? env.DISCORD_TOKEN,
+    cache: env.Cache,
+  });
+}
+
+function applyButtonEmoji(
+  button: ButtonBuilder,
+  emojis: ApplicationEmojiCatalog | null | undefined,
+  emojiName?: AppEmojiName,
+): ButtonBuilder {
+  if (!emojiName) {
+    return button;
+  }
+
+  const emoji = toComponentEmoji(emojis, emojiName);
+  if (emoji) {
+    button.setEmoji(emoji);
+  }
+  return button;
+}
+
+function buildTeamReply(input: {
+  title: string;
+  message: string;
+  tone: "danger" | "info" | "primary" | "success" | "warning";
+  emojiName: AppEmojiName;
+  emojis?: ApplicationEmojiCatalog | null;
+  details?: string[];
+  actionRows?: ActionRowBuilder[];
+  ephemeral?: boolean;
+}) {
+  return buildComponentsV2Reply(
+    [
+      buildNoticeCard({
+        title: input.title,
+        message: input.message,
+        tone: input.tone,
+        emojis: input.emojis,
+        emojiName: input.emojiName,
+        details: input.details,
+        actionRows: input.actionRows,
+      }),
+    ],
+    input.ephemeral ?? true,
+  );
 }
 
 function readJsonId(value: unknown): string | null {
@@ -169,7 +227,10 @@ function sumSeedScore(players: readonly TeamCandidate[]): number {
   return players.reduce((total, player) => total + player.metrics.seedScore, 0);
 }
 
-function buildDraftMessage(state: TeamDraftState) {
+function buildDraftMessage(
+  state: TeamDraftState,
+  emojis?: ApplicationEmojiCatalog | null,
+): ReturnType<typeof buildComponentsV2Reply> {
   const totalPages = Math.max(1, Math.ceil(state.members.length / TEAM_PAGE_SIZE));
   const activePage = Math.min(Math.max(state.page, 0), totalPages - 1);
   const pageMembers = state.members.slice(
@@ -204,42 +265,67 @@ function buildDraftMessage(state: TeamDraftState) {
 
   const selectRow = new ActionRowBuilder().addComponents(select);
   const buttons = new ActionRowBuilder().addComponents(
-    new ButtonBuilder()
-      .setCustomId(buildDraftButtonCustomId("prev", state.draftId))
-      .setLabel("Prev")
-      .setStyle(ButtonStyle.Secondary)
-      .setDisabled(activePage === 0),
-    new ButtonBuilder()
-      .setCustomId(buildDraftButtonCustomId("next", state.draftId))
-      .setLabel("Next")
-      .setStyle(ButtonStyle.Secondary)
-      .setDisabled(activePage >= totalPages - 1),
-    new ButtonBuilder()
-      .setCustomId(buildDraftButtonCustomId("clear", state.draftId))
-      .setLabel("Clear")
-      .setStyle(ButtonStyle.Secondary)
-      .setDisabled(state.selectedDiscordUserIds.length === 0),
-    new ButtonBuilder()
-      .setCustomId(buildDraftButtonCustomId("build", state.draftId))
-      .setLabel("Build Teams")
-      .setStyle(ButtonStyle.Primary)
-      .setDisabled(
-        state.selectedDiscordUserIds.length < 2 || state.selectedDiscordUserIds.length > 10,
-      ),
-    new ButtonBuilder()
-      .setCustomId(buildDraftButtonCustomId("cancel", state.draftId))
-      .setLabel("Cancel")
-      .setStyle(ButtonStyle.Danger),
+    applyButtonEmoji(
+      new ButtonBuilder()
+        .setCustomId(buildDraftButtonCustomId("prev", state.draftId))
+        .setLabel("Prev")
+        .setStyle(ButtonStyle.Secondary)
+        .setDisabled(activePage === 0),
+      emojis,
+      "minus",
+    ),
+    applyButtonEmoji(
+      new ButtonBuilder()
+        .setCustomId(buildDraftButtonCustomId("next", state.draftId))
+        .setLabel("Next")
+        .setStyle(ButtonStyle.Secondary)
+        .setDisabled(activePage >= totalPages - 1),
+      emojis,
+      "plus",
+    ),
+    applyButtonEmoji(
+      new ButtonBuilder()
+        .setCustomId(buildDraftButtonCustomId("clear", state.draftId))
+        .setLabel("Clear")
+        .setStyle(ButtonStyle.Secondary)
+        .setDisabled(state.selectedDiscordUserIds.length === 0),
+      emojis,
+      "cancel",
+    ),
+    applyButtonEmoji(
+      new ButtonBuilder()
+        .setCustomId(buildDraftButtonCustomId("build", state.draftId))
+        .setLabel("Build Teams")
+        .setStyle(ButtonStyle.Primary)
+        .setDisabled(
+          state.selectedDiscordUserIds.length < 2 || state.selectedDiscordUserIds.length > 10,
+        ),
+      emojis,
+      "confirm",
+    ),
+    applyButtonEmoji(
+      new ButtonBuilder()
+        .setCustomId(buildDraftButtonCustomId("cancel", state.draftId))
+        .setLabel("Cancel")
+        .setStyle(ButtonStyle.Danger),
+      emojis,
+      "cancel",
+    ),
   );
 
-  return {
-    content:
-      `Select 2-10 ready players for this R6 custom.\n` +
-      `Selected: **${state.selectedDiscordUserIds.length}/10**\n` +
-      `Players: ${renderSelectedSummary(state)}\n` +
-      `Page ${activePage + 1}/${totalPages}`,
-    components: [selectRow, buttons],
-  };
+  return buildTeamReply({
+    title: "Team draft",
+    message: "Select 2-10 ready players for this custom.",
+    tone: "primary",
+    emojiName: "home",
+    emojis,
+    details: [
+      `**Selected**\n${state.selectedDiscordUserIds.length}/10`,
+      `**Players**\n${renderSelectedSummary(state)}`,
+      `**Page**\n${activePage + 1}/${totalPages}`,
+    ],
+    actionRows: [selectRow, buttons],
+  });
 }
 
 function createTeamCandidates(state: TeamDraftState): TeamCandidate[] {
@@ -274,7 +360,8 @@ function buildPublicMatchMessage(
   teamBSeedTotal: number,
   seedGap: number,
   showResults = false,
-): { content: string; components: ActionRowBuilder[] } {
+  emojis?: ApplicationEmojiCatalog | null,
+): ReturnType<typeof buildComponentsV2Reply> {
   const teamALines = teamA.map((player) => {
     const kd =
       "kills" in player && player.kills !== null && player.deaths !== null
@@ -290,20 +377,32 @@ function buildPublicMatchMessage(
     return `<@${player.discordUserId}> (ELO ${formatBalanceRating(player.balanceRating)})${kd}`;
   });
 
-  const button = new ButtonBuilder()
-    .setCustomId(buildResultsButtonCustomId("enter", matchId))
-    .setLabel(showResults ? "Results Submitted" : "Enter Results")
-    .setStyle(showResults ? ButtonStyle.Secondary : ButtonStyle.Primary)
-    .setDisabled(showResults);
+  const button = applyButtonEmoji(
+    new ButtonBuilder()
+      .setCustomId(buildResultsButtonCustomId("enter", matchId))
+      .setLabel(showResults ? "Results Submitted" : "Enter Results")
+      .setStyle(showResults ? ButtonStyle.Secondary : ButtonStyle.Primary)
+      .setDisabled(showResults),
+    emojis,
+    showResults ? "confirm" : "strong",
+  );
 
-  return {
-    content:
-      `**${title}**\n` +
-      `ELO gap: **${formatBalanceRating(seedGap)}**\n\n` +
-      `**Team A** (${formatBalanceRating(teamASeedTotal)})\n${teamALines.join("\n")}\n\n` +
+  return buildTeamReply({
+    title,
+    message: showResults
+      ? "Results have been submitted for this match."
+      : "Balanced teams are ready.",
+    tone: showResults ? "success" : "primary",
+    emojiName: showResults ? "confirm" : "strong",
+    emojis,
+    details: [
+      `**Balance Gap**\n${formatBalanceRating(seedGap)}`,
+      `**Team A** (${formatBalanceRating(teamASeedTotal)})\n${teamALines.join("\n")}`,
       `**Team B** (${formatBalanceRating(teamBSeedTotal)})\n${teamBLines.join("\n")}`,
-    components: [new ActionRowBuilder().addComponents(button)],
-  };
+    ],
+    actionRows: [new ActionRowBuilder().addComponents(button)],
+    ephemeral: false,
+  });
 }
 
 function buildResultModal(
@@ -386,11 +485,23 @@ export const teamCommand = new SlashCommand()
   )
   .addHandler(async (interaction) => {
     if (!interaction.guildId || !interaction.channelId || !interaction.userId) {
-      await interaction.reply("This command only works in a server.", true);
+      const env = interaction.context.env as TeamEnv;
+      const emojis = await resolveTeamEmojiCatalog(env, interaction.applicationId);
+      await interaction.reply(
+        buildTeamReply({
+          title: "Server only",
+          message: "This command only works in a server.",
+          tone: "warning",
+          emojiName: "warning",
+          emojis,
+        }),
+        true,
+      );
       return;
     }
 
     const env = interaction.context.env as TeamEnv;
+    const emojis = await resolveTeamEmojiCatalog(env, interaction.applicationId);
     const subcommandGroup = interaction.options.getSubcommandGroup(false);
     const subcommand = interaction.options.getSubcommand(true);
 
@@ -398,22 +509,44 @@ export const teamCommand = new SlashCommand()
       await interaction.deferReply(true);
 
       if (!env.Database) {
-        await interaction.editReply("Database binding is missing.");
+        await interaction.editReply(
+          buildTeamReply({
+            title: "Configuration error",
+            message: "Database binding is missing.",
+            tone: "danger",
+            emojiName: "warning",
+            emojis,
+          }),
+        );
         return;
       }
 
       if (subcommand === "show") {
         const limit = await getGuildLimit(env.Database, interaction.guildId);
         await interaction.editReply(
-          limit
-            ? `This server can record **${limit.dailyMatchLimit}** matches per day.`
-            : "This server currently has no daily match limit.",
+          buildTeamReply({
+            title: "Daily match limit",
+            message: limit
+              ? `This server can record **${limit.dailyMatchLimit}** matches per day.`
+              : "This server currently has no daily match limit.",
+            tone: "info",
+            emojiName: "information",
+            emojis,
+          }),
         );
         return;
       }
 
       if (!isGuildAdmin(interaction.raw)) {
-        await interaction.editReply("Only a server admin can change the daily match limit.");
+        await interaction.editReply(
+          buildTeamReply({
+            title: "Admin required",
+            message: "Only a server admin can change the daily match limit.",
+            tone: "warning",
+            emojiName: "warning",
+            emojis,
+          }),
+        );
         return;
       }
 
@@ -424,12 +557,28 @@ export const teamCommand = new SlashCommand()
           dailyMatchLimit: dailyLimit,
           updatedByDiscordUserId: interaction.userId,
         });
-        await interaction.editReply(`Set the daily recorded-match limit to **${dailyLimit}**.`);
+        await interaction.editReply(
+          buildTeamReply({
+            title: "Daily match limit updated",
+            message: `Set the daily recorded-match limit to **${dailyLimit}**.`,
+            tone: "success",
+            emojiName: "confirm",
+            emojis,
+          }),
+        );
         return;
       }
 
       await clearGuildLimit(env.Database, interaction.guildId);
-      await interaction.editReply("Cleared the daily recorded-match limit for this server.");
+      await interaction.editReply(
+        buildTeamReply({
+          title: "Daily match limit cleared",
+          message: "Cleared the daily recorded-match limit for this server.",
+          tone: "success",
+          emojiName: "confirm",
+          emojis,
+        }),
+      );
       return;
     }
 
@@ -440,7 +589,13 @@ export const teamCommand = new SlashCommand()
 
     if (readyMembers.length < 2) {
       await interaction.editReply(
-        `This server only has **${readyMembers.length}** ready registered players. You need at least 2.`,
+        buildTeamReply({
+          title: "Not enough ready players",
+          message: `This server only has **${readyMembers.length}** ready registered players. You need at least 2.`,
+          tone: "warning",
+          emojiName: "question_mark",
+          emojis,
+        }),
       );
       return;
     }
@@ -456,47 +611,85 @@ export const teamCommand = new SlashCommand()
     };
 
     await writeTeamDraftState(env.Cache, interaction.id, draftState);
-    const message = buildDraftMessage(draftState);
-    await interaction.editReply({
-      content: message.content,
-      components: message.components,
-    });
+    await interaction.editReply(buildDraftMessage(draftState, emojis));
   });
 
 export const teamDraftButtonHandler = new ComponentHandler(
   TEAM_DRAFT_PREFIX,
   ComponentType.Button,
 ).addHandler(async (interaction) => {
+  const env = interaction.context.env as TeamEnv;
+  const emojis = await resolveTeamEmojiCatalog(env, interaction.applicationId);
   const parsed = parseCustomId(interaction.customId);
   if (typeof parsed === "string" || parsed.path.length < 3) {
-    await interaction.reply("This team draft control is invalid.", true);
+    await interaction.reply(
+      buildTeamReply({
+        title: "Invalid draft control",
+        message: "This team draft control is invalid.",
+        tone: "warning",
+        emojiName: "warning",
+        emojis,
+      }),
+      true,
+    );
     return;
   }
 
   const [, action, draftId] = parsed.path;
   if (!draftId) {
-    await interaction.reply("This team draft expired.", true);
+    await interaction.reply(
+      buildTeamReply({
+        title: "Draft expired",
+        message: "This team draft expired.",
+        tone: "warning",
+        emojiName: "timer",
+        emojis,
+      }),
+      true,
+    );
     return;
   }
 
-  const env = interaction.context.env as TeamEnv;
   const state = await readTeamDraftState(env.Cache, draftId);
   if (!state) {
-    await interaction.reply("This team draft expired. Run `/team create` again.", true);
+    await interaction.reply(
+      buildTeamReply({
+        title: "Draft expired",
+        message: "This team draft expired. Run `/team create` again.",
+        tone: "warning",
+        emojiName: "timer",
+        emojis,
+      }),
+      true,
+    );
     return;
   }
 
   if (interaction.userId !== state.creatorId) {
-    await interaction.reply("Only the draft creator can use these controls.", true);
+    await interaction.reply(
+      buildTeamReply({
+        title: "Not your draft",
+        message: "Only the draft creator can use these controls.",
+        tone: "warning",
+        emojiName: "warning",
+        emojis,
+      }),
+      true,
+    );
     return;
   }
 
   if (action === "cancel") {
     await deleteTeamDraftState(env.Cache, draftId);
-    await interaction.update({
-      content: "Cancelled this team draft.",
-      components: [],
-    });
+    await interaction.update(
+      buildTeamReply({
+        title: "Draft cancelled",
+        message: "Cancelled this team draft.",
+        tone: "info",
+        emojiName: "cancel",
+        emojis,
+      }),
+    );
     return;
   }
 
@@ -514,21 +707,35 @@ export const teamDraftButtonHandler = new ComponentHandler(
     };
 
     await writeTeamDraftState(env.Cache, draftId, nextState);
-    const message = buildDraftMessage(nextState);
-    await interaction.update({
-      content: message.content,
-      components: message.components,
-    });
+    await interaction.update(buildDraftMessage(nextState, emojis));
     return;
   }
 
   if (action !== "build") {
-    await interaction.reply("Unknown draft action.", true);
+    await interaction.reply(
+      buildTeamReply({
+        title: "Unknown draft action",
+        message: "Unknown draft action.",
+        tone: "warning",
+        emojiName: "question_mark",
+        emojis,
+      }),
+      true,
+    );
     return;
   }
 
   if (state.selectedDiscordUserIds.length < 2 || state.selectedDiscordUserIds.length > 10) {
-    await interaction.reply("Select between 2 and 10 players before building teams.", true);
+    await interaction.reply(
+      buildTeamReply({
+        title: "Selection required",
+        message: "Select between 2 and 10 players before building teams.",
+        tone: "warning",
+        emojiName: "question_mark",
+        emojis,
+      }),
+      true,
+    );
     return;
   }
 
@@ -537,7 +744,15 @@ export const teamDraftButtonHandler = new ComponentHandler(
   const candidates = createTeamCandidates(state);
   const balanced = balanceTeams(candidates);
   if (!env.Database) {
-    await interaction.editReply("Database binding is missing.");
+    await interaction.editReply(
+      buildTeamReply({
+        title: "Configuration error",
+        message: "Database binding is missing.",
+        tone: "danger",
+        emojiName: "warning",
+        emojis,
+      }),
+    );
     return;
   }
 
@@ -591,54 +806,117 @@ export const teamDraftButtonHandler = new ComponentHandler(
     balanced.teamABalanceTotal,
     balanced.teamBBalanceTotal,
     balanced.balanceGap,
+    false,
+    emojis,
   );
   const rest = createRestClient(env);
   const publicMessageResult = await rest.createChannelMessage(state.channelId, {
-    content: publicPayload.content,
-    components: publicPayload.components.map((row) => row.toJSON()),
+    components: publicPayload.components.map((component) => component.toJSON()),
+    flags: COMPONENTS_V2_FLAGS,
   });
 
   if (publicMessageResult.isErr()) {
-    await interaction.editReply("I couldn't post the team announcement to this channel.");
+    await interaction.editReply(
+      buildTeamReply({
+        title: "Announcement failed",
+        message: "I couldn't post the team announcement to this channel.",
+        tone: "danger",
+        emojiName: "cancel",
+        emojis,
+      }),
+    );
     return;
   }
 
   const messageId = readJsonId(publicMessageResult.value);
   if (!messageId) {
-    await interaction.editReply("I created the teams but couldn't read the posted message ID.");
+    await interaction.editReply(
+      buildTeamReply({
+        title: "Announcement incomplete",
+        message: "I created the teams but couldn't read the posted message ID.",
+        tone: "warning",
+        emojiName: "warning",
+        emojis,
+      }),
+    );
     return;
   }
 
   await updateCustomMatchMessageId(env.Database, { matchId, messageId });
   await deleteTeamDraftState(env.Cache, draftId);
-  await interaction.editReply("Posted the teams to this channel.");
+  await interaction.editReply(
+    buildTeamReply({
+      title: "Teams posted",
+      message: "Posted the teams to this channel.",
+      tone: "success",
+      emojiName: "confirm",
+      emojis,
+    }),
+  );
 });
 
 export const teamDraftSelectHandler = new ComponentHandler(
   TEAM_DRAFT_SELECT_PREFIX,
   ComponentType.StringSelect,
 ).addHandler(async (interaction) => {
+  const env = interaction.context.env as TeamEnv;
+  const emojis = await resolveTeamEmojiCatalog(env, interaction.applicationId);
   const parsed = parseCustomId(interaction.customId);
   if (typeof parsed === "string" || parsed.path.length < 2) {
-    await interaction.reply("This team draft control is invalid.", true);
+    await interaction.reply(
+      buildTeamReply({
+        title: "Invalid draft control",
+        message: "This team draft control is invalid.",
+        tone: "warning",
+        emojiName: "warning",
+        emojis,
+      }),
+      true,
+    );
     return;
   }
 
   const draftId = parsed.path[1];
   if (!draftId) {
-    await interaction.reply("This team draft expired.", true);
+    await interaction.reply(
+      buildTeamReply({
+        title: "Draft expired",
+        message: "This team draft expired.",
+        tone: "warning",
+        emojiName: "timer",
+        emojis,
+      }),
+      true,
+    );
     return;
   }
 
-  const env = interaction.context.env as TeamEnv;
   const state = await readTeamDraftState(env.Cache, draftId);
   if (!state) {
-    await interaction.reply("This team draft expired. Run `/team create` again.", true);
+    await interaction.reply(
+      buildTeamReply({
+        title: "Draft expired",
+        message: "This team draft expired. Run `/team create` again.",
+        tone: "warning",
+        emojiName: "timer",
+        emojis,
+      }),
+      true,
+    );
     return;
   }
 
   if (interaction.userId !== state.creatorId) {
-    await interaction.reply("Only the draft creator can use these controls.", true);
+    await interaction.reply(
+      buildTeamReply({
+        title: "Not your draft",
+        message: "Only the draft creator can use these controls.",
+        tone: "warning",
+        emojiName: "warning",
+        emojis,
+      }),
+      true,
+    );
     return;
   }
 
@@ -657,7 +935,16 @@ export const teamDraftSelectHandler = new ComponentHandler(
 
   const deduped = [...new Set(nextSelected)];
   if (deduped.length > 10) {
-    await interaction.reply("You can only select 10 players.", true);
+    await interaction.reply(
+      buildTeamReply({
+        title: "Selection limit reached",
+        message: "You can only select 10 players.",
+        tone: "warning",
+        emojiName: "question_mark",
+        emojis,
+      }),
+      true,
+    );
     return;
   }
 
@@ -667,44 +954,86 @@ export const teamDraftSelectHandler = new ComponentHandler(
   };
 
   await writeTeamDraftState(env.Cache, draftId, nextState);
-  const message = buildDraftMessage(nextState);
-  await interaction.update({
-    content: message.content,
-    components: message.components,
-  });
+  await interaction.update(buildDraftMessage(nextState, emojis));
 });
 
 export const teamResultsButtonHandler = new ComponentHandler(
   TEAM_RESULTS_PREFIX,
   ComponentType.Button,
 ).addHandler(async (interaction) => {
+  const env = interaction.context.env as TeamEnv;
+  const emojis = await resolveTeamEmojiCatalog(env, interaction.applicationId);
   const parsed = parseCustomId(interaction.customId);
   if (typeof parsed === "string" || parsed.path.length < 3) {
-    await interaction.reply("This results control is invalid.", true);
+    await interaction.reply(
+      buildTeamReply({
+        title: "Invalid results control",
+        message: "This results control is invalid.",
+        tone: "warning",
+        emojiName: "warning",
+        emojis,
+      }),
+      true,
+    );
     return;
   }
 
   const [, action, matchIdValue] = parsed.path;
   const matchId = Number(matchIdValue);
   if (!Number.isInteger(matchId)) {
-    await interaction.reply("This match reference is invalid.", true);
+    await interaction.reply(
+      buildTeamReply({
+        title: "Invalid match reference",
+        message: "This match reference is invalid.",
+        tone: "warning",
+        emojiName: "warning",
+        emojis,
+      }),
+      true,
+    );
     return;
   }
 
-  const env = interaction.context.env as TeamEnv;
   const match = await getCustomMatch(env.Database, matchId);
   if (!match) {
-    await interaction.reply("This match no longer exists.", true);
+    await interaction.reply(
+      buildTeamReply({
+        title: "Match missing",
+        message: "This match no longer exists.",
+        tone: "danger",
+        emojiName: "cancel",
+        emojis,
+      }),
+      true,
+    );
     return;
   }
 
   if (!interaction.userId || !canManageMatch(interaction.raw, match, interaction.userId)) {
-    await interaction.reply("Only the match creator or a server admin can submit results.", true);
+    await interaction.reply(
+      buildTeamReply({
+        title: "Permission required",
+        message: "Only the match creator or a server admin can submit results.",
+        tone: "warning",
+        emojiName: "warning",
+        emojis,
+      }),
+      true,
+    );
     return;
   }
 
   if (match.status === "completed") {
-    await interaction.reply("Results have already been submitted for this match.", true);
+    await interaction.reply(
+      buildTeamReply({
+        title: "Results already submitted",
+        message: "Results have already been submitted for this match.",
+        tone: "info",
+        emojiName: "confirm",
+        emojis,
+      }),
+      true,
+    );
     return;
   }
 
@@ -715,27 +1044,60 @@ export const teamResultsButtonHandler = new ComponentHandler(
   }
 
   if (action !== "team-b") {
-    await interaction.reply("Unknown results action.", true);
+    await interaction.reply(
+      buildTeamReply({
+        title: "Unknown results action",
+        message: "Unknown results action.",
+        tone: "warning",
+        emojiName: "question_mark",
+        emojis,
+      }),
+      true,
+    );
     return;
   }
 
   const session = await readTeamResultSession(env.Cache, matchId);
   if (!session) {
     await interaction.reply(
-      "The Team A results session expired. Start again from the match message.",
+      buildTeamReply({
+        title: "Results session expired",
+        message: "The Team A results session expired. Start again from the match message.",
+        tone: "warning",
+        emojiName: "timer",
+        emojis,
+      }),
       true,
     );
     return;
   }
 
   if (session.submitterId !== interaction.userId) {
-    await interaction.reply("The same person who entered Team A must finish Team B.", true);
+    await interaction.reply(
+      buildTeamReply({
+        title: "Submitter mismatch",
+        message: "The same person who entered Team A must finish Team B.",
+        tone: "warning",
+        emojiName: "warning",
+        emojis,
+      }),
+      true,
+    );
     return;
   }
 
   const winner = parsed.params.get("winner");
   if (winner !== "A" && winner !== "B") {
-    await interaction.reply("This results control is missing the winning team.", true);
+    await interaction.reply(
+      buildTeamReply({
+        title: "Winning team missing",
+        message: "This results control is missing the winning team.",
+        tone: "warning",
+        emojiName: "question_mark",
+        emojis,
+      }),
+      true,
+    );
     return;
   }
 
@@ -745,9 +1107,20 @@ export const teamResultsButtonHandler = new ComponentHandler(
 
 export const teamResultsModalHandler = new ModalHandler(TEAM_RESULTS_MODAL_PREFIX).addHandler(
   async (interaction) => {
+    const env = interaction.context.env as TeamEnv;
+    const emojis = await resolveTeamEmojiCatalog(env, interaction.applicationId);
     const parsed = parseCustomId(interaction.customId);
     if (typeof parsed === "string" || parsed.path.length < 2) {
-      await interaction.reply("This results form is invalid.", true);
+      await interaction.reply(
+        buildTeamReply({
+          title: "Invalid results form",
+          message: "This results form is invalid.",
+          tone: "warning",
+          emojiName: "warning",
+          emojis,
+        }),
+        true,
+      );
       return;
     }
 
@@ -755,21 +1128,45 @@ export const teamResultsModalHandler = new ModalHandler(TEAM_RESULTS_MODAL_PREFI
     const team = parsed.params.get("team");
     const winner = parsed.params.get("winner");
     if (!Number.isInteger(matchId) || (team !== "A" && team !== "B")) {
-      await interaction.reply("This results form is invalid.", true);
+      await interaction.reply(
+        buildTeamReply({
+          title: "Invalid results form",
+          message: "This results form is invalid.",
+          tone: "warning",
+          emojiName: "warning",
+          emojis,
+        }),
+        true,
+      );
       return;
     }
 
     await interaction.deferReply(true);
 
-    const env = interaction.context.env as TeamEnv;
     const match = await getCustomMatch(env.Database, matchId);
     if (!match) {
-      await interaction.editReply("This match no longer exists.");
+      await interaction.editReply(
+        buildTeamReply({
+          title: "Match missing",
+          message: "This match no longer exists.",
+          tone: "danger",
+          emojiName: "cancel",
+          emojis,
+        }),
+      );
       return;
     }
 
     if (!interaction.userId || !canManageMatch(interaction.raw, match, interaction.userId)) {
-      await interaction.editReply("Only the match creator or a server admin can submit results.");
+      await interaction.editReply(
+        buildTeamReply({
+          title: "Permission required",
+          message: "Only the match creator or a server admin can submit results.",
+          tone: "warning",
+          emojiName: "warning",
+          emojis,
+        }),
+      );
       return;
     }
 
@@ -780,7 +1177,13 @@ export const teamResultsModalHandler = new ModalHandler(TEAM_RESULTS_MODAL_PREFI
         teamAResults = parseResultMap(interaction, teamAPlayers);
       } catch (error) {
         await interaction.editReply(
-          error instanceof Error ? error.message : "Invalid Team A results.",
+          buildTeamReply({
+            title: "Invalid Team A results",
+            message: error instanceof Error ? error.message : "Invalid Team A results.",
+            tone: "warning",
+            emojiName: "question_mark",
+            emojis,
+          }),
         );
         return;
       }
@@ -790,39 +1193,75 @@ export const teamResultsModalHandler = new ModalHandler(TEAM_RESULTS_MODAL_PREFI
         submitterId: interaction.userId,
         teamAResults: Object.fromEntries(teamAResults),
       });
-      await interaction.editReply({
-        content: "Stored Team A results. Continue with Team B.",
-        components: [
-          new ActionRowBuilder().addComponents(
-            new ButtonBuilder()
-              .setCustomId(buildResultsButtonCustomId("team-b", matchId, "A"))
-              .setLabel("Team A Won")
-              .setStyle(ButtonStyle.Success),
-            new ButtonBuilder()
-              .setCustomId(buildResultsButtonCustomId("team-b", matchId, "B"))
-              .setLabel("Team B Won")
-              .setStyle(ButtonStyle.Primary),
-          ),
-        ],
-      });
+      await interaction.editReply(
+        buildTeamReply({
+          title: "Team A stored",
+          message: "Stored Team A results. Continue with Team B.",
+          tone: "info",
+          emojiName: "confirm",
+          emojis,
+          actionRows: [
+            new ActionRowBuilder().addComponents(
+              applyButtonEmoji(
+                new ButtonBuilder()
+                  .setCustomId(buildResultsButtonCustomId("team-b", matchId, "A"))
+                  .setLabel("Team A Won")
+                  .setStyle(ButtonStyle.Success),
+                emojis,
+                "confirm",
+              ),
+              applyButtonEmoji(
+                new ButtonBuilder()
+                  .setCustomId(buildResultsButtonCustomId("team-b", matchId, "B"))
+                  .setLabel("Team B Won")
+                  .setStyle(ButtonStyle.Primary),
+                emojis,
+                "strong",
+              ),
+            ),
+          ],
+        }),
+      );
       return;
     }
 
     if (winner !== "A" && winner !== "B") {
-      await interaction.editReply("This results form is missing the winning team.");
+      await interaction.editReply(
+        buildTeamReply({
+          title: "Winning team missing",
+          message: "This results form is missing the winning team.",
+          tone: "warning",
+          emojiName: "question_mark",
+          emojis,
+        }),
+      );
       return;
     }
 
     const session = await readTeamResultSession(env.Cache, matchId);
     if (!session) {
       await interaction.editReply(
-        "The Team A results session expired. Start again from the match message.",
+        buildTeamReply({
+          title: "Results session expired",
+          message: "The Team A results session expired. Start again from the match message.",
+          tone: "warning",
+          emojiName: "timer",
+          emojis,
+        }),
       );
       return;
     }
 
     if (session.submitterId !== interaction.userId) {
-      await interaction.editReply("The same person who entered Team A must finish Team B.");
+      await interaction.editReply(
+        buildTeamReply({
+          title: "Submitter mismatch",
+          message: "The same person who entered Team A must finish Team B.",
+          tone: "warning",
+          emojiName: "warning",
+          emojis,
+        }),
+      );
       return;
     }
 
@@ -834,7 +1273,15 @@ export const teamResultsModalHandler = new ModalHandler(TEAM_RESULTS_MODAL_PREFI
         startOfUtcDayMs(),
       );
       if (completedToday >= limit.dailyMatchLimit) {
-        await interaction.editReply("This server already reached its daily recorded-match limit.");
+        await interaction.editReply(
+          buildTeamReply({
+            title: "Daily limit reached",
+            message: "This server already reached its daily recorded-match limit.",
+            tone: "warning",
+            emojiName: "timer",
+            emojis,
+          }),
+        );
         return;
       }
     }
@@ -846,14 +1293,28 @@ export const teamResultsModalHandler = new ModalHandler(TEAM_RESULTS_MODAL_PREFI
       teamBResults = parseResultMap(interaction, teamBPlayers);
     } catch (error) {
       await interaction.editReply(
-        error instanceof Error ? error.message : "Invalid Team B results.",
+        buildTeamReply({
+          title: "Invalid Team B results",
+          message: error instanceof Error ? error.message : "Invalid Team B results.",
+          tone: "warning",
+          emojiName: "question_mark",
+          emojis,
+        }),
       );
       return;
     }
     const merged = mergeTeamResults(teamAResults, teamBResults);
 
     if (!env.Database) {
-      await interaction.editReply("Database binding is missing.");
+      await interaction.editReply(
+        buildTeamReply({
+          title: "Configuration error",
+          message: "Database binding is missing.",
+          tone: "danger",
+          emojiName: "warning",
+          emojis,
+        }),
+      );
       return;
     }
 
@@ -866,7 +1327,15 @@ export const teamResultsModalHandler = new ModalHandler(TEAM_RESULTS_MODAL_PREFI
 
     const completedMatch = await getCustomMatch(env.Database, matchId);
     if (!completedMatch) {
-      await interaction.editReply("Saved the results, but couldn't reload the completed match.");
+      await interaction.editReply(
+        buildTeamReply({
+          title: "Results saved with warning",
+          message: "Saved the results, but couldn't reload the completed match.",
+          tone: "warning",
+          emojiName: "warning",
+          emojis,
+        }),
+      );
       return;
     }
 
@@ -880,19 +1349,26 @@ export const teamResultsModalHandler = new ModalHandler(TEAM_RESULTS_MODAL_PREFI
       completedMatch.teamBBalanceTotal,
       completedMatch.balanceGap,
       true,
+      emojis,
     );
     const editResult = await rest.editChannelMessage(
       completedMatch.channelId,
       completedMatch.messageId,
       {
-        content: publicPayload.content,
-        components: publicPayload.components.map((row) => row.toJSON()),
+        components: publicPayload.components.map((component) => component.toJSON()),
+        flags: COMPONENTS_V2_FLAGS,
       },
     );
 
     if (editResult.isErr()) {
       await interaction.editReply(
-        "Saved the results, but couldn't update the public match message.",
+        buildTeamReply({
+          title: "Results saved with warning",
+          message: "Saved the results, but couldn't update the public match message.",
+          tone: "warning",
+          emojiName: "warning",
+          emojis,
+        }),
       );
       return;
     }
@@ -902,6 +1378,14 @@ export const teamResultsModalHandler = new ModalHandler(TEAM_RESULTS_MODAL_PREFI
       completedMatch.players.map((player) => player.playerId),
     );
     await deleteGuildRosterCaches(env.Cache, [completedMatch.guildId, ...affectedGuildIds]);
-    await interaction.editReply("Saved match results and updated the public match message.");
+    await interaction.editReply(
+      buildTeamReply({
+        title: "Results saved",
+        message: "Saved match results and updated the public match message.",
+        tone: "success",
+        emojiName: "confirm",
+        emojis,
+      }),
+    );
   },
 );
