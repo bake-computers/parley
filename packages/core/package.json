@@ -4,7 +4,23 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
-    "./*": "./src/*.ts"
+    "./custom-matches": "./src/lib/matches.ts",
+    "./guild-roster-cache": "./src/guild/rosterCache.ts",
+    "./guild-roster-service": "./src/guild/rosterService.ts",
+    "./http": "./src/lib/http.ts",
+    "./internal-elo": "./src/lib/elo.ts",
+    "./logger": "./src/lib/logger.ts",
+    "./player-identity": "./src/player/identity.ts",
+    "./player-ratings": "./src/player/ratings.ts",
+    "./stats-cache": "./src/stats/cache.ts",
+    "./stats-embeds": "./src/stats/embed.ts",
+    "./stats-rate-limit": "./src/stats/rateLimit.ts",
+    "./stats-season": "./src/stats/season.ts",
+    "./stats-snapshot": "./src/stats/snapshot.ts",
+    "./stats-view-state": "./src/stats/viewState.ts",
+    "./team-balance": "./src/team/balance.ts",
+    "./team-results": "./src/team/results.ts",
+    "./team-state": "./src/team/state.ts"
   },
   "scripts": {
     "test": "bun test tests",
