@@ -1,5 +1,5 @@
 {
-  "name": "teamanica",
+  "name": "parley",
   "private": true,
   "type": "module",
   "module": "src/index.ts",
@@ -10,8 +10,8 @@
     "register": "bun run src/register.ts",
     "typecheck": "tsc --noEmit --pretty false",
     "db:generate": "drizzle-kit generate",
-    "db:migrate:local": "wrangler d1 migrations apply teamanica --local",
-    "db:migrate:remote": "wrangler d1 migrations apply teamanica --remote",
+    "db:migrate:local": "wrangler d1 migrations apply parley --local",
+    "db:migrate:remote": "wrangler d1 migrations apply parley --remote",
     "db:studio": "drizzle-kit studio",
     "cf-typegen": "wrangler types",
     "wrangler:deploy": "wrangler deploy",

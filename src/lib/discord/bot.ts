@@ -170,7 +170,7 @@ export class DiscordBot {
     const context = createRequestContext(request, runtimeEnv, executionContext);
 
     if (request.method === "GET") {
-      return textResponse("teamanica worker is running");
+      return textResponse("parley worker is running");
     }
 
     if (request.method !== "POST") {

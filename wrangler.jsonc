@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "teamanica",
+  "name": "parley",
   "main": "dist/index.js",
   "compatibility_date": "2026-04-15",
   "compatibility_flags": ["nodejs_compat"],
@@ -16,7 +16,7 @@
   "d1_databases": [
     {
       "binding": "Database",
-      "database_name": "teamanica",
+      "database_name": "parley",
       "database_id": "33479528-a40d-4d83-b504-a23c31033bed",
       "remote": true,
       "migrations_dir": "drizzle/migrations",
@@ -32,13 +32,13 @@
   "queues": {
     "producers": [
       {
-        "queue": "teamanica-stat-refresh",
+        "queue": "parley-stat-refresh",
         "binding": "Queue",
       },
     ],
     "consumers": [
       {
-        "queue": "teamanica-stat-refresh",
+        "queue": "parley-stat-refresh",
         "max_batch_size": 5,
         "max_batch_timeout": 30,
         "max_retries": 3,
