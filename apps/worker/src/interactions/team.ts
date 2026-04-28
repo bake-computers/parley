@@ -21,7 +21,11 @@ import {
   toComponentEmoji,
 } from "@parley/discord-runtime";
 import type { WorkerEnv } from "../env";
-import { balanceTeams, type TeamCandidate } from "@parley/core/team-balance";
+import {
+  balanceTeams,
+  calculateEffectiveBalanceRating,
+  type TeamCandidate,
+} from "@parley/core/team-balance";
 import { listGuildIdsForPlayerIds } from "@parley/db/account-links";
 import {
   completeCustomMatch,
@@ -223,6 +227,19 @@ function formatBalanceRating(value: number | null | undefined): string {
   return typeof value === "number" ? String(Math.round(value)) : "pending";
 }
 
+function formatPlatformLabel(platform: string | null | undefined): string {
+  switch (platform) {
+    case "pc":
+      return "PC";
+    case "xbox":
+      return "Xbox";
+    case "playstation":
+      return "PlayStation";
+    default:
+      return typeof platform === "string" && platform.length > 0 ? platform : "Unknown";
+  }
+}
+
 function sumSeedScore(players: readonly TeamCandidate[]): number {
   return players.reduce((total, player) => total + player.metrics.seedScore, 0);
 }
@@ -255,7 +272,7 @@ function buildDraftMessage(
       .setLabel(member.username)
       .setValue(member.discordUserId)
       .setDescription(
-        `${member.platform.toUpperCase()} • ELO ${formatBalanceRating(member.balanceRating)}`,
+        `${formatPlatformLabel(member.platform)} • ELO ${formatBalanceRating(member.balanceRating)}`,
       );
     if (selectedOnPage.has(member.discordUserId)) {
       option.setDefault(true);
@@ -345,10 +362,26 @@ function createTeamCandidates(state: TeamDraftState): TeamCandidate[] {
       playerId: member.playerId,
       username: member.username,
       platform: member.platform,
-      balanceRating: member.balanceRating,
+      baseBalanceRating: member.balanceRating,
+      effectiveBalanceRating: calculateEffectiveBalanceRating(
+        member.balanceRating,
+        member.platform,
+      ),
       metrics: member.metrics ?? EMPTY_SEED_METRICS,
     };
   });
+}
+
+function readTeamBalanceRating(player: CustomMatchPlayerRecord | TeamCandidate): number {
+  return "effectiveBalanceRating" in player ? player.effectiveBalanceRating : player.balanceRating;
+}
+
+function formatMatchPlayerLine(player: CustomMatchPlayerRecord | TeamCandidate): string {
+  const kd =
+    "kills" in player && player.kills !== null && player.deaths !== null
+      ? ` - ${player.kills}/${player.deaths}`
+      : "";
+  return `<@${player.discordUserId}> (${formatPlatformLabel(player.platform)} • Team ELO ${formatBalanceRating(readTeamBalanceRating(player))})${kd}`;
 }
 
 function buildPublicMatchMessage(
@@ -356,26 +389,14 @@ function buildPublicMatchMessage(
   matchId: number,
   teamA: readonly CustomMatchPlayerRecord[] | readonly TeamCandidate[],
   teamB: readonly CustomMatchPlayerRecord[] | readonly TeamCandidate[],
-  teamASeedTotal: number,
-  teamBSeedTotal: number,
-  seedGap: number,
+  teamABalanceTotal: number,
+  teamBBalanceTotal: number,
+  balanceGap: number,
   showResults = false,
   emojis?: ApplicationEmojiCatalog | null,
 ): ReturnType<typeof buildComponentsV2Reply> {
-  const teamALines = teamA.map((player) => {
-    const kd =
-      "kills" in player && player.kills !== null && player.deaths !== null
-        ? ` - ${player.kills}/${player.deaths}`
-        : "";
-    return `<@${player.discordUserId}> (ELO ${formatBalanceRating(player.balanceRating)})${kd}`;
-  });
-  const teamBLines = teamB.map((player) => {
-    const kd =
-      "kills" in player && player.kills !== null && player.deaths !== null
-        ? ` - ${player.kills}/${player.deaths}`
-        : "";
-    return `<@${player.discordUserId}> (ELO ${formatBalanceRating(player.balanceRating)})${kd}`;
-  });
+  const teamALines = teamA.map((player) => formatMatchPlayerLine(player));
+  const teamBLines = teamB.map((player) => formatMatchPlayerLine(player));
 
   const button = applyButtonEmoji(
     new ButtonBuilder()
@@ -396,9 +417,9 @@ function buildPublicMatchMessage(
     emojiName: showResults ? "confirm" : "strong",
     emojis,
     details: [
-      `**Balance Gap**\n${formatBalanceRating(seedGap)}`,
-      `**Team A** (${formatBalanceRating(teamASeedTotal)})\n${teamALines.join("\n")}`,
-      `**Team B** (${formatBalanceRating(teamBSeedTotal)})\n${teamBLines.join("\n")}`,
+      `**Team ELO Gap**\n${formatBalanceRating(balanceGap)}`,
+      `**Team A** (Team ELO ${formatBalanceRating(teamABalanceTotal)})\n${teamALines.join("\n")}`,
+      `**Team B** (Team ELO ${formatBalanceRating(teamBBalanceTotal)})\n${teamBLines.join("\n")}`,
     ],
     actionRows: [new ActionRowBuilder().addComponents(button)],
     ephemeral: false,
@@ -780,7 +801,7 @@ export const teamDraftButtonHandler = new ComponentHandler(
         seedKpr: player.metrics.kpr,
         seedHeadshotPercentage: player.metrics.headshotPercentage,
         seedScore: player.metrics.seedScore,
-        balanceRating: player.balanceRating,
+        balanceRating: player.effectiveBalanceRating,
       })),
       ...balanced.teamB.map((player, index) => ({
         discordUserId: player.discordUserId,
@@ -793,7 +814,7 @@ export const teamDraftButtonHandler = new ComponentHandler(
         seedKpr: player.metrics.kpr,
         seedHeadshotPercentage: player.metrics.headshotPercentage,
         seedScore: player.metrics.seedScore,
-        balanceRating: player.balanceRating,
+        balanceRating: player.effectiveBalanceRating,
       })),
     ],
   });

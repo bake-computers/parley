@@ -26,6 +26,7 @@ export interface CustomMatchPlayerRecord {
   createdAt: number;
   updatedAt: number;
   username?: string;
+  platform?: string;
 }
 
 export interface CustomMatchRecord {
@@ -183,6 +184,7 @@ export async function getCustomMatch(
       createdAt: customMatchPlayers.createdAt,
       updatedAt: customMatchPlayers.updatedAt,
       username: players.username,
+      platform: players.platform,
     })
     .from(customMatchPlayers)
     .innerJoin(players, eq(players.id, customMatchPlayers.playerId))

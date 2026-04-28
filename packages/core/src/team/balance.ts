@@ -1,3 +1,6 @@
+const CONSOLE_PLATFORM_BALANCE_OFFSET = -75;
+const NEAR_TIE_EFFECTIVE_GAP_WINDOW = 50;
+
 function roundScore(value: number): number {
   return Number(value.toFixed(2));
 }
@@ -46,7 +49,8 @@ export interface TeamCandidate {
   playerId: number;
   username: string;
   platform: string;
-  balanceRating: number;
+  baseBalanceRating: number;
+  effectiveBalanceRating: number;
   metrics: TeamSeedMetrics;
 }
 
@@ -86,14 +90,34 @@ export function calculateSeedMetrics(input: SeedMetricsInput): TeamSeedMetrics {
   };
 }
 
-function sumBalanceRatings(players: readonly TeamCandidate[]): number {
-  return roundScore(players.reduce((total, player) => total + player.balanceRating, 0));
+function platformBalanceOffset(platform: string): number {
+  switch (platform) {
+    case "xbox":
+    case "playstation":
+      return CONSOLE_PLATFORM_BALANCE_OFFSET;
+    default:
+      return 0;
+  }
+}
+
+export function calculateEffectiveBalanceRating(
+  baseBalanceRating: number,
+  platform: string,
+): number {
+  return roundScore(baseBalanceRating + platformBalanceOffset(platform));
+}
+
+function sumEffectiveBalanceRatings(players: readonly TeamCandidate[]): number {
+  return roundScore(players.reduce((total, player) => total + player.effectiveBalanceRating, 0));
 }
 
 function sortTeamPlayers(players: readonly TeamCandidate[]): TeamCandidate[] {
   return [...players].sort((left, right) => {
-    if (right.balanceRating !== left.balanceRating) {
-      return right.balanceRating - left.balanceRating;
+    if (right.effectiveBalanceRating !== left.effectiveBalanceRating) {
+      return right.effectiveBalanceRating - left.effectiveBalanceRating;
+    }
+    if (right.baseBalanceRating !== left.baseBalanceRating) {
+      return right.baseBalanceRating - left.baseBalanceRating;
     }
     return left.discordUserId.localeCompare(right.discordUserId);
   });
@@ -127,6 +151,52 @@ function chooseCombinations<T>(
   return results;
 }
 
+function calculateTeamSpread(players: readonly TeamCandidate[]): number {
+  if (players.length <= 1) {
+    return 0;
+  }
+
+  const sortedPlayers = sortTeamPlayers(players);
+  return roundScore(
+    sortedPlayers[0]!.effectiveBalanceRating -
+      sortedPlayers[sortedPlayers.length - 1]!.effectiveBalanceRating,
+  );
+}
+
+interface EvaluatedBalancedTeamResult extends BalancedTeamResult {
+  worstTeamSpread: number;
+  spreadGap: number;
+  highestRatingGap: number;
+  lexKey: string;
+}
+
+function evaluateBalancedSplit(
+  teamAPlayers: readonly TeamCandidate[],
+  teamBPlayers: readonly TeamCandidate[],
+): EvaluatedBalancedTeamResult {
+  const teamA = sortTeamPlayers(teamAPlayers);
+  const teamB = sortTeamPlayers(teamBPlayers);
+  const teamABalanceTotal = sumEffectiveBalanceRatings(teamA);
+  const teamBBalanceTotal = sumEffectiveBalanceRatings(teamB);
+  const balanceGap = roundScore(Math.abs(teamABalanceTotal - teamBBalanceTotal));
+  const teamASpread = calculateTeamSpread(teamA);
+  const teamBSpread = calculateTeamSpread(teamB);
+
+  return {
+    teamA,
+    teamB,
+    teamABalanceTotal,
+    teamBBalanceTotal,
+    balanceGap,
+    worstTeamSpread: Math.max(teamASpread, teamBSpread),
+    spreadGap: roundScore(Math.abs(teamASpread - teamBSpread)),
+    highestRatingGap: roundScore(
+      Math.abs(teamA[0]!.effectiveBalanceRating - teamB[0]!.effectiveBalanceRating),
+    ),
+    lexKey: teamLexKey(teamA),
+  };
+}
+
 export function balanceTeams(players: readonly TeamCandidate[]): BalancedTeamResult {
   if (players.length < 2 || players.length > 10) {
     throw new Error("Team balancing requires between 2 and 10 players.");
@@ -135,8 +205,8 @@ export function balanceTeams(players: readonly TeamCandidate[]): BalancedTeamRes
   if (players.length === 2) {
     const teamA = [players[0]!];
     const teamB = [players[1]!];
-    const teamABalanceTotal = sumBalanceRatings(teamA);
-    const teamBBalanceTotal = sumBalanceRatings(teamB);
+    const teamABalanceTotal = sumEffectiveBalanceRatings(teamA);
+    const teamBBalanceTotal = sumEffectiveBalanceRatings(teamB);
 
     return {
       teamA,
@@ -147,56 +217,43 @@ export function balanceTeams(players: readonly TeamCandidate[]): BalancedTeamRes
     };
   }
 
-  const teamASize = Math.ceil(players.length / 2);
   const sortedPlayers = sortTeamPlayers(players);
-  const anchor = sortedPlayers[0]!;
-  const remaining = sortedPlayers.slice(1);
-  const combinations = chooseCombinations(remaining, teamASize - 1);
+  const teamASize = Math.floor(sortedPlayers.length / 2);
+  const evaluations = chooseCombinations(sortedPlayers, teamASize).map((teamAPlayers) => {
+    const teamAIds = new Set(teamAPlayers.map((player) => player.discordUserId));
+    const teamBPlayers = sortedPlayers.filter((player) => !teamAIds.has(player.discordUserId));
+    return evaluateBalancedSplit(teamAPlayers, teamBPlayers);
+  });
 
-  let best: BalancedTeamResult | null = null;
-  let bestHighestRatingGap = Number.POSITIVE_INFINITY;
-  let bestLexKey = "";
+  const minimumBalanceGap = Math.min(...evaluations.map((evaluation) => evaluation.balanceGap));
+  const eligibleEvaluations = evaluations
+    .filter(
+      (evaluation) => evaluation.balanceGap <= minimumBalanceGap + NEAR_TIE_EFFECTIVE_GAP_WINDOW,
+    )
+    .sort((left, right) => {
+      if (left.worstTeamSpread !== right.worstTeamSpread) {
+        return left.worstTeamSpread - right.worstTeamSpread;
+      }
+      if (left.spreadGap !== right.spreadGap) {
+        return left.spreadGap - right.spreadGap;
+      }
+      if (left.highestRatingGap !== right.highestRatingGap) {
+        return left.highestRatingGap - right.highestRatingGap;
+      }
+      return left.lexKey.localeCompare(right.lexKey);
+    });
 
-  for (const combo of combinations) {
-    const teamA = sortTeamPlayers([anchor, ...combo]);
-    const teamAIds = new Set(teamA.map((player) => player.discordUserId));
-    const teamB = sortTeamPlayers(
-      remaining.filter((player) => !teamAIds.has(player.discordUserId)),
-    );
-    const teamABalanceTotal = sumBalanceRatings(teamA);
-    const teamBBalanceTotal = sumBalanceRatings(teamB);
-    const balanceGap = roundScore(Math.abs(teamABalanceTotal - teamBBalanceTotal));
-    const highestRatingGap = roundScore(
-      Math.abs(teamA[0]!.balanceRating - teamB[0]!.balanceRating),
-    );
-    const lexKey = teamLexKey(teamA);
-
-    const shouldReplace =
-      best === null ||
-      balanceGap < best.balanceGap ||
-      (balanceGap === best.balanceGap && highestRatingGap < bestHighestRatingGap) ||
-      (balanceGap === best.balanceGap &&
-        highestRatingGap === bestHighestRatingGap &&
-        lexKey.localeCompare(bestLexKey) < 0);
-
-    if (!shouldReplace) {
-      continue;
-    }
-
-    best = {
-      teamA,
-      teamB,
-      teamABalanceTotal,
-      teamBBalanceTotal,
-      balanceGap,
-    };
-    bestHighestRatingGap = highestRatingGap;
-    bestLexKey = lexKey;
-  }
+  const best = eligibleEvaluations[0];
 
   if (!best) {
     throw new Error("Failed to calculate balanced teams.");
   }
 
-  return best;
+  return {
+    teamA: best.teamA,
+    teamB: best.teamB,
+    teamABalanceTotal: best.teamABalanceTotal,
+    teamBBalanceTotal: best.teamBBalanceTotal,
+    balanceGap: best.balanceGap,
+  };
 }
