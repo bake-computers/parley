@@ -11,8 +11,11 @@ export interface TeamDraftState {
   guildId: string;
   channelId: string;
   creatorId: string;
-  page: number;
+  mode: "internal" | "matchmaking";
+  minPlayers: number;
+  maxPlayers: number;
   selectedDiscordUserIds: string[];
+  invalidSelectedDiscordUserIds: string[];
   members: CachedGuildRosterMember[];
 }
 
@@ -56,8 +59,11 @@ export async function readTeamDraftState(
       typeof parsed.guildId !== "string" ||
       typeof parsed.channelId !== "string" ||
       typeof parsed.creatorId !== "string" ||
-      typeof parsed.page !== "number" ||
+      (parsed.mode !== "internal" && parsed.mode !== "matchmaking") ||
+      typeof parsed.minPlayers !== "number" ||
+      typeof parsed.maxPlayers !== "number" ||
       !Array.isArray(parsed.selectedDiscordUserIds) ||
+      !Array.isArray(parsed.invalidSelectedDiscordUserIds) ||
       !Array.isArray(parsed.members)
     ) {
       return null;
@@ -68,8 +74,13 @@ export async function readTeamDraftState(
       guildId: parsed.guildId,
       channelId: parsed.channelId,
       creatorId: parsed.creatorId,
-      page: parsed.page,
+      mode: parsed.mode,
+      minPlayers: parsed.minPlayers,
+      maxPlayers: parsed.maxPlayers,
       selectedDiscordUserIds: parsed.selectedDiscordUserIds.filter(
+        (value): value is string => typeof value === "string",
+      ),
+      invalidSelectedDiscordUserIds: parsed.invalidSelectedDiscordUserIds.filter(
         (value): value is string => typeof value === "string",
       ),
       members: parsed.members.filter(isObject) as unknown as CachedGuildRosterMember[],

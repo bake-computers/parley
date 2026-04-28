@@ -1,9 +1,11 @@
 import {
   ApplicationCommandOptionType,
+  type APISelectMenuDefaultValue,
   type APIMessageComponentEmoji,
   ButtonStyle,
   ChannelType,
   ComponentType,
+  SelectMenuDefaultValueType,
   SeparatorSpacingSize,
   TextInputStyle,
   type APIApplicationCommandOptionChoice,
@@ -331,6 +333,46 @@ export class StringSelectMenuBuilder implements JSONEncodable<JsonObject> {
   addOptions(...options: StringSelectMenuOptionBuilder[]): this {
     const current = Array.isArray(this.data.options) ? this.data.options : [];
     this.data.options = [...current, ...options.map((option) => option.toJSON())];
+    return this;
+  }
+
+  toJSON(): JsonObject {
+    return { ...this.data };
+  }
+}
+
+export class UserSelectMenuBuilder implements JSONEncodable<JsonObject> {
+  private data: JsonObject = {
+    type: ComponentType.UserSelect,
+  };
+
+  setCustomId(customId: string): this {
+    this.data.custom_id = customId;
+    return this;
+  }
+
+  setPlaceholder(placeholder: string): this {
+    this.data.placeholder = placeholder;
+    return this;
+  }
+
+  setMinValues(minValues: number): this {
+    this.data.min_values = minValues;
+    return this;
+  }
+
+  setMaxValues(maxValues: number): this {
+    this.data.max_values = maxValues;
+    return this;
+  }
+
+  setDisabled(disabled = true): this {
+    this.data.disabled = disabled;
+    return this;
+  }
+
+  setDefaultValues(...values: APISelectMenuDefaultValue<SelectMenuDefaultValueType.User>[]): this {
+    this.data.default_values = encodeValue(values);
     return this;
   }
 

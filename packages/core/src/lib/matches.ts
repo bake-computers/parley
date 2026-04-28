@@ -1,10 +1,11 @@
-import { and, eq, gte, inArray } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, or } from "drizzle-orm";
 import type { D1Database } from "@cloudflare/workers-types";
 import { createDb } from "@parley/db/client";
 import { customMatchPlayers, customMatches, players } from "@parley/db/schema";
 import { calculateTeamEloDelta, roundInternalElo, type MatchWinner } from "./elo";
 
 export type CustomMatchStatus = "cancelled" | "completed" | "pending_results";
+export type CustomMatchType = "cross_guild" | "internal";
 export type CustomMatchTeam = "A" | "B";
 
 export interface CustomMatchPlayerRecord {
@@ -36,6 +37,11 @@ export interface CustomMatchRecord {
   messageId: string;
   createdByDiscordUserId: string;
   status: string;
+  matchType: string;
+  opponentGuildId: string | null;
+  opponentChannelId: string | null;
+  opponentMessageId: string | null;
+  opponentCaptainDiscordUserId: string | null;
   teamASeedTotal: number;
   teamBSeedTotal: number;
   seedGap: number;
@@ -59,6 +65,11 @@ export async function createCustomMatch(
     messageId: string;
     createdByDiscordUserId: string;
     status: CustomMatchStatus;
+    matchType?: CustomMatchType;
+    opponentGuildId?: string | null;
+    opponentChannelId?: string | null;
+    opponentMessageId?: string | null;
+    opponentCaptainDiscordUserId?: string | null;
     teamASeedTotal: number;
     teamBSeedTotal: number;
     seedGap: number;
@@ -90,6 +101,11 @@ export async function createCustomMatch(
       messageId: input.messageId,
       createdByDiscordUserId: input.createdByDiscordUserId,
       status: input.status,
+      matchType: input.matchType ?? "internal",
+      opponentGuildId: input.opponentGuildId ?? null,
+      opponentChannelId: input.opponentChannelId ?? null,
+      opponentMessageId: input.opponentMessageId ?? null,
+      opponentCaptainDiscordUserId: input.opponentCaptainDiscordUserId ?? null,
       teamASeedTotal: input.teamASeedTotal,
       teamBSeedTotal: input.teamBSeedTotal,
       seedGap: input.seedGap,
@@ -133,6 +149,7 @@ export async function updateCustomMatchMessageId(
   input: {
     matchId: number;
     messageId: string;
+    opponentMessageId?: string | null;
   },
 ): Promise<void> {
   const db = createDb(database);
@@ -140,6 +157,7 @@ export async function updateCustomMatchMessageId(
     .update(customMatches)
     .set({
       messageId: input.messageId,
+      opponentMessageId: input.opponentMessageId,
       updatedAt: currentTimestamp(),
     })
     .where(eq(customMatches.id, input.matchId));
@@ -291,6 +309,43 @@ export async function completeCustomMatch(
     .where(eq(customMatches.id, input.matchId));
 }
 
+export function isCustomMatchCaptain(
+  match: Pick<CustomMatchRecord, "createdByDiscordUserId" | "opponentCaptainDiscordUserId">,
+  userId: string,
+): boolean {
+  return match.createdByDiscordUserId === userId || match.opponentCaptainDiscordUserId === userId;
+}
+
+export async function getActiveCrossGuildMatchForGuild(
+  database: D1Database | null | undefined,
+  guildId: string,
+): Promise<(CustomMatchRecord & { players: CustomMatchPlayerRecord[] }) | null> {
+  if (!database) {
+    return null;
+  }
+
+  const db = createDb(database);
+  const rows = await db
+    .select({ id: customMatches.id })
+    .from(customMatches)
+    .where(
+      and(
+        eq(customMatches.status, "pending_results"),
+        eq(customMatches.matchType, "cross_guild"),
+        or(eq(customMatches.guildId, guildId), eq(customMatches.opponentGuildId, guildId)),
+      ),
+    )
+    .orderBy(desc(customMatches.createdAt))
+    .limit(1);
+
+  const matchId = rows[0]?.id;
+  if (!matchId) {
+    return null;
+  }
+
+  return getCustomMatch(database, matchId);
+}
+
 export async function countCompletedMatchesSince(
   database: D1Database | null | undefined,
   guildId: string,
@@ -306,9 +361,9 @@ export async function countCompletedMatchesSince(
     .from(customMatches)
     .where(
       and(
-        eq(customMatches.guildId, guildId),
         eq(customMatches.status, "completed"),
         gte(customMatches.updatedAt, sinceMs),
+        or(eq(customMatches.guildId, guildId), eq(customMatches.opponentGuildId, guildId)),
       ),
     );
 

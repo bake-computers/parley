@@ -129,6 +129,11 @@ export const customMatches = sqliteTable(
     messageId: text("message_id").notNull(),
     createdByDiscordUserId: text("created_by_discord_user_id").notNull(),
     status: text("status").notNull(),
+    matchType: text("match_type").notNull().default("internal"),
+    opponentGuildId: text("opponent_guild_id"),
+    opponentChannelId: text("opponent_channel_id"),
+    opponentMessageId: text("opponent_message_id"),
+    opponentCaptainDiscordUserId: text("opponent_captain_discord_user_id"),
     teamASeedTotal: real("team_a_seed_total").notNull(),
     teamBSeedTotal: real("team_b_seed_total").notNull(),
     seedGap: real("seed_gap").notNull(),
@@ -141,7 +146,15 @@ export const customMatches = sqliteTable(
   },
   (table) => ({
     guildCreatedIdx: index("custom_matches_guild_created_idx").on(table.guildId, table.createdAt),
+    opponentGuildCreatedIdx: index("custom_matches_opponent_guild_created_idx").on(
+      table.opponentGuildId,
+      table.createdAt,
+    ),
     statusIdx: index("custom_matches_status_idx").on(table.status),
+    matchTypeStatusIdx: index("custom_matches_match_type_status_idx").on(
+      table.matchType,
+      table.status,
+    ),
   }),
 );
 
@@ -181,5 +194,75 @@ export const customMatchPlayers = sqliteTable(
       table.slot,
     ),
     matchLookupIdx: index("custom_match_players_match_idx").on(table.matchId),
+  }),
+);
+
+export const matchmakingQueues = sqliteTable(
+  "matchmaking_queues",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    guildId: text("guild_id").notNull(),
+    channelId: text("channel_id").notNull(),
+    captainDiscordUserId: text("captain_discord_user_id").notNull(),
+    status: text("status").notNull(),
+    playerCount: integer("player_count").notNull(),
+    stackBalanceTotal: real("stack_balance_total").notNull(),
+    stackBalanceAverage: real("stack_balance_average").notNull(),
+    matchedMatchId: integer("matched_match_id").references(() => customMatches.id, {
+      onDelete: "set null",
+    }),
+    expiresAt: integer("expires_at").notNull(),
+    createdAt: integer("created_at").notNull(),
+    updatedAt: integer("updated_at").notNull(),
+  },
+  (table) => ({
+    guildStatusIdx: index("matchmaking_queues_guild_status_idx").on(table.guildId, table.status),
+    captainStatusIdx: index("matchmaking_queues_captain_status_idx").on(
+      table.captainDiscordUserId,
+      table.status,
+    ),
+    statusCreatedIdx: index("matchmaking_queues_status_created_idx").on(
+      table.status,
+      table.createdAt,
+    ),
+    expiresAtIdx: index("matchmaking_queues_expires_at_idx").on(table.expiresAt),
+  }),
+);
+
+export const matchmakingQueuePlayers = sqliteTable(
+  "matchmaking_queue_players",
+  {
+    id: integer("id").primaryKey({ autoIncrement: true }),
+    queueId: integer("queue_id")
+      .notNull()
+      .references(() => matchmakingQueues.id, { onDelete: "cascade" }),
+    discordUserId: text("discord_user_id").notNull(),
+    playerId: integer("player_id")
+      .notNull()
+      .references(() => players.id, { onDelete: "cascade" }),
+    slot: integer("slot").notNull(),
+    username: text("username").notNull(),
+    platform: text("platform").notNull(),
+    balanceRating: real("balance_rating").notNull(),
+    seedRankPoints: integer("seed_rank_points").notNull(),
+    seedKdRatio: real("seed_kd_ratio").notNull(),
+    seedKost: real("seed_kost").notNull(),
+    seedKpr: real("seed_kpr").notNull(),
+    seedHeadshotPercentage: real("seed_headshot_percentage").notNull(),
+    seedScore: real("seed_score").notNull(),
+    createdAt: integer("created_at").notNull(),
+    updatedAt: integer("updated_at").notNull(),
+  },
+  (table) => ({
+    queueUserUnique: uniqueIndex("matchmaking_queue_players_queue_user_unique").on(
+      table.queueId,
+      table.discordUserId,
+    ),
+    queueSlotUnique: uniqueIndex("matchmaking_queue_players_queue_slot_unique").on(
+      table.queueId,
+      table.slot,
+    ),
+    queueLookupIdx: index("matchmaking_queue_players_queue_idx").on(table.queueId),
+    playerLookupIdx: index("matchmaking_queue_players_player_idx").on(table.playerId),
   }),
 );

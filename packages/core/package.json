@@ -19,6 +19,7 @@
     "./stats-snapshot": "./src/stats/snapshot.ts",
     "./stats-view-state": "./src/stats/viewState.ts",
     "./team-balance": "./src/team/balance.ts",
+    "./team-matchmaking": "./src/team/matchmaking.ts",
     "./team-results": "./src/team/results.ts",
     "./team-state": "./src/team/state.ts"
   },

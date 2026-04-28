@@ -6,6 +6,7 @@ import {
   InteractionResponseType,
   InteractionType,
   MessageFlags,
+  SelectMenuDefaultValueType,
   SeparatorSpacingSize,
 } from "discord-api-types/v10";
 import {
@@ -17,6 +18,7 @@ import {
   SectionBuilder,
   SlashCommand,
   TextDisplayBuilder,
+  UserSelectMenuBuilder,
 } from "../src/index.ts";
 import { ButtonBuilder, SeparatorBuilder } from "../src/builders";
 import { CommandInteractionOptionResolver } from "../src/handlers";
@@ -103,6 +105,31 @@ describe("local discord runtime", () => {
     expect(component).toEqual({
       type: ComponentType.TextDisplay,
       content: "**Header**\nDetails",
+    });
+  });
+
+  test("UserSelectMenuBuilder serializes auto-populated select defaults", () => {
+    const component = new UserSelectMenuBuilder()
+      .setCustomId("team-draft/users")
+      .setPlaceholder("Select players")
+      .setMinValues(0)
+      .setMaxValues(5)
+      .setDefaultValues(
+        { id: "user-1", type: SelectMenuDefaultValueType.User },
+        { id: "user-2", type: SelectMenuDefaultValueType.User },
+      )
+      .toJSON();
+
+    expect(component).toEqual({
+      type: ComponentType.UserSelect,
+      custom_id: "team-draft/users",
+      placeholder: "Select players",
+      min_values: 0,
+      max_values: 5,
+      default_values: [
+        { id: "user-1", type: "user" },
+        { id: "user-2", type: "user" },
+      ],
     });
   });
 

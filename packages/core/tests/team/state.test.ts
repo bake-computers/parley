@@ -33,8 +33,11 @@ describe("team state", () => {
       guildId: "guild-1",
       channelId: "channel-1",
       creatorId: "user-1",
-      page: 1,
+      mode: "internal" as const,
+      minPlayers: 2,
+      maxPlayers: 10,
       selectedDiscordUserIds: ["user-1", "user-2"],
+      invalidSelectedDiscordUserIds: ["user-3"],
       members: [],
     };
 
@@ -46,6 +49,26 @@ describe("team state", () => {
     await deleteTeamDraftState(cache as unknown as KVNamespace, "draft-1");
     await expect(
       readTeamDraftState(cache as unknown as KVNamespace, "draft-1"),
+    ).resolves.toBeNull();
+  });
+
+  test("draft state rejects malformed cached payloads", async () => {
+    const cache = new FakeKV();
+    cache.values.set(
+      "team:draft:v1:draft-legacy",
+      JSON.stringify({
+        draftId: "draft-legacy",
+        guildId: "guild-1",
+        channelId: "channel-1",
+        creatorId: "user-1",
+        page: 1,
+        selectedDiscordUserIds: ["user-1"],
+        members: [],
+      }),
+    );
+
+    await expect(
+      readTeamDraftState(cache as unknown as KVNamespace, "draft-legacy"),
     ).resolves.toBeNull();
   });
 
