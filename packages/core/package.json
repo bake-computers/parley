@@ -21,7 +21,10 @@
     "./team-balance": "./src/team/balance.ts",
     "./team-matchmaking": "./src/team/matchmaking.ts",
     "./team-results": "./src/team/results.ts",
-    "./team-state": "./src/team/state.ts"
+    "./team-state": "./src/team/state.ts",
+    "./tournament-bracket": "./src/tournament/bracket.ts",
+    "./tournament-seeding": "./src/tournament/seeding.ts",
+    "./tournament-service": "./src/tournament/service.ts"
   },
   "scripts": {
     "test": "bun test tests",

@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "tsup --config tsup.config.ts",
-    "dev": "wrangler dev --config wrangler.jsonc",
+    "dev": "bun run src/dev.ts",
     "deploy": "bun run build && wrangler deploy --config wrangler.jsonc",
     "register": "bun run src/register.ts",
     "typecheck": "tsc --noEmit --pretty false -p tsconfig.json",
@@ -15,7 +15,7 @@
     "db:studio": "drizzle-kit studio --config drizzle.config.ts",
     "cf-typegen": "wrangler types --config wrangler.jsonc",
     "wrangler:deploy": "wrangler deploy --config wrangler.jsonc",
-    "wrangler:dev": "wrangler dev --config wrangler.jsonc",
+    "wrangler:dev": "bun run src/dev.ts",
     "wrangler:tail": "wrangler tail --config wrangler.jsonc"
   },
   "dependencies": {

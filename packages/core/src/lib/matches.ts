@@ -5,8 +5,9 @@ import { customMatchPlayers, customMatches, players } from "@parley/db/schema";
 import { calculateTeamEloDelta, roundInternalElo, type MatchWinner } from "./elo";
 
 export type CustomMatchStatus = "cancelled" | "completed" | "pending_results";
-export type CustomMatchType = "cross_guild" | "internal";
+export type CustomMatchType = "cross_guild" | "internal" | "tournament";
 export type CustomMatchTeam = "A" | "B";
+export type CustomMatchResolutionType = "forfeit" | "played";
 
 export interface CustomMatchPlayerRecord {
   id: number;
@@ -46,6 +47,7 @@ export interface CustomMatchRecord {
   teamBSeedTotal: number;
   seedGap: number;
   winningTeam: string | null;
+  resolutionType: string;
   teamABalanceTotal: number;
   teamBBalanceTotal: number;
   balanceGap: number;
@@ -76,6 +78,7 @@ export async function createCustomMatch(
     teamABalanceTotal: number;
     teamBBalanceTotal: number;
     balanceGap: number;
+    resolutionType?: CustomMatchResolutionType;
     players: Array<{
       discordUserId: string;
       playerId: number;
@@ -109,6 +112,7 @@ export async function createCustomMatch(
       teamASeedTotal: input.teamASeedTotal,
       teamBSeedTotal: input.teamBSeedTotal,
       seedGap: input.seedGap,
+      resolutionType: input.resolutionType ?? "played",
       teamABalanceTotal: input.teamABalanceTotal,
       teamBBalanceTotal: input.teamBBalanceTotal,
       balanceGap: input.balanceGap,
@@ -225,8 +229,9 @@ export async function completeCustomMatch(
   database: D1Database,
   input: {
     matchId: number;
-    resultsByDiscordUserId: ReadonlyMap<string, { kills: number; deaths: number }>;
+    resultsByDiscordUserId?: ReadonlyMap<string, { kills: number; deaths: number }>;
     winningTeam: MatchWinner;
+    resolutionType?: CustomMatchResolutionType;
   },
 ): Promise<void> {
   const db = createDb(database);
@@ -236,20 +241,27 @@ export async function completeCustomMatch(
     throw new Error("Custom match not found");
   }
 
-  for (const player of match.players) {
-    const result = input.resultsByDiscordUserId.get(player.discordUserId);
-    if (!result) {
-      throw new Error("Missing match result for one or more players");
+  const resolutionType = input.resolutionType ?? "played";
+  if (resolutionType === "played") {
+    if (!input.resultsByDiscordUserId) {
+      throw new Error("Missing match results for played match completion");
     }
 
-    await db
-      .update(customMatchPlayers)
-      .set({
-        kills: result.kills,
-        deaths: result.deaths,
-        updatedAt: now,
-      })
-      .where(eq(customMatchPlayers.id, player.id));
+    for (const player of match.players) {
+      const result = input.resultsByDiscordUserId.get(player.discordUserId);
+      if (!result) {
+        throw new Error("Missing match result for one or more players");
+      }
+
+      await db
+        .update(customMatchPlayers)
+        .set({
+          kills: result.kills,
+          deaths: result.deaths,
+          updatedAt: now,
+        })
+        .where(eq(customMatchPlayers.id, player.id));
+    }
   }
 
   const teamAPlayers = match.players.filter((player) => player.team === "A");
@@ -304,6 +316,7 @@ export async function completeCustomMatch(
     .set({
       status: "completed",
       winningTeam: input.winningTeam,
+      resolutionType,
       updatedAt: now,
     })
     .where(eq(customMatches.id, input.matchId));

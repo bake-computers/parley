@@ -4,6 +4,7 @@ export { statsCommand, statsPaginationHandler } from "./stats";
 export {
   teamCommand,
   teamDraftButtonHandler,
+  teamDraftRosterSelectHandler,
   teamDraftSelectHandler,
   teamResultsButtonHandler,
   teamResultsModalHandler,

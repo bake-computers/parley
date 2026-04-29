@@ -7,3 +7,6 @@ export {
   type LogRecord,
 } from "./lib/logger";
 export * from "./team/matchmaking";
+export * from "./tournament/bracket";
+export * from "./tournament/seeding";
+export * from "./tournament/service";

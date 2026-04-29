@@ -36,6 +36,7 @@ describe("team state", () => {
       mode: "internal" as const,
       minPlayers: 2,
       maxPlayers: 10,
+      selectionPage: 0,
       selectedDiscordUserIds: ["user-1", "user-2"],
       invalidSelectedDiscordUserIds: ["user-3"],
       members: [],
@@ -70,6 +71,41 @@ describe("team state", () => {
     await expect(
       readTeamDraftState(cache as unknown as KVNamespace, "draft-legacy"),
     ).resolves.toBeNull();
+  });
+
+  test("draft state defaults legacy payload selection page to zero", async () => {
+    const cache = new FakeKV();
+    cache.values.set(
+      "team:draft:v1:draft-legacy",
+      JSON.stringify({
+        draftId: "draft-legacy",
+        guildId: "guild-1",
+        channelId: "channel-1",
+        creatorId: "user-1",
+        mode: "internal",
+        minPlayers: 2,
+        maxPlayers: 10,
+        selectedDiscordUserIds: ["user-1"],
+        invalidSelectedDiscordUserIds: [],
+        members: [],
+      }),
+    );
+
+    await expect(
+      readTeamDraftState(cache as unknown as KVNamespace, "draft-legacy"),
+    ).resolves.toEqual({
+      draftId: "draft-legacy",
+      guildId: "guild-1",
+      channelId: "channel-1",
+      creatorId: "user-1",
+      mode: "internal",
+      minPlayers: 2,
+      maxPlayers: 10,
+      selectionPage: 0,
+      selectedDiscordUserIds: ["user-1"],
+      invalidSelectedDiscordUserIds: [],
+      members: [],
+    });
   });
 
   test("result session roundtrips through KV", async () => {
