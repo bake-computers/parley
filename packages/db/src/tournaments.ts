@@ -1,6 +1,5 @@
 import { and, asc, desc, eq, inArray, isNotNull, like, lte } from "drizzle-orm";
-import type { D1Database } from "@cloudflare/workers-types";
-import { createDb } from "./client";
+import type { DbClient } from "./client";
 import {
   tournamentBracketMatches,
   tournamentEntries,
@@ -113,7 +112,7 @@ function currentTimestamp() {
 }
 
 async function loadTournamentEntryPlayers(
-  database: D1Database,
+  database: DbClient,
   entryIds: readonly number[],
 ): Promise<Map<number, TournamentEntryPlayerRecord[]>> {
   const playersByEntryId = new Map<number, TournamentEntryPlayerRecord[]>();
@@ -121,7 +120,7 @@ async function loadTournamentEntryPlayers(
     return playersByEntryId;
   }
 
-  const db = createDb(database);
+  const db = database;
   const rows = await db
     .select()
     .from(tournamentEntryPlayers)
@@ -138,7 +137,7 @@ async function loadTournamentEntryPlayers(
 }
 
 async function attachTournamentEntryPlayers(
-  database: D1Database,
+  database: DbClient,
   entries: readonly TournamentEntryRecord[],
 ): Promise<TournamentEntryWithPlayers[]> {
   if (entries.length === 0) {
@@ -157,7 +156,7 @@ async function attachTournamentEntryPlayers(
 }
 
 export async function createTournament(
-  database: D1Database,
+  database: DbClient,
   input: {
     name: string;
     nameNormalized: string;
@@ -171,7 +170,7 @@ export async function createTournament(
     hubMessageId?: string | null;
   },
 ): Promise<number> {
-  const db = createDb(database);
+  const db = database;
   const now = currentTimestamp();
   const inserted = await db
     .insert(tournaments)
@@ -200,13 +199,13 @@ export async function createTournament(
 }
 
 export async function updateTournamentHubMessageId(
-  database: D1Database,
+  database: DbClient,
   input: {
     tournamentId: number;
     hubMessageId: string;
   },
 ): Promise<void> {
-  const db = createDb(database);
+  const db = database;
   await db
     .update(tournaments)
     .set({
@@ -217,7 +216,7 @@ export async function updateTournamentHubMessageId(
 }
 
 export async function updateTournament(
-  database: D1Database,
+  database: DbClient,
   input: {
     tournamentId: number;
     status?: TournamentStatus;
@@ -228,7 +227,7 @@ export async function updateTournament(
     winnerEntryId?: number | null;
   },
 ): Promise<void> {
-  const db = createDb(database);
+  const db = database;
   await db
     .update(tournaments)
     .set({
@@ -244,21 +243,21 @@ export async function updateTournament(
 }
 
 export async function getTournament(
-  database: D1Database | null | undefined,
+  database: DbClient | null | undefined,
   tournamentId: number,
 ): Promise<TournamentRecord | null> {
   if (!database) {
     return null;
   }
 
-  const db = createDb(database);
+  const db = database;
   const rows = await db.select().from(tournaments).where(eq(tournaments.id, tournamentId)).limit(1);
 
   return rows[0] ?? null;
 }
 
 export async function getTournamentWithEntries(
-  database: D1Database | null | undefined,
+  database: DbClient | null | undefined,
   tournamentId: number,
 ): Promise<TournamentWithEntries | null> {
   if (!database) {
@@ -278,7 +277,7 @@ export async function getTournamentWithEntries(
 }
 
 export async function listPublicTournaments(
-  database: D1Database | null | undefined,
+  database: DbClient | null | undefined,
   input?: {
     query?: string | null;
     format?: TournamentFormat | null;
@@ -289,7 +288,7 @@ export async function listPublicTournaments(
     return [];
   }
 
-  const db = createDb(database);
+  const db = database;
   const conditions = [eq(tournaments.visibility, "public")];
 
   if (input?.query) {
@@ -310,14 +309,14 @@ export async function listPublicTournaments(
 }
 
 export async function listOverdueTournamentsDueToAutoStart(
-  database: D1Database | null | undefined,
+  database: DbClient | null | undefined,
   nowMs = Date.now(),
 ): Promise<TournamentRecord[]> {
   if (!database) {
     return [];
   }
 
-  const db = createDb(database);
+  const db = database;
   return db
     .select()
     .from(tournaments)
@@ -332,7 +331,7 @@ export async function listOverdueTournamentsDueToAutoStart(
 }
 
 export async function createTournamentEntry(
-  database: D1Database,
+  database: DbClient,
   input: {
     tournamentId: number;
     guildId: string;
@@ -359,7 +358,7 @@ export async function createTournamentEntry(
     }>;
   },
 ): Promise<number> {
-  const db = createDb(database);
+  const db = database;
   const now = currentTimestamp();
   const inserted = await db
     .insert(tournamentEntries)
@@ -409,14 +408,14 @@ export async function createTournamentEntry(
 }
 
 export async function getTournamentEntry(
-  database: D1Database | null | undefined,
+  database: DbClient | null | undefined,
   entryId: number,
 ): Promise<TournamentEntryWithPlayers | null> {
   if (!database) {
     return null;
   }
 
-  const db = createDb(database);
+  const db = database;
   const rows = await db
     .select()
     .from(tournamentEntries)
@@ -431,14 +430,14 @@ export async function getTournamentEntry(
 }
 
 export async function listTournamentEntries(
-  database: D1Database | null | undefined,
+  database: DbClient | null | undefined,
   tournamentId: number,
 ): Promise<TournamentEntryWithPlayers[]> {
   if (!database) {
     return [];
   }
 
-  const db = createDb(database);
+  const db = database;
   const rows = await db
     .select()
     .from(tournamentEntries)
@@ -449,7 +448,7 @@ export async function listTournamentEntries(
 }
 
 export async function getTournamentEntryForCaptain(
-  database: D1Database | null | undefined,
+  database: DbClient | null | undefined,
   tournamentId: number,
   captainDiscordUserId: string,
 ): Promise<TournamentEntryWithPlayers | null> {
@@ -457,7 +456,7 @@ export async function getTournamentEntryForCaptain(
     return null;
   }
 
-  const db = createDb(database);
+  const db = database;
   const rows = await db
     .select()
     .from(tournamentEntries)
@@ -473,7 +472,7 @@ export async function getTournamentEntryForCaptain(
 }
 
 export async function getTournamentEntryByTeamName(
-  database: D1Database | null | undefined,
+  database: DbClient | null | undefined,
   tournamentId: number,
   teamNameNormalized: string,
 ): Promise<TournamentEntryWithPlayers | null> {
@@ -481,7 +480,7 @@ export async function getTournamentEntryByTeamName(
     return null;
   }
 
-  const db = createDb(database);
+  const db = database;
   const rows = await db
     .select()
     .from(tournamentEntries)
@@ -496,13 +495,13 @@ export async function getTournamentEntryByTeamName(
   return (await attachTournamentEntryPlayers(database, rows))[0] ?? null;
 }
 
-export async function deleteTournamentEntry(database: D1Database, entryId: number): Promise<void> {
-  const db = createDb(database);
+export async function deleteTournamentEntry(database: DbClient, entryId: number): Promise<void> {
+  const db = database;
   await db.delete(tournamentEntries).where(eq(tournamentEntries.id, entryId));
 }
 
 export async function updateTournamentEntry(
-  database: D1Database,
+  database: DbClient,
   input: {
     entryId: number;
     status?: TournamentEntryStatus;
@@ -510,7 +509,7 @@ export async function updateTournamentEntry(
     eliminatedAt?: number | null;
   },
 ): Promise<void> {
-  const db = createDb(database);
+  const db = database;
   await db
     .update(tournamentEntries)
     .set({
@@ -523,7 +522,7 @@ export async function updateTournamentEntry(
 }
 
 export async function updateTournamentEntrySeeds(
-  database: D1Database,
+  database: DbClient,
   seeds: Array<{
     entryId: number;
     seedNumber: number;
@@ -540,7 +539,7 @@ export async function updateTournamentEntrySeeds(
 }
 
 export async function createTournamentBracketMatches(
-  database: D1Database,
+  database: DbClient,
   matches: Array<{
     tournamentId: number;
     bracket: TournamentBracket;
@@ -558,7 +557,7 @@ export async function createTournamentBracketMatches(
     customMatchId?: number | null;
   }>,
 ): Promise<number[]> {
-  const db = createDb(database);
+  const db = database;
   const now = currentTimestamp();
   const inserted = await db
     .insert(tournamentBracketMatches)
@@ -588,14 +587,14 @@ export async function createTournamentBracketMatches(
 }
 
 export async function listTournamentBracketMatches(
-  database: D1Database | null | undefined,
+  database: DbClient | null | undefined,
   tournamentId: number,
 ): Promise<TournamentBracketMatchRecord[]> {
   if (!database) {
     return [];
   }
 
-  const db = createDb(database);
+  const db = database;
   return db
     .select()
     .from(tournamentBracketMatches)
@@ -609,14 +608,14 @@ export async function listTournamentBracketMatches(
 }
 
 export async function getTournamentBracketMatch(
-  database: D1Database | null | undefined,
+  database: DbClient | null | undefined,
   bracketMatchId: number,
 ): Promise<TournamentBracketMatchRecord | null> {
   if (!database) {
     return null;
   }
 
-  const db = createDb(database);
+  const db = database;
   const rows = await db
     .select()
     .from(tournamentBracketMatches)
@@ -627,14 +626,14 @@ export async function getTournamentBracketMatch(
 }
 
 export async function getTournamentBracketMatchByCustomMatchId(
-  database: D1Database | null | undefined,
+  database: DbClient | null | undefined,
   customMatchId: number,
 ): Promise<TournamentBracketMatchRecord | null> {
   if (!database) {
     return null;
   }
 
-  const db = createDb(database);
+  const db = database;
   const rows = await db
     .select()
     .from(tournamentBracketMatches)
@@ -645,7 +644,7 @@ export async function getTournamentBracketMatchByCustomMatchId(
 }
 
 export async function updateTournamentBracketMatch(
-  database: D1Database,
+  database: DbClient,
   input: {
     bracketMatchId: number;
     status?: TournamentBracketMatchStatus;
@@ -660,7 +659,7 @@ export async function updateTournamentBracketMatch(
     customMatchId?: number | null;
   },
 ): Promise<void> {
-  const db = createDb(database);
+  const db = database;
   await db
     .update(tournamentBracketMatches)
     .set({
@@ -680,7 +679,7 @@ export async function updateTournamentBracketMatch(
 }
 
 export async function updateTournamentBracketMatchSlot(
-  database: D1Database,
+  database: DbClient,
   input: {
     bracketMatchId: number;
     slot: TournamentBracketSlot;
@@ -688,7 +687,7 @@ export async function updateTournamentBracketMatchSlot(
     status?: TournamentBracketMatchStatus;
   },
 ): Promise<void> {
-  const db = createDb(database);
+  const db = database;
   await db
     .update(tournamentBracketMatches)
     .set({

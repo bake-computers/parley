@@ -7,7 +7,7 @@ import {
   resolveApplicationEmojiCatalog,
   SlashCommand,
 } from "@parley/discord-runtime";
-import type { WorkerEnv } from "../env";
+import type { WorkerRuntimeEnv } from "../env";
 import { type StatsPlatform } from "@parley/core/http";
 import { logger } from "@parley/core/logger";
 import {
@@ -244,7 +244,7 @@ async function checkRefreshTriggerLimits(
 }
 
 async function resolveStatsEmojiCatalog(
-  env: Partial<WorkerEnv> & StatsRefreshEnv,
+  env: Partial<WorkerRuntimeEnv> & StatsRefreshEnv,
   applicationId: string,
 ) {
   return resolveApplicationEmojiCatalog({
@@ -294,7 +294,7 @@ export const statsCommand = new SlashCommand()
     const username = trimToNull(interaction.options.getString("username", false));
     const platform = parsePlatform(interaction.options.getString("platform", false));
     const query = typeof focused.value === "string" ? focused.value : String(focused.value ?? "");
-    const env = interaction.context.env as Partial<WorkerEnv> & StatsRefreshEnv;
+    const env = interaction.context.env as Partial<WorkerRuntimeEnv> & StatsRefreshEnv;
 
     const catalog = username
       ? await resolveSeasonCatalog(env.Cache, username, platform)
@@ -310,7 +310,7 @@ export const statsCommand = new SlashCommand()
     const username = interaction.options.getString("username", true)!.trim();
     const platform = parsePlatform(interaction.options.getString("platform", false));
     const requestedSeason = trimToNull(interaction.options.getString("season", false));
-    const env = interaction.context.env as Partial<WorkerEnv> & StatsRefreshEnv;
+    const env = interaction.context.env as Partial<WorkerRuntimeEnv> & StatsRefreshEnv;
     const cache = env.Cache;
 
     await interaction.deferReply(true);
@@ -323,13 +323,13 @@ export const statsCommand = new SlashCommand()
       : null;
     const cacheKey = buildStatsCacheKey(username, platform, canonicalRequestedSeason ?? "latest");
     const cachedEnvelope = await readStatsCache(cache, cacheKey);
-    let playerSummary = await getInternalPlayerSummaryByIdentity(env.Database, username, platform);
+    let playerSummary = await getInternalPlayerSummaryByIdentity(env.db, username, platform);
 
     if (cachedEnvelope) {
-      const cachedPlayerId = await resolveStatsEnvelopePlayerId(env.Database, cachedEnvelope);
+      const cachedPlayerId = await resolveStatsEnvelopePlayerId(env.db, cachedEnvelope);
       if (cachedPlayerId !== null) {
         playerSummary =
-          (await getInternalPlayerSummaryByPlayerId(env.Database, cachedPlayerId)) ?? playerSummary;
+          (await getInternalPlayerSummaryByPlayerId(env.db, cachedPlayerId)) ?? playerSummary;
       }
 
       const refreshLocked = isExternalStatsRefreshLocked(playerSummary);
@@ -515,7 +515,7 @@ export const statsPaginationHandler = new ComponentHandler(
   const parsedCustomId = parseStatsPaginationCustomId(interaction.customId);
   if (!parsedCustomId) {
     const emojis = await resolveStatsEmojiCatalog(
-      interaction.context.env as Partial<WorkerEnv> & StatsRefreshEnv,
+      interaction.context.env as Partial<WorkerRuntimeEnv> & StatsRefreshEnv,
       interaction.applicationId,
     );
     await interaction.reply(
@@ -531,7 +531,7 @@ export const statsPaginationHandler = new ComponentHandler(
     return;
   }
 
-  const env = interaction.context.env as Partial<WorkerEnv> & StatsRefreshEnv;
+  const env = interaction.context.env as Partial<WorkerRuntimeEnv> & StatsRefreshEnv;
   const state = await readStatsViewState(env.Cache, parsedCustomId.viewId);
   if (!state) {
     const emojis = await resolveStatsEmojiCatalog(env, interaction.applicationId);
@@ -564,9 +564,9 @@ export const statsPaginationHandler = new ComponentHandler(
     return;
   }
 
-  const playerId = await resolveStatsEnvelopePlayerId(env.Database, envelope);
+  const playerId = await resolveStatsEnvelopePlayerId(env.db, envelope);
   const playerSummary =
-    playerId === null ? null : await getInternalPlayerSummaryByPlayerId(env.Database, playerId);
+    playerId === null ? null : await getInternalPlayerSummaryByPlayerId(env.db, playerId);
   const emojis = await resolveStatsEmojiCatalog(env, interaction.applicationId);
   const payload = buildStatsMessagePayload(
     envelope,

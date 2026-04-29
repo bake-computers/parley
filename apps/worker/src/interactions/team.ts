@@ -98,7 +98,7 @@ import {
   writeTournamentBracketCache,
   writeTournamentSummaryCache,
 } from "@parley/core/tournament-service";
-import type { WorkerEnv } from "../env";
+import type { WorkerRuntimeEnv } from "../env";
 import { buildComponentsV2Reply, buildNoticeCard, COMPONENTS_V2_FLAGS } from "./ui";
 
 const TEAM_DRAFT_PREFIX = "team-draft";
@@ -108,7 +108,7 @@ const TEAM_RESULTS_PREFIX = "team-results";
 const TEAM_RESULTS_MODAL_PREFIX = "team-results-modal";
 const TEAM_DRAFT_PAGE_SIZE = 25;
 
-type TeamEnv = Partial<WorkerEnv> & Partial<DiscordRuntimeEnv>;
+type TeamEnv = Partial<WorkerRuntimeEnv> & Partial<DiscordRuntimeEnv>;
 type WinningTeam = "A" | "B";
 type MatchDisplayPlayer =
   | CustomMatchPlayerRecord
@@ -808,7 +808,7 @@ async function loadTournamentStatusSnapshotWithCache(
     };
   }
 
-  const snapshot = await getTournamentStatusSnapshot(env.Database, tournamentId);
+  const snapshot = await getTournamentStatusSnapshot(env.db, tournamentId);
   if (!snapshot) {
     return null;
   }
@@ -850,7 +850,7 @@ async function syncTournamentHubMessage(
   tournamentId: number,
   emojis?: ApplicationEmojiCatalog | null,
 ): Promise<void> {
-  const snapshot = await getTournamentStatusSnapshot(env.Database, tournamentId);
+  const snapshot = await getTournamentStatusSnapshot(env.db, tournamentId);
   if (!snapshot?.tournament.hubMessageId) {
     return;
   }
@@ -896,7 +896,7 @@ async function createTournamentMatchForBracketNode(
   emojis?: ApplicationEmojiCatalog | null,
 ): Promise<void> {
   if (
-    !env.Database ||
+    !env.db ||
     typeof bracketMatch.entryAId !== "number" ||
     typeof bracketMatch.entryBId !== "number" ||
     bracketMatch.customMatchId !== null ||
@@ -946,7 +946,7 @@ async function createTournamentMatchForBracketNode(
     return;
   }
 
-  const matchId = await createCustomMatch(env.Database, {
+  const matchId = await createCustomMatch(env.db, {
     guildId: entryA.guildId,
     channelId: entryA.channelId,
     messageId: entryAMessageId,
@@ -996,7 +996,7 @@ async function createTournamentMatchForBracketNode(
     ],
   });
 
-  await updateTournamentBracketMatch(env.Database, {
+  await updateTournamentBracketMatch(env.db, {
     bracketMatchId: bracketMatch.id,
     customMatchId: matchId,
     status: "pending_results",
@@ -1042,9 +1042,9 @@ async function processTournamentReadyMatches(
 }
 
 export async function processTournamentAutoStarts(env: TeamEnv, nowMs = Date.now()): Promise<void> {
-  const dueTournaments = await listOverdueTournamentStarts(env.Database, nowMs);
+  const dueTournaments = await listOverdueTournamentStarts(env.db, nowMs);
   for (const tournament of dueTournaments) {
-    const startResult = await startTournament(env.Database!, tournament.id, nowMs);
+    const startResult = await startTournament(env.db!, tournament.id, nowMs);
     await invalidateTournamentCaches(env.Cache, tournament.id);
     await processTournamentReadyMatches(env, startResult.snapshot);
   }
@@ -1142,11 +1142,11 @@ async function handleInternalDraftBuild(
   draftId: string,
   emojis?: ApplicationEmojiCatalog | null,
 ) {
-  if (!env.Database) {
+  if (!env.db) {
     await interaction.update(
       buildTeamReply({
         title: "Configuration error",
-        message: "Database binding is missing.",
+        message: "Database connection is unavailable.",
         tone: "danger",
         emojiName: "warning",
         emojis,
@@ -1176,7 +1176,7 @@ async function handleInternalDraftBuild(
   await interaction.deferUpdate();
 
   const balanced = balanceTeams(validation.players);
-  const matchId = await createCustomMatch(env.Database, {
+  const matchId = await createCustomMatch(env.db, {
     guildId: state.guildId,
     channelId: state.channelId,
     messageId: `pending:${interaction.id}`,
@@ -1259,7 +1259,7 @@ async function handleInternalDraftBuild(
     return;
   }
 
-  await updateCustomMatchMessageId(env.Database, { matchId, messageId });
+  await updateCustomMatchMessageId(env.db, { matchId, messageId });
   await deleteTeamDraftState(env.Cache, draftId);
   await interaction.editReply(
     buildTeamReply({
@@ -1279,11 +1279,11 @@ async function handleMatchmakingDraftBuild(
   draftId: string,
   emojis?: ApplicationEmojiCatalog | null,
 ) {
-  if (!env.Database) {
+  if (!env.db) {
     await interaction.update(
       buildTeamReply({
         title: "Configuration error",
-        message: "Database binding is missing.",
+        message: "Database connection is unavailable.",
         tone: "danger",
         emojiName: "warning",
         emojis,
@@ -1308,19 +1308,16 @@ async function handleMatchmakingDraftBuild(
   }
 
   await interaction.deferUpdate();
-  await expireStaleMatchmakingQueues(env.Database);
+  await expireStaleMatchmakingQueues(env.db);
 
-  const activeGuildQueue = await getActiveMatchmakingQueueForGuild(env.Database, state.guildId);
+  const activeGuildQueue = await getActiveMatchmakingQueueForGuild(env.db, state.guildId);
   if (activeGuildQueue) {
     await deleteTeamDraftState(env.Cache, draftId);
     await interaction.editReply(buildMatchmakingQueueStatusReply(activeGuildQueue, emojis));
     return;
   }
 
-  const activeCaptainQueue = await getActiveMatchmakingQueueForCaptain(
-    env.Database,
-    state.creatorId,
-  );
+  const activeCaptainQueue = await getActiveMatchmakingQueueForCaptain(env.db, state.creatorId);
   if (activeCaptainQueue) {
     await deleteTeamDraftState(env.Cache, draftId);
     await interaction.editReply(
@@ -1339,14 +1336,14 @@ async function handleMatchmakingDraftBuild(
     return;
   }
 
-  const activeMatch = await getActiveCrossGuildMatchForGuild(env.Database, state.guildId);
+  const activeMatch = await getActiveCrossGuildMatchForGuild(env.db, state.guildId);
   if (activeMatch) {
     await deleteTeamDraftState(env.Cache, draftId);
     await interaction.editReply(buildActiveCrossGuildMatchStatusReply(activeMatch, emojis));
     return;
   }
 
-  const queuedQueues = await listQueuedMatchmakingQueues(env.Database);
+  const queuedQueues = await listQueuedMatchmakingQueues(env.db);
   const conflictingPlayers = findReservedMatchmakingPlayerIds(validation.players, queuedQueues);
   if (conflictingPlayers.length > 0) {
     await deleteTeamDraftState(env.Cache, draftId);
@@ -1367,7 +1364,7 @@ async function handleMatchmakingDraftBuild(
 
   const snapshot = buildMatchmakingQueueSnapshot(validation.players);
   const now = Date.now();
-  const queueId = await createMatchmakingQueue(env.Database, {
+  const queueId = await createMatchmakingQueue(env.db, {
     guildId: state.guildId,
     channelId: state.channelId,
     captainDiscordUserId: state.creatorId,
@@ -1379,7 +1376,7 @@ async function handleMatchmakingDraftBuild(
     players: toMatchmakingQueuePlayers(validation.players),
   });
 
-  const currentQueue = await getMatchmakingQueue(env.Database, queueId);
+  const currentQueue = await getMatchmakingQueue(env.db, queueId);
   if (!currentQueue) {
     await deleteTeamDraftState(env.Cache, draftId);
     await interaction.editReply(
@@ -1401,7 +1398,7 @@ async function handleMatchmakingDraftBuild(
     return;
   }
 
-  const opponentQueue = await getMatchmakingQueue(env.Database, opponentCandidate.id);
+  const opponentQueue = await getMatchmakingQueue(env.db, opponentCandidate.id);
   if (!opponentQueue || opponentQueue.status !== "queued") {
     await deleteTeamDraftState(env.Cache, draftId);
     await interaction.editReply(buildMatchmakingQueueStatusReply(currentQueue, emojis));
@@ -1458,7 +1455,7 @@ async function handleMatchmakingDraftBuild(
     return;
   }
 
-  const matchId = await createCustomMatch(env.Database, {
+  const matchId = await createCustomMatch(env.db, {
     guildId: opponentQueue.guildId,
     channelId: opponentQueue.channelId,
     messageId: opponentMessageId,
@@ -1508,11 +1505,11 @@ async function handleMatchmakingDraftBuild(
     ],
   });
 
-  await markMatchmakingQueueMatched(env.Database, {
+  await markMatchmakingQueueMatched(env.db, {
     queueId: opponentQueue.id,
     matchId,
   });
-  await markMatchmakingQueueMatched(env.Database, {
+  await markMatchmakingQueueMatched(env.db, {
     queueId: currentQueue.id,
     matchId,
   });
@@ -1586,7 +1583,7 @@ async function handleTournamentDraftBuild(
   draftId: string,
   emojis?: ApplicationEmojiCatalog | null,
 ) {
-  if (!env.Database || typeof state.tournamentId !== "number" || !state.teamName) {
+  if (!env.db || typeof state.tournamentId !== "number" || !state.teamName) {
     await interaction.update(
       buildTeamReply({
         title: "Configuration error",
@@ -1600,7 +1597,7 @@ async function handleTournamentDraftBuild(
   }
 
   const validation = validateReadyRosterSelection(state.members, state.selectedDiscordUserIds);
-  const tournamentSnapshot = await getTournamentStatusSnapshot(env.Database, state.tournamentId);
+  const tournamentSnapshot = await getTournamentStatusSnapshot(env.db, state.tournamentId);
   if (!tournamentSnapshot) {
     await interaction.reply(
       buildTeamReply({
@@ -1638,7 +1635,7 @@ async function handleTournamentDraftBuild(
 
   await interaction.deferUpdate();
   const snapshot = buildTournamentEntrySnapshot(validation.players);
-  await createTournamentEntry(env.Database, {
+  await createTournamentEntry(env.db, {
     tournamentId: state.tournamentId,
     guildId: state.guildId,
     channelId: state.channelId,
@@ -1653,10 +1650,10 @@ async function handleTournamentDraftBuild(
 
   await deleteTeamDraftState(env.Cache, draftId);
 
-  const nextSnapshot = await getTournamentStatusSnapshot(env.Database, state.tournamentId);
+  const nextSnapshot = await getTournamentStatusSnapshot(env.db, state.tournamentId);
   if (nextSnapshot) {
     await refreshTournamentCapacityStatus(
-      env.Database,
+      env.db,
       nextSnapshot.tournament,
       nextSnapshot.entries.length,
     );
@@ -1912,11 +1909,11 @@ export const teamCommand = new SlashCommand()
     if (subcommandGroup === "limit") {
       await interaction.deferReply(true);
 
-      if (!env.Database) {
+      if (!env.db) {
         await interaction.editReply(
           buildTeamReply({
             title: "Configuration error",
-            message: "Database binding is missing.",
+            message: "Database connection is unavailable.",
             tone: "danger",
             emojiName: "warning",
             emojis,
@@ -1926,7 +1923,7 @@ export const teamCommand = new SlashCommand()
       }
 
       if (subcommand === "show") {
-        const limit = await getGuildLimit(env.Database, interaction.guildId);
+        const limit = await getGuildLimit(env.db, interaction.guildId);
         await interaction.editReply(
           buildTeamReply({
             title: "Daily match limit",
@@ -1956,7 +1953,7 @@ export const teamCommand = new SlashCommand()
 
       if (subcommand === "set") {
         const dailyLimit = interaction.options.getInteger("matches_per_day", true)!;
-        await upsertGuildLimit(env.Database, {
+        await upsertGuildLimit(env.db, {
           guildId: interaction.guildId,
           dailyMatchLimit: dailyLimit,
           updatedByDiscordUserId: interaction.userId,
@@ -1973,7 +1970,7 @@ export const teamCommand = new SlashCommand()
         return;
       }
 
-      await clearGuildLimit(env.Database, interaction.guildId);
+      await clearGuildLimit(env.db, interaction.guildId);
       await interaction.editReply(
         buildTeamReply({
           title: "Daily match limit cleared",
@@ -1986,11 +1983,11 @@ export const teamCommand = new SlashCommand()
       return;
     }
 
-    if (!env.Database) {
+    if (!env.db) {
       await interaction.reply(
         buildTeamReply({
           title: "Configuration error",
-          message: "Database binding is missing.",
+          message: "Database connection is unavailable.",
           tone: "danger",
           emojiName: "warning",
           emojis,
@@ -2008,7 +2005,7 @@ export const teamCommand = new SlashCommand()
         const format = interaction.options.getString("format", false) as TournamentFormat | null;
         const status = interaction.options.getString("status", false);
         const query = interaction.options.getString("query", false);
-        const tournaments = await listBrowsableTournaments(env.Cache, env.Database, {
+        const tournaments = await listBrowsableTournaments(env.Cache, env.db, {
           query,
           format,
           statuses: status ? [status as "active" | "full_pending_start" | "open"] : undefined,
@@ -2021,7 +2018,7 @@ export const teamCommand = new SlashCommand()
         const name = interaction.options.getString("name", true)!.trim();
         const format = interaction.options.getString("format", true)! as TournamentFormat;
         const teamCap = interaction.options.getInteger("teams", true)!;
-        const tournamentId = await createTournament(env.Database, {
+        const tournamentId = await createTournament(env.db, {
           name,
           nameNormalized: normalizeTournamentText(name),
           format,
@@ -2032,14 +2029,14 @@ export const teamCommand = new SlashCommand()
           createdByDiscordUserId: interaction.userId,
         });
 
-        const snapshot = await getTournamentStatusSnapshot(env.Database, tournamentId);
+        const snapshot = await getTournamentStatusSnapshot(env.db, tournamentId);
         if (snapshot) {
           const publicPayload = buildTournamentHubMessage(snapshot, emojis);
           const rest = createRestClient(env);
           const publicResult = await postPublicMessage(rest, interaction.channelId, publicPayload);
           const messageId = publicResult.isErr() ? null : readJsonId(publicResult.value);
           if (messageId) {
-            await updateTournamentHubMessageId(env.Database, {
+            await updateTournamentHubMessageId(env.db, {
               tournamentId,
               hubMessageId: messageId,
             });
@@ -2099,7 +2096,7 @@ export const teamCommand = new SlashCommand()
         }
 
         const existingCaptainEntry = await getTournamentEntryForCaptain(
-          env.Database,
+          env.db,
           tournamentId,
           interaction.userId,
         );
@@ -2116,7 +2113,7 @@ export const teamCommand = new SlashCommand()
           return;
         }
 
-        const roster = await getOrBuildGuildRoster(env.Cache, env.Database, interaction.guildId);
+        const roster = await getOrBuildGuildRoster(env.Cache, env.db, interaction.guildId);
         const readyMembers = roster.filter(
           (member) => member.ready && member.balanceRating !== null,
         );
@@ -2191,11 +2188,11 @@ export const teamCommand = new SlashCommand()
           return;
         }
 
-        await deleteTournamentEntry(env.Database, targetEntry.id);
-        const nextSnapshot = await getTournamentStatusSnapshot(env.Database, tournamentId);
+        await deleteTournamentEntry(env.db, targetEntry.id);
+        const nextSnapshot = await getTournamentStatusSnapshot(env.db, tournamentId);
         if (nextSnapshot) {
           await refreshTournamentCapacityStatus(
-            env.Database,
+            env.db,
             nextSnapshot.tournament,
             nextSnapshot.entries.length,
           );
@@ -2250,7 +2247,7 @@ export const teamCommand = new SlashCommand()
           return;
         }
 
-        const startResult = await startTournament(env.Database, tournamentId);
+        const startResult = await startTournament(env.db, tournamentId);
         await invalidateTournamentCaches(env.Cache, tournamentId);
         await processTournamentReadyMatches(env, startResult.snapshot, emojis);
         await interaction.editReply(
@@ -2286,7 +2283,7 @@ export const teamCommand = new SlashCommand()
           return;
         }
 
-        await updateTournament(env.Database, {
+        await updateTournament(env.db, {
           tournamentId,
           status: "cancelled",
         });
@@ -2306,7 +2303,7 @@ export const teamCommand = new SlashCommand()
 
       const bracketMatchId = interaction.options.getInteger("match_id", true)!;
       const winnerSide = interaction.options.getString("winner_side", true);
-      const bracketMatch = await getTournamentBracketMatch(env.Database, bracketMatchId);
+      const bracketMatch = await getTournamentBracketMatch(env.db, bracketMatchId);
       if (
         !bracketMatch ||
         bracketMatch.tournamentId !== tournamentId ||
@@ -2325,7 +2322,7 @@ export const teamCommand = new SlashCommand()
         return;
       }
 
-      const match = await getCustomMatch(env.Database, bracketMatch.customMatchId);
+      const match = await getCustomMatch(env.db, bracketMatch.customMatchId);
       if (
         !match ||
         !interaction.userId ||
@@ -2348,16 +2345,12 @@ export const teamCommand = new SlashCommand()
         (guildId): guildId is string => typeof guildId === "string" && guildId.length > 0,
       );
       for (const guildId of guildIdsToCheck) {
-        const limit = await getGuildLimit(env.Database, guildId);
+        const limit = await getGuildLimit(env.db, guildId);
         if (!limit) {
           continue;
         }
 
-        const completedToday = await countCompletedMatchesSince(
-          env.Database,
-          guildId,
-          startOfUtcDayMs(),
-        );
+        const completedToday = await countCompletedMatchesSince(env.db, guildId, startOfUtcDayMs());
         if (completedToday >= limit.dailyMatchLimit) {
           await interaction.editReply(
             buildTeamReply({
@@ -2388,19 +2381,19 @@ export const teamCommand = new SlashCommand()
 
       const winnerEntryId = winnerSide === "A" ? bracketMatch.entryAId : bracketMatch.entryBId;
       const loserEntryId = winnerSide === "A" ? bracketMatch.entryBId : bracketMatch.entryAId;
-      await completeCustomMatch(env.Database, {
+      await completeCustomMatch(env.db, {
         matchId: match.id,
         winningTeam: winnerSide,
         resolutionType: "forfeit",
       });
-      const advanceResult = await advanceTournamentBracketMatch(env.Database, {
+      const advanceResult = await advanceTournamentBracketMatch(env.db, {
         bracketMatchId: bracketMatch.id,
         winnerEntryId,
         loserEntryId,
         finalStatus: "forfeit",
       });
 
-      const completedMatch = await getCustomMatch(env.Database, match.id);
+      const completedMatch = await getCustomMatch(env.db, match.id);
       if (completedMatch) {
         const rest = createRestClient(env);
         const publicPayload = buildPublicMatchMessage({
@@ -2447,22 +2440,16 @@ export const teamCommand = new SlashCommand()
 
     if (subcommandGroup === "match") {
       await interaction.deferReply(true);
-      await expireStaleMatchmakingQueues(env.Database);
+      await expireStaleMatchmakingQueues(env.db);
 
       if (subcommand === "status") {
-        const activeQueue = await getActiveMatchmakingQueueForGuild(
-          env.Database,
-          interaction.guildId,
-        );
+        const activeQueue = await getActiveMatchmakingQueueForGuild(env.db, interaction.guildId);
         if (activeQueue) {
           await interaction.editReply(buildMatchmakingQueueStatusReply(activeQueue, emojis));
           return;
         }
 
-        const activeMatch = await getActiveCrossGuildMatchForGuild(
-          env.Database,
-          interaction.guildId,
-        );
+        const activeMatch = await getActiveCrossGuildMatchForGuild(env.db, interaction.guildId);
         if (activeMatch) {
           await interaction.editReply(buildActiveCrossGuildMatchStatusReply(activeMatch, emojis));
           return;
@@ -2481,10 +2468,7 @@ export const teamCommand = new SlashCommand()
       }
 
       if (subcommand === "cancel") {
-        const activeQueue = await getActiveMatchmakingQueueForGuild(
-          env.Database,
-          interaction.guildId,
-        );
+        const activeQueue = await getActiveMatchmakingQueueForGuild(env.db, interaction.guildId);
         if (!activeQueue) {
           await interaction.editReply(
             buildTeamReply({
@@ -2514,7 +2498,7 @@ export const teamCommand = new SlashCommand()
           return;
         }
 
-        await cancelMatchmakingQueue(env.Database, activeQueue.id);
+        await cancelMatchmakingQueue(env.db, activeQueue.id);
         await interaction.editReply(
           buildTeamReply({
             title: "Queue cancelled",
@@ -2527,17 +2511,14 @@ export const teamCommand = new SlashCommand()
         return;
       }
 
-      const activeGuildQueue = await getActiveMatchmakingQueueForGuild(
-        env.Database,
-        interaction.guildId,
-      );
+      const activeGuildQueue = await getActiveMatchmakingQueueForGuild(env.db, interaction.guildId);
       if (activeGuildQueue) {
         await interaction.editReply(buildMatchmakingQueueStatusReply(activeGuildQueue, emojis));
         return;
       }
 
       const activeCaptainQueue = await getActiveMatchmakingQueueForCaptain(
-        env.Database,
+        env.db,
         interaction.userId,
       );
       if (activeCaptainQueue) {
@@ -2557,13 +2538,13 @@ export const teamCommand = new SlashCommand()
         return;
       }
 
-      const activeMatch = await getActiveCrossGuildMatchForGuild(env.Database, interaction.guildId);
+      const activeMatch = await getActiveCrossGuildMatchForGuild(env.db, interaction.guildId);
       if (activeMatch) {
         await interaction.editReply(buildActiveCrossGuildMatchStatusReply(activeMatch, emojis));
         return;
       }
 
-      const roster = await getOrBuildGuildRoster(env.Cache, env.Database, interaction.guildId);
+      const roster = await getOrBuildGuildRoster(env.Cache, env.db, interaction.guildId);
       const readyMembers = roster.filter((member) => member.ready && member.balanceRating !== null);
       if (readyMembers.length < MATCHMAKING_STACK_SIZE) {
         await interaction.editReply(
@@ -2593,7 +2574,7 @@ export const teamCommand = new SlashCommand()
 
     await interaction.deferReply(true);
 
-    const roster = await getOrBuildGuildRoster(env.Cache, env.Database, interaction.guildId);
+    const roster = await getOrBuildGuildRoster(env.Cache, env.db, interaction.guildId);
     const readyMembers = roster.filter((member) => member.ready && member.balanceRating !== null);
 
     if (readyMembers.length < 2) {
@@ -2949,7 +2930,7 @@ export const teamResultsButtonHandler = new ComponentHandler(
     return;
   }
 
-  const match = await getCustomMatch(env.Database, matchId);
+  const match = await getCustomMatch(env.db, matchId);
   if (!match) {
     await interaction.reply(
       buildTeamReply({
@@ -3102,7 +3083,7 @@ export const teamResultsModalHandler = new ModalHandler(TEAM_RESULTS_MODAL_PREFI
     await interaction.deferReply(true);
     await processTournamentAutoStarts(env);
 
-    const match = await getCustomMatch(env.Database, matchId);
+    const match = await getCustomMatch(env.db, matchId);
     if (!match) {
       await interaction.editReply(
         buildTeamReply({
@@ -3231,16 +3212,12 @@ export const teamResultsModalHandler = new ModalHandler(TEAM_RESULTS_MODAL_PREFI
       (guildId): guildId is string => typeof guildId === "string" && guildId.length > 0,
     );
     for (const guildId of guildIdsToCheck) {
-      const limit = await getGuildLimit(env.Database, guildId);
+      const limit = await getGuildLimit(env.db, guildId);
       if (!limit) {
         continue;
       }
 
-      const completedToday = await countCompletedMatchesSince(
-        env.Database,
-        guildId,
-        startOfUtcDayMs(),
-      );
+      const completedToday = await countCompletedMatchesSince(env.db, guildId, startOfUtcDayMs());
       if (completedToday >= limit.dailyMatchLimit) {
         const label = guildId === match.guildId ? "creator server" : "opponent server";
         await interaction.editReply(
@@ -3275,11 +3252,11 @@ export const teamResultsModalHandler = new ModalHandler(TEAM_RESULTS_MODAL_PREFI
     }
     const merged = mergeTeamResults(teamAResults, teamBResults);
 
-    if (!env.Database) {
+    if (!env.db) {
       await interaction.editReply(
         buildTeamReply({
           title: "Configuration error",
-          message: "Database binding is missing.",
+          message: "Database connection is unavailable.",
           tone: "danger",
           emojiName: "warning",
           emojis,
@@ -3288,7 +3265,7 @@ export const teamResultsModalHandler = new ModalHandler(TEAM_RESULTS_MODAL_PREFI
       return;
     }
 
-    await completeCustomMatch(env.Database, {
+    await completeCustomMatch(env.db, {
       matchId,
       resultsByDiscordUserId: merged,
       winningTeam: winner,
@@ -3299,7 +3276,7 @@ export const teamResultsModalHandler = new ModalHandler(TEAM_RESULTS_MODAL_PREFI
       null;
     if (match.matchType === "tournament") {
       const tournamentBracketMatch = await getTournamentBracketMatchByCustomMatchId(
-        env.Database,
+        env.db,
         matchId,
       );
       if (
@@ -3307,7 +3284,7 @@ export const teamResultsModalHandler = new ModalHandler(TEAM_RESULTS_MODAL_PREFI
         typeof tournamentBracketMatch.entryAId === "number" &&
         typeof tournamentBracketMatch.entryBId === "number"
       ) {
-        tournamentAdvanceResult = await advanceTournamentBracketMatch(env.Database, {
+        tournamentAdvanceResult = await advanceTournamentBracketMatch(env.db, {
           bracketMatchId: tournamentBracketMatch.id,
           winnerEntryId:
             winner === "A" ? tournamentBracketMatch.entryAId : tournamentBracketMatch.entryBId,
@@ -3318,7 +3295,7 @@ export const teamResultsModalHandler = new ModalHandler(TEAM_RESULTS_MODAL_PREFI
       }
     }
 
-    const completedMatch = await getCustomMatch(env.Database, matchId);
+    const completedMatch = await getCustomMatch(env.db, matchId);
     if (!completedMatch) {
       await interaction.editReply(
         buildTeamReply({
@@ -3403,7 +3380,7 @@ export const teamResultsModalHandler = new ModalHandler(TEAM_RESULTS_MODAL_PREFI
     }
 
     const affectedGuildIds = await listGuildIdsForPlayerIds(
-      env.Database,
+      env.db,
       completedMatch.players.map((player) => player.playerId),
     );
     await deleteGuildRosterCaches(env.Cache, [

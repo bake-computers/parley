@@ -20,10 +20,13 @@
     "db:generate": {
       "cache": false
     },
-    "db:migrate:local": {
+    "db:migrate": {
       "cache": false
     },
-    "db:migrate:remote": {
+    "db:backfill:d1": {
+      "cache": false
+    },
+    "db:smoke": {
       "cache": false
     },
     "db:studio": {

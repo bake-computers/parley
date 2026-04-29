@@ -1,10 +1,5 @@
-import type {
-  D1Database,
-  ExecutionContext,
-  KVNamespace,
-  MessageBatch,
-  Queue,
-} from "@cloudflare/workers-types";
+import type { ExecutionContext, KVNamespace, MessageBatch, Queue } from "@cloudflare/workers-types";
+import type { DbClient } from "@parley/db/client";
 import { err, ok, ResultAsync, type Result } from "neverthrow";
 import {
   DiscordRestClient,
@@ -80,7 +75,7 @@ export interface StatsRefreshMessage {
 export interface StatsRefreshEnv extends Partial<DiscordRuntimeEnv> {
   Cache?: KVNamespace;
   Queue?: Queue<StatsRefreshMessage>;
-  Database?: D1Database;
+  db?: DbClient;
 }
 
 type StatsRefreshRuntimeEnv = StatsRefreshEnv & Partial<DiscordRuntimeEnv>;
@@ -121,7 +116,7 @@ export interface StatsRefreshDeps {
     platform: StatsPlatform,
   ) => Promise<Result<ScrapedStatsCollection, StatsFetchError>>;
   persistSnapshot?: (
-    database: D1Database | null | undefined,
+    database: DbClient | null | undefined,
     envelope: StatsCacheEnvelope,
   ) => Promise<void>;
   editPendingReply?: (pending: PendingStatsReplyRecord, payload: JsonObject) => Promise<void>;
@@ -413,7 +408,7 @@ export function buildStatsEnvelope(
 }
 
 async function defaultPersistSnapshot(
-  database: D1Database | null | undefined,
+  database: DbClient | null | undefined,
   envelope: StatsCacheEnvelope,
 ): Promise<void> {
   await persistStatsSnapshot(database, {
@@ -700,10 +695,7 @@ export async function processStatsRefreshMessage(
     mergeSeasonCatalog(existingGlobalCatalog, collection.seasonCatalog),
   );
 
-  await ResultAsync.fromPromise(
-    persistSnapshot(env.Database, latestEnvelope),
-    (cause) => cause,
-  ).match(
+  await ResultAsync.fromPromise(persistSnapshot(env.db, latestEnvelope), (cause) => cause).match(
     () => undefined,
     (error) => {
       logger.error("stats.refresh.persist_failed", "Stats refresh persistence failed", {
@@ -715,7 +707,7 @@ export async function processStatsRefreshMessage(
     },
   );
 
-  const invalidatedGuildIds = await reconcileAutoPlayerRegistrations(env.Database, latestEnvelope);
+  const invalidatedGuildIds = await reconcileAutoPlayerRegistrations(env.db, latestEnvelope);
   await deleteGuildRosterCaches(env.Cache, invalidatedGuildIds);
 
   if (env.Cache && !bypassRateLimits) {

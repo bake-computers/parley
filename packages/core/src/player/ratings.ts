@@ -1,6 +1,5 @@
 import { and, eq } from "drizzle-orm";
-import type { D1Database } from "@cloudflare/workers-types";
-import { createDb } from "@parley/db/client";
+import type { DbClient } from "@parley/db/client";
 import { players } from "@parley/db/schema";
 import { normalizePlayerUsername } from "../player/identity";
 
@@ -41,20 +40,20 @@ export function isExternalStatsRefreshLocked(summary: InternalPlayerSummary | nu
 }
 
 export async function getInternalPlayerSummaryByPlayerId(
-  database: D1Database | null | undefined,
+  database: DbClient | null | undefined,
   playerId: number,
 ): Promise<InternalPlayerSummary | null> {
   if (!database) {
     return null;
   }
 
-  const db = createDb(database);
+  const db = database;
   const rows = await db.select().from(players).where(eq(players.id, playerId)).limit(1);
   return toInternalPlayerSummary(rows[0]);
 }
 
 export async function getInternalPlayerSummaryByIdentity(
-  database: D1Database | null | undefined,
+  database: DbClient | null | undefined,
   username: string,
   platform: string,
 ): Promise<InternalPlayerSummary | null> {
@@ -62,7 +61,7 @@ export async function getInternalPlayerSummaryByIdentity(
     return null;
   }
 
-  const db = createDb(database);
+  const db = database;
   const normalizedUsername = normalizePlayerUsername(username);
   const rows =
     platform === "auto"

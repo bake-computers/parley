@@ -1,6 +1,5 @@
 import { and, asc, eq, inArray, lt } from "drizzle-orm";
-import type { D1Database } from "@cloudflare/workers-types";
-import { createDb } from "./client";
+import type { DbClient } from "./client";
 import { matchmakingQueuePlayers, matchmakingQueues } from "./schema";
 
 export type MatchmakingQueueStatus = "cancelled" | "expired" | "matched" | "queued";
@@ -48,7 +47,7 @@ function currentTimestamp() {
 }
 
 async function loadQueuePlayers(
-  database: D1Database,
+  database: DbClient,
   queueIds: readonly number[],
 ): Promise<Map<number, MatchmakingQueuePlayerRecord[]>> {
   const playersByQueueId = new Map<number, MatchmakingQueuePlayerRecord[]>();
@@ -56,7 +55,7 @@ async function loadQueuePlayers(
     return playersByQueueId;
   }
 
-  const db = createDb(database);
+  const db = database;
   const rows = await db
     .select()
     .from(matchmakingQueuePlayers)
@@ -73,7 +72,7 @@ async function loadQueuePlayers(
 }
 
 async function attachPlayers(
-  database: D1Database,
+  database: DbClient,
   queues: readonly MatchmakingQueueRecord[],
 ): Promise<MatchmakingQueueWithPlayers[]> {
   if (queues.length === 0) {
@@ -92,7 +91,7 @@ async function attachPlayers(
 }
 
 export async function createMatchmakingQueue(
-  database: D1Database,
+  database: DbClient,
   input: {
     guildId: string;
     channelId: string;
@@ -119,7 +118,7 @@ export async function createMatchmakingQueue(
     }>;
   },
 ): Promise<number> {
-  const db = createDb(database);
+  const db = database;
   const now = currentTimestamp();
   const inserted = await db
     .insert(matchmakingQueues)
@@ -167,14 +166,14 @@ export async function createMatchmakingQueue(
 }
 
 export async function getMatchmakingQueue(
-  database: D1Database | null | undefined,
+  database: DbClient | null | undefined,
   queueId: number,
 ): Promise<MatchmakingQueueWithPlayers | null> {
   if (!database) {
     return null;
   }
 
-  const db = createDb(database);
+  const db = database;
   const rows = await db
     .select()
     .from(matchmakingQueues)
@@ -189,14 +188,14 @@ export async function getMatchmakingQueue(
 }
 
 export async function getActiveMatchmakingQueueForGuild(
-  database: D1Database | null | undefined,
+  database: DbClient | null | undefined,
   guildId: string,
 ): Promise<MatchmakingQueueWithPlayers | null> {
   if (!database) {
     return null;
   }
 
-  const db = createDb(database);
+  const db = database;
   const rows = await db
     .select()
     .from(matchmakingQueues)
@@ -208,14 +207,14 @@ export async function getActiveMatchmakingQueueForGuild(
 }
 
 export async function getActiveMatchmakingQueueForCaptain(
-  database: D1Database | null | undefined,
+  database: DbClient | null | undefined,
   captainDiscordUserId: string,
 ): Promise<MatchmakingQueueWithPlayers | null> {
   if (!database) {
     return null;
   }
 
-  const db = createDb(database);
+  const db = database;
   const rows = await db
     .select()
     .from(matchmakingQueues)
@@ -232,13 +231,13 @@ export async function getActiveMatchmakingQueueForCaptain(
 }
 
 export async function listQueuedMatchmakingQueues(
-  database: D1Database | null | undefined,
+  database: DbClient | null | undefined,
 ): Promise<MatchmakingQueueWithPlayers[]> {
   if (!database) {
     return [];
   }
 
-  const db = createDb(database);
+  const db = database;
   const rows = await db
     .select()
     .from(matchmakingQueues)
@@ -249,14 +248,14 @@ export async function listQueuedMatchmakingQueues(
 }
 
 async function updateMatchmakingQueueStatus(
-  database: D1Database,
+  database: DbClient,
   input: {
     queueId: number;
     status: MatchmakingQueueStatus;
     matchedMatchId?: number | null;
   },
 ): Promise<void> {
-  const db = createDb(database);
+  const db = database;
   await db
     .update(matchmakingQueues)
     .set({
@@ -268,7 +267,7 @@ async function updateMatchmakingQueueStatus(
 }
 
 export async function markMatchmakingQueueMatched(
-  database: D1Database,
+  database: DbClient,
   input: {
     queueId: number;
     matchId: number;
@@ -281,19 +280,19 @@ export async function markMatchmakingQueueMatched(
   });
 }
 
-export async function cancelMatchmakingQueue(database: D1Database, queueId: number): Promise<void> {
+export async function cancelMatchmakingQueue(database: DbClient, queueId: number): Promise<void> {
   await updateMatchmakingQueueStatus(database, { queueId, status: "cancelled" });
 }
 
 export async function expireStaleMatchmakingQueues(
-  database: D1Database | null | undefined,
+  database: DbClient | null | undefined,
   nowMs = Date.now(),
 ): Promise<void> {
   if (!database) {
     return;
   }
 
-  const db = createDb(database);
+  const db = database;
   await db
     .update(matchmakingQueues)
     .set({

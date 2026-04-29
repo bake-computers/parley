@@ -7,13 +7,15 @@
     "./*": "./src/*.ts"
   },
   "scripts": {
-    "test": "bun --eval 'process.exit(0)'",
+    "test": "bun test tests",
     "typecheck": "tsc --noEmit --pretty false -p tsconfig.json"
   },
   "dependencies": {
-    "drizzle-orm": "^0.45.2"
+    "drizzle-orm": "^0.45.2",
+    "pg": "^8.16.3"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260418.1"
+    "@cloudflare/workers-types": "^4.20260418.1",
+    "@types/pg": "^8.15.6"
   }
 }

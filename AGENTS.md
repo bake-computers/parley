@@ -4,7 +4,7 @@
 
 - Runtime: **Bun**. Always use `bun` instead of `npm` or `node`.
 - Framework: **Honocord** (custom Discord interactions layer). It is being partially rewritten — do not refactor, replace, or update it unless explicitly asked.
-- ORM: **Drizzle** on top of Cloudflare D1. Never write raw SQL strings — use Drizzle query builder. Schema lives in `packages/db/src/schema.ts`.
+- ORM: **Drizzle** on top of PlanetScale Postgres via Cloudflare Hyperdrive. Never write raw SQL strings — use Drizzle query builder. Schema lives in `packages/db/src/schema.ts`.
 - Deploy target: Cloudflare Workers (interactions endpoint). No gateway, no WebSocket, no discord.js.
 
 ```bash
@@ -12,8 +12,9 @@ bun install              # install deps
 bun run dev              # local dev via wrangler dev
 bun run deploy           # deploy to Cloudflare Workers
 bun run db:generate      # generate Drizzle migrations
-bun run db:migrate:local # apply migrations to local D1
-bun run db:migrate:remote # apply migrations to remote D1
+bun run db:migrate      # apply Postgres migrations via Drizzle
+bun run db:backfill:d1  # backfill existing D1 data into Postgres
+bun run db:smoke        # run a Postgres smoke test
 bun run register         # register Discord slash commands (run once after command changes)
 bun run lint             # run oxlint
 bun run fmt              # run oxfmt
@@ -35,16 +36,16 @@ bun --cwd packages/core test tests  # run one package's tests
 - TypeScript strict mode is on. No `any` unless absolutely unavoidable.
 - Every external API call must handle failure gracefully — return `null`, never throw to the command handler.
 - Interactions that call external APIs or the scraper **must** defer (`type: 5`) first, then follow up. Discord requires a response within 3 seconds.
-- KV cache must be checked before D1 for any read-heavy operation.
+- KV cache must be checked before Postgres for any read-heavy operation.
 - All scraping is offloaded to the **Cloudflare Queue consumer** — never inline in a command handler.
 
 ## Bindings (`apps/worker/wrangler.jsonc`)
 
-| Binding    | Type  | Purpose                  |
-| ---------- | ----- | ------------------------ |
-| `Database` | D1    | Main database            |
-| `Cache`    | KV    | Cache + sessions         |
-| `Queue`    | Queue | Background stat scraping |
+| Binding      | Type       | Purpose                     |
+| ------------ | ---------- | --------------------------- |
+| `HYPERDRIVE` | Hyperdrive | PlanetScale Postgres access |
+| `Cache`      | KV         | Cache + sessions            |
+| `Queue`      | Queue      | Background stat scraping    |
 
 ## Secrets (never commit — set via `wrangler secret put`)
 
@@ -58,7 +59,7 @@ DISCORD_APPLICATION_ID
 
 - **ELO is global per player per game** — never per server. The `players` table has one row per (username, platform, game). `guild_players` links servers to players.
 - **R6 scraping** — once per player on add, once per day max on refresh. Deduplicate using a `scrape:{platform}:{username}` KV lock key (30min TTL) before enqueuing.
-- **Never call external stat APIs during `/balance`** — balance reads only from D1/KV.
+- **Never call external stat APIs during `/balance`** — balance reads only from Postgres/KV.
 - **Daily match limits** are tracked in the `guild_limits` table. Check before recording any match.
 - **Stat refresh** is capped at once per player per day at the application level, not just TTL.
 

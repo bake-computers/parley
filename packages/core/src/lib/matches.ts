@@ -1,6 +1,5 @@
 import { and, desc, eq, gte, inArray, or } from "drizzle-orm";
-import type { D1Database } from "@cloudflare/workers-types";
-import { createDb } from "@parley/db/client";
+import type { DbClient } from "@parley/db/client";
 import { customMatchPlayers, customMatches, players } from "@parley/db/schema";
 import { calculateTeamEloDelta, roundInternalElo, type MatchWinner } from "./elo";
 
@@ -60,7 +59,7 @@ function currentTimestamp() {
 }
 
 export async function createCustomMatch(
-  database: D1Database,
+  database: DbClient,
   input: {
     guildId: string;
     channelId: string;
@@ -94,7 +93,7 @@ export async function createCustomMatch(
     }>;
   },
 ): Promise<number> {
-  const db = createDb(database);
+  const db = database;
   const now = currentTimestamp();
   const inserted = await db
     .insert(customMatches)
@@ -149,14 +148,14 @@ export async function createCustomMatch(
 }
 
 export async function updateCustomMatchMessageId(
-  database: D1Database,
+  database: DbClient,
   input: {
     matchId: number;
     messageId: string;
     opponentMessageId?: string | null;
   },
 ): Promise<void> {
-  const db = createDb(database);
+  const db = database;
   await db
     .update(customMatches)
     .set({
@@ -168,14 +167,14 @@ export async function updateCustomMatchMessageId(
 }
 
 export async function getCustomMatch(
-  database: D1Database | null | undefined,
+  database: DbClient | null | undefined,
   matchId: number,
 ): Promise<(CustomMatchRecord & { players: CustomMatchPlayerRecord[] }) | null> {
   if (!database) {
     return null;
   }
 
-  const db = createDb(database);
+  const db = database;
   const matchRows = await db
     .select()
     .from(customMatches)
@@ -226,7 +225,7 @@ export async function getCustomMatch(
 }
 
 export async function completeCustomMatch(
-  database: D1Database,
+  database: DbClient,
   input: {
     matchId: number;
     resultsByDiscordUserId?: ReadonlyMap<string, { kills: number; deaths: number }>;
@@ -234,7 +233,7 @@ export async function completeCustomMatch(
     resolutionType?: CustomMatchResolutionType;
   },
 ): Promise<void> {
-  const db = createDb(database);
+  const db = database;
   const now = currentTimestamp();
   const match = await getCustomMatch(database, input.matchId);
   if (!match) {
@@ -330,14 +329,14 @@ export function isCustomMatchCaptain(
 }
 
 export async function getActiveCrossGuildMatchForGuild(
-  database: D1Database | null | undefined,
+  database: DbClient | null | undefined,
   guildId: string,
 ): Promise<(CustomMatchRecord & { players: CustomMatchPlayerRecord[] }) | null> {
   if (!database) {
     return null;
   }
 
-  const db = createDb(database);
+  const db = database;
   const rows = await db
     .select({ id: customMatches.id })
     .from(customMatches)
@@ -360,7 +359,7 @@ export async function getActiveCrossGuildMatchForGuild(
 }
 
 export async function countCompletedMatchesSince(
-  database: D1Database | null | undefined,
+  database: DbClient | null | undefined,
   guildId: string,
   sinceMs: number,
 ): Promise<number> {
@@ -368,7 +367,7 @@ export async function countCompletedMatchesSince(
     return 0;
   }
 
-  const db = createDb(database);
+  const db = database;
   const rows = await db
     .select({ id: customMatches.id })
     .from(customMatches)

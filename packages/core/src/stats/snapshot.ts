@@ -1,6 +1,5 @@
 import { and, eq } from "drizzle-orm";
-import type { D1Database } from "@cloudflare/workers-types";
-import { createDb } from "@parley/db/client";
+import type { DbClient } from "@parley/db/client";
 import { players, statSnapshots } from "@parley/db/schema";
 import { seedScoreToInternalElo } from "../lib/elo";
 import { calculateSeedMetrics } from "../team/balance";
@@ -53,8 +52,8 @@ function rankLabel(rank: unknown, tier: unknown): string {
   return `${rankText} ${tierText}`;
 }
 
-async function resolvePlayerId(database: D1Database, profile: DataMap): Promise<number | null> {
-  const db = createDb(database);
+async function resolvePlayerId(database: DbClient, profile: DataMap): Promise<number | null> {
+  const db = database;
 
   const profileId = toOptionalText(profile.profile_id);
   const username = toText(profile.username, "unknown");
@@ -129,14 +128,14 @@ async function resolvePlayerId(database: D1Database, profile: DataMap): Promise<
 }
 
 export async function persistStatsSnapshot(
-  database: D1Database | null | undefined,
+  database: DbClient | null | undefined,
   input: PersistStatsSnapshotInput,
 ): Promise<void> {
   if (!database) {
     return;
   }
 
-  const db = createDb(database);
+  const db = database;
   const playerId = await resolvePlayerId(database, input.profile);
 
   if (!playerId) {

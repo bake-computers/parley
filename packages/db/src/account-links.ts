@@ -1,6 +1,5 @@
 import { and, eq, inArray } from "drizzle-orm";
-import type { D1Database } from "@cloudflare/workers-types";
-import { createDb } from "./client";
+import type { DbClient } from "./client";
 import { discordAccounts, guildPlayers, players } from "./schema";
 
 export interface AccountLinkRecord {
@@ -23,14 +22,14 @@ function currentTimestamp() {
 }
 
 export async function getAccountLinkByDiscordUserId(
-  database: D1Database | null | undefined,
+  database: DbClient | null | undefined,
   discordUserId: string,
 ): Promise<AccountLinkRecord | null> {
   if (!database) {
     return null;
   }
 
-  const db = createDb(database);
+  const db = database;
   const rows = await db
     .select({
       discordUserId: discordAccounts.discordUserId,
@@ -50,14 +49,14 @@ export async function getAccountLinkByDiscordUserId(
 }
 
 export async function linkDiscordAccount(
-  database: D1Database,
+  database: DbClient,
   input: {
     guildId: string;
     discordUserId: string;
     playerId: number;
   },
 ): Promise<LinkDiscordAccountResult> {
-  const db = createDb(database);
+  const db = database;
   const now = currentTimestamp();
 
   const existingPlayerOwner = await db
@@ -159,13 +158,13 @@ export async function linkDiscordAccount(
 }
 
 export async function unlinkGuildRegistration(
-  database: D1Database,
+  database: DbClient,
   input: {
     guildId: string;
     discordUserId: string;
   },
 ): Promise<{ removedPlayerId: number | null; removedAccount: boolean }> {
-  const db = createDb(database);
+  const db = database;
   const current = await db
     .select({ playerId: guildPlayers.playerId })
     .from(guildPlayers)
@@ -212,14 +211,14 @@ export async function unlinkGuildRegistration(
 }
 
 export async function listGuildIdsForDiscordUserId(
-  database: D1Database | null | undefined,
+  database: DbClient | null | undefined,
   discordUserId: string,
 ): Promise<string[]> {
   if (!database) {
     return [];
   }
 
-  const db = createDb(database);
+  const db = database;
   const rows = await db
     .select({ guildId: guildPlayers.guildId })
     .from(guildPlayers)
@@ -229,14 +228,14 @@ export async function listGuildIdsForDiscordUserId(
 }
 
 export async function listGuildIdsForPlayerIds(
-  database: D1Database | null | undefined,
+  database: DbClient | null | undefined,
   playerIds: readonly number[],
 ): Promise<string[]> {
   if (!database || playerIds.length === 0) {
     return [];
   }
 
-  const db = createDb(database);
+  const db = database;
   const rows = await db
     .select({ guildId: guildPlayers.guildId })
     .from(guildPlayers)
@@ -246,7 +245,7 @@ export async function listGuildIdsForPlayerIds(
 }
 
 export async function getGuildRegistrationByDiscordUserId(
-  database: D1Database | null | undefined,
+  database: DbClient | null | undefined,
   guildId: string,
   discordUserId: string,
 ): Promise<{ guildId: string; discordUserId: string; playerId: number } | null> {
@@ -254,7 +253,7 @@ export async function getGuildRegistrationByDiscordUserId(
     return null;
   }
 
-  const db = createDb(database);
+  const db = database;
   const rows = await db
     .select({
       guildId: guildPlayers.guildId,

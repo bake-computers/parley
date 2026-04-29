@@ -1,6 +1,5 @@
 import { desc, eq } from "drizzle-orm";
-import type { D1Database } from "@cloudflare/workers-types";
-import { createDb } from "./client";
+import type { DbClient } from "./client";
 import { guildPlayers, players, statSnapshots } from "./schema";
 
 export interface GuildRosterSeedSnapshot {
@@ -33,14 +32,14 @@ export interface GuildRosterEntry {
 }
 
 export async function listGuildRoster(
-  database: D1Database | null | undefined,
+  database: DbClient | null | undefined,
   guildId: string,
 ): Promise<GuildRosterEntry[]> {
   if (!database) {
     return [];
   }
 
-  const db = createDb(database);
+  const db = database;
   const rows = await db
     .select({
       guildId: guildPlayers.guildId,
@@ -113,14 +112,14 @@ export async function listGuildRoster(
 }
 
 export async function listGuildIdsForPlayerId(
-  database: D1Database | null | undefined,
+  database: DbClient | null | undefined,
   playerId: number,
 ): Promise<string[]> {
   if (!database) {
     return [];
   }
 
-  const db = createDb(database);
+  const db = database;
   const rows = await db
     .select({ guildId: guildPlayers.guildId })
     .from(guildPlayers)
@@ -129,7 +128,7 @@ export async function listGuildIdsForPlayerId(
 }
 
 export async function hasGuildReadyRosterCount(
-  database: D1Database | null | undefined,
+  database: DbClient | null | undefined,
   guildId: string,
 ): Promise<number> {
   const roster = await listGuildRoster(database, guildId);
@@ -137,7 +136,7 @@ export async function hasGuildReadyRosterCount(
 }
 
 export async function resolvePlayerSnapshotByGuildUser(
-  database: D1Database | null | undefined,
+  database: DbClient | null | undefined,
   guildId: string,
   discordUserId: string,
 ): Promise<GuildRosterEntry | null> {

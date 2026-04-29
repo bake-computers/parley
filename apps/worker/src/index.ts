@@ -8,15 +8,43 @@ import * as interactions from "./interactions";
 import type { WorkerEnv } from "./env";
 import { handleStatsRefreshQueue, type StatsRefreshMessage } from "./queues/stats-refresh";
 import { processTournamentAutoStarts } from "./interactions/team";
+import { createRuntimeDbHandle, ManagedExecutionContext } from "./runtime-db";
 
 export const bot = new DiscordBot();
 
 bot.loadHandlers(...Object.values(interactions));
 
 export default {
-  fetch: (request: Request, env: WorkerEnv, ctx: ExecutionContext) => bot.fetch(request, env, ctx),
-  queue: (batch: MessageBatch<StatsRefreshMessage>, env: WorkerEnv, ctx: ExecutionContext) =>
-    handleStatsRefreshQueue(batch as MessageBatch<StatsRefreshMessage>, env, ctx),
-  scheduled: (controller: ScheduledController, env: WorkerEnv, ctx: ExecutionContext) =>
-    ctx.waitUntil(processTournamentAutoStarts(env, controller.scheduledTime)),
+  fetch: async (request: Request, env: WorkerEnv, ctx: ExecutionContext) => {
+    const handle = await createRuntimeDbHandle(env);
+    const managedContext = new ManagedExecutionContext(ctx, handle.close);
+
+    try {
+      return await bot.fetch(request, handle.env, managedContext as unknown as ExecutionContext);
+    } finally {
+      managedContext.markResponseReturned();
+    }
+  },
+  queue: async (
+    batch: MessageBatch<StatsRefreshMessage>,
+    env: WorkerEnv,
+    ctx: ExecutionContext,
+  ) => {
+    const handle = await createRuntimeDbHandle(env);
+
+    try {
+      await handleStatsRefreshQueue(batch as MessageBatch<StatsRefreshMessage>, handle.env, ctx);
+    } finally {
+      await handle.close();
+    }
+  },
+  scheduled: async (controller: ScheduledController, env: WorkerEnv) => {
+    const handle = await createRuntimeDbHandle(env);
+
+    try {
+      await processTournamentAutoStarts(handle.env, controller.scheduledTime);
+    } finally {
+      await handle.close();
+    }
+  },
 };

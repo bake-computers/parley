@@ -1,6 +1,5 @@
 import { eq } from "drizzle-orm";
-import type { D1Database } from "@cloudflare/workers-types";
-import { createDb } from "./client";
+import type { DbClient } from "./client";
 import { guildLimits } from "./schema";
 
 export interface GuildLimitRecord {
@@ -16,27 +15,27 @@ function currentTimestamp() {
 }
 
 export async function getGuildLimit(
-  database: D1Database | null | undefined,
+  database: DbClient | null | undefined,
   guildId: string,
 ): Promise<GuildLimitRecord | null> {
   if (!database) {
     return null;
   }
 
-  const db = createDb(database);
+  const db = database;
   const rows = await db.select().from(guildLimits).where(eq(guildLimits.guildId, guildId)).limit(1);
   return rows[0] ?? null;
 }
 
 export async function upsertGuildLimit(
-  database: D1Database,
+  database: DbClient,
   input: {
     guildId: string;
     dailyMatchLimit: number;
     updatedByDiscordUserId: string;
   },
 ): Promise<void> {
-  const db = createDb(database);
+  const db = database;
   const now = currentTimestamp();
   await db
     .insert(guildLimits)
@@ -57,7 +56,7 @@ export async function upsertGuildLimit(
     });
 }
 
-export async function clearGuildLimit(database: D1Database, guildId: string): Promise<void> {
-  const db = createDb(database);
+export async function clearGuildLimit(database: DbClient, guildId: string): Promise<void> {
+  const db = database;
   await db.delete(guildLimits).where(eq(guildLimits.guildId, guildId));
 }

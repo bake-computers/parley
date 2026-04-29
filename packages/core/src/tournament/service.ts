@@ -1,4 +1,5 @@
-import type { D1Database, KVNamespace } from "@cloudflare/workers-types";
+import type { KVNamespace } from "@cloudflare/workers-types";
+import type { DbClient } from "@parley/db/client";
 import type {
   TournamentBracketMatchRecord,
   TournamentBracketMatchStatus,
@@ -238,7 +239,7 @@ export async function invalidateTournamentCaches(
 }
 
 export async function getTournamentStatusSnapshot(
-  database: D1Database | null | undefined,
+  database: DbClient | null | undefined,
   tournamentId: number,
 ): Promise<TournamentStatusSnapshot | null> {
   if (!database) {
@@ -259,7 +260,7 @@ export async function getTournamentStatusSnapshot(
 }
 
 export async function refreshTournamentCapacityStatus(
-  database: D1Database,
+  database: DbClient,
   tournament: Pick<TournamentRecord, "id" | "status" | "teamCap">,
   entryCount: number,
   nowMs = Date.now(),
@@ -289,7 +290,7 @@ export async function refreshTournamentCapacityStatus(
 
 export async function listBrowsableTournaments(
   cache: KVNamespace | null | undefined,
-  database: D1Database | null | undefined,
+  database: DbClient | null | undefined,
   input?: {
     query?: string | null;
     format?: TournamentFormat | null;
@@ -335,7 +336,7 @@ function nextMatchStatus(
 }
 
 async function assignEntryToTargetMatch(
-  database: D1Database,
+  database: DbClient,
   input: {
     bracketMatchId: number;
     slot: TournamentBracketSlot;
@@ -374,7 +375,7 @@ function buildSeedNumberToEntryIdMap(
 }
 
 export async function startTournament(
-  database: D1Database,
+  database: DbClient,
   tournamentId: number,
   nowMs = Date.now(),
 ): Promise<TournamentStartResult> {
@@ -502,7 +503,7 @@ export async function startTournament(
 }
 
 export async function advanceTournamentBracketMatch(
-  database: D1Database,
+  database: DbClient,
   input: {
     bracketMatchId: number;
     winnerEntryId: number;
@@ -572,7 +573,7 @@ export async function advanceTournamentBracketMatch(
 }
 
 export async function listOverdueTournamentStarts(
-  database: D1Database | null | undefined,
+  database: DbClient | null | undefined,
   nowMs = Date.now(),
 ): Promise<TournamentRecord[]> {
   return listOverdueTournamentsDueToAutoStart(database, nowMs);

@@ -4,6 +4,9 @@
   "main": "dist/index.js",
   "compatibility_date": "2026-04-15",
   "compatibility_flags": ["nodejs_compat"],
+  "placement": {
+    "region": "aws:eu-west-1",
+  },
   "build": {
     "command": "bun run build",
     "cwd": "./",
@@ -22,13 +25,10 @@
     "crons": ["*/1 * * * *"],
   },
   "logpush": true,
-  "d1_databases": [
+  "hyperdrive": [
     {
-      "binding": "Database",
-      "database_name": "parley",
-      "database_id": "33479528-a40d-4d83-b504-a23c31033bed",
-      "remote": true,
-      "migrations_dir": "./drizzle/migrations",
+      "binding": "HYPERDRIVE",
+      "id": "d2add657818c4c27a193021181e494b6",
     },
   ],
   "kv_namespaces": [

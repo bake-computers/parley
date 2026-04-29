@@ -1,6 +1,5 @@
 import { and, eq } from "drizzle-orm";
-import type { D1Database } from "@cloudflare/workers-types";
-import { createDb } from "@parley/db/client";
+import type { DbClient } from "@parley/db/client";
 import { guildPlayers, players, statSnapshots } from "@parley/db/schema";
 import { normalizeStatsLookupValue } from "../stats/rateLimit";
 import type { StatsCacheEnvelope } from "../stats/cache";
@@ -40,13 +39,13 @@ export function normalizePlayerUsername(username: string): string {
 }
 
 export async function upsertRegistrationPlayer(
-  database: D1Database,
+  database: DbClient,
   input: {
     username: string;
     platform: string;
   },
 ): Promise<number> {
-  const db = createDb(database);
+  const db = database;
   const now = currentTimestamp();
   const username = input.username.trim();
   const usernameNormalized = normalizePlayerUsername(username);
@@ -84,27 +83,27 @@ export async function upsertRegistrationPlayer(
 }
 
 export async function getPlayerById(
-  database: D1Database | null | undefined,
+  database: DbClient | null | undefined,
   playerId: number,
 ): Promise<PlayerRecord | null> {
   if (!database) {
     return null;
   }
 
-  const db = createDb(database);
+  const db = database;
   const row = await db.select().from(players).where(eq(players.id, playerId)).limit(1);
   return row[0] ?? null;
 }
 
 export async function resolveStatsEnvelopePlayerId(
-  database: D1Database | null | undefined,
+  database: DbClient | null | undefined,
   envelope: StatsCacheEnvelope,
 ): Promise<number | null> {
   if (!database) {
     return null;
   }
 
-  const db = createDb(database);
+  const db = database;
   const profileId = toOptionalString(envelope.profile.profile_id);
   if (profileId) {
     const byProfileId = await db
@@ -136,7 +135,7 @@ export async function resolveStatsEnvelopePlayerId(
 }
 
 export async function reconcileAutoPlayerRegistrations(
-  database: D1Database | null | undefined,
+  database: DbClient | null | undefined,
   envelope: StatsCacheEnvelope,
 ): Promise<string[]> {
   if (!database) {
@@ -151,7 +150,7 @@ export async function reconcileAutoPlayerRegistrations(
     return [];
   }
 
-  const db = createDb(database);
+  const db = database;
   const normalizedUsername = normalizePlayerUsername(username);
   const placeholderRows = await db
     .select({ id: players.id })

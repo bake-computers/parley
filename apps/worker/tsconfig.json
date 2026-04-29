@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "types": ["./worker-configuration.d.ts", "@types/bun"]
+    "types": ["./worker-configuration.d.ts", "@types/bun", "@types/node"],
   },
-  "include": ["src/**/*", "tests/**/*", "worker-configuration.d.ts"]
+  "include": ["src/**/*", "tests/**/*", "worker-configuration.d.ts", "drizzle.config.ts"]
 }

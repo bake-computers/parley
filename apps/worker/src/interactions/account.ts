@@ -1,4 +1,4 @@
-import type { WorkerEnv } from "../env";
+import type { WorkerRuntimeEnv } from "../env";
 import {
   resolveApplicationEmojiCatalog,
   SlashCommand,
@@ -36,7 +36,7 @@ import {
 } from "../queues/stats-refresh";
 import { buildComponentsV2Reply, buildNoticeCard } from "./ui";
 
-type AccountEnv = Partial<WorkerEnv> & StatsRefreshEnv;
+type AccountEnv = Partial<WorkerRuntimeEnv> & StatsRefreshEnv;
 type RegistrationPlatform = "auto" | "pc" | "playstation" | "xbox";
 
 function parsePlatform(value: string | null): RegistrationPlatform {
@@ -111,7 +111,7 @@ async function persistCachedEnvelope(
   env: AccountEnv,
   cachedEnvelope: NonNullable<Awaited<ReturnType<typeof readStatsCache>>>,
 ): Promise<number | null> {
-  await persistStatsSnapshot(env.Database, {
+  await persistStatsSnapshot(env.db, {
     profile: cachedEnvelope.profile,
     rankedStats: cachedEnvelope.rankedStats,
     calculatedMetrics: cachedEnvelope.calculatedMetrics,
@@ -120,8 +120,8 @@ async function persistCachedEnvelope(
     source: "live",
   });
 
-  await reconcileAutoPlayerRegistrations(env.Database, cachedEnvelope);
-  return resolveStatsEnvelopePlayerId(env.Database, cachedEnvelope);
+  await reconcileAutoPlayerRegistrations(env.db, cachedEnvelope);
+  return resolveStatsEnvelopePlayerId(env.db, cachedEnvelope);
 }
 
 export const accountCommand = new SlashCommand()
@@ -179,11 +179,11 @@ export const accountCommand = new SlashCommand()
 
       await interaction.deferReply(true);
 
-      if (!env.Database) {
+      if (!env.db) {
         await interaction.editReply(
           buildAccountReply({
             title: "Configuration error",
-            message: "Database binding is missing.",
+            message: "Database connection is unavailable.",
             tone: "danger",
             emojiName: "warning",
             emojis,
@@ -201,7 +201,7 @@ export const accountCommand = new SlashCommand()
       if (cachedEnvelope) {
         playerId =
           (await persistCachedEnvelope(env, cachedEnvelope)) ??
-          (await upsertRegistrationPlayer(env.Database, {
+          (await upsertRegistrationPlayer(env.db, {
             username,
             platform:
               typeof cachedEnvelope.profile.platform === "string"
@@ -209,11 +209,11 @@ export const accountCommand = new SlashCommand()
                 : platform,
           }));
       } else {
-        playerId = await upsertRegistrationPlayer(env.Database, { username, platform });
+        playerId = await upsertRegistrationPlayer(env.db, { username, platform });
       }
 
       try {
-        const linkResult = await linkDiscordAccount(env.Database, {
+        const linkResult = await linkDiscordAccount(env.db, {
           guildId,
           discordUserId: userId,
           playerId,
@@ -250,7 +250,7 @@ export const accountCommand = new SlashCommand()
         return;
       }
 
-      const playerSummary = await getInternalPlayerSummaryByPlayerId(env.Database, playerId);
+      const playerSummary = await getInternalPlayerSummaryByPlayerId(env.db, playerId);
       if (isExternalStatsRefreshLocked(playerSummary)) {
         await interaction.editReply(
           buildAccountReply({
@@ -337,11 +337,11 @@ export const accountCommand = new SlashCommand()
     if (subcommand === "unregister") {
       await interaction.deferReply(true);
 
-      if (!env.Database) {
+      if (!env.db) {
         await interaction.editReply(
           buildAccountReply({
             title: "Configuration error",
-            message: "Database binding is missing.",
+            message: "Database connection is unavailable.",
             tone: "danger",
             emojiName: "warning",
             emojis,
@@ -350,7 +350,7 @@ export const accountCommand = new SlashCommand()
         return;
       }
 
-      const result = await unlinkGuildRegistration(env.Database, {
+      const result = await unlinkGuildRegistration(env.db, {
         guildId,
         discordUserId: userId,
       });
@@ -384,8 +384,8 @@ export const accountCommand = new SlashCommand()
     if (subcommand === "me") {
       await interaction.deferReply(true);
 
-      const account = await getAccountLinkByDiscordUserId(env.Database, userId);
-      const roster = await getOrBuildGuildRoster(env.Cache, env.Database, guildId);
+      const account = await getAccountLinkByDiscordUserId(env.db, userId);
+      const roster = await getOrBuildGuildRoster(env.Cache, env.db, guildId);
       const guildRegistration = roster.find((member) => member.discordUserId === userId) ?? null;
 
       if (!account && !guildRegistration) {
@@ -410,7 +410,7 @@ export const accountCommand = new SlashCommand()
       ];
 
       const accountSummary = account
-        ? await getInternalPlayerSummaryByPlayerId(env.Database, account.playerId)
+        ? await getInternalPlayerSummaryByPlayerId(env.db, account.playerId)
         : null;
       const guildSummary = guildRegistration
         ? {
@@ -463,7 +463,7 @@ export const accountCommand = new SlashCommand()
     if (subcommand === "refresh") {
       await interaction.deferReply(true);
 
-      const account = await getAccountLinkByDiscordUserId(env.Database, userId);
+      const account = await getAccountLinkByDiscordUserId(env.db, userId);
       if (!account) {
         await interaction.editReply(
           buildAccountReply({
@@ -478,10 +478,7 @@ export const accountCommand = new SlashCommand()
         return;
       }
 
-      const playerSummary = await getInternalPlayerSummaryByPlayerId(
-        env.Database,
-        account.playerId,
-      );
+      const playerSummary = await getInternalPlayerSummaryByPlayerId(env.db, account.playerId);
       if (isExternalStatsRefreshLocked(playerSummary)) {
         await interaction.editReply(
           buildAccountReply({
