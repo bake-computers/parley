@@ -392,9 +392,7 @@ export async function listUserTournamentIds(
     ownershipFilters.push(eq(tournaments.createdByDiscordUserId, input.createdByDiscordUserId));
   }
   if (input.captainDiscordUserId) {
-    ownershipFilters.push(
-      eq(tournamentEntries.captainDiscordUserId, input.captainDiscordUserId),
-    );
+    ownershipFilters.push(eq(tournamentEntries.captainDiscordUserId, input.captainDiscordUserId));
   }
   if (ownershipFilters.length === 0) {
     return [];

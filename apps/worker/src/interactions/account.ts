@@ -34,6 +34,7 @@ import {
   enqueueStatsRefresh,
   type StatsRefreshEnv,
 } from "../queues/stats-refresh";
+import { mergeInteractionAnalyticsContext } from "../analytics";
 import { enforceCommandCooldown } from "./command-cooldowns";
 import { buildComponentsV2Reply, buildNoticeCard } from "./ui";
 
@@ -45,6 +46,10 @@ function parsePlatform(value: string | null): RegistrationPlatform {
     return value;
   }
   return "auto";
+}
+
+function toAnalyticsRefreshState(status: string): string {
+  return status.replaceAll("-", "_");
 }
 
 function buildExecutorLimitMessage(retryAtUnix: number): string {
@@ -181,6 +186,10 @@ export const accountCommand = new SlashCommand()
           : subcommand === "refresh"
             ? "account.refresh"
             : "account.me";
+    mergeInteractionAnalyticsContext(interaction.context, {
+      cacheState: "none",
+      extraState: "none",
+    });
     const cooldown = await enforceCommandCooldown(env, {
       commandKey,
       userId,
@@ -213,6 +222,9 @@ export const accountCommand = new SlashCommand()
         env.Cache,
         buildStatsCacheKey(username, platform, "latest"),
       );
+      mergeInteractionAnalyticsContext(interaction.context, {
+        cacheState: cachedEnvelope ? "hit" : "miss",
+      });
 
       let playerId: number;
       if (cachedEnvelope) {
@@ -299,6 +311,9 @@ export const accountCommand = new SlashCommand()
       );
 
       if (enqueueResult.isErr()) {
+        mergeInteractionAnalyticsContext(interaction.context, {
+          extraState: "queue_error",
+        });
         await interaction.editReply(
           buildAccountReply({
             title: "Account registered",
@@ -317,6 +332,9 @@ export const accountCommand = new SlashCommand()
       }
 
       if (enqueueResult.value.status === "daily-capped") {
+        mergeInteractionAnalyticsContext(interaction.context, {
+          extraState: "daily_capped",
+        });
         await interaction.editReply(
           buildAccountReply({
             title: "Account registered",
@@ -334,6 +352,9 @@ export const accountCommand = new SlashCommand()
         return;
       }
 
+      mergeInteractionAnalyticsContext(interaction.context, {
+        extraState: toAnalyticsRefreshState(enqueueResult.value.status),
+      });
       await interaction.editReply(
         buildAccountReply({
           title: "Account registered",
@@ -513,6 +534,9 @@ export const accountCommand = new SlashCommand()
       if (!isBotOwner(userId, env.DISCORD_BOT_OWNER_ID)) {
         const quota = await consumeExecutorDailyQuota(env.Cache, userId);
         if (quota.isLimited) {
+          mergeInteractionAnalyticsContext(interaction.context, {
+            extraState: "daily_capped",
+          });
           await interaction.editReply(
             buildAccountReply({
               title: "Refresh capped",
@@ -540,6 +564,9 @@ export const accountCommand = new SlashCommand()
       );
 
       if (enqueueResult.isErr()) {
+        mergeInteractionAnalyticsContext(interaction.context, {
+          extraState: "queue_error",
+        });
         await interaction.editReply(
           buildAccountReply({
             title: "Refresh queue failed",
@@ -554,6 +581,9 @@ export const accountCommand = new SlashCommand()
       }
 
       if (enqueueResult.value.status === "daily-capped") {
+        mergeInteractionAnalyticsContext(interaction.context, {
+          extraState: "daily_capped",
+        });
         await interaction.editReply(
           buildAccountReply({
             title: "Refresh capped",
@@ -570,6 +600,9 @@ export const accountCommand = new SlashCommand()
         return;
       }
 
+      mergeInteractionAnalyticsContext(interaction.context, {
+        extraState: toAnalyticsRefreshState(enqueueResult.value.status),
+      });
       await interaction.editReply(
         buildAccountReply({
           title:

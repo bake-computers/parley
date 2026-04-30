@@ -1046,13 +1046,17 @@ async function processTournamentReadyMatches(
   await syncTournamentHubMessage(env, snapshot.tournament.id, emojis);
 }
 
-export async function processTournamentAutoStarts(env: TeamEnv, nowMs = Date.now()): Promise<void> {
+export async function processTournamentAutoStarts(
+  env: TeamEnv,
+  nowMs = Date.now(),
+): Promise<number> {
   const dueTournaments = await listOverdueTournamentStarts(env.db, nowMs);
   for (const tournament of dueTournaments) {
     const startResult = await startTournament(env.db!, tournament.id, nowMs);
     await invalidateTournamentCaches(env.Cache, tournament.id);
     await processTournamentReadyMatches(env, startResult.snapshot);
   }
+  return dueTournaments.length;
 }
 
 function buildResultModal(
@@ -1933,23 +1937,21 @@ export const tournamentCommand = new SlashCommand()
                 statuses: statuses ? [...statuses] : undefined,
               }),
             )
-	          : subcommand === "forfeit"
-	            ? new Set(
-	                await listUserTournamentIds(env.db, {
-	                  captainDiscordUserId: interaction.userId,
-	                  statuses: statuses ? [...statuses] : undefined,
-	                }),
-	              )
-	            : null;
+          : subcommand === "forfeit"
+            ? new Set(
+                await listUserTournamentIds(env.db, {
+                  captainDiscordUserId: interaction.userId,
+                  statuses: statuses ? [...statuses] : undefined,
+                }),
+              )
+            : null;
     const choices = await listTournamentAutocompleteChoices(env.Cache, env.db, {
       query,
       statuses: statuses ? [...statuses] : undefined,
       limit: 25,
     });
     const filteredChoices =
-      ownershipIds === null
-        ? choices
-        : choices.filter((choice) => ownershipIds.has(choice.id));
+      ownershipIds === null ? choices : choices.filter((choice) => ownershipIds.has(choice.id));
 
     for (const choice of filteredChoices) {
       const cachedSummary = await readTournamentSummaryCache(env.Cache, choice.id);

@@ -258,7 +258,7 @@ describe("stats refresh queue", () => {
 
   test("handleStatsRefreshQueue skips invalid messages", async () => {
     const message = fakeMessage({ nope: true });
-    await handleStatsRefreshQueue(
+    const summary = await handleStatsRefreshQueue(
       {
         messages: [message],
         queue: "stats",
@@ -270,6 +270,88 @@ describe("stats refresh queue", () => {
     );
 
     expect(message.acked).toBe(true);
+    expect(summary).toEqual({
+      processedCount: 1,
+      invalidMessageCount: 1,
+      successCount: 0,
+      retryCount: 0,
+    });
+  });
+
+  test("handleStatsRefreshQueue returns success counts", async () => {
+    const cache = new FakeKV();
+    const message = fakeMessage(
+      createStatsRefreshMessage({
+        username: "Player",
+        platform: "pc",
+        reason: "cache-miss",
+      }),
+    );
+
+    const summary = await handleStatsRefreshQueue(
+      {
+        messages: [message],
+        queue: "stats",
+        retryAll() {},
+        ackAll() {},
+      } as unknown as MessageBatch<StatsRefreshMessage>,
+      { Cache: cache as unknown as KVNamespace },
+      { waitUntil() {}, passThroughOnException() {} } as unknown as ExecutionContext,
+      {
+        fetchStatsCollection: async () => ok(collectionFixture()),
+        persistSnapshot: async () => {},
+        editPendingReply: async () => {},
+      },
+    );
+
+    expect(message.acked).toBe(true);
+    expect(summary).toEqual({
+      processedCount: 1,
+      invalidMessageCount: 0,
+      successCount: 1,
+      retryCount: 0,
+    });
+  });
+
+  test("handleStatsRefreshQueue attaches retry counts to thrown errors", async () => {
+    const cache = new FakeKV();
+    const message = fakeMessage(
+      createStatsRefreshMessage({
+        username: "Player",
+        platform: "pc",
+        reason: "cache-miss",
+      }),
+    );
+
+    let thrown: unknown;
+    try {
+      await handleStatsRefreshQueue(
+        {
+          messages: [message],
+          queue: "stats",
+          retryAll() {},
+          ackAll() {},
+        } as unknown as MessageBatch<StatsRefreshMessage>,
+        { Cache: cache as unknown as KVNamespace },
+        { waitUntil() {}, passThroughOnException() {} } as unknown as ExecutionContext,
+        {
+          fetchStatsCollection: async () =>
+            err({ kind: "network", message: "network failed", retryable: true }),
+          persistSnapshot: async () => {},
+          editPendingReply: async () => {},
+        },
+      );
+    } catch (error) {
+      thrown = error;
+    }
+
+    expect(message.acked).toBe(false);
+    expect((thrown as { statsRefreshQueueSummary?: unknown }).statsRefreshQueueSummary).toEqual({
+      processedCount: 1,
+      invalidMessageCount: 0,
+      successCount: 0,
+      retryCount: 1,
+    });
   });
 
   test("successful refresh writes latest plus per-season caches and season catalogs", async () => {

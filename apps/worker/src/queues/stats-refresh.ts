@@ -95,6 +95,13 @@ export interface StatsRefreshQueueError {
   cause?: unknown;
 }
 
+export interface StatsRefreshQueueSummary {
+  processedCount: number;
+  invalidMessageCount: number;
+  successCount: number;
+  retryCount: number;
+}
+
 export interface PendingStatsReplyInput {
   interactionId: string;
   applicationId: string;
@@ -743,9 +750,19 @@ export async function handleStatsRefreshQueue(
   batch: MessageBatch<StatsRefreshMessage>,
   env: StatsRefreshEnv,
   _ctx: ExecutionContext,
-): Promise<void> {
+  deps: StatsRefreshDeps = {},
+): Promise<StatsRefreshQueueSummary> {
+  const summary: StatsRefreshQueueSummary = {
+    processedCount: 0,
+    invalidMessageCount: 0,
+    successCount: 0,
+    retryCount: 0,
+  };
+
   for (const message of batch.messages) {
+    summary.processedCount += 1;
     if (!isStatsRefreshMessage(message.body)) {
+      summary.invalidMessageCount += 1;
       logger.warn("stats.refresh.invalid_message", "Skipping invalid stats refresh message", {
         messageId: message.id,
       });
@@ -754,17 +771,26 @@ export async function handleStatsRefreshQueue(
     }
 
     try {
-      await processStatsRefreshMessage(env, message.body);
+      await processStatsRefreshMessage(env, message.body, deps);
+      summary.successCount += 1;
       message.ack();
     } catch (error) {
+      summary.retryCount += 1;
       logger.error("stats.refresh.retry", "Stats refresh message will be retried", {
         messageId: message.id,
         attempts: message.attempts,
         error,
       });
+      if (error && typeof error === "object") {
+        (
+          error as { statsRefreshQueueSummary?: StatsRefreshQueueSummary }
+        ).statsRefreshQueueSummary = summary;
+      }
       throw error;
     }
   }
+
+  return summary;
 }
 
 export function createStatsRefreshMessage(input: {

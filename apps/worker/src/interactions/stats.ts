@@ -55,6 +55,7 @@ import {
   registerPendingStatsReply,
   type StatsRefreshEnv,
 } from "../queues/stats-refresh";
+import { mergeInteractionAnalyticsContext } from "../analytics";
 import { enforceCommandCooldown } from "./command-cooldowns";
 import { buildComponentsV2Reply, buildNoticeCard, EPHEMERAL_COMPONENTS_V2_FLAGS } from "./ui";
 
@@ -68,6 +69,10 @@ function parsePlatform(value: string | null): StatsPlatform {
 function trimToNull(value: string | null): string | null {
   const trimmed = value?.trim() ?? "";
   return trimmed.length > 0 ? trimmed : null;
+}
+
+function toAnalyticsRefreshState(status: string): string {
+  return status.replaceAll("-", "_");
 }
 
 function buildTrackedPlayerLimitMessage(hasCachedStats: boolean, retryAtUnix: number): string {
@@ -313,6 +318,10 @@ export const statsCommand = new SlashCommand()
     const requestedSeason = trimToNull(interaction.options.getString("season", false));
     const env = interaction.context.env as Partial<WorkerRuntimeEnv> & StatsRefreshEnv;
     const cache = env.Cache;
+    mergeInteractionAnalyticsContext(interaction.context, {
+      cacheState: "none",
+      extraState: "none",
+    });
 
     const cooldown = await enforceCommandCooldown(env, {
       commandKey: "stats",
@@ -344,6 +353,9 @@ export const statsCommand = new SlashCommand()
 
       const refreshLocked = isExternalStatsRefreshLocked(playerSummary);
       const stale = isStatsCacheStale(cachedEnvelope.cachedAt);
+      mergeInteractionAnalyticsContext(interaction.context, {
+        cacheState: stale ? "stale" : "hit",
+      });
       await writeStatsViewState(cache, interaction.id, { cacheKey });
       const payload = buildStatsMessagePayload(
         cachedEnvelope,
@@ -368,6 +380,9 @@ export const statsCommand = new SlashCommand()
         env.DISCORD_BOT_OWNER_ID,
       );
       if (refreshLimit.blocked) {
+        mergeInteractionAnalyticsContext(interaction.context, {
+          extraState: "daily_capped",
+        });
         const message =
           refreshLimit.reason === "executor"
             ? buildExecutorLimitMessage(refreshLimit.retryAtUnix)
@@ -392,6 +407,9 @@ export const statsCommand = new SlashCommand()
       );
 
       if (enqueueResult.isErr()) {
+        mergeInteractionAnalyticsContext(interaction.context, {
+          extraState: "queue_error",
+        });
         logger.error("stats.command.queue_failed", "Failed to queue stale stats refresh", {
           username,
           platform,
@@ -402,6 +420,9 @@ export const statsCommand = new SlashCommand()
       }
 
       if (enqueueResult.value.status === "daily-capped") {
+        mergeInteractionAnalyticsContext(interaction.context, {
+          extraState: "daily_capped",
+        });
         await interaction.followUp(
           buildComponentsV2Reply([
             buildQueueUnavailableMessage(
@@ -415,6 +436,9 @@ export const statsCommand = new SlashCommand()
       }
 
       if (enqueueResult.value.status === "queued" || enqueueResult.value.status === "deduped") {
+        mergeInteractionAnalyticsContext(interaction.context, {
+          extraState: toAnalyticsRefreshState(enqueueResult.value.status),
+        });
         await registerPendingStatsReply(cache, {
           interactionId: interaction.id,
           applicationId: interaction.applicationId,
@@ -429,6 +453,10 @@ export const statsCommand = new SlashCommand()
 
       return;
     }
+
+    mergeInteractionAnalyticsContext(interaction.context, {
+      cacheState: "miss",
+    });
 
     if (isExternalStatsRefreshLocked(playerSummary)) {
       const internalSummary = toInternalStatsSummary(playerSummary);
@@ -453,6 +481,10 @@ export const statsCommand = new SlashCommand()
       env.DISCORD_BOT_OWNER_ID,
     );
     if (refreshLimit.blocked) {
+      mergeInteractionAnalyticsContext(interaction.context, {
+        cacheState: "miss",
+        extraState: "daily_capped",
+      });
       const message =
         refreshLimit.reason === "executor"
           ? buildExecutorLimitMessage(refreshLimit.retryAtUnix)
@@ -476,6 +508,10 @@ export const statsCommand = new SlashCommand()
     );
 
     if (enqueueResult.isErr()) {
+      mergeInteractionAnalyticsContext(interaction.context, {
+        cacheState: "miss",
+        extraState: "queue_error",
+      });
       logger.error("stats.command.queue_failed", "Failed to queue stats refresh", {
         username,
         platform,
@@ -489,6 +525,10 @@ export const statsCommand = new SlashCommand()
     }
 
     if (enqueueResult.value.status === "daily-capped") {
+      mergeInteractionAnalyticsContext(interaction.context, {
+        cacheState: "miss",
+        extraState: "daily_capped",
+      });
       await interaction.editReply(
         buildComponentsV2Reply([
           buildQueueUnavailableMessage(
@@ -516,6 +556,10 @@ export const statsCommand = new SlashCommand()
         buildProcessingStatsMessage(username, platform, requestedSeason, emojis),
       ]),
     );
+    mergeInteractionAnalyticsContext(interaction.context, {
+      cacheState: "miss",
+      extraState: toAnalyticsRefreshState(enqueueResult.value.status),
+    });
   });
 
 export const statsPaginationHandler = new ComponentHandler(

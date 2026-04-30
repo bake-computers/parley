@@ -25,6 +25,12 @@
     "crons": ["*/1 * * * *"],
   },
   "logpush": true,
+  "analytics_engine_datasets": [
+    {
+      "binding": "ANALYTICS_ENGINE",
+      "dataset": "parley_analytics",
+    },
+  ],
   "hyperdrive": [
     {
       "binding": "HYPERDRIVE",

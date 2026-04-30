@@ -4,6 +4,7 @@ import type { DiscordRuntimeEnv } from "@parley/discord-runtime";
 import type { StatsRefreshMessage } from "./queues/stats-refresh";
 
 export interface WorkerEnv extends DiscordRuntimeEnv {
+  ANALYTICS_ENGINE: AnalyticsEngineDataset;
   Cache: KVNamespace;
   HYPERDRIVE: Hyperdrive;
   Queue: Queue<StatsRefreshMessage>;

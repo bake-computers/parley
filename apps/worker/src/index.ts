@@ -6,13 +6,33 @@ import type {
 import { DiscordBot } from "@parley/discord-runtime";
 import * as interactions from "./interactions";
 import type { WorkerEnv } from "./env";
-import { handleStatsRefreshQueue, type StatsRefreshMessage } from "./queues/stats-refresh";
+import {
+  handleStatsRefreshQueue,
+  type StatsRefreshMessage,
+  type StatsRefreshQueueSummary,
+} from "./queues/stats-refresh";
 import { processTournamentAutoStarts } from "./interactions/team";
 import { createRuntimeDbHandle, ManagedExecutionContext } from "./runtime-db";
+import { analyticsMiddleware } from "./analytics-middleware";
+import { writeAnalyticsDataPoint } from "./analytics";
 
 export const bot = new DiscordBot();
 
+bot.use(analyticsMiddleware);
 bot.loadHandlers(...Object.values(interactions));
+
+function readQueueSummary(error: unknown): StatsRefreshQueueSummary | null {
+  if (
+    error !== null &&
+    typeof error === "object" &&
+    "statsRefreshQueueSummary" in error &&
+    error.statsRefreshQueueSummary !== null &&
+    typeof error.statsRefreshQueueSummary === "object"
+  ) {
+    return error.statsRefreshQueueSummary as StatsRefreshQueueSummary;
+  }
+  return null;
+}
 
 export default {
   fetch: async (request: Request, env: WorkerEnv, ctx: ExecutionContext) => {
@@ -31,18 +51,69 @@ export default {
     ctx: ExecutionContext,
   ) => {
     const handle = await createRuntimeDbHandle(env);
+    const startedAt = Date.now();
 
     try {
-      await handleStatsRefreshQueue(batch as MessageBatch<StatsRefreshMessage>, handle.env, ctx);
+      const summary = await handleStatsRefreshQueue(
+        batch as MessageBatch<StatsRefreshMessage>,
+        handle.env,
+        ctx,
+      );
+      writeAnalyticsDataPoint(handle.env, {
+        source: "worker",
+        surface: "queue",
+        name: "stats.refresh",
+        outcome: summary.invalidMessageCount > 0 ? "invalid_message" : "ok",
+        durationMs: Date.now() - startedAt,
+        itemCount: batch.messages.length,
+        successCount: summary.successCount,
+        errorCount: summary.invalidMessageCount + summary.retryCount,
+      });
+    } catch (error) {
+      const summary = readQueueSummary(error);
+      writeAnalyticsDataPoint(handle.env, {
+        source: "worker",
+        surface: "queue",
+        name: "stats.refresh",
+        outcome: "error",
+        durationMs: Date.now() - startedAt,
+        itemCount: batch.messages.length,
+        successCount: summary?.successCount ?? 0,
+        errorCount: (summary?.invalidMessageCount ?? 0) + (summary?.retryCount ?? 1),
+      });
+      throw error;
     } finally {
       await handle.close();
     }
   },
   scheduled: async (controller: ScheduledController, env: WorkerEnv) => {
     const handle = await createRuntimeDbHandle(env);
+    const startedAt = Date.now();
 
     try {
-      await processTournamentAutoStarts(handle.env, controller.scheduledTime);
+      const startedCount = await processTournamentAutoStarts(handle.env, controller.scheduledTime);
+      writeAnalyticsDataPoint(handle.env, {
+        source: "worker",
+        surface: "scheduled",
+        name: "tournament.auto_start",
+        outcome: "ok",
+        durationMs: Date.now() - startedAt,
+        itemCount: startedCount,
+        successCount: 1,
+        errorCount: 0,
+      });
+    } catch (error) {
+      writeAnalyticsDataPoint(handle.env, {
+        source: "worker",
+        surface: "scheduled",
+        name: "tournament.auto_start",
+        outcome: "error",
+        durationMs: Date.now() - startedAt,
+        itemCount: 0,
+        successCount: 0,
+        errorCount: 1,
+      });
+      throw error;
     } finally {
       await handle.close();
     }

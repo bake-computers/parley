@@ -128,7 +128,9 @@ function readCommandDescription(commandPath: string): string {
 
   const payload = command.toJSON();
   if (!subcommand) {
-    return typeof payload.description === "string" ? payload.description : "No description available.";
+    return typeof payload.description === "string"
+      ? payload.description
+      : "No description available.";
   }
 
   const options = Array.isArray(payload.options) ? payload.options : [];
@@ -137,7 +139,9 @@ function readCommandDescription(commandPath: string): string {
     return option.description;
   }
 
-  return typeof payload.description === "string" ? payload.description : "No description available.";
+  return typeof payload.description === "string"
+    ? payload.description
+    : "No description available.";
 }
 
 export function buildRenderedHelpPages(
@@ -145,12 +149,10 @@ export function buildRenderedHelpPages(
 ): Array<{ title: string; description: string; commands: RenderedHelpCommand[] }> {
   return HELP_PAGES.map((page) => ({
     ...page,
-    commands: page.commands
-      .slice(0, HELP_PAGE_SIZE)
-      .map((commandPath) => ({
-        mention: renderSlashCommandMention(commandPath, commandIds),
-        description: readCommandDescription(commandPath),
-      })),
+    commands: page.commands.slice(0, HELP_PAGE_SIZE).map((commandPath) => ({
+      mention: renderSlashCommandMention(commandPath, commandIds),
+      description: readCommandDescription(commandPath),
+    })),
   }));
 }
 

@@ -73,6 +73,95 @@ function isDiscordInteraction(value: unknown): value is APIInteraction {
   return isObject(value) && typeof value.type === "number";
 }
 
+function readInteractionUserId(interaction: APIInteraction): string | undefined {
+  if (
+    "member" in interaction &&
+    isObject(interaction.member) &&
+    isObject(interaction.member.user)
+  ) {
+    const id = interaction.member.user.id;
+    return typeof id === "string" ? id : undefined;
+  }
+  if ("user" in interaction && isObject(interaction.user)) {
+    const id = interaction.user.id;
+    return typeof id === "string" ? id : undefined;
+  }
+  return undefined;
+}
+
+function readInteractionChannelId(interaction: APIInteraction): string | undefined {
+  if ("channel" in interaction && isObject(interaction.channel)) {
+    const id = interaction.channel.id;
+    return typeof id === "string" ? id : undefined;
+  }
+  return undefined;
+}
+
+function readCommandDetail(interaction: APIApplicationCommandInteraction): string {
+  const options = "options" in interaction.data ? interaction.data.options : undefined;
+  const first = Array.isArray(options) ? options[0] : undefined;
+  if (!first || !("type" in first) || typeof first.name !== "string") {
+    return "";
+  }
+
+  if (first.type === 1) {
+    return first.name;
+  }
+
+  if (first.type === 2 && "options" in first && Array.isArray(first.options)) {
+    const subcommand = first.options[0];
+    return subcommand && typeof subcommand.name === "string"
+      ? `${first.name} ${subcommand.name}`
+      : first.name;
+  }
+
+  return "";
+}
+
+function readAutocompleteDetail(interaction: APIApplicationCommandAutocompleteInteraction): string {
+  const visit = (options: unknown): string => {
+    if (!Array.isArray(options)) {
+      return "";
+    }
+    for (const option of options) {
+      if (!isObject(option)) {
+        continue;
+      }
+      if (option.focused === true && typeof option.name === "string") {
+        return option.name;
+      }
+      const nested = visit(option.options);
+      if (nested) {
+        return nested;
+      }
+    }
+    return "";
+  };
+
+  return visit(interaction.data.options);
+}
+
+function setInteractionAnalyticsMetadata(
+  context: DiscordRequestContext,
+  input: {
+    surface: "autocomplete" | "component" | "modal" | "slash";
+    name: string;
+    detail?: string;
+    interaction: APIInteraction;
+  },
+): void {
+  context.set("analytics.surface", input.surface);
+  context.set("analytics.name", input.name);
+  context.set("analytics.detail", input.detail ?? "");
+  context.set(
+    "analytics.guildId",
+    "guild_id" in input.interaction ? input.interaction.guild_id : undefined,
+  );
+  context.set("analytics.userId", readInteractionUserId(input.interaction));
+  context.set("analytics.channelId", readInteractionChannelId(input.interaction));
+  context.set("analytics.outcome", "ok");
+}
+
 function createRequestContext<Env>(
   request: Request,
   env: Env,
@@ -314,6 +403,12 @@ export class DiscordBot {
         : new CommandInteraction(rest, interaction, context);
     const commandName = interaction.data.name;
     context.set("command", interactionObj);
+    setInteractionAnalyticsMetadata(context, {
+      surface: "slash",
+      name: commandName,
+      detail: readCommandDetail(interaction),
+      interaction,
+    });
 
     const handlers: (SlashCommand | ContextCommand)[] = [];
     const globalHandler = this.globalCommandHandlers.get(commandName);
@@ -328,13 +423,16 @@ export class DiscordBot {
     }
 
     if (handlers.length === 0) {
+      context.set("analytics.outcome", "missing_handler");
       logger.warn("discord.command.missing_handler", "No command handler registered", {
         requestId: context.requestId,
         interactionId: interaction.id,
         commandName,
         guildId: interaction.guild_id,
       });
-      await interactionObj.reply("Unknown command.", true);
+      await this.runMiddleware(context, async () => {
+        await interactionObj.reply("Unknown command.", true);
+      });
       return;
     }
 
@@ -353,6 +451,7 @@ export class DiscordBot {
             await handler.execute(interactionObj);
           }
         } catch (error) {
+          context.set("analytics.outcome", "error");
           logger.error("discord.command.handler_failed", "Command handler failed", {
             requestId: context.requestId,
             interactionId: interaction.id,
@@ -374,6 +473,12 @@ export class DiscordBot {
     const interactionObj = new AutocompleteInteraction(rest, interaction, context);
     const commandName = interaction.data.name;
     context.set("autocomplete", interactionObj);
+    setInteractionAnalyticsMetadata(context, {
+      surface: "autocomplete",
+      name: commandName,
+      detail: readAutocompleteDetail(interaction),
+      interaction,
+    });
 
     const handler =
       (interaction.guild_id
@@ -381,12 +486,15 @@ export class DiscordBot {
         : undefined) ?? this.globalCommandHandlers.get(commandName);
 
     if (!(handler instanceof SlashCommand)) {
+      context.set("analytics.outcome", "missing_handler");
       logger.warn("discord.autocomplete.missing_handler", "No autocomplete handler registered", {
         requestId: context.requestId,
         interactionId: interaction.id,
         commandName,
       });
-      await interactionObj.respond([]);
+      await this.runMiddleware(context, async () => {
+        await interactionObj.respond([]);
+      });
       return;
     }
 
@@ -394,6 +502,7 @@ export class DiscordBot {
       try {
         await handler.executeAutocomplete(interactionObj);
       } catch (error) {
+        context.set("analytics.outcome", "error");
         logger.error("discord.autocomplete.handler_failed", "Autocomplete handler failed", {
           requestId: context.requestId,
           interactionId: interaction.id,
@@ -438,15 +547,23 @@ export class DiscordBot {
     const interactionObj = this.createMessageComponentInteraction(interaction, rest, context);
     const prefix = parseCustomId(interaction.data.custom_id, true);
     context.set("component", interactionObj);
+    setInteractionAnalyticsMetadata(context, {
+      surface: "component",
+      name: typeof prefix === "string" ? prefix : "unknown",
+      interaction,
+    });
     const handler = typeof prefix === "string" ? this.componentHandlers.get(prefix) : undefined;
 
     if (!handler || handler.componentType !== interaction.data.component_type) {
+      context.set("analytics.outcome", "missing_handler");
       logger.warn("discord.component.missing_handler", "No component handler registered", {
         requestId: context.requestId,
         interactionId: interaction.id,
         prefix,
       });
-      await interactionObj.reply("This component is no longer available.", true);
+      await this.runMiddleware(context, async () => {
+        await interactionObj.reply("This component is no longer available.", true);
+      });
       return;
     }
 
@@ -463,15 +580,23 @@ export class DiscordBot {
     const interactionObj = new ModalInteraction(rest, interaction, context);
     const prefix = parseCustomId(interaction.data.custom_id, true);
     context.set("modal", interactionObj);
+    setInteractionAnalyticsMetadata(context, {
+      surface: "modal",
+      name: typeof prefix === "string" ? prefix : "unknown",
+      interaction,
+    });
     const handler = typeof prefix === "string" ? this.modalHandlers.get(prefix) : undefined;
 
     if (!handler) {
+      context.set("analytics.outcome", "missing_handler");
       logger.warn("discord.modal.missing_handler", "No modal handler registered", {
         requestId: context.requestId,
         interactionId: interaction.id,
         prefix,
       });
-      await interactionObj.reply("This form is no longer available.", true);
+      await this.runMiddleware(context, async () => {
+        await interactionObj.reply("This form is no longer available.", true);
+      });
       return;
     }
 
