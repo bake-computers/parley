@@ -7,12 +7,12 @@ import {
   ComponentType,
   DiscordRestClient,
   EmbedBuilder,
+  MessageFlags,
   SlashCommand,
   parseCustomId,
 } from "@parley/discord-runtime";
 import type { WorkerRuntimeEnv } from "../env";
 import { enforceCommandCooldown } from "./command-cooldowns";
-import { buildComponentsV2Reply, buildNoticeCard } from "./ui";
 
 const HELP_COMPONENT_PREFIX = "help-page";
 const HELP_MENTION_CACHE_TTL_SECONDS = 6 * 60 * 60;
@@ -189,22 +189,15 @@ function buildHelpPayload(pageIndex: number, commandIds: Readonly<Record<string,
   );
 
   return {
-    ...buildComponentsV2Reply([
-      buildNoticeCard({
-        title: `Help • ${page.title}`,
-        message: page.description,
-        tone: "primary",
-        emojiName: "information",
-        details: [
-          `**Commands**\n${page.commands.join("\n")}`,
-          `**Page**\n${safeIndex + 1}/${HELP_PAGES.length}`,
-        ],
-        actionRows: [navRow, assetRow],
-      }),
-    ]),
+    flags: MessageFlags.Ephemeral,
+    components: [navRow, assetRow],
     embeds: [
       new EmbedBuilder()
         .setColor(0x1d4ed8)
+        .setTitle(`Help • ${page.title}`)
+        .setDescription(
+          `${page.description}\n\n**Commands**\n${page.commands.join("\n")}\n\n**Page**\n${safeIndex + 1}/${HELP_PAGES.length}`,
+        )
         .setImage({ url: HELP_BANNER_URL })
         .setThumbnail({ url: HELP_LOGO_URL }),
     ],
