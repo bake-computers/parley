@@ -55,6 +55,7 @@ import {
   registerPendingStatsReply,
   type StatsRefreshEnv,
 } from "../queues/stats-refresh";
+import { enforceCommandCooldown } from "./command-cooldowns";
 import { buildComponentsV2Reply, buildNoticeCard, EPHEMERAL_COMPONENTS_V2_FLAGS } from "./ui";
 
 function parsePlatform(value: string | null): StatsPlatform {
@@ -312,6 +313,15 @@ export const statsCommand = new SlashCommand()
     const requestedSeason = trimToNull(interaction.options.getString("season", false));
     const env = interaction.context.env as Partial<WorkerRuntimeEnv> & StatsRefreshEnv;
     const cache = env.Cache;
+
+    const cooldown = await enforceCommandCooldown(env, {
+      commandKey: "stats",
+      userId: interaction.userId,
+    });
+    if (!cooldown.allowed) {
+      await interaction.reply(cooldown.payload, true);
+      return;
+    }
 
     await interaction.deferReply(true);
     const emojis = await resolveStatsEmojiCatalog(env, interaction.applicationId);

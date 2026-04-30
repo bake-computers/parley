@@ -34,6 +34,7 @@ import {
   enqueueStatsRefresh,
   type StatsRefreshEnv,
 } from "../queues/stats-refresh";
+import { enforceCommandCooldown } from "./command-cooldowns";
 import { buildComponentsV2Reply, buildNoticeCard } from "./ui";
 
 type AccountEnv = Partial<WorkerRuntimeEnv> & StatsRefreshEnv;
@@ -172,6 +173,22 @@ export const accountCommand = new SlashCommand()
     const channelId = interaction.channelId!;
     const userId = interaction.userId!;
     const emojis = await resolveAccountEmojiCatalog(env, interaction.applicationId);
+    const commandKey =
+      subcommand === "register"
+        ? "account.register"
+        : subcommand === "unregister"
+          ? "account.unregister"
+          : subcommand === "refresh"
+            ? "account.refresh"
+            : "account.me";
+    const cooldown = await enforceCommandCooldown(env, {
+      commandKey,
+      userId,
+    });
+    if (!cooldown.allowed) {
+      await interaction.reply(cooldown.payload, true);
+      return;
+    }
 
     if (subcommand === "register") {
       const username = interaction.options.getString("username", true)!.trim();

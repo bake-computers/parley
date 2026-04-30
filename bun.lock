@@ -19,6 +19,7 @@
         "@parley/core": "workspace:*",
         "@parley/db": "workspace:*",
         "@parley/discord-runtime": "workspace:*",
+        "drizzle-orm": "^0.45.2",
         "neverthrow": "^8.2.0",
       },
       "devDependencies": {

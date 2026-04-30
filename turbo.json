@@ -23,9 +23,6 @@
     "db:migrate": {
       "cache": false
     },
-    "db:backfill:d1": {
-      "cache": false
-    },
     "db:smoke": {
       "cache": false
     },

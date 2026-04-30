@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, inArray, isNotNull, like, lte } from "drizzle-orm";
+import { and, asc, count, desc, eq, inArray, isNotNull, like, lte } from "drizzle-orm";
 import type { DbClient } from "./client";
 import {
   tournamentBracketMatches,
@@ -105,6 +105,15 @@ export interface TournamentEntryWithPlayers extends TournamentEntryRecord {
 
 export interface TournamentWithEntries extends TournamentRecord {
   entries: TournamentEntryWithPlayers[];
+}
+
+export interface TournamentAutocompleteRecord {
+  id: number;
+  name: string;
+  nameNormalized: string;
+  status: TournamentStatus;
+  teamCap: number;
+  entryCount: number;
 }
 
 function currentTimestamp() {
@@ -306,6 +315,59 @@ export async function listPublicTournaments(
     .from(tournaments)
     .where(and(...conditions))
     .orderBy(desc(tournaments.createdAt), asc(tournaments.id));
+}
+
+export async function listPublicTournamentAutocomplete(
+  database: DbClient | null | undefined,
+  input?: {
+    query?: string | null;
+    statuses?: TournamentStatus[];
+    limit?: number;
+  },
+): Promise<TournamentAutocompleteRecord[]> {
+  if (!database) {
+    return [];
+  }
+
+  const db = database;
+  const limit = Math.max(1, Math.min(25, Math.trunc(input?.limit ?? 25)));
+  const conditions = [eq(tournaments.visibility, "public")];
+
+  if (input?.query) {
+    conditions.push(like(tournaments.nameNormalized, `%${input.query}%`));
+  }
+
+  if (input?.statuses && input.statuses.length > 0) {
+    conditions.push(inArray(tournaments.status, input.statuses));
+  }
+
+  const rows = await db
+    .select({
+      id: tournaments.id,
+      name: tournaments.name,
+      nameNormalized: tournaments.nameNormalized,
+      status: tournaments.status,
+      teamCap: tournaments.teamCap,
+      entryCount: count(tournamentEntries.id),
+    })
+    .from(tournaments)
+    .leftJoin(tournamentEntries, eq(tournamentEntries.tournamentId, tournaments.id))
+    .where(and(...conditions))
+    .groupBy(
+      tournaments.id,
+      tournaments.name,
+      tournaments.nameNormalized,
+      tournaments.status,
+      tournaments.teamCap,
+      tournaments.createdAt,
+    )
+    .orderBy(desc(tournaments.createdAt), asc(tournaments.id))
+    .limit(limit);
+
+  return rows.map((row) => ({
+    ...row,
+    status: row.status as TournamentStatus,
+  }));
 }
 
 export async function listOverdueTournamentsDueToAutoStart(

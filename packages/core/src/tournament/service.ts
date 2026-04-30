@@ -1,6 +1,7 @@
 import type { KVNamespace } from "@cloudflare/workers-types";
 import type { DbClient } from "@parley/db/client";
 import type {
+  TournamentAutocompleteRecord,
   TournamentBracketMatchRecord,
   TournamentBracketMatchStatus,
   TournamentBracketSlot,
@@ -14,6 +15,7 @@ import {
   createTournamentBracketMatches,
   getTournamentBracketMatch,
   getTournamentWithEntries,
+  listPublicTournamentAutocomplete,
   listOverdueTournamentsDueToAutoStart,
   listPublicTournaments,
   listTournamentBracketMatches,
@@ -53,8 +55,81 @@ export interface TournamentAdvanceResult {
   snapshot: TournamentStatusSnapshot;
 }
 
+export interface TournamentAutocompleteChoice {
+  id: number;
+  name: string;
+  status: TournamentStatus;
+  teamCap: number;
+  entryCount: number;
+}
+
 export function normalizeTournamentText(value: string): string {
   return value.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+function formatTournamentStatusText(status: TournamentStatus): string {
+  switch (status) {
+    case "active":
+      return "Active";
+    case "cancelled":
+      return "Cancelled";
+    case "completed":
+      return "Completed";
+    case "full_pending_start":
+      return "Full";
+    case "open":
+    default:
+      return "Open";
+  }
+}
+
+export function filterTournamentAutocompleteChoices(
+  tournaments: readonly (
+    | TournamentRecord
+    | TournamentAutocompleteChoice
+    | TournamentAutocompleteRecord
+  )[],
+  input: {
+    query?: string | null;
+    statuses?: readonly TournamentStatus[];
+    entryCounts?: ReadonlyMap<number, number>;
+    limit?: number;
+  } = {},
+): TournamentAutocompleteChoice[] {
+  const normalizedQuery = normalizeTournamentText(input.query ?? "");
+  const statuses = input.statuses ? new Set(input.statuses) : null;
+  const limit = Math.max(1, Math.min(25, Math.trunc(input.limit ?? 25)));
+
+  return tournaments
+    .filter((tournament) => {
+      if (statuses && !statuses.has(tournament.status as TournamentStatus)) {
+        return false;
+      }
+
+      if (!normalizedQuery) {
+        return true;
+      }
+
+      return (
+        String(tournament.id).startsWith(normalizedQuery) ||
+        normalizeTournamentText(tournament.name).includes(normalizedQuery)
+      );
+    })
+    .slice(0, limit)
+    .map((tournament) => ({
+      id: tournament.id,
+      name: tournament.name,
+      status: tournament.status as TournamentStatus,
+      teamCap: tournament.teamCap,
+      entryCount:
+        "entryCount" in tournament && typeof tournament.entryCount === "number"
+          ? tournament.entryCount
+          : (input.entryCounts?.get(tournament.id) ?? 0),
+    }));
+}
+
+export function formatTournamentAutocompleteLabel(choice: TournamentAutocompleteChoice): string {
+  return `#${choice.id} • ${choice.name} • ${formatTournamentStatusText(choice.status)} • ${choice.entryCount}/${choice.teamCap}`;
 }
 
 export function buildTournamentListCacheKey(): string {
@@ -319,6 +394,44 @@ export async function listBrowsableTournaments(
   }
 
   return tournaments;
+}
+
+export async function listTournamentAutocompleteChoices(
+  cache: KVNamespace | null | undefined,
+  database: DbClient | null | undefined,
+  input?: {
+    query?: string | null;
+    statuses?: TournamentStatus[];
+    limit?: number;
+  },
+): Promise<TournamentAutocompleteChoice[]> {
+  const limit = Math.max(1, Math.min(25, Math.trunc(input?.limit ?? 25)));
+  const cached = await readPublicTournamentListCache(cache);
+  if (cached) {
+    const entryCounts = new Map<number, number>();
+    for (const tournament of cached) {
+      entryCounts.set(tournament.id, 0);
+    }
+    return filterTournamentAutocompleteChoices(cached, {
+      query: input?.query,
+      statuses: input?.statuses,
+      entryCounts,
+      limit,
+    });
+  }
+
+  const normalizedQuery = input?.query ? normalizeTournamentText(input.query) : null;
+  const tournaments = await listPublicTournamentAutocomplete(database, {
+    query: normalizedQuery,
+    statuses: input?.statuses,
+    limit,
+  });
+
+  return filterTournamentAutocompleteChoices(tournaments, {
+    query: input?.query,
+    statuses: input?.statuses,
+    limit,
+  });
 }
 
 function nextMatchStatus(

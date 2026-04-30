@@ -2,6 +2,7 @@ import {
   ActionRowBuilder,
   type AppEmojiName,
   type ApplicationEmojiCatalog,
+  autocompleteChoice,
   ButtonBuilder,
   ButtonStyle,
   ComponentHandler,
@@ -85,8 +86,10 @@ import {
 import {
   advanceTournamentBracketMatch,
   buildTournamentEntrySnapshot,
+  formatTournamentAutocompleteLabel,
   getTournamentStatusSnapshot,
   invalidateTournamentCaches,
+  listTournamentAutocompleteChoices,
   listBrowsableTournaments,
   listOverdueTournamentStarts,
   normalizeTournamentText,
@@ -99,6 +102,7 @@ import {
   writeTournamentSummaryCache,
 } from "@parley/core/tournament-service";
 import type { WorkerRuntimeEnv } from "../env";
+import { enforceCommandCooldown } from "./command-cooldowns";
 import { buildComponentsV2Reply, buildNoticeCard, COMPONENTS_V2_FLAGS } from "./ui";
 
 const TEAM_DRAFT_PREFIX = "team-draft";
@@ -1674,317 +1678,332 @@ async function handleTournamentDraftBuild(
 
 export const teamCommand = new SlashCommand()
   .setName("team")
-  .setDescription("Balance customs and manage cross-server 5v5 matchmaking")
+  .setDescription("Build fair teams from ready registered players")
   .addSubcommand((option) =>
     option.setName("create").setDescription("Build fair teams from ready registered players"),
   )
-  .addSubcommandGroup((group) =>
-    group
-      .setName("limit")
-      .setDescription("Manage the guild's recorded-match limit")
-      .addSubcommand((option) =>
-        option
-          .setName("set")
-          .setDescription("Set the number of recorded matches allowed per day")
-          .addIntegerOption((integerOption) =>
-            integerOption
-              .setName("matches_per_day")
-              .setDescription("Daily recorded match limit")
-              .setRequired(true)
-              .setMinValue(1)
-              .setMaxValue(100),
-          ),
-      )
-      .addSubcommand((option) =>
-        option.setName("clear").setDescription("Remove the guild-specific daily match limit"),
-      )
-      .addSubcommand((option) =>
-        option.setName("show").setDescription("Show the current daily match limit"),
+  .addHandler(handleTeamFamilyCommand);
+
+export const queueCommand = new SlashCommand()
+  .setName("queue")
+  .setDescription("Queue and manage cross-server 5v5 matchmaking")
+  .addSubcommand((option) =>
+    option.setName("start").setDescription("Queue a full 5-stack for cross-server matchmaking"),
+  )
+  .addSubcommand((option) =>
+    option.setName("status").setDescription("Show the active queue or cross-server match"),
+  )
+  .addSubcommand((option) =>
+    option.setName("cancel").setDescription("Cancel the active queued 5-stack for this server"),
+  )
+  .addHandler(handleTeamFamilyCommand);
+
+export const limitCommand = new SlashCommand()
+  .setName("limit")
+  .setDescription("Manage the guild's recorded-match limit")
+  .addSubcommand((option) =>
+    option
+      .setName("set")
+      .setDescription("Set the number of recorded matches allowed per day")
+      .addIntegerOption((integerOption) =>
+        integerOption
+          .setName("matches")
+          .setDescription("Daily recorded match limit")
+          .setRequired(true)
+          .setMinValue(1)
+          .setMaxValue(100),
       ),
   )
-  .addSubcommandGroup((group) =>
-    group
-      .setName("match")
-      .setDescription("Queue, inspect, and cancel cross-server 5v5 matchmaking")
-      .addSubcommand((option) =>
-        option.setName("queue").setDescription("Queue a full 5-stack for cross-server matchmaking"),
+  .addSubcommand((option) =>
+    option.setName("clear").setDescription("Remove the guild-specific daily match limit"),
+  )
+  .addSubcommand((option) =>
+    option.setName("show").setDescription("Show the current daily match limit"),
+  )
+  .addHandler(handleTeamFamilyCommand);
+
+export const tournamentCommand = new SlashCommand()
+  .setName("tournament")
+  .setDescription("Create and join public cross-server tournaments")
+  .addSubcommand((option) =>
+    option
+      .setName("create")
+      .setDescription("Create a public tournament listing")
+      .addStringOption((stringOption) =>
+        stringOption
+          .setName("name")
+          .setDescription("Tournament name")
+          .setRequired(true)
+          .setMinLength(2)
+          .setMaxLength(64),
       )
-      .addSubcommand((option) =>
-        option.setName("status").setDescription("Show the active queue or cross-server match"),
+      .addStringOption((stringOption) =>
+        stringOption
+          .setName("format")
+          .setDescription("Bracket format")
+          .setRequired(true)
+          .addChoices(
+            { name: "Single Elimination", value: "single" },
+            { name: "Double Elimination", value: "double" },
+          ),
       )
-      .addSubcommand((option) =>
-        option.setName("cancel").setDescription("Cancel the active queued 5-stack for this server"),
+      .addIntegerOption((integerOption) =>
+        integerOption
+          .setName("teams")
+          .setDescription("Total number of teams")
+          .setRequired(true)
+          .addChoices(
+            { name: "4", value: 4 },
+            { name: "8", value: 8 },
+            { name: "16", value: 16 },
+            { name: "32", value: 32 },
+          ),
       ),
   )
-  .addSubcommandGroup((group) =>
-    group
-      .setName("tournament")
-      .setDescription("Create and join public cross-server tournaments")
-      .addSubcommand((option) =>
-        option
-          .setName("create")
-          .setDescription("Create a public tournament listing")
-          .addStringOption((stringOption) =>
-            stringOption
-              .setName("name")
-              .setDescription("Tournament name")
-              .setRequired(true)
-              .setMinLength(2)
-              .setMaxLength(64),
-          )
-          .addStringOption((stringOption) =>
-            stringOption
-              .setName("format")
-              .setDescription("Bracket format")
-              .setRequired(true)
-              .addChoices(
-                { name: "Single Elimination", value: "single" },
-                { name: "Double Elimination", value: "double" },
-              ),
-          )
-          .addIntegerOption((integerOption) =>
-            integerOption
-              .setName("teams")
-              .setDescription("Total number of teams")
-              .setRequired(true)
-              .addChoices(
-                { name: "4", value: 4 },
-                { name: "8", value: 8 },
-                { name: "16", value: 16 },
-                { name: "32", value: 32 },
-              ),
+  .addSubcommand((option) =>
+    option
+      .setName("browse")
+      .setDescription("Browse public tournaments")
+      .addStringOption((stringOption) =>
+        stringOption
+          .setName("query")
+          .setDescription("Optional name search")
+          .setRequired(false)
+          .setMinLength(2)
+          .setMaxLength(64),
+      )
+      .addStringOption((stringOption) =>
+        stringOption
+          .setName("format")
+          .setDescription("Optional format filter")
+          .setRequired(false)
+          .addChoices(
+            { name: "Single Elimination", value: "single" },
+            { name: "Double Elimination", value: "double" },
           ),
       )
-      .addSubcommand((option) =>
-        option
-          .setName("browse")
-          .setDescription("Browse public tournaments")
-          .addStringOption((stringOption) =>
-            stringOption
-              .setName("query")
-              .setDescription("Optional name search")
-              .setRequired(false)
-              .setMinLength(2)
-              .setMaxLength(64),
-          )
-          .addStringOption((stringOption) =>
-            stringOption
-              .setName("format")
-              .setDescription("Optional format filter")
-              .setRequired(false)
-              .addChoices(
-                { name: "Single Elimination", value: "single" },
-                { name: "Double Elimination", value: "double" },
-              ),
-          )
-          .addStringOption((stringOption) =>
-            stringOption
-              .setName("status")
-              .setDescription("Optional status filter")
-              .setRequired(false)
-              .addChoices(
-                { name: "Open", value: "open" },
-                { name: "Full", value: "full_pending_start" },
-                { name: "Active", value: "active" },
-              ),
-          ),
-      )
-      .addSubcommand((option) =>
-        option
+      .addStringOption((stringOption) =>
+        stringOption
           .setName("status")
-          .setDescription("Show tournament status and bracket")
-          .addIntegerOption((integerOption) =>
-            integerOption
-              .setName("tournament_id")
-              .setDescription("Tournament ID")
-              .setRequired(true)
-              .setMinValue(1),
-          ),
-      )
-      .addSubcommand((option) =>
-        option
-          .setName("join")
-          .setDescription("Join a tournament with a 5-player team")
-          .addIntegerOption((integerOption) =>
-            integerOption
-              .setName("tournament_id")
-              .setDescription("Tournament ID")
-              .setRequired(true)
-              .setMinValue(1),
-          )
-          .addStringOption((stringOption) =>
-            stringOption
-              .setName("team_name")
-              .setDescription("Tournament team name")
-              .setRequired(true)
-              .setMinLength(2)
-              .setMaxLength(64),
-          ),
-      )
-      .addSubcommand((option) =>
-        option
-          .setName("leave")
-          .setDescription("Leave a tournament before it starts")
-          .addIntegerOption((integerOption) =>
-            integerOption
-              .setName("tournament_id")
-              .setDescription("Tournament ID")
-              .setRequired(true)
-              .setMinValue(1),
-          ),
-      )
-      .addSubcommand((option) =>
-        option
-          .setName("start")
-          .setDescription("Start a full tournament")
-          .addIntegerOption((integerOption) =>
-            integerOption
-              .setName("tournament_id")
-              .setDescription("Tournament ID")
-              .setRequired(true)
-              .setMinValue(1),
-          ),
-      )
-      .addSubcommand((option) =>
-        option
-          .setName("cancel")
-          .setDescription("Cancel a tournament you created")
-          .addIntegerOption((integerOption) =>
-            integerOption
-              .setName("tournament_id")
-              .setDescription("Tournament ID")
-              .setRequired(true)
-              .setMinValue(1),
-          ),
-      )
-      .addSubcommand((option) =>
-        option
-          .setName("forfeit")
-          .setDescription("Resolve a tournament match by forfeit")
-          .addIntegerOption((integerOption) =>
-            integerOption
-              .setName("tournament_id")
-              .setDescription("Tournament ID")
-              .setRequired(true)
-              .setMinValue(1),
-          )
-          .addIntegerOption((integerOption) =>
-            integerOption
-              .setName("match_id")
-              .setDescription("Tournament bracket match ID")
-              .setRequired(true)
-              .setMinValue(1),
-          )
-          .addStringOption((stringOption) =>
-            stringOption
-              .setName("winner_side")
-              .setDescription("Winning side")
-              .setRequired(true)
-              .addChoices({ name: "Team A", value: "A" }, { name: "Team B", value: "B" }),
+          .setDescription("Optional status filter")
+          .setRequired(false)
+          .addChoices(
+            { name: "Open", value: "open" },
+            { name: "Full", value: "full_pending_start" },
+            { name: "Active", value: "active" },
           ),
       ),
   )
-  .addHandler(async (interaction) => {
-    if (!interaction.guildId || !interaction.channelId || !interaction.userId) {
-      const env = interaction.context.env as TeamEnv;
-      const emojis = await resolveTeamEmojiCatalog(env, interaction.applicationId);
-      await interaction.reply(
-        buildTeamReply({
-          title: "Server only",
-          message: "This command only works in a server.",
-          tone: "warning",
-          emojiName: "warning",
-          emojis,
-        }),
-        true,
-      );
+  .addSubcommand((option) =>
+    option
+      .setName("view")
+      .setDescription("Show tournament status and bracket")
+      .addIntegerOption((integerOption) =>
+        integerOption
+          .setName("id")
+          .setDescription("Tournament ID")
+          .setRequired(true)
+          .setMinValue(1)
+          .setAutocomplete(true),
+      ),
+  )
+  .addSubcommand((option) =>
+    option
+      .setName("join")
+      .setDescription("Join a tournament with a 5-player team")
+      .addIntegerOption((integerOption) =>
+        integerOption
+          .setName("id")
+          .setDescription("Tournament ID")
+          .setRequired(true)
+          .setMinValue(1)
+          .setAutocomplete(true),
+      )
+      .addStringOption((stringOption) =>
+        stringOption
+          .setName("teamname")
+          .setDescription("Tournament team name")
+          .setRequired(true)
+          .setMinLength(2)
+          .setMaxLength(64),
+      ),
+  )
+  .addSubcommand((option) =>
+    option
+      .setName("leave")
+      .setDescription("Leave a tournament before it starts")
+      .addIntegerOption((integerOption) =>
+        integerOption
+          .setName("id")
+          .setDescription("Tournament ID")
+          .setRequired(true)
+          .setMinValue(1)
+          .setAutocomplete(true),
+      ),
+  )
+  .addSubcommand((option) =>
+    option
+      .setName("start")
+      .setDescription("Start a full tournament")
+      .addIntegerOption((integerOption) =>
+        integerOption
+          .setName("id")
+          .setDescription("Tournament ID")
+          .setRequired(true)
+          .setMinValue(1)
+          .setAutocomplete(true),
+      ),
+  )
+  .addSubcommand((option) =>
+    option
+      .setName("cancel")
+      .setDescription("Cancel a tournament you created")
+      .addIntegerOption((integerOption) =>
+        integerOption
+          .setName("id")
+          .setDescription("Tournament ID")
+          .setRequired(true)
+          .setMinValue(1)
+          .setAutocomplete(true),
+      ),
+  )
+  .addSubcommand((option) =>
+    option
+      .setName("forfeit")
+      .setDescription("Resolve a tournament match by forfeit")
+      .addIntegerOption((integerOption) =>
+        integerOption
+          .setName("id")
+          .setDescription("Tournament ID")
+          .setRequired(true)
+          .setMinValue(1)
+          .setAutocomplete(true),
+      )
+      .addIntegerOption((integerOption) =>
+        integerOption
+          .setName("matchid")
+          .setDescription("Tournament bracket match ID")
+          .setRequired(true)
+          .setMinValue(1),
+      )
+      .addStringOption((stringOption) =>
+        stringOption
+          .setName("winner")
+          .setDescription("Winning side")
+          .setRequired(true)
+          .addChoices({ name: "Team A", value: "A" }, { name: "Team B", value: "B" }),
+      ),
+  )
+  .addAutocompleteHandler(async (interaction) => {
+    const focused = interaction.options.getFocused();
+    if (!focused || focused.name !== "id") {
+      await interaction.respond([]);
       return;
     }
 
+    const subcommand = interaction.options.getSubcommand(true);
+    const statuses =
+      subcommand === "join"
+        ? (["open"] as const)
+        : subcommand === "leave"
+          ? (["open", "full_pending_start"] as const)
+          : subcommand === "start"
+            ? (["full_pending_start"] as const)
+            : subcommand === "cancel"
+              ? (["open", "full_pending_start", "active"] as const)
+              : subcommand === "forfeit"
+                ? (["active"] as const)
+                : undefined;
+    const env = interaction.context.env as TeamEnv;
+    const query = String(focused.value ?? "");
+    const choices = await listTournamentAutocompleteChoices(env.Cache, env.db, {
+      query,
+      statuses: statuses ? [...statuses] : undefined,
+      limit: 25,
+    });
+
+    for (const choice of choices) {
+      const cachedSummary = await readTournamentSummaryCache(env.Cache, choice.id);
+      if (cachedSummary) {
+        choice.entryCount = cachedSummary.entries.length;
+      }
+    }
+
+    await interaction.respond(
+      choices.map((choice) =>
+        autocompleteChoice(formatTournamentAutocompleteLabel(choice), choice.id),
+      ),
+    );
+  })
+  .addHandler(handleTeamFamilyCommand);
+
+async function handleTeamFamilyCommand(
+  interaction: Parameters<Parameters<typeof teamCommand.addHandler>[0]>[0],
+) {
+  if (!interaction.guildId || !interaction.channelId || !interaction.userId) {
     const env = interaction.context.env as TeamEnv;
     const emojis = await resolveTeamEmojiCatalog(env, interaction.applicationId);
-    const subcommandGroup = interaction.options.getSubcommandGroup(false);
-    const subcommand = interaction.options.getSubcommand(true);
+    await interaction.reply(
+      buildTeamReply({
+        title: "Server only",
+        message: "This command only works in a server.",
+        tone: "warning",
+        emojiName: "warning",
+        emojis,
+      }),
+      true,
+    );
+    return;
+  }
 
-    if (subcommandGroup === "limit") {
-      await interaction.deferReply(true);
+  const env = interaction.context.env as TeamEnv;
+  const emojis = await resolveTeamEmojiCatalog(env, interaction.applicationId);
+  const commandName = interaction.commandName;
+  const subcommand = interaction.options.getSubcommand(true);
+  const cooldownKey =
+    commandName === "team"
+      ? "team.create"
+      : commandName === "queue"
+        ? subcommand === "status"
+          ? "queue.status"
+          : subcommand === "cancel"
+            ? "queue.cancel"
+            : "queue.start"
+        : commandName === "limit"
+          ? subcommand === "show"
+            ? "limit.show"
+            : subcommand === "clear"
+              ? "limit.clear"
+              : "limit.set"
+          : subcommand === "browse"
+            ? "tournament.browse"
+            : subcommand === "create"
+              ? "tournament.create"
+              : subcommand === "view"
+                ? "tournament.view"
+                : subcommand === "join"
+                  ? "tournament.join"
+                  : subcommand === "leave"
+                    ? "tournament.leave"
+                    : subcommand === "start"
+                      ? "tournament.start"
+                      : subcommand === "cancel"
+                        ? "tournament.cancel"
+                        : "tournament.forfeit";
+  const cooldown = await enforceCommandCooldown(env, {
+    commandKey: cooldownKey,
+    userId: interaction.userId,
+  });
+  if (!cooldown.allowed) {
+    await interaction.reply(cooldown.payload, true);
+    return;
+  }
 
-      if (!env.db) {
-        await interaction.editReply(
-          buildTeamReply({
-            title: "Configuration error",
-            message: "Database connection is unavailable.",
-            tone: "danger",
-            emojiName: "warning",
-            emojis,
-          }),
-        );
-        return;
-      }
-
-      if (subcommand === "show") {
-        const limit = await getGuildLimit(env.db, interaction.guildId);
-        await interaction.editReply(
-          buildTeamReply({
-            title: "Daily match limit",
-            message: limit
-              ? `This server can record **${limit.dailyMatchLimit}** matches per day.`
-              : "This server currently has no daily match limit.",
-            tone: "info",
-            emojiName: "information",
-            emojis,
-          }),
-        );
-        return;
-      }
-
-      if (!isGuildAdmin(interaction.raw)) {
-        await interaction.editReply(
-          buildTeamReply({
-            title: "Admin required",
-            message: "Only a server admin can change the daily match limit.",
-            tone: "warning",
-            emojiName: "warning",
-            emojis,
-          }),
-        );
-        return;
-      }
-
-      if (subcommand === "set") {
-        const dailyLimit = interaction.options.getInteger("matches_per_day", true)!;
-        await upsertGuildLimit(env.db, {
-          guildId: interaction.guildId,
-          dailyMatchLimit: dailyLimit,
-          updatedByDiscordUserId: interaction.userId,
-        });
-        await interaction.editReply(
-          buildTeamReply({
-            title: "Daily match limit updated",
-            message: `Set the daily recorded-match limit to **${dailyLimit}**.`,
-            tone: "success",
-            emojiName: "confirm",
-            emojis,
-          }),
-        );
-        return;
-      }
-
-      await clearGuildLimit(env.db, interaction.guildId);
-      await interaction.editReply(
-        buildTeamReply({
-          title: "Daily match limit cleared",
-          message: "Cleared the daily recorded-match limit for this server.",
-          tone: "success",
-          emojiName: "confirm",
-          emojis,
-        }),
-      );
-      return;
-    }
+  if (commandName === "limit") {
+    await interaction.deferReply(true);
 
     if (!env.db) {
-      await interaction.reply(
+      await interaction.editReply(
         buildTeamReply({
           title: "Configuration error",
           message: "Database connection is unavailable.",
@@ -1992,444 +2011,50 @@ export const teamCommand = new SlashCommand()
           emojiName: "warning",
           emojis,
         }),
-        true,
       );
       return;
     }
 
-    if (subcommandGroup === "tournament") {
-      await interaction.deferReply(true);
-      await processTournamentAutoStarts(env);
-
-      if (subcommand === "browse") {
-        const format = interaction.options.getString("format", false) as TournamentFormat | null;
-        const status = interaction.options.getString("status", false);
-        const query = interaction.options.getString("query", false);
-        const tournaments = await listBrowsableTournaments(env.Cache, env.db, {
-          query,
-          format,
-          statuses: status ? [status as "active" | "full_pending_start" | "open"] : undefined,
-        });
-        await interaction.editReply(buildTournamentBrowseReply(tournaments, emojis));
-        return;
-      }
-
-      if (subcommand === "create") {
-        const name = interaction.options.getString("name", true)!.trim();
-        const format = interaction.options.getString("format", true)! as TournamentFormat;
-        const teamCap = interaction.options.getInteger("teams", true)!;
-        const tournamentId = await createTournament(env.db, {
-          name,
-          nameNormalized: normalizeTournamentText(name),
-          format,
-          teamCap,
-          status: "open",
-          createdByGuildId: interaction.guildId,
-          createdByChannelId: interaction.channelId,
-          createdByDiscordUserId: interaction.userId,
-        });
-
-        const snapshot = await getTournamentStatusSnapshot(env.db, tournamentId);
-        if (snapshot) {
-          const publicPayload = buildTournamentHubMessage(snapshot, emojis);
-          const rest = createRestClient(env);
-          const publicResult = await postPublicMessage(rest, interaction.channelId, publicPayload);
-          const messageId = publicResult.isErr() ? null : readJsonId(publicResult.value);
-          if (messageId) {
-            await updateTournamentHubMessageId(env.db, {
-              tournamentId,
-              hubMessageId: messageId,
-            });
-          }
-        }
-
-        await invalidateTournamentCaches(env.Cache, tournamentId);
-        await interaction.editReply(
-          buildTeamReply({
-            title: "Tournament created",
-            message: `Created public tournament **${name}**.`,
-            tone: "success",
-            emojiName: "confirm",
-            emojis,
-            details: [
-              `**Tournament**\n#${tournamentId}`,
-              `**Format**\n${formatTournamentFormatLabel(format)}`,
-              `**Teams**\n${teamCap}`,
-            ],
-          }),
-        );
-        return;
-      }
-
-      const tournamentId = interaction.options.getInteger("tournament_id", true)!;
-      const tournamentSnapshot = await loadTournamentStatusSnapshotWithCache(env, tournamentId);
-      if (!tournamentSnapshot) {
-        await interaction.editReply(
-          buildTeamReply({
-            title: "Tournament missing",
-            message: "That tournament could not be found.",
-            tone: "danger",
-            emojiName: "cancel",
-            emojis,
-          }),
-        );
-        return;
-      }
-
-      if (subcommand === "status") {
-        await interaction.editReply(buildTournamentStatusReply(tournamentSnapshot, emojis));
-        return;
-      }
-
-      if (subcommand === "join") {
-        if (tournamentSnapshot.tournament.status !== "open") {
-          await interaction.editReply(
-            buildTeamReply({
-              title: "Tournament closed",
-              message: "This tournament is not accepting new teams.",
-              tone: "warning",
-              emojiName: "warning",
-              emojis,
-            }),
-          );
-          return;
-        }
-
-        const existingCaptainEntry = await getTournamentEntryForCaptain(
-          env.db,
-          tournamentId,
-          interaction.userId,
-        );
-        if (existingCaptainEntry) {
-          await interaction.editReply(
-            buildTeamReply({
-              title: "Captain already registered",
-              message: "You already captain a team in this tournament.",
-              tone: "warning",
-              emojiName: "warning",
-              emojis,
-            }),
-          );
-          return;
-        }
-
-        const roster = await getOrBuildGuildRoster(env.Cache, env.db, interaction.guildId);
-        const readyMembers = roster.filter(
-          (member) => member.ready && member.balanceRating !== null,
-        );
-        if (readyMembers.length < MATCHMAKING_STACK_SIZE) {
-          await interaction.editReply(
-            buildTeamReply({
-              title: "Not enough ready players",
-              message: `This server only has **${readyMembers.length}** ready registered players. You need exactly ${MATCHMAKING_STACK_SIZE}.`,
-              tone: "warning",
-              emojiName: "question_mark",
-              emojis,
-            }),
-          );
-          return;
-        }
-
-        const teamName = interaction.options.getString("team_name", true)!.trim();
-        const draftState = buildDraftState({
-          draftId: interaction.id,
-          guildId: interaction.guildId,
-          channelId: interaction.channelId,
-          creatorId: interaction.userId,
-          mode: "tournament",
-          tournamentId,
-          teamName,
-          members: readyMembers,
-        });
-        await writeTeamDraftState(env.Cache, interaction.id, draftState);
-        await interaction.editReply(buildDraftMessage(draftState, emojis));
-        return;
-      }
-
-      if (subcommand === "leave") {
-        if (
-          tournamentSnapshot.tournament.status !== "open" &&
-          tournamentSnapshot.tournament.status !== "full_pending_start"
-        ) {
-          await interaction.editReply(
-            buildTeamReply({
-              title: "Tournament already started",
-              message: "Teams can only leave before the bracket starts.",
-              tone: "warning",
-              emojiName: "warning",
-              emojis,
-            }),
-          );
-          return;
-        }
-
-        let targetEntry =
-          tournamentSnapshot.entries.find(
-            (entry) => entry.captainDiscordUserId === interaction.userId,
-          ) ?? null;
-        if (!targetEntry && isGuildAdmin(interaction.raw)) {
-          const guildEntries = tournamentSnapshot.entries.filter(
-            (entry) => entry.guildId === interaction.guildId,
-          );
-          targetEntry = guildEntries.length === 1 ? (guildEntries[0] ?? null) : null;
-        }
-
-        if (!targetEntry) {
-          await interaction.editReply(
-            buildTeamReply({
-              title: "No removable entry",
-              message:
-                "You must be that team's captain, or be a guild admin with exactly one team from this server in the tournament.",
-              tone: "warning",
-              emojiName: "warning",
-              emojis,
-            }),
-          );
-          return;
-        }
-
-        await deleteTournamentEntry(env.db, targetEntry.id);
-        const nextSnapshot = await getTournamentStatusSnapshot(env.db, tournamentId);
-        if (nextSnapshot) {
-          await refreshTournamentCapacityStatus(
-            env.db,
-            nextSnapshot.tournament,
-            nextSnapshot.entries.length,
-          );
-        }
-        await invalidateTournamentCaches(env.Cache, tournamentId);
-        await syncTournamentHubMessage(env, tournamentId, emojis);
-        await interaction.editReply(
-          buildTeamReply({
-            title: "Tournament team removed",
-            message: `Removed **${targetEntry.teamName}** from tournament #${tournamentId}.`,
-            tone: "success",
-            emojiName: "confirm",
-            emojis,
-          }),
-        );
-        return;
-      }
-
-      if (subcommand === "start") {
-        if (
-          !canStartTournamentMatchmaking(
-            interaction.raw,
-            tournamentSnapshot.tournament,
-            tournamentSnapshot.entries,
-            interaction.userId,
-            interaction.guildId,
-          )
-        ) {
-          await interaction.editReply(
-            buildTeamReply({
-              title: "Permission required",
-              message:
-                "Only a participating captain, the tournament creator, or a creator-guild admin can start this tournament.",
-              tone: "warning",
-              emojiName: "warning",
-              emojis,
-            }),
-          );
-          return;
-        }
-
-        if (tournamentSnapshot.tournament.status !== "full_pending_start") {
-          await interaction.editReply(
-            buildTeamReply({
-              title: "Tournament not ready",
-              message: "This tournament can only start once all team slots are filled.",
-              tone: "warning",
-              emojiName: "warning",
-              emojis,
-            }),
-          );
-          return;
-        }
-
-        const startResult = await startTournament(env.db, tournamentId);
-        await invalidateTournamentCaches(env.Cache, tournamentId);
-        await processTournamentReadyMatches(env, startResult.snapshot, emojis);
-        await interaction.editReply(
-          buildTeamReply({
-            title: "Tournament started",
-            message: `Started tournament #${tournamentId} and generated the opening bracket.`,
-            tone: "success",
-            emojiName: "confirm",
-            emojis,
-          }),
-        );
-        return;
-      }
-
-      if (subcommand === "cancel") {
-        if (
-          !canManageTournamentSetup(
-            interaction.raw,
-            tournamentSnapshot.tournament,
-            interaction.userId,
-            interaction.guildId,
-          )
-        ) {
-          await interaction.editReply(
-            buildTeamReply({
-              title: "Permission required",
-              message: "Only the tournament creator or a creator-guild admin can cancel it.",
-              tone: "warning",
-              emojiName: "warning",
-              emojis,
-            }),
-          );
-          return;
-        }
-
-        await updateTournament(env.db, {
-          tournamentId,
-          status: "cancelled",
-        });
-        await invalidateTournamentCaches(env.Cache, tournamentId);
-        await syncTournamentHubMessage(env, tournamentId, emojis);
-        await interaction.editReply(
-          buildTeamReply({
-            title: "Tournament cancelled",
-            message: `Cancelled tournament #${tournamentId}.`,
-            tone: "success",
-            emojiName: "confirm",
-            emojis,
-          }),
-        );
-        return;
-      }
-
-      const bracketMatchId = interaction.options.getInteger("match_id", true)!;
-      const winnerSide = interaction.options.getString("winner_side", true);
-      const bracketMatch = await getTournamentBracketMatch(env.db, bracketMatchId);
-      if (
-        !bracketMatch ||
-        bracketMatch.tournamentId !== tournamentId ||
-        bracketMatch.customMatchId === null ||
-        (winnerSide !== "A" && winnerSide !== "B")
-      ) {
-        await interaction.editReply(
-          buildTeamReply({
-            title: "Invalid forfeit target",
-            message: "That tournament match could not be resolved by forfeit.",
-            tone: "warning",
-            emojiName: "warning",
-            emojis,
-          }),
-        );
-        return;
-      }
-
-      const match = await getCustomMatch(env.db, bracketMatch.customMatchId);
-      if (
-        !match ||
-        !interaction.userId ||
-        !canManageMatch(interaction.raw, match, interaction.userId, interaction.guildId)
-      ) {
-        await interaction.editReply(
-          buildTeamReply({
-            title: "Permission required",
-            message:
-              "Only the participating captains or their guild admins can forfeit this match.",
-            tone: "warning",
-            emojiName: "warning",
-            emojis,
-          }),
-        );
-        return;
-      }
-
-      const guildIdsToCheck = [match.guildId, match.opponentGuildId].filter(
-        (guildId): guildId is string => typeof guildId === "string" && guildId.length > 0,
-      );
-      for (const guildId of guildIdsToCheck) {
-        const limit = await getGuildLimit(env.db, guildId);
-        if (!limit) {
-          continue;
-        }
-
-        const completedToday = await countCompletedMatchesSince(env.db, guildId, startOfUtcDayMs());
-        if (completedToday >= limit.dailyMatchLimit) {
-          await interaction.editReply(
-            buildTeamReply({
-              title: "Daily limit reached",
-              message:
-                "Cannot record this forfeit because one of the participating servers already reached its daily recorded-match limit.",
-              tone: "warning",
-              emojiName: "timer",
-              emojis,
-            }),
-          );
-          return;
-        }
-      }
-
-      if (typeof bracketMatch.entryAId !== "number" || typeof bracketMatch.entryBId !== "number") {
-        await interaction.editReply(
-          buildTeamReply({
-            title: "Bracket mismatch",
-            message: "This bracket match does not have two valid teams assigned.",
-            tone: "warning",
-            emojiName: "warning",
-            emojis,
-          }),
-        );
-        return;
-      }
-
-      const winnerEntryId = winnerSide === "A" ? bracketMatch.entryAId : bracketMatch.entryBId;
-      const loserEntryId = winnerSide === "A" ? bracketMatch.entryBId : bracketMatch.entryAId;
-      await completeCustomMatch(env.db, {
-        matchId: match.id,
-        winningTeam: winnerSide,
-        resolutionType: "forfeit",
-      });
-      const advanceResult = await advanceTournamentBracketMatch(env.db, {
-        bracketMatchId: bracketMatch.id,
-        winnerEntryId,
-        loserEntryId,
-        finalStatus: "forfeit",
-      });
-
-      const completedMatch = await getCustomMatch(env.db, match.id);
-      if (completedMatch) {
-        const rest = createRestClient(env);
-        const publicPayload = buildPublicMatchMessage({
-          title: `${tournamentSnapshot.tournament.name} • Forfeit`,
-          matchId: completedMatch.id,
-          teamA: completedMatch.players.filter((player) => player.team === "A"),
-          teamB: completedMatch.players.filter((player) => player.team === "B"),
-          teamABalanceTotal: completedMatch.teamABalanceTotal,
-          teamBBalanceTotal: completedMatch.teamBBalanceTotal,
-          balanceGap: completedMatch.balanceGap,
-          showResults: true,
-          emojis,
-          message: "This tournament match was resolved by forfeit.",
-        });
-        await editPublicMessage(
-          rest,
-          completedMatch.channelId,
-          completedMatch.messageId,
-          publicPayload,
-        );
-        if (completedMatch.opponentChannelId && completedMatch.opponentMessageId) {
-          await editPublicMessage(
-            rest,
-            completedMatch.opponentChannelId,
-            completedMatch.opponentMessageId,
-            publicPayload,
-          );
-        }
-      }
-
-      await invalidateTournamentCaches(env.Cache, tournamentId);
-      await processTournamentReadyMatches(env, advanceResult.snapshot, emojis);
+    if (subcommand === "show") {
+      const limit = await getGuildLimit(env.db, interaction.guildId);
       await interaction.editReply(
         buildTeamReply({
-          title: "Forfeit recorded",
-          message: `Recorded a forfeit for tournament match #${bracketMatchId}.`,
+          title: "Daily match limit",
+          message: limit
+            ? `This server can record **${limit.dailyMatchLimit}** matches per day.`
+            : "This server currently has no daily match limit.",
+          tone: "info",
+          emojiName: "information",
+          emojis,
+        }),
+      );
+      return;
+    }
+
+    if (!isGuildAdmin(interaction.raw)) {
+      await interaction.editReply(
+        buildTeamReply({
+          title: "Admin required",
+          message: "Only a server admin can change the daily match limit.",
+          tone: "warning",
+          emojiName: "warning",
+          emojis,
+        }),
+      );
+      return;
+    }
+
+    if (subcommand === "set") {
+      const dailyLimit = interaction.options.getInteger("matches", true)!;
+      await upsertGuildLimit(env.db, {
+        guildId: interaction.guildId,
+        dailyMatchLimit: dailyLimit,
+        updatedByDiscordUserId: interaction.userId,
+      });
+      await interaction.editReply(
+        buildTeamReply({
+          title: "Daily match limit updated",
+          message: `Set the daily recorded-match limit to **${dailyLimit}**.`,
           tone: "success",
           emojiName: "confirm",
           emojis,
@@ -2438,109 +2063,146 @@ export const teamCommand = new SlashCommand()
       return;
     }
 
-    if (subcommandGroup === "match") {
-      await interaction.deferReply(true);
-      await expireStaleMatchmakingQueues(env.db);
+    await clearGuildLimit(env.db, interaction.guildId);
+    await interaction.editReply(
+      buildTeamReply({
+        title: "Daily match limit cleared",
+        message: "Cleared the daily recorded-match limit for this server.",
+        tone: "success",
+        emojiName: "confirm",
+        emojis,
+      }),
+    );
+    return;
+  }
 
-      if (subcommand === "status") {
-        const activeQueue = await getActiveMatchmakingQueueForGuild(env.db, interaction.guildId);
-        if (activeQueue) {
-          await interaction.editReply(buildMatchmakingQueueStatusReply(activeQueue, emojis));
-          return;
+  if (!env.db) {
+    await interaction.reply(
+      buildTeamReply({
+        title: "Configuration error",
+        message: "Database connection is unavailable.",
+        tone: "danger",
+        emojiName: "warning",
+        emojis,
+      }),
+      true,
+    );
+    return;
+  }
+
+  if (commandName === "tournament") {
+    await interaction.deferReply(true);
+    await processTournamentAutoStarts(env);
+
+    if (subcommand === "browse") {
+      const format = interaction.options.getString("format", false) as TournamentFormat | null;
+      const status = interaction.options.getString("status", false);
+      const query = interaction.options.getString("query", false);
+      const tournaments = await listBrowsableTournaments(env.Cache, env.db, {
+        query,
+        format,
+        statuses: status ? [status as "active" | "full_pending_start" | "open"] : undefined,
+      });
+      await interaction.editReply(buildTournamentBrowseReply(tournaments, emojis));
+      return;
+    }
+
+    if (subcommand === "create") {
+      const name = interaction.options.getString("name", true)!.trim();
+      const format = interaction.options.getString("format", true)! as TournamentFormat;
+      const teamCap = interaction.options.getInteger("teams", true)!;
+      const tournamentId = await createTournament(env.db, {
+        name,
+        nameNormalized: normalizeTournamentText(name),
+        format,
+        teamCap,
+        status: "open",
+        createdByGuildId: interaction.guildId,
+        createdByChannelId: interaction.channelId,
+        createdByDiscordUserId: interaction.userId,
+      });
+
+      const snapshot = await getTournamentStatusSnapshot(env.db, tournamentId);
+      if (snapshot) {
+        const publicPayload = buildTournamentHubMessage(snapshot, emojis);
+        const rest = createRestClient(env);
+        const publicResult = await postPublicMessage(rest, interaction.channelId, publicPayload);
+        const messageId = publicResult.isErr() ? null : readJsonId(publicResult.value);
+        if (messageId) {
+          await updateTournamentHubMessageId(env.db, {
+            tournamentId,
+            hubMessageId: messageId,
+          });
         }
-
-        const activeMatch = await getActiveCrossGuildMatchForGuild(env.db, interaction.guildId);
-        if (activeMatch) {
-          await interaction.editReply(buildActiveCrossGuildMatchStatusReply(activeMatch, emojis));
-          return;
-        }
-
-        await interaction.editReply(
-          buildTeamReply({
-            title: "No active matchmaking",
-            message: "This server does not currently have an active queue or cross-server match.",
-            tone: "info",
-            emojiName: "information",
-            emojis,
-          }),
-        );
-        return;
       }
 
-      if (subcommand === "cancel") {
-        const activeQueue = await getActiveMatchmakingQueueForGuild(env.db, interaction.guildId);
-        if (!activeQueue) {
-          await interaction.editReply(
-            buildTeamReply({
-              title: "No active queue",
-              message: "This server does not have an active queued 5-stack to cancel.",
-              tone: "warning",
-              emojiName: "question_mark",
-              emojis,
-            }),
-          );
-          return;
-        }
-
-        if (
-          interaction.userId !== activeQueue.captainDiscordUserId &&
-          !isGuildAdmin(interaction.raw)
-        ) {
-          await interaction.editReply(
-            buildTeamReply({
-              title: "Permission required",
-              message: "Only the queue creator or a server admin can cancel this queue.",
-              tone: "warning",
-              emojiName: "warning",
-              emojis,
-            }),
-          );
-          return;
-        }
-
-        await cancelMatchmakingQueue(env.db, activeQueue.id);
-        await interaction.editReply(
-          buildTeamReply({
-            title: "Queue cancelled",
-            message: "Cancelled the active cross-server matchmaking queue for this server.",
-            tone: "success",
-            emojiName: "confirm",
-            emojis,
-          }),
-        );
-        return;
-      }
-
-      const activeGuildQueue = await getActiveMatchmakingQueueForGuild(env.db, interaction.guildId);
-      if (activeGuildQueue) {
-        await interaction.editReply(buildMatchmakingQueueStatusReply(activeGuildQueue, emojis));
-        return;
-      }
-
-      const activeCaptainQueue = await getActiveMatchmakingQueueForCaptain(
-        env.db,
-        interaction.userId,
+      await invalidateTournamentCaches(env.Cache, tournamentId);
+      await interaction.editReply(
+        buildTeamReply({
+          title: "Tournament created",
+          message: `Created public tournament **${name}**.`,
+          tone: "success",
+          emojiName: "confirm",
+          emojis,
+          details: [
+            `**Tournament**\n#${tournamentId}`,
+            `**Format**\n${formatTournamentFormatLabel(format)}`,
+            `**Teams**\n${teamCap}`,
+          ],
+        }),
       );
-      if (activeCaptainQueue) {
+      return;
+    }
+
+    const tournamentId = interaction.options.getInteger("id", true)!;
+    const tournamentSnapshot = await loadTournamentStatusSnapshotWithCache(env, tournamentId);
+    if (!tournamentSnapshot) {
+      await interaction.editReply(
+        buildTeamReply({
+          title: "Tournament missing",
+          message: "That tournament could not be found.",
+          tone: "danger",
+          emojiName: "cancel",
+          emojis,
+        }),
+      );
+      return;
+    }
+
+    if (subcommand === "view") {
+      await interaction.editReply(buildTournamentStatusReply(tournamentSnapshot, emojis));
+      return;
+    }
+
+    if (subcommand === "join") {
+      if (tournamentSnapshot.tournament.status !== "open") {
         await interaction.editReply(
           buildTeamReply({
-            title: "Captain already queued",
-            message: "You already have an active matchmaking queue entry.",
+            title: "Tournament closed",
+            message: "This tournament is not accepting new teams.",
             tone: "warning",
             emojiName: "warning",
             emojis,
-            details: [
-              `**Queue Guild**\n${activeCaptainQueue.guildId}`,
-              `**Queue Expires**\n${formatRelativeTime(activeCaptainQueue.expiresAt)}`,
-            ],
           }),
         );
         return;
       }
 
-      const activeMatch = await getActiveCrossGuildMatchForGuild(env.db, interaction.guildId);
-      if (activeMatch) {
-        await interaction.editReply(buildActiveCrossGuildMatchStatusReply(activeMatch, emojis));
+      const existingCaptainEntry = await getTournamentEntryForCaptain(
+        env.db,
+        tournamentId,
+        interaction.userId,
+      );
+      if (existingCaptainEntry) {
+        await interaction.editReply(
+          buildTeamReply({
+            title: "Captain already registered",
+            message: "You already captain a team in this tournament.",
+            tone: "warning",
+            emojiName: "warning",
+            emojis,
+          }),
+        );
         return;
       }
 
@@ -2559,12 +2221,15 @@ export const teamCommand = new SlashCommand()
         return;
       }
 
+      const teamName = interaction.options.getString("teamname", true)!.trim();
       const draftState = buildDraftState({
         draftId: interaction.id,
         guildId: interaction.guildId,
         channelId: interaction.channelId,
         creatorId: interaction.userId,
-        mode: "matchmaking",
+        mode: "tournament",
+        tournamentId,
+        teamName,
         members: readyMembers,
       });
       await writeTeamDraftState(env.Cache, interaction.id, draftState);
@@ -2572,16 +2237,410 @@ export const teamCommand = new SlashCommand()
       return;
     }
 
+    if (subcommand === "leave") {
+      if (
+        tournamentSnapshot.tournament.status !== "open" &&
+        tournamentSnapshot.tournament.status !== "full_pending_start"
+      ) {
+        await interaction.editReply(
+          buildTeamReply({
+            title: "Tournament already started",
+            message: "Teams can only leave before the bracket starts.",
+            tone: "warning",
+            emojiName: "warning",
+            emojis,
+          }),
+        );
+        return;
+      }
+
+      let targetEntry =
+        tournamentSnapshot.entries.find(
+          (entry) => entry.captainDiscordUserId === interaction.userId,
+        ) ?? null;
+      if (!targetEntry && isGuildAdmin(interaction.raw)) {
+        const guildEntries = tournamentSnapshot.entries.filter(
+          (entry) => entry.guildId === interaction.guildId,
+        );
+        targetEntry = guildEntries.length === 1 ? (guildEntries[0] ?? null) : null;
+      }
+
+      if (!targetEntry) {
+        await interaction.editReply(
+          buildTeamReply({
+            title: "No removable entry",
+            message:
+              "You must be that team's captain, or be a guild admin with exactly one team from this server in the tournament.",
+            tone: "warning",
+            emojiName: "warning",
+            emojis,
+          }),
+        );
+        return;
+      }
+
+      await deleteTournamentEntry(env.db, targetEntry.id);
+      const nextSnapshot = await getTournamentStatusSnapshot(env.db, tournamentId);
+      if (nextSnapshot) {
+        await refreshTournamentCapacityStatus(
+          env.db,
+          nextSnapshot.tournament,
+          nextSnapshot.entries.length,
+        );
+      }
+      await invalidateTournamentCaches(env.Cache, tournamentId);
+      await syncTournamentHubMessage(env, tournamentId, emojis);
+      await interaction.editReply(
+        buildTeamReply({
+          title: "Tournament team removed",
+          message: `Removed **${targetEntry.teamName}** from tournament #${tournamentId}.`,
+          tone: "success",
+          emojiName: "confirm",
+          emojis,
+        }),
+      );
+      return;
+    }
+
+    if (subcommand === "start") {
+      if (
+        !canStartTournamentMatchmaking(
+          interaction.raw,
+          tournamentSnapshot.tournament,
+          tournamentSnapshot.entries,
+          interaction.userId,
+          interaction.guildId,
+        )
+      ) {
+        await interaction.editReply(
+          buildTeamReply({
+            title: "Permission required",
+            message:
+              "Only a participating captain, the tournament creator, or a creator-guild admin can start this tournament.",
+            tone: "warning",
+            emojiName: "warning",
+            emojis,
+          }),
+        );
+        return;
+      }
+
+      if (tournamentSnapshot.tournament.status !== "full_pending_start") {
+        await interaction.editReply(
+          buildTeamReply({
+            title: "Tournament not ready",
+            message: "This tournament can only start once all team slots are filled.",
+            tone: "warning",
+            emojiName: "warning",
+            emojis,
+          }),
+        );
+        return;
+      }
+
+      const startResult = await startTournament(env.db, tournamentId);
+      await invalidateTournamentCaches(env.Cache, tournamentId);
+      await processTournamentReadyMatches(env, startResult.snapshot, emojis);
+      await interaction.editReply(
+        buildTeamReply({
+          title: "Tournament started",
+          message: `Started tournament #${tournamentId} and generated the opening bracket.`,
+          tone: "success",
+          emojiName: "confirm",
+          emojis,
+        }),
+      );
+      return;
+    }
+
+    if (subcommand === "cancel") {
+      if (
+        !canManageTournamentSetup(
+          interaction.raw,
+          tournamentSnapshot.tournament,
+          interaction.userId,
+          interaction.guildId,
+        )
+      ) {
+        await interaction.editReply(
+          buildTeamReply({
+            title: "Permission required",
+            message: "Only the tournament creator or a creator-guild admin can cancel it.",
+            tone: "warning",
+            emojiName: "warning",
+            emojis,
+          }),
+        );
+        return;
+      }
+
+      await updateTournament(env.db, {
+        tournamentId,
+        status: "cancelled",
+      });
+      await invalidateTournamentCaches(env.Cache, tournamentId);
+      await syncTournamentHubMessage(env, tournamentId, emojis);
+      await interaction.editReply(
+        buildTeamReply({
+          title: "Tournament cancelled",
+          message: `Cancelled tournament #${tournamentId}.`,
+          tone: "success",
+          emojiName: "confirm",
+          emojis,
+        }),
+      );
+      return;
+    }
+
+    const bracketMatchId = interaction.options.getInteger("matchid", true)!;
+    const winnerSide = interaction.options.getString("winner", true);
+    const bracketMatch = await getTournamentBracketMatch(env.db, bracketMatchId);
+    if (
+      !bracketMatch ||
+      bracketMatch.tournamentId !== tournamentId ||
+      bracketMatch.customMatchId === null ||
+      (winnerSide !== "A" && winnerSide !== "B")
+    ) {
+      await interaction.editReply(
+        buildTeamReply({
+          title: "Invalid forfeit target",
+          message: "That tournament match could not be resolved by forfeit.",
+          tone: "warning",
+          emojiName: "warning",
+          emojis,
+        }),
+      );
+      return;
+    }
+
+    const match = await getCustomMatch(env.db, bracketMatch.customMatchId);
+    if (
+      !match ||
+      !interaction.userId ||
+      !canManageMatch(interaction.raw, match, interaction.userId, interaction.guildId)
+    ) {
+      await interaction.editReply(
+        buildTeamReply({
+          title: "Permission required",
+          message: "Only the participating captains or their guild admins can forfeit this match.",
+          tone: "warning",
+          emojiName: "warning",
+          emojis,
+        }),
+      );
+      return;
+    }
+
+    const guildIdsToCheck = [match.guildId, match.opponentGuildId].filter(
+      (guildId): guildId is string => typeof guildId === "string" && guildId.length > 0,
+    );
+    for (const guildId of guildIdsToCheck) {
+      const limit = await getGuildLimit(env.db, guildId);
+      if (!limit) {
+        continue;
+      }
+
+      const completedToday = await countCompletedMatchesSince(env.db, guildId, startOfUtcDayMs());
+      if (completedToday >= limit.dailyMatchLimit) {
+        await interaction.editReply(
+          buildTeamReply({
+            title: "Daily limit reached",
+            message:
+              "Cannot record this forfeit because one of the participating servers already reached its daily recorded-match limit.",
+            tone: "warning",
+            emojiName: "timer",
+            emojis,
+          }),
+        );
+        return;
+      }
+    }
+
+    if (typeof bracketMatch.entryAId !== "number" || typeof bracketMatch.entryBId !== "number") {
+      await interaction.editReply(
+        buildTeamReply({
+          title: "Bracket mismatch",
+          message: "This bracket match does not have two valid teams assigned.",
+          tone: "warning",
+          emojiName: "warning",
+          emojis,
+        }),
+      );
+      return;
+    }
+
+    const winnerEntryId = winnerSide === "A" ? bracketMatch.entryAId : bracketMatch.entryBId;
+    const loserEntryId = winnerSide === "A" ? bracketMatch.entryBId : bracketMatch.entryAId;
+    await completeCustomMatch(env.db, {
+      matchId: match.id,
+      winningTeam: winnerSide,
+      resolutionType: "forfeit",
+    });
+    const advanceResult = await advanceTournamentBracketMatch(env.db, {
+      bracketMatchId: bracketMatch.id,
+      winnerEntryId,
+      loserEntryId,
+      finalStatus: "forfeit",
+    });
+
+    const completedMatch = await getCustomMatch(env.db, match.id);
+    if (completedMatch) {
+      const rest = createRestClient(env);
+      const publicPayload = buildPublicMatchMessage({
+        title: `${tournamentSnapshot.tournament.name} • Forfeit`,
+        matchId: completedMatch.id,
+        teamA: completedMatch.players.filter((player) => player.team === "A"),
+        teamB: completedMatch.players.filter((player) => player.team === "B"),
+        teamABalanceTotal: completedMatch.teamABalanceTotal,
+        teamBBalanceTotal: completedMatch.teamBBalanceTotal,
+        balanceGap: completedMatch.balanceGap,
+        showResults: true,
+        emojis,
+        message: "This tournament match was resolved by forfeit.",
+      });
+      await editPublicMessage(
+        rest,
+        completedMatch.channelId,
+        completedMatch.messageId,
+        publicPayload,
+      );
+      if (completedMatch.opponentChannelId && completedMatch.opponentMessageId) {
+        await editPublicMessage(
+          rest,
+          completedMatch.opponentChannelId,
+          completedMatch.opponentMessageId,
+          publicPayload,
+        );
+      }
+    }
+
+    await invalidateTournamentCaches(env.Cache, tournamentId);
+    await processTournamentReadyMatches(env, advanceResult.snapshot, emojis);
+    await interaction.editReply(
+      buildTeamReply({
+        title: "Forfeit recorded",
+        message: `Recorded a forfeit for tournament match #${bracketMatchId}.`,
+        tone: "success",
+        emojiName: "confirm",
+        emojis,
+      }),
+    );
+    return;
+  }
+
+  if (commandName === "queue") {
     await interaction.deferReply(true);
+    await expireStaleMatchmakingQueues(env.db);
+
+    if (subcommand === "status") {
+      const activeQueue = await getActiveMatchmakingQueueForGuild(env.db, interaction.guildId);
+      if (activeQueue) {
+        await interaction.editReply(buildMatchmakingQueueStatusReply(activeQueue, emojis));
+        return;
+      }
+
+      const activeMatch = await getActiveCrossGuildMatchForGuild(env.db, interaction.guildId);
+      if (activeMatch) {
+        await interaction.editReply(buildActiveCrossGuildMatchStatusReply(activeMatch, emojis));
+        return;
+      }
+
+      await interaction.editReply(
+        buildTeamReply({
+          title: "No active matchmaking",
+          message: "This server does not currently have an active queue or cross-server match.",
+          tone: "info",
+          emojiName: "information",
+          emojis,
+        }),
+      );
+      return;
+    }
+
+    if (subcommand === "cancel") {
+      const activeQueue = await getActiveMatchmakingQueueForGuild(env.db, interaction.guildId);
+      if (!activeQueue) {
+        await interaction.editReply(
+          buildTeamReply({
+            title: "No active queue",
+            message: "This server does not have an active queued 5-stack to cancel.",
+            tone: "warning",
+            emojiName: "question_mark",
+            emojis,
+          }),
+        );
+        return;
+      }
+
+      if (
+        interaction.userId !== activeQueue.captainDiscordUserId &&
+        !isGuildAdmin(interaction.raw)
+      ) {
+        await interaction.editReply(
+          buildTeamReply({
+            title: "Permission required",
+            message: "Only the queue creator or a server admin can cancel this queue.",
+            tone: "warning",
+            emojiName: "warning",
+            emojis,
+          }),
+        );
+        return;
+      }
+
+      await cancelMatchmakingQueue(env.db, activeQueue.id);
+      await interaction.editReply(
+        buildTeamReply({
+          title: "Queue cancelled",
+          message: "Cancelled the active cross-server matchmaking queue for this server.",
+          tone: "success",
+          emojiName: "confirm",
+          emojis,
+        }),
+      );
+      return;
+    }
+
+    const activeGuildQueue = await getActiveMatchmakingQueueForGuild(env.db, interaction.guildId);
+    if (activeGuildQueue) {
+      await interaction.editReply(buildMatchmakingQueueStatusReply(activeGuildQueue, emojis));
+      return;
+    }
+
+    const activeCaptainQueue = await getActiveMatchmakingQueueForCaptain(
+      env.db,
+      interaction.userId,
+    );
+    if (activeCaptainQueue) {
+      await interaction.editReply(
+        buildTeamReply({
+          title: "Captain already queued",
+          message: "You already have an active matchmaking queue entry.",
+          tone: "warning",
+          emojiName: "warning",
+          emojis,
+          details: [
+            `**Queue Guild**\n${activeCaptainQueue.guildId}`,
+            `**Queue Expires**\n${formatRelativeTime(activeCaptainQueue.expiresAt)}`,
+          ],
+        }),
+      );
+      return;
+    }
+
+    const activeMatch = await getActiveCrossGuildMatchForGuild(env.db, interaction.guildId);
+    if (activeMatch) {
+      await interaction.editReply(buildActiveCrossGuildMatchStatusReply(activeMatch, emojis));
+      return;
+    }
 
     const roster = await getOrBuildGuildRoster(env.Cache, env.db, interaction.guildId);
     const readyMembers = roster.filter((member) => member.ready && member.balanceRating !== null);
-
-    if (readyMembers.length < 2) {
+    if (readyMembers.length < MATCHMAKING_STACK_SIZE) {
       await interaction.editReply(
         buildTeamReply({
           title: "Not enough ready players",
-          message: `This server only has **${readyMembers.length}** ready registered players. You need at least 2.`,
+          message: `This server only has **${readyMembers.length}** ready registered players. You need exactly ${MATCHMAKING_STACK_SIZE}.`,
           tone: "warning",
           emojiName: "question_mark",
           emojis,
@@ -2595,13 +2654,44 @@ export const teamCommand = new SlashCommand()
       guildId: interaction.guildId,
       channelId: interaction.channelId,
       creatorId: interaction.userId,
-      mode: "internal",
+      mode: "matchmaking",
       members: readyMembers,
     });
-
     await writeTeamDraftState(env.Cache, interaction.id, draftState);
     await interaction.editReply(buildDraftMessage(draftState, emojis));
+    return;
+  }
+
+  await interaction.deferReply(true);
+
+  const roster = await getOrBuildGuildRoster(env.Cache, env.db, interaction.guildId);
+  const readyMembers = roster.filter((member) => member.ready && member.balanceRating !== null);
+
+  if (readyMembers.length < 2) {
+    await interaction.editReply(
+      buildTeamReply({
+        title: "Not enough ready players",
+        message: `This server only has **${readyMembers.length}** ready registered players. You need at least 2.`,
+        tone: "warning",
+        emojiName: "question_mark",
+        emojis,
+      }),
+    );
+    return;
+  }
+
+  const draftState = buildDraftState({
+    draftId: interaction.id,
+    guildId: interaction.guildId,
+    channelId: interaction.channelId,
+    creatorId: interaction.userId,
+    mode: "internal",
+    members: readyMembers,
   });
+
+  await writeTeamDraftState(env.Cache, interaction.id, draftState);
+  await interaction.editReply(buildDraftMessage(draftState, emojis));
+}
 
 export const teamDraftButtonHandler = new ComponentHandler(
   TEAM_DRAFT_PREFIX,
@@ -2645,7 +2735,7 @@ export const teamDraftButtonHandler = new ComponentHandler(
       buildTeamReply({
         title: "Draft expired",
         message:
-          "This team draft expired. Run `/team create`, `/team match queue`, or `/team tournament join` again.",
+          "This team draft expired. Run `/team create`, `/queue start`, or `/tournament join` again.",
         tone: "warning",
         emojiName: "timer",
         emojis,
@@ -2777,7 +2867,7 @@ export const teamDraftRosterSelectHandler = new ComponentHandler(
       buildTeamReply({
         title: "Draft expired",
         message:
-          "This team draft expired. Run `/team create`, `/team match queue`, or `/team tournament join` again.",
+          "This team draft expired. Run `/team create`, `/queue start`, or `/tournament join` again.",
         tone: "warning",
         emojiName: "timer",
         emojis,
@@ -2856,7 +2946,7 @@ export const teamDraftSelectHandler = new ComponentHandler(
       buildTeamReply({
         title: "Draft expired",
         message:
-          "This team draft expired. Run `/team create`, `/team match queue`, or `/team tournament join` again.",
+          "This team draft expired. Run `/team create`, `/queue start`, or `/tournament join` again.",
         tone: "warning",
         emojiName: "timer",
         emojis,
