@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, inArray, isNotNull, like, lte } from "drizzle-orm";
+import { and, asc, count, desc, eq, inArray, isNotNull, like, lte, or } from "drizzle-orm";
 import type { DbClient } from "./client";
 import {
   tournamentBracketMatches,
@@ -368,6 +368,47 @@ export async function listPublicTournamentAutocomplete(
     ...row,
     status: row.status as TournamentStatus,
   }));
+}
+
+export async function listUserTournamentIds(
+  database: DbClient | null | undefined,
+  input: {
+    createdByDiscordUserId?: string | null;
+    captainDiscordUserId?: string | null;
+    statuses?: TournamentStatus[];
+  },
+): Promise<number[]> {
+  if (!database) {
+    return [];
+  }
+
+  const conditions = [eq(tournaments.visibility, "public")];
+  if (input.statuses && input.statuses.length > 0) {
+    conditions.push(inArray(tournaments.status, input.statuses));
+  }
+
+  const ownershipFilters = [];
+  if (input.createdByDiscordUserId) {
+    ownershipFilters.push(eq(tournaments.createdByDiscordUserId, input.createdByDiscordUserId));
+  }
+  if (input.captainDiscordUserId) {
+    ownershipFilters.push(
+      eq(tournamentEntries.captainDiscordUserId, input.captainDiscordUserId),
+    );
+  }
+  if (ownershipFilters.length === 0) {
+    return [];
+  }
+
+  const rows = await database
+    .select({ id: tournaments.id })
+    .from(tournaments)
+    .leftJoin(tournamentEntries, eq(tournamentEntries.tournamentId, tournaments.id))
+    .where(and(...conditions, or(...ownershipFilters)))
+    .groupBy(tournaments.id)
+    .orderBy(desc(tournaments.createdAt), asc(tournaments.id));
+
+  return rows.map((row) => row.id);
 }
 
 export async function listOverdueTournamentsDueToAutoStart(

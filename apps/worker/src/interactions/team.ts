@@ -42,6 +42,7 @@ import {
   getTournamentBracketMatch,
   getTournamentBracketMatchByCustomMatchId,
   getTournamentEntryForCaptain,
+  listUserTournamentIds,
   updateTournament,
   updateTournamentBracketMatch,
   updateTournamentHubMessageId,
@@ -1916,13 +1917,41 @@ export const tournamentCommand = new SlashCommand()
                 : undefined;
     const env = interaction.context.env as TeamEnv;
     const query = String(focused.value ?? "");
+    const ownershipIds =
+      subcommand === "cancel"
+        ? new Set(
+            await listUserTournamentIds(env.db, {
+              createdByDiscordUserId: interaction.userId,
+              statuses: statuses ? [...statuses] : undefined,
+            }),
+          )
+        : subcommand === "start" || subcommand === "leave"
+          ? new Set(
+              await listUserTournamentIds(env.db, {
+                createdByDiscordUserId: interaction.userId,
+                captainDiscordUserId: interaction.userId,
+                statuses: statuses ? [...statuses] : undefined,
+              }),
+            )
+	          : subcommand === "forfeit"
+	            ? new Set(
+	                await listUserTournamentIds(env.db, {
+	                  captainDiscordUserId: interaction.userId,
+	                  statuses: statuses ? [...statuses] : undefined,
+	                }),
+	              )
+	            : null;
     const choices = await listTournamentAutocompleteChoices(env.Cache, env.db, {
       query,
       statuses: statuses ? [...statuses] : undefined,
       limit: 25,
     });
+    const filteredChoices =
+      ownershipIds === null
+        ? choices
+        : choices.filter((choice) => ownershipIds.has(choice.id));
 
-    for (const choice of choices) {
+    for (const choice of filteredChoices) {
       const cachedSummary = await readTournamentSummaryCache(env.Cache, choice.id);
       if (cachedSummary) {
         choice.entryCount = cachedSummary.entries.length;
@@ -1930,7 +1959,7 @@ export const tournamentCommand = new SlashCommand()
     }
 
     await interaction.respond(
-      choices.map((choice) =>
+      filteredChoices.map((choice) =>
         autocompleteChoice(formatTournamentAutocompleteLabel(choice), choice.id),
       ),
     );
