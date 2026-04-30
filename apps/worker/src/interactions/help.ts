@@ -12,13 +12,16 @@ import {
   parseCustomId,
 } from "@parley/discord-runtime";
 import type { WorkerRuntimeEnv } from "../env";
+import { accountCommand } from "./account";
 import { enforceCommandCooldown } from "./command-cooldowns";
+import { pingCommand } from "./ping";
+import { statsCommand } from "./stats";
+import { limitCommand, queueCommand, teamCommand, tournamentCommand } from "./team";
 
 const HELP_COMPONENT_PREFIX = "help-page";
 const HELP_MENTION_CACHE_TTL_SECONDS = 6 * 60 * 60;
 const HELP_PAGE_SIZE = 5;
 const HELP_BANNER_URL = "https://cdn.parley.bot/parley-banner.png";
-const HELP_LOGO_URL = "https://cdn.parley.bot/parley.png";
 
 type HelpEnv = Partial<WorkerRuntimeEnv>;
 
@@ -26,6 +29,11 @@ interface HelpPageDefinition {
   title: string;
   description: string;
   commands: string[];
+}
+
+interface RenderedHelpCommand {
+  mention: string;
+  description: string;
 }
 
 export const HELP_PAGES: HelpPageDefinition[] = [
@@ -95,14 +103,54 @@ export function renderSlashCommandMention(
   return `</${commandPath}:${commandId}>`;
 }
 
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function readCommandDescription(commandPath: string): string {
+  const segments = commandPath.trim().split(/\s+/u);
+  const root = segments[0];
+  const subcommand = segments[1];
+  const registry: Record<string, SlashCommand> = {
+    account: accountCommand,
+    help: helpCommand,
+    limit: limitCommand,
+    ping: pingCommand,
+    queue: queueCommand,
+    stats: statsCommand,
+    team: teamCommand,
+    tournament: tournamentCommand,
+  };
+  const command = root ? registry[root] : undefined;
+  if (!command) {
+    return "No description available.";
+  }
+
+  const payload = command.toJSON();
+  if (!subcommand) {
+    return typeof payload.description === "string" ? payload.description : "No description available.";
+  }
+
+  const options = Array.isArray(payload.options) ? payload.options : [];
+  const option = options.find((item) => isObject(item) && item.name === subcommand);
+  if (isObject(option) && typeof option.description === "string") {
+    return option.description;
+  }
+
+  return typeof payload.description === "string" ? payload.description : "No description available.";
+}
+
 export function buildRenderedHelpPages(
   commandIds: Readonly<Record<string, string>>,
-): Array<{ title: string; description: string; commands: string[] }> {
+): Array<{ title: string; description: string; commands: RenderedHelpCommand[] }> {
   return HELP_PAGES.map((page) => ({
     ...page,
     commands: page.commands
       .slice(0, HELP_PAGE_SIZE)
-      .map((commandPath) => renderSlashCommandMention(commandPath, commandIds)),
+      .map((commandPath) => ({
+        mention: renderSlashCommandMention(commandPath, commandIds),
+        description: readCommandDescription(commandPath),
+      })),
   }));
 }
 
@@ -170,7 +218,11 @@ export async function resolveCommandMentionMap(
 
 function buildHelpPayload(pageIndex: number, commandIds: Readonly<Record<string, string>>) {
   const safeIndex = Math.max(0, Math.min(HELP_PAGES.length - 1, Math.trunc(pageIndex)));
-  const page = buildRenderedHelpPages(commandIds)[safeIndex] ?? HELP_PAGES[0]!;
+  const renderedPages = buildRenderedHelpPages(commandIds);
+  const page = renderedPages[safeIndex] ?? renderedPages[0]!;
+  const commandLines = page.commands
+    .map((command) => `${command.mention}\n${command.description}`)
+    .join("\n\n");
   const navRow = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
       .setCustomId(buildHelpPageCustomId(safeIndex - 1))
@@ -183,23 +235,18 @@ function buildHelpPayload(pageIndex: number, commandIds: Readonly<Record<string,
       .setStyle(ButtonStyle.Secondary)
       .setDisabled(safeIndex >= HELP_PAGES.length - 1),
   );
-  const assetRow = new ActionRowBuilder().addComponents(
-    new ButtonBuilder().setLabel("Open Banner").setStyle(ButtonStyle.Link).setURL(HELP_BANNER_URL),
-    new ButtonBuilder().setLabel("Open Logo").setStyle(ButtonStyle.Link).setURL(HELP_LOGO_URL),
-  );
 
   return {
     flags: MessageFlags.Ephemeral,
-    components: [navRow, assetRow],
+    components: [navRow],
     embeds: [
       new EmbedBuilder()
         .setColor(0x1d4ed8)
         .setTitle(`Help • ${page.title}`)
         .setDescription(
-          `${page.description}\n\n**Commands**\n${page.commands.join("\n")}\n\n**Page**\n${safeIndex + 1}/${HELP_PAGES.length}`,
+          `${page.description}\n\n**Commands**\n${commandLines}\n\n**Page**\n${safeIndex + 1}/${HELP_PAGES.length}`,
         )
-        .setImage({ url: HELP_BANNER_URL })
-        .setThumbnail({ url: HELP_LOGO_URL }),
+        .setImage({ url: HELP_BANNER_URL }),
     ],
   };
 }

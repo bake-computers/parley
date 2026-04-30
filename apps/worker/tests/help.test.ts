@@ -35,4 +35,20 @@ describe("help mentions", () => {
       expect(page.commands.length).toBeLessThanOrEqual(5);
     }
   });
+
+  test("help pages include the slash command description under each command", () => {
+    const pages = buildRenderedHelpPages({
+      account: "1",
+      stats: "2",
+      team: "3",
+      queue: "4",
+      ping: "5",
+      tournament: "6",
+      limit: "7",
+      help: "8",
+    });
+
+    expect(pages[0]?.commands[0]?.description).toBe("Register your R6 account for this server");
+    expect(pages[1]?.commands[4]?.description).toBe("Check bot latency");
+  });
 });
