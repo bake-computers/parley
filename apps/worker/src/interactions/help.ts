@@ -6,6 +6,7 @@ import {
   ComponentHandler,
   ComponentType,
   DiscordRestClient,
+  EmbedBuilder,
   SlashCommand,
   parseCustomId,
 } from "@parley/discord-runtime";
@@ -183,23 +184,31 @@ function buildHelpPayload(pageIndex: number, commandIds: Readonly<Record<string,
       .setDisabled(safeIndex >= HELP_PAGES.length - 1),
   );
   const assetRow = new ActionRowBuilder().addComponents(
-    new ButtonBuilder().setLabel("Banner").setStyle(ButtonStyle.Link).setURL(HELP_BANNER_URL),
-    new ButtonBuilder().setLabel("Logo").setStyle(ButtonStyle.Link).setURL(HELP_LOGO_URL),
+    new ButtonBuilder().setLabel("Open Banner").setStyle(ButtonStyle.Link).setURL(HELP_BANNER_URL),
+    new ButtonBuilder().setLabel("Open Logo").setStyle(ButtonStyle.Link).setURL(HELP_LOGO_URL),
   );
 
-  return buildComponentsV2Reply([
-    buildNoticeCard({
-      title: `Help • ${page.title}`,
-      message: page.description,
-      tone: "primary",
-      emojiName: "information",
-      details: [
-        `**Commands**\n${page.commands.join("\n")}`,
-        `**Page**\n${safeIndex + 1}/${HELP_PAGES.length}`,
-      ],
-      actionRows: [navRow, assetRow],
-    }),
-  ]);
+  return {
+    ...buildComponentsV2Reply([
+      buildNoticeCard({
+        title: `Help • ${page.title}`,
+        message: page.description,
+        tone: "primary",
+        emojiName: "information",
+        details: [
+          `**Commands**\n${page.commands.join("\n")}`,
+          `**Page**\n${safeIndex + 1}/${HELP_PAGES.length}`,
+        ],
+        actionRows: [navRow, assetRow],
+      }),
+    ]),
+    embeds: [
+      new EmbedBuilder()
+        .setColor(0x1d4ed8)
+        .setImage({ url: HELP_BANNER_URL })
+        .setThumbnail({ url: HELP_LOGO_URL }),
+    ],
+  };
 }
 
 export const helpCommand = new SlashCommand()

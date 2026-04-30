@@ -100,6 +100,16 @@ export class EmbedBuilder implements JSONEncodable<APIEmbed & JsonObject> {
     return this;
   }
 
+  setImage(image: { url: string }): this {
+    this.data.image = image;
+    return this;
+  }
+
+  setThumbnail(thumbnail: { url: string }): this {
+    this.data.thumbnail = thumbnail;
+    return this;
+  }
+
   addFields(...fields: APIEmbedField[]): this {
     this.data.fields = [...(this.data.fields ?? []), ...fields];
     return this;
