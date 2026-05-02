@@ -3,7 +3,7 @@
 ## Dev environment
 
 - Runtime: **Bun**. Always use `bun` instead of `npm` or `node`.
-- Framework: **Honocord** (custom Discord interactions layer). It is being partially rewritten — do not refactor, replace, or update it unless explicitly asked.
+- Framework: **discord-runtime** (custom Discord interactions layer). It's an in-house framework built on top of Cloudflare Workers to handle Discord interactions with minimal latency and maximum control. No Express, Fastify, or discord.js.
 - ORM: **Drizzle** on top of PlanetScale Postgres via Cloudflare Hyperdrive. Never write raw SQL strings — use Drizzle query builder. Schema lives in `packages/db/src/schema.ts`.
 - Deploy target: Cloudflare Workers (interactions endpoint). No gateway, no WebSocket, no discord.js.
 
@@ -62,6 +62,7 @@ DISCORD_APPLICATION_ID
 - **Never call external stat APIs during `/balance`** — balance reads only from Postgres/KV.
 - **Daily match limits** are tracked in the `guild_limits` table. Check before recording any match.
 - **Stat refresh** is capped at once per player per day at the application level, not just TTL.
+- **Never** edit the `.agents` folder **only View it**.
 
 ## PR instructions
 
