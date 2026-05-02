@@ -40,7 +40,6 @@ export const players = pgTable(
       table.usernameNormalized,
       table.platform,
     ),
-    usernameLookupIdx: index("players_username_lookup_idx").on(table.usernameNormalized),
   }),
 );
 
@@ -71,7 +70,6 @@ export const statSnapshots = pgTable(
     createdAt: timestampMs("created_at").notNull(),
   },
   (table) => ({
-    playerLookupIdx: index("stat_snapshots_player_idx").on(table.playerId),
     recencyIdx: index("stat_snapshots_player_fetched_idx").on(table.playerId, table.fetchedAt),
   }),
 );
@@ -116,7 +114,6 @@ export const guildPlayers = pgTable(
       table.guildId,
       table.playerId,
     ),
-    guildLookupIdx: index("guild_players_guild_idx").on(table.guildId),
     playerLookupIdx: index("guild_players_player_idx").on(table.playerId),
     discordUserLookupIdx: index("guild_players_discord_user_idx").on(table.discordUserId),
   }),
@@ -211,7 +208,6 @@ export const customMatchPlayers = pgTable(
       table.team,
       table.slot,
     ),
-    matchLookupIdx: index("custom_match_players_match_idx").on(table.matchId),
   }),
 );
 
@@ -280,7 +276,6 @@ export const matchmakingQueuePlayers = pgTable(
       table.queueId,
       table.slot,
     ),
-    queueLookupIdx: index("matchmaking_queue_players_queue_idx").on(table.queueId),
     playerLookupIdx: index("matchmaking_queue_players_player_idx").on(table.playerId),
   }),
 );
@@ -309,7 +304,6 @@ export const tournaments = pgTable(
   },
   (table) => ({
     nameLookupIdx: index("tournaments_name_lookup_idx").on(table.nameNormalized),
-    statusIdx: index("tournaments_status_idx").on(table.status),
     visibilityStatusIdx: index("tournaments_visibility_status_idx").on(
       table.visibility,
       table.status,
@@ -348,7 +342,6 @@ export const tournamentEntries = pgTable(
       table.tournamentId,
       table.teamNameNormalized,
     ),
-    tournamentLookupIdx: index("tournament_entries_tournament_idx").on(table.tournamentId),
     tournamentStatusIdx: index("tournament_entries_tournament_status_idx").on(
       table.tournamentId,
       table.status,
@@ -401,8 +394,6 @@ export const tournamentEntryPlayers = pgTable(
       table.tournamentId,
       table.playerId,
     ),
-    tournamentLookupIdx: index("tournament_entry_players_tournament_idx").on(table.tournamentId),
-    entryLookupIdx: index("tournament_entry_players_entry_idx").on(table.entryId),
     playerLookupIdx: index("tournament_entry_players_player_idx").on(table.playerId),
   }),
 );
@@ -447,7 +438,6 @@ export const tournamentBracketMatches = pgTable(
       table.roundNumber,
       table.matchNumber,
     ),
-    tournamentLookupIdx: index("tournament_bracket_matches_tournament_idx").on(table.tournamentId),
     tournamentStatusIdx: index("tournament_bracket_matches_tournament_status_idx").on(
       table.tournamentId,
       table.status,

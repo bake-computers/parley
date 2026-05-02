@@ -15,6 +15,20 @@
       "when": 1777638346982,
       "tag": "0001_demonic_fantastic_four",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1777757777288,
+      "tag": "0002_first_zeigeist",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1777757935170,
+      "tag": "0003_outstanding_ted_forrester",
+      "breakpoints": true
     }
   ]
 }
