@@ -34,6 +34,7 @@ import {
   enqueueStatsRefresh,
   type StatsRefreshEnv,
 } from "../queues/stats-refresh";
+import { logger } from "@parley/core/logger";
 import { mergeInteractionAnalyticsContext } from "../analytics";
 import { enforceCommandCooldown } from "./command-cooldowns";
 import { buildComponentsV2Reply, buildNoticeCard } from "./ui";
@@ -228,8 +229,22 @@ export const accountCommand = new SlashCommand()
 
       let playerId: number;
       if (cachedEnvelope) {
+        let resolvedPlayerId: number | null = null;
+        try {
+          resolvedPlayerId = await persistCachedEnvelope(env, cachedEnvelope);
+        } catch (error) {
+          logger.warn(
+            "account.register.persist_cached_envelope_failed",
+            "Failed to persist cached stats envelope during registration",
+            {
+              username,
+              platform,
+              error,
+            },
+          );
+        }
         playerId =
-          (await persistCachedEnvelope(env, cachedEnvelope)) ??
+          resolvedPlayerId ??
           (await upsertRegistrationPlayer(env.db, {
             username,
             platform:

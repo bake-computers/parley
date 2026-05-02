@@ -1,6 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import type { DbClient } from "@parley/db/client";
 import { players, statSnapshots } from "@parley/db/schema";
+import { logger } from "../lib/logger";
 import { seedScoreToInternalElo } from "../lib/elo";
 import { calculateSeedMetrics } from "../team/balance";
 
@@ -139,6 +140,24 @@ export async function persistStatsSnapshot(
   const playerId = await resolvePlayerId(database, input.profile);
 
   if (!playerId) {
+    return;
+  }
+
+  const playerExists = await db
+    .select({ id: players.id })
+    .from(players)
+    .where(eq(players.id, playerId))
+    .limit(1);
+
+  if (!playerExists[0]) {
+    logger.warn(
+      "stats.snapshot.player_missing",
+      "Resolved player id does not exist in database; skipping snapshot persist",
+      {
+        playerId,
+        profile: input.profile,
+      },
+    );
     return;
   }
 
