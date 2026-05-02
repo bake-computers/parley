@@ -65,6 +65,41 @@ async function resolvePlayerId(database: DbClient, profile: DataMap): Promise<nu
   const now = Date.now();
 
   if (profileId) {
+    // Check for an existing "auto" placeholder with the same username.
+    // If found and no actual row exists yet, upgrade the placeholder
+    // instead of creating a duplicate player row.
+    const placeholder = await db
+      .select({ id: players.id })
+      .from(players)
+      .where(and(eq(players.usernameNormalized, usernameNormalized), eq(players.platform, "auto")))
+      .limit(1);
+
+    if (placeholder[0]) {
+      const existingActual = await db
+        .select({ id: players.id })
+        .from(players)
+        .where(
+          and(eq(players.usernameNormalized, usernameNormalized), eq(players.platform, platform)),
+        )
+        .limit(1);
+
+      if (!existingActual[0]) {
+        await db
+          .update(players)
+          .set({
+            profileId,
+            username,
+            usernameNormalized,
+            platform,
+            profileUrl,
+            level,
+            updatedAt: now,
+          })
+          .where(eq(players.id, placeholder[0].id));
+        return placeholder[0].id;
+      }
+    }
+
     await db
       .insert(players)
       .values({

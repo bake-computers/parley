@@ -1,6 +1,6 @@
 import { and, eq } from "drizzle-orm";
 import type { DbClient } from "@parley/db/client";
-import { guildPlayers, players, statSnapshots } from "@parley/db/schema";
+import { discordAccounts, guildPlayers, players, statSnapshots } from "@parley/db/schema";
 import { normalizeStatsLookupValue } from "../stats/rateLimit";
 import type { StatsCacheEnvelope } from "../stats/cache";
 
@@ -187,18 +187,25 @@ export async function reconcileAutoPlayerRegistrations(
       })
       .where(eq(guildPlayers.playerId, placeholder.id));
 
-    await db
-      .update(players)
-      .set({
-        username,
-        usernameNormalized: normalizedUsername,
-        platform: actualPlatform,
-        profileId: toOptionalString(envelope.profile.profile_id),
-        profileUrl: toOptionalString(envelope.profile.profile_url),
-        level: toNumber(envelope.profile.level, 0),
-        updatedAt: currentTimestamp(),
-      })
-      .where(eq(players.id, actualPlayerId));
+    const actualDiscordAccount = await db
+      .select({ id: discordAccounts.id })
+      .from(discordAccounts)
+      .where(eq(discordAccounts.playerId, actualPlayerId))
+      .limit(1);
+
+    if (actualDiscordAccount.length === 0) {
+      await db
+        .update(discordAccounts)
+        .set({
+          playerId: actualPlayerId,
+          updatedAt: currentTimestamp(),
+        })
+        .where(eq(discordAccounts.playerId, placeholder.id));
+    } else {
+      await db.delete(discordAccounts).where(eq(discordAccounts.playerId, placeholder.id));
+    }
+
+    await db.delete(players).where(eq(players.id, placeholder.id));
   }
 
   const actualLinks = await db
