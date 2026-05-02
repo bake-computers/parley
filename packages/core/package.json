@@ -10,6 +10,8 @@
     "./guild-roster-service": "./src/guild/rosterService.ts",
     "./http": "./src/lib/http.ts",
     "./internal-elo": "./src/lib/elo.ts",
+    "./leaderboard-view": "./src/leaderboard/view.ts",
+    "./leaderboard-view-state": "./src/leaderboard/viewState.ts",
     "./logger": "./src/lib/logger.ts",
     "./player-identity": "./src/player/identity.ts",
     "./player-ratings": "./src/player/ratings.ts",

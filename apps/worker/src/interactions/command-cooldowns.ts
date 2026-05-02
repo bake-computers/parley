@@ -11,6 +11,7 @@ export const COMMAND_COOLDOWNS = {
   "account.register": 10,
   "account.unregister": 10,
   help: 3,
+  leaderboard: 5,
   "limit.clear": 30,
   "limit.set": 30,
   "limit.show": 5,

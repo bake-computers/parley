@@ -2,6 +2,7 @@ export * from "./account-links";
 export * from "./client";
 export * from "./guild-limits";
 export * from "./guild-roster";
+export * from "./leaderboard";
 export * from "./matchmaking-queues";
 export * from "./schema";
 export * from "./tournaments";

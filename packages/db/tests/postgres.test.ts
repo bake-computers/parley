@@ -1,8 +1,9 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, test } from "bun:test";
-import { sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { linkDiscordAccount } from "../src/account-links";
 import { closeDb, connectDb, type DbConnection } from "../src/client";
 import { listGuildRoster } from "../src/guild-roster";
+import { countGlobalLeaderboard, listGlobalLeaderboardPage } from "../src/leaderboard";
 import {
   createMatchmakingQueue,
   expireStaleMatchmakingQueues,
@@ -342,6 +343,123 @@ describe.if(postgresEnabled)("postgres database integration", () => {
     const tournament = await getTournamentWithEntries(connection!.db, tournamentId);
     expect(tournament?.entries).toHaveLength(1);
     expect(tournament?.entries[0]?.players).toHaveLength(1);
+  });
+
+  test("global leaderboard count respects platform and min matches filters", async () => {
+    const playerPcA = await createPlayer("LeaderPcA");
+    const playerXbox = await createPlayer("LeaderXbox");
+    const playerPcB = await createPlayer("LeaderPcB");
+    const playerPs = await createPlayer("LeaderPs");
+
+    await connection!.db
+      .update(players)
+      .set({
+        internalMatches: 5,
+        internalWins: 3,
+        internalLosses: 2,
+        internalElo: 1200,
+      })
+      .where(eq(players.id, playerPcA));
+    await connection!.db
+      .update(players)
+      .set({
+        platform: "xbox",
+        internalMatches: 3,
+        internalWins: 2,
+        internalLosses: 1,
+        internalElo: 1150,
+      })
+      .where(eq(players.id, playerXbox));
+    await connection!.db
+      .update(players)
+      .set({
+        internalMatches: 9,
+        internalWins: 6,
+        internalLosses: 3,
+        internalElo: 1300,
+      })
+      .where(eq(players.id, playerPcB));
+    await connection!.db
+      .update(players)
+      .set({
+        platform: "playstation",
+        internalMatches: 0,
+        internalWins: 0,
+        internalLosses: 0,
+        internalElo: 1400,
+      })
+      .where(eq(players.id, playerPs));
+
+    await expect(
+      countGlobalLeaderboard(connection!.db, {
+        platform: "all",
+        minMatches: 1,
+      }),
+    ).resolves.toBe(3);
+    await expect(
+      countGlobalLeaderboard(connection!.db, {
+        platform: "pc",
+        minMatches: 4,
+      }),
+    ).resolves.toBe(2);
+    await expect(
+      countGlobalLeaderboard(connection!.db, {
+        platform: "xbox",
+        minMatches: 4,
+      }),
+    ).resolves.toBe(0);
+  });
+
+  test("global leaderboard pagination is stable and ordered", async () => {
+    const alphaId = await createPlayer("Alpha");
+    const betaId = await createPlayer("Beta");
+    const charlieId = await createPlayer("Charlie");
+    const deltaId = await createPlayer("Delta");
+    const echoId = await createPlayer("Echo");
+
+    await connection!.db
+      .update(players)
+      .set({ internalElo: 1300, internalMatches: 5, internalWins: 3, internalLosses: 2 })
+      .where(eq(players.id, alphaId));
+    await connection!.db
+      .update(players)
+      .set({ internalElo: 1300, internalMatches: 5, internalWins: 4, internalLosses: 1 })
+      .where(eq(players.id, betaId));
+    await connection!.db
+      .update(players)
+      .set({ internalElo: 1300, internalMatches: 4, internalWins: 2, internalLosses: 2 })
+      .where(eq(players.id, charlieId));
+    await connection!.db
+      .update(players)
+      .set({ internalElo: 1200, internalMatches: 10, internalWins: 6, internalLosses: 4 })
+      .where(eq(players.id, deltaId));
+    await connection!.db
+      .update(players)
+      .set({ internalElo: 1100, internalMatches: 30, internalWins: 20, internalLosses: 10 })
+      .where(eq(players.id, echoId));
+
+    await linkDiscordAccount(connection!.db, {
+      guildId: "guild-1",
+      discordUserId: "user-beta",
+      playerId: betaId,
+    });
+
+    const pageOne = await listGlobalLeaderboardPage(connection!.db, {
+      platform: "all",
+      minMatches: 1,
+      limit: 2,
+      offset: 0,
+    });
+    const pageTwo = await listGlobalLeaderboardPage(connection!.db, {
+      platform: "all",
+      minMatches: 1,
+      limit: 2,
+      offset: 2,
+    });
+
+    expect(pageOne.map((entry) => entry.username)).toEqual(["Alpha", "Beta"]);
+    expect(pageOne[1]?.discordUserId).toBe("user-beta");
+    expect(pageTwo.map((entry) => entry.username)).toEqual(["Charlie", "Delta"]);
   });
 });
 

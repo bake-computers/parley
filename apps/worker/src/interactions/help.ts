@@ -14,6 +14,7 @@ import {
 import type { WorkerRuntimeEnv } from "../env";
 import { accountCommand } from "./account";
 import { enforceCommandCooldown } from "./command-cooldowns";
+import { leaderboardCommand } from "./leaderboard";
 import { pingCommand } from "./ping";
 import { statsCommand } from "./stats";
 import { limitCommand, queueCommand, teamCommand, tournamentCommand } from "./team";
@@ -72,7 +73,7 @@ export const HELP_PAGES: HelpPageDefinition[] = [
   {
     title: "Utility / Admin",
     description: "Server-wide limits and command discovery.",
-    commands: ["limit clear", "help"],
+    commands: ["leaderboard", "limit clear", "help"],
   },
 ];
 
@@ -114,6 +115,7 @@ function readCommandDescription(commandPath: string): string {
   const registry: Record<string, SlashCommand> = {
     account: accountCommand,
     help: helpCommand,
+    leaderboard: leaderboardCommand,
     limit: limitCommand,
     ping: pingCommand,
     queue: queueCommand,
