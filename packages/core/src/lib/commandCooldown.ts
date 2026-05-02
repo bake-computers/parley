@@ -61,7 +61,7 @@ export async function consumeCommandCooldown(
   }
 
   await cache.put(key, String(retryAtMs), {
-    expirationTtl: Math.max(1, Math.ceil(input.cooldownSeconds)),
+    expirationTtl: Math.max(60, Math.ceil(input.cooldownSeconds)),
   });
 
   return {
