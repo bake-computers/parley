@@ -8,6 +8,13 @@
       "when": 1777490842038,
       "tag": "0000_long_morbius",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1777638346982,
+      "tag": "0001_demonic_fantastic_four",
+      "breakpoints": true
     }
   ]
 }

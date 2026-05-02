@@ -15,6 +15,7 @@ import { processTournamentAutoStarts } from "./interactions/team";
 import { createRuntimeDbHandle, ManagedExecutionContext } from "./runtime-db";
 import { analyticsMiddleware } from "./analytics-middleware";
 import { writeAnalyticsDataPoint } from "./analytics";
+import { handleAuthRequest } from "./auth";
 
 export const bot = new DiscordBot();
 
@@ -36,6 +37,11 @@ function readQueueSummary(error: unknown): StatsRefreshQueueSummary | null {
 
 export default {
   fetch: async (request: Request, env: WorkerEnv, ctx: ExecutionContext) => {
+    const url = new URL(request.url);
+    if (url.pathname.startsWith("/api/auth/")) {
+      return handleAuthRequest(request, env, ctx);
+    }
+
     const handle = await createRuntimeDbHandle(env);
     const managedContext = new ManagedExecutionContext(ctx, handle.close);
 

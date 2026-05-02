@@ -1,12 +1,14 @@
 import { relations } from "drizzle-orm";
 import {
   bigint,
+  boolean,
   doublePrecision,
   index,
   integer,
   pgTable,
   serial,
   text,
+  timestamp,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 
@@ -454,6 +456,95 @@ export const tournamentBracketMatches = pgTable(
   }),
 );
 
+export const authUsers = pgTable(
+  "user",
+  {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    email: text("email").notNull(),
+    emailVerified: boolean("email_verified").notNull(),
+    image: text("image"),
+    username: text("username"),
+    displayUsername: text("display_username"),
+    role: text("role"),
+    banned: boolean("banned"),
+    banReason: text("ban_reason"),
+    banExpires: timestamp("ban_expires", { mode: "date" }),
+    createdAt: timestamp("created_at", { mode: "date" }).notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" }).notNull(),
+  },
+  (table) => ({
+    emailUnique: uniqueIndex("user_email_unique").on(table.email),
+    usernameUnique: uniqueIndex("user_username_unique").on(table.username),
+  }),
+);
+
+export const authSessions = pgTable(
+  "session",
+  {
+    id: text("id").primaryKey(),
+    expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
+    token: text("token").notNull(),
+    ipAddress: text("ip_address"),
+    userAgent: text("user_agent"),
+    userId: text("user_id")
+      .notNull()
+      .references(() => authUsers.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", { mode: "date" }).notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" }).notNull(),
+  },
+  (table) => ({
+    tokenUnique: uniqueIndex("session_token_unique").on(table.token),
+    userLookupIdx: index("session_user_id_idx").on(table.userId),
+  }),
+);
+
+export const authAccounts = pgTable(
+  "account",
+  {
+    id: text("id").primaryKey(),
+    accountId: text("account_id").notNull(),
+    providerId: text("provider_id").notNull(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => authUsers.id, { onDelete: "cascade" }),
+    accessToken: text("access_token"),
+    refreshToken: text("refresh_token"),
+    idToken: text("id_token"),
+    accessTokenExpiresAt: timestamp("access_token_expires_at", { mode: "date" }),
+    refreshTokenExpiresAt: timestamp("refresh_token_expires_at", { mode: "date" }),
+    scope: text("scope"),
+    password: text("password"),
+    createdAt: timestamp("created_at", { mode: "date" }).notNull(),
+    updatedAt: timestamp("updated_at", { mode: "date" }).notNull(),
+  },
+  (table) => ({
+    providerAccountUnique: uniqueIndex("account_provider_account_unique").on(
+      table.providerId,
+      table.accountId,
+    ),
+    userLookupIdx: index("account_user_id_idx").on(table.userId),
+  }),
+);
+
+export const authVerifications = pgTable(
+  "verification",
+  {
+    id: text("id").primaryKey(),
+    identifier: text("identifier").notNull(),
+    value: text("value").notNull(),
+    expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
+    createdAt: timestamp("created_at", { mode: "date" }),
+    updatedAt: timestamp("updated_at", { mode: "date" }),
+  },
+  (table) => ({
+    identifierValueUnique: uniqueIndex("verification_identifier_value_unique").on(
+      table.identifier,
+      table.value,
+    ),
+  }),
+);
+
 export const playersRelations = relations(players, ({ many, one }) => ({
   statSnapshots: many(statSnapshots),
   discordAccounts: many(discordAccounts),
@@ -596,5 +687,24 @@ export const tournamentBracketMatchesRelations = relations(tournamentBracketMatc
   customMatch: one(customMatches, {
     fields: [tournamentBracketMatches.customMatchId],
     references: [customMatches.id],
+  }),
+}));
+
+export const authUsersRelations = relations(authUsers, ({ many }) => ({
+  accounts: many(authAccounts),
+  sessions: many(authSessions),
+}));
+
+export const authSessionsRelations = relations(authSessions, ({ one }) => ({
+  user: one(authUsers, {
+    fields: [authSessions.userId],
+    references: [authUsers.id],
+  }),
+}));
+
+export const authAccountsRelations = relations(authAccounts, ({ one }) => ({
+  user: one(authUsers, {
+    fields: [authAccounts.userId],
+    references: [authUsers.id],
   }),
 }));

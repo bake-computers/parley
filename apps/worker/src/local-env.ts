@@ -147,11 +147,16 @@ export async function hydrateDiscordApplicationEnvFromApi(): Promise<{
 export function collectDiscordEnvForWorker(): Record<string, string> {
   const values: Record<string, string> = {};
   for (const key of [
+    "AUTH_COOKIE_DOMAIN",
+    "BETTER_AUTH_SECRET",
+    "BETTER_AUTH_URL",
     "DISCORD_PUBLIC_KEY",
     "DISCORD_APPLICATION_ID",
     "DISCORD_BOT_TOKEN",
     "DISCORD_TOKEN",
     "DISCORD_BOT_OWNER_ID",
+    "DISCORD_OAUTH_CLIENT_ID",
+    "DISCORD_OAUTH_CLIENT_SECRET",
   ]) {
     const value = process.env[key];
     if (typeof value === "string" && value.length > 0) {

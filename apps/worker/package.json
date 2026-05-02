@@ -19,6 +19,7 @@
     "wrangler:tail": "wrangler tail --config wrangler.jsonc"
   },
   "dependencies": {
+    "@parley/auth": "workspace:*",
     "@parley/core": "workspace:*",
     "@parley/db": "workspace:*",
     "@parley/discord-runtime": "workspace:*",
