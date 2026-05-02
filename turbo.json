@@ -13,6 +13,14 @@
       "dependsOn": ["build"],
       "cache": false
     },
+    "build:hq": {
+      "dependsOn": ["^build:hq"],
+      "outputs": ["dist/**"]
+    },
+    "build:worker": {
+      "dependsOn": ["^build:worker"],
+      "outputs": ["dist/**"]
+    },
     "register": {
       "dependsOn": ["build"],
       "cache": false

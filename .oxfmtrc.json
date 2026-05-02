@@ -12,6 +12,7 @@
     "**/build/**",
     "**/coverage/**",
     "**/.next/**",
-    "**/.turbo/**"
+    "**/.turbo/**",
+    "**/routeTree.gen.ts"
   ]
 }
