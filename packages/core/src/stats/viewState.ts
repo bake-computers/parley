@@ -1,11 +1,53 @@
 import type { KVNamespace } from "@cloudflare/workers-types";
 import { logger } from "../lib/logger";
-import { STATS_CACHE_HARD_TTL_SECONDS } from "./cache";
+import {
+  STATS_CACHE_HARD_TTL_SECONDS,
+  STATS_CACHE_SCHEMA_VERSION,
+  type StatsCacheEnvelope,
+} from "./cache";
 
 const STATS_VIEW_STATE_PREFIX = "stats:view-state:v1";
 
-interface StatsViewStateEnvelope {
+export interface StatsViewStateEnvelope {
   cacheKey: string;
+  cacheEnvelope?: StatsCacheEnvelope;
+}
+
+function isDataMap(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function parseCacheEnvelope(raw: unknown): StatsCacheEnvelope | null {
+  if (!isDataMap(raw)) {
+    return null;
+  }
+
+  const version = Number(raw.version ?? 0);
+  const cachedAt = Number(raw.cachedAt ?? 0);
+  const username = typeof raw.username === "string" ? raw.username : "";
+  const profile = isDataMap(raw.profile) ? raw.profile : null;
+  const rankedStats = isDataMap(raw.rankedStats) ? raw.rankedStats : null;
+  const calculatedMetrics = isDataMap(raw.calculatedMetrics) ? raw.calculatedMetrics : null;
+
+  if (
+    version !== STATS_CACHE_SCHEMA_VERSION ||
+    cachedAt <= 0 ||
+    username.length === 0 ||
+    !profile ||
+    !rankedStats ||
+    !calculatedMetrics
+  ) {
+    return null;
+  }
+
+  return {
+    version,
+    cachedAt,
+    username,
+    profile,
+    rankedStats,
+    calculatedMetrics,
+  };
 }
 
 function buildStatsViewStateKey(viewId: string): string {
@@ -23,7 +65,9 @@ function parseStatsViewState(raw: unknown): StatsViewStateEnvelope | null {
     return null;
   }
 
-  return { cacheKey };
+  const cacheEnvelope = "cacheEnvelope" in raw ? parseCacheEnvelope(raw.cacheEnvelope) : null;
+
+  return cacheEnvelope ? { cacheKey, cacheEnvelope } : { cacheKey };
 }
 
 export async function writeStatsViewState(

@@ -35,6 +35,7 @@ import {
 } from "@parley/core/leaderboard-view-state";
 import { getOrBuildGuildRoster } from "@parley/core/guild-roster-service";
 import { countGlobalLeaderboard, listGlobalLeaderboardPage } from "@parley/db/leaderboard";
+import { logger } from "@parley/core/logger";
 import type { WorkerRuntimeEnv } from "../env";
 import { enforceCommandCooldown } from "./command-cooldowns";
 import {
@@ -92,6 +93,45 @@ function buildLeaderboardReply(input: {
       details: input.details,
     }),
   ]);
+}
+
+function resolveLeaderboardFailure(input: {
+  error: unknown;
+  deferred: boolean;
+  emojis?: ApplicationEmojiCatalog | null;
+}) {
+  logger.error("leaderboard.command_failed", "Leaderboard command failed", {
+    error: input.error,
+    deferred: input.deferred,
+  });
+
+  const relationMissing =
+    input.error !== null &&
+    typeof input.error === "object" &&
+    "cause" in input.error &&
+    input.error.cause !== null &&
+    typeof input.error.cause === "object" &&
+    "code" in input.error.cause &&
+    input.error.cause.code === "42P01";
+
+  if (relationMissing) {
+    return buildLeaderboardReply({
+      title: "Leaderboard unavailable",
+      message: "Required database tables are missing in this environment.",
+      tone: "danger",
+      emojiName: "warning",
+      emojis: input.emojis,
+      details: ["Run worker DB migrations, then try `/leaderboard` again."],
+    });
+  }
+
+  return buildLeaderboardReply({
+    title: "Leaderboard failed",
+    message: "Something went wrong while loading leaderboard data.",
+    tone: "danger",
+    emojiName: "warning",
+    emojis: input.emojis,
+  });
 }
 
 async function ensureGuildOnly(
@@ -313,26 +353,50 @@ export const leaderboardCommand = new SlashCommand()
     const minMatches = normalizeLeaderboardMinMatches(
       interaction.options.getInteger("min_matches", false),
     );
+    const emojis = await resolveLeaderboardEmojiCatalog(env, interaction.applicationId);
+
+    if (!env.db) {
+      await interaction.reply(
+        buildLeaderboardReply({
+          title: "Configuration error",
+          message: "Database connection is unavailable.",
+          tone: "danger",
+          emojiName: "warning",
+          emojis,
+        }),
+        true,
+      );
+      return;
+    }
 
     await interaction.deferReply(true);
 
-    const emojis = await resolveLeaderboardEmojiCatalog(env, interaction.applicationId);
-    const pageData = await loadLeaderboardPage(env, {
-      guildId,
-      scope,
-      platform,
-      minMatches,
-      page: 0,
-    });
+    try {
+      const pageData = await loadLeaderboardPage(env, {
+        guildId,
+        scope,
+        platform,
+        minMatches,
+        page: 0,
+      });
 
-    await writeLeaderboardViewState(env.Cache, interaction.id, {
-      scope,
-      guildId,
-      platform,
-      minMatches,
-    });
+      await writeLeaderboardViewState(env.Cache, interaction.id, {
+        scope,
+        guildId,
+        platform,
+        minMatches,
+      });
 
-    await interaction.editReply(buildLeaderboardPayload(interaction.id, pageData, emojis));
+      await interaction.editReply(buildLeaderboardPayload(interaction.id, pageData, emojis));
+    } catch (error) {
+      await interaction.editReply(
+        resolveLeaderboardFailure({
+          error,
+          deferred: true,
+          emojis,
+        }),
+      );
+    }
   });
 
 export const leaderboardPaginationHandler = new ComponentHandler(
@@ -372,16 +436,41 @@ export const leaderboardPaginationHandler = new ComponentHandler(
     return;
   }
 
-  const pageData = await loadLeaderboardPage(env, {
-    guildId: state.guildId,
-    scope: state.scope,
-    platform: state.platform,
-    minMatches: state.minMatches,
-    page: parsedCustomId.page,
-  });
+  if (!env.db) {
+    await interaction.reply(
+      buildLeaderboardReply({
+        title: "Configuration error",
+        message: "Database connection is unavailable.",
+        tone: "danger",
+        emojiName: "warning",
+        emojis,
+      }),
+      true,
+    );
+    return;
+  }
 
-  await interaction.update({
-    ...buildLeaderboardPayload(parsedCustomId.viewId, pageData, emojis),
-    flags: EPHEMERAL_COMPONENTS_V2_FLAGS,
-  });
+  try {
+    const pageData = await loadLeaderboardPage(env, {
+      guildId: state.guildId,
+      scope: state.scope,
+      platform: state.platform,
+      minMatches: state.minMatches,
+      page: parsedCustomId.page,
+    });
+
+    await interaction.update({
+      ...buildLeaderboardPayload(parsedCustomId.viewId, pageData, emojis),
+      flags: EPHEMERAL_COMPONENTS_V2_FLAGS,
+    });
+  } catch (error) {
+    await interaction.reply(
+      resolveLeaderboardFailure({
+        error,
+        deferred: false,
+        emojis,
+      }),
+      true,
+    );
+  }
 });

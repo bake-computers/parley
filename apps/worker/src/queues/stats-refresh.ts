@@ -539,10 +539,12 @@ async function updatePendingRepliesAfterSuccess(
   for (const pending of pendingReplies) {
     let payload: JsonObject;
     let targetCacheKey: string | null = null;
+    let targetEnvelope: StatsCacheEnvelope | null = null;
 
     const rawSeason = pending.requestedSeasonRaw?.trim() ?? "";
     if (!rawSeason) {
       targetCacheKey = buildStatsCacheKey(message.username, message.platform, "latest");
+      targetEnvelope = latestEnvelope;
       payload = statsPayload(
         buildStatsMessagePayload(
           latestEnvelope,
@@ -563,6 +565,7 @@ async function updatePendingRepliesAfterSuccess(
 
       if (seasonEnvelope) {
         targetCacheKey = buildStatsCacheKey(message.username, message.platform, canonicalSeason);
+        targetEnvelope = seasonEnvelope;
         payload = statsPayload(
           buildStatsMessagePayload(
             seasonEnvelope,
@@ -581,7 +584,10 @@ async function updatePendingRepliesAfterSuccess(
 
     try {
       if (targetCacheKey) {
-        await writeStatsViewState(env.Cache, pending.interactionId, { cacheKey: targetCacheKey });
+        await writeStatsViewState(env.Cache, pending.interactionId, {
+          cacheKey: targetCacheKey,
+          cacheEnvelope: targetEnvelope ?? undefined,
+        });
       }
       await editPendingReply(pending, payload);
     } catch (editError) {

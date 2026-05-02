@@ -356,7 +356,10 @@ export const statsCommand = new SlashCommand()
       mergeInteractionAnalyticsContext(interaction.context, {
         cacheState: stale ? "stale" : "hit",
       });
-      await writeStatsViewState(cache, interaction.id, { cacheKey });
+      await writeStatsViewState(cache, interaction.id, {
+        cacheKey,
+        cacheEnvelope: cachedEnvelope,
+      });
       const payload = buildStatsMessagePayload(
         cachedEnvelope,
         "cache",
@@ -602,7 +605,7 @@ export const statsPaginationHandler = new ComponentHandler(
     return;
   }
 
-  const envelope = await readStatsCache(env.Cache, state.cacheKey);
+  const envelope = (await readStatsCache(env.Cache, state.cacheKey)) ?? state.cacheEnvelope ?? null;
   if (!envelope) {
     const emojis = await resolveStatsEmojiCatalog(env, interaction.applicationId);
     await interaction.reply(
