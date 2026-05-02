@@ -47,7 +47,11 @@ type InteractionWithCommonFields = APIInteraction & {
   token: string;
   id: string;
   guild_id?: string;
+  // Some contexts (like certain guild interactions) may provide channel data via
+  // a lightweight object or via a flat field in the payload. To improve reliability
+  // for channel resolution we also allow an optional top-level channel_id field.
   channel?: { id: string };
+  channel_id?: string;
   member?: { user?: APIUser };
   user?: APIUser;
   guild_locale?: string;
@@ -158,7 +162,10 @@ export class BaseInteraction<Raw extends APIInteraction = APIInteraction> {
   }
 
   get channelId(): string | undefined {
-    return this.common.channel?.id;
+    // Fall back to the legacy flat field when the channel object is missing.
+    // This helps handle Discord payloads where channel_id is provided instead
+    // of a populated channel object.
+    return this.common.channel?.id ?? this.common.channel_id;
   }
 
   get guildId(): string | undefined {

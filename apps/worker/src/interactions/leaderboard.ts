@@ -172,7 +172,7 @@ function buildLeaderboardPaginationRow(
   return new ActionRowBuilder<ButtonBuilder>().addComponents(
     applyButtonEmoji(
       new ButtonBuilder()
-        .setCustomId(buildLeaderboardPaginationCustomId(viewId, 0))
+        .setCustomId(buildLeaderboardPaginationCustomId(viewId, 0, "first"))
         .setLabel("First")
         .setStyle(ButtonStyle.Secondary)
         .setDisabled(isFirst),
@@ -180,27 +180,27 @@ function buildLeaderboardPaginationRow(
     ),
     applyButtonEmoji(
       new ButtonBuilder()
-        .setCustomId(buildLeaderboardPaginationCustomId(viewId, activePage - 1))
+        .setCustomId(buildLeaderboardPaginationCustomId(viewId, activePage - 1, "prev"))
         .setLabel("Prev")
         .setStyle(ButtonStyle.Primary)
         .setDisabled(isFirst),
       toComponentEmoji(emojis, "minus"),
     ),
     new ButtonBuilder()
-      .setCustomId(buildLeaderboardPaginationCustomId(viewId, activePage))
+      .setCustomId(buildLeaderboardPaginationCustomId(viewId, activePage, "current"))
       .setLabel(currentLabel)
       .setStyle(ButtonStyle.Secondary)
       .setDisabled(true),
     applyButtonEmoji(
       new ButtonBuilder()
-        .setCustomId(buildLeaderboardPaginationCustomId(viewId, activePage + 1))
+        .setCustomId(buildLeaderboardPaginationCustomId(viewId, activePage + 1, "next"))
         .setLabel("Next")
         .setStyle(ButtonStyle.Primary)
         .setDisabled(isLast),
       toComponentEmoji(emojis, "plus"),
     ),
     new ButtonBuilder()
-      .setCustomId(buildLeaderboardPaginationCustomId(viewId, pageCount - 1))
+      .setCustomId(buildLeaderboardPaginationCustomId(viewId, pageCount - 1, "last"))
       .setLabel("Last")
       .setStyle(ButtonStyle.Secondary)
       .setDisabled(isLast),
@@ -353,7 +353,8 @@ export const leaderboardCommand = new SlashCommand()
     const minMatches = normalizeLeaderboardMinMatches(
       interaction.options.getInteger("min_matches", false),
     );
-    const emojis = await resolveLeaderboardEmojiCatalog(env, interaction.applicationId);
+    // Emoji catalog will be loaded after defer to avoid slow startup on timeout-sensitive path
+    let emojis: ApplicationEmojiCatalog | null | undefined = undefined;
 
     if (!env.db) {
       await interaction.reply(
@@ -370,6 +371,9 @@ export const leaderboardCommand = new SlashCommand()
     }
 
     await interaction.deferReply(true);
+
+    // Now that we've deferred, load emoji catalog
+    emojis = await resolveLeaderboardEmojiCatalog(env, interaction.applicationId);
 
     try {
       const pageData = await loadLeaderboardPage(env, {

@@ -127,9 +127,17 @@ export function filterLeaderboardEntries(
   });
 }
 
-export function buildLeaderboardPaginationCustomId(viewId: string, page: number): string {
+export function buildLeaderboardPaginationCustomId(
+  viewId: string,
+  page: number,
+  slot?: string,
+): string {
   const safePage = Math.max(0, Math.trunc(page));
-  const params = new URLSearchParams({ page: String(safePage) });
+  const paramsObj: Record<string, string> = { page: String(safePage) };
+  if (slot) {
+    paramsObj.slot = slot;
+  }
+  const params = new URLSearchParams(paramsObj);
   return `${LEADERBOARD_PAGINATION_PREFIX}/${encodeURIComponent(viewId)}?${params.toString()}`;
 }
 
@@ -158,6 +166,7 @@ export function parseLeaderboardPaginationCustomId(
       return null;
     }
 
+    // slot is intentionally ignored in parsing; only page/viewId are needed for state
     return {
       viewId,
       page: Math.max(0, Math.trunc(page)),
