@@ -283,8 +283,8 @@ export function HqDashboard({ data }: { data: DashboardPageData }) {
             Analytics not configured
           </Badge>
           <p className="auth-copy">
-            Set `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_ANALYTICS_API_TOKEN` in
-            `apps/hq/.dev.vars` to load command and latency analytics.
+            Set `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_ANALYTICS_API_TOKEN` in `apps/hq/.dev.vars`
+            to load command and latency analytics.
           </p>
         </section>
       ) : null}
