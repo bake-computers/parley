@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, type NavigateFn } from "@tanstack/react-router";
 import {
   Bar,
   BarChart,
@@ -10,7 +10,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { LogOut, Shield, TimerReset, TrendingUp } from "lucide-react";
+import { ArrowLeft, LogOut, Shield, TimerReset, TrendingUp } from "lucide-react";
 import { authClient } from "#/lib/auth-client";
 import {
   GAME_OPTIONS,
@@ -18,6 +18,9 @@ import {
   type DashboardFilterOption,
   type DashboardPageData,
 } from "#/lib/dashboard";
+import { useGuildAccess } from "#/hooks/use-guild-access";
+import { AuthGuard } from "#/components/auth-guard";
+import { GuildSelector } from "#/components/guild-selector";
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#/components/ui/card";
@@ -68,6 +71,9 @@ function renderSignedOutState() {
         Internal analytics for command usage, latency, server activity, and bot growth. Access is
         restricted to the approved Discord identities only.
       </p>
+      <p className="auth-copy" style={{ marginTop: "-0.5rem" }}>
+        Administrator permission required.
+      </p>
       <Button
         className="hq-button h-11 px-5"
         onClick={() =>
@@ -95,7 +101,7 @@ function renderForbiddenState(data: DashboardPageData) {
       </Badge>
       <h1 className="auth-title">{data.auth.userName}</h1>
       <p className="auth-copy">
-        This Discord account is authenticated but not on the HQ allowlist.
+        No admin access. You need Administrator or Manage Server permission in a Discord server.
         {data.auth.discordUserId ? ` (${data.auth.discordUserId})` : ""}
       </p>
       <Button className="hq-button h-11 px-5" onClick={() => authClient.signOut()}>
@@ -134,6 +140,19 @@ export function HqDashboard({ data }: { data: DashboardPageData }) {
   const navigate = useNavigate({ from: "/" });
   const [pendingFilters, setPendingFilters] = useState(data.filters);
 
+  // Global admins skip the guild selector and go straight to the dashboard.
+  // Guild admins must pick a server first (selectedGuild starts undefined).
+  const isGlobalAdmin = data.auth.status === "authorized" && data.auth.isGlobalAdmin;
+  const [selectedGuild, setSelectedGuild] = useState<string | null | undefined>(
+    isGlobalAdmin ? null : undefined,
+  );
+  const {
+    adminGuilds,
+    isGlobalAdmin: guildIsGlobalAdmin,
+    isLoading,
+    error,
+  } = useGuildAccess(data.auth.status === "authorized");
+
   if (data.auth.status === "signed_out") {
     return renderSignedOutState();
   }
@@ -152,6 +171,90 @@ export function HqDashboard({ data }: { data: DashboardPageData }) {
         </p>
       </section>
     );
+  }
+
+  // Guild selection flow: if no guild selected yet, show selector
+  if (selectedGuild === undefined) {
+    if (isLoading) {
+      return (
+        <section className="auth-panel">
+          <Badge variant="outline" className="hq-badge">
+            Loading
+          </Badge>
+          <h1 className="auth-title">Checking server access</h1>
+          <p className="auth-copy">Loading your Discord server permissions...</p>
+        </section>
+      );
+    }
+
+    if (error) {
+      return (
+        <section className="auth-panel">
+          <Badge variant="outline" className="hq-badge">
+            Error
+          </Badge>
+          <h1 className="auth-title">Could not load server access</h1>
+          <p className="auth-copy">
+            Failed to retrieve your Discord server list. Please try again.
+          </p>
+        </section>
+      );
+    }
+
+    // If user has no admin guilds and is not global admin, show forbidden
+    if (adminGuilds.length === 0 && !guildIsGlobalAdmin) {
+      return (
+        <section className="auth-panel">
+          <Badge variant="outline" className="hq-badge">
+            Access denied
+          </Badge>
+          <h1 className="auth-title">No admin access</h1>
+          <p className="auth-copy">
+            No admin access. You need Administrator or Manage Server permission in a Discord server.
+          </p>
+          <Button className="hq-button h-11 px-5" onClick={() => authClient.signOut()}>
+            Sign out
+          </Button>
+        </section>
+      );
+    }
+
+    return (
+      <GuildSelector
+        adminGuilds={adminGuilds}
+        isGlobalAdmin={guildIsGlobalAdmin}
+        onSelect={(guildId) => setSelectedGuild(guildId)}
+      />
+    );
+  }
+
+  // Guild selected — wrap dashboard in auth guard
+  return (
+    <AuthGuard guildId={selectedGuild}>
+      <DashboardContent
+        data={data}
+        pendingFilters={pendingFilters}
+        setPendingFilters={setPendingFilters}
+        onBackToGuilds={() => setSelectedGuild(undefined)}
+      />
+    </AuthGuard>
+  );
+}
+
+function DashboardContent({
+  data,
+  pendingFilters,
+  setPendingFilters,
+  onBackToGuilds,
+}: {
+  data: DashboardPageData;
+  pendingFilters: typeof data.filters;
+  setPendingFilters: React.Dispatch<React.SetStateAction<typeof data.filters>>;
+  onBackToGuilds: () => void;
+}) {
+  const navigate = useNavigate({ from: "/" });
+  if (data.auth.status !== "authorized" || !data.dashboard) {
+    return null;
   }
 
   const usageChartConfig = {
@@ -197,6 +300,10 @@ export function HqDashboard({ data }: { data: DashboardPageData }) {
           </p>
         </div>
         <div className="hq-actions">
+          <Button variant="outline" className="hq-button" onClick={onBackToGuilds}>
+            <ArrowLeft size={14} />
+            Servers
+          </Button>
           <Badge variant="outline" className="hq-chip">
             <Shield size={14} />
             {data.auth.discordUserId}

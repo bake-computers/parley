@@ -42,6 +42,7 @@
 ## Wave 2: Landing Page Sections (How it Works, Community Stats, FAQ)
 
 ### Component Patterns
+
 - Section layout: `<section className="lp-section">` with label + heading div, then content
 - Label pattern: `<p className="lp-label mb-2">Category</p>`
 - Heading pattern: `<h2 className="text-3xl md:text-4xl font-bold tracking-tight">`
@@ -50,6 +51,7 @@
 - BEM-like naming for component-scoped CSS: `component__element`
 
 ### CSS Architecture
+
 - Component CSS lives in `styles.css` with section-divider comments (`/* ── Section Name ── */`)
 - Responsive breakpoints: 1180px (3→2 cols), 840px (2→1 cols), 560px (compact)
 - Design tokens used throughout: `--text-*`, `--space-*`, `--duration-*`, `--ease-*`, `--depth-*`, `--accent-blue/cyan`
@@ -57,6 +59,7 @@
 - Connector arrows between steps use CSS `::after` pseudo-elements with border tricks
 
 ### Accessibility
+
 - FAQ uses `aria-expanded` on trigger buttons and `data-open` attribute for CSS state
 - Connectors use `aria-hidden="true"` since they're decorative
 - Focus-visible styles use `--accent-blue` outline
@@ -97,3 +100,37 @@
 - Hero uses `hero-bg` (gradient background) + `hero-noise` (animated texture overlay) on the section
 - `hero-content`: 2-column grid (1fr auto) on desktop, single column on mobile
 - `hero-cta-gradient`: CSS class for glow hover effect on gradient CTA button
+
+## Wave 2: Dashboard Auth Flow UI
+
+### Architecture
+
+- Per-guild auth flow: Discord login → guild list → guild management
+- `readDashboardAuth` in `apps/hq/src/lib/server/auth.ts` allows any authenticated Discord user (not just global admins), returning `isGlobalAdmin` flag
+- `DashboardAuthResult` type: `signed_out | forbidden | authorized` (with `isGlobalAdmin` on authorized)
+- `DashboardPageData.auth` now includes `isGlobalAdmin: boolean` on the `authorized` variant
+- `getGuildAccessForUser` server function in `guild-access.ts` returns `{ guilds, adminGuilds, isGlobalAdmin }`
+- `useGuildAccess` hook wraps TanStack Query with 5-minute stale time, returns `{ guilds, adminGuilds, isGlobalAdmin, isLoading, error }`
+
+### Auth Flow States
+
+- `signed_out` → "Sign in with Discord" + "Administrator permission required" subtitle
+- `forbidden` → "No admin access" message (no Discord account linked)
+- `authorized + isGlobalAdmin` → Dashboard directly (selectedGuild defaults to null = "All Servers")
+- `authorized + !isGlobalAdmin` → Guild selector first, then dashboard for selected guild
+- `authorized + no admin guilds + !isGlobalAdmin` → "No admin access" message
+
+### Key Decisions
+
+- Global admins skip the guild selector (`selectedGuild = null`) and see the dashboard directly
+- Guild admins must pick a server first (`selectedGuild = undefined` → guild selector)
+- `AuthGuard` component validates per-guild access, shows 403 if no permission
+- `GuildSelector` shows "All Servers" card for global admins, individual guild cards for guild admins
+- `DashboardContent` calls `useNavigate` directly (not passed as prop) to preserve TanStack Router generic types
+
+### Gotchas
+
+- TanStack Router's `navigate` function has complex generics that don't survive prop passing — call `useNavigate` directly in child components
+- `readDashboardAuth` uses `auth.api.getSession({ headers })` with `as any` cast for headers type compatibility
+- `GuildWithPermissions` from `@parley/auth` has `icon: string | null` and `permissions: number`; the core package has a different shape — always use the auth package version
+- `useGuildAccess` accepts `enabled` param to avoid fetching when user is not authenticated

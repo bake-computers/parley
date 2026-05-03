@@ -15,7 +15,9 @@ type UseLeaderboardWSResult = {
   lastUpdated: number | null;
 };
 
-export default function useLeaderboardWS(slotRange: [number, number] = [1, 100]): UseLeaderboardWSResult {
+export default function useLeaderboardWS(
+  slotRange: [number, number] = [1, 100],
+): UseLeaderboardWSResult {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<number | null>(null);

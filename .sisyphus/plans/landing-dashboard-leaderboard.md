@@ -1105,7 +1105,7 @@ Max Concurrent: 7 (Wave 1)
   - Files: `apps/web/src/components/how-it-works.tsx`, `apps/web/src/components/community-stats.tsx`, `apps/web/src/components/faq.tsx`, `apps/web/src/routes/index.tsx`
   - Pre-commit: `bun run typecheck --filter=@parley/web && oxfmt --check apps/web/src/`
 
-- [ ] 10. Dashboard Auth Flow UI — Login, Guild Selector, Guards
+- [x] 10. Dashboard Auth Flow UI — Login, Guild Selector, Guards
 
   **What to do**:
   - Modify `apps/hq/src/components/hq-dashboard.tsx` to add per-guild auth flow:

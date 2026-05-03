@@ -27,6 +27,15 @@
       "agent": "Sisyphus-Junior",
       "category": "visual-engineering",
       "updated_at": "2026-05-03T18:26:22.955Z"
+    },
+    "todo:10": {
+      "task_key": "todo:10",
+      "task_label": "10",
+      "task_title": "Dashboard Auth Flow UI — Login, Guild Selector, Guards",
+      "session_id": "ses_210dc4d8cffev355ie4hFoHBpC",
+      "agent": "Sisyphus-Junior",
+      "category": "quick",
+      "updated_at": "2026-05-03T18:40:26.643Z"
     }
   }
 }

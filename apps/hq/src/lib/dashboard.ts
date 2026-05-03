@@ -87,6 +87,7 @@ export interface DashboardPageData {
         status: "authorized";
         discordUserId: string;
         userName: string;
+        isGlobalAdmin: boolean;
       };
   filters: DashboardFilters;
   generatedAt: string;

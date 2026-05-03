@@ -145,7 +145,9 @@ export class LeaderboardDO implements DurableObject {
       if (!data) return;
       if (data.type === "SUBSCRIBE" && Array.isArray(data.range)) {
         // Store per-connection subscription range for potential future filtering
-        (_ws as any).__attachment = this.serializeAttachment({ range: data.range as [number, number] });
+        (_ws as any).__attachment = this.serializeAttachment({
+          range: data.range as [number, number],
+        });
         // Attach an in-memory range so we can reuse in broadcasts if needed
         this.clients.forEach((ws) => {
           if (ws === _ws) {

@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { env } from "cloudflare:workers";
 import { players, guildPlayers } from "@parley/db/schema";
 import type { DbClient } from "@parley/db/client";
-import type { SessionAccess } from "@parley/auth";
+import type { DashboardAuthResult } from "./auth";
 import {
   normalizeDashboardFilters,
   readPeriodDays,
@@ -16,7 +16,7 @@ import {
   type DashboardServerRow,
   type DashboardTimeseriesPoint,
 } from "../dashboard";
-import { readDashboardSession } from "./auth";
+import { readDashboardAuth } from "./auth";
 import { withDb } from "./db";
 
 interface AnalyticsQueryResult<Row> {
@@ -458,7 +458,7 @@ async function buildDashboardData(db: DbClient, filters: DashboardFilters): Prom
 
 function toPageData(
   filters: DashboardFilters,
-  access: SessionAccess,
+  access: DashboardAuthResult,
   dashboard: DashboardData | null,
 ): DashboardPageData {
   if (access.status === "signed_out") {
@@ -475,7 +475,7 @@ function toPageData(
       auth: {
         status: "forbidden",
         discordUserId: access.discordUserId,
-        userName: access.session.user.name,
+        userName: access.userName,
       },
       filters,
       generatedAt: new Date().toISOString(),
@@ -487,7 +487,8 @@ function toPageData(
     auth: {
       status: "authorized",
       discordUserId: access.discordUserId,
-      userName: access.session.user.name,
+      userName: access.userName,
+      isGlobalAdmin: access.isGlobalAdmin,
     },
     filters,
     generatedAt: new Date().toISOString(),
@@ -502,7 +503,7 @@ export async function getDashboardPageData(
   const filters = normalizeDashboardFilters(rawFilters);
 
   return withDb(async (db) => {
-    const access = await readDashboardSession(db, headers);
+    const access = await readDashboardAuth(db, headers);
     if (access.status !== "authorized") {
       return toPageData(filters, access, null);
     }
