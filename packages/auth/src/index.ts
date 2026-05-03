@@ -10,6 +10,8 @@ export const AUTHORIZED_DISCORD_USER_IDS = new Set([
   "1145275452559196214",
 ]);
 
+export const SESSION_VERSION = 2;
+
 export interface ParleyAuthEnv {
   BETTER_AUTH_SECRET?: string;
   BETTER_AUTH_URL?: string;
@@ -40,6 +42,20 @@ export function createParleyAuth(db: DbClient, env: ParleyAuthEnv) {
         verification: authVerifications,
       },
     }),
+    databaseHooks: {
+      session: {
+        create: {
+          before: async (session) => {
+            return {
+              data: {
+                ...session,
+                sessionVersion: SESSION_VERSION,
+              },
+            };
+          },
+        },
+      },
+    },
     socialProviders: {
       discord: {
         clientId,
@@ -228,6 +244,14 @@ export async function readSessionAccess(
 ): Promise<SessionAccess> {
   const session = await auth.api.getSession({ headers });
   if (!session) {
+    return {
+      status: "signed_out",
+    };
+  }
+
+  const sessionWithVersion = session as any;
+  const storedVersion = sessionWithVersion.session?.sessionVersion;
+  if (storedVersion === undefined || storedVersion < SESSION_VERSION) {
     return {
       status: "signed_out",
     };

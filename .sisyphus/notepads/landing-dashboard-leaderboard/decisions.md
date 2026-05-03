@@ -1,0 +1,1 @@
+- Decision: Maintain a single source of truth for design tokens in CSS variables in apps/web and mirror to apps/hq. Use tokens like --depth-_, --elevation-_, --accent-blue, --accent-cyan, and the utility classes (depth-panel, gradient-text, glow-border, shimmer) to ensure visual consistency across landing and HQ dashboards.

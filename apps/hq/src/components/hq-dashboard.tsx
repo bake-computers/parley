@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, type NavigateFn } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
 import {
   Bar,
   BarChart,
@@ -138,7 +138,6 @@ function FilterSelect(props: {
 }
 
 export function HqDashboard({ data }: { data: DashboardPageData }) {
-  const navigate = useNavigate({ from: "/" });
   const [pendingFilters, setPendingFilters] = useState(data.filters);
 
   // Global admins skip the guild selector and go straight to the dashboard.

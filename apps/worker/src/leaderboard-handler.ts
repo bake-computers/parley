@@ -77,7 +77,7 @@ export async function handleLeaderboardRequest(
 export async function handleLeaderboardNotify(
   request: Request,
   env: WorkerEnv,
-  ctx: ExecutionContext,
+  _ctx: ExecutionContext,
 ): Promise<Response> {
   // Always respond quickly; forward payload to DO stub for processing
   if (request.method !== "POST") {

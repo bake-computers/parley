@@ -530,6 +530,7 @@ export const authSessions = pgTable(
     userId: text("user_id")
       .notNull()
       .references(() => authUsers.id, { onDelete: "cascade" }),
+    sessionVersion: integer("session_version"),
     createdAt: timestamp("created_at", { mode: "date" }).notNull(),
     updatedAt: timestamp("updated_at", { mode: "date" }).notNull(),
   },
