@@ -72,3 +72,39 @@ export async function handleLeaderboardRequest(
     managedContext.markResponseReturned();
   }
 }
+
+// Fire-and-forget notification forwarder for leaderboard events
+export async function handleLeaderboardNotify(
+  request: Request,
+  env: WorkerEnv,
+  ctx: ExecutionContext,
+): Promise<Response> {
+  // Always respond quickly; forward payload to DO stub for processing
+  if (request.method !== "POST") {
+    return new Response("Method not allowed", { status: 405 });
+  }
+  let payload: any;
+  try {
+    payload = await request.json();
+  } catch {
+    payload = null;
+  }
+
+  try {
+    const stub = env.LeaderboardDO.get(env.LeaderboardDO.idFromName("global"));
+    // Forward payload to DO as a Notify request; fire-and-forget
+    const notifyReq = new Request("/notify", {
+      method: "POST",
+      body: JSON.stringify(payload ?? {}),
+      headers: { "Content-Type": "application/json" },
+    });
+    // DO may implement a handler for /notify; we intentionally ignore the response
+    (stub as any).fetch(notifyReq).catch(() => {
+      // swallow failures to keep fire-and-forget semantics
+    });
+  } catch {
+    // swallow errors to preserve fire-and-forget semantics
+  }
+
+  return new Response(null, { status: 202 });
+}

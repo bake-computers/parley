@@ -19,6 +19,8 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
         depth:
           "border border-white/10 bg-depth-1 text-foreground shadow-elevation-1 hover:bg-depth-2 hover:shadow-elevation-2 hover:border-white/20",
+        gradient:
+          "border-none bg-gradient-to-r from-accent-blue to-accent-cyan text-white font-semibold",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",

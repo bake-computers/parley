@@ -1,8 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Hero } from "#/components/hero";
+import { HowItWorks } from "#/components/how-it-works";
+import { CommunityStats } from "#/components/community-stats";
 import { Features } from "#/components/features";
 import { DiscordMock } from "#/components/discord-mock";
 import { CommandReference } from "#/components/command-reference";
+import { Faq } from "#/components/faq";
 import { Footer } from "#/components/footer";
 
 export const Route = createFileRoute("/")({
@@ -13,6 +16,8 @@ function IndexRoute() {
   return (
     <main>
       <Hero />
+      <HowItWorks />
+      <CommunityStats />
       <Features />
       <section className="lp-section">
         <div className="mb-8">
@@ -28,6 +33,7 @@ function IndexRoute() {
         <DiscordMock />
       </section>
       <CommandReference />
+      <Faq />
       <Footer />
     </main>
   );

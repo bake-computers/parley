@@ -16,7 +16,7 @@ import { createRuntimeDbHandle, ManagedExecutionContext } from "./runtime-db";
 import { analyticsMiddleware } from "./analytics-middleware";
 import { writeAnalyticsDataPoint } from "./analytics";
 import { handleAuthRequest } from "./auth";
-import { handleLeaderboardRequest } from "./leaderboard-handler";
+import { handleLeaderboardRequest, handleLeaderboardNotify } from "./leaderboard-handler";
 
 export const bot = new DiscordBot();
 
@@ -45,6 +45,10 @@ export default {
 
     if (url.pathname === "/api/leaderboard") {
       return handleLeaderboardRequest(request, env, ctx);
+    }
+
+    if (url.pathname === "/api/leaderboard/notify") {
+      return handleLeaderboardNotify(request, env, ctx);
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any

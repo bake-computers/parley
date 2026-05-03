@@ -889,7 +889,7 @@ Max Concurrent: 7 (Wave 1)
 
 - Pre-commit: `bun run typecheck --filter=@parley/hq`
 
-- [ ] 8. Hero Section Redesign
+- [x] 8. Hero Section Redesign
 
   **What to do**:
   - Completely redesign `apps/web/src/components/hero.tsx` for premium dark depth aesthetic
@@ -996,7 +996,7 @@ Max Concurrent: 7 (Wave 1)
   - Files: `apps/web/src/components/hero.tsx`, `apps/web/src/components/ui/`, `apps/web/src/routes/index.tsx`
   - Pre-commit: `bun run typecheck --filter=@parley/web && oxfmt --check apps/web/src/`
 
-- [ ] 9. Landing Page Sections — How it Works, Community Stats, FAQ
+- [x] 9. Landing Page Sections — How it Works, Community Stats, FAQ
 
   **What to do**:
   - Create `apps/web/src/components/how-it-works.tsx` — Three-step visual walkthrough:
@@ -1215,7 +1215,7 @@ Max Concurrent: 7 (Wave 1)
   - Files: `apps/hq/src/components/hq-dashboard.tsx`, `apps/hq/src/components/guild-selector.tsx`, `apps/hq/src/hooks/use-guild-access.ts`, `apps/hq/src/components/auth-guard.tsx`
   - Pre-commit: `bun run typecheck --filter=@parley/hq`
 
-- [ ] 11. Leaderboard DO Broadcast + Reconnection Logic
+- [x] 11. Leaderboard DO Broadcast + Reconnection Logic
 
   **What to do**:
   - Extend `apps/worker/src/leaderboard-do.ts` (from Task 5) with broadcast and reconnection logic:

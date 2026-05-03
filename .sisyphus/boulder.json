@@ -1,7 +1,9 @@
 {
   "active_plan": "/Users/juwen/dev/commerce/parley/.sisyphus/plans/landing-dashboard-leaderboard.md",
   "started_at": "2026-05-03T18:02:54.382Z",
-  "session_ids": ["ses_211204dc6ffeB1uXfXFPOxc3tK"],
+  "session_ids": [
+    "ses_211204dc6ffeB1uXfXFPOxc3tK"
+  ],
   "session_origins": {
     "ses_211204dc6ffeB1uXfXFPOxc3tK": "direct"
   },
@@ -16,6 +18,15 @@
       "agent": "Sisyphus-Junior",
       "category": "visual-engineering",
       "updated_at": "2026-05-03T18:09:59.297Z"
+    },
+    "todo:8": {
+      "task_key": "todo:8",
+      "task_label": "8",
+      "task_title": "Hero Section Redesign",
+      "session_id": "ses_210f13912ffeWVrHzY0F8MiFzI",
+      "agent": "Sisyphus-Junior",
+      "category": "visual-engineering",
+      "updated_at": "2026-05-03T18:26:22.955Z"
     }
   }
 }
