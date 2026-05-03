@@ -24,7 +24,7 @@ export default function useLeaderboardWS(
 
   // Keep a stable reference to the WebSocket so React can reconnect
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const wsRef = useMemo(() => ({ current: null as any | null }), []);
+  const wsRef = useMemo<{ current: WebSocket | null }>(() => ({ current: null }), []);
 
   useEffect(() => {
     let ws: WebSocket | null = null;

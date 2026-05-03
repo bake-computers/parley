@@ -21,7 +21,7 @@ export const getGuildAccessForUser = createServerFn({ method: "GET" }).handler(
     const headers = getRequestHeaders();
     return withDb(async (db) => {
       const auth = createDashboardAuth(db);
-      const session = await auth.api.getSession({ headers } as any);
+      const session = await auth.api.getSession({ headers });
       if (!session) return { guilds: [], adminGuilds: [], isGlobalAdmin: false };
 
       const discordUserId = await readDiscordAccountIdForUser(db, session.user.id);

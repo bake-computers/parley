@@ -88,7 +88,9 @@ async function getCachedGuildSettings(guildId: string): Promise<GuildSettingsRow
     if (response) {
       return await response.json<GuildSettingsRow>();
     }
-  } catch {}
+  } catch {
+    // Cache read failure is safe — falls back to database query
+  }
   return null;
 }
 
@@ -100,7 +102,9 @@ async function setCachedGuildSettings(settings: GuildSettingsRow): Promise<void>
       headers: { "Content-Type": "application/json" },
     });
     await cache.put(key, response);
-  } catch {}
+  } catch {
+    // Cache write failure is non-critical
+  }
 }
 
 async function invalidateGuildSettingsCache(guildId: string): Promise<void> {
@@ -108,7 +112,9 @@ async function invalidateGuildSettingsCache(guildId: string): Promise<void> {
     const cache = await caches.open("default");
     const key = getGuildSettingsCacheKey(guildId);
     await cache.delete(key);
-  } catch {}
+  } catch {
+    // Cache invalidation failure is non-critical
+  }
 }
 
 function getGuildMatchRulesCacheKey(guildId: string): string {
@@ -123,7 +129,9 @@ async function getCachedGuildMatchRules(guildId: string): Promise<GuildMatchRule
     if (response) {
       return await response.json<GuildMatchRulesRow>();
     }
-  } catch {}
+  } catch {
+    // Cache read failure is safe — falls back to database query
+  }
   return null;
 }
 
@@ -135,7 +143,9 @@ async function setCachedGuildMatchRules(rules: GuildMatchRulesRow): Promise<void
       headers: { "Content-Type": "application/json" },
     });
     await cache.put(key, response);
-  } catch {}
+  } catch {
+    // Cache write failure is non-critical
+  }
 }
 
 async function invalidateGuildMatchRulesCache(guildId: string): Promise<void> {
@@ -143,7 +153,9 @@ async function invalidateGuildMatchRulesCache(guildId: string): Promise<void> {
     const cache = await caches.open("default");
     const key = getGuildMatchRulesCacheKey(guildId);
     await cache.delete(key);
-  } catch {}
+  } catch {
+    // Cache invalidation failure is non-critical
+  }
 }
 
 function getGuildNotificationSettingsCacheKey(guildId: string): string {
@@ -160,7 +172,9 @@ async function getCachedGuildNotificationSettings(
     if (response) {
       return await response.json<GuildNotificationSettingsRow>();
     }
-  } catch {}
+  } catch {
+    // Cache read failure is safe — falls back to database query
+  }
   return null;
 }
 
@@ -174,7 +188,9 @@ async function setCachedGuildNotificationSettings(
       headers: { "Content-Type": "application/json" },
     });
     await cache.put(key, response);
-  } catch {}
+  } catch {
+    // Cache write failure is non-critical
+  }
 }
 
 async function invalidateGuildNotificationSettingsCache(guildId: string): Promise<void> {
@@ -182,7 +198,9 @@ async function invalidateGuildNotificationSettingsCache(guildId: string): Promis
     const cache = await caches.open("default");
     const key = getGuildNotificationSettingsCacheKey(guildId);
     await cache.delete(key);
-  } catch {}
+  } catch {
+    // Cache invalidation failure is non-critical
+  }
 }
 
 export async function getGuildSettings(

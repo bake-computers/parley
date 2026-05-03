@@ -33,7 +33,7 @@ export function Hero() {
           <div className="flex flex-wrap gap-4 mt-8 hero-animate hero-delay-4">
             <Button asChild size="lg" variant="gradient" className="hero-cta-gradient">
               <a
-                href="https://discord.com/oauth2/authorize?client_id=1495122091165618358"
+                href="https://discord.com/oauth2/authorize?client_id=PLACEHOLDER"
                 target="_blank"
                 rel="noopener noreferrer"
               >
