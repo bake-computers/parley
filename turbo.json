@@ -17,6 +17,10 @@
       "dependsOn": ["^build:hq"],
       "outputs": ["dist/**"]
     },
+    "build:web": {
+      "dependsOn": ["^build:web"],
+      "outputs": ["dist/**"]
+    },
     "build:worker": {
       "dependsOn": ["^build:worker"],
       "outputs": ["dist/**"]

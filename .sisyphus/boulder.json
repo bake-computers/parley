@@ -1,0 +1,76 @@
+{
+  "active_plan": "/Users/juwen/dev/commerce/parley/.sisyphus/plans/landing-page.md",
+  "started_at": "2026-05-02T23:56:02.108Z",
+  "session_ids": [
+    "ses_214e9c83affeEdcbshpZqi84bG",
+    "ses_214bebe49ffebJZWtyVsFOqmDH",
+    "ses_214be8c97ffeDt6eUPl25JAINs",
+    "ses_214be68e0ffeDjNanC6mQuX5Vt",
+    "ses_214be2217ffeI03ncvEfG6rw0R"
+  ],
+  "session_origins": {
+    "ses_214e9c83affeEdcbshpZqi84bG": "direct",
+    "ses_214bebe49ffebJZWtyVsFOqmDH": "appended",
+    "ses_214be8c97ffeDt6eUPl25JAINs": "appended",
+    "ses_214be68e0ffeDjNanC6mQuX5Vt": "appended",
+    "ses_214be2217ffeI03ncvEfG6rw0R": "appended"
+  },
+  "plan_name": "landing-page",
+  "agent": "atlas",
+  "task_sessions": {
+    "todo:1": {
+      "task_key": "todo:1",
+      "task_label": "1",
+      "task_title": "Project scaffolding + monorepo integration",
+      "session_id": "ses_214dc5a8cffeo6I5IGwKAtFF1B",
+      "agent": "Sisyphus-Junior",
+      "category": "quick",
+      "updated_at": "2026-05-03T00:06:17.627Z"
+    },
+    "todo:2": {
+      "task_key": "todo:2",
+      "task_label": "2",
+      "task_title": "Design tokens + global styles",
+      "session_id": "ses_214d1cf08ffexv0wTHSI3hpZHF",
+      "agent": "Sisyphus-Junior",
+      "category": "quick",
+      "updated_at": "2026-05-03T00:14:04.622Z"
+    },
+    "todo:4": {
+      "task_key": "todo:4",
+      "task_label": "4",
+      "task_title": "UI components (Button, Badge, Card, cn utility)",
+      "session_id": "ses_214cc3b52ffeAqTUJuMs0b4FH2",
+      "agent": "Sisyphus-Junior",
+      "category": "quick",
+      "updated_at": "2026-05-03T00:20:05.145Z"
+    },
+    "todo:6": {
+      "task_key": "todo:6",
+      "task_label": "6",
+      "task_title": "Discord message mock component",
+      "session_id": "ses_214c8e6aeffeLk7o06H9Vzeibl",
+      "agent": "Sisyphus-Junior",
+      "category": "visual-engineering",
+      "updated_at": "2026-05-03T00:23:14.382Z"
+    },
+    "todo:8": {
+      "task_key": "todo:8",
+      "task_label": "8",
+      "task_title": "Landing page assembly (all sections)",
+      "session_id": "ses_214c49062ffefZkYGayeTWLdIJ",
+      "agent": "Sisyphus-Junior",
+      "category": "visual-engineering",
+      "updated_at": "2026-05-03T00:28:03.624Z"
+    },
+    "final-wave:f1": {
+      "task_key": "final-wave:f1",
+      "task_label": "F1",
+      "task_title": "**Plan Compliance Audit** — `oracle`",
+      "session_id": "ses_214be2217ffeI03ncvEfG6rw0R",
+      "agent": "Sisyphus-Junior",
+      "category": "deep",
+      "updated_at": "2026-05-03T00:35:51.801Z"
+    }
+  }
+}
