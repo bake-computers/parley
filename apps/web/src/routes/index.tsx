@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Hero } from "#/components/hero";
 import { HowItWorks } from "#/components/how-it-works";
 import { CommunityStats } from "#/components/community-stats";
+import { LeaderboardPreview } from "#/components/leaderboard-preview";
 import { Features } from "#/components/features";
 import { DiscordMock } from "#/components/discord-mock";
 import { CommandReference } from "#/components/command-reference";
@@ -18,6 +19,7 @@ function IndexRoute() {
       <Hero />
       <HowItWorks />
       <CommunityStats />
+      <LeaderboardPreview />
       <Features />
       <section className="lp-section">
         <div className="mb-8">

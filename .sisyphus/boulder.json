@@ -45,6 +45,15 @@
       "agent": "Sisyphus-Junior",
       "category": "quick",
       "updated_at": "2026-05-03T22:57:51.669Z"
+    },
+    "todo:13": {
+      "task_key": "todo:13",
+      "task_label": "13",
+      "task_title": "Dashboard Guild Settings + Player Roster",
+      "session_id": "ses_20fedc55cffekqg5772k01gcHu",
+      "agent": "Sisyphus-Junior",
+      "category": "unspecified-high",
+      "updated_at": "2026-05-03T23:11:10.026Z"
     }
   }
 }

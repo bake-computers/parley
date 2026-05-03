@@ -1322,7 +1322,7 @@ Max Concurrent: 7 (Wave 1)
   - Files: `apps/worker/src/leaderboard-do.ts`, `apps/worker/src/index.ts`, `apps/web/src/hooks/use-leaderboard-ws.ts`
   - Pre-commit: `bun run typecheck`
 
-- [ ] 12. Dashboard Layout + Navigation Shell
+- [x] 12. Dashboard Layout + Navigation Shell
 
   **What to do**:
   - Create sidebar navigation layout for `apps/hq`:
@@ -1434,7 +1434,7 @@ Max Concurrent: 7 (Wave 1)
   - Files: `apps/hq/src/components/sidebar.tsx`, `apps/hq/src/components/dashboard-layout.tsx`, `apps/hq/src/routes/__root.tsx`, `apps/hq/src/routes/guild/`
   - Pre-commit: `bun run typecheck --filter=@parley/hq && oxfmt --check apps/hq/src/`
 
-- [ ] 13. Dashboard Guild Settings + Player Roster
+- [x] 13. Dashboard Guild Settings + Player Roster
 
   **What to do**:
   - Create `apps/hq/src/routes/guild/$guildId/settings.tsx` — guild settings page:
@@ -1514,7 +1514,7 @@ Max Concurrent: 7 (Wave 1)
   - Message: `feat(hq): add guild settings and player roster`
   - Files: `apps/hq/src/routes/guild/$guildId/settings.tsx`, `apps/hq/src/routes/guild/$guildId/players.tsx`
 
-- [ ] 14. /leaderboard Route — Full Page with WebSocket
+- [x] 14. /leaderboard Route — Full Page with WebSocket
 
   **What to do**:
   - Create `apps/web/src/routes/leaderboard.tsx` — dedicated leaderboard page with TanStack Router
@@ -1596,7 +1596,7 @@ Max Concurrent: 7 (Wave 1)
   - Message: `feat(web): add /leaderboard route with WebSocket`
   - Files: `apps/web/src/routes/leaderboard.tsx`, `apps/web/src/routeTree.gen.ts`
 
-- [ ] 15. Leaderboard Live Preview on Landing Page
+- [x] 15. Leaderboard Live Preview on Landing Page
 
   **What to do**:
   - Create `apps/web/src/components/leaderboard-preview.tsx` — mini leaderboard section for the landing page:
@@ -1663,7 +1663,7 @@ Max Concurrent: 7 (Wave 1)
   - Message: `feat(web): add leaderboard live preview section`
   - Files: `apps/web/src/components/leaderboard-preview.tsx`, `apps/web/src/components/leaderboard-row.tsx`, `apps/web/src/routes/index.tsx`
 
-- [ ] 16. Dashboard Match History & Analytics
+- [x] 16. Dashboard Match History & Analytics
 
   **What to do**:
   - Create `apps/hq/src/routes/guild/$guildId/matches.tsx` — match history and analytics page:
@@ -1730,7 +1730,7 @@ Max Concurrent: 7 (Wave 1)
   - Message: `feat(hq): add match history and analytics`
   - Files: `apps/hq/src/routes/guild/$guildId/matches.tsx`
 
-- [ ] 17. Dashboard Tournament Management
+- [x] 17. Dashboard Tournament Management
 
   **What to do**:
   - Create `apps/hq/src/routes/guild/$guildId/tournaments.tsx` — tournament management page:
@@ -1783,7 +1783,7 @@ Max Concurrent: 7 (Wave 1)
   - Message: `feat(hq): add tournament management`
   - Files: `apps/hq/src/routes/guild/$guildId/tournaments.tsx`
 
-- [ ] 18. Dashboard Advanced Match Rules
+- [x] 18. Dashboard Advanced Match Rules
 
   **What to do**:
   - Create `apps/hq/src/routes/guild/$guildId/rules.tsx` — advanced match rules page:

@@ -41,7 +41,7 @@ export function Hero() {
               </a>
             </Button>
             <Button asChild variant="depth" size="lg">
-              <a href="#features">View Leaderboard</a>
+              <a href="/leaderboard">View Leaderboard</a>
             </Button>
           </div>
         </div>
