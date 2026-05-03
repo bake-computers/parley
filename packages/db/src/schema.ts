@@ -134,6 +134,56 @@ export const guildLimits = pgTable(
   }),
 );
 
+export const guildSettings = pgTable("guild_settings", {
+  guildId: text("guild_id").primaryKey(),
+  defaultTeamFormat: text("default_team_format"),
+  autoBalance: boolean("auto_balance").notNull().default(true),
+  crossGuildMatchmaking: boolean("cross_guild_matchmaking").notNull().default(true),
+  updatedAt: timestampMs("updated_at").notNull(),
+  updatedByDiscordUserId: text("updated_by_discord_user_id").notNull(),
+});
+
+export const autoTournamentSchedules = pgTable(
+  "auto_tournament_schedules",
+  {
+    id: serial("id").primaryKey(),
+    guildId: text("guild_id").notNull(),
+    name: text("name").notNull(),
+    format: text("format").notNull(),
+    teamCap: integer("team_cap").notNull(),
+    cronExpression: text("cron_expression").notNull(),
+    channelId: text("channel_id").notNull(),
+    roleId: text("role_id"),
+    enabled: boolean("enabled").notNull().default(true),
+    createdAt: timestampMs("created_at").notNull(),
+    updatedAt: timestampMs("updated_at").notNull(),
+  },
+  (table) => ({
+    guildEnabledIdx: index("auto_tournament_schedules_guild_enabled_idx").on(
+      table.guildId,
+      table.enabled,
+    ),
+  }),
+);
+
+export const guildMatchRules = pgTable("guild_match_rules", {
+  guildId: text("guild_id").primaryKey(),
+  minElo: integer("min_elo"),
+  maxElo: integer("max_elo"),
+  platforms: text("platforms").array(),
+  requireVerified: boolean("require_verified").notNull().default(false),
+  maxEloGap: integer("max_elo_gap").notNull().default(500),
+  updatedAt: timestampMs("updated_at").notNull(),
+});
+
+export const guildNotificationSettings = pgTable("guild_notification_settings", {
+  guildId: text("guild_id").primaryKey(),
+  matchResultsChannel: text("match_results_channel"),
+  tournamentAnnouncementsChannel: text("tournament_announcements_channel"),
+  leaderboardUpdatesEnabled: boolean("leaderboard_updates_enabled").notNull().default(false),
+  updatedAt: timestampMs("updated_at").notNull(),
+});
+
 export const customMatches = pgTable(
   "custom_matches",
   {

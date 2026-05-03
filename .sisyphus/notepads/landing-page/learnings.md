@@ -17,6 +17,7 @@
    - `@tanstack/react-query`, `@tanstack/react-table`, etc.
 
 4. **Plugin order in vite.config.ts matters**:
+
    ```
    cloudflare (with viteEnvironment: { name: 'ssr' }) → tailwindcss → tanstackStart → viteReact
    ```
@@ -46,6 +47,7 @@
 ## Task 3: Static Assets Setup
 
 ### What was done
+
 - Created `apps/web/public/` directory
 - Copied `favicon.ico` from `apps/hq/public/`
 - Copied `logo192.png` as:
@@ -56,6 +58,7 @@
 - Created `manifest.json` with `"name": "Parley"` and dark theme colors
 
 ### Notes
+
 - HQ app had a `logo192.png` that works as a placeholder for all icon sizes
 - Manifest uses theme_color `#0d0e10` matching the app's dark theme
 - If user has custom icons, they can replace the PNG files directly
@@ -63,19 +66,23 @@
 ## Task 2: Landing page CSS classes (styles.css)
 
 ### What
+
 Appended landing-page-specific CSS to `apps/web/src/styles.css`:
+
 - Layout: `.lp-section`, `.lp-hero`, `.lp-container`, `.lp-grid`, `.lp-grid-{1,2,3}`
 - Card: `.lp-card` (glass effect adapted from HQ's `.hq-card`)
 - Typography: `.lp-title`, `.lp-subtitle`, `.lp-label`
 - Responsive breakpoints: 1180px, 840px, 560px (same as HQ)
 
 ### Key patterns
+
 - Used `min()` for fluid container widths — `min(1280px, calc(100% - 2rem))`
 - Grid uses `repeat(N, minmax(0, 1fr))` pattern (not `1fr` directly) to avoid overflow
 - Card glass effect uses `linear-gradient` + `rgba(20, 22, 24, 0.92)` base color
 - Responsive breakpoint values (1180/840/560) must match HQ exactly for consistency
 
 ### Verification
+
 - `bun run typecheck --filter=@parley/web` passes ✓
 - No existing tokens or selectors modified ✓
 - OKLCH colors unchanged from Task 1 ✓
@@ -83,9 +90,11 @@ Appended landing-page-specific CSS to `apps/web/src/styles.css`:
 ## Task 5: Command Reference Data (commands.ts)
 
 ### What
+
 Created `apps/web/src/data/commands.ts` with static typed data for all 9 slash commands organized into 5 categories matching the help.ts page structure.
 
 ### Commands captured (9 top-level, 20+ subcommands total)
+
 1. **account** - register, unregister, me, refresh (4 subcommands)
 2. **stats** - top-level options: username, platform, season
 3. **team** - create
@@ -97,6 +106,7 @@ Created `apps/web/src/data/commands.ts` with static typed data for all 9 slash c
 9. **help** - no subcommands
 
 ### Key findings
+
 - Tournament command split into `tournamentBrowseCommandData` and `tournamentLifecycleCommandData` to match help.ts category organization
 - Limit command appears in both "Tournaments II / Admin" and "Utility / Admin" categories per help.ts
 - All descriptions extracted verbatim from handler files (account.ts, stats.ts, team.ts, leaderboard.ts, ping.ts)
@@ -104,6 +114,7 @@ Created `apps/web/src/data/commands.ts` with static typed data for all 9 slash c
 - `autocomplete: true` marked for tournament `id` options and stats `season`
 
 ### Verification
+
 - `bun run typecheck --filter=@parley/web` passes with zero errors ✓
 - 10 named command exports + `commandCategories` array
 - No imports from `@parley/core` or workspace packages (static data only)
@@ -111,25 +122,30 @@ Created `apps/web/src/data/commands.ts` with static typed data for all 9 slash c
 ## Task 4: Copy UI Components
 
 ### What worked
+
 - Copied 4 files from HQ: `utils.ts`, `button.tsx`, `badge.tsx`, `card.tsx`
 - HQ uses `#/lib/utils` alias; web app needed relative path `../../lib/utils`
 - web app was missing `radix-ui` dependency — added to package.json and ran `bun install`
 
 ### Files created
+
 - `apps/web/src/lib/utils.ts`
 - `apps/web/src/components/ui/button.tsx`
 - `apps/web/src/components/ui/badge.tsx`
 - `apps/web/src/components/ui/card.tsx`
 
 ### Verification
+
 - `bun run typecheck --filter=@parley/web` passes with zero errors
 
 ## Task 6: Discord Mock Component
 
 ### What
+
 Created `apps/web/src/components/discord-mock.tsx` — a static React component rendering a Discord-style embed showing team balance results.
 
 ### Key patterns
+
 - Used `.lp-card` class for the glass card container (sharp corners per HQ style)
 - Discord embed aesthetic: 4px left accent bar (`bg-[#5865F2]`), dark glass background from `.lp-card`
 - Platform badges use subtle color-coded backgrounds: PC (blue), Xbox (green), PlayStation (purple)
@@ -139,6 +155,7 @@ Created `apps/web/src/components/discord-mock.tsx` — a static React component 
 - `rounded-none` on platform badges to match HQ sharp-corner aesthetic
 
 ### Verification
+
 - `bun run typecheck --filter=@parley/web` passes with zero errors ✓
 - `oxlint` — 0 warnings, 0 errors ✓
 - `oxfmt --check` — all files formatted correctly ✓
@@ -146,12 +163,14 @@ Created `apps/web/src/components/discord-mock.tsx` — a static React component 
 ## Task 7: Root Layout Meta + Hero Component
 
 ### What
+
 - Updated `__root.tsx` head function with full SEO meta: description, viewport, theme-color, OG tags (title/description/type/image), Twitter card tags (card/title/description/image)
 - Created `hero.tsx` component using `.lp-hero`, `.lp-container`, `.lp-title`, `.lp-subtitle` CSS classes from styles.css
 - Hero uses Badge (variant="secondary") for feature highlights and Button (default + outline) for CTAs
 - Discord invite link uses `client_id=PLACEHOLDER` as specified
 
 ### Key patterns
+
 - TanStack Router `head()` meta array uses `{ name, content }` for standard meta and `{ property, content }` for OG tags
 - Twitter card tags use `name` attribute (not `property`) — `{ name: "twitter:card", content: "..." }`
 - Button `asChild` prop delegates rendering to the child `<a>` element via Radix Slot
@@ -159,5 +178,6 @@ Created `apps/web/src/components/discord-mock.tsx` — a static React component 
 - `#commands` anchor link on "View Commands" button will connect to CommandReference section later
 
 ### Verification
+
 - `bun run typecheck --filter=@parley/web` passes with zero errors ✓
 - LSP diagnostics: zero errors on both files ✓

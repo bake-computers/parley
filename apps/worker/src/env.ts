@@ -1,4 +1,4 @@
-import type { KVNamespace, Queue } from "@cloudflare/workers-types";
+import type { DurableObjectNamespace, KVNamespace, Queue } from "@cloudflare/workers-types";
 import type { DbClient } from "@parley/db/client";
 import type { DiscordRuntimeEnv } from "@parley/discord-runtime";
 import type { StatsRefreshMessage } from "./queues/stats-refresh";
@@ -12,6 +12,7 @@ export interface WorkerEnv extends DiscordRuntimeEnv {
   DISCORD_OAUTH_CLIENT_ID?: string;
   DISCORD_OAUTH_CLIENT_SECRET?: string;
   HYPERDRIVE: Hyperdrive;
+  LeaderboardDO: DurableObjectNamespace;
   Queue: Queue<StatsRefreshMessage>;
 }
 

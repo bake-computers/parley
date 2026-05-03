@@ -11,3 +11,5 @@ export * from "./team/matchmaking";
 export * from "./tournament/bracket";
 export * from "./tournament/seeding";
 export * from "./tournament/service";
+export * from "./leaderboard/types";
+export * from "./dashboard/types";

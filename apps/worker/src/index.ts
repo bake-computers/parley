@@ -16,6 +16,7 @@ import { createRuntimeDbHandle, ManagedExecutionContext } from "./runtime-db";
 import { analyticsMiddleware } from "./analytics-middleware";
 import { writeAnalyticsDataPoint } from "./analytics";
 import { handleAuthRequest } from "./auth";
+import { handleLeaderboardRequest } from "./leaderboard-handler";
 
 export const bot = new DiscordBot();
 
@@ -40,6 +41,17 @@ export default {
     const url = new URL(request.url);
     if (url.pathname.startsWith("/api/auth/")) {
       return handleAuthRequest(request, env, ctx);
+    }
+
+    if (url.pathname === "/api/leaderboard") {
+      return handleLeaderboardRequest(request, env, ctx);
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    if (url.pathname === "/ws/leaderboard") {
+      const stub = env.LeaderboardDO.get(env.LeaderboardDO.idFromName("global"));
+      // Durable Object stub.fetch accepts Request but types may differ at runtime
+      return (stub as any).fetch(request);
     }
 
     const handle = await createRuntimeDbHandle(env);

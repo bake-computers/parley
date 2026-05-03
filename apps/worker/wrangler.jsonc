@@ -44,6 +44,14 @@
       "remote": true,
     },
   ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "LEADERBOARD_DO",
+        "class_name": "LeaderboardDO",
+      },
+    ],
+  },
   "queues": {
     "producers": [
       {
