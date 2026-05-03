@@ -10,11 +10,48 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as GuildGuildIdTournamentsRouteImport } from './routes/guild/$guildId/tournaments'
+import { Route as GuildGuildIdSettingsRouteImport } from './routes/guild/$guildId/settings'
+import { Route as GuildGuildIdRulesRouteImport } from './routes/guild/$guildId/rules'
+import { Route as GuildGuildIdPlayersRouteImport } from './routes/guild/$guildId/players'
+import { Route as GuildGuildIdNotificationsRouteImport } from './routes/guild/$guildId/notifications'
+import { Route as GuildGuildIdMatchesRouteImport } from './routes/guild/$guildId/matches'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuildGuildIdTournamentsRoute = GuildGuildIdTournamentsRouteImport.update({
+  id: '/guild/$guildId/tournaments',
+  path: '/guild/$guildId/tournaments',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuildGuildIdSettingsRoute = GuildGuildIdSettingsRouteImport.update({
+  id: '/guild/$guildId/settings',
+  path: '/guild/$guildId/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuildGuildIdRulesRoute = GuildGuildIdRulesRouteImport.update({
+  id: '/guild/$guildId/rules',
+  path: '/guild/$guildId/rules',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuildGuildIdPlayersRoute = GuildGuildIdPlayersRouteImport.update({
+  id: '/guild/$guildId/players',
+  path: '/guild/$guildId/players',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuildGuildIdNotificationsRoute =
+  GuildGuildIdNotificationsRouteImport.update({
+    id: '/guild/$guildId/notifications',
+    path: '/guild/$guildId/notifications',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const GuildGuildIdMatchesRoute = GuildGuildIdMatchesRouteImport.update({
+  id: '/guild/$guildId/matches',
+  path: '/guild/$guildId/matches',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
@@ -26,27 +63,76 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/guild/$guildId/matches': typeof GuildGuildIdMatchesRoute
+  '/guild/$guildId/notifications': typeof GuildGuildIdNotificationsRoute
+  '/guild/$guildId/players': typeof GuildGuildIdPlayersRoute
+  '/guild/$guildId/rules': typeof GuildGuildIdRulesRoute
+  '/guild/$guildId/settings': typeof GuildGuildIdSettingsRoute
+  '/guild/$guildId/tournaments': typeof GuildGuildIdTournamentsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/guild/$guildId/matches': typeof GuildGuildIdMatchesRoute
+  '/guild/$guildId/notifications': typeof GuildGuildIdNotificationsRoute
+  '/guild/$guildId/players': typeof GuildGuildIdPlayersRoute
+  '/guild/$guildId/rules': typeof GuildGuildIdRulesRoute
+  '/guild/$guildId/settings': typeof GuildGuildIdSettingsRoute
+  '/guild/$guildId/tournaments': typeof GuildGuildIdTournamentsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
+  '/guild/$guildId/matches': typeof GuildGuildIdMatchesRoute
+  '/guild/$guildId/notifications': typeof GuildGuildIdNotificationsRoute
+  '/guild/$guildId/players': typeof GuildGuildIdPlayersRoute
+  '/guild/$guildId/rules': typeof GuildGuildIdRulesRoute
+  '/guild/$guildId/settings': typeof GuildGuildIdSettingsRoute
+  '/guild/$guildId/tournaments': typeof GuildGuildIdTournamentsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/auth/$'
+  fullPaths:
+    | '/'
+    | '/api/auth/$'
+    | '/guild/$guildId/matches'
+    | '/guild/$guildId/notifications'
+    | '/guild/$guildId/players'
+    | '/guild/$guildId/rules'
+    | '/guild/$guildId/settings'
+    | '/guild/$guildId/tournaments'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/auth/$'
-  id: '__root__' | '/' | '/api/auth/$'
+  to:
+    | '/'
+    | '/api/auth/$'
+    | '/guild/$guildId/matches'
+    | '/guild/$guildId/notifications'
+    | '/guild/$guildId/players'
+    | '/guild/$guildId/rules'
+    | '/guild/$guildId/settings'
+    | '/guild/$guildId/tournaments'
+  id:
+    | '__root__'
+    | '/'
+    | '/api/auth/$'
+    | '/guild/$guildId/matches'
+    | '/guild/$guildId/notifications'
+    | '/guild/$guildId/players'
+    | '/guild/$guildId/rules'
+    | '/guild/$guildId/settings'
+    | '/guild/$guildId/tournaments'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  GuildGuildIdMatchesRoute: typeof GuildGuildIdMatchesRoute
+  GuildGuildIdNotificationsRoute: typeof GuildGuildIdNotificationsRoute
+  GuildGuildIdPlayersRoute: typeof GuildGuildIdPlayersRoute
+  GuildGuildIdRulesRoute: typeof GuildGuildIdRulesRoute
+  GuildGuildIdSettingsRoute: typeof GuildGuildIdSettingsRoute
+  GuildGuildIdTournamentsRoute: typeof GuildGuildIdTournamentsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -56,6 +142,48 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guild/$guildId/tournaments': {
+      id: '/guild/$guildId/tournaments'
+      path: '/guild/$guildId/tournaments'
+      fullPath: '/guild/$guildId/tournaments'
+      preLoaderRoute: typeof GuildGuildIdTournamentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guild/$guildId/settings': {
+      id: '/guild/$guildId/settings'
+      path: '/guild/$guildId/settings'
+      fullPath: '/guild/$guildId/settings'
+      preLoaderRoute: typeof GuildGuildIdSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guild/$guildId/rules': {
+      id: '/guild/$guildId/rules'
+      path: '/guild/$guildId/rules'
+      fullPath: '/guild/$guildId/rules'
+      preLoaderRoute: typeof GuildGuildIdRulesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guild/$guildId/players': {
+      id: '/guild/$guildId/players'
+      path: '/guild/$guildId/players'
+      fullPath: '/guild/$guildId/players'
+      preLoaderRoute: typeof GuildGuildIdPlayersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guild/$guildId/notifications': {
+      id: '/guild/$guildId/notifications'
+      path: '/guild/$guildId/notifications'
+      fullPath: '/guild/$guildId/notifications'
+      preLoaderRoute: typeof GuildGuildIdNotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guild/$guildId/matches': {
+      id: '/guild/$guildId/matches'
+      path: '/guild/$guildId/matches'
+      fullPath: '/guild/$guildId/matches'
+      preLoaderRoute: typeof GuildGuildIdMatchesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/auth/$': {
@@ -71,6 +199,12 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
+  GuildGuildIdMatchesRoute: GuildGuildIdMatchesRoute,
+  GuildGuildIdNotificationsRoute: GuildGuildIdNotificationsRoute,
+  GuildGuildIdPlayersRoute: GuildGuildIdPlayersRoute,
+  GuildGuildIdRulesRoute: GuildGuildIdRulesRoute,
+  GuildGuildIdSettingsRoute: GuildGuildIdSettingsRoute,
+  GuildGuildIdTournamentsRoute: GuildGuildIdTournamentsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

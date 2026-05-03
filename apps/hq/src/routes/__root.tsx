@@ -4,6 +4,8 @@ import { TanStackDevtools } from "@tanstack/react-devtools";
 import type { QueryClient } from "@tanstack/react-query";
 import TanStackQueryDevtools from "../integrations/tanstack-query/devtools";
 import appCss from "../styles.css?url";
+import { DashboardProvider } from "#/components/dashboard-context";
+import { DashboardLayout } from "#/components/dashboard-layout";
 
 interface MyRouterContext {
   queryClient: QueryClient;
@@ -55,7 +57,9 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <HeadContent />
       </head>
       <body className="bg-background font-sans text-foreground antialiased [overflow-wrap:anywhere]">
-        {children}
+        <DashboardProvider>
+          <DashboardLayout>{children}</DashboardLayout>
+        </DashboardProvider>
         <TanStackDevtools
           config={{
             position: "bottom-right",

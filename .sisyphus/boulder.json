@@ -36,6 +36,15 @@
       "agent": "Sisyphus-Junior",
       "category": "quick",
       "updated_at": "2026-05-03T18:40:26.643Z"
+    },
+    "todo:12": {
+      "task_key": "todo:12",
+      "task_label": "12",
+      "task_title": "Dashboard Layout + Navigation Shell",
+      "session_id": "ses_20ff089c7ffeoLxbi03eDlK9tM",
+      "agent": "Sisyphus-Junior",
+      "category": "quick",
+      "updated_at": "2026-05-03T22:57:51.669Z"
     }
   }
 }

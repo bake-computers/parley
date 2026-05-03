@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, type NavigateFn } from "@tanstack/react-router";
 import {
   Bar,
@@ -19,6 +19,7 @@ import {
   type DashboardPageData,
 } from "#/lib/dashboard";
 import { useGuildAccess } from "#/hooks/use-guild-access";
+import { useDashboard } from "#/components/dashboard-context";
 import { AuthGuard } from "#/components/auth-guard";
 import { GuildSelector } from "#/components/guild-selector";
 import { Badge } from "#/components/ui/badge";
@@ -143,9 +144,14 @@ export function HqDashboard({ data }: { data: DashboardPageData }) {
   // Global admins skip the guild selector and go straight to the dashboard.
   // Guild admins must pick a server first (selectedGuild starts undefined).
   const isGlobalAdmin = data.auth.status === "authorized" && data.auth.isGlobalAdmin;
-  const [selectedGuild, setSelectedGuild] = useState<string | null | undefined>(
-    isGlobalAdmin ? null : undefined,
-  );
+  const { selectedGuildId, setSelectedGuildId } = useDashboard();
+
+  useEffect(() => {
+    if (data.auth.status === "authorized" && selectedGuildId === undefined) {
+      setSelectedGuildId(isGlobalAdmin ? null : undefined);
+    }
+  }, [data.auth.status, isGlobalAdmin, selectedGuildId, setSelectedGuildId]);
+
   const {
     adminGuilds,
     isGlobalAdmin: guildIsGlobalAdmin,
@@ -174,7 +180,7 @@ export function HqDashboard({ data }: { data: DashboardPageData }) {
   }
 
   // Guild selection flow: if no guild selected yet, show selector
-  if (selectedGuild === undefined) {
+  if (selectedGuildId === undefined) {
     if (isLoading) {
       return (
         <section className="auth-panel">
@@ -223,19 +229,19 @@ export function HqDashboard({ data }: { data: DashboardPageData }) {
       <GuildSelector
         adminGuilds={adminGuilds}
         isGlobalAdmin={guildIsGlobalAdmin}
-        onSelect={(guildId) => setSelectedGuild(guildId)}
+        onSelect={(guildId) => setSelectedGuildId(guildId)}
       />
     );
   }
 
   // Guild selected — wrap dashboard in auth guard
   return (
-    <AuthGuard guildId={selectedGuild}>
+    <AuthGuard guildId={selectedGuildId}>
       <DashboardContent
         data={data}
         pendingFilters={pendingFilters}
         setPendingFilters={setPendingFilters}
-        onBackToGuilds={() => setSelectedGuild(undefined)}
+        onBackToGuilds={() => setSelectedGuildId(undefined)}
       />
     </AuthGuard>
   );
