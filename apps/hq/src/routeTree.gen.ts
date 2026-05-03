@@ -17,6 +17,7 @@ import { Route as GuildGuildIdPlayersRouteImport } from './routes/guild/$guildId
 import { Route as GuildGuildIdNotificationsRouteImport } from './routes/guild/$guildId/notifications'
 import { Route as GuildGuildIdMatchesRouteImport } from './routes/guild/$guildId/matches'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
+import { Route as GuildGuildIdTournamentsScheduleRouteImport } from './routes/guild/$guildId/tournaments/schedule'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -59,6 +60,12 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
   path: '/api/auth/$',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GuildGuildIdTournamentsScheduleRoute =
+  GuildGuildIdTournamentsScheduleRouteImport.update({
+    id: '/schedule',
+    path: '/schedule',
+    getParentRoute: () => GuildGuildIdTournamentsRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -68,7 +75,8 @@ export interface FileRoutesByFullPath {
   '/guild/$guildId/players': typeof GuildGuildIdPlayersRoute
   '/guild/$guildId/rules': typeof GuildGuildIdRulesRoute
   '/guild/$guildId/settings': typeof GuildGuildIdSettingsRoute
-  '/guild/$guildId/tournaments': typeof GuildGuildIdTournamentsRoute
+  '/guild/$guildId/tournaments': typeof GuildGuildIdTournamentsRouteWithChildren
+  '/guild/$guildId/tournaments/schedule': typeof GuildGuildIdTournamentsScheduleRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -78,7 +86,8 @@ export interface FileRoutesByTo {
   '/guild/$guildId/players': typeof GuildGuildIdPlayersRoute
   '/guild/$guildId/rules': typeof GuildGuildIdRulesRoute
   '/guild/$guildId/settings': typeof GuildGuildIdSettingsRoute
-  '/guild/$guildId/tournaments': typeof GuildGuildIdTournamentsRoute
+  '/guild/$guildId/tournaments': typeof GuildGuildIdTournamentsRouteWithChildren
+  '/guild/$guildId/tournaments/schedule': typeof GuildGuildIdTournamentsScheduleRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -89,7 +98,8 @@ export interface FileRoutesById {
   '/guild/$guildId/players': typeof GuildGuildIdPlayersRoute
   '/guild/$guildId/rules': typeof GuildGuildIdRulesRoute
   '/guild/$guildId/settings': typeof GuildGuildIdSettingsRoute
-  '/guild/$guildId/tournaments': typeof GuildGuildIdTournamentsRoute
+  '/guild/$guildId/tournaments': typeof GuildGuildIdTournamentsRouteWithChildren
+  '/guild/$guildId/tournaments/schedule': typeof GuildGuildIdTournamentsScheduleRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -102,6 +112,7 @@ export interface FileRouteTypes {
     | '/guild/$guildId/rules'
     | '/guild/$guildId/settings'
     | '/guild/$guildId/tournaments'
+    | '/guild/$guildId/tournaments/schedule'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -112,6 +123,7 @@ export interface FileRouteTypes {
     | '/guild/$guildId/rules'
     | '/guild/$guildId/settings'
     | '/guild/$guildId/tournaments'
+    | '/guild/$guildId/tournaments/schedule'
   id:
     | '__root__'
     | '/'
@@ -122,6 +134,7 @@ export interface FileRouteTypes {
     | '/guild/$guildId/rules'
     | '/guild/$guildId/settings'
     | '/guild/$guildId/tournaments'
+    | '/guild/$guildId/tournaments/schedule'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -132,7 +145,7 @@ export interface RootRouteChildren {
   GuildGuildIdPlayersRoute: typeof GuildGuildIdPlayersRoute
   GuildGuildIdRulesRoute: typeof GuildGuildIdRulesRoute
   GuildGuildIdSettingsRoute: typeof GuildGuildIdSettingsRoute
-  GuildGuildIdTournamentsRoute: typeof GuildGuildIdTournamentsRoute
+  GuildGuildIdTournamentsRoute: typeof GuildGuildIdTournamentsRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -193,8 +206,29 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthSplatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/guild/$guildId/tournaments/schedule': {
+      id: '/guild/$guildId/tournaments/schedule'
+      path: '/schedule'
+      fullPath: '/guild/$guildId/tournaments/schedule'
+      preLoaderRoute: typeof GuildGuildIdTournamentsScheduleRouteImport
+      parentRoute: typeof GuildGuildIdTournamentsRoute
+    }
   }
 }
+
+interface GuildGuildIdTournamentsRouteChildren {
+  GuildGuildIdTournamentsScheduleRoute: typeof GuildGuildIdTournamentsScheduleRoute
+}
+
+const GuildGuildIdTournamentsRouteChildren: GuildGuildIdTournamentsRouteChildren =
+  {
+    GuildGuildIdTournamentsScheduleRoute: GuildGuildIdTournamentsScheduleRoute,
+  }
+
+const GuildGuildIdTournamentsRouteWithChildren =
+  GuildGuildIdTournamentsRoute._addFileChildren(
+    GuildGuildIdTournamentsRouteChildren,
+  )
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -204,7 +238,7 @@ const rootRouteChildren: RootRouteChildren = {
   GuildGuildIdPlayersRoute: GuildGuildIdPlayersRoute,
   GuildGuildIdRulesRoute: GuildGuildIdRulesRoute,
   GuildGuildIdSettingsRoute: GuildGuildIdSettingsRoute,
-  GuildGuildIdTournamentsRoute: GuildGuildIdTournamentsRoute,
+  GuildGuildIdTournamentsRoute: GuildGuildIdTournamentsRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

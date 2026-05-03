@@ -45,6 +45,15 @@ export class LeaderboardDO implements DurableObject {
       });
     }
 
+    // Notification endpoint from Worker after match completion
+    if (url.pathname === "/notify" && request.method === "POST") {
+      void this.refreshAndBroadcast();
+      return new Response(JSON.stringify({ ok: true }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
     // WebSocket upgrade path. Use the standard WebSocketPair approach when available.
     // This upgrade enables real-time broadcasts to all connected clients.
     if (

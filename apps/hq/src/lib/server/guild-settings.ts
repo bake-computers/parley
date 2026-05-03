@@ -5,6 +5,7 @@ import {
   guildPlayers,
   players,
   guildMatchRules,
+  guildNotificationSettings,
 } from "@parley/db/schema";
 import { upsertGuildLimit } from "@parley/db/guild-limits";
 import { withDb } from "./db";
@@ -43,6 +44,20 @@ interface GuildMatchRulesInput {
   platforms?: string[] | null;
   requireVerified?: boolean;
   maxEloGap?: number;
+}
+
+interface GuildNotificationSettingsRow {
+  guildId: string;
+  matchResultsChannel: string | null;
+  tournamentAnnouncementsChannel: string | null;
+  leaderboardUpdatesEnabled: boolean;
+  updatedAt: number;
+}
+
+interface GuildNotificationSettingsInput {
+  matchResultsChannel?: string | null;
+  tournamentAnnouncementsChannel?: string | null;
+  leaderboardUpdatesEnabled?: boolean;
 }
 
 interface GuildPlayerRow {
@@ -127,6 +142,45 @@ async function invalidateGuildMatchRulesCache(guildId: string): Promise<void> {
   try {
     const cache = await caches.open("default");
     const key = getGuildMatchRulesCacheKey(guildId);
+    await cache.delete(key);
+  } catch {}
+}
+
+function getGuildNotificationSettingsCacheKey(guildId: string): string {
+  return `guild_notification_settings:${guildId}`;
+}
+
+async function getCachedGuildNotificationSettings(
+  guildId: string,
+): Promise<GuildNotificationSettingsRow | null> {
+  try {
+    const cache = await caches.open("default");
+    const key = getGuildNotificationSettingsCacheKey(guildId);
+    const response = await cache.match(key);
+    if (response) {
+      return await response.json<GuildNotificationSettingsRow>();
+    }
+  } catch {}
+  return null;
+}
+
+async function setCachedGuildNotificationSettings(
+  settings: GuildNotificationSettingsRow,
+): Promise<void> {
+  try {
+    const cache = await caches.open("default");
+    const key = getGuildNotificationSettingsCacheKey(settings.guildId);
+    const response = new Response(JSON.stringify(settings), {
+      headers: { "Content-Type": "application/json" },
+    });
+    await cache.put(key, response);
+  } catch {}
+}
+
+async function invalidateGuildNotificationSettingsCache(guildId: string): Promise<void> {
+  try {
+    const cache = await caches.open("default");
+    const key = getGuildNotificationSettingsCacheKey(guildId);
     await cache.delete(key);
   } catch {}
 }
@@ -392,4 +446,93 @@ export async function getGuildPlayers(
 
     return rows;
   }).catch(() => []);
+}
+
+export async function getGuildNotificationSettings(
+  headers: Headers,
+  guildId: string,
+): Promise<GuildNotificationSettingsRow | null> {
+  const cached = await getCachedGuildNotificationSettings(guildId);
+  if (cached) {
+    return cached;
+  }
+
+  return withDb(async (db) => {
+    const access = await readDashboardSession(db, headers);
+    if (access.status !== "authorized") {
+      throw new Error("Unauthorized");
+    }
+
+    const rows = await db
+      .select({
+        guildId: guildNotificationSettings.guildId,
+        matchResultsChannel: guildNotificationSettings.matchResultsChannel,
+        tournamentAnnouncementsChannel: guildNotificationSettings.tournamentAnnouncementsChannel,
+        leaderboardUpdatesEnabled: guildNotificationSettings.leaderboardUpdatesEnabled,
+        updatedAt: guildNotificationSettings.updatedAt,
+      })
+      .from(guildNotificationSettings)
+      .where(eq(guildNotificationSettings.guildId, guildId))
+      .limit(1);
+
+    const settings = rows[0] ?? null;
+    if (settings) {
+      await setCachedGuildNotificationSettings(settings);
+    }
+    return settings;
+  }).catch(() => null);
+}
+
+export async function upsertGuildNotificationSettings(
+  headers: Headers,
+  guildId: string,
+  input: GuildNotificationSettingsInput,
+): Promise<GuildNotificationSettingsRow | null> {
+  return withDb(async (db) => {
+    const access = await readDashboardSession(db, headers);
+    if (access.status !== "authorized") {
+      throw new Error("Unauthorized");
+    }
+
+    const now = Date.now();
+
+    await db
+      .insert(guildNotificationSettings)
+      .values({
+        guildId,
+        matchResultsChannel: input.matchResultsChannel ?? null,
+        tournamentAnnouncementsChannel: input.tournamentAnnouncementsChannel ?? null,
+        leaderboardUpdatesEnabled: input.leaderboardUpdatesEnabled ?? false,
+        updatedAt: now,
+      })
+      .onConflictDoUpdate({
+        target: guildNotificationSettings.guildId,
+        set: {
+          matchResultsChannel: input.matchResultsChannel ?? null,
+          tournamentAnnouncementsChannel: input.tournamentAnnouncementsChannel ?? null,
+          leaderboardUpdatesEnabled: input.leaderboardUpdatesEnabled ?? false,
+          updatedAt: now,
+        },
+      });
+
+    await invalidateGuildNotificationSettingsCache(guildId);
+
+    const rows = await db
+      .select({
+        guildId: guildNotificationSettings.guildId,
+        matchResultsChannel: guildNotificationSettings.matchResultsChannel,
+        tournamentAnnouncementsChannel: guildNotificationSettings.tournamentAnnouncementsChannel,
+        leaderboardUpdatesEnabled: guildNotificationSettings.leaderboardUpdatesEnabled,
+        updatedAt: guildNotificationSettings.updatedAt,
+      })
+      .from(guildNotificationSettings)
+      .where(eq(guildNotificationSettings.guildId, guildId))
+      .limit(1);
+
+    const settings = rows[0] ?? null;
+    if (settings) {
+      await setCachedGuildNotificationSettings(settings);
+    }
+    return settings;
+  }).catch(() => null);
 }

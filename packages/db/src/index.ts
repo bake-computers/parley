@@ -5,4 +5,5 @@ export * from "./guild-roster";
 export * from "./leaderboard";
 export * from "./matchmaking-queues";
 export * from "./schema";
+export * from "./stats-queries";
 export * from "./tournaments";

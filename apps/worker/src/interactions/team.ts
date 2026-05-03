@@ -2507,6 +2507,19 @@ async function handleTeamFamilyCommand(
       winningTeam: winnerSide,
       resolutionType: "forfeit",
     });
+    // Fire-and-forget: notify Leaderboard DO about match completion without blocking flow
+    try {
+      const stub = env.LeaderboardDO?.get(env.LeaderboardDO.idFromName("global"));
+      if (stub && typeof stub.fetch === "function") {
+        void stub.fetch("https://do/notify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type: "MATCH_COMPLETED", matchId: match.id }),
+        });
+      }
+    } catch {
+      // Do not let notification failures affect match completion
+    }
     const advanceResult = await advanceTournamentBracketMatch(env.db, {
       bracketMatchId: bracketMatch.id,
       winnerEntryId,
@@ -3391,6 +3404,19 @@ export const teamResultsModalHandler = new ModalHandler(TEAM_RESULTS_MODAL_PREFI
       resultsByDiscordUserId: merged,
       winningTeam: winner,
     });
+    // Fire-and-forget: notify Leaderboard DO about match completion without blocking flow
+    try {
+      const stub = env.LeaderboardDO?.get(env.LeaderboardDO.idFromName("global"));
+      if (stub && typeof stub.fetch === "function") {
+        void stub.fetch("https://do/notify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ type: "MATCH_COMPLETED", matchId }),
+        });
+      }
+    } catch {
+      // Do not let notification failures affect match completion
+    }
     await deleteTeamResultSession(env.Cache, matchId);
 
     let tournamentAdvanceResult: Awaited<ReturnType<typeof advanceTournamentBracketMatch>> | null =

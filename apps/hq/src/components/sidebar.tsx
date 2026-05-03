@@ -82,7 +82,11 @@ export function Sidebar() {
         )}
       >
         <div className="flex items-center justify-between border-b border-white/[0.08] px-5 py-4">
-          <Link to="/" search={{ period: "30d", server: "all", game: "all", feature: "all" }} className="flex items-center gap-2.5">
+          <Link
+            to="/"
+            search={{ period: "30d", server: "all", game: "all", feature: "all" }}
+            className="flex items-center gap-2.5"
+          >
             <span className="text-lg font-bold uppercase tracking-tight gradient-text">Parley</span>
           </Link>
           <button

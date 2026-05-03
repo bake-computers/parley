@@ -1847,7 +1847,7 @@ Max Concurrent: 7 (Wave 1)
   - Message: `feat(hq): add advanced match rules`
   - Files: `apps/hq/src/routes/guild/$guildId/rules.tsx`, `packages/db/src/guild-settings.ts`
 
-- [ ] 19. Dashboard Notification Settings
+- [x] 19. Dashboard Notification Settings
 
   **What to do**:
   - Create `apps/hq/src/routes/guild/$guildId/notifications.tsx` — notification settings page:
@@ -1899,7 +1899,7 @@ Max Concurrent: 7 (Wave 1)
   - Message: `feat(hq): add notification settings`
   - Files: `apps/hq/src/routes/guild/$guildId/notifications.tsx`
 
-- [ ] 20. Worker → DO Match Completion Notification
+- [x] 20. Worker → DO Match Completion Notification
 
   **What to do**:
   - Modify `apps/worker/src/interactions/team.ts` — after `completeCustomMatch()` call, send notification to LeaderboardDO:
@@ -1963,7 +1963,7 @@ Max Concurrent: 7 (Wave 1)
   - Message: `feat(worker): add match completion to DO notification`
   - Files: `apps/worker/src/interactions/team.ts`, `apps/worker/src/leaderboard-do.ts`
 
-- [ ] 21. Dashboard Auto Tournament Scheduling
+- [x] 21. Dashboard Auto Tournament Scheduling
 
   **What to do**:
   - Create `apps/hq/src/routes/guild/$guildId/tournaments/schedule.tsx` — auto scheduling page:
@@ -2025,7 +2025,7 @@ Max Concurrent: 7 (Wave 1)
   - Message: `feat(hq): add auto tournament scheduling`
   - Files: `apps/hq/src/routes/guild/$guildId/tournaments/schedule.tsx`
 
-- [ ] 22. Community Stats Live Data Integration
+- [x] 22. Community Stats Live Data Integration
 
   **What to do**:
   - Add Worker `/api/stats` endpoint to `apps/worker/src/index.ts`:

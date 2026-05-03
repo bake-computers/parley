@@ -1,5 +1,10 @@
 import { eq, desc, asc } from "drizzle-orm";
-import { tournaments, tournamentEntries, tournamentBracketMatches } from "@parley/db/schema";
+import {
+  tournaments,
+  tournamentEntries,
+  tournamentBracketMatches,
+  autoTournamentSchedules,
+} from "@parley/db/schema";
 import { withDb } from "./db";
 import { readDashboardSession } from "./auth";
 
@@ -286,4 +291,197 @@ export async function getTournamentDetail(
       bracketMatches,
     };
   }).catch(() => null);
+}
+
+interface AutoTournamentScheduleRow {
+  id: number;
+  guildId: string;
+  name: string;
+  format: string;
+  teamCap: number;
+  cronExpression: string;
+  channelId: string;
+  roleId: string | null;
+  enabled: boolean;
+  createdAt: number;
+  updatedAt: number;
+}
+
+interface AutoTournamentScheduleInput {
+  name: string;
+  format: string;
+  teamCap: number;
+  cronExpression: string;
+  channelId: string;
+  roleId?: string | null;
+  enabled?: boolean;
+}
+
+interface AutoTournamentScheduleUpdateInput {
+  name?: string;
+  format?: string;
+  teamCap?: number;
+  cronExpression?: string;
+  channelId?: string;
+  roleId?: string | null;
+  enabled?: boolean;
+}
+
+export async function getAutoTournamentSchedules(
+  headers: Headers,
+  guildId: string,
+): Promise<AutoTournamentScheduleRow[]> {
+  return withDb(async (db) => {
+    const access = await readDashboardSession(db, headers);
+    if (access.status !== "authorized") {
+      throw new Error("Unauthorized");
+    }
+
+    const rows = await db
+      .select({
+        id: autoTournamentSchedules.id,
+        guildId: autoTournamentSchedules.guildId,
+        name: autoTournamentSchedules.name,
+        format: autoTournamentSchedules.format,
+        teamCap: autoTournamentSchedules.teamCap,
+        cronExpression: autoTournamentSchedules.cronExpression,
+        channelId: autoTournamentSchedules.channelId,
+        roleId: autoTournamentSchedules.roleId,
+        enabled: autoTournamentSchedules.enabled,
+        createdAt: autoTournamentSchedules.createdAt,
+        updatedAt: autoTournamentSchedules.updatedAt,
+      })
+      .from(autoTournamentSchedules)
+      .where(eq(autoTournamentSchedules.guildId, guildId))
+      .orderBy(desc(autoTournamentSchedules.createdAt));
+
+    return rows;
+  }).catch(() => []);
+}
+
+export async function createAutoTournamentSchedule(
+  headers: Headers,
+  guildId: string,
+  input: AutoTournamentScheduleInput,
+): Promise<AutoTournamentScheduleRow | null> {
+  return withDb(async (db) => {
+    const access = await readDashboardSession(db, headers);
+    if (access.status !== "authorized") {
+      throw new Error("Unauthorized");
+    }
+
+    const now = Date.now();
+
+    const inserted = await db
+      .insert(autoTournamentSchedules)
+      .values({
+        guildId,
+        name: input.name,
+        format: input.format,
+        teamCap: input.teamCap,
+        cronExpression: input.cronExpression,
+        channelId: input.channelId,
+        roleId: input.roleId ?? null,
+        enabled: input.enabled ?? true,
+        createdAt: now,
+        updatedAt: now,
+      })
+      .returning();
+
+    const row = inserted[0];
+    if (!row) return null;
+
+    return {
+      id: row.id,
+      guildId: row.guildId,
+      name: row.name,
+      format: row.format,
+      teamCap: row.teamCap,
+      cronExpression: row.cronExpression,
+      channelId: row.channelId,
+      roleId: row.roleId,
+      enabled: row.enabled,
+      createdAt: row.createdAt,
+      updatedAt: row.updatedAt,
+    };
+  }).catch(() => null);
+}
+
+export async function updateAutoTournamentSchedule(
+  headers: Headers,
+  guildId: string,
+  scheduleId: number,
+  input: AutoTournamentScheduleUpdateInput,
+): Promise<AutoTournamentScheduleRow | null> {
+  return withDb(async (db) => {
+    const access = await readDashboardSession(db, headers);
+    if (access.status !== "authorized") {
+      throw new Error("Unauthorized");
+    }
+
+    const now = Date.now();
+    const setValues: Record<string, unknown> = { updatedAt: now };
+    if (input.name !== undefined) setValues.name = input.name;
+    if (input.format !== undefined) setValues.format = input.format;
+    if (input.teamCap !== undefined) setValues.teamCap = input.teamCap;
+    if (input.cronExpression !== undefined) setValues.cronExpression = input.cronExpression;
+    if (input.channelId !== undefined) setValues.channelId = input.channelId;
+    if (input.roleId !== undefined) setValues.roleId = input.roleId;
+    if (input.enabled !== undefined) setValues.enabled = input.enabled;
+
+    await db
+      .update(autoTournamentSchedules)
+      .set(setValues)
+      .where(eq(autoTournamentSchedules.id, scheduleId));
+
+    const rows = await db
+      .select({
+        id: autoTournamentSchedules.id,
+        guildId: autoTournamentSchedules.guildId,
+        name: autoTournamentSchedules.name,
+        format: autoTournamentSchedules.format,
+        teamCap: autoTournamentSchedules.teamCap,
+        cronExpression: autoTournamentSchedules.cronExpression,
+        channelId: autoTournamentSchedules.channelId,
+        roleId: autoTournamentSchedules.roleId,
+        enabled: autoTournamentSchedules.enabled,
+        createdAt: autoTournamentSchedules.createdAt,
+        updatedAt: autoTournamentSchedules.updatedAt,
+      })
+      .from(autoTournamentSchedules)
+      .where(eq(autoTournamentSchedules.id, scheduleId))
+      .limit(1);
+
+    const row = rows[0];
+    if (!row || row.guildId !== guildId) return null;
+
+    return row;
+  }).catch(() => null);
+}
+
+export async function deleteAutoTournamentSchedule(
+  headers: Headers,
+  guildId: string,
+  scheduleId: number,
+): Promise<boolean> {
+  return withDb(async (db) => {
+    const access = await readDashboardSession(db, headers);
+    if (access.status !== "authorized") {
+      throw new Error("Unauthorized");
+    }
+
+    const rows = await db
+      .select({ guildId: autoTournamentSchedules.guildId })
+      .from(autoTournamentSchedules)
+      .where(eq(autoTournamentSchedules.id, scheduleId))
+      .limit(1);
+
+    const row = rows[0];
+    if (!row || row.guildId !== guildId) {
+      return false;
+    }
+
+    await db.delete(autoTournamentSchedules).where(eq(autoTournamentSchedules.id, scheduleId));
+    return true;
+  }).catch(() => false);
 }

@@ -1,9 +1,7 @@
 {
   "active_plan": "/Users/juwen/dev/commerce/parley/.sisyphus/plans/landing-dashboard-leaderboard.md",
   "started_at": "2026-05-03T18:02:54.382Z",
-  "session_ids": [
-    "ses_211204dc6ffeB1uXfXFPOxc3tK"
-  ],
+  "session_ids": ["ses_211204dc6ffeB1uXfXFPOxc3tK"],
   "session_origins": {
     "ses_211204dc6ffeB1uXfXFPOxc3tK": "direct"
   },
@@ -54,6 +52,15 @@
       "agent": "Sisyphus-Junior",
       "category": "unspecified-high",
       "updated_at": "2026-05-03T23:11:10.026Z"
+    },
+    "todo:19": {
+      "task_key": "todo:19",
+      "task_label": "19",
+      "task_title": "Dashboard Notification Settings",
+      "session_id": "ses_20fdd07caffeLzQHsWrrmvzKCN",
+      "agent": "Sisyphus-Junior",
+      "category": "unspecified-high",
+      "updated_at": "2026-05-03T23:24:16.483Z"
     }
   }
 }
