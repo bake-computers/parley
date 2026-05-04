@@ -1,66 +1,12 @@
 {
-  "active_plan": "/Users/juwen/dev/commerce/parley/.sisyphus/plans/landing-dashboard-leaderboard.md",
-  "started_at": "2026-05-03T18:02:54.382Z",
-  "session_ids": ["ses_211204dc6ffeB1uXfXFPOxc3tK"],
+  "active_plan": "/Users/juwen/dev/commerce/parley/.sisyphus/plans/ui-overhaul.md",
+  "started_at": "2026-05-04T17:11:45.019Z",
+  "session_ids": [
+    "ses_20c2a9ab7ffeJkedkGsVbP0vBa"
+  ],
   "session_origins": {
-    "ses_211204dc6ffeB1uXfXFPOxc3tK": "direct"
+    "ses_20c2a9ab7ffeJkedkGsVbP0vBa": "direct"
   },
-  "plan_name": "landing-dashboard-leaderboard",
-  "agent": "atlas",
-  "task_sessions": {
-    "todo:1": {
-      "task_key": "todo:1",
-      "task_label": "1",
-      "task_title": "Design System Tokens + Fundamentals",
-      "session_id": "ses_210fcc421ffeWK6WJ96kW4t1ZX",
-      "agent": "Sisyphus-Junior",
-      "category": "visual-engineering",
-      "updated_at": "2026-05-03T18:09:59.297Z"
-    },
-    "todo:8": {
-      "task_key": "todo:8",
-      "task_label": "8",
-      "task_title": "Hero Section Redesign",
-      "session_id": "ses_210f13912ffeWVrHzY0F8MiFzI",
-      "agent": "Sisyphus-Junior",
-      "category": "visual-engineering",
-      "updated_at": "2026-05-03T18:26:22.955Z"
-    },
-    "todo:10": {
-      "task_key": "todo:10",
-      "task_label": "10",
-      "task_title": "Dashboard Auth Flow UI — Login, Guild Selector, Guards",
-      "session_id": "ses_210dc4d8cffev355ie4hFoHBpC",
-      "agent": "Sisyphus-Junior",
-      "category": "quick",
-      "updated_at": "2026-05-03T18:40:26.643Z"
-    },
-    "todo:12": {
-      "task_key": "todo:12",
-      "task_label": "12",
-      "task_title": "Dashboard Layout + Navigation Shell",
-      "session_id": "ses_20ff089c7ffeoLxbi03eDlK9tM",
-      "agent": "Sisyphus-Junior",
-      "category": "quick",
-      "updated_at": "2026-05-03T22:57:51.669Z"
-    },
-    "todo:13": {
-      "task_key": "todo:13",
-      "task_label": "13",
-      "task_title": "Dashboard Guild Settings + Player Roster",
-      "session_id": "ses_20fedc55cffekqg5772k01gcHu",
-      "agent": "Sisyphus-Junior",
-      "category": "unspecified-high",
-      "updated_at": "2026-05-03T23:11:10.026Z"
-    },
-    "todo:19": {
-      "task_key": "todo:19",
-      "task_label": "19",
-      "task_title": "Dashboard Notification Settings",
-      "session_id": "ses_20fdd07caffeLzQHsWrrmvzKCN",
-      "agent": "Sisyphus-Junior",
-      "category": "unspecified-high",
-      "updated_at": "2026-05-03T23:24:16.483Z"
-    }
-  }
+  "plan_name": "ui-overhaul",
+  "agent": "atlas"
 }
