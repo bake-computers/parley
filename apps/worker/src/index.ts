@@ -108,6 +108,17 @@ function withCors(response: Response, origin: string): Response {
   });
 }
 
+function safeCorsResponse(
+  status: number,
+  body: unknown,
+  origin: string,
+): Response {
+  return Response.json(body, {
+    status,
+    headers: corsHeaders(origin),
+  });
+}
+
 export default {
   fetch: async (request: Request, env: WorkerEnv, ctx: ExecutionContext) => {
     const url = new URL(request.url);
@@ -120,66 +131,74 @@ export default {
 
     let response: Response;
 
-    if (url.pathname.startsWith("/api/auth/")) {
-      response = await handleAuthRequest(request, env, ctx);
-    } else if (url.pathname === "/api/leaderboard") {
-      response = await handleLeaderboardRequest(request, env, ctx);
-    } else if (url.pathname === "/api/leaderboard/notify") {
-      response = await handleLeaderboardNotify(request, env, ctx);
-    } else if (url.pathname === "/api/dashboard/guilds") {
-      response = await handleDashboardGuilds(request, env, ctx);
-    } else {
-      const guildDetailMatch = url.pathname.match(/^\/api\/dashboard\/guilds\/([^/]+)$/);
-      if (guildDetailMatch && guildDetailMatch[1]) {
-        response = await handleDashboardGuildDetail(request, env, ctx, guildDetailMatch[1]);
+    try {
+      if (url.pathname.startsWith("/api/auth/")) {
+        response = await handleAuthRequest(request, env, ctx);
+      } else if (url.pathname === "/api/leaderboard") {
+        response = await handleLeaderboardRequest(request, env, ctx);
+      } else if (url.pathname === "/api/leaderboard/notify") {
+        response = await handleLeaderboardNotify(request, env, ctx);
+      } else if (url.pathname === "/api/dashboard/guilds") {
+        response = await handleDashboardGuilds(request, env, ctx);
       } else {
-        const guildHistoryMatch = url.pathname.match(
-          /^\/api\/dashboard\/guilds\/([^/]+)\/history$/,
-        );
-        if (guildHistoryMatch && guildHistoryMatch[1]) {
-          response = await handleDashboardGuildHistory(request, env, ctx, guildHistoryMatch[1]);
-        } else if (url.pathname === "/api/stats") {
-          const cached = await fetchCachedStats(env);
-          if (cached) {
-            response = Response.json(cached, {
-              headers: { "Cache-Control": "public, max-age=60, s-maxage=60" },
-            });
-          } else {
-            const handle = await createRuntimeDbHandle(env);
-            try {
-              const today = new Date();
-              today.setHours(0, 0, 0, 0);
-              const todayMs = today.getTime();
-
-              const stats = await getAggregateStats(handle.env.db ?? null, todayMs);
-              await cacheStats(env, stats);
-
-              response = Response.json(stats, {
+        const guildDetailMatch = url.pathname.match(/^\/api\/dashboard\/guilds\/([^/]+)$/);
+        if (guildDetailMatch && guildDetailMatch[1]) {
+          response = await handleDashboardGuildDetail(request, env, ctx, guildDetailMatch[1]);
+        } else {
+          const guildHistoryMatch = url.pathname.match(
+            /^\/api\/dashboard\/guilds\/([^/]+)\/history$/,
+          );
+          if (guildHistoryMatch && guildHistoryMatch[1]) {
+            response = await handleDashboardGuildHistory(request, env, ctx, guildHistoryMatch[1]);
+          } else if (url.pathname === "/api/stats") {
+            const cached = await fetchCachedStats(env);
+            if (cached) {
+              response = Response.json(cached, {
                 headers: { "Cache-Control": "public, max-age=60, s-maxage=60" },
               });
-            } finally {
-              await handle.close();
-            }
-          }
-        } else if (url.pathname === "/ws/leaderboard") {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const stub = env.LeaderboardDO.get(env.LeaderboardDO.idFromName("global"));
-          response = await (stub as any).fetch(request);
-        } else {
-          const handle = await createRuntimeDbHandle(env);
-          const managedContext = new ManagedExecutionContext(ctx, handle.close);
+            } else {
+              const handle = await createRuntimeDbHandle(env);
+              try {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const todayMs = today.getTime();
 
-          try {
-            response = await bot.fetch(
-              request,
-              handle.env,
-              managedContext as unknown as ExecutionContext,
-            );
-          } finally {
-            managedContext.markResponseReturned();
+                const stats = await getAggregateStats(handle.env.db ?? null, todayMs);
+                await cacheStats(env, stats);
+
+                response = Response.json(stats, {
+                  headers: { "Cache-Control": "public, max-age=60, s-maxage=60" },
+                });
+              } finally {
+                await handle.close();
+              }
+            }
+          } else if (url.pathname === "/ws/leaderboard") {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const stub = env.LeaderboardDO.get(env.LeaderboardDO.idFromName("global"));
+            response = await (stub as any).fetch(request);
+          } else {
+            const handle = await createRuntimeDbHandle(env);
+            const managedContext = new ManagedExecutionContext(ctx, handle.close);
+
+            try {
+              response = await bot.fetch(
+                request,
+                handle.env,
+                managedContext as unknown as ExecutionContext,
+              );
+            } finally {
+              managedContext.markResponseReturned();
+            }
           }
         }
       }
+    } catch (error) {
+      console.error("Unhandled error in fetch handler:", error);
+      if (isApiRequest) {
+        return safeCorsResponse(500, { error: "internal_server_error" }, origin);
+      }
+      throw error;
     }
 
     if (isApiRequest) {

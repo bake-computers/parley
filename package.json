@@ -12,6 +12,7 @@
     "build:hq": "turbo run build --filter=@parley/hq",
     "build:web": "turbo run build --filter=@parley/web",
     "dev:web": "turbo run dev --filter=@parley/web",
+    "dev:bot+web": "turbo run dev --filter=@parley/worker --filter=@parley/web",
     "deploy:web": "turbo run deploy --filter=@parley/web",
     "cf-typegen:web": "turbo run cf-typegen --filter=@parley/web",
     "dev": "turbo run dev",

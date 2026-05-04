@@ -58,4 +58,13 @@
       "tag": "v1",
     },
   ],
+  "routes": [
+    {
+      "pattern": "app.parley.bot",
+      "zone_name": "parley.bot",
+      "custom_domain": true,
+    },
+  ],
+  "preview_urls": false,
+  "workers_dev": false,
 }
