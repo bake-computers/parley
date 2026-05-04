@@ -34,7 +34,7 @@
   "queues": {
     "producers": [
       {
-        "binding": "QUEUE",
+        "binding": "Queue",
         "queue": "parley-stat-refresh",
       },
     ],
