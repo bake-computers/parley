@@ -33,6 +33,13 @@ export function createParleyAuth(db: DbClient, env: ParleyAuthEnv) {
     appName: "Parley HQ",
     secret: env.BETTER_AUTH_SECRET,
     baseURL: env.BETTER_AUTH_URL,
+    trustedOrigins: [
+      "https://app.parley.bot",
+      "https://parley.bot",
+      "http://localhost:3001",
+      "http://localhost:3000",
+      "http://localhost:8787",
+    ],
     database: drizzleAdapter(db, {
       provider: "pg",
       schema: {
