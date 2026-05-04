@@ -55,9 +55,9 @@ const PLATFORMS: { value: Platform; label: string }[] = [
 ];
 
 const PLATFORM_COLORS: Record<string, string> = {
-  pc: "bg-blue-500/20 text-blue-400 border-blue-500/30",
-  xbox: "bg-green-500/20 text-green-400 border-green-500/30",
-  playstation: "bg-purple-500/20 text-purple-400 border-purple-500/30",
+  pc: "bg-gray-500/20 text-gray-400 border-gray-500/30",
+  xbox: "bg-gray-500/20 text-gray-400 border-gray-500/30",
+  playstation: "bg-gray-500/20 text-gray-400 border-gray-500/30",
 };
 
 function getPlatformColor(platform: string): string {
@@ -204,7 +204,7 @@ function LeaderboardRoute() {
                 )}
               />
             </div>
-            <Badge variant={isConnected ? "gradient-mixed" : "secondary"}>
+            <Badge variant={isConnected ? "default" : "secondary"}>
               {isConnected ? "LIVE" : "Connecting..."}
             </Badge>
             {lastUpdated ? (
@@ -220,7 +220,7 @@ function LeaderboardRoute() {
             {PLATFORMS.map((p) => (
               <Button
                 key={p.value}
-                variant={platformFilter === p.value ? "gradient" : "depth"}
+                variant={platformFilter === p.value ? "default" : "outline"}
                 size="sm"
                 onClick={() => setPlatformFilter(p.value)}
               >
@@ -296,10 +296,10 @@ function LeaderboardRoute() {
                           <div className="flex items-center gap-1.5">
                             <span className="font-mono font-medium">{entry.internalElo}</span>
                             {entry.eloTrend === "up" && (
-                              <TrendingUp className="h-3.5 w-3.5 text-green-400" />
+                              <TrendingUp className="h-3.5 w-3.5 text-muted-foreground" />
                             )}
                             {entry.eloTrend === "down" && (
-                              <TrendingDown className="h-3.5 w-3.5 text-red-400" />
+                              <TrendingDown className="h-3.5 w-3.5 text-muted-foreground" />
                             )}
                             {entry.eloTrend === "same" && (
                               <Minus className="h-3.5 w-3.5 text-muted-foreground" />
@@ -309,8 +309,8 @@ function LeaderboardRoute() {
                         <td className="px-4 py-3 font-mono text-muted-foreground">
                           {entry.internalMatches}
                         </td>
-                        <td className="px-4 py-3 font-mono text-green-400">{entry.internalWins}</td>
-                        <td className="px-4 py-3 font-mono text-red-400">{entry.internalLosses}</td>
+                        <td className="px-4 py-3 font-mono text-foreground">{entry.internalWins}</td>
+                        <td className="px-4 py-3 font-mono text-muted-foreground">{entry.internalLosses}</td>
                         <td className="px-4 py-3 font-mono">{winRate}%</td>
                       </tr>
                     );
@@ -352,10 +352,10 @@ function LeaderboardRoute() {
                         <div className="flex items-center gap-1.5 mt-0.5">
                           <span className="font-mono font-medium">{entry.internalElo}</span>
                           {entry.eloTrend === "up" && (
-                            <TrendingUp className="h-3.5 w-3.5 text-green-400" />
+                            <TrendingUp className="h-3.5 w-3.5 text-muted-foreground" />
                           )}
                           {entry.eloTrend === "down" && (
-                            <TrendingDown className="h-3.5 w-3.5 text-red-400" />
+                            <TrendingDown className="h-3.5 w-3.5 text-muted-foreground" />
                           )}
                           {entry.eloTrend === "same" && (
                             <Minus className="h-3.5 w-3.5 text-muted-foreground" />
@@ -372,7 +372,7 @@ function LeaderboardRoute() {
                         <p className="text-xs text-muted-foreground uppercase tracking-wider">
                           Wins
                         </p>
-                        <p className="font-mono text-green-400 mt-0.5">{entry.internalWins}</p>
+                        <p className="font-mono text-foreground mt-0.5">{entry.internalWins}</p>
                       </div>
                       <div>
                         <p className="text-xs text-muted-foreground uppercase tracking-wider">
@@ -400,7 +400,7 @@ function LeaderboardRoute() {
 
             <div className="mt-6 flex items-center justify-between">
               <Button
-                variant="depth"
+                variant="outline"
                 size="sm"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page <= 1}
@@ -412,7 +412,7 @@ function LeaderboardRoute() {
                 Page {page} of {totalPages}
               </span>
               <Button
-                variant="depth"
+                variant="outline"
                 size="sm"
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page >= totalPages}

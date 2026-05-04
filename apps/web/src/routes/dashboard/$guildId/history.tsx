@@ -59,10 +59,10 @@ function MatchHistory() {
     switch (status.toLowerCase()) {
       case "completed":
       case "finished":
-        return <Badge variant="gradient-mixed">Completed</Badge>;
+        return <Badge variant="default">Completed</Badge>;
       case "active":
       case "ongoing":
-        return <Badge variant="gradient-mixed">Active</Badge>;
+        return <Badge variant="default">Active</Badge>;
       case "cancelled":
         return <Badge variant="destructive">Cancelled</Badge>;
       default:
@@ -150,7 +150,7 @@ function MatchHistory() {
           {data && data.totalPages > 1 && (
             <div className="flex items-center justify-between">
               <Button
-                variant="depth"
+                variant="outline"
                 size="sm"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page <= 1}
@@ -162,7 +162,7 @@ function MatchHistory() {
                 Page {page} of {data.totalPages}
               </span>
               <Button
-                variant="depth"
+                variant="outline"
                 size="sm"
                 onClick={() => setPage((p) => Math.min(data.totalPages, p + 1))}
                 disabled={page >= data.totalPages}

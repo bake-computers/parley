@@ -73,13 +73,13 @@ function DashboardIndex() {
             <p className="text-muted-foreground mb-6">{error}</p>
             {isAuthError ? (
               <Button
-                variant="gradient"
+                variant="default"
                 onClick={() => authClient.signIn.social({ provider: "discord" })}
               >
                 Sign in with Discord
               </Button>
             ) : (
-              <Button variant="depth" onClick={() => window.location.reload()}>
+              <Button variant="outline" onClick={() => window.location.reload()}>
                 Retry
               </Button>
             )}
@@ -108,7 +108,7 @@ function DashboardIndex() {
             Administrator permission.
           </p>
           <Button
-            variant="gradient"
+            variant="default"
             className="mt-6"
             onClick={() => {
               window.open(

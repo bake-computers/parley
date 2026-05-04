@@ -45,6 +45,15 @@
       "agent": "Sisyphus-Junior",
       "category": "quick",
       "updated_at": "2026-05-04T17:28:00.027Z"
+    },
+    "todo:8": {
+      "task_key": "todo:8",
+      "task_label": "8",
+      "task_title": "**Replace Button with shadcn Button + Update All Imports**",
+      "session_id": "ses_20bf48922ffej4nV3KYHrsWcoY",
+      "agent": "Sisyphus-Junior",
+      "category": "quick",
+      "updated_at": "2026-05-04T17:34:32.262Z"
     }
   }
 }

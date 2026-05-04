@@ -130,13 +130,13 @@ function GuildOverview() {
             <p className="text-muted-foreground mb-6">{error}</p>
             {isAuthError ? (
               <Button
-                variant="gradient"
+                variant="default"
                 onClick={() => authClient.signIn.social({ provider: "discord" })}
               >
                 Sign in with Discord
               </Button>
             ) : (
-              <Button variant="depth" onClick={() => window.location.reload()}>
+              <Button variant="outline" onClick={() => window.location.reload()}>
                 Retry
               </Button>
             )}
@@ -257,7 +257,7 @@ function GuildOverview() {
         </div>
 
         <div className="flex items-center gap-4 pt-2">
-          <Button variant="gradient" onClick={handleSave} disabled={isSaving}>
+          <Button variant="default" onClick={handleSave} disabled={isSaving}>
             {isSaving ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -268,7 +268,7 @@ function GuildOverview() {
             )}
           </Button>
           {saveMessage && (
-            <Badge variant="gradient-mixed" className="text-xs">
+            <Badge variant="default" className="text-xs">
               {saveMessage}
             </Badge>
           )}

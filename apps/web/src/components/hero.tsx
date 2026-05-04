@@ -14,13 +14,13 @@ export function Hero() {
       <div className="lp-container hero-content relative z-10">
         <div className="hero-main">
           <div className="flex flex-wrap gap-2 mb-6 hero-animate hero-delay-1">
-            <Badge variant="gradient-mixed" className="text-xs">
+            <Badge variant="default" className="text-xs">
               Cross-Server ELO
             </Badge>
-            <Badge variant="gradient-blue" className="text-xs">
+            <Badge variant="default" className="text-xs">
               5v5 Matchmaking
             </Badge>
-            <Badge variant="gradient-cyan" className="text-xs">
+            <Badge variant="default" className="text-xs">
               Tournaments
             </Badge>
           </div>
@@ -39,7 +39,7 @@ export function Hero() {
           </p>
 
           <div className="flex flex-wrap gap-4 mt-8 hero-animate hero-delay-4">
-            <Button asChild size="lg" variant="gradient" className="hero-cta-gradient">
+            <Button asChild size="lg" variant="default" className="hero-cta-gradient">
               <a
                 href="https://discord.com/oauth2/authorize?client_id=PLACEHOLDER"
                 target="_blank"
@@ -48,7 +48,7 @@ export function Hero() {
                 Add to Discord
               </a>
             </Button>
-            <Button asChild variant="depth" size="lg">
+            <Button asChild variant="outline" size="lg">
               <a href="/leaderboard" className="gap-2">
                 View Leaderboard
                 <ArrowRight className="size-4" />

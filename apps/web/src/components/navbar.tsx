@@ -40,7 +40,7 @@ export function Navbar() {
           </div>
 
           <div className="hidden md:block">
-            <Button asChild size="sm" variant="gradient" className="hero-cta-gradient">
+            <Button asChild size="sm" variant="default" className="hero-cta-gradient">
               <a
                 href="https://discord.com/oauth2/authorize?client_id=PLACEHOLDER"
                 target="_blank"
@@ -83,7 +83,7 @@ export function Navbar() {
               Leaderboard
             </Link>
             <div className="mt-2 pt-2 border-t border-white/5">
-              <Button asChild size="sm" variant="gradient" className="w-full hero-cta-gradient">
+              <Button asChild size="sm" variant="default" className="w-full hero-cta-gradient">
                 <a
                   href="https://discord.com/oauth2/authorize?client_id=PLACEHOLDER"
                   target="_blank"

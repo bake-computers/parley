@@ -622,7 +622,7 @@ Max Concurrent: 6 (Wave 3)
 
   **Commit**: YES (groups with Tasks 5-6)
 
-- [ ] 8. **Replace Button with shadcn Button + Update All Imports**
+- [x] 8. **Replace Button with shadcn Button + Update All Imports**
 
   **What to do**:
   - The shadcn `init` command (Task 2) should have generated a new `button.tsx` in `src/components/ui/`
@@ -687,7 +687,7 @@ Max Concurrent: 6 (Wave 3)
   - Message: `refactor(web): migrate Button to shadcn/ui`
   - Files: `apps/web/src/components/ui/button.tsx`, all files with updated imports
 
-- [ ] 9. **Replace Card with shadcn Card + Update All Imports**
+- [x] 9. **Replace Card with shadcn Card + Update All Imports**
 
   **What to do**:
   - The shadcn `init` command should have generated a new `card.tsx`
@@ -748,7 +748,7 @@ Max Concurrent: 6 (Wave 3)
   **Commit**: YES
   - Message: `refactor(web): migrate Card to shadcn/ui`
 
-- [ ] 10. **Replace Badge with shadcn Badge + Update All Imports**
+- [x] 10. **Replace Badge with shadcn Badge + Update All Imports**
 
   **What to do**:
   - The shadcn `init` command should have generated a new `badge.tsx`
@@ -809,7 +809,7 @@ Max Concurrent: 6 (Wave 3)
   **Commit**: YES
   - Message: `refactor(web): migrate Badge to shadcn/ui`
 
-- [ ] 11. **Replace Separator with shadcn Separator + Update All Imports**
+- [x] 11. **Replace Separator with shadcn Separator + Update All Imports**
 
   **What to do**:
   - The shadcn `init` command should have generated a new `separator.tsx`
@@ -848,7 +848,7 @@ Max Concurrent: 6 (Wave 3)
 
   **Commit**: YES (groups with Tasks 8-10)
 
-- [ ] 12. **Install Additional shadcn Components (Avatar, Skeleton, DropdownMenu)**
+- [x] 12. **Install Additional shadcn Components (Avatar, Skeleton, DropdownMenu)**
 
   **What to do**:
   - Install shadcn components needed for auth UI and enhanced UX:
@@ -903,7 +903,7 @@ Max Concurrent: 6 (Wave 3)
   **Commit**: YES
   - Message: `feat(web): add shadcn Avatar, Skeleton, DropdownMenu`
 
-- [ ] 13. **Replace FloatingStatCard with Optimized Version**
+- [x] 13. **Replace FloatingStatCard with Optimized Version**
 
   **What to do**:
   - The `floating-stat-card.tsx` is a custom component with no direct shadcn equivalent
