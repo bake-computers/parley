@@ -8,7 +8,6 @@ import {
   ArrowUp01Icon,
   ArrowDown01Icon,
   MinusSignIcon,
-  Loading01Icon,
 } from "@hugeicons/core-free-icons";
 import { Button } from "#/components/ui/button";
 import { Badge } from "#/components/ui/badge";

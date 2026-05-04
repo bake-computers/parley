@@ -2,7 +2,7 @@ import { createLazyFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Button } from "#/components/ui/button";
 import { Badge } from "#/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "#/components/ui/card";
+import { Card, CardContent } from "#/components/ui/card";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Loading01Icon,

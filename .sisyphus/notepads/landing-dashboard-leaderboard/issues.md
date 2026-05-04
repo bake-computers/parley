@@ -69,3 +69,5 @@ Files `guild-settings.ts`, `db.ts`, `guild-access.ts`, and `use-leaderboard-ws.t
 ### Verdict
 
 REJECT — previously identified code-quality issues remain unresolved in multiple files.
+
+- F4 findings: Missing evidence for tasks 1 and 8-13. Plan specifies 20 tasks, but only 12 have dedicated evidence files. Align plan with implemented work or provide evidence mappings for the missing tasks.

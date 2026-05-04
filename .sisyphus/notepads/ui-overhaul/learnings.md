@@ -20,3 +20,19 @@
 - apps/web/src/routes/dashboard/index.tsx
 - apps/web/src/routes/dashboard/\$guildId/index.tsx
 - apps/web/src/routes/dashboard/\$guildId/history.tsx
+
+## F3 QA Learnings (2026-05-04)
+
+### Testing Approach
+- Playwright with Chromium headless works well for automated UI QA
+- Need to capture `requestfailed` events separately to distinguish asset 404s from API failures
+- Hydration mismatches show up as `[PAGE ERROR]` in Playwright console listeners
+
+### Key Finding: Dashboard Hydration Mismatch
+- **Root cause**: `apps/web/src/routes/dashboard/index.lazy.tsx` has conditional rendering based on auth state (`isPending`, `session`)
+- Server renders loading spinner (`className="min-h-screen flex items-center justify-center"`) while client renders unauth card (`className="min-h-screen flex items-center justify-center px-4"`)
+- This is a classic SSR/client auth state divergence
+
+### Environment Note
+- Backend API server (port 8787) was not running during QA, causing expected `ERR_CONNECTION_REFUSED` on `/api/auth/get-session` and `/api/leaderboard`
+- No static asset 404s were observed — all failures were API/backend calls

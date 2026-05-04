@@ -25,3 +25,5 @@
    - Note: Uses `(globalThis as any).WebSocketPair` and manual `serverWs.onmessage` instead of `ctx.acceptWebSocket()`
    - Risk: May not handle DO hibernation correctly in production
    - Fix: Refactor to use Cloudflare Hibernation API (`ctx.acceptWebSocket`, `webSocketMessage`, `webSocketClose`)
+
+- Unmet scope: 8 tasks (1, 8-13) lack evidence in .sisyphus/evidence; align plan vs evidence; ensure all tasks have mapping in plan.

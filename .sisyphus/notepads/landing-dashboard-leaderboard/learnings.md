@@ -134,3 +134,5 @@
 - `readDashboardAuth` uses `auth.api.getSession({ headers })` with `as any` cast for headers type compatibility
 - `GuildWithPermissions` from `@parley/auth` has `icon: string | null` and `permissions: number`; the core package has a different shape — always use the auth package version
 - `useGuildAccess` accepts `enabled` param to avoid fetching when user is not authenticated
+
+- Scope Fidelity Check: 12/20 tasks evidenced (2-7, 14-20); 1 and 8-13 lack evidence in the evidence folder. This indicates gaps between plan and implemented work. Recommend aligning plan-to-evidence mapping for future waves.

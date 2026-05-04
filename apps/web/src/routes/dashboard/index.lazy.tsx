@@ -34,6 +34,11 @@ function DashboardIndex() {
   const [guilds, setGuilds] = useState<DashboardGuild[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (isPending) return;
@@ -63,7 +68,7 @@ function DashboardIndex() {
     fetchGuilds();
   }, [isPending, session]);
 
-  if (isPending || (isLoading && session)) {
+  if (!mounted || isPending || (isLoading && session)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <HugeiconsIcon
