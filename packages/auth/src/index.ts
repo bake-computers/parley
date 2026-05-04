@@ -35,6 +35,7 @@ export function createParleyAuth(db: DbClient, env: ParleyAuthEnv) {
     baseURL: env.BETTER_AUTH_URL,
     trustedOrigins: [
       "https://app.parley.bot",
+      "https://parley-web.ryzm.workers.dev",
       "https://parley.bot",
       "http://localhost:3001",
       "http://localhost:3000",
