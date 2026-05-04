@@ -31,6 +31,14 @@
       "dataset": "parley_analytics",
     },
   ],
+  "queues": {
+    "producers": [
+      {
+        "binding": "QUEUE",
+        "queue": "parley-stat-refresh",
+      },
+    ],
+  },
   "hyperdrive": [
     {
       "binding": "HYPERDRIVE",

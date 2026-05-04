@@ -152,7 +152,7 @@ function GuildOverview() {
               onClick={() =>
                 authClient.signIn.social({
                   provider: "discord",
-                  callbackURL: "/dashboard",
+                  callbackURL: `${window.location.origin}/dashboard`,
                 })
               }
             >
