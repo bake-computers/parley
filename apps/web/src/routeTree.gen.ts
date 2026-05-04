@@ -8,60 +8,75 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as LeaderboardRouteImport } from './routes/leaderboard'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
-import { Route as DashboardGuildIdIndexRouteImport } from './routes/dashboard/$guildId/index'
-import { Route as DashboardGuildIdHistoryRouteImport } from './routes/dashboard/$guildId/history'
+import { createFileRoute } from '@tanstack/react-router'
 
-const LeaderboardRoute = LeaderboardRouteImport.update({
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as IndexRouteImport } from './routes/index'
+
+const LeaderboardLazyRouteImport = createFileRoute('/leaderboard')()
+const DashboardIndexLazyRouteImport = createFileRoute('/dashboard/')()
+const DashboardGuildIdIndexLazyRouteImport = createFileRoute(
+  '/dashboard/$guildId/',
+)()
+const DashboardGuildIdHistoryLazyRouteImport = createFileRoute(
+  '/dashboard/$guildId/history',
+)()
+
+const LeaderboardLazyRoute = LeaderboardLazyRouteImport.update({
   id: '/leaderboard',
   path: '/leaderboard',
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any).lazy(() => import('./routes/leaderboard.lazy').then((d) => d.Route))
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DashboardIndexRoute = DashboardIndexRouteImport.update({
+const DashboardIndexLazyRoute = DashboardIndexLazyRouteImport.update({
   id: '/dashboard/',
   path: '/dashboard/',
   getParentRoute: () => rootRouteImport,
-} as any)
-const DashboardGuildIdIndexRoute = DashboardGuildIdIndexRouteImport.update({
-  id: '/dashboard/$guildId/',
-  path: '/dashboard/$guildId/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DashboardGuildIdHistoryRoute = DashboardGuildIdHistoryRouteImport.update({
-  id: '/dashboard/$guildId/history',
-  path: '/dashboard/$guildId/history',
-  getParentRoute: () => rootRouteImport,
-} as any)
+} as any).lazy(() =>
+  import('./routes/dashboard/index.lazy').then((d) => d.Route),
+)
+const DashboardGuildIdIndexLazyRoute =
+  DashboardGuildIdIndexLazyRouteImport.update({
+    id: '/dashboard/$guildId/',
+    path: '/dashboard/$guildId/',
+    getParentRoute: () => rootRouteImport,
+  } as any).lazy(() =>
+    import('./routes/dashboard/$guildId/index.lazy').then((d) => d.Route),
+  )
+const DashboardGuildIdHistoryLazyRoute =
+  DashboardGuildIdHistoryLazyRouteImport.update({
+    id: '/dashboard/$guildId/history',
+    path: '/dashboard/$guildId/history',
+    getParentRoute: () => rootRouteImport,
+  } as any).lazy(() =>
+    import('./routes/dashboard/$guildId/history.lazy').then((d) => d.Route),
+  )
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/leaderboard': typeof LeaderboardRoute
-  '/dashboard/': typeof DashboardIndexRoute
-  '/dashboard/$guildId/history': typeof DashboardGuildIdHistoryRoute
-  '/dashboard/$guildId/': typeof DashboardGuildIdIndexRoute
+  '/leaderboard': typeof LeaderboardLazyRoute
+  '/dashboard/': typeof DashboardIndexLazyRoute
+  '/dashboard/$guildId/history': typeof DashboardGuildIdHistoryLazyRoute
+  '/dashboard/$guildId/': typeof DashboardGuildIdIndexLazyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/leaderboard': typeof LeaderboardRoute
-  '/dashboard': typeof DashboardIndexRoute
-  '/dashboard/$guildId/history': typeof DashboardGuildIdHistoryRoute
-  '/dashboard/$guildId': typeof DashboardGuildIdIndexRoute
+  '/leaderboard': typeof LeaderboardLazyRoute
+  '/dashboard': typeof DashboardIndexLazyRoute
+  '/dashboard/$guildId/history': typeof DashboardGuildIdHistoryLazyRoute
+  '/dashboard/$guildId': typeof DashboardGuildIdIndexLazyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/leaderboard': typeof LeaderboardRoute
-  '/dashboard/': typeof DashboardIndexRoute
-  '/dashboard/$guildId/history': typeof DashboardGuildIdHistoryRoute
-  '/dashboard/$guildId/': typeof DashboardGuildIdIndexRoute
+  '/leaderboard': typeof LeaderboardLazyRoute
+  '/dashboard/': typeof DashboardIndexLazyRoute
+  '/dashboard/$guildId/history': typeof DashboardGuildIdHistoryLazyRoute
+  '/dashboard/$guildId/': typeof DashboardGuildIdIndexLazyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -89,10 +104,10 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  LeaderboardRoute: typeof LeaderboardRoute
-  DashboardIndexRoute: typeof DashboardIndexRoute
-  DashboardGuildIdHistoryRoute: typeof DashboardGuildIdHistoryRoute
-  DashboardGuildIdIndexRoute: typeof DashboardGuildIdIndexRoute
+  LeaderboardLazyRoute: typeof LeaderboardLazyRoute
+  DashboardIndexLazyRoute: typeof DashboardIndexLazyRoute
+  DashboardGuildIdHistoryLazyRoute: typeof DashboardGuildIdHistoryLazyRoute
+  DashboardGuildIdIndexLazyRoute: typeof DashboardGuildIdIndexLazyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -101,7 +116,7 @@ declare module '@tanstack/react-router' {
       id: '/leaderboard'
       path: '/leaderboard'
       fullPath: '/leaderboard'
-      preLoaderRoute: typeof LeaderboardRouteImport
+      preLoaderRoute: typeof LeaderboardLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -115,21 +130,21 @@ declare module '@tanstack/react-router' {
       id: '/dashboard/'
       path: '/dashboard'
       fullPath: '/dashboard/'
-      preLoaderRoute: typeof DashboardIndexRouteImport
+      preLoaderRoute: typeof DashboardIndexLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard/$guildId/': {
       id: '/dashboard/$guildId/'
       path: '/dashboard/$guildId'
       fullPath: '/dashboard/$guildId/'
-      preLoaderRoute: typeof DashboardGuildIdIndexRouteImport
+      preLoaderRoute: typeof DashboardGuildIdIndexLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard/$guildId/history': {
       id: '/dashboard/$guildId/history'
       path: '/dashboard/$guildId/history'
       fullPath: '/dashboard/$guildId/history'
-      preLoaderRoute: typeof DashboardGuildIdHistoryRouteImport
+      preLoaderRoute: typeof DashboardGuildIdHistoryLazyRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -137,10 +152,10 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  LeaderboardRoute: LeaderboardRoute,
-  DashboardIndexRoute: DashboardIndexRoute,
-  DashboardGuildIdHistoryRoute: DashboardGuildIdHistoryRoute,
-  DashboardGuildIdIndexRoute: DashboardGuildIdIndexRoute,
+  LeaderboardLazyRoute: LeaderboardLazyRoute,
+  DashboardIndexLazyRoute: DashboardIndexLazyRoute,
+  DashboardGuildIdHistoryLazyRoute: DashboardGuildIdHistoryLazyRoute,
+  DashboardGuildIdIndexLazyRoute: DashboardGuildIdIndexLazyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

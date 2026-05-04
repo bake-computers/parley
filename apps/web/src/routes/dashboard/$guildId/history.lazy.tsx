@@ -1,14 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createLazyFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Button } from "#/components/ui/button";
 import { Badge } from "#/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "#/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "#/components/ui/card";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Loading01Icon,
@@ -38,7 +32,7 @@ interface MatchHistoryResponse {
   totalPages: number;
 }
 
-export const Route = createFileRoute("/dashboard/$guildId/history")({
+export const Route = createLazyFileRoute("/dashboard/$guildId/history")({
   component: MatchHistory,
 });
 
@@ -61,9 +55,7 @@ function MatchHistory() {
         const result = (await res.json()) as MatchHistoryResponse;
         setData(result);
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to load match history",
-        );
+        setError(err instanceof Error ? err.message : "Failed to load match history");
       } finally {
         setIsLoading(false);
       }
@@ -89,7 +81,11 @@ function MatchHistory() {
   if (isLoading && !data) {
     return (
       <div className="flex items-center justify-center py-20">
-        <HugeiconsIcon icon={Loading01Icon} size={32} className="animate-spin text-muted-foreground" />
+        <HugeiconsIcon
+          icon={Loading01Icon}
+          size={32}
+          className="animate-spin text-muted-foreground"
+        />
       </div>
     );
   }
@@ -113,15 +109,17 @@ function MatchHistory() {
         </Link>
         <div>
           <h1 className="text-2xl font-bold">Match History</h1>
-          <p className="text-muted-foreground mt-1">
-            View recorded matches for this server.
-          </p>
+          <p className="text-muted-foreground mt-1">View recorded matches for this server.</p>
         </div>
       </div>
 
       {data?.matches.length === 0 ? (
         <Card className="p-8 text-center">
-          <HugeiconsIcon icon={Sword01Icon} size={48} className="mx-auto text-muted-foreground mb-4" />
+          <HugeiconsIcon
+            icon={Sword01Icon}
+            size={48}
+            className="mx-auto text-muted-foreground mb-4"
+          />
           <h2 className="text-xl font-semibold">No Matches Yet</h2>
           <p className="text-muted-foreground mt-2">
             Matches will appear here once they are recorded on this server.
@@ -152,28 +150,16 @@ function MatchHistory() {
                           "border-b border-border/50 transition-colors hover:bg-muted/30",
                         )}
                       >
-                        <td className="px-4 py-3 font-mono text-muted-foreground">
-                          #{match.id}
-                        </td>
-                        <td className="px-4 py-3 capitalize">
-                          {match.matchType}
-                        </td>
-                        <td className="px-4 py-3">
-                          {getStatusBadge(match.status)}
-                        </td>
-                        <td className="px-4 py-3 font-mono">
-                          {Math.round(match.teamASeedTotal)}
-                        </td>
-                        <td className="px-4 py-3 font-mono">
-                          {Math.round(match.teamBSeedTotal)}
-                        </td>
+                        <td className="px-4 py-3 font-mono text-muted-foreground">#{match.id}</td>
+                        <td className="px-4 py-3 capitalize">{match.matchType}</td>
+                        <td className="px-4 py-3">{getStatusBadge(match.status)}</td>
+                        <td className="px-4 py-3 font-mono">{Math.round(match.teamASeedTotal)}</td>
+                        <td className="px-4 py-3 font-mono">{Math.round(match.teamBSeedTotal)}</td>
                         <td className="px-4 py-3">
                           {match.winningTeam ? (
                             <span
                               className={
-                                match.winningTeam === "A"
-                                  ? "text-green-500"
-                                  : "text-blue-500"
+                                match.winningTeam === "A" ? "text-green-500" : "text-blue-500"
                               }
                             >
                               Team {match.winningTeam}
@@ -210,9 +196,7 @@ function MatchHistory() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() =>
-                  setPage((p) => Math.min(data.totalPages, p + 1))
-                }
+                onClick={() => setPage((p) => Math.min(data.totalPages, p + 1))}
                 disabled={page >= data.totalPages}
               >
                 Next

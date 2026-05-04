@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createLazyFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
@@ -68,7 +68,7 @@ function getPlatformColor(platform: string): string {
   );
 }
 
-export const Route = createFileRoute("/leaderboard")({
+export const Route = createLazyFileRoute("/leaderboard")({
   component: LeaderboardRoute,
 });
 
@@ -303,21 +303,37 @@ function LeaderboardRoute() {
                           <div className="flex items-center gap-1.5">
                             <span className="font-mono font-medium">{entry.internalElo}</span>
                             {entry.eloTrend === "up" && (
-                              <HugeiconsIcon icon={ArrowUp01Icon} strokeWidth={2} className="h-3.5 w-3.5 text-muted-foreground" />
+                              <HugeiconsIcon
+                                icon={ArrowUp01Icon}
+                                strokeWidth={2}
+                                className="h-3.5 w-3.5 text-muted-foreground"
+                              />
                             )}
                             {entry.eloTrend === "down" && (
-                              <HugeiconsIcon icon={ArrowDown01Icon} strokeWidth={2} className="h-3.5 w-3.5 text-muted-foreground" />
+                              <HugeiconsIcon
+                                icon={ArrowDown01Icon}
+                                strokeWidth={2}
+                                className="h-3.5 w-3.5 text-muted-foreground"
+                              />
                             )}
                             {entry.eloTrend === "same" && (
-                              <HugeiconsIcon icon={MinusSignIcon} strokeWidth={2} className="h-3.5 w-3.5 text-muted-foreground" />
+                              <HugeiconsIcon
+                                icon={MinusSignIcon}
+                                strokeWidth={2}
+                                className="h-3.5 w-3.5 text-muted-foreground"
+                              />
                             )}
                           </div>
                         </td>
                         <td className="px-4 py-3 font-mono text-muted-foreground">
                           {entry.internalMatches}
                         </td>
-                        <td className="px-4 py-3 font-mono text-foreground">{entry.internalWins}</td>
-                        <td className="px-4 py-3 font-mono text-muted-foreground">{entry.internalLosses}</td>
+                        <td className="px-4 py-3 font-mono text-foreground">
+                          {entry.internalWins}
+                        </td>
+                        <td className="px-4 py-3 font-mono text-muted-foreground">
+                          {entry.internalLosses}
+                        </td>
                         <td className="px-4 py-3 font-mono">{winRate}%</td>
                       </tr>
                     );
@@ -359,13 +375,25 @@ function LeaderboardRoute() {
                         <div className="flex items-center gap-1.5 mt-0.5">
                           <span className="font-mono font-medium">{entry.internalElo}</span>
                           {entry.eloTrend === "up" && (
-                            <HugeiconsIcon icon={ArrowUp01Icon} strokeWidth={2} className="h-3.5 w-3.5 text-muted-foreground" />
+                            <HugeiconsIcon
+                              icon={ArrowUp01Icon}
+                              strokeWidth={2}
+                              className="h-3.5 w-3.5 text-muted-foreground"
+                            />
                           )}
                           {entry.eloTrend === "down" && (
-                            <HugeiconsIcon icon={ArrowDown01Icon} strokeWidth={2} className="h-3.5 w-3.5 text-muted-foreground" />
+                            <HugeiconsIcon
+                              icon={ArrowDown01Icon}
+                              strokeWidth={2}
+                              className="h-3.5 w-3.5 text-muted-foreground"
+                            />
                           )}
                           {entry.eloTrend === "same" && (
-                            <HugeiconsIcon icon={MinusSignIcon} strokeWidth={2} className="h-3.5 w-3.5 text-muted-foreground" />
+                            <HugeiconsIcon
+                              icon={MinusSignIcon}
+                              strokeWidth={2}
+                              className="h-3.5 w-3.5 text-muted-foreground"
+                            />
                           )}
                         </div>
                       </div>

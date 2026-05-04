@@ -1,13 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createLazyFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Button } from "#/components/ui/button";
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  CardTitle,
-  CardDescription,
-} from "#/components/ui/card";
+import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "#/components/ui/card";
 import { apiUrl } from "#/lib/api";
 import { authClient } from "#/lib/auth";
 import { Badge } from "#/components/ui/badge";
@@ -48,7 +42,7 @@ interface GuildDetail {
   };
 }
 
-export const Route = createFileRoute("/dashboard/$guildId/")({
+export const Route = createLazyFileRoute("/dashboard/$guildId/")({
   component: GuildOverview,
 });
 
@@ -129,7 +123,11 @@ function GuildOverview() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <HugeiconsIcon icon={Loading01Icon} size={32} className="animate-spin text-muted-foreground" />
+        <HugeiconsIcon
+          icon={Loading01Icon}
+          size={32}
+          className="animate-spin text-muted-foreground"
+        />
       </div>
     );
   }
@@ -139,7 +137,11 @@ function GuildOverview() {
     return (
       <div className="min-h-screen flex items-center justify-center px-4">
         <Card className="w-full max-w-md p-8 text-center">
-          <HugeiconsIcon icon={Login01Icon} size={48} className="mx-auto text-muted-foreground mb-4" />
+          <HugeiconsIcon
+            icon={Login01Icon}
+            size={48}
+            className="mx-auto text-muted-foreground mb-4"
+          />
           <h2 className="text-xl font-semibold mb-2">
             {isAuthError ? "Authentication Required" : "Error"}
           </h2>
@@ -201,18 +203,14 @@ function GuildOverview() {
               <HugeiconsIcon icon={Sword01Icon} size={16} />
               <span className="text-xs uppercase tracking-wider">Matches</span>
             </div>
-            <p className="text-2xl font-bold">
-              {guild?.stats.matchCount.toLocaleString() ?? "--"}
-            </p>
+            <p className="text-2xl font-bold">{guild?.stats.matchCount.toLocaleString() ?? "--"}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-2 text-muted-foreground mb-2">
               <HugeiconsIcon icon={Award01Icon} size={16} />
-              <span className="text-xs uppercase tracking-wider">
-                Tournaments
-              </span>
+              <span className="text-xs uppercase tracking-wider">Tournaments</span>
             </div>
             <p className="text-2xl font-bold">
               {guild?.stats.tournamentCount.toLocaleString() ?? "--"}
@@ -227,9 +225,7 @@ function GuildOverview() {
             <HugeiconsIcon icon={Settings01Icon} size={20} className="text-primary" />
             <CardTitle>Server Settings</CardTitle>
           </div>
-          <CardDescription>
-            Configure how Parley behaves on this server.
-          </CardDescription>
+          <CardDescription>Configure how Parley behaves on this server.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-4">
@@ -237,8 +233,7 @@ function GuildOverview() {
               <div>
                 <h3 className="font-medium">Auto Balance</h3>
                 <p className="text-sm text-muted-foreground">
-                  Automatically balance teams based on ELO when creating
-                  matches.
+                  Automatically balance teams based on ELO when creating matches.
                 </p>
               </div>
               <button
@@ -296,9 +291,7 @@ function GuildOverview() {
                 min={1}
                 max={1000}
                 value={dailyMatchLimit}
-                onChange={(e) =>
-                  setDailyMatchLimit(parseInt(e.target.value, 10) || 0)
-                }
+                onChange={(e) => setDailyMatchLimit(parseInt(e.target.value, 10) || 0)}
                 className="w-full sm:w-48 rounded-md border border-input bg-background py-2 px-3 text-sm text-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50"
               />
             </div>

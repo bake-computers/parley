@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createLazyFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
@@ -14,12 +14,7 @@ import {
 import { authClient } from "#/lib/auth";
 import { apiUrl } from "#/lib/api";
 import { Button } from "#/components/ui/button";
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  CardFooter,
-} from "#/components/ui/card";
+import { Card, CardHeader, CardContent, CardFooter } from "#/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "#/components/ui/avatar";
 
 interface DashboardGuild {
@@ -30,7 +25,7 @@ interface DashboardGuild {
   botPresent: boolean;
 }
 
-export const Route = createFileRoute("/dashboard/")({
+export const Route = createLazyFileRoute("/dashboard/")({
   component: DashboardIndex,
 });
 
@@ -71,7 +66,11 @@ function DashboardIndex() {
   if (isPending || (isLoading && session)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <HugeiconsIcon icon={Loading01Icon} size={32} className="animate-spin text-muted-foreground" />
+        <HugeiconsIcon
+          icon={Loading01Icon}
+          size={32}
+          className="animate-spin text-muted-foreground"
+        />
       </div>
     );
   }
@@ -84,12 +83,10 @@ function DashboardIndex() {
             <div className="mx-auto w-14 h-14 rounded-full bg-muted flex items-center justify-center mb-2">
               <HugeiconsIcon icon={Login01Icon} size={28} className="text-muted-foreground" />
             </div>
-            <h2 className="text-xl font-semibold text-center">
-              Welcome to Dashboard
-            </h2>
+            <h2 className="text-xl font-semibold text-center">Welcome to Dashboard</h2>
             <p className="text-sm text-muted-foreground text-center">
-              Sign in with your Discord account to manage your servers, view
-              stats, and configure Parley.
+              Sign in with your Discord account to manage your servers, view stats, and configure
+              Parley.
             </p>
           </CardHeader>
           <CardContent>
@@ -103,11 +100,7 @@ function DashboardIndex() {
                 })
               }
             >
-              <HugeiconsIcon
-                icon={DiscordIcon}
-                size={20}
-                strokeWidth={1.5}
-              />
+              <HugeiconsIcon icon={DiscordIcon} size={20} strokeWidth={1.5} />
               Log in with Discord
             </Button>
           </CardContent>
@@ -134,11 +127,7 @@ function DashboardIndex() {
             <p className="text-sm text-muted-foreground text-center">{error}</p>
           </CardHeader>
           <CardContent>
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={() => window.location.reload()}
-            >
+            <Button variant="outline" className="w-full" onClick={() => window.location.reload()}>
               Retry
             </Button>
           </CardContent>
@@ -153,21 +142,15 @@ function DashboardIndex() {
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
           <p className="text-muted-foreground mt-2">
-            Welcome back, {session.user.name ?? "Admin"}. Select a server to
-            manage.
+            Welcome back, {session.user.name ?? "Admin"}. Select a server to manage.
           </p>
         </div>
         <div className="flex items-center gap-3">
           <Avatar>
             {session.user.image ? (
-              <AvatarImage
-                src={session.user.image}
-                alt={session.user.name ?? "User"}
-              />
+              <AvatarImage src={session.user.image} alt={session.user.name ?? "User"} />
             ) : null}
-            <AvatarFallback>
-              {session.user.name?.charAt(0).toUpperCase() ?? "U"}
-            </AvatarFallback>
+            <AvatarFallback>{session.user.name?.charAt(0).toUpperCase() ?? "U"}</AvatarFallback>
           </Avatar>
           <div className="hidden sm:block">
             <p className="text-sm font-medium">{session.user.name}</p>
@@ -189,12 +172,16 @@ function DashboardIndex() {
 
       {guilds.length === 0 ? (
         <Card className="p-8 text-center">
-          <HugeiconsIcon icon={ComputerIcon} size={48} className="mx-auto text-muted-foreground mb-4" />
+          <HugeiconsIcon
+            icon={ComputerIcon}
+            size={48}
+            className="mx-auto text-muted-foreground mb-4"
+          />
           <h2 className="text-xl font-semibold">No Servers Found</h2>
           <p className="text-muted-foreground mt-2 max-w-md mx-auto">
-            We couldn&apos;t find any servers where you have admin permissions
-            and Parley is installed. Make sure the bot is added to your server
-            and you have the Manage Server or Administrator permission.
+            We couldn&apos;t find any servers where you have admin permissions and Parley is
+            installed. Make sure the bot is added to your server and you have the Manage Server or
+            Administrator permission.
           </p>
           <Button
             variant="default"
@@ -233,18 +220,22 @@ function DashboardIndex() {
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold truncate">
-                        {guild.name ?? "Unknown Server"}
-                      </h3>
-                      <p className="text-sm text-muted-foreground mt-1">
-                        Server ID: {guild.id}
-                      </p>
+                      <h3 className="font-semibold truncate">{guild.name ?? "Unknown Server"}</h3>
+                      <p className="text-sm text-muted-foreground mt-1">Server ID: {guild.id}</p>
                     </div>
-                    <HugeiconsIcon icon={Settings01Icon} size={20} className="text-muted-foreground group-hover:text-foreground transition-colors" />
+                    <HugeiconsIcon
+                      icon={Settings01Icon}
+                      size={20}
+                      className="text-muted-foreground group-hover:text-foreground transition-colors"
+                    />
                   </div>
                   <div className="mt-4 flex items-center text-sm text-primary group-hover:underline">
                     Manage Settings
-                    <HugeiconsIcon icon={ArrowRight01Icon} size={16} className="ml-1 group-hover:translate-x-0.5 transition-transform" />
+                    <HugeiconsIcon
+                      icon={ArrowRight01Icon}
+                      size={16}
+                      className="ml-1 group-hover:translate-x-0.5 transition-transform"
+                    />
                   </div>
                 </CardContent>
               </Card>

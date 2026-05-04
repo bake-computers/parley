@@ -12,6 +12,17 @@ const config = defineConfig({
     tanstackStart(),
     viteReact(),
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes("@tanstack/react-router") || id.includes("@tanstack/react-start")) return "tanstack";
+          if (id.includes("radix-ui")) return "radix";
+          if (id.includes("/react/") || id.includes("/react-dom/")) return "react";
+        },
+      },
+    },
+  },
 });
 
 export default config;

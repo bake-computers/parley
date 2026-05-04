@@ -1300,7 +1300,7 @@ Max Concurrent: 6 (Wave 3)
   **Commit**: YES
   - Message: `feat(web): update navbar with auth state and hugeicons`
 
-- [ ] 18. **Implement Route-Based Code Splitting (Lazy Loading)**
+- [x] 18. **Implement Route-Based Code Splitting (Lazy Loading)**
 
   **What to do**:
   - Convert heavy routes to use TanStack Router's lazy loading:
@@ -1406,7 +1406,7 @@ Max Concurrent: 6 (Wave 3)
   **Commit**: YES
   - Message: `perf(web): implement route-based code splitting`
 
-- [ ] 19. **Bundle Optimization and Asset Cleanup**
+- [x] 19. **Bundle Optimization and Asset Cleanup**
 
   **What to do**:
   - Optimize Vite build configuration:

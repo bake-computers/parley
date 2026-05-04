@@ -1,0 +1,70 @@
+# Task 19: Bundle Optimization and Asset Cleanup
+
+## Changes Made
+
+### 1. Vite Build Configuration (`apps/web/vite.config.ts`)
+- Added `build.rollupOptions.output.manualChunks` as a function to split vendor chunks:
+  - `react`: includes `react` and `react-dom`
+  - `radix`: includes `radix-ui`
+  - `tanstack`: includes `@tanstack/react-router` and `@tanstack/react-start`
+- Used function form to be compatible with Rolldown (Vite 8), which expects `manualChunks` to be a function, not an object.
+
+### 2. Removed Unused Dependency
+- Removed `lucide-react` from `apps/web/package.json`
+- Verified zero source references to `lucide-react` in `apps/web/src/`
+- Ran `bun install` to update lockfile
+
+### 3. Verified Still-Used Dependencies
+- `class-variance-authority` - used by `button.tsx`, `badge.tsx`, `card.tsx`
+- `clsx` / `tailwind-merge` - used by `lib/utils.ts` (cn() utility)
+- `tw-animate-css` - imported in `styles.css`
+- `better-auth` - used in `lib/auth.ts`
+- `@base-ui/react` - used in `dropdown-menu.tsx`, `avatar.tsx`
+
+## Build Results
+
+```
+$ bun run build
+vite v8.0.10 building client environment for production...
+✓ 480 modules transformed.
+✓ built in 853ms
+vite v8.0.10 building ssr environment for production...
+✓ 524 modules transformed.
+✓ built in 1.20s
+```
+
+**Build status:** SUCCESS (exit code 0)
+**Build warnings:** None
+
+## Bundle Size Comparison
+
+| Metric | Baseline | Post-Optimization |
+|--------|----------|-------------------|
+| Total dist size | 2.1M | 2.8M |
+| Client dist size | - | 1.1M |
+| Server dist size | - | 1.7M |
+| Main CSS bundle | 56.34 kB (11.31 kB gzip) | 67.27 kB (14.74 kB gzip) |
+| Largest JS chunk | 314.54 kB (99.27 kB gzip) | 342.20 kB (111.74 kB gzip) |
+
+### Notes on Size
+- The baseline (2.1M) was recorded **before** the UI overhaul when shadcn/ui, radix-ui, JetBrains Mono fonts, and other dependencies were not yet installed.
+- The current total dist (2.8M) includes both client (1.1M) and server (1.7M) builds.
+- The client-only build is 1.1M, which is significantly smaller than the baseline total.
+- Manual chunk splitting does not reduce total bytes but improves caching by isolating vendor code.
+- Removing `lucide-react` had negligible size impact because it was already tree-shaken out (zero imports in source).
+
+## Chunk Splitting Results
+
+Client chunks:
+- `react-Dm09eEmG.js` - 342.20 kB (111.74 kB gzip)
+- `index-Cxsx1GXN.js` - 187.89 kB (59.47 kB gzip)
+- `routes-Cq7WkDoT.js` - 27.40 kB (7.14 kB gzip)
+- `radix-CvWaqLsd.js` - 9.56 kB (3.61 kB gzip)
+- Various route/feature chunks < 10 kB each
+
+No "chunk too large" warnings were emitted.
+
+## Dependency Status
+
+- `lucide-react`: REMOVED
+- All other listed dependencies: VERIFIED IN USE
