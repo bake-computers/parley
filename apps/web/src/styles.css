@@ -205,7 +205,6 @@ html { scroll-behavior: smooth; }
 .hero-stat-card { transition: transform var(--duration-normal) var(--ease-out); }
 .hero-stat-card:hover { transform: translateY(-2px); }
 .hero-title { margin: 0; font-size: clamp(3rem, 7vw, 5.5rem); line-height: 0.9; letter-spacing: -0.06em; text-transform: uppercase; font-weight: 700; }
-.hero-cta-gradient:hover { transform: translateY(-1px); }
 .hero-dot-mixed { background: linear-gradient(135deg, var(--primary), var(--muted-foreground)); }
 .how-it-works__steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem; position: relative; }
 .how-it-works__step { position: relative; }
