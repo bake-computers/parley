@@ -10,21 +10,14 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
-import { Route as DashboardRouteRouteImport } from './routes/dashboard.route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
-import { Route as DashboardGuildIdRouteRouteImport } from './routes/dashboard.$guildId.route'
-import { Route as DashboardGuildIdIndexRouteImport } from './routes/dashboard.$guildId.index'
-import { Route as DashboardGuildIdHistoryRouteImport } from './routes/dashboard.$guildId.history'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
+import { Route as DashboardGuildIdIndexRouteImport } from './routes/dashboard/$guildId/index'
+import { Route as DashboardGuildIdHistoryRouteImport } from './routes/dashboard/$guildId/history'
 
 const LeaderboardRoute = LeaderboardRouteImport.update({
   id: '/leaderboard',
   path: '/leaderboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DashboardRouteRoute = DashboardRouteRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -33,31 +26,24 @@ const IndexRoute = IndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardIndexRoute = DashboardIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => DashboardRouteRoute,
-} as any)
-const DashboardGuildIdRouteRoute = DashboardGuildIdRouteRouteImport.update({
-  id: '/$guildId',
-  path: '/$guildId',
-  getParentRoute: () => DashboardRouteRoute,
+  id: '/dashboard/',
+  path: '/dashboard/',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardGuildIdIndexRoute = DashboardGuildIdIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => DashboardGuildIdRouteRoute,
+  id: '/dashboard/$guildId/',
+  path: '/dashboard/$guildId/',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardGuildIdHistoryRoute = DashboardGuildIdHistoryRouteImport.update({
-  id: '/history',
-  path: '/history',
-  getParentRoute: () => DashboardGuildIdRouteRoute,
+  id: '/dashboard/$guildId/history',
+  path: '/dashboard/$guildId/history',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRouteRouteWithChildren
   '/leaderboard': typeof LeaderboardRoute
-  '/dashboard/$guildId': typeof DashboardGuildIdRouteRouteWithChildren
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/$guildId/history': typeof DashboardGuildIdHistoryRoute
   '/dashboard/$guildId/': typeof DashboardGuildIdIndexRoute
@@ -72,9 +58,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRouteRouteWithChildren
   '/leaderboard': typeof LeaderboardRoute
-  '/dashboard/$guildId': typeof DashboardGuildIdRouteRouteWithChildren
   '/dashboard/': typeof DashboardIndexRoute
   '/dashboard/$guildId/history': typeof DashboardGuildIdHistoryRoute
   '/dashboard/$guildId/': typeof DashboardGuildIdIndexRoute
@@ -83,9 +67,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/dashboard'
     | '/leaderboard'
-    | '/dashboard/$guildId'
     | '/dashboard/'
     | '/dashboard/$guildId/history'
     | '/dashboard/$guildId/'
@@ -99,9 +81,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/dashboard'
     | '/leaderboard'
-    | '/dashboard/$guildId'
     | '/dashboard/'
     | '/dashboard/$guildId/history'
     | '/dashboard/$guildId/'
@@ -109,8 +89,10 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
   LeaderboardRoute: typeof LeaderboardRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
+  DashboardGuildIdHistoryRoute: typeof DashboardGuildIdHistoryRoute
+  DashboardGuildIdIndexRoute: typeof DashboardGuildIdIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -122,13 +104,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LeaderboardRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -138,68 +113,34 @@ declare module '@tanstack/react-router' {
     }
     '/dashboard/': {
       id: '/dashboard/'
-      path: '/'
+      path: '/dashboard'
       fullPath: '/dashboard/'
       preLoaderRoute: typeof DashboardIndexRouteImport
-      parentRoute: typeof DashboardRouteRoute
-    }
-    '/dashboard/$guildId': {
-      id: '/dashboard/$guildId'
-      path: '/$guildId'
-      fullPath: '/dashboard/$guildId'
-      preLoaderRoute: typeof DashboardGuildIdRouteRouteImport
-      parentRoute: typeof DashboardRouteRoute
+      parentRoute: typeof rootRouteImport
     }
     '/dashboard/$guildId/': {
       id: '/dashboard/$guildId/'
-      path: '/'
+      path: '/dashboard/$guildId'
       fullPath: '/dashboard/$guildId/'
       preLoaderRoute: typeof DashboardGuildIdIndexRouteImport
-      parentRoute: typeof DashboardGuildIdRouteRoute
+      parentRoute: typeof rootRouteImport
     }
     '/dashboard/$guildId/history': {
       id: '/dashboard/$guildId/history'
-      path: '/history'
+      path: '/dashboard/$guildId/history'
       fullPath: '/dashboard/$guildId/history'
       preLoaderRoute: typeof DashboardGuildIdHistoryRouteImport
-      parentRoute: typeof DashboardGuildIdRouteRoute
+      parentRoute: typeof rootRouteImport
     }
   }
 }
 
-interface DashboardGuildIdRouteRouteChildren {
-  DashboardGuildIdHistoryRoute: typeof DashboardGuildIdHistoryRoute
-  DashboardGuildIdIndexRoute: typeof DashboardGuildIdIndexRoute
-}
-
-const DashboardGuildIdRouteRouteChildren: DashboardGuildIdRouteRouteChildren = {
-  DashboardGuildIdHistoryRoute: DashboardGuildIdHistoryRoute,
-  DashboardGuildIdIndexRoute: DashboardGuildIdIndexRoute,
-}
-
-const DashboardGuildIdRouteRouteWithChildren =
-  DashboardGuildIdRouteRoute._addFileChildren(
-    DashboardGuildIdRouteRouteChildren,
-  )
-
-interface DashboardRouteRouteChildren {
-  DashboardGuildIdRouteRoute: typeof DashboardGuildIdRouteRouteWithChildren
-  DashboardIndexRoute: typeof DashboardIndexRoute
-}
-
-const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
-  DashboardGuildIdRouteRoute: DashboardGuildIdRouteRouteWithChildren,
-  DashboardIndexRoute: DashboardIndexRoute,
-}
-
-const DashboardRouteRouteWithChildren = DashboardRouteRoute._addFileChildren(
-  DashboardRouteRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  DashboardRouteRoute: DashboardRouteRouteWithChildren,
   LeaderboardRoute: LeaderboardRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
+  DashboardGuildIdHistoryRoute: DashboardGuildIdHistoryRoute,
+  DashboardGuildIdIndexRoute: DashboardGuildIdIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

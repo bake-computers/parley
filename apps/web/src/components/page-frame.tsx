@@ -1,7 +1,7 @@
 export function PageFrame() {
   return (
     <div className="fixed inset-0 pointer-events-none z-40 p-3 md:p-4">
-      <div className="w-full h-full border border-white/[0.06] relative">
+      <div className="w-full h-full border border-white/6 relative">
         <span className="absolute -top-px -left-px w-3 h-3 border-t border-l border-white/20" />
         <span className="absolute -top-px -right-px w-3 h-3 border-t border-r border-white/20" />
         <span className="absolute -bottom-px -left-px w-3 h-3 border-b border-l border-white/20" />

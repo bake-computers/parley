@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { authClient } from "#/lib/auth";
 import { apiUrl } from "#/lib/api";
 import { Button } from "#/components/ui/button";
-import { Loader2, Server, Settings, ChevronRight } from "lucide-react";
+import { Loader2, Server, Settings, ChevronRight, LogIn } from "lucide-react";
 
 interface DashboardGuild {
   id: string;
@@ -18,12 +18,19 @@ export const Route = createFileRoute("/dashboard/")({
 });
 
 function DashboardIndex() {
-  const { data: session } = authClient.useSession();
+  const { data: session, isPending } = authClient.useSession();
   const [guilds, setGuilds] = useState<DashboardGuild[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (isPending) return;
+    if (!session) {
+      setError("Please sign in to view your servers.");
+      setIsLoading(false);
+      return;
+    }
+
     async function fetchGuilds() {
       try {
         const res = await fetch(apiUrl("/api/dashboard/guilds"));
@@ -43,7 +50,7 @@ function DashboardIndex() {
       }
     }
     fetchGuilds();
-  }, []);
+  }, [isPending, session]);
 
   if (isLoading) {
     return (
@@ -54,13 +61,29 @@ function DashboardIndex() {
   }
 
   if (error) {
+    const isAuthError = !session;
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-destructive">{error}</p>
-          <Button variant="depth" className="mt-4" onClick={() => window.location.reload()}>
-            Retry
-          </Button>
+        <div className="text-center max-w-md mx-auto px-4">
+          <div className="depth-panel rounded-lg p-8">
+            <LogIn className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+            <h2 className="text-xl font-semibold mb-2">
+              {isAuthError ? "Authentication Required" : "Error"}
+            </h2>
+            <p className="text-muted-foreground mb-6">{error}</p>
+            {isAuthError ? (
+              <Button
+                variant="gradient"
+                onClick={() => authClient.signIn.social({ provider: "discord" })}
+              >
+                Sign in with Discord
+              </Button>
+            ) : (
+              <Button variant="depth" onClick={() => window.location.reload()}>
+                Retry
+              </Button>
+            )}
+          </div>
         </div>
       </div>
     );

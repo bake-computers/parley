@@ -2,8 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Button } from "#/components/ui/button";
 import { apiUrl } from "#/lib/api";
+import { authClient } from "#/lib/auth";
 import { Badge } from "#/components/ui/badge";
-import { Loader2, Settings, Users, Swords, Trophy } from "lucide-react";
+import { Loader2, Settings, Users, Swords, Trophy, LogIn } from "lucide-react";
 
 interface GuildDetail {
   guild: {
@@ -36,6 +37,7 @@ export const Route = createFileRoute("/dashboard/$guildId/")({
 
 function GuildOverview() {
   const { guildId } = Route.useParams();
+  const { data: session, isPending: sessionPending } = authClient.useSession();
   const [guild, setGuild] = useState<GuildDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -47,10 +49,23 @@ function GuildOverview() {
   const [dailyMatchLimit, setDailyMatchLimit] = useState(10);
 
   useEffect(() => {
+    if (sessionPending) return;
+    if (!session) {
+      setError("Please sign in to view this server.");
+      setIsLoading(false);
+      return;
+    }
+
     async function fetchGuild() {
       try {
         const res = await fetch(apiUrl(`/api/dashboard/guilds/${guildId}`));
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        if (!res.ok) {
+          if (res.status === 401) {
+            setError("Please sign in to view this server.");
+            return;
+          }
+          throw new Error(`HTTP ${res.status}`);
+        }
         const data = (await res.json()) as GuildDetail;
         setGuild(data);
         if (data.settings) {
@@ -67,7 +82,7 @@ function GuildOverview() {
       }
     }
     fetchGuild();
-  }, [guildId]);
+  }, [guildId, session, sessionPending]);
 
   async function handleSave() {
     setIsSaving(true);
@@ -103,9 +118,30 @@ function GuildOverview() {
   }
 
   if (error) {
+    const isAuthError = !session;
     return (
-      <div className="py-20 text-center">
-        <p className="text-destructive">{error}</p>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto px-4">
+          <div className="depth-panel rounded-lg p-8">
+            <LogIn className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+            <h2 className="text-xl font-semibold mb-2">
+              {isAuthError ? "Authentication Required" : "Error"}
+            </h2>
+            <p className="text-muted-foreground mb-6">{error}</p>
+            {isAuthError ? (
+              <Button
+                variant="gradient"
+                onClick={() => authClient.signIn.social({ provider: "discord" })}
+              >
+                Sign in with Discord
+              </Button>
+            ) : (
+              <Button variant="depth" onClick={() => window.location.reload()}>
+                Retry
+              </Button>
+            )}
+          </div>
+        </div>
       </div>
     );
   }
