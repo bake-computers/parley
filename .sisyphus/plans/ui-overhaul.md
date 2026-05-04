@@ -206,7 +206,7 @@ Max Concurrent: 6 (Wave 3)
 
 ## TODOs
 
-- [ ] 1. **Commit State + Establish Performance Baseline**
+- [x] 1. **Commit State + Establish Performance Baseline**
 
   **What to do**:
   - Run `git status` to check current state
@@ -256,7 +256,7 @@ Max Concurrent: 6 (Wave 3)
   - Message: `chore(web): baseline before UI overhaul`
   - Files: All uncommitted changes
 
-- [ ] 2. **Initialize shadcn/ui with Preset `buFzFmS`**
+- [x] 2. **Initialize shadcn/ui with Preset `buFzFmS`**
 
   **What to do**:
   - Navigate to `apps/web/` directory
@@ -310,7 +310,7 @@ Max Concurrent: 6 (Wave 3)
   - Message: `chore(web): initialize shadcn/ui with buFzFmS preset`
   - Files: `components.json`, `package.json`, `package-lock.json` or `bun.lockb`, new `src/components/ui/` files
 
-- [ ] 3. **Install hugeicons and jetbrains-mono Dependencies**
+- [x] 3. **Install hugeicons and jetbrains-mono Dependencies**
 
   **What to do**:
   - In `apps/web/`, run: `bun add @hugeicons/react`
@@ -363,7 +363,7 @@ Max Concurrent: 6 (Wave 3)
 
   **Commit**: YES (groups with Task 2)
 
-- [ ] 4. **Configure shadcn Project Setup and Path Aliases**
+- [x] 4. **Configure shadcn Project Setup and Path Aliases**
 
   **What to do**:
   - Verify `components.json` has correct paths:
