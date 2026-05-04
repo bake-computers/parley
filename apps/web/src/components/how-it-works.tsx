@@ -1,23 +1,24 @@
-import { Bot, Link, TrendingUp } from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { BotIcon, Link01Icon, ChartIncreaseIcon } from "@hugeicons/core-free-icons";
 
 const steps = [
   {
     number: "01",
-    icon: Bot,
+    icon: BotIcon,
     title: "Add to Server",
     description:
       "Invite Parley to your Discord server with one click. No complex setup — just authorize and you're ready.",
   },
   {
     number: "02",
-    icon: Link,
+    icon: Link01Icon,
     title: "Link & Play",
     description:
       "Players link their Ubisoft accounts. Parley pulls ranked stats to seed initial ELO, then tracks every match.",
   },
   {
     number: "03",
-    icon: TrendingUp,
+    icon: ChartIncreaseIcon,
     title: "Climb the Ranks",
     description:
       "Win matches, gain ELO, climb the leaderboard. Cross-server matchmaking means you always find competitive games.",
@@ -42,7 +43,7 @@ export function HowItWorks() {
               <div className="how-it-works__badge">
                 <span className="how-it-works__number">{step.number}</span>
               </div>
-              <step.icon className="size-7 text-accent-blue mb-3" />
+              <HugeiconsIcon icon={step.icon} strokeWidth={2} className="size-7 text-primary mb-3" />
               <h3 className="text-lg font-semibold mb-2">{step.title}</h3>
               <p className="text-muted-foreground text-sm leading-relaxed">{step.description}</p>
             </div>

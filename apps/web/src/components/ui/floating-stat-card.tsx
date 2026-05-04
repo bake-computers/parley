@@ -8,8 +8,8 @@ interface FloatingStatCardProps {
 }
 
 const accentDotClass = {
-  blue: "bg-accent-blue",
-  cyan: "bg-accent-cyan",
+  blue: "bg-foreground",
+  cyan: "bg-muted-foreground",
   mixed: "hero-dot-mixed",
 };
 

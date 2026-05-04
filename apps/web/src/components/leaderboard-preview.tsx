@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { ArrowRight } from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
 import useLeaderboardWS from "#/hooks/use-leaderboard-ws";
 import { apiUrl } from "#/lib/api";
 
@@ -13,9 +14,9 @@ type LeaderboardEntry = {
 };
 
 const PLATFORM_STYLES: Record<string, string> = {
-  PC: "bg-[rgba(59,130,246,0.15)] text-[#7db4fc]",
-  Xbox: "bg-[rgba(16,185,129,0.15)] text-[#6ee7b7]",
-  PlayStation: "bg-[rgba(168,85,247,0.15)] text-[#c4b5fd]",
+  PC: "bg-white/10 text-white/80",
+  Xbox: "bg-white/10 text-white/80",
+  PlayStation: "bg-white/10 text-white/80",
 };
 
 function PlatformBadge({ platform }: { platform: string }) {
@@ -146,10 +147,10 @@ export function LeaderboardPreview() {
           </div>
           <a
             href="/leaderboard"
-            className="inline-flex items-center gap-1 text-sm font-medium text-accent-blue hover:text-accent-cyan transition-colors duration-fast"
+            className="inline-flex items-center gap-1 text-sm font-medium text-foreground hover:text-muted-foreground transition-colors duration-fast"
           >
             View Full Leaderboard
-            <ArrowRight className="h-4 w-4" />
+            <HugeiconsIcon icon={ArrowRight01Icon} strokeWidth={2} className="h-4 w-4" />
           </a>
         </div>
       </div>
@@ -189,7 +190,7 @@ export function LeaderboardPreview() {
               key={entry.playerId}
               data-flip-id={entry.playerId}
               className={`grid grid-cols-[3rem_1fr_6rem_4rem] gap-3 px-4 py-3 items-center depth-panel transition-all duration-normal ${
-                eloChanged ? "bg-[rgba(59,130,246,0.08)]" : ""
+                eloChanged ? "bg-white/[0.04]" : ""
               }`}
               style={{
                 borderLeft:
@@ -231,11 +232,7 @@ export function LeaderboardPreview() {
                 </span>
               </div>
 
-              <span
-                className={`font-mono text-sm tabular-nums text-right ${
-                  eloChanged ? "text-accent-blue" : "text-foreground"
-                }`}
-              >
+              <span className="font-mono text-sm tabular-nums text-right text-foreground">
                 {entry.internalElo.toLocaleString()}
               </span>
 

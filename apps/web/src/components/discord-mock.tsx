@@ -23,9 +23,9 @@ const TEAM_BRAVO = {
 };
 
 const PLATFORM_STYLES: Record<string, string> = {
-  PC: "bg-[rgba(59,130,246,0.15)] text-[#7db4fc]",
-  Xbox: "bg-[rgba(16,185,129,0.15)] text-[#6ee7b7]",
-  PlayStation: "bg-[rgba(168,85,247,0.15)] text-[#c4b5fd]",
+  PC: "bg-white/10 text-white/80",
+  Xbox: "bg-white/10 text-white/80",
+  PlayStation: "bg-white/10 text-white/80",
 };
 
 function PlatformBadge({ platform }: { platform: string }) {
@@ -80,12 +80,12 @@ function TeamColumn({ team }: { team: typeof TEAM_ALPHA }) {
 export function DiscordMock() {
   return (
     <div className="lp-card relative overflow-hidden p-0">
-      <div className="absolute left-0 top-0 h-full w-1 bg-[#5865F2]" />
+      <div className="absolute left-0 top-0 h-full w-1 bg-muted-foreground" />
 
       <div className="flex flex-col gap-4 p-5 pl-5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="h-2.5 w-2.5 rounded-full bg-[#5865F2]" />
+            <div className="h-2.5 w-2.5 rounded-full bg-muted-foreground" />
             <span className="text-sm font-bold tracking-wide uppercase text-foreground">
               Team Balance
             </span>
@@ -103,13 +103,13 @@ export function DiscordMock() {
         <div className="flex items-center justify-center gap-2 border-t border-border pt-3">
           <span className="font-mono text-sm tabular-nums text-foreground">18</span>
           <span className="text-xs text-muted-foreground">ELO gap</span>
-          <span className="rounded-none bg-[rgba(87,242,135,0.12)] px-2 py-0.5 text-[0.7rem] font-medium uppercase tracking-wider text-[#57f287]">
+          <span className="rounded-none bg-white/10 px-2 py-0.5 text-[0.7rem] font-medium uppercase tracking-wider text-white/80">
             Well Balanced
           </span>
         </div>
 
         <div className="flex items-center gap-1.5 border-t border-border pt-3">
-          <div className="h-1.5 w-1.5 rounded-full bg-[#57f287]" />
+          <div className="h-1.5 w-1.5 rounded-full bg-white/60" />
           <span className="text-[0.7rem] text-muted-foreground">Match recorded</span>
         </div>
       </div>

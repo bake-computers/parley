@@ -18,11 +18,11 @@ const badgeVariants = cva(
         ghost: "[a&]:hover:bg-accent [a&]:hover:text-accent-foreground",
         link: "text-primary underline-offset-4 [a&]:hover:underline",
         "gradient-blue":
-          "border-transparent bg-accent-blue text-white shadow-[0_0_12px_rgba(59,130,246,0.3)]",
+          "border-transparent bg-foreground text-background shadow-[0_0_12px_rgba(255,255,255,0.1)]",
         "gradient-cyan":
-          "border-transparent bg-accent-cyan text-white shadow-[0_0_12px_rgba(6,182,212,0.3)]",
+          "border-transparent bg-muted-foreground text-background shadow-[0_0_12px_rgba(255,255,255,0.1)]",
         "gradient-mixed":
-          "border-transparent bg-gradient-to-r from-accent-blue to-accent-cyan text-white",
+          "border-transparent bg-gradient-to-r from-foreground to-muted-foreground text-background",
       },
     },
     defaultVariants: {

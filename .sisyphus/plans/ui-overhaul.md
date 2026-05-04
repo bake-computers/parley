@@ -963,7 +963,7 @@ Max Concurrent: 6 (Wave 3)
   **Commit**: YES
   - Message: `refactor(web): replace FloatingStatCard with optimized version`
 
-- [ ] 14. **Overhaul Landing Page (/) with New Theme**
+- [x] 14. **Overhaul Landing Page (/) with New Theme**
 
   **What to do**:
   - Update `apps/web/src/routes/index.tsx`:
@@ -1055,7 +1055,7 @@ Max Concurrent: 6 (Wave 3)
   **Commit**: YES
   - Message: `feat(web): overhaul landing page with grey/white theme`
 
-- [ ] 15. **Overhaul Leaderboard Page**
+- [x] 15. **Overhaul Leaderboard Page**
 
   **What to do**:
   - Update `apps/web/src/routes/leaderboard.tsx`:
@@ -1138,7 +1138,7 @@ Max Concurrent: 6 (Wave 3)
   **Commit**: YES
   - Message: `feat(web): overhaul leaderboard with grey/white theme`
 
-- [ ] 16. **Overhaul Dashboard with Discord Login Flow**
+- [x] 16. **Overhaul Dashboard with Discord Login Flow**
 
   **What to do**:
   - Update `apps/web/src/routes/dashboard/index.tsx`:
@@ -1230,7 +1230,7 @@ Max Concurrent: 6 (Wave 3)
   **Commit**: YES
   - Message: `feat(web): add Discord login to dashboard`
 
-- [ ] 17. **Update Navbar with Auth State and User Menu**
+- [x] 17. **Update Navbar with Auth State and User Menu**
 
   **What to do**:
   - Update `apps/web/src/components/navbar.tsx`:

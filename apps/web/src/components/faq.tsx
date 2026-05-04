@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Plus } from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { PlusSignIcon } from "@hugeicons/core-free-icons";
 
 const faqs = [
   {
@@ -52,7 +53,7 @@ export function Faq() {
               aria-expanded={openIndex === i}
             >
               <span>{faq.question}</span>
-              <Plus className="faq__icon" />
+              <HugeiconsIcon icon={PlusSignIcon} strokeWidth={2} className="faq__icon" />
             </button>
             <div className="faq__content">
               <div className="faq__content-inner">

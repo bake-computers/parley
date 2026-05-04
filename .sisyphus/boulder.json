@@ -54,6 +54,15 @@
       "agent": "Sisyphus-Junior",
       "category": "quick",
       "updated_at": "2026-05-04T17:34:32.262Z"
+    },
+    "todo:14": {
+      "task_key": "todo:14",
+      "task_label": "14",
+      "task_title": "**Overhaul Landing Page (/) with New Theme**",
+      "session_id": "ses_20bdf1f5dffejmq5tSkGhjWeG1",
+      "agent": "Sisyphus-Junior",
+      "category": "quick",
+      "updated_at": "2026-05-04T17:56:49.310Z"
     }
   }
 }

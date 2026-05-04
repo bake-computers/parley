@@ -1,16 +1,12 @@
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
-import { FloatingStatCard } from "./ui/floating-stat-card";
-import { ArrowRight } from "lucide-react";
+import { Card, CardContent } from "./ui/card";
+import { HugeiconsIcon } from "@hugeicons/react";
+import { ArrowRight01Icon } from "@hugeicons/core-free-icons";
 
 export function Hero() {
   return (
-    <section className="lp-hero hero-bg hero-noise relative overflow-hidden pt-14 md:pt-16">
-      <div className="hero-orb hero-orb-1" />
-      <div className="hero-orb hero-orb-2" />
-      <div className="hero-orb hero-orb-3" />
-      <div className="hero-grid-lines" />
-
+    <section className="lp-hero hero-bg relative overflow-hidden pt-14 md:pt-16">
       <div className="lp-container hero-content relative z-10">
         <div className="hero-main">
           <div className="flex flex-wrap gap-2 mb-6 hero-animate hero-delay-1">
@@ -25,7 +21,7 @@ export function Hero() {
             </Badge>
           </div>
 
-          <h1 className="hero-title hero-title-glow gradient-text whitespace-nowrap hero-animate hero-delay-2">
+          <h1 className="hero-title gradient-text whitespace-nowrap hero-animate hero-delay-2">
             PARLEY
           </h1>
 
@@ -39,7 +35,7 @@ export function Hero() {
           </p>
 
           <div className="flex flex-wrap gap-4 mt-8 hero-animate hero-delay-4">
-            <Button asChild size="lg" variant="default" className="hero-cta-gradient">
+            <Button asChild size="lg" variant="default">
               <a
                 href="https://discord.com/oauth2/authorize?client_id=PLACEHOLDER"
                 target="_blank"
@@ -51,7 +47,7 @@ export function Hero() {
             <Button asChild variant="outline" size="lg">
               <a href="/leaderboard" className="gap-2">
                 View Leaderboard
-                <ArrowRight className="size-4" />
+                <HugeiconsIcon icon={ArrowRight01Icon} strokeWidth={2} className="size-4" />
               </a>
             </Button>
           </div>
@@ -59,13 +55,37 @@ export function Hero() {
 
         <div className="hero-stats">
           <div className="hero-animate hero-delay-5">
-            <FloatingStatCard value="12,847" label="Players Tracked" accent="blue" />
+            <Card className="hero-stat-card depth-panel">
+              <CardContent className="p-5">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-2 h-2 rounded-full shrink-0 bg-foreground" />
+                  <span className="lp-label">Players Tracked</span>
+                </div>
+                <span className="text-2xl md:text-3xl font-bold tracking-tight">12,847</span>
+              </CardContent>
+            </Card>
           </div>
           <div className="hero-animate hero-delay-6">
-            <FloatingStatCard value="94,203" label="Matches Played" accent="cyan" />
+            <Card className="hero-stat-card depth-panel">
+              <CardContent className="p-5">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-2 h-2 rounded-full shrink-0 bg-muted-foreground" />
+                  <span className="lp-label">Matches Played</span>
+                </div>
+                <span className="text-2xl md:text-3xl font-bold tracking-tight">94,203</span>
+              </CardContent>
+            </Card>
           </div>
           <div className="hero-animate hero-delay-7">
-            <FloatingStatCard value="156" label="Active Tournaments" accent="mixed" />
+            <Card className="hero-stat-card depth-panel">
+              <CardContent className="p-5">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-2 h-2 rounded-full shrink-0 bg-primary" />
+                  <span className="lp-label">Active Tournaments</span>
+                </div>
+                <span className="text-2xl md:text-3xl font-bold tracking-tight">156</span>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>

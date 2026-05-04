@@ -1,16 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { HugeiconsIcon } from "@hugeicons/react";
 import {
-  Search,
-  ChevronLeft,
-  ChevronRight,
-  TrendingUp,
-  TrendingDown,
-  Minus,
-  Activity,
-} from "lucide-react";
+  Search01Icon,
+  ArrowLeft01Icon,
+  ArrowRight01Icon,
+  ArrowUp01Icon,
+  ArrowDown01Icon,
+  MinusSignIcon,
+  Loading01Icon,
+} from "@hugeicons/core-free-icons";
 import { Button } from "#/components/ui/button";
 import { Badge } from "#/components/ui/badge";
+import { Skeleton } from "#/components/ui/skeleton";
 import useLeaderboardWS from "#/hooks/use-leaderboard-ws";
 import { cn } from "#/lib/utils";
 import { apiUrl } from "#/lib/api";
@@ -183,7 +185,7 @@ function LeaderboardRoute() {
       <div className="lp-container pt-8 pb-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold tracking-tight gradient-text">
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">
               Global Leaderboard
             </h1>
             <p className="text-muted-foreground mt-2">Real-time R6 Siege Rankings</p>
@@ -230,13 +232,17 @@ function LeaderboardRoute() {
           </div>
 
           <div className="relative flex-1 sm:max-w-xs">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <HugeiconsIcon
+              icon={Search01Icon}
+              strokeWidth={2}
+              className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
+            />
             <input
               type="text"
               placeholder="Search by username..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full rounded-md border border-white/10 bg-depth-1 py-2 pl-9 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-accent-blue focus:outline-none focus:ring-1 focus:ring-accent-blue/50"
+              className="w-full rounded-md border border-input bg-background py-2 pl-9 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring/50"
             />
           </div>
         </div>
@@ -244,9 +250,10 @@ function LeaderboardRoute() {
 
       <div className="lp-container">
         {isLoading && !apiData ? (
-          <div className="py-20 text-center text-muted-foreground">
-            <Activity className="mx-auto h-8 w-8 animate-spin mb-4" />
-            Loading leaderboard...
+          <div className="space-y-2 py-4">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <Skeleton key={i} className="h-12 w-full" />
+            ))}
           </div>
         ) : error ? (
           <div className="py-20 text-center text-destructive">{error}</div>
@@ -255,7 +262,7 @@ function LeaderboardRoute() {
             <div className="hidden md:block overflow-hidden rounded-lg border border-white/10">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-white/10 bg-depth-2 text-left text-muted-foreground">
+                  <tr className="border-b border-border bg-muted text-left text-muted-foreground">
                     <th className="px-4 py-3 font-medium">Rank</th>
                     <th className="px-4 py-3 font-medium">Player</th>
                     <th className="px-4 py-3 font-medium">Platform</th>
@@ -278,8 +285,8 @@ function LeaderboardRoute() {
                       <tr
                         key={entry.playerId}
                         className={cn(
-                          "border-b border-white/5 transition-all duration-200",
-                          "hover:bg-white/5 hover:shadow-[0_0_20px_rgba(59,130,246,0.1)]",
+                          "border-b border-border/50 transition-colors duration-200",
+                          "hover:bg-muted/50",
                         )}
                       >
                         <td className="px-4 py-3 font-mono text-muted-foreground">#{rank}</td>
@@ -296,13 +303,13 @@ function LeaderboardRoute() {
                           <div className="flex items-center gap-1.5">
                             <span className="font-mono font-medium">{entry.internalElo}</span>
                             {entry.eloTrend === "up" && (
-                              <TrendingUp className="h-3.5 w-3.5 text-muted-foreground" />
+                              <HugeiconsIcon icon={ArrowUp01Icon} strokeWidth={2} className="h-3.5 w-3.5 text-muted-foreground" />
                             )}
                             {entry.eloTrend === "down" && (
-                              <TrendingDown className="h-3.5 w-3.5 text-muted-foreground" />
+                              <HugeiconsIcon icon={ArrowDown01Icon} strokeWidth={2} className="h-3.5 w-3.5 text-muted-foreground" />
                             )}
                             {entry.eloTrend === "same" && (
-                              <Minus className="h-3.5 w-3.5 text-muted-foreground" />
+                              <HugeiconsIcon icon={MinusSignIcon} strokeWidth={2} className="h-3.5 w-3.5 text-muted-foreground" />
                             )}
                           </div>
                         </td>
@@ -330,7 +337,7 @@ function LeaderboardRoute() {
                 return (
                   <div
                     key={entry.playerId}
-                    className="depth-panel rounded-lg p-4 transition-all duration-200 hover:shadow-[0_0_20px_rgba(59,130,246,0.15)]"
+                    className="rounded-lg border border-border bg-card p-4 transition-colors duration-200 hover:bg-accent"
                   >
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-3">
@@ -352,13 +359,13 @@ function LeaderboardRoute() {
                         <div className="flex items-center gap-1.5 mt-0.5">
                           <span className="font-mono font-medium">{entry.internalElo}</span>
                           {entry.eloTrend === "up" && (
-                            <TrendingUp className="h-3.5 w-3.5 text-muted-foreground" />
+                            <HugeiconsIcon icon={ArrowUp01Icon} strokeWidth={2} className="h-3.5 w-3.5 text-muted-foreground" />
                           )}
                           {entry.eloTrend === "down" && (
-                            <TrendingDown className="h-3.5 w-3.5 text-muted-foreground" />
+                            <HugeiconsIcon icon={ArrowDown01Icon} strokeWidth={2} className="h-3.5 w-3.5 text-muted-foreground" />
                           )}
                           {entry.eloTrend === "same" && (
-                            <Minus className="h-3.5 w-3.5 text-muted-foreground" />
+                            <HugeiconsIcon icon={MinusSignIcon} strokeWidth={2} className="h-3.5 w-3.5 text-muted-foreground" />
                           )}
                         </div>
                       </div>
@@ -405,7 +412,7 @@ function LeaderboardRoute() {
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page <= 1}
               >
-                <ChevronLeft className="h-4 w-4 mr-1" />
+                <HugeiconsIcon icon={ArrowLeft01Icon} strokeWidth={2} className="h-4 w-4 mr-1" />
                 Previous
               </Button>
               <span className="text-sm text-muted-foreground">
@@ -418,7 +425,7 @@ function LeaderboardRoute() {
                 disabled={page >= totalPages}
               >
                 Next
-                <ChevronRight className="h-4 w-4 ml-1" />
+                <HugeiconsIcon icon={ArrowRight01Icon} strokeWidth={2} className="h-4 w-4 ml-1" />
               </Button>
             </div>
           </>

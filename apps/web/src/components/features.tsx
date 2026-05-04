@@ -1,39 +1,47 @@
 import { Card, CardContent } from "#/components/ui/card";
-import { Swords, Users, Trophy, Zap, Monitor, ShieldCheck } from "lucide-react";
+import { HugeiconsIcon } from "@hugeicons/react";
+import {
+  Sword01Icon,
+  UserGroupIcon,
+  Award01Icon,
+  FlashIcon,
+  ComputerIcon,
+  SecurityCheckIcon,
+} from "@hugeicons/core-free-icons";
 
 const features = [
   {
-    icon: Swords,
+    icon: Sword01Icon,
     title: "Internal ELO",
     description:
       "Track skill independently of Ubisoft ranks. Your ELO reflects actual match outcomes, not just ranked points.",
   },
   {
-    icon: Users,
+    icon: UserGroupIcon,
     title: "Cross-Server Matchmaking",
     description:
       "Queue your 5-stack against teams from other servers. No more waiting for in-house opponents.",
   },
   {
-    icon: Trophy,
+    icon: Award01Icon,
     title: "Tournament System",
     description:
       "Create and join public tournaments — single or double elimination, up to 32 teams, with auto-bracket generation.",
   },
   {
-    icon: Zap,
+    icon: FlashIcon,
     title: "Smart Seeding",
     description:
       "New players get ELO estimated from ranked stats. No placement grind — jump in and compete.",
   },
   {
-    icon: Monitor,
+    icon: ComputerIcon,
     title: "Multi-Platform",
     description:
       "PC, Xbox, and PlayStation. Auto-detect platform or choose manually. One account across all servers.",
   },
   {
-    icon: ShieldCheck,
+    icon: SecurityCheckIcon,
     title: "Verified Results",
     description: "Both captains submit match results. No one-sided reporting — integrity built in.",
   },
@@ -52,7 +60,7 @@ export function Features() {
         {features.map((feature) => (
           <Card key={feature.title} className="lp-card">
             <CardContent className="p-6">
-              <feature.icon className="size-8 text-primary mb-4" />
+              <HugeiconsIcon icon={feature.icon} strokeWidth={2} className="size-8 text-primary mb-4" />
               <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
               <p className="text-muted-foreground text-sm leading-relaxed">{feature.description}</p>
             </CardContent>
