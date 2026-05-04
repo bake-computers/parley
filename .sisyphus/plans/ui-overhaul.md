@@ -420,7 +420,7 @@ Max Concurrent: 6 (Wave 3)
 
   **Commit**: YES (groups with Task 2)
 
-- [ ] 5. **Override Preset Colors to Grey/White Only**
+- [x] 5. **Override Preset Colors to Grey/White Only**
 
   **What to do**:
   - Open `apps/web/src/styles.css` (or the file specified in components.json as the CSS file)
@@ -485,7 +485,7 @@ Max Concurrent: 6 (Wave 3)
   - Message: `style(web): override preset to grey/white only`
   - Files: `apps/web/src/styles.css`
 
-- [ ] 6. **Optimize CSS Effects (Remove Heavy, Keep Performant)**
+- [x] 6. **Optimize CSS Effects (Remove Heavy, Keep Performant)**
 
   **What to do**:
   - Audit all CSS effects in `apps/web/src/styles.css`:
@@ -561,7 +561,7 @@ Max Concurrent: 6 (Wave 3)
   - Message: `perf(web): remove heavy CSS effects, optimize animations`
   - Files: `apps/web/src/styles.css`
 
-- [ ] 7. **Update Global Styles and Tailwind Theme Tokens**
+- [x] 7. **Update Global Styles and Tailwind Theme Tokens**
 
   **What to do**:
   - Review and update `@theme inline` block in `styles.css`:

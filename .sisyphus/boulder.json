@@ -36,6 +36,15 @@
       "agent": "Sisyphus-Junior",
       "category": "quick",
       "updated_at": "2026-05-04T17:20:46.646Z"
+    },
+    "todo:5": {
+      "task_key": "todo:5",
+      "task_label": "5",
+      "task_title": "**Override Preset Colors to Grey/White Only**",
+      "session_id": "ses_20bfc0deaffeQ6rgBPGI1uJRC2",
+      "agent": "Sisyphus-Junior",
+      "category": "quick",
+      "updated_at": "2026-05-04T17:28:00.027Z"
     }
   }
 }
