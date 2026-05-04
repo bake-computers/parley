@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import { wsUrl } from "#/lib/api";
 
 type LeaderboardEntry = {
   playerId: number;
@@ -22,25 +23,31 @@ export default function useLeaderboardWS(
   const [isConnected, setIsConnected] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<number | null>(null);
 
-  // Keep a stable reference to the WebSocket so React can reconnect
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const wsRef = useMemo<{ current: WebSocket | null }>(() => ({ current: null }), []);
+  const [rangeStart, rangeEnd] = slotRange;
 
   useEffect(() => {
     let ws: WebSocket | null = null;
-    let backoff = 1000; // 1s
+    let backoff = 1000;
     let cancelled = false;
+    let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 
     const connect = () => {
+      if (ws) {
+        try {
+          ws.close();
+        } catch {}
+        ws = null;
+      }
+
       // Connect to the DO WebSocket endpoint
       try {
-        ws = new WebSocket("/ws/leaderboard");
+        ws = new WebSocket(wsUrl("/ws/leaderboard"));
       } catch {
         ws = null;
       }
       if (!ws) {
         if (!cancelled) {
-          setTimeout(connect, backoff);
+          reconnectTimer = setTimeout(connect, backoff);
           backoff = Math.min(30000, backoff * 2);
         }
         return;
@@ -50,7 +57,7 @@ export default function useLeaderboardWS(
         setIsConnected(true);
         backoff = 1000;
         // Subscribe to a given range
-        ws?.send(JSON.stringify({ type: "SUBSCRIBE", range: slotRange }));
+        ws?.send(JSON.stringify({ type: "SUBSCRIBE", range: [rangeStart, rangeEnd] }));
       };
       ws.onmessage = (ev) => {
         try {
@@ -68,21 +75,23 @@ export default function useLeaderboardWS(
         if (cancelled) return;
         setIsConnected(false);
         ws = null;
-        setTimeout(connect, backoff);
+        reconnectTimer = setTimeout(connect, backoff);
         backoff = Math.min(30000, backoff * 2);
       };
       ws.onerror = () => {
         ws?.close();
       };
-      wsRef.current = ws;
     };
 
     connect();
     return () => {
       cancelled = true;
+      if (reconnectTimer) {
+        clearTimeout(reconnectTimer);
+      }
       ws?.close();
     };
-  }, [slotRange]);
+  }, [rangeStart, rangeEnd]);
 
   return { entries, isConnected, lastUpdated };
 }

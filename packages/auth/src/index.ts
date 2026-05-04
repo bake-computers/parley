@@ -109,6 +109,32 @@ export async function readAuthorizedSession(
   };
 }
 
+export async function readDashboardSession(
+  auth: ReturnType<typeof createParleyAuth>,
+  db: DbClient,
+  headers: Headers,
+): Promise<SessionWithGuilds | null> {
+  const session = await auth.api.getSession({ headers });
+  if (!session) return null;
+
+  const sessionWithVersion = session as any;
+  const storedVersion = sessionWithVersion.session?.sessionVersion;
+  if (storedVersion === undefined || storedVersion < SESSION_VERSION) {
+    return null;
+  }
+
+  const discordUserId = await readDiscordAccountIdForUser(db, session.user.id);
+  if (!discordUserId) return null;
+
+  const guilds = await readGuildAccess(auth, db, headers);
+  return {
+    status: "authorized",
+    discordUserId,
+    session,
+    guilds,
+  };
+}
+
 type AuthSession = NonNullable<
   Awaited<ReturnType<ReturnType<typeof createParleyAuth>["api"]["getSession"]>>
 >;

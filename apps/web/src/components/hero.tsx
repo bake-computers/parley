@@ -1,11 +1,17 @@
-import { Button } from "#/components/ui/button";
-import { Badge } from "#/components/ui/badge";
-import { FloatingStatCard } from "#/components/ui/floating-stat-card";
+import { Button } from "./ui/button";
+import { Badge } from "./ui/badge";
+import { FloatingStatCard } from "./ui/floating-stat-card";
+import { ArrowRight } from "lucide-react";
 
 export function Hero() {
   return (
-    <section className="lp-hero hero-bg hero-noise">
-      <div className="lp-container hero-content">
+    <section className="lp-hero hero-bg hero-noise relative overflow-hidden pt-14 md:pt-16">
+      <div className="hero-orb hero-orb-1" />
+      <div className="hero-orb hero-orb-2" />
+      <div className="hero-orb hero-orb-3" />
+      <div className="hero-grid-lines" />
+
+      <div className="lp-container hero-content relative z-10">
         <div className="hero-main">
           <div className="flex flex-wrap gap-2 mb-6 hero-animate hero-delay-1">
             <Badge variant="gradient-mixed" className="text-xs">
@@ -19,7 +25,9 @@ export function Hero() {
             </Badge>
           </div>
 
-          <h1 className="hero-title gradient-text hero-animate hero-delay-2">PARLEY</h1>
+          <h1 className="hero-title hero-title-glow gradient-text whitespace-nowrap hero-animate hero-delay-2">
+            PARLEY
+          </h1>
 
           <p className="text-xl md:text-2xl mt-4 font-normal text-foreground hero-animate hero-delay-3">
             Competitive Siege, Made Simple
@@ -41,7 +49,10 @@ export function Hero() {
               </a>
             </Button>
             <Button asChild variant="depth" size="lg">
-              <a href="/leaderboard">View Leaderboard</a>
+              <a href="/leaderboard" className="gap-2">
+                View Leaderboard
+                <ArrowRight className="size-4" />
+              </a>
             </Button>
           </div>
         </div>

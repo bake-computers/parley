@@ -47,25 +47,15 @@
   "durable_objects": {
     "bindings": [
       {
-        "name": "LEADERBOARD_DO",
+        "name": "LeaderboardDO",
         "class_name": "LeaderboardDO",
       },
     ],
   },
-  "queues": {
-    "producers": [
-      {
-        "queue": "parley-stat-refresh",
-        "binding": "Queue",
-      },
-    ],
-    "consumers": [
-      {
-        "queue": "parley-stat-refresh",
-        "max_batch_size": 5,
-        "max_batch_timeout": 30,
-        "max_retries": 3,
-      },
-    ],
-  },
+  "migrations": [
+    {
+      "new_sqlite_classes": ["LeaderboardDO"],
+      "tag": "v1",
+    },
+  ],
 }

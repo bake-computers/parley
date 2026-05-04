@@ -16,7 +16,13 @@ import { createRuntimeDbHandle, ManagedExecutionContext } from "./runtime-db";
 import { analyticsMiddleware } from "./analytics-middleware";
 import { writeAnalyticsDataPoint } from "./analytics";
 import { handleAuthRequest } from "./auth";
+import {
+  handleDashboardGuilds,
+  handleDashboardGuildDetail,
+  handleDashboardGuildHistory,
+} from "./dashboard-handler";
 import { handleLeaderboardRequest, handleLeaderboardNotify } from "./leaderboard-handler";
+import { LeaderboardDO } from "./leaderboard-do";
 import { getAggregateStats, type AggregateStats } from "@parley/db/stats-queries";
 
 export const bot = new DiscordBot();
@@ -74,60 +80,113 @@ async function cacheStats(env: WorkerEnv, stats: AggregateStats): Promise<void> 
   }
 }
 
+function corsHeaders(origin: string): Record<string, string> {
+  return {
+    "Access-Control-Allow-Origin": origin,
+    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Access-Control-Allow-Credentials": "true",
+  };
+}
+
+function withCors(response: Response, origin: string): Response {
+  // WebSocket upgrade responses (101) must not be re-wrapped —
+  // they carry a `webSocket` property that `new Response()` strips.
+  if (response.status === 101) {
+    return response;
+  }
+
+  const headers = new Headers(response.headers);
+  const cors = corsHeaders(origin);
+  for (const [key, value] of Object.entries(cors)) {
+    headers.set(key, value);
+  }
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
+}
+
 export default {
   fetch: async (request: Request, env: WorkerEnv, ctx: ExecutionContext) => {
     const url = new URL(request.url);
+    const origin = request.headers.get("Origin") ?? "*";
+    const isApiRequest = url.pathname.startsWith("/api/") || url.pathname.startsWith("/ws/");
+
+    if (isApiRequest && request.method === "OPTIONS") {
+      return new Response(null, { status: 204, headers: corsHeaders(origin) });
+    }
+
+    let response: Response;
+
     if (url.pathname.startsWith("/api/auth/")) {
-      return handleAuthRequest(request, env, ctx);
-    }
+      response = await handleAuthRequest(request, env, ctx);
+    } else if (url.pathname === "/api/leaderboard") {
+      response = await handleLeaderboardRequest(request, env, ctx);
+    } else if (url.pathname === "/api/leaderboard/notify") {
+      response = await handleLeaderboardNotify(request, env, ctx);
+    } else if (url.pathname === "/api/dashboard/guilds") {
+      response = await handleDashboardGuilds(request, env, ctx);
+    } else {
+      const guildDetailMatch = url.pathname.match(/^\/api\/dashboard\/guilds\/([^/]+)$/);
+      if (guildDetailMatch && guildDetailMatch[1]) {
+        response = await handleDashboardGuildDetail(request, env, ctx, guildDetailMatch[1]);
+      } else {
+        const guildHistoryMatch = url.pathname.match(
+          /^\/api\/dashboard\/guilds\/([^/]+)\/history$/,
+        );
+        if (guildHistoryMatch && guildHistoryMatch[1]) {
+          response = await handleDashboardGuildHistory(request, env, ctx, guildHistoryMatch[1]);
+        } else if (url.pathname === "/api/stats") {
+          const cached = await fetchCachedStats(env);
+          if (cached) {
+            response = Response.json(cached, {
+              headers: { "Cache-Control": "public, max-age=60, s-maxage=60" },
+            });
+          } else {
+            const handle = await createRuntimeDbHandle(env);
+            try {
+              const today = new Date();
+              today.setHours(0, 0, 0, 0);
+              const todayMs = today.getTime();
 
-    if (url.pathname === "/api/leaderboard") {
-      return handleLeaderboardRequest(request, env, ctx);
-    }
+              const stats = await getAggregateStats(handle.env.db ?? null, todayMs);
+              await cacheStats(env, stats);
 
-    if (url.pathname === "/api/leaderboard/notify") {
-      return handleLeaderboardNotify(request, env, ctx);
-    }
+              response = Response.json(stats, {
+                headers: { "Cache-Control": "public, max-age=60, s-maxage=60" },
+              });
+            } finally {
+              await handle.close();
+            }
+          }
+        } else if (url.pathname === "/ws/leaderboard") {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const stub = env.LeaderboardDO.get(env.LeaderboardDO.idFromName("global"));
+          response = await (stub as any).fetch(request);
+        } else {
+          const handle = await createRuntimeDbHandle(env);
+          const managedContext = new ManagedExecutionContext(ctx, handle.close);
 
-    if (url.pathname === "/api/stats") {
-      const cached = await fetchCachedStats(env);
-      if (cached) {
-        return Response.json(cached, {
-          headers: { "Cache-Control": "public, max-age=60, s-maxage=60" },
-        });
+          try {
+            response = await bot.fetch(
+              request,
+              handle.env,
+              managedContext as unknown as ExecutionContext,
+            );
+          } finally {
+            managedContext.markResponseReturned();
+          }
+        }
       }
-
-      const handle = await createRuntimeDbHandle(env);
-      try {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const todayMs = today.getTime();
-
-        const stats = await getAggregateStats(handle.env.db ?? null, todayMs);
-        await cacheStats(env, stats);
-
-        return Response.json(stats, {
-          headers: { "Cache-Control": "public, max-age=60, s-maxage=60" },
-        });
-      } finally {
-        await handle.close();
-      }
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    if (url.pathname === "/ws/leaderboard") {
-      const stub = env.LeaderboardDO.get(env.LeaderboardDO.idFromName("global"));
-      return (stub as any).fetch(request);
+    if (isApiRequest) {
+      response = withCors(response, origin);
     }
 
-    const handle = await createRuntimeDbHandle(env);
-    const managedContext = new ManagedExecutionContext(ctx, handle.close);
-
-    try {
-      return await bot.fetch(request, handle.env, managedContext as unknown as ExecutionContext);
-    } finally {
-      managedContext.markResponseReturned();
-    }
+    return response;
   },
   queue: async (
     batch: MessageBatch<StatsRefreshMessage>,
@@ -203,3 +262,5 @@ export default {
     }
   },
 };
+
+export { LeaderboardDO };

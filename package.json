@@ -14,7 +14,7 @@
     "dev:web": "turbo run dev --filter=@parley/web",
     "deploy:web": "turbo run deploy --filter=@parley/web",
     "cf-typegen:web": "turbo run cf-typegen --filter=@parley/web",
-    "dev": "turbo run dev --filter=@parley/worker",
+    "dev": "turbo run dev",
     "deploy": "turbo run deploy --filter=@parley/worker",
     "deploy:hq": "turbo run deploy --filter=@parley/hq",
     "register": "turbo run register --filter=@parley/worker",

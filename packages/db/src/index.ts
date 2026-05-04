@@ -1,5 +1,6 @@
 export * from "./account-links";
 export * from "./client";
+export * from "./dashboard";
 export * from "./guild-limits";
 export * from "./guild-roster";
 export * from "./leaderboard";

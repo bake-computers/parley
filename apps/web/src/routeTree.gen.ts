@@ -10,11 +10,21 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
+import { Route as DashboardRouteRouteImport } from './routes/dashboard.route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
+import { Route as DashboardGuildIdRouteRouteImport } from './routes/dashboard.$guildId.route'
+import { Route as DashboardGuildIdIndexRouteImport } from './routes/dashboard.$guildId.index'
+import { Route as DashboardGuildIdHistoryRouteImport } from './routes/dashboard.$guildId.history'
 
 const LeaderboardRoute = LeaderboardRouteImport.update({
   id: '/leaderboard',
   path: '/leaderboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRouteRoute = DashboardRouteRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -22,30 +32,84 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const DashboardGuildIdRouteRoute = DashboardGuildIdRouteRouteImport.update({
+  id: '/$guildId',
+  path: '/$guildId',
+  getParentRoute: () => DashboardRouteRoute,
+} as any)
+const DashboardGuildIdIndexRoute = DashboardGuildIdIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardGuildIdRouteRoute,
+} as any)
+const DashboardGuildIdHistoryRoute = DashboardGuildIdHistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => DashboardGuildIdRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRouteRouteWithChildren
   '/leaderboard': typeof LeaderboardRoute
+  '/dashboard/$guildId': typeof DashboardGuildIdRouteRouteWithChildren
+  '/dashboard/': typeof DashboardIndexRoute
+  '/dashboard/$guildId/history': typeof DashboardGuildIdHistoryRoute
+  '/dashboard/$guildId/': typeof DashboardGuildIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/leaderboard': typeof LeaderboardRoute
+  '/dashboard': typeof DashboardIndexRoute
+  '/dashboard/$guildId/history': typeof DashboardGuildIdHistoryRoute
+  '/dashboard/$guildId': typeof DashboardGuildIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRouteRouteWithChildren
   '/leaderboard': typeof LeaderboardRoute
+  '/dashboard/$guildId': typeof DashboardGuildIdRouteRouteWithChildren
+  '/dashboard/': typeof DashboardIndexRoute
+  '/dashboard/$guildId/history': typeof DashboardGuildIdHistoryRoute
+  '/dashboard/$guildId/': typeof DashboardGuildIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/leaderboard'
+  fullPaths:
+    | '/'
+    | '/dashboard'
+    | '/leaderboard'
+    | '/dashboard/$guildId'
+    | '/dashboard/'
+    | '/dashboard/$guildId/history'
+    | '/dashboard/$guildId/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/leaderboard'
-  id: '__root__' | '/' | '/leaderboard'
+  to:
+    | '/'
+    | '/leaderboard'
+    | '/dashboard'
+    | '/dashboard/$guildId/history'
+    | '/dashboard/$guildId'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/leaderboard'
+    | '/dashboard/$guildId'
+    | '/dashboard/'
+    | '/dashboard/$guildId/history'
+    | '/dashboard/$guildId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DashboardRouteRoute: typeof DashboardRouteRouteWithChildren
   LeaderboardRoute: typeof LeaderboardRoute
 }
 
@@ -58,6 +122,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LeaderboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -65,11 +136,69 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/$guildId': {
+      id: '/dashboard/$guildId'
+      path: '/$guildId'
+      fullPath: '/dashboard/$guildId'
+      preLoaderRoute: typeof DashboardGuildIdRouteRouteImport
+      parentRoute: typeof DashboardRouteRoute
+    }
+    '/dashboard/$guildId/': {
+      id: '/dashboard/$guildId/'
+      path: '/'
+      fullPath: '/dashboard/$guildId/'
+      preLoaderRoute: typeof DashboardGuildIdIndexRouteImport
+      parentRoute: typeof DashboardGuildIdRouteRoute
+    }
+    '/dashboard/$guildId/history': {
+      id: '/dashboard/$guildId/history'
+      path: '/history'
+      fullPath: '/dashboard/$guildId/history'
+      preLoaderRoute: typeof DashboardGuildIdHistoryRouteImport
+      parentRoute: typeof DashboardGuildIdRouteRoute
+    }
   }
 }
 
+interface DashboardGuildIdRouteRouteChildren {
+  DashboardGuildIdHistoryRoute: typeof DashboardGuildIdHistoryRoute
+  DashboardGuildIdIndexRoute: typeof DashboardGuildIdIndexRoute
+}
+
+const DashboardGuildIdRouteRouteChildren: DashboardGuildIdRouteRouteChildren = {
+  DashboardGuildIdHistoryRoute: DashboardGuildIdHistoryRoute,
+  DashboardGuildIdIndexRoute: DashboardGuildIdIndexRoute,
+}
+
+const DashboardGuildIdRouteRouteWithChildren =
+  DashboardGuildIdRouteRoute._addFileChildren(
+    DashboardGuildIdRouteRouteChildren,
+  )
+
+interface DashboardRouteRouteChildren {
+  DashboardGuildIdRouteRoute: typeof DashboardGuildIdRouteRouteWithChildren
+  DashboardIndexRoute: typeof DashboardIndexRoute
+}
+
+const DashboardRouteRouteChildren: DashboardRouteRouteChildren = {
+  DashboardGuildIdRouteRoute: DashboardGuildIdRouteRouteWithChildren,
+  DashboardIndexRoute: DashboardIndexRoute,
+}
+
+const DashboardRouteRouteWithChildren = DashboardRouteRoute._addFileChildren(
+  DashboardRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DashboardRouteRoute: DashboardRouteRouteWithChildren,
   LeaderboardRoute: LeaderboardRoute,
 }
 export const routeTree = rootRouteImport

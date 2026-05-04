@@ -1,5 +1,7 @@
 import { createRootRoute, HeadContent, Outlet, Scripts } from "@tanstack/react-router";
 import appCss from "../styles.css?url";
+import { Navbar } from "../components/navbar";
+import { PageFrame } from "../components/page-frame";
 
 export const Route = createRootRoute({
   head: () => ({
@@ -67,6 +69,8 @@ function RootDocument() {
         <HeadContent />
       </head>
       <body className="bg-background font-sans text-foreground antialiased">
+        <PageFrame />
+        <Navbar />
         <Outlet />
         <Scripts />
       </body>

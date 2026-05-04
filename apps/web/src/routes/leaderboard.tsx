@@ -13,6 +13,7 @@ import { Button } from "#/components/ui/button";
 import { Badge } from "#/components/ui/badge";
 import useLeaderboardWS from "#/hooks/use-leaderboard-ws";
 import { cn } from "#/lib/utils";
+import { apiUrl } from "#/lib/api";
 
 type Platform = "all" | "pc" | "xbox" | "playstation";
 
@@ -94,7 +95,7 @@ function LeaderboardRoute() {
       setIsLoading(true);
       setError(null);
       try {
-        const res = await fetch(`/api/leaderboard?page=${page}&pageSize=${pageSize}`);
+        const res = await fetch(apiUrl(`/api/leaderboard?page=${page}&pageSize=${pageSize}`));
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = (await res.json()) as ApiPage;
         if (!cancelled) {
@@ -178,7 +179,7 @@ function LeaderboardRoute() {
   const totalPages = apiData ? Math.ceil(apiData.totalPlayers / pageSize) : 1;
 
   return (
-    <main className="min-h-screen pb-20">
+    <main className="min-h-screen pb-20 pt-14 md:pt-16">
       <div className="lp-container pt-8 pb-6">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>

@@ -1,6 +1,7 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight } from "lucide-react";
 import useLeaderboardWS from "#/hooks/use-leaderboard-ws";
+import { apiUrl } from "#/lib/api";
 
 type LeaderboardEntry = {
   playerId: number;
@@ -64,7 +65,8 @@ function useFlipAnimation() {
 }
 
 export function LeaderboardPreview() {
-  const { entries: wsEntries, isConnected } = useLeaderboardWS([1, 10]);
+  const range = useMemo<[number, number]>(() => [1, 10], []);
+  const { entries: wsEntries, isConnected } = useLeaderboardWS(range);
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const containerRef = useFlipAnimation();
@@ -73,7 +75,7 @@ export function LeaderboardPreview() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch("/api/leaderboard?page=1&pageSize=10")
+    fetch(apiUrl("/api/leaderboard?page=1&pageSize=10"))
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch");
         return res.json();
