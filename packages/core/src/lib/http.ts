@@ -469,7 +469,11 @@ export async function resolveProfileTargetResult(
         continue;
       }
 
-      if (normalizeDisplayName(resolved.username) !== expectedDisplayName) {
+      // Only enforce strict name matching for auto-searches to avoid cross-platform
+      // false positives. For explicit platform searches we trust stats.cc's redirect,
+      // which is needed because PlayStation profiles may redirect to their linked
+      // Ubisoft canonical name instead of the searched PSN name.
+      if (platform === "auto" && normalizeDisplayName(resolved.username) !== expectedDisplayName) {
         continue;
       }
 
@@ -970,6 +974,15 @@ async function fetchAndScrapeStatsCollectionInternal(
   }
 
   const collection = scrapeHtmlStatsCollection(pageResult.value.html);
+
+  // Preserve the original search username. stats.cc may return a linked canonical
+  // name (e.g. Ubisoft name for PlayStation) in the HTML payload, but the user
+  // expects to see the name they searched for.
+  collection.latest.profile.username = username;
+  for (const stats of Object.values(collection.bySeason)) {
+    stats.profile.username = username;
+  }
+
   return ok(attachResolvedTargetToCollection(collection, pageResult.value.resolvedTarget));
 }
 
