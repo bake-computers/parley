@@ -1,1 +1,0 @@
-ALTER TABLE "session" ADD COLUMN "session_version" integer;

@@ -1,8 +1,0 @@
-Task 12: Component Inventory
-Date: 2026-05-04
-Status: COMPLETE
-Proof:
-  - ls apps/web/src/components/ui/*.tsx | wc -l
-    12
-  - ls apps/web/src/components/ui/
-    badge.tsx button.tsx card.tsx input.tsx label.tsx separator.tsx skeleton.tsx textarea.tsx ...
