@@ -1,8 +1,7 @@
 {
-  "name": "@parley/example",
+  "name": "@parley/runtime",
   "version": "0.0.0",
   "private": true,
-  "description": "Example package",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -12,8 +11,12 @@
     "lint": "oxlint .",
     "test": "echo 'No tests yet'"
   },
-  "dependencies": {},
+  "dependencies": {
+    "discord-api-types": "^0.38.47",
+    "neverthrow": "^8.2.0"
+  },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260506.1",
     "@parley/tsconfig-base": "workspace:*",
     "typescript": "^6.0.3"
   }

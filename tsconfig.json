@@ -3,5 +3,5 @@
     "composite": true
   },
   "include": [],
-  "references": [{ "path": "./packages/tsconfig-base" }, { "path": "./packages/example" }]
+  "references": [{ "path": "./packages/tsconfig-base" }, { "path": "./packages/runtime" }]
 }

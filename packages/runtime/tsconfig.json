@@ -3,7 +3,10 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
-    "composite": true
+    "composite": true,
+    "paths": {
+      "~/*": ["./src/*"]
+    }
   },
   "include": ["../../reset.d.ts", "src/**/*"],
   "exclude": ["node_modules", "dist"]
