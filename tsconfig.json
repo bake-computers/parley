@@ -1,0 +1,7 @@
+{
+  "compilerOptions": {
+    "composite": true
+  },
+  "include": [],
+  "references": [{ "path": "./packages/tsconfig-base" }, { "path": "./packages/example" }]
+}
