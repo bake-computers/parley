@@ -40,6 +40,11 @@ describe("guild roster cache", () => {
         internalWins: 0,
         internalLosses: 0,
         internalUpdatedAt: null,
+        guildInternalElo: 1000,
+        guildInternalMatches: 0,
+        guildInternalWins: 0,
+        guildInternalLosses: 0,
+        guildInternalUpdatedAt: null,
         registeredAt: 1,
         updatedAt: 2,
         snapshot: {
@@ -66,6 +71,11 @@ describe("guild roster cache", () => {
         internalWins: 0,
         internalLosses: 0,
         internalUpdatedAt: null,
+        guildInternalElo: 1000,
+        guildInternalMatches: 0,
+        guildInternalWins: 0,
+        guildInternalLosses: 0,
+        guildInternalUpdatedAt: null,
         registeredAt: 1,
         updatedAt: 2,
         snapshot: null,
@@ -83,6 +93,11 @@ describe("guild roster cache", () => {
         internalWins: 3,
         internalLosses: 1,
         internalUpdatedAt: 4,
+        guildInternalElo: 1100,
+        guildInternalMatches: 2,
+        guildInternalWins: 2,
+        guildInternalLosses: 0,
+        guildInternalUpdatedAt: 4,
         registeredAt: 1,
         updatedAt: 2,
         snapshot: null,
@@ -97,7 +112,7 @@ describe("guild roster cache", () => {
     expect(members[1]?.ready).toBe(false);
     expect(members[1]?.metrics).toBeNull();
     expect(members[2]?.ready).toBe(true);
-    expect(members[2]?.balanceRating).toBe(1115);
+    expect(members[2]?.balanceRating).toBe(1100);
   });
 
   test("writes, reads, and deletes a cached guild roster", async () => {
@@ -116,6 +131,11 @@ describe("guild roster cache", () => {
         internalWins: 0,
         internalLosses: 0,
         internalUpdatedAt: null,
+        guildInternalElo: 1254,
+        guildInternalMatches: 0,
+        guildInternalWins: 0,
+        guildInternalLosses: 0,
+        guildInternalUpdatedAt: null,
         balanceRating: 1254,
         registeredAt: 1,
         updatedAt: 2,

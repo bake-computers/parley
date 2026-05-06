@@ -96,7 +96,9 @@ function LeaderboardRoute() {
       setIsLoading(true);
       setError(null);
       try {
-        const res = await fetch(apiUrl(`/api/leaderboard?page=${page}&pageSize=${pageSize}`));
+        const res = await fetch(apiUrl(`/api/leaderboard?page=${page}&pageSize=${pageSize}`), {
+          credentials: "include",
+        });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = (await res.json()) as ApiPage;
         if (!cancelled) {

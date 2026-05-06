@@ -69,7 +69,9 @@ function GuildOverview() {
 
     async function fetchGuild() {
       try {
-        const res = await fetch(apiUrl(`/api/dashboard/guilds/${guildId}`));
+        const res = await fetch(apiUrl(`/api/dashboard/guilds/${guildId}`), {
+          credentials: "include",
+        });
         if (!res.ok) {
           if (res.status === 401) {
             setError("Please sign in to view this server.");
@@ -101,6 +103,7 @@ function GuildOverview() {
     try {
       const res = await fetch(apiUrl(`/api/dashboard/guilds/${guildId}`), {
         method: "PUT",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           autoBalance,

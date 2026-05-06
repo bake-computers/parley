@@ -60,7 +60,11 @@ export function Features() {
         {features.map((feature) => (
           <Card key={feature.title} className="lp-card">
             <CardContent className="p-6">
-              <HugeiconsIcon icon={feature.icon} strokeWidth={2} className="size-8 text-primary mb-4" />
+              <HugeiconsIcon
+                icon={feature.icon}
+                strokeWidth={2}
+                className="size-8 text-primary mb-4"
+              />
               <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
               <p className="text-muted-foreground text-sm leading-relaxed">{feature.description}</p>
             </CardContent>

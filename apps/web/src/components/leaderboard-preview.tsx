@@ -76,7 +76,7 @@ export function LeaderboardPreview() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch(apiUrl("/api/leaderboard?page=1&pageSize=10"))
+    fetch(apiUrl("/api/leaderboard?page=1&pageSize=10"), { credentials: "include" })
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch");
         return res.json();

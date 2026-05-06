@@ -53,6 +53,21 @@ function rankLabel(rank: unknown, tier: unknown): string {
   return `${rankText} ${tierText}`;
 }
 
+function logPgError(context: string, error: unknown, extra?: Record<string, unknown>): void {
+  if (error instanceof Error && "code" in error) {
+    logger.error(`stats.snapshot.${context}`, "Postgres query failed", {
+      pgCode: (error as { code: string }).code,
+      pgDetail: (error as { detail?: string }).detail,
+      pgConstraint: (error as { constraint?: string }).constraint,
+      pgTable: (error as { table?: string }).table,
+      message: error.message,
+      ...extra,
+    });
+  } else {
+    logger.error(`stats.snapshot.${context}`, "Unexpected query failure", { error, ...extra });
+  }
+}
+
 async function resolvePlayerId(database: DbClient, profile: DataMap): Promise<number | null> {
   const db = database;
 
@@ -84,45 +99,55 @@ async function resolvePlayerId(database: DbClient, profile: DataMap): Promise<nu
         .limit(1);
 
       if (!existingActual[0]) {
-        await db
-          .update(players)
-          .set({
-            profileId,
+        try {
+          await db
+            .update(players)
+            .set({
+              profileId,
+              username,
+              usernameNormalized,
+              platform,
+              profileUrl,
+              level,
+              updatedAt: now,
+            })
+            .where(eq(players.id, placeholder[0].id));
+        } catch (error) {
+          logPgError("placeholder_upgrade_failed", error, { profileId, username, platform });
+          throw error;
+        }
+        return placeholder[0].id;
+      }
+    }
+
+    try {
+      await db
+        .insert(players)
+        .values({
+          profileId,
+          username,
+          usernameNormalized,
+          platform,
+          profileUrl,
+          level,
+          createdAt: now,
+          updatedAt: now,
+        })
+        .onConflictDoUpdate({
+          target: players.profileId,
+          set: {
             username,
             usernameNormalized,
             platform,
             profileUrl,
             level,
             updatedAt: now,
-          })
-          .where(eq(players.id, placeholder[0].id));
-        return placeholder[0].id;
-      }
+          },
+        });
+    } catch (error) {
+      logPgError("profile_upsert_failed", error, { profileId, username, platform });
+      throw error;
     }
-
-    await db
-      .insert(players)
-      .values({
-        profileId,
-        username,
-        usernameNormalized,
-        platform,
-        profileUrl,
-        level,
-        createdAt: now,
-        updatedAt: now,
-      })
-      .onConflictDoUpdate({
-        target: players.profileId,
-        set: {
-          username,
-          usernameNormalized,
-          platform,
-          profileUrl,
-          level,
-          updatedAt: now,
-        },
-      });
 
     const row = await db
       .select({ id: players.id })
@@ -133,26 +158,31 @@ async function resolvePlayerId(database: DbClient, profile: DataMap): Promise<nu
     return row[0]?.id ?? null;
   }
 
-  await db
-    .insert(players)
-    .values({
-      username,
-      usernameNormalized,
-      platform,
-      profileUrl,
-      level,
-      createdAt: now,
-      updatedAt: now,
-    })
-    .onConflictDoUpdate({
-      target: [players.usernameNormalized, players.platform],
-      set: {
+  try {
+    await db
+      .insert(players)
+      .values({
         username,
+        usernameNormalized,
+        platform,
         profileUrl,
         level,
+        createdAt: now,
         updatedAt: now,
-      },
-    });
+      })
+      .onConflictDoUpdate({
+        target: [players.usernameNormalized, players.platform],
+        set: {
+          username,
+          profileUrl,
+          level,
+          updatedAt: now,
+        },
+      });
+  } catch (error) {
+    logPgError("identity_upsert_failed", error, { username, platform });
+    throw error;
+  }
 
   const row = await db
     .select({ id: players.id })
@@ -211,33 +241,43 @@ export async function persistStatsSnapshot(
     payloadJson,
   });
 
-  await db.insert(statSnapshots).values({
-    playerId,
-    fetchedAt: input.fetchedAt,
-    source: input.source,
-    cacheVersion: input.cacheVersion,
-    currentRank: rankLabel(ranked.current_rank, ranked.current_rank_tier),
-    rankPoints: toNumber(ranked.rank_points, 0),
-    matches: toNumber(ranked.matches, 0),
-    wins: toNumber(ranked.wins, 0),
-    losses: toNumber(ranked.losses, 0),
-    kills: toNumber(ranked.kills, 0),
-    deaths: toNumber(ranked.deaths, 0),
-    assists: toNumber(ranked.assists, 0),
-    headshots: toNumber(ranked.headshots, 0),
-    kdRatio: toNumber(ranked.kd_ratio, 0),
-    headshotPercentage: toNumber(ranked.headshot_percentage, 0),
-    winRate: toNumber(ranked.win_rate, 0),
-    kost: toNumber(input.calculatedMetrics.kost, 0),
-    payloadJson,
-    createdAt: Date.now(),
-  });
+  try {
+    await db.insert(statSnapshots).values({
+      playerId,
+      fetchedAt: input.fetchedAt,
+      source: input.source,
+      cacheVersion: input.cacheVersion,
+      currentRank: rankLabel(ranked.current_rank, ranked.current_rank_tier),
+      rankPoints: toNumber(ranked.rank_points, 0),
+      matches: toNumber(ranked.matches, 0),
+      wins: toNumber(ranked.wins, 0),
+      losses: toNumber(ranked.losses, 0),
+      kills: toNumber(ranked.kills, 0),
+      deaths: toNumber(ranked.deaths, 0),
+      assists: toNumber(ranked.assists, 0),
+      headshots: toNumber(ranked.headshots, 0),
+      kdRatio: toNumber(ranked.kd_ratio, 0),
+      headshotPercentage: toNumber(ranked.headshot_percentage, 0),
+      winRate: toNumber(ranked.win_rate, 0),
+      kost: toNumber(input.calculatedMetrics.kost, 0),
+      payloadJson,
+      createdAt: Date.now(),
+    });
+  } catch (error) {
+    logPgError("snapshot_insert_failed", error, { playerId });
+    throw error;
+  }
 
-  await db
-    .update(players)
-    .set({
-      internalElo: seedScoreToInternalElo(seedMetrics.seedScore),
-      updatedAt: Date.now(),
-    })
-    .where(and(eq(players.id, playerId), eq(players.internalMatches, 0)));
+  try {
+    await db
+      .update(players)
+      .set({
+        internalElo: seedScoreToInternalElo(seedMetrics.seedScore),
+        updatedAt: Date.now(),
+      })
+      .where(and(eq(players.id, playerId), eq(players.internalMatches, 0)));
+  } catch (error) {
+    logPgError("elo_seed_update_failed", error, { playerId });
+    throw error;
+  }
 }

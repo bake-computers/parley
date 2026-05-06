@@ -475,6 +475,11 @@ export const accountCommand = new SlashCommand()
             internalWins: guildRegistration.internalWins,
             internalLosses: guildRegistration.internalLosses,
             internalUpdatedAt: guildRegistration.internalUpdatedAt,
+            guildInternalElo: guildRegistration.guildInternalElo,
+            guildInternalMatches: guildRegistration.guildInternalMatches,
+            guildInternalWins: guildRegistration.guildInternalWins,
+            guildInternalLosses: guildRegistration.guildInternalLosses,
+            guildInternalUpdatedAt: guildRegistration.guildInternalUpdatedAt,
           }
         : null;
       const internalSummary =
@@ -484,9 +489,17 @@ export const accountCommand = new SlashCommand()
 
       if (internalSummary) {
         lines.push(
-          `Internal ELO: **${Math.round(internalSummary.internalElo)}**`,
-          `Internal record: **${internalSummary.internalWins}-${internalSummary.internalLosses}**`,
-          `Recorded internal matches: **${internalSummary.internalMatches}**`,
+          `Global ELO: **${Math.round(internalSummary.internalElo)}**`,
+          `Global record: **${internalSummary.internalWins}-${internalSummary.internalLosses}**`,
+          `Global matches: **${internalSummary.internalMatches}**`,
+        );
+      }
+
+      if (guildSummary && guildSummary.guildInternalMatches > 0) {
+        lines.push(
+          `Server ELO: **${Math.round(guildSummary.guildInternalElo)}**`,
+          `Server record: **${guildSummary.guildInternalWins}-${guildSummary.guildInternalLosses}**`,
+          `Server matches: **${guildSummary.guildInternalMatches}**`,
         );
       }
 

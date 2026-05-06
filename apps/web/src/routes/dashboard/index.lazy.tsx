@@ -49,7 +49,7 @@ function DashboardIndex() {
 
     async function fetchGuilds() {
       try {
-        const res = await fetch(apiUrl("/api/dashboard/guilds"));
+        const res = await fetch(apiUrl("/api/dashboard/guilds"), { credentials: "include" });
         if (!res.ok) {
           if (res.status === 401) {
             setError("Please sign in to view your servers.");

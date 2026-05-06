@@ -43,7 +43,11 @@ export function HowItWorks() {
               <div className="how-it-works__badge">
                 <span className="how-it-works__number">{step.number}</span>
               </div>
-              <HugeiconsIcon icon={step.icon} strokeWidth={2} className="size-7 text-primary mb-3" />
+              <HugeiconsIcon
+                icon={step.icon}
+                strokeWidth={2}
+                className="size-7 text-primary mb-3"
+              />
               <h3 className="text-lg font-semibold mb-2">{step.title}</h3>
               <p className="text-muted-foreground text-sm leading-relaxed">{step.description}</p>
             </div>

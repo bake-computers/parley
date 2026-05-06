@@ -5,6 +5,7 @@
 > **Quick Summary**: Overhaul the entire `apps/web` UI by initializing shadcn/ui with the `buFzFmS` preset (full lyra style, hugeicons, jetbrains-mono), overriding colors to grey/white only, replacing all custom UI components with official shadcn/ui equivalents, adding a Discord login flow to `/dashboard`, and optimizing performance by removing heavy CSS effects, implementing route-based lazy loading, and reducing bundle size.
 >
 > **Deliverables**:
+>
 > - shadcn/ui initialized in `apps/web` with `components.json`
 > - Preset `buFzFmS` applied (lyra style, hugeicons, jetbrains-mono)
 > - Grey/white dark theme (no vibrant colors)
@@ -23,10 +24,13 @@
 ## Context
 
 ### Original Request
+
 Overhaul the entire UI of `apps/web` using the Shadcn UI preset `buFzFmS`. Dark grey/white theme only (no vibrant colors). Fast and performant. Add a login page with the Discord icon. Optimize code to be more performant and faster. Use skills in `.agents/skills`.
 
 ### Interview Summary
+
 **Key Discussions**:
+
 - **Theme**: Dark vibes only — grey and white on dark background (no blue/cyan accents)
 - **Preset**: Apply full `buFzFmS` preset including lyra style, hugeicons, and jetbrains-mono
 - **Login**: In `/dashboard` route, official Discord "Log in with Discord" button using existing better-auth OAuth
@@ -35,6 +39,7 @@ Overhaul the entire UI of `apps/web` using the Shadcn UI preset `buFzFmS`. Dark 
 - **Tests**: No unit tests needed
 
 **Research Findings**:
+
 - Current stack: Vite 8 + React 19 + TanStack Start + Tailwind CSS v4.1.18
 - No formal shadcn/ui installation (no `components.json`)
 - Custom components: Button, Card, Badge, Separator, FloatingStatCard
@@ -44,7 +49,9 @@ Overhaul the entire UI of `apps/web` using the Shadcn UI preset `buFzFmS`. Dark 
 - Preset `buFzFmS` decodes to: lyra style, neutral base color, hugeicons, jetbrains-mono
 
 ### Metis Review
+
 **Identified Gaps** (addressed):
+
 - **Icon library switch**: User confirmed switch to hugeicons
 - **Lyra style risk**: User confirmed full lyra style (accepts component geometry changes)
 - **Animation strategy**: User chose to optimize existing effects rather than strip all
@@ -57,9 +64,11 @@ Overhaul the entire UI of `apps/web` using the Shadcn UI preset `buFzFmS`. Dark 
 ## Work Objectives
 
 ### Core Objective
+
 Transform `apps/web` into a polished, performant application using shadcn/ui with the `buFzFmS` preset, featuring a grey/white dark theme, official shadcn components, Discord OAuth login, and optimized performance.
 
 ### Concrete Deliverables
+
 - `apps/web/components.json` (shadcn configuration)
 - Updated `apps/web/src/styles.css` (grey/white theme, optimized effects)
 - Replaced `apps/web/src/components/ui/*.tsx` files with shadcn/ui equivalents
@@ -69,6 +78,7 @@ Transform `apps/web` into a polished, performant application using shadcn/ui wit
 - Performance baseline vs. post-optimization comparison
 
 ### Definition of Done
+
 - [ ] `bun run build` succeeds without errors
 - [ ] `bun run typecheck` passes
 - [ ] `oxlint .` passes
@@ -80,6 +90,7 @@ Transform `apps/web` into a polished, performant application using shadcn/ui wit
 - [ ] Grey/white color audit passes (no non-greyscale OKLCH/HSL values)
 
 ### Must Have
+
 - shadcn/ui initialized with preset `buFzFmS`
 - Grey/white dark theme (no vibrant accent colors)
 - All custom UI components replaced with shadcn/ui
@@ -90,6 +101,7 @@ Transform `apps/web` into a polished, performant application using shadcn/ui wit
 - Navbar updated with auth state and user menu
 
 ### Must NOT Have (Guardrails)
+
 - No backend auth changes (backend is already configured)
 - No new API routes or database changes
 - No content/marketing text rewrites
@@ -106,11 +118,13 @@ Transform `apps/web` into a polished, performant application using shadcn/ui wit
 > **ZERO HUMAN INTERVENTION** - ALL verification is agent-executed.
 
 ### Test Decision
+
 - **Infrastructure exists**: NO
 - **Automated tests**: None (user explicitly declined)
 - **Agent-Executed QA**: ALWAYS (mandatory for all tasks)
 
 ### QA Policy
+
 Every task MUST include agent-executed QA scenarios. Evidence saved to `.sisyphus/evidence/task-{N}-{scenario-slug}.{ext}`.
 
 - **Frontend/UI**: Use Playwright - Navigate, interact, assert DOM, screenshot
@@ -169,29 +183,29 @@ Max Concurrent: 6 (Wave 3)
 
 ### Dependency Matrix
 
-| Task | Blocked By | Blocks |
-|------|-----------|--------|
-| 1 | None | 2 |
-| 2 | 1 | 3, 4, 5 |
-| 3 | 2 | 8-13 |
-| 4 | 2 | 5-7 |
-| 5 | 2, 4 | 8-13, 14-17 |
-| 6 | 2, 4 | 14-17, 20 |
-| 7 | 2, 4 | 14-17 |
-| 8 | 3, 5 | 14-17 |
-| 9 | 3, 5 | 14-17 |
-| 10 | 3, 5 | 14-17 |
-| 11 | 3, 5 | 14-17 |
-| 12 | 3, 5 | 14-17 |
-| 13 | 3, 5 | 14 |
-| 14 | 5-13 | 20 |
-| 15 | 5-13 | 20 |
-| 16 | 5-13 | 20 |
-| 17 | 5-13, 12 | 20 |
-| 18 | 14-17 | 20 |
-| 19 | 14-17 | 20 |
-| 20 | 14-19 | F1-F4 |
-| F1-F4 | 20 | user okay |
+| Task  | Blocked By | Blocks      |
+| ----- | ---------- | ----------- |
+| 1     | None       | 2           |
+| 2     | 1          | 3, 4, 5     |
+| 3     | 2          | 8-13        |
+| 4     | 2          | 5-7         |
+| 5     | 2, 4       | 8-13, 14-17 |
+| 6     | 2, 4       | 14-17, 20   |
+| 7     | 2, 4       | 14-17       |
+| 8     | 3, 5       | 14-17       |
+| 9     | 3, 5       | 14-17       |
+| 10    | 3, 5       | 14-17       |
+| 11    | 3, 5       | 14-17       |
+| 12    | 3, 5       | 14-17       |
+| 13    | 3, 5       | 14          |
+| 14    | 5-13       | 20          |
+| 15    | 5-13       | 20          |
+| 16    | 5-13       | 20          |
+| 17    | 5-13, 12   | 20          |
+| 18    | 14-17      | 20          |
+| 19    | 14-17      | 20          |
+| 20    | 14-19      | F1-F4       |
+| F1-F4 | 20         | user okay   |
 
 ### Agent Dispatch Summary
 
@@ -241,6 +255,7 @@ Max Concurrent: 6 (Wave 3)
   - [ ] `.sisyphus/evidence/baseline-metrics.txt` exists with all metrics recorded
 
   **QA Scenarios**:
+
   ```
   Scenario: Baseline metrics captured
     Tool: Bash
@@ -294,6 +309,7 @@ Max Concurrent: 6 (Wave 3)
   - [ ] `bun install` completes successfully
 
   **QA Scenarios**:
+
   ```
   Scenario: shadcn initialized successfully
     Tool: Bash
@@ -350,6 +366,7 @@ Max Concurrent: 6 (Wave 3)
   - [ ] `@theme inline` has `--font-mono: "JetBrains Mono", ...`
 
   **QA Scenarios**:
+
   ```
   Scenario: Dependencies installed and font configured
     Tool: Bash
@@ -408,6 +425,7 @@ Max Concurrent: 6 (Wave 3)
   - [ ] No TypeScript errors from path resolution
 
   **QA Scenarios**:
+
   ```
   Scenario: Path aliases work correctly
     Tool: Bash
@@ -471,6 +489,7 @@ Max Concurrent: 6 (Wave 3)
   - [ ] All existing component files still reference valid variables
 
   **QA Scenarios**:
+
   ```
   Scenario: Grey/white theme applied
     Tool: Bash
@@ -545,6 +564,7 @@ Max Concurrent: 6 (Wave 3)
   - [ ] `prefers-reduced-motion` respected
 
   **QA Scenarios**:
+
   ```
   Scenario: CSS effects optimized
     Tool: Bash
@@ -609,6 +629,7 @@ Max Concurrent: 6 (Wave 3)
   - [ ] `bun run typecheck` still passes
 
   **QA Scenarios**:
+
   ```
   Scenario: Theme tokens updated
     Tool: Bash
@@ -672,6 +693,7 @@ Max Concurrent: 6 (Wave 3)
   - [ ] Custom variants (`depth`, `gradient`) either removed or restyled grey/white
 
   **QA Scenarios**:
+
   ```
   Scenario: Button migration complete
     Tool: Bash + grep
@@ -734,6 +756,7 @@ Max Concurrent: 6 (Wave 3)
   - [ ] No type errors from Card usage
 
   **QA Scenarios**:
+
   ```
   Scenario: Card migration complete
     Tool: Bash + grep
@@ -795,6 +818,7 @@ Max Concurrent: 6 (Wave 3)
   - [ ] No type errors from Badge usage
 
   **QA Scenarios**:
+
   ```
   Scenario: Badge migration complete
     Tool: Bash + grep
@@ -836,6 +860,7 @@ Max Concurrent: 6 (Wave 3)
   - [ ] No type errors from Separator usage
 
   **QA Scenarios**:
+
   ```
   Scenario: Separator migration complete
     Tool: Bash + grep
@@ -890,6 +915,7 @@ Max Concurrent: 6 (Wave 3)
   - [ ] No additional unexpected components installed
 
   **QA Scenarios**:
+
   ```
   Scenario: Additional components installed
     Tool: Bash
@@ -949,6 +975,7 @@ Max Concurrent: 6 (Wave 3)
   - [ ] No 3D transforms or heavy effects
 
   **QA Scenarios**:
+
   ```
   Scenario: FloatingStatCard replaced
     Tool: Bash + grep
@@ -1029,6 +1056,7 @@ Max Concurrent: 6 (Wave 3)
   - [ ] Mobile responsive works correctly
 
   **QA Scenarios**:
+
   ```
   Scenario: Landing page renders with new theme
     Tool: Playwright
@@ -1096,11 +1124,11 @@ Max Concurrent: 6 (Wave 3)
   - **Blocked By**: Tasks 5-13
 
   **References**:
-    - `apps/web/src/routes/leaderboard.tsx` - Full file (429 lines)
-    - `apps/web/src/hooks/use-leaderboard-ws.ts` - WebSocket hook (do NOT modify)
-    - `apps/web/src/components/ui/skeleton.tsx` - New shadcn Skeleton
-    - `apps/web/src/components/ui/button.tsx` - New shadcn Button
-    - `apps/web/src/components/ui/badge.tsx` - New shadcn Badge
+  - `apps/web/src/routes/leaderboard.tsx` - Full file (429 lines)
+  - `apps/web/src/hooks/use-leaderboard-ws.ts` - WebSocket hook (do NOT modify)
+  - `apps/web/src/components/ui/skeleton.tsx` - New shadcn Skeleton
+  - `apps/web/src/components/ui/button.tsx` - New shadcn Button
+  - `apps/web/src/components/ui/badge.tsx` - New shadcn Badge
 
   **Acceptance Criteria**:
   - [ ] All icons from hugeicons
@@ -1111,6 +1139,7 @@ Max Concurrent: 6 (Wave 3)
   - [ ] Search and filter functionality preserved
 
   **QA Scenarios**:
+
   ```
   Scenario: Leaderboard renders with new theme
     Tool: Playwright
@@ -1185,14 +1214,14 @@ Max Concurrent: 6 (Wave 3)
   - **Blocked By**: Tasks 5-13, 12
 
   **References**:
-    - `apps/web/src/routes/dashboard/index.tsx` - Dashboard home
-    - `apps/web/src/routes/dashboard/$guildId/index.tsx` - Guild dashboard
-    - `apps/web/src/routes/dashboard/$guildId/history.tsx` - Match history
-    - `apps/web/src/lib/auth.ts` - Auth client
-    - `apps/web/src/components/ui/avatar.tsx` - shadcn Avatar
-    - `apps/web/src/components/ui/card.tsx` - shadcn Card
-    - `apps/web/src/components/ui/button.tsx` - shadcn Button
-    - `packages/auth/src/index.ts` - Backend auth config (READ-ONLY reference)
+  - `apps/web/src/routes/dashboard/index.tsx` - Dashboard home
+  - `apps/web/src/routes/dashboard/$guildId/index.tsx` - Guild dashboard
+  - `apps/web/src/routes/dashboard/$guildId/history.tsx` - Match history
+  - `apps/web/src/lib/auth.ts` - Auth client
+  - `apps/web/src/components/ui/avatar.tsx` - shadcn Avatar
+  - `apps/web/src/components/ui/card.tsx` - shadcn Card
+  - `apps/web/src/components/ui/button.tsx` - shadcn Button
+  - `packages/auth/src/index.ts` - Backend auth config (READ-ONLY reference)
 
   **Acceptance Criteria**:
   - [ ] Unauthenticated users see Discord login button
@@ -1205,6 +1234,7 @@ Max Concurrent: 6 (Wave 3)
   - [ ] All dashboard pages use grey/white theme
 
   **QA Scenarios**:
+
   ```
   Scenario: Dashboard shows login for unauthenticated users
     Tool: Playwright
@@ -1268,12 +1298,12 @@ Max Concurrent: 6 (Wave 3)
   - **Blocked By**: Tasks 5-13, 12
 
   **References**:
-    - `apps/web/src/components/navbar.tsx` - Navbar component
-    - `apps/web/src/components/page-frame.tsx` - Frame overlay
-    - `apps/web/src/lib/auth.ts` - Auth client
-    - `apps/web/src/components/ui/avatar.tsx` - shadcn Avatar
-    - `apps/web/src/components/ui/dropdown-menu.tsx` - shadcn DropdownMenu
-    - `apps/web/src/components/ui/button.tsx` - shadcn Button
+  - `apps/web/src/components/navbar.tsx` - Navbar component
+  - `apps/web/src/components/page-frame.tsx` - Frame overlay
+  - `apps/web/src/lib/auth.ts` - Auth client
+  - `apps/web/src/components/ui/avatar.tsx` - shadcn Avatar
+  - `apps/web/src/components/ui/dropdown-menu.tsx` - shadcn DropdownMenu
+  - `apps/web/src/components/ui/button.tsx` - shadcn Button
 
   **Acceptance Criteria**:
   - [ ] Navbar renders on all pages
@@ -1284,6 +1314,7 @@ Max Concurrent: 6 (Wave 3)
   - [ ] Grey/white styling
 
   **QA Scenarios**:
+
   ```
   Scenario: Navbar shows auth state
     Tool: Playwright
@@ -1361,13 +1392,13 @@ Max Concurrent: 6 (Wave 3)
   - **Blocked By**: Tasks 14-17
 
   **References**:
-    - `apps/web/src/router.tsx` - Router config
-    - `apps/web/src/routes/leaderboard.tsx` - Route to convert
-    - `apps/web/src/routes/dashboard/index.tsx` - Route to convert
-    - `apps/web/src/routes/dashboard/$guildId/index.tsx` - Route to convert
-    - `apps/web/src/routes/dashboard/$guildId/history.tsx` - Route to convert
-    - TanStack Router docs for `createLazyFileRoute`
-    - `apps/web/src/components/ui/skeleton.tsx` - For loading fallback
+  - `apps/web/src/router.tsx` - Router config
+  - `apps/web/src/routes/leaderboard.tsx` - Route to convert
+  - `apps/web/src/routes/dashboard/index.tsx` - Route to convert
+  - `apps/web/src/routes/dashboard/$guildId/index.tsx` - Route to convert
+  - `apps/web/src/routes/dashboard/$guildId/history.tsx` - Route to convert
+  - TanStack Router docs for `createLazyFileRoute`
+  - `apps/web/src/components/ui/skeleton.tsx` - For loading fallback
 
   **Acceptance Criteria**:
   - [ ] `.lazy.tsx` files created for leaderboard, dashboard, guild dashboard, history
@@ -1379,6 +1410,7 @@ Max Concurrent: 6 (Wave 3)
   - [ ] Routes still navigate correctly in dev
 
   **QA Scenarios**:
+
   ```
   Scenario: Lazy routes generate separate chunks
     Tool: Bash
@@ -1459,10 +1491,10 @@ Max Concurrent: 6 (Wave 3)
   - **Blocked By**: Tasks 14-17
 
   **References**:
-    - `apps/web/vite.config.ts` - Build config
-    - `apps/web/package.json` - Dependencies
-    - `.sisyphus/evidence/baseline-metrics.txt` - Baseline from Task 1
-    - Vite docs for `build.rollupOptions`
+  - `apps/web/vite.config.ts` - Build config
+  - `apps/web/package.json` - Dependencies
+  - `.sisyphus/evidence/baseline-metrics.txt` - Baseline from Task 1
+  - Vite docs for `build.rollupOptions`
 
   **Acceptance Criteria**:
   - [ ] Vendor chunks split in Vite config
@@ -1473,6 +1505,7 @@ Max Concurrent: 6 (Wave 3)
   - [ ] No unused dependencies
 
   **QA Scenarios**:
+
   ```
   Scenario: Bundle size reduced
     Tool: Bash
@@ -1544,9 +1577,9 @@ Max Concurrent: 6 (Wave 3)
   - **Blocked By**: Tasks 14-19
 
   **References**:
-    - `apps/web/src/styles.css` - Final CSS audit
-    - `.sisyphus/evidence/baseline-metrics.txt` - Baseline comparison
-    - All `.tsx` files in `apps/web/src/` - To check CSS class references
+  - `apps/web/src/styles.css` - Final CSS audit
+  - `.sisyphus/evidence/baseline-metrics.txt` - Baseline comparison
+  - All `.tsx` files in `apps/web/src/` - To check CSS class references
 
   **Acceptance Criteria**:
   - [ ] CSS file under 400 lines
@@ -1557,6 +1590,7 @@ Max Concurrent: 6 (Wave 3)
   - [ ] Post-optimization metrics recorded
 
   **QA Scenarios**:
+
   ```
   Scenario: Final CSS audit passes
     Tool: Bash
@@ -1579,20 +1613,20 @@ Max Concurrent: 6 (Wave 3)
 > 4 review agents run in PARALLEL. ALL must APPROVE. Present consolidated results to user and get explicit "okay" before completing.
 
 - [x] F1. **Plan Compliance Audit** — `oracle`
-  Read the plan end-to-end. For each "Must Have": verify implementation exists (read file, curl endpoint, run command). For each "Must NOT Have": search codebase for forbidden patterns — reject with file:line if found. Check evidence files exist in .sisyphus/evidence/. Compare deliverables against plan.
-  Output: `Must Have [N/N] | Must NOT Have [N/N] | Tasks [N/N] | VERDICT: APPROVE/REJECT`
+      Read the plan end-to-end. For each "Must Have": verify implementation exists (read file, curl endpoint, run command). For each "Must NOT Have": search codebase for forbidden patterns — reject with file:line if found. Check evidence files exist in .sisyphus/evidence/. Compare deliverables against plan.
+      Output: `Must Have [N/N] | Must NOT Have [N/N] | Tasks [N/N] | VERDICT: APPROVE/REJECT`
 
 - [x] F2. **Code Quality Review** — `unspecified-high`
-  Run `tsc --noEmit` + `oxlint .` + `oxfmt --check .` + `bun run build`. Review all changed files for: `as any`/`@ts-ignore`, empty catches, console.log in prod, commented-out code, unused imports. Check AI slop: excessive comments, over-abstraction, generic names.
-  Output: `Build [PASS/FAIL] | Lint [PASS/FAIL] | Format [PASS/FAIL] | TypeCheck [PASS/FAIL] | Files [N clean/N issues] | VERDICT`
+      Run `tsc --noEmit` + `oxlint .` + `oxfmt --check .` + `bun run build`. Review all changed files for: `as any`/`@ts-ignore`, empty catches, console.log in prod, commented-out code, unused imports. Check AI slop: excessive comments, over-abstraction, generic names.
+      Output: `Build [PASS/FAIL] | Lint [PASS/FAIL] | Format [PASS/FAIL] | TypeCheck [PASS/FAIL] | Files [N clean/N issues] | VERDICT`
 
 - [x] F3. **Real Manual QA** — `unspecified-high` (+ `playwright` skill)
-  Start from clean state. Execute EVERY QA scenario from EVERY task — follow exact steps, capture evidence. Test cross-task integration. Test edge cases: unauthenticated dashboard, OAuth callback, empty leaderboard, mobile viewport. Save to `.sisyphus/evidence/final-qa/`.
-  Output: `Scenarios [N/N pass] | Integration [N/N] | Edge Cases [N tested] | VERDICT`
+      Start from clean state. Execute EVERY QA scenario from EVERY task — follow exact steps, capture evidence. Test cross-task integration. Test edge cases: unauthenticated dashboard, OAuth callback, empty leaderboard, mobile viewport. Save to `.sisyphus/evidence/final-qa/`.
+      Output: `Scenarios [N/N pass] | Integration [N/N] | Edge Cases [N tested] | VERDICT`
 
 - [x] F4. **Scope Fidelity Check** — `deep`
-  For each task: read "What to do", read actual diff (git log/diff). Verify 1:1 — everything in spec was built, nothing beyond spec was built. Check "Must NOT do" compliance. Detect cross-task contamination. Flag unaccounted changes.
-  Output: `Tasks [N/N compliant] | Contamination [CLEAN/N issues] | Unaccounted [CLEAN/N files] | VERDICT`
+      For each task: read "What to do", read actual diff (git log/diff). Verify 1:1 — everything in spec was built, nothing beyond spec was built. Check "Must NOT do" compliance. Detect cross-task contamination. Flag unaccounted changes.
+      Output: `Tasks [N/N compliant] | Contamination [CLEAN/N issues] | Unaccounted [CLEAN/N files] | VERDICT`
 
 ---
 
@@ -1600,9 +1634,9 @@ Max Concurrent: 6 (Wave 3)
 
 - **Wave 1**: `chore(web): initialize shadcn/ui with buFzFmS preset` - components.json, package.json, new shadcn files
 - **Wave 2**: `style(web): apply grey/white theme and optimize CSS` - styles.css
-- **Wave 3**: `refactor(web): migrate to shadcn/ui components` - components/ui/*.tsx, import updates
-- **Wave 4**: `feat(web): overhaul pages with new design system` - routes/*.tsx, components/*.tsx
-- **Wave 5**: `perf(web): implement lazy loading and bundle optimization` - routes/*.tsx, vite.config.ts
+- **Wave 3**: `refactor(web): migrate to shadcn/ui components` - components/ui/\*.tsx, import updates
+- **Wave 4**: `feat(web): overhaul pages with new design system` - routes/_.tsx, components/_.tsx
+- **Wave 5**: `perf(web): implement lazy loading and bundle optimization` - routes/\*.tsx, vite.config.ts
 - **Wave FINAL**: `chore(web): final verification and cleanup` - any remaining fixes
 
 ---
@@ -1610,6 +1644,7 @@ Max Concurrent: 6 (Wave 3)
 ## Success Criteria
 
 ### Verification Commands
+
 ```bash
 # Build verification
 bun --cwd apps/web run build
@@ -1649,6 +1684,7 @@ grep -q "hugeicons" apps/web/package.json && echo "installed"
 ```
 
 ### Final Checklist
+
 - [x] All "Must Have" present
 - [x] All "Must NOT Have" absent
 - [x] Build passes

@@ -1,10 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import {
-  AUTHORIZED_DISCORD_USER_IDS,
-  readSessionAccess,
-  SESSION_VERSION,
-  type SessionAccess,
-} from "../src/index";
+import { AUTHORIZED_DISCORD_USER_IDS, readSessionAccess, type SessionAccess } from "../src/index";
 
 const allowedDiscordUserId = [...AUTHORIZED_DISCORD_USER_IDS][0] ?? "980859238630948886";
 
@@ -45,67 +40,6 @@ describe("readSessionAccess", () => {
     expect(result).toEqual({ status: "signed_out" });
   });
 
-  test("returns signed_out when session version is stale", async () => {
-    const result = await readSessionAccess(
-      createAuth({
-        user: {
-          id: "user-1",
-          name: "Test User",
-          email: "test@example.com",
-          emailVerified: true,
-          image: null,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        session: {
-          id: "session-1",
-          userId: "user-1",
-          expiresAt: new Date(),
-          token: "token-1",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          ipAddress: null,
-          userAgent: null,
-          sessionVersion: SESSION_VERSION - 1,
-        },
-      }) as never,
-      createDb(allowedDiscordUserId) as never,
-      new Headers(),
-    );
-
-    expect(result).toEqual({ status: "signed_out" });
-  });
-
-  test("returns signed_out when session version is missing", async () => {
-    const result = await readSessionAccess(
-      createAuth({
-        user: {
-          id: "user-1",
-          name: "Test User",
-          email: "test@example.com",
-          emailVerified: true,
-          image: null,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        session: {
-          id: "session-1",
-          userId: "user-1",
-          expiresAt: new Date(),
-          token: "token-1",
-          createdAt: new Date(),
-          updatedAt: new Date(),
-          ipAddress: null,
-          userAgent: null,
-        },
-      }) as never,
-      createDb(allowedDiscordUserId) as never,
-      new Headers(),
-    );
-
-    expect(result).toEqual({ status: "signed_out" });
-  });
-
   test("returns forbidden when the linked discord account is not on the allowlist", async () => {
     const result = await readSessionAccess(
       createAuth({
@@ -127,7 +61,6 @@ describe("readSessionAccess", () => {
           updatedAt: new Date(),
           ipAddress: null,
           userAgent: null,
-          sessionVersion: SESSION_VERSION,
         },
       }) as never,
       createDb("111111111111111111") as never,
@@ -161,7 +94,6 @@ describe("readSessionAccess", () => {
           updatedAt: new Date(),
           ipAddress: null,
           userAgent: null,
-          sessionVersion: SESSION_VERSION,
         },
       }) as never,
       createDb(allowedDiscordUserId) as never,

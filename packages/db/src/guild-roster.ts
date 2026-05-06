@@ -26,6 +26,11 @@ export interface GuildRosterEntry {
   internalWins: number;
   internalLosses: number;
   internalUpdatedAt: number | null;
+  guildInternalElo: number;
+  guildInternalMatches: number;
+  guildInternalWins: number;
+  guildInternalLosses: number;
+  guildInternalUpdatedAt: number | null;
   registeredAt: number;
   updatedAt: number;
   snapshot: GuildRosterSeedSnapshot | null;
@@ -54,6 +59,11 @@ export async function listGuildRoster(
       internalWins: players.internalWins,
       internalLosses: players.internalLosses,
       internalUpdatedAt: players.internalUpdatedAt,
+      guildInternalElo: guildPlayers.internalElo,
+      guildInternalMatches: guildPlayers.internalMatches,
+      guildInternalWins: guildPlayers.internalWins,
+      guildInternalLosses: guildPlayers.internalLosses,
+      guildInternalUpdatedAt: guildPlayers.internalUpdatedAt,
       registeredAt: guildPlayers.createdAt,
       updatedAt: guildPlayers.updatedAt,
       snapshotFetchedAt: statSnapshots.fetchedAt,
@@ -90,6 +100,11 @@ export async function listGuildRoster(
       internalWins: row.internalWins,
       internalLosses: row.internalLosses,
       internalUpdatedAt: row.internalUpdatedAt,
+      guildInternalElo: row.guildInternalElo,
+      guildInternalMatches: row.guildInternalMatches,
+      guildInternalWins: row.guildInternalWins,
+      guildInternalLosses: row.guildInternalLosses,
+      guildInternalUpdatedAt: row.guildInternalUpdatedAt,
       registeredAt: row.registeredAt,
       updatedAt: row.updatedAt,
       snapshot:

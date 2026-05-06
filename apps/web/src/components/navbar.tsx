@@ -41,8 +41,7 @@ export function Navbar() {
               to="/"
               activeProps={{ className: "text-foreground" }}
               inactiveProps={{
-                className:
-                  "text-muted-foreground hover:text-foreground transition-colors",
+                className: "text-muted-foreground hover:text-foreground transition-colors",
               }}
               className="text-sm font-medium"
             >
@@ -52,8 +51,7 @@ export function Navbar() {
               to="/leaderboard"
               activeProps={{ className: "text-foreground" }}
               inactiveProps={{
-                className:
-                  "text-muted-foreground hover:text-foreground transition-colors",
+                className: "text-muted-foreground hover:text-foreground transition-colors",
               }}
               className="text-sm font-medium"
             >
@@ -65,22 +63,13 @@ export function Navbar() {
             {session?.user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger>
-                  <div
-                    className="flex items-center gap-2 rounded-full p-1 pr-3 hover:bg-white/5 transition-colors cursor-pointer"
-                  >
+                  <div className="flex items-center gap-2 rounded-full p-1 pr-3 hover:bg-white/5 transition-colors cursor-pointer">
                     <Avatar size="sm">
                       {session.user.image ? (
-                        <AvatarImage
-                          src={session.user.image}
-                          alt={session.user.name ?? "User"}
-                        />
+                        <AvatarImage src={session.user.image} alt={session.user.name ?? "User"} />
                       ) : null}
                       <AvatarFallback>
-                        <HugeiconsIcon
-                          icon={UserIcon}
-                          strokeWidth={2}
-                          className="size-4"
-                        />
+                        <HugeiconsIcon icon={UserIcon} strokeWidth={2} className="size-4" />
                       </AvatarFallback>
                     </Avatar>
                     <span className="text-sm font-medium text-foreground">
@@ -108,11 +97,7 @@ export function Navbar() {
                     }}
                     className="flex items-center gap-2 cursor-pointer"
                   >
-                    <HugeiconsIcon
-                      icon={Logout02Icon}
-                      strokeWidth={2}
-                      className="size-4"
-                    />
+                    <HugeiconsIcon icon={Logout02Icon} strokeWidth={2} className="size-4" />
                     Log out
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -120,11 +105,7 @@ export function Navbar() {
             ) : (
               <Button asChild size="sm" variant="default">
                 <Link to="/dashboard" className="gap-1.5">
-                  <HugeiconsIcon
-                    icon={Login01Icon}
-                    strokeWidth={2}
-                    className="size-3.5"
-                  />
+                  <HugeiconsIcon icon={Login01Icon} strokeWidth={2} className="size-3.5" />
                   Log in
                 </Link>
               </Button>
@@ -137,11 +118,7 @@ export function Navbar() {
                 className="gap-1.5"
               >
                 Add to Discord
-                <HugeiconsIcon
-                  icon={Link02Icon}
-                  strokeWidth={2}
-                  className="size-3.5"
-                />
+                <HugeiconsIcon icon={Link02Icon} strokeWidth={2} className="size-3.5" />
               </a>
             </Button>
           </div>
@@ -154,17 +131,9 @@ export function Navbar() {
             aria-expanded={mobileOpen}
           >
             {mobileOpen ? (
-              <HugeiconsIcon
-                icon={Cancel01Icon}
-                strokeWidth={2}
-                className="size-5"
-              />
+              <HugeiconsIcon icon={Cancel01Icon} strokeWidth={2} className="size-5" />
             ) : (
-              <HugeiconsIcon
-                icon={Menu01Icon}
-                strokeWidth={2}
-                className="size-5"
-              />
+              <HugeiconsIcon icon={Menu01Icon} strokeWidth={2} className="size-5" />
             )}
           </button>
         </div>
@@ -211,11 +180,7 @@ export function Navbar() {
                     }}
                     className="flex items-center gap-2 rounded-md px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-white/5 transition-colors text-left"
                   >
-                    <HugeiconsIcon
-                      icon={Logout02Icon}
-                      strokeWidth={2}
-                      className="size-4"
-                    />
+                    <HugeiconsIcon icon={Logout02Icon} strokeWidth={2} className="size-4" />
                     Log out
                   </button>
                 </>
@@ -225,11 +190,7 @@ export function Navbar() {
                   onClick={() => setMobileOpen(false)}
                   className="flex items-center gap-2 rounded-md px-3 py-2.5 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-white/5 transition-colors"
                 >
-                  <HugeiconsIcon
-                    icon={Login01Icon}
-                    strokeWidth={2}
-                    className="size-4"
-                  />
+                  <HugeiconsIcon icon={Login01Icon} strokeWidth={2} className="size-4" />
                   Log in
                 </Link>
               )}
@@ -241,11 +202,7 @@ export function Navbar() {
                   className="gap-1.5"
                 >
                   Add to Discord
-                  <HugeiconsIcon
-                    icon={Link02Icon}
-                    strokeWidth={2}
-                    className="size-3.5"
-                  />
+                  <HugeiconsIcon icon={Link02Icon} strokeWidth={2} className="size-3.5" />
                 </a>
               </Button>
             </div>

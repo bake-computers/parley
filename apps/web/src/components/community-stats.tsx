@@ -36,7 +36,7 @@ export function CommunityStats() {
   useEffect(() => {
     async function fetchStats() {
       try {
-        const res = await fetch(apiUrl("/api/stats"));
+        const res = await fetch(apiUrl("/api/stats"), { credentials: "include" });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data: StatsData = await res.json();
         setStats(data);

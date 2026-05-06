@@ -102,6 +102,11 @@ export const guildPlayers = pgTable(
     playerId: integer("player_id")
       .notNull()
       .references(() => players.id, { onDelete: "cascade" }),
+    internalElo: doublePrecision("internal_elo").notNull().default(1000),
+    internalMatches: integer("internal_matches").notNull().default(0),
+    internalWins: integer("internal_wins").notNull().default(0),
+    internalLosses: integer("internal_losses").notNull().default(0),
+    internalUpdatedAt: timestampMs("internal_updated_at"),
     createdAt: timestampMs("created_at").notNull(),
     updatedAt: timestampMs("updated_at").notNull(),
   },
@@ -530,7 +535,6 @@ export const authSessions = pgTable(
     userId: text("user_id")
       .notNull()
       .references(() => authUsers.id, { onDelete: "cascade" }),
-    sessionVersion: integer("session_version"),
     createdAt: timestamp("created_at", { mode: "date" }).notNull(),
     updatedAt: timestamp("updated_at", { mode: "date" }).notNull(),
   },

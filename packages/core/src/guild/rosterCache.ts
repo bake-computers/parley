@@ -19,6 +19,11 @@ export interface CachedGuildRosterMember {
   internalWins: number;
   internalLosses: number;
   internalUpdatedAt: number | null;
+  guildInternalElo: number;
+  guildInternalMatches: number;
+  guildInternalWins: number;
+  guildInternalLosses: number;
+  guildInternalUpdatedAt: number | null;
   balanceRating: number | null;
   registeredAt: number;
   updatedAt: number;
@@ -76,6 +81,10 @@ function parseMember(value: unknown): CachedGuildRosterMember | null {
     typeof value.internalMatches !== "number" ||
     typeof value.internalWins !== "number" ||
     typeof value.internalLosses !== "number" ||
+    typeof value.guildInternalElo !== "number" ||
+    typeof value.guildInternalMatches !== "number" ||
+    typeof value.guildInternalWins !== "number" ||
+    typeof value.guildInternalLosses !== "number" ||
     typeof value.registeredAt !== "number" ||
     typeof value.updatedAt !== "number" ||
     typeof value.ready !== "boolean"
@@ -96,6 +105,12 @@ function parseMember(value: unknown): CachedGuildRosterMember | null {
     internalWins: value.internalWins,
     internalLosses: value.internalLosses,
     internalUpdatedAt: typeof value.internalUpdatedAt === "number" ? value.internalUpdatedAt : null,
+    guildInternalElo: value.guildInternalElo,
+    guildInternalMatches: value.guildInternalMatches,
+    guildInternalWins: value.guildInternalWins,
+    guildInternalLosses: value.guildInternalLosses,
+    guildInternalUpdatedAt:
+      typeof value.guildInternalUpdatedAt === "number" ? value.guildInternalUpdatedAt : null,
     balanceRating: typeof value.balanceRating === "number" ? value.balanceRating : null,
     registeredAt: value.registeredAt,
     updatedAt: value.updatedAt,
@@ -109,6 +124,10 @@ function resolveBalanceRating(
   entry: GuildRosterEntry,
   metrics: TeamSeedMetrics | null,
 ): number | null {
+  if (entry.guildInternalMatches > 0) {
+    return entry.guildInternalElo;
+  }
+
   if (entry.internalMatches > 0) {
     return entry.internalElo;
   }
@@ -148,6 +167,11 @@ export function buildCachedGuildRosterMembers(
       internalWins: entry.internalWins,
       internalLosses: entry.internalLosses,
       internalUpdatedAt: entry.internalUpdatedAt,
+      guildInternalElo: entry.guildInternalElo,
+      guildInternalMatches: entry.guildInternalMatches,
+      guildInternalWins: entry.guildInternalWins,
+      guildInternalLosses: entry.guildInternalLosses,
+      guildInternalUpdatedAt: entry.guildInternalUpdatedAt,
       balanceRating,
       registeredAt: entry.registeredAt,
       updatedAt: entry.updatedAt,

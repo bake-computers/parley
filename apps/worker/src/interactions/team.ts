@@ -61,6 +61,7 @@ import {
   getCustomMatch,
   isCustomMatchCaptain,
   updateCustomMatchMessageId,
+  validateMatchResults,
   type CustomMatchPlayerRecord,
 } from "@parley/core/custom-matches";
 import { deleteGuildRosterCaches } from "@parley/core/guild-roster-cache";
@@ -3385,6 +3386,20 @@ export const teamResultsModalHandler = new ModalHandler(TEAM_RESULTS_MODAL_PREFI
       return;
     }
     const merged = mergeTeamResults(teamAResults, teamBResults);
+
+    const antiCheatResult = validateMatchResults(match.players, merged);
+    if (antiCheatResult) {
+      await interaction.editReply(
+        buildTeamReply({
+          title: "Result rejected",
+          message: antiCheatResult.reason,
+          tone: "warning",
+          emojiName: "warning",
+          emojis,
+        }),
+      );
+      return;
+    }
 
     if (!env.db) {
       await interaction.editReply(

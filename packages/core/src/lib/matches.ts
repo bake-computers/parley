@@ -1,6 +1,6 @@
 import { and, desc, eq, gte, inArray, or } from "drizzle-orm";
 import type { DbClient } from "@parley/db/client";
-import { customMatchPlayers, customMatches, players } from "@parley/db/schema";
+import { customMatchPlayers, customMatches, guildPlayers, players } from "@parley/db/schema";
 import { calculateTeamEloDelta, roundInternalElo, type MatchWinner } from "./elo";
 
 export type CustomMatchStatus = "cancelled" | "completed" | "pending_results";
@@ -52,6 +52,65 @@ export interface CustomMatchRecord {
   balanceGap: number;
   createdAt: number;
   updatedAt: number;
+}
+
+export interface AntiCheatValidationError {
+  reason: string;
+}
+
+export function validateMatchResults(
+  players: readonly CustomMatchPlayerRecord[],
+  resultsByDiscordUserId: ReadonlyMap<string, { kills: number; deaths: number }>,
+): AntiCheatValidationError | null {
+  const teamA = players.filter((p) => p.team === "A");
+  const teamB = players.filter((p) => p.team === "B");
+
+  const teamAKills = teamA.reduce(
+    (sum, p) => sum + (resultsByDiscordUserId.get(p.discordUserId)?.kills ?? 0),
+    0,
+  );
+  const teamADeaths = teamA.reduce(
+    (sum, p) => sum + (resultsByDiscordUserId.get(p.discordUserId)?.deaths ?? 0),
+    0,
+  );
+  const teamBKills = teamB.reduce(
+    (sum, p) => sum + (resultsByDiscordUserId.get(p.discordUserId)?.kills ?? 0),
+    0,
+  );
+  const teamBDeaths = teamB.reduce(
+    (sum, p) => sum + (resultsByDiscordUserId.get(p.discordUserId)?.deaths ?? 0),
+    0,
+  );
+
+  if (teamAKills === 0 && teamADeaths === 0 && teamBKills === 0 && teamBDeaths === 0) {
+    return { reason: "All players have 0 kills and 0 deaths — match stats look fabricated." };
+  }
+
+  const killDeathTolerance = 2;
+  if (Math.abs(teamAKills - teamBDeaths) > killDeathTolerance) {
+    return {
+      reason: `Kill-death mismatch: Team A has ${teamAKills} kills but Team B has ${teamBDeaths} deaths.`,
+    };
+  }
+  if (Math.abs(teamBKills - teamADeaths) > killDeathTolerance) {
+    return {
+      reason: `Kill-death mismatch: Team B has ${teamBKills} kills but Team A has ${teamADeaths} deaths.`,
+    };
+  }
+
+  for (const player of players) {
+    const result = resultsByDiscordUserId.get(player.discordUserId);
+    if (!result) {
+      continue;
+    }
+    if (result.kills === 0 && result.deaths === 0) {
+      return {
+        reason: `Player ${player.username ?? player.discordUserId} has 0 kills and 0 deaths — every player must have some match activity.`,
+      };
+    }
+  }
+
+  return null;
 }
 
 function currentTimestamp() {
@@ -287,6 +346,50 @@ export async function completeCustomMatch(
     .where(inArray(players.id, playerIds));
   const currentPlayersById = new Map(currentPlayers.map((player) => [player.id, player]));
 
+  // Determine each player's guild for guild-specific ELO tracking
+  const isCrossGuild =
+    typeof match.opponentGuildId === "string" && match.opponentGuildId.length > 0;
+  const playerGuildIds = new Map<number, string>();
+  for (const player of match.players) {
+    const targetGuildId = isCrossGuild
+      ? player.team === "A"
+        ? match.guildId
+        : match.opponentGuildId!
+      : match.guildId;
+    playerGuildIds.set(player.playerId, targetGuildId);
+  }
+
+  const guildPlayerKeys = match.players
+    .map((player) => ({
+      guildId: playerGuildIds.get(player.playerId)!,
+      playerId: player.playerId,
+    }))
+    .filter((key) => typeof key.guildId === "string" && key.guildId.length > 0);
+
+  const currentGuildPlayers =
+    guildPlayerKeys.length > 0
+      ? await db
+          .select({
+            guildId: guildPlayers.guildId,
+            playerId: guildPlayers.playerId,
+            internalElo: guildPlayers.internalElo,
+            internalMatches: guildPlayers.internalMatches,
+            internalWins: guildPlayers.internalWins,
+            internalLosses: guildPlayers.internalLosses,
+          })
+          .from(guildPlayers)
+          .where(
+            inArray(
+              guildPlayers.playerId,
+              guildPlayerKeys.map((k) => k.playerId),
+            ),
+          )
+      : [];
+
+  const currentGuildPlayersByKey = new Map(
+    currentGuildPlayers.map((gp) => [`${gp.guildId}:${gp.playerId}`, gp]),
+  );
+
   for (const player of match.players) {
     const currentPlayer = currentPlayersById.get(player.playerId);
     if (!currentPlayer) {
@@ -308,6 +411,34 @@ export async function completeCustomMatch(
         updatedAt: now,
       })
       .where(eq(players.id, player.playerId));
+
+    const targetGuildId = playerGuildIds.get(player.playerId);
+    if (targetGuildId) {
+      const guildKey = `${targetGuildId}:${player.playerId}`;
+      const currentGuildPlayer = currentGuildPlayersByKey.get(guildKey);
+      if (currentGuildPlayer) {
+        const guildRatingBase =
+          currentGuildPlayer.internalMatches > 0
+            ? currentGuildPlayer.internalElo
+            : player.balanceRating;
+        await db
+          .update(guildPlayers)
+          .set({
+            internalElo: roundInternalElo(guildRatingBase + playerDelta),
+            internalMatches: currentGuildPlayer.internalMatches + 1,
+            internalWins: currentGuildPlayer.internalWins + (won ? 1 : 0),
+            internalLosses: currentGuildPlayer.internalLosses + (won ? 0 : 1),
+            internalUpdatedAt: now,
+            updatedAt: now,
+          })
+          .where(
+            and(
+              eq(guildPlayers.guildId, targetGuildId),
+              eq(guildPlayers.playerId, player.playerId),
+            ),
+          );
+      }
+    }
   }
 
   await db

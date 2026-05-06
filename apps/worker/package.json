@@ -3,9 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsup --config tsup.config.ts",
     "dev": "bun run src/dev.ts",
-    "deploy": "bun run build && wrangler deploy --config wrangler.jsonc",
+    "deploy": "wrangler deploy --config wrangler.jsonc",
     "register": "bun run src/register.ts",
     "typecheck": "tsc --noEmit --pretty false -p tsconfig.json",
     "test": "bun test tests",
@@ -31,7 +30,6 @@
     "@types/pg": "^8.15.6",
     "drizzle-kit": "^0.31.10",
     "pg": "^8.16.3",
-    "tsup": "^8.5.1",
     "wrangler": "^4.83.0"
   }
 }

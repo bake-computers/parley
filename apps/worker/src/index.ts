@@ -6,24 +6,13 @@ import type {
 import { DiscordBot } from "@parley/discord-runtime";
 import * as interactions from "./interactions";
 import type { WorkerEnv } from "./env";
-import {
-  handleStatsRefreshQueue,
-  type StatsRefreshMessage,
-  type StatsRefreshQueueSummary,
-} from "./queues/stats-refresh";
-import { processTournamentAutoStarts } from "./interactions/team";
+import type { StatsRefreshMessage, StatsRefreshQueueSummary } from "./queues/stats-refresh";
 import { createRuntimeDbHandle, ManagedExecutionContext } from "./runtime-db";
 import { analyticsMiddleware } from "./analytics-middleware";
 import { writeAnalyticsDataPoint } from "./analytics";
 import { handleAuthRequest } from "./auth";
-import {
-  handleDashboardGuilds,
-  handleDashboardGuildDetail,
-  handleDashboardGuildHistory,
-} from "./dashboard-handler";
-import { handleLeaderboardRequest, handleLeaderboardNotify } from "./leaderboard-handler";
 import { LeaderboardDO } from "./leaderboard-do";
-import { getAggregateStats, type AggregateStats } from "@parley/db/stats-queries";
+import type { AggregateStats } from "@parley/db/stats-queries";
 
 export const bot = new DiscordBot();
 
@@ -108,11 +97,7 @@ function withCors(response: Response, origin: string): Response {
   });
 }
 
-function safeCorsResponse(
-  status: number,
-  body: unknown,
-  origin: string,
-): Response {
+function safeCorsResponse(status: number, body: unknown, origin: string): Response {
   return Response.json(body, {
     status,
     headers: corsHeaders(origin),
@@ -135,20 +120,25 @@ export default {
       if (url.pathname.startsWith("/api/auth/")) {
         response = await handleAuthRequest(request, env, ctx);
       } else if (url.pathname === "/api/leaderboard") {
+        const { handleLeaderboardRequest } = await import("./leaderboard-handler");
         response = await handleLeaderboardRequest(request, env, ctx);
       } else if (url.pathname === "/api/leaderboard/notify") {
+        const { handleLeaderboardNotify } = await import("./leaderboard-handler");
         response = await handleLeaderboardNotify(request, env, ctx);
       } else if (url.pathname === "/api/dashboard/guilds") {
+        const { handleDashboardGuilds } = await import("./dashboard-handler");
         response = await handleDashboardGuilds(request, env, ctx);
       } else {
         const guildDetailMatch = url.pathname.match(/^\/api\/dashboard\/guilds\/([^/]+)$/);
         if (guildDetailMatch && guildDetailMatch[1]) {
+          const { handleDashboardGuildDetail } = await import("./dashboard-handler");
           response = await handleDashboardGuildDetail(request, env, ctx, guildDetailMatch[1]);
         } else {
           const guildHistoryMatch = url.pathname.match(
             /^\/api\/dashboard\/guilds\/([^/]+)\/history$/,
           );
           if (guildHistoryMatch && guildHistoryMatch[1]) {
+            const { handleDashboardGuildHistory } = await import("./dashboard-handler");
             response = await handleDashboardGuildHistory(request, env, ctx, guildHistoryMatch[1]);
           } else if (url.pathname === "/api/stats") {
             const cached = await fetchCachedStats(env);
@@ -157,6 +147,7 @@ export default {
                 headers: { "Cache-Control": "public, max-age=60, s-maxage=60" },
               });
             } else {
+              const { getAggregateStats } = await import("@parley/db/stats-queries");
               const handle = await createRuntimeDbHandle(env);
               try {
                 const today = new Date();
@@ -216,6 +207,7 @@ export default {
     const startedAt = Date.now();
 
     try {
+      const { handleStatsRefreshQueue } = await import("./queues/stats-refresh");
       const summary = await handleStatsRefreshQueue(
         batch as MessageBatch<StatsRefreshMessage>,
         handle.env,
@@ -253,6 +245,7 @@ export default {
     const startedAt = Date.now();
 
     try {
+      const { processTournamentAutoStarts } = await import("./interactions/team");
       const startedCount = await processTournamentAutoStarts(handle.env, controller.scheduledTime);
       writeAnalyticsDataPoint(handle.env, {
         source: "worker",
