@@ -29,6 +29,7 @@ export default defineConfig({
     "import/no-self-import": "error",
     "import/no-cycle": "error",
     "max-lines-per-function": "off",
+    "max-lines": "off",
   },
   ignorePatterns: ["dist/**", "node_modules/**", "*.d.ts", "coverage/**"],
 });
