@@ -44,6 +44,39 @@ async function importPublicKey(publicKey: string): Promise<CryptoKey> {
   return imported;
 }
 
+/**
+ * Verify a Discord interaction request using Ed25519 signature verification.
+ *
+ * @param {Request} request - The incoming Request object (typically from a Fetch/RequestEvent).
+ * @param {string | undefined} publicKey - The Discord application's public key as a hex string.
+ *
+ * @returns {Promise<Result<VerifiedDiscordRequest, VerifyDiscordRequestError>>} A
+ * promise that resolves to a neverthrow Result. On success the Ok value contains
+ * an object with the original body text and the parsed JSON data. On failure the
+ * Err value is a VerifyDiscordRequestError describing the failure.
+ *
+ * Possible error kinds:
+ * - "missing-public-key": publicKey was not provided
+ * - "missing-signature": required signature headers were missing
+ * - "invalid-signature": signature verification failed
+ * - "invalid-json": body could not be parsed as JSON (cause included)
+ *
+ * Example:
+ *
+ * (async () => {
+ *   const publicKey = process.env.DISCORD_PUBLIC_KEY; // hex string
+ *   const result = await verifyDiscordRequest(request, publicKey);
+ *   if (result.isErr()) {
+ *     // handle verification error
+ *     console.error(result.error);
+ *     return new Response('Invalid request', { status: 401 });
+ *   }
+ *
+ *   const { bodyText, data } = result.value;
+ *   // `data` is the parsed JSON body (typed as JsonValue)
+ *   return new Response(JSON.stringify({ ok: true, data }), { status: 200 });
+ * })();
+ */
 export async function verifyDiscordRequest(
   request: Request,
   publicKey: string | undefined,
