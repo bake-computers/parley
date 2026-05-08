@@ -14,18 +14,18 @@ The bot should be designed as a stable platform first. Product usefulness comes 
 
 ## Core Product Areas
 
-| Area | Purpose |
-|---|---|
-| Identity | Link users to game accounts and maintain player profiles.[cite:755] |
-| Guild configuration | Control server defaults such as language, regions, and queue policies.[cite:755][cite:1197] |
-| Matchmaking | Run queue-based team formation and match lifecycle handling with shared rating logic.[cite:755] |
-| Ranking | Use hidden MMR/ELO internally while exposing understandable public ranks and Top 100 prestige.[cite:755] |
-| Tournaments | Support tournaments with custom formats, settings, eligibility, and rule-driven behavior.[cite:755] |
-| Rules engine | Enforce configurable eligibility, policy, and moderation constraints using data-driven rules.[cite:755][cite:1340][cite:1503] |
-| Moderation | Enforce global bans, underage restrictions, trust flags, evidence, and auditability.[cite:755] |
-| Premium OCR | Parse scoreboard screenshots through slash command attachments with scan-credit logic.[cite:755][cite:1256] |
-| Analytics and observability | Capture logs, latency, usage, errors, and operational signals via Axiom and Cloudflare observability.[cite:1377][cite:1378] |
-| Internal HQ tooling | Operate the platform through a custom internal CLI/TUI rather than a web dashboard.[cite:1393][cite:1399] |
+| Area                        | Purpose                                                                                                                       |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Identity                    | Link users to game accounts and maintain player profiles.[cite:755]                                                           |
+| Guild configuration         | Control server defaults such as language, regions, and queue policies.[cite:755][cite:1197]                                   |
+| Matchmaking                 | Run queue-based team formation and match lifecycle handling with shared rating logic.[cite:755]                               |
+| Ranking                     | Use hidden MMR/ELO internally while exposing understandable public ranks and Top 100 prestige.[cite:755]                      |
+| Tournaments                 | Support tournaments with custom formats, settings, eligibility, and rule-driven behavior.[cite:755]                           |
+| Rules engine                | Enforce configurable eligibility, policy, and moderation constraints using data-driven rules.[cite:755][cite:1340][cite:1503] |
+| Moderation                  | Enforce global bans, underage restrictions, trust flags, evidence, and auditability.[cite:755]                                |
+| Premium OCR                 | Parse scoreboard screenshots through slash command attachments with scan-credit logic.[cite:755][cite:1256]                   |
+| Analytics and observability | Capture logs, latency, usage, errors, and operational signals via Axiom and Cloudflare observability.[cite:1377][cite:1378]   |
+| Internal HQ tooling         | Operate the platform through a custom internal CLI/TUI rather than a web dashboard.[cite:1393][cite:1399]                     |
 
 ## Functional Specification
 
@@ -109,16 +109,15 @@ Hono is a sensible routing and middleware shell for Cloudflare Workers, and it a
 
 A suitable package split is:
 
-- `apps/bot` for Discord interactions and command handling.
-- `apps/api` for Hono routes and future tRPC surfaces.
+- `apps/bot` for Discord interactions and command handlin with Hono routes and future tRPC surfaces.
 - `packages/domain` for ratings, matchmaking, tournaments, rules, moderation, and premium logic.
 - `packages/db` for schema, migrations, and repositories.
-- `packages/discord` for Discord API wrappers and interaction primitives.
+- `packages/runtime` Custom Discord API wrapper.
 - `packages/shared` for IDs, validation, errors, configuration, and localization support.[cite:1290][cite:1292]
 
 ### Database strategy
 
-PlanetScale Postgres should remain the database for now because the rewrite should stay focused and the current usage does not yet justify taking on the operational burden of a self-managed Postgres cluster.[cite:755][cite:1408][cite:1416]
+The database has been moved to an private dedicated server, which is cheaper than our Planetscale Postgres Database.
 
 The existing schema should be wiped and redesigned from first principles because there is no user data worth preserving and the current schema is known to be messy. Even in a greenfield reset, the new schema should still be created through versioned migrations so the rebuild remains reproducible and controlled.[cite:755][cite:1323][cite:1326]
 
@@ -149,7 +148,6 @@ The schema should be built around clear domains rather than implementation lefto
 - `global_actions`
 - `moderation_evidence`
 - `leaderboard_snapshots`
-- `analytics_rollups`
 - `event_log`
 - `audit_log`[cite:755][cite:1497]
 
