@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+package parley.identity.v1;
+
+import "common/v1/types.proto";
+
+option java_package = "bot.parley.identity.v1";
+
+// Identity & account-linking service.
+//
+// A Discord user can be linked to exactly one in-game player per game
+// (e.g. one R6 account + one Brawl Stars account simultaneously).
+service IdentityService {
+  rpc LinkAccount(LinkAccountRequest)         returns (LinkAccountResponse);
+  rpc UnlinkAccount(UnlinkAccountRequest)     returns (UnlinkAccountResponse);
+  rpc LookupByDiscord(LookupByDiscordRequest) returns (LookupByDiscordResponse);
+  rpc LookupByUsername(LookupByUsernameRequest) returns (LookupByUsernameResponse);
+}
+
+message LinkAccountRequest {
+  string discord_user_id           = 1;
+  parley.common.v1.Game game       = 2;
+  string username                  = 3;
+  string platform                  = 4;
+  // Optional: if provided, creates/updates a guild_memberships row too.
+  string guild_id                  = 5;
+}
+
+message LinkAccountResponse {
+  bool   success               = 1;
+  int32  player_id             = 2;
+  string username_normalized   = 3;
+  parley.common.v1.Error error = 4;
+}
+
+message UnlinkAccountRequest {
+  string discord_user_id     = 1;
+  parley.common.v1.Game game = 2;
+}
+
+message UnlinkAccountResponse {
+  bool   success               = 1;
+  int32  removed               = 2; // # of discord_identities rows dropped
+  parley.common.v1.Error error = 3;
+}
+
+message LookupByDiscordRequest {
+  string discord_user_id     = 1;
+  // game == GAME_UNSPECIFIED => return identities for every game.
+  parley.common.v1.Game game = 2;
+}
+
+message LookupByDiscordResponse {
+  bool success                       = 1;
+  repeated LinkedIdentity identities = 2;
+  parley.common.v1.Error error       = 3;
+}
+
+message LookupByUsernameRequest {
+  parley.common.v1.Game game = 1;
+  string username            = 2;
+  string platform            = 3;
+}
+
+message LookupByUsernameResponse {
+  bool success                       = 1;
+  LinkedIdentity identity            = 2; // empty when not found
+  parley.common.v1.Error error       = 3;
+}
+
+message LinkedIdentity {
+  parley.common.v1.Game game  = 1;
+  string discord_user_id      = 2;
+  int32  player_id            = 3;
+  string username             = 4;
+  string username_normalized  = 5;
+  string platform             = 6;
+  string profile_id           = 7;
+  string profile_url          = 8;
+  double internal_elo         = 9;
+  int32  internal_matches     = 10;
+  int32  internal_wins        = 11;
+  int32  internal_losses      = 12;
+}

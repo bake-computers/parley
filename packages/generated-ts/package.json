@@ -1,0 +1,31 @@
+{
+  "name": "@parley/proto",
+  "version": "0.0.0",
+  "private": true,
+  "description": "TypeScript types and ConnectRPC clients generated from parley protos.",
+  "type": "module",
+  "main": "./src/index.ts",
+  "module": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./common/v1/*": "./src/common/v1/*",
+    "./engine/v1/*": "./src/engine/v1/*",
+    "./stats/v1/*": "./src/stats/v1/*",
+    "./ocr/v1/*": "./src/ocr/v1/*"
+  },
+  "scripts": {
+    "generate": "cd ../.. && buf generate",
+    "clean": "rm -rf src/common src/engine src/stats src/ocr",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@bufbuild/protobuf": "^2.2.3",
+    "@connectrpc/connect": "^2.0.0"
+  },
+  "devDependencies": {
+    "@bufbuild/buf": "^1.47.2",
+    "@bufbuild/protoc-gen-es": "^2.2.3",
+    "@connectrpc/protoc-gen-connect-es": "^1.6.1"
+  }
+}

@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+package parley.engine.v1;
+
+import "common/v1/types.proto";
+
+option java_package = "bot.parley.engine.v1";
+
+
+service EngineService {
+  // Render a full /profile card image.
+  rpc RenderProfileCard(ProfileCardRequest) returns (ImageResponse);
+
+  // Render a compact /account me card image.
+  rpc RenderAccountCard(AccountCardRequest) returns (ImageResponse);
+
+  // Render a badge showcase strip (e.g. for embeds or web).
+  rpc RenderBadgeStrip(BadgeStripRequest) returns (ImageResponse);
+}
+
+message ProfileCardRequest {
+  string                        user_id              = 1;
+  string                        username             = 2;
+  string                        avatar_url           = 3;
+  parley.common.v1.Rank         rank                 = 4;
+  parley.common.v1.PlayerStats  stats                = 5;
+  repeated parley.common.v1.Badge badges             = 6;
+  parley.common.v1.Region       region               = 7;
+  string                        locale               = 8; // "en" | "de"
+  bool                          is_top_100           = 9;
+  RenderOptions                 options              = 10;
+}
+
+message AccountCardRequest {
+  string                    user_id    = 1;
+  string                    username   = 2;
+  string                    avatar_url = 3;
+  parley.common.v1.Rank     rank       = 4;
+  string                    game_username = 5; // linked R6 account name
+  parley.common.v1.Region   region     = 6;
+  string                    locale     = 7; // "en" | "de"
+  RenderOptions             options    = 8;
+}
+
+message BadgeStripRequest {
+  repeated parley.common.v1.Badge badges  = 1;
+  int32                           max_display = 2; // max badges to show, 0 = all
+  RenderOptions                   options = 3;
+}
+
+message RenderOptions {
+  ImageFormat format     = 1; // output format
+  int32       width      = 2; // 0 = use template default
+  int32       height     = 3; // 0 = use template default
+  bool        force_regen = 4; // skip cache and re-render
+}
+
+enum ImageFormat {
+  IMAGE_FORMAT_UNSPECIFIED = 0;
+  IMAGE_FORMAT_WEBP        = 1;
+  IMAGE_FORMAT_PNG         = 2;
+}
+
+message ImageResponse {
+  bool   success           = 1;
+  bytes  image_data        = 2; // raw bytes if not using CDN path
+  string cdn_url           = 3; // R2 / CDN URL if cached and stored
+  string cache_key         = 4; // used to construct CDN URL
+  string format            = 5; // "webp" | "png"
+  parley.common.v1.Error error = 6;
+}
