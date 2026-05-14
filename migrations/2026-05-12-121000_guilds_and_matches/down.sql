@@ -1,0 +1,10 @@
+DROP TABLE IF EXISTS matchmaking_queue_participants;
+DROP TABLE IF EXISTS matchmaking_queues;
+DROP TABLE IF EXISTS match_participants;
+DROP TABLE IF EXISTS matches;
+DROP TABLE IF EXISTS tournament_schedules;
+DROP TABLE IF EXISTS guild_notification_settings;
+DROP TABLE IF EXISTS guild_matchmaking_rules;
+DROP TABLE IF EXISTS guild_settings;
+DROP TABLE IF EXISTS guild_match_quotas;
+DROP TABLE IF EXISTS guild_memberships;

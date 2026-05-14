@@ -21,6 +21,7 @@ lerna-debug.log*
 .env
 .env.local
 .env.*.local
+.dev.vars
 
 # IDE
 .idea
@@ -45,3 +46,11 @@ tmp
 
 # Turbo
 .turbo
+
+# Cloudflare Workers
+.wrangler
+
+# Rust
+target
+Cargo.lock.bak
+

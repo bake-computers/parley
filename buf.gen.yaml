@@ -1,0 +1,14 @@
+version: v2
+plugins:
+  # Generates message types and enums as plain TypeScript (no runtime class deps).
+  - remote: buf.build/bufbuild/es
+    out: packages/generated-ts/src
+    opt:
+      - target=ts
+      - import_extension=js
+  # Generates service descriptors for @connectrpc/connect-es clients.
+  - remote: buf.build/connectrpc/es
+    out: packages/generated-ts/src
+    opt:
+      - target=ts
+      - import_extension=js

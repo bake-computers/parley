@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+package parley.ocr.v1;
+
+import "common/v1/types.proto";
+
+option java_package = "bot.parley.ocr.v1";
+
+
+// OcrService replaces the legacy ScannerService. It parses Rainbow Six Siege
+// scoreboard screenshots into structured match data for premium automation.
+service OcrService {
+  // Parse a single match scoreboard screenshot.
+  rpc ScanScreenshot(ScanScreenshotRequest) returns (ScanScreenshotResponse);
+
+  // Parse multiple screenshots in one call.
+  rpc ScanBatch(ScanBatchRequest) returns (ScanBatchResponse);
+}
+
+message ScanScreenshotRequest {
+  string image_url  = 1; // publicly reachable URL (e.g. Discord CDN)
+  string guild_id   = 2;
+  string user_id    = 3;
+  string request_id = 4; // idempotency / trace key
+}
+
+message ScanScreenshotResponse {
+  bool              success    = 1;
+  MatchScanResult   result     = 2; // populated on success
+  parley.common.v1.Error error = 3; // populated on failure
+  int32             credits_consumed = 4;
+}
+
+message ScanBatchRequest {
+  repeated ScanScreenshotRequest requests = 1;
+}
+
+message ScanBatchResponse {
+  repeated ScanScreenshotResponse responses = 1;
+  int32 total_credits_consumed = 2;
+}
+
+message MatchScanResult {
+  repeated ScannedPlayer players  = 1;
+  parley.common.v1.Region region  = 2;
+  string                  mode    = 3; // e.g. "ranked", "casual"
+  string                  map     = 4;
+  int64                   scanned_at = 5; // unix timestamp
+}
+
+message ScannedPlayer {
+  string username   = 1;
+  int32  kills      = 2;
+  int32  deaths     = 3;
+  int32  assists    = 4;
+  bool   won        = 5;
+  string team_id    = 6; // "A" or "B"
+  float  confidence = 7; // OCR confidence score 0.0 – 1.0
+}
