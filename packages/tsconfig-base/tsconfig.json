@@ -38,8 +38,7 @@
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
 
-    "outDir": "./dist",
-    "rootDir": "./src"
+    "outDir": "./dist"
   },
   "include": ["../../reset.d.ts", "src/**/*"],
   "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"]
