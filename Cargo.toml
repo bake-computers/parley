@@ -1,5 +1,5 @@
 [package]
-name = "engine-service"
+name = "parley"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -7,7 +7,7 @@ license.workspace = true
 publish = false
 
 [[bin]]
-name = "engine-service"
+name = "parley"
 path = "src/main.rs"
 
 [features]

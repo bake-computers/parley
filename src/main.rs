@@ -1,4 +1,4 @@
-//! `engine-service` binary entry point.
+//! `parley` binary entry point.
 
 #[cfg(feature = "mimalloc")]
 #[global_allocator]

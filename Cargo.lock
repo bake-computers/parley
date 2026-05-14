@@ -683,51 +683,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "engine-service"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "async-trait",
- "axum",
- "bb8",
- "brawl-stars",
- "bytes",
- "chrono",
- "diesel",
- "diesel-async",
- "diesel-derive-enum",
- "diesel_migrations",
- "dotenvy",
- "engine",
- "futures-util",
- "hyper",
- "metrics",
- "metrics-exporter-prometheus",
- "mimalloc",
- "prost",
- "prost-build",
- "prost-types",
- "protox",
- "reqwest",
- "rustls",
- "rustls-native-certs",
- "rustls-pemfile",
- "serde",
- "serde_json",
- "stats-scraper",
- "thiserror 2.0.18",
- "tokio",
- "tokio-postgres",
- "tokio-postgres-rustls",
- "tower",
- "tower-http",
- "tracing",
- "tracing-subscriber",
- "webpki-roots 0.26.11",
- "wiremock",
-]
-
-[[package]]
 name = "equivalent"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1842,6 +1797,51 @@ dependencies = [
  "redox_syscall",
  "smallvec",
  "windows-link",
+]
+
+[[package]]
+name = "parley"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "axum",
+ "bb8",
+ "brawl-stars",
+ "bytes",
+ "chrono",
+ "diesel",
+ "diesel-async",
+ "diesel-derive-enum",
+ "diesel_migrations",
+ "dotenvy",
+ "engine",
+ "futures-util",
+ "hyper",
+ "metrics",
+ "metrics-exporter-prometheus",
+ "mimalloc",
+ "prost",
+ "prost-build",
+ "prost-types",
+ "protox",
+ "reqwest",
+ "rustls",
+ "rustls-native-certs",
+ "rustls-pemfile",
+ "serde",
+ "serde_json",
+ "stats-scraper",
+ "thiserror 2.0.18",
+ "tokio",
+ "tokio-postgres",
+ "tokio-postgres-rustls",
+ "tower",
+ "tower-http",
+ "tracing",
+ "tracing-subscriber",
+ "webpki-roots 0.26.11",
+ "wiremock",
 ]
 
 [[package]]
