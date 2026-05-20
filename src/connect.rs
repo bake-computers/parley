@@ -32,6 +32,7 @@ use tower_http::timeout::TimeoutLayer;
 use crate::context::AppContext;
 use crate::handlers::{
     engine::EngineHandler,
+    ocr::OcrHandler,
     stats::{self, StatsHandler},
 };
 
@@ -47,6 +48,7 @@ pub fn build_router_with_state(state: AppState) -> Router {
     let ctx = AppContext {
         pool: None,
         engine: state.engine,
+        ocr: Arc::new(OcrHandler::default()),
         stats: state.stats,
         metrics: None,
     };
@@ -88,6 +90,12 @@ pub fn build_router_with_context(ctx: AppContext) -> Router {
             post(fetch_stats_collection_rpc),
         )
         .route("/stats/{username}", get(stats::stats_get))
+        // OCR
+        .route(
+            "/parley.ocr.v1.OcrService/ScanScreenshot",
+            post(scan_screenshot),
+        )
+        .route("/parley.ocr.v1.OcrService/ScanBatch", post(scan_batch))
         // Identity
         .route(
             "/parley.identity.v1.IdentityService/LinkAccount",
@@ -187,6 +195,8 @@ pub(crate) fn detect_encoding(headers: &HeaderMap) -> Encoding {
         .and_then(|v| v.to_str().ok())
     {
         Some(ct) if ct.starts_with("application/proto") => Encoding::Proto,
+        Some(ct) if ct.starts_with("application/connect+proto") => Encoding::Proto,
+        Some(ct) if ct.starts_with("application/grpc+proto") => Encoding::Proto,
         _ => Encoding::Json,
     }
 }
@@ -250,6 +260,34 @@ pub(crate) fn decode_body<T: prost::Message + Default + serde::de::DeserializeOw
 use engine::proto::engine::v1::{
     AccountCardRequest, BadgeStripRequest, ImageResponse, ProfileCardRequest,
 };
+
+use crate::proto::ocr::v1::{
+    ScanBatchRequest, ScanBatchResponse, ScanScreenshotRequest, ScanScreenshotResponse,
+};
+
+async fn scan_screenshot(
+    State(ctx): State<AppContext>,
+    headers: HeaderMap,
+    body: Bytes,
+) -> Response {
+    let enc = detect_encoding(&headers);
+    let req: ScanScreenshotRequest = match decode_body(enc, &body) {
+        Ok(r) => r,
+        Err(r) => return r,
+    };
+    let resp: ScanScreenshotResponse = ctx.ocr.scan_screenshot(req).await;
+    encode_ok(&resp, enc)
+}
+
+async fn scan_batch(State(ctx): State<AppContext>, headers: HeaderMap, body: Bytes) -> Response {
+    let enc = detect_encoding(&headers);
+    let req: ScanBatchRequest = match decode_body(enc, &body) {
+        Ok(r) => r,
+        Err(r) => return r,
+    };
+    let resp: ScanBatchResponse = ctx.ocr.scan_batch(req).await;
+    encode_ok(&resp, enc)
+}
 
 async fn render_profile_card(
     State(ctx): State<AppContext>,

@@ -18,6 +18,7 @@ mimalloc = ["dep:mimalloc"]
 engine = { path = "crates/engine" }
 stats-scraper = { path = "crates/stats-scraper" }
 brawl-stars = { path = "crates/brawl-stars" }
+ocr = { path = "crates/ocr" }
 
 axum = { workspace = true }
 tokio = { workspace = true }
@@ -78,6 +79,7 @@ members = [
     "crates/stats-scraper",
     "crates/brawl-stars",
     "crates/vessel",
+    "crates/ocr",
 ]
 
 [workspace.package]

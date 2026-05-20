@@ -19,7 +19,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     prost_build::Config::new()
         .type_attribute(".", "#[derive(serde::Serialize, serde::Deserialize)]")
-        .type_attribute(".", "#[serde(rename_all = \"snake_case\")]")
+        .type_attribute(".", "#[serde(rename_all = \"camelCase\")]")
         .message_attribute(".", "#[serde(default)]")
         .compile_fds(file_descriptor_set)?;
 

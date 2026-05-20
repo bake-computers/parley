@@ -1,0 +1,15 @@
+[package]
+name = "ocr"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+leptess = "0.14"
+reqwest = { workspace = true }
+image = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+tokio = { workspace = true, default-features = false, features = ["rt", "macros", "sync"] }

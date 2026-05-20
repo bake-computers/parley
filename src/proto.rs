@@ -21,3 +21,9 @@ pub mod guild {
         include!(concat!(env!("OUT_DIR"), "/parley.guild.v1.rs"));
     }
 }
+
+pub mod ocr {
+    pub mod v1 {
+        include!(concat!(env!("OUT_DIR"), "/parley.ocr.v1.rs"));
+    }
+}
