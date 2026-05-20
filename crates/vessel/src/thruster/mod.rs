@@ -72,6 +72,7 @@ impl ThrusterOrchestrator {
                 }
             }
         }
+        return stats;
     }
 }
 
