@@ -1,0 +1,131 @@
+syntax = "proto3";
+
+package parley.guild.v1;
+
+import "common/v1/types.proto";
+
+option java_package = "bot.parley.guild.v1";
+
+// Per-guild, per-game configuration surfaces.
+//
+// Every Get* returns well-defined defaults on miss instead of NotFound,
+// so callers don't need to special-case "no row yet".
+service GuildSettingsService {
+  rpc GetGuildSettings(GetGuildSettingsRequest)                   returns (GuildSettingsResponse);
+  rpc UpsertGuildSettings(UpsertGuildSettingsRequest)             returns (GuildSettingsResponse);
+
+  rpc GetMatchmakingRules(GetMatchmakingRulesRequest)             returns (GuildMatchmakingRulesResponse);
+  rpc UpsertMatchmakingRules(UpsertMatchmakingRulesRequest)       returns (GuildMatchmakingRulesResponse);
+
+  rpc GetNotificationSettings(GetNotificationSettingsRequest)     returns (GuildNotificationSettingsResponse);
+  rpc UpsertNotificationSettings(UpsertNotificationSettingsRequest) returns (GuildNotificationSettingsResponse);
+
+  rpc GetMatchQuotas(GetMatchQuotasRequest)                       returns (GuildMatchQuotasResponse);
+  rpc UpsertMatchQuotas(UpsertMatchQuotasRequest)                 returns (GuildMatchQuotasResponse);
+}
+
+// --------- guild_settings ---------
+
+message GuildSettings {
+  string guild_id                  = 1;
+  parley.common.v1.Game game       = 2;
+  string default_team_format       = 3;
+  bool   auto_balance              = 4;
+  bool   cross_guild_matchmaking   = 5;
+  int64  updated_at_ms             = 6;
+  string updated_by_discord_user_id = 7;
+}
+
+message GetGuildSettingsRequest {
+  string guild_id            = 1;
+  parley.common.v1.Game game = 2;
+}
+
+message UpsertGuildSettingsRequest {
+  GuildSettings settings = 1;
+}
+
+message GuildSettingsResponse {
+  bool success                 = 1;
+  GuildSettings settings       = 2;
+  parley.common.v1.Error error = 3;
+}
+
+// --------- guild_matchmaking_rules ---------
+
+message GuildMatchmakingRules {
+  string guild_id             = 1;
+  parley.common.v1.Game game  = 2;
+  int32  min_elo              = 3; // 0 = unset
+  int32  max_elo              = 4; // 0 = unset
+  repeated string platforms   = 5;
+  bool   require_verified     = 6;
+  int32  max_elo_gap          = 7;
+  int64  updated_at_ms        = 8;
+}
+
+message GetMatchmakingRulesRequest {
+  string guild_id            = 1;
+  parley.common.v1.Game game = 2;
+}
+
+message UpsertMatchmakingRulesRequest {
+  GuildMatchmakingRules rules = 1;
+}
+
+message GuildMatchmakingRulesResponse {
+  bool   success               = 1;
+  GuildMatchmakingRules rules  = 2;
+  parley.common.v1.Error error = 3;
+}
+
+// --------- guild_notification_settings ---------
+
+message GuildNotificationSettings {
+  string guild_id                            = 1;
+  parley.common.v1.Game game                 = 2;
+  string match_results_channel               = 3;
+  string tournament_announcements_channel    = 4;
+  bool   leaderboard_updates_enabled         = 5;
+  int64  updated_at_ms                       = 6;
+}
+
+message GetNotificationSettingsRequest {
+  string guild_id            = 1;
+  parley.common.v1.Game game = 2;
+}
+
+message UpsertNotificationSettingsRequest {
+  GuildNotificationSettings settings = 1;
+}
+
+message GuildNotificationSettingsResponse {
+  bool success                         = 1;
+  GuildNotificationSettings settings   = 2;
+  parley.common.v1.Error error         = 3;
+}
+
+// --------- guild_match_quotas ---------
+
+message GuildMatchQuota {
+  string guild_id                   = 1;
+  parley.common.v1.Game game        = 2;
+  int32  daily_match_limit          = 3;
+  string updated_by_discord_user_id = 4;
+  int64  updated_at_ms              = 5;
+}
+
+message GetMatchQuotasRequest {
+  string guild_id            = 1;
+  parley.common.v1.Game game = 2;
+}
+
+message UpsertMatchQuotasRequest {
+  GuildMatchQuota quota = 1;
+}
+
+message GuildMatchQuotasResponse {
+  bool   success                = 1;
+  GuildMatchQuota quota         = 2;
+  parley.common.v1.Error error  = 3;
+}

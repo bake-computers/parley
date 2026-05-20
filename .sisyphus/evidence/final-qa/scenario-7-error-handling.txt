@@ -1,0 +1,16 @@
+=== QA Scenario 7: Error Handling ===
+Date: 2026-05-15
+Command: cargo test -p vessel -- signing
+
+Results: 7 passed, 0 failed (all signing module tests)
+- test_invalid_key_length_error: PASS — returns error (not panic) for wrong-length key
+- test_invalid_hex_signature_error: PASS
+- test_sign_and_verify_roundtrip: PASS
+- test_verify_wrong_message_fails: PASS
+- test_verify_wrong_key_fails: PASS
+- test_empty_body: PASS
+- test_large_body: PASS
+
+Critical: test_invalid_key_length_error confirms no unwrap/panic on malformed input
+
+VERDICT: ✅ ALL PASS, error returned not panic

@@ -1,21 +1,24 @@
 {
   "name": "@parley/db",
+  "version": "0.0.0",
   "private": true,
   "type": "module",
-  "exports": {
-    ".": "./src/index.ts",
-    "./*": "./src/*.ts"
-  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
-    "test": "bun test tests",
-    "typecheck": "tsc --noEmit --pretty false -p tsconfig.json"
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "lint": "oxlint .",
+    "test": "echo 'No tests yet'"
   },
   "dependencies": {
-    "drizzle-orm": "^0.45.2",
-    "pg": "^8.16.3"
+    "dotenv": "^17.4.2",
+    "drizzle-orm": "^0.45.2"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260418.1",
-    "@types/pg": "^8.15.6"
+    "@parley/tsconfig-base": "workspace:*",
+    "@types/node": "^25.6.2",
+    "drizzle-kit": "^0.31.10",
+    "typescript": "^6.0.3"
   }
 }

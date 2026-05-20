@@ -1,0 +1,137 @@
+syntax = "proto3";
+
+package parley.stats.v1;
+
+import "common/v1/types.proto";
+
+option java_package = "bot.parley.stats.v1";
+
+
+// StatsService fetches player stats for supported games (R6 Siege, Brawl Stars).
+// Callers choose between a single-season fetch (FetchStats) and a full
+// seasons-collection fetch (FetchStatsCollection).
+service StatsService {
+  // Fetch stats for a single season selector (or latest when unset).
+  rpc FetchStats(FetchStatsRequest) returns (FetchStatsResponse);
+
+  // Fetch stats for every ranked season the player has a record in.
+  rpc FetchStatsCollection(FetchStatsCollectionRequest) returns (FetchStatsCollectionResponse);
+}
+
+// Platforms mirrored from the TS scraper. PLATFORM_AUTO tries pc -> xbox -> playstation.
+enum StatsPlatform {
+  STATS_PLATFORM_UNSPECIFIED = 0;
+  STATS_PLATFORM_AUTO        = 1;
+  STATS_PLATFORM_PC          = 2;
+  STATS_PLATFORM_XBOX        = 3;
+  STATS_PLATFORM_PLAYSTATION = 4;
+}
+
+message FetchStatsRequest {
+  string        username        = 1;
+  StatsPlatform platform        = 2; // defaults to PLATFORM_AUTO when unspecified
+  // Optional selector (slug or display name), e.g. "prep-phase" or "Prep Phase".
+  // Empty => latest season.
+  string        season_selector = 3;
+  parley.common.v1.Game game    = 4; // defaults to GAME_R6 for backward compat
+}
+
+message FetchStatsResponse {
+  bool                   success = 1;
+  ScrapedStats           stats   = 2;
+  parley.common.v1.Error error   = 3;
+}
+
+message FetchStatsCollectionRequest {
+  string        username = 1;
+  StatsPlatform platform = 2;
+  parley.common.v1.Game game = 3;
+}
+
+message FetchStatsCollectionResponse {
+  bool                    success       = 1;
+  ScrapedStatsCollection  collection    = 2;
+  parley.common.v1.Error  error         = 3;
+}
+
+// Matches the TS ScrapedStatsCollection shape.
+message ScrapedStatsCollection {
+  ScrapedStats                      latest         = 1;
+  // bySeason in TS. Keyed by canonical season slug.
+  map<string, ScrapedStats>         by_season      = 2;
+  repeated SeasonCatalogEntry       season_catalog = 3;
+}
+
+message SeasonCatalogEntry {
+  string slug       = 1;
+  string display    = 2;
+  string started_at = 3; // ISO 8601 string as provided by stats.cc
+}
+
+// Mirrors TS ScrapedStats { profile, ranked_stats, calculated_metrics }.
+message ScrapedStats {
+  StatsProfile       profile            = 1;
+  RankedStats        ranked_stats       = 2;
+  CalculatedMetrics  calculated_metrics = 3;
+}
+
+message StatsProfile {
+  string username    = 1;
+  int32  level       = 2;
+  string profile_id  = 3; // UUID from stats.cc route
+  string platform    = 4; // resolved platform string (pc | xbox | playstation)
+  string profile_url = 5;
+}
+
+message RankedStats {
+  string season                     = 1;
+  string season_slug                = 2;
+  string season_display             = 3;
+  string season_started_at          = 4;
+  string mode                       = 5;
+
+  int32  matches                    = 6;
+  int32  wins                       = 7;
+  int32  losses                     = 8;
+  int32  abandons                   = 9;
+
+  int32  kills                      = 10;
+  int32  deaths                     = 11;
+  int32  assists                    = 12;
+  int32  headshots                  = 13;
+
+  double kd_ratio                   = 14;
+  double headshot_percentage        = 15;
+  double win_rate                   = 16;
+
+  int32  rank_points                = 17;
+  int32  peak_rank_points           = 18;
+
+  string current_rank_slug          = 19;
+  string current_rank               = 20;
+  string current_rank_tier          = 21;
+
+  string peak_rank_slug             = 22;
+  string peak_rank                  = 23;
+  string peak_rank_tier             = 24;
+
+  string all_time_peak_rank_slug    = 25;
+  string all_time_peak_rank         = 26;
+  string all_time_peak_rank_tier    = 27;
+  int32  all_time_peak_rank_points  = 28;
+  string all_time_peak_rank_season  = 29;
+
+  int32  rounds_played              = 30;
+  int32  kill_rounds                = 31;
+  int32  survival_rounds            = 32;
+  int32  traded_rounds              = 33;
+  int32  opening_kill_rounds        = 34;
+  int32  matches_in_cache           = 35;
+}
+
+message CalculatedMetrics {
+  double kost             = 1;
+  double kost_lower_bound = 2;
+  double kost_upper_bound = 3;
+  string kost_description = 4;
+}

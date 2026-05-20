@@ -1,0 +1,79 @@
+syntax = "proto3";
+
+package parley.common.v1;
+
+option java_package = "bot.parley.common.v1";
+
+enum RankTier {
+    RANK_TIER_UNSPECIFIED = 0;
+    RANK_TIER_IRON = 1;
+    RANK_TIER_BRONZE = 2;
+    RANK_TIER_SILVER = 3;
+    RANK_TIER_GOLD = 4;
+    RANK_TIER_PLATINUM = 5;
+    RANK_TIER_DIAMOND = 6;
+    RANK_TIER_MASTER = 7;
+    RANK_TIER_GRANDMASTER = 8;
+    RANK_TIER_CHALLENGER = 9;
+}
+
+message Rank {
+    RankTier tier = 1;
+    int32 rating = 2;
+    int32 position = 3;
+}
+
+enum BadgeCategory {
+    BADGE_CATEGORY_UNSPECIFIED = 0;
+    BADGE_CATEGORY_RANK = 1;
+    BADGE_CATEGORY_ACTIVITY = 2;
+    BADGE_CATEGORY_EVENT = 3;
+    BADGE_CATEGORY_VOTE = 4;
+    BADGE_CATEGORY_PREMIUM = 5;
+    BADGE_CATEGORY_SEASONAL = 6;
+    BADGE_CATEGORY_STAFF = 7;
+    BADGE_CATEGORY_DEVELOPER = 8;
+}
+
+message Badge {
+    string id = 1;
+    string label = 2;
+    string description = 3;
+    string icon_url = 4;
+    string color = 5; // hex color code, e.g. "#FF0000"
+    BadgeCategory category = 6;
+    bool is_rare = 7;
+    int64 awarded_at = 8; // timestamp in milliseconds since epoch
+}
+
+message PlayerStats {
+  int32 matches_played = 1;
+  int32 wins           = 2;
+  int32 losses         = 3;
+  int32 kills          = 4;
+  int32 deaths         = 5;
+  float kd_ratio       = 6;
+  float win_rate       = 7;
+  // Game identifier (e.g. "siege"). Free-form to allow future games
+  // without breaking the schema.
+  string game          = 8;
+}
+
+enum Region {
+  REGION_UNSPECIFIED = 0;
+  REGION_EU          = 1;
+  REGION_NA          = 2;
+  REGION_APAC        = 3;
+  REGION_SA          = 4;
+}
+
+enum Game {
+  GAME_UNSPECIFIED = 0;
+  GAME_R6          = 1;
+  GAME_BRAWL_STARS = 2;
+}
+
+message Error {
+  string code    = 1; // machine-readable e.g. "SCAN_PARSE_FAILED"
+  string message = 2; // human-readable detail
+}

@@ -1,7 +1,10 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "@parley/tsconfig-base",
   "compilerOptions": {
-    "types": ["./worker-configuration.d.ts", "@types/bun", "@types/node"]
+    "types": ["@cloudflare/workers-types"],
+    "lib": ["ESNext"],
+    "rootDir": "./src",
+    "outDir": "./dist"
   },
-  "include": ["src/**/*", "tests/**/*", "worker-configuration.d.ts", "drizzle.config.ts"]
+  "include": ["src/**/*.ts"]
 }

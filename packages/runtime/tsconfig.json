@@ -1,0 +1,13 @@
+{
+  "extends": "@parley/tsconfig-base/tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "composite": true,
+    "paths": {
+      "~/*": ["./src/*"]
+    }
+  },
+  "include": ["../../reset.d.ts", "src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}

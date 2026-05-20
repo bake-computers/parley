@@ -1,0 +1,23 @@
+{
+  "name": "@parley/runtime",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "lint": "oxlint .",
+    "test": "echo 'No tests yet'"
+  },
+  "dependencies": {
+    "discord-api-types": "^0.38.47",
+    "neverthrow": "^8.2.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260506.1",
+    "@parley/tsconfig-base": "workspace:*",
+    "typescript": "^6.0.3"
+  }
+}

@@ -1,40 +1,56 @@
-# dependencies (bun install)
+# Dependencies
 node_modules
+.pnp
+.pnp.js
 
-# output
-out
+# Build outputs
 dist
-*.tgz
-
-# code coverage
-coverage
-*.lcov
-
-# logs
-logs
-_.log
-report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
-
-# dotenv environment variable files
-.env
-.dev.vars
-.dev.vars.*
-.env.development.local
-.env.test.local
-.env.production.local
-.env.local
-
-# caches
-.eslintcache
-.cache
-.turbo
+build
+.next
 *.tsbuildinfo
 
-# IntelliJ based IDEs
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Environment
+.env
+.env.local
+.env.*.local
+.dev.vars
+
+# IDE
 .idea
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+*.swp
+*.swo
+*~
 
-# Finder (MacOS) folder config
+# OS
 .DS_Store
+Thumbs.db
 
-# wrangler
+# Testing
+coverage
+
+# Misc
+.cache
+.temp
+tmp
+
+# Turbo
+.turbo
+
+# Cloudflare Workers
 .wrangler
+
+# Rust
+target
+Cargo.lock.bak
+

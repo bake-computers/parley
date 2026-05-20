@@ -1,8 +1,0 @@
-Task 1: Baseline
-Date: 2026-05-04
-Status: COMPLETE
-Proof:
-  - ls .sisyphus/evidence/task-1-baseline.txt
-    -rw-r--r--@ 1 juwen staff 756 May  4 19:14 baseline-metrics.txt
-  - cat .sisyphus/evidence/baseline-metrics.txt | head -20
-    Baseline metrics recorded at project start
