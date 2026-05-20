@@ -55,11 +55,7 @@ fn apply_circular_mask(img: &mut RgbaImage) {
                 // Antialias the edge slightly.
                 let t = ((radius - d) / 1.5).clamp(0.0, 1.0);
                 let px = *img.get_pixel(x, y);
-                img.put_pixel(
-                    x,
-                    y,
-                    Rgba([px[0], px[1], px[2], (px[3] as f32 * t) as u8]),
-                );
+                img.put_pixel(x, y, Rgba([px[0], px[1], px[2], (px[3] as f32 * t) as u8]));
             }
         }
     }

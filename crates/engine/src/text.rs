@@ -26,7 +26,8 @@ pub fn draw_text(
         if let Some(prev) = last_glyph {
             pen_x += scaled.kern(prev, glyph_id);
         }
-        let glyph = glyph_id.with_scale_and_position(scale, ab_glyph::point(pen_x, (y + ascent) as f32));
+        let glyph =
+            glyph_id.with_scale_and_position(scale, ab_glyph::point(pen_x, (y + ascent) as f32));
         if let Some(outlined) = font.outline_glyph(glyph) {
             let bounds = outlined.px_bounds();
             outlined.draw(|ox, oy, v| {

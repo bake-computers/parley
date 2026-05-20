@@ -1,13 +1,14 @@
 use std::sync::Arc;
 
 use clap::Parser;
-use stats_scraper::fetch::{RetryPolicy, StatsClient, StatsPlatform};
+use stats_scraper::fetch::{RetryPolicy, StatsPlatform};
 use vessel::cli::{Command, VesselCli};
 use vessel::hull::Hull;
 use vessel::progress::VesselProgress;
 use vessel::session::VesselSessionHandle;
+use vessel::siphon::browser::BrowserPool;
 use vessel::siphon::channel::{CrawlConfig, SiphonCommand};
-use vessel::siphon::scraper_bridge::create_stats_fetcher;
+use vessel::siphon::scraper_bridge::create_browser_stats_fetcher;
 use vessel::siphon::worker::SiphonWorker;
 
 fn resolve_database_url(cli: &VesselCli) -> String {
@@ -37,16 +38,21 @@ async fn main() -> anyhow::Result<()> {
     let database_url = resolve_database_url(&cli);
     let progress = VesselProgress::new();
 
-    let session = VesselSessionHandle::start(&database_url, &args.seed_player).await?;
+    let mut session = VesselSessionHandle::start(&database_url, &args.seed_player).await?;
     let session_id = session.session_id();
     progress
         .multi
         .println(format!("Session started: {session_id}"))?;
 
+    progress
+        .multi
+        .println("Launching headless browser...".to_string())?;
+    let browser_pool = BrowserPool::launch().await?;
+    progress.multi.println("Browser ready".to_string())?;
+
     let hull = Arc::new(Hull::default());
     let platform = map_platform(&args.platform);
-    let client = Arc::new(StatsClient::default());
-    let fetcher = create_stats_fetcher(client, platform);
+    let fetcher = create_browser_stats_fetcher(browser_pool, platform);
 
     let config = CrawlConfig {
         max_depth: args.max_depth as usize,
@@ -57,7 +63,7 @@ async fn main() -> anyhow::Result<()> {
     };
 
     let worker_count = 4;
-    let (mut joinset, tx, _shared_tx) =
+    let (mut joinset, tx, terminate_flag) =
         SiphonWorker::spawn_workers(worker_count, Arc::clone(&hull), config, fetcher);
 
     tx.send(SiphonCommand::Crawl {
@@ -70,6 +76,7 @@ async fn main() -> anyhow::Result<()> {
         tx.send(SiphonCommand::Terminate).await?;
     }
     drop(tx);
+    terminate_flag.store(true, std::sync::atomic::Ordering::SeqCst);
 
     let mut total_results = 0u64;
     let mut total_discovered = 0u64;
@@ -85,6 +92,10 @@ async fn main() -> anyhow::Result<()> {
     progress.multi.println(format!(
         "Siphon complete: {total_results} players processed, {total_discovered} UIDs discovered"
     ))?;
+
+    session
+        .update_progress(total_results as i32, total_discovered as i32)
+        .await?;
 
     session.complete().await?;
     Ok(())

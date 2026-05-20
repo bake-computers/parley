@@ -1,3 +1,4 @@
+pub mod browser;
 pub mod channel;
 pub mod db_writer;
 pub mod parser;

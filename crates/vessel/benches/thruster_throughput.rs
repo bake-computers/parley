@@ -58,7 +58,7 @@ fn bench_throughput(c: &mut Criterion) {
 
     group.bench_function("sustained_tps", |b| {
         b.iter_custom(|iters| {
-            let run_secs = (iters as u64).max(1);
+            let run_secs = iters.max(1);
             let result = rt.block_on(async {
                 let stats = sender.run(Duration::from_secs(run_secs)).await;
                 let received = counter.load(Ordering::Relaxed);

@@ -122,7 +122,7 @@ mod tests {
             let sid = Uuid::new_v4();
             let new_session = new_test_session(sid, "test_record");
 
-            let mut writer = SiphonDbWriter::new(&mut *conn);
+            let mut writer = SiphonDbWriter::new(&mut conn);
             let inserted = writer
                 .insert_session(&new_session)
                 .await
@@ -192,7 +192,7 @@ mod tests {
                 interactions_sent: 30,
             };
 
-            let mut writer = SiphonDbWriter::new(&mut *conn);
+            let mut writer = SiphonDbWriter::new(&mut conn);
             let inserted = writer
                 .insert_session(&new_session)
                 .await
@@ -239,7 +239,7 @@ mod tests {
             let sid = Uuid::new_v4();
             let new_session = new_test_session(sid, "test_transaction");
 
-            let mut writer = SiphonDbWriter::new(&mut *conn);
+            let mut writer = SiphonDbWriter::new(&mut conn);
             let _inserted = writer
                 .insert_session(&new_session)
                 .await
@@ -289,7 +289,7 @@ mod tests {
                 .await
                 .expect("begin tx");
 
-            let mut writer = SiphonDbWriter::new(&mut *conn);
+            let mut writer = SiphonDbWriter::new(&mut conn);
             let non_existent = Uuid::new_v4();
             let result = writer.record_discovery(non_existent, 5).await;
 

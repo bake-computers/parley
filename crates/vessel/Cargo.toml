@@ -23,7 +23,15 @@ uuid = { workspace = true }
 diesel = { workspace = true, features = ["uuid"] }
 diesel-async = { workspace = true }
 reqwest = { workspace = true }
+rustls = { version = "0.23", default-features = false, features = ["std", "ring"] }
+tokio-postgres = "0.7"
+tokio-postgres-rustls = "0.13"
+rustls-native-certs = "0.8"
+webpki-roots = "0.26"
 stats-scraper = { path = "../stats-scraper" }
+simd-json = "0.17.0"
+chromiumoxide = "0.9"
+futures = "0.3"
 parley = { path = "../../" }
 
 [dev-dependencies]

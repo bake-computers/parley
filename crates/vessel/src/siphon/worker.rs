@@ -7,17 +7,26 @@
 //!
 //! ## Worker lifecycle
 //!
+//! * Each worker owns its own [`Sender`] clone, so recursion doesn't have to
+//!   serialise on a shared mutex.
 //! * Workers compete for commands via `Arc<Mutex<Receiver>>`. The lock is held
-//!   only for the `recv()` call so other workers can proceed concurrently.
-//! * On [`SiphonCommand::Terminate`] the worker enters a drain phase: it keeps
+//!   only for the `recv()` / `try_recv()` call so other workers can proceed
+//!   concurrently with their fetches.
+//! * On [`SiphonCommand::Terminate`] a worker switches to drain mode: it keeps
 //!   its sender alive, processes remaining channel items via `try_recv()`, and
-//!   exits when the channel is empty and disconnected.
-//! * The coordinator sends one Terminate per worker to shut the pool down.
+//!   exits when the channel is empty *and* no workers are actively fetching.
+//! * The coordinator sends one Terminate per worker so every worker eventually
+//!   leaves the blocking `recv()` and reaches drain mode. Once a worker exits
+//!   `run`, its `Sender` clone drops; when all workers and the coordinator's
+//!   sender are dropped, the channel closes naturally.
 
 use std::future::Future;
 use std::pin::Pin;
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::Arc;
+use std::time::Duration;
 
+use tokio::sync::mpsc::error::TryRecvError;
 use tokio::sync::mpsc::{Receiver, Sender};
 use tokio::sync::Mutex;
 
@@ -33,84 +42,144 @@ pub type StatsFetcher = Arc<
     dyn Fn(&str) -> Pin<Box<dyn Future<Output = Result<Vec<String>, String>> + Send>> + Send + Sync,
 >;
 
-/// Result of spawning a worker pool: JoinSet of worker tasks, the sender
-/// for submitting commands, and a shared sender reference for termination.
+/// Result of spawning a worker pool: a [`tokio::task::JoinSet`] of worker
+/// futures, the coordinator-side [`Sender`] used to seed the crawl, and the
+/// global termination flag.
 pub type WorkerSpawnResult = (
     tokio::task::JoinSet<Vec<SiphonResult>>,
     Sender<SiphonCommand>,
-    Arc<Mutex<Option<Sender<SiphonCommand>>>>,
+    Arc<AtomicBool>,
 );
+
+/// How long a drain worker sleeps before re-checking the channel when the
+/// queue is briefly empty but other workers are still fetching.
+const DRAIN_BACKOFF: Duration = Duration::from_millis(50);
 
 /// A worker that participates in the shared Siphon crawl pool.
 pub struct SiphonWorker {
     hull: Arc<Hull>,
     config: CrawlConfig,
+    active: Arc<AtomicU64>,
+    /// Global flag set by the coordinator to signal that workers should drain
+    /// and exit. Acts as a safety net when Terminate messages are consumed by
+    /// drain workers before a main-mode worker receives one.
+    terminate: Arc<AtomicBool>,
+    /// The worker's own [`Sender`] clone, used to enqueue children discovered
+    /// during recursion. Dropped automatically when [`run`](Self::run)
+    /// returns.
+    tx: Sender<SiphonCommand>,
 }
 
 impl SiphonWorker {
-    /// Create a new worker handle.
-    ///
-    /// The caller provides the shared channel endpoints and a [`StatsFetcher`]
-    /// when calling [`run`].
-    pub fn new(hull: Arc<Hull>, config: CrawlConfig) -> Self {
-        Self { hull, config }
+    pub fn new(
+        hull: Arc<Hull>,
+        config: CrawlConfig,
+        active: Arc<AtomicU64>,
+        terminate: Arc<AtomicBool>,
+        tx: Sender<SiphonCommand>,
+    ) -> Self {
+        Self {
+            hull,
+            config,
+            active,
+            terminate,
+            tx,
+        }
     }
 
     /// Run the worker loop.
     ///
-    /// The worker momentarily releases its sender clone before each `recv()`
-    /// call so the channel can close when no external senders remain.
-    ///
-    /// When [`SiphonCommand::Terminate`] is received the worker enters a drain
-    /// phase that consumes remaining items via `try_recv()`. If another
-    /// Terminate is encountered during drain, draining stops immediately so
-    /// other workers can receive their own shutdown signal.
+    /// Operates in two modes:
+    /// * **Main mode** — block on `recv().await` and dispatch commands. A
+    ///   [`SiphonCommand::Terminate`] flips the worker into drain mode.
+    /// * **Drain mode** — poll the channel via `try_recv()`. Drain workers
+    ///   keep processing crawls (so recursion still happens during shutdown)
+    ///   and only exit when the channel is empty and no other worker is
+    ///   actively fetching, or when the channel disconnects.
     pub async fn run(
-        &mut self,
+        self,
         rx: Arc<Mutex<Receiver<SiphonCommand>>>,
-        shared_tx: Arc<tokio::sync::Mutex<Option<Sender<SiphonCommand>>>>,
         fetcher: StatsFetcher,
     ) -> Vec<SiphonResult> {
+        let SiphonWorker {
+            hull,
+            config,
+            active,
+            terminate,
+            tx,
+        } = self;
         let mut results: Vec<SiphonResult> = Vec::new();
+        let mut terminating = false;
 
         loop {
-            let cmd = {
-                let mut guard = rx.lock().await;
-                guard.recv().await
-            };
-
-            match cmd {
-                Some(SiphonCommand::Terminate) => {
-                    drain_channel(
-                        &self.hull,
-                        &self.config,
-                        &shared_tx,
-                        &fetcher,
-                        &rx,
-                        &mut results,
-                    )
-                    .await;
-                    break;
-                }
-                Some(SiphonCommand::Crawl { uid, depth }) => {
-                    let result = {
-                        let guard = shared_tx.lock().await;
-                        process_crawl(
+            if terminating {
+                let outcome = {
+                    let mut guard = rx.lock().await;
+                    guard.try_recv()
+                };
+                match outcome {
+                    Ok(SiphonCommand::Crawl { uid, depth }) => {
+                        let result = process_crawl(
                             &uid,
                             depth,
-                            &self.hull,
-                            &self.config,
-                            guard.as_ref(),
+                            &hull,
+                            &config,
+                            Some(&tx),
                             &fetcher,
+                            &active,
                         )
-                        .await
-                    };
-                    results.push(result);
-                    tokio::task::yield_now().await;
+                        .await;
+                        results.push(result);
+                    }
+                    Ok(SiphonCommand::Terminate) => {}
+                    Err(TryRecvError::Empty) => {
+                        if active.load(Ordering::SeqCst) == 0 {
+                            break;
+                        }
+                        tokio::time::sleep(DRAIN_BACKOFF).await;
+                    }
+                    Err(TryRecvError::Disconnected) => break,
                 }
-                None => break,
+            } else {
+                // Check the global termination flag before blocking on recv.
+                // This prevents a worker from being stranded in main mode when
+                // drain workers consume all Terminate messages.
+                if terminate.load(Ordering::SeqCst) {
+                    terminating = true;
+                    continue;
+                }
+                let cmd = {
+                    let mut guard = rx.lock().await;
+                    guard.recv().await
+                };
+                match cmd {
+                    Some(SiphonCommand::Crawl { uid, depth }) => {
+                        let result = process_crawl(
+                            &uid,
+                            depth,
+                            &hull,
+                            &config,
+                            Some(&tx),
+                            &fetcher,
+                            &active,
+                        )
+                        .await;
+                        results.push(result);
+                    }
+                    Some(SiphonCommand::Terminate) => {
+                        terminating = true;
+                    }
+                    None => break,
+                }
             }
+            tokio::task::yield_now().await;
         }
+
+        // Dropping `tx` here decrements the channel's sender count. When
+        // every worker has exited and the coordinator has dropped its own
+        // sender, the channel closes for any worker still parked in
+        // `recv().await`.
+        drop(tx);
 
         results
     }
@@ -118,11 +187,13 @@ impl SiphonWorker {
     /// Spawn `n` workers sharing one MPSC channel.
     ///
     /// Returns a [`tokio::task::JoinSet`] of worker futures (each returns its
-    /// collected [`SiphonResult`]s) and a [`Sender`] the coordinator uses to
-    /// seed the crawl.
+    /// collected [`SiphonResult`]s) and the coordinator-side [`Sender`] used
+    /// to seed the crawl.
     ///
-    /// To stop the pool, send `n` [`SiphonCommand::Terminate`] commands (one
-    /// per worker). Alternatively, drop all sender clones to close the channel.
+    /// To shut the pool down, send `n` [`SiphonCommand::Terminate`]s (one per
+    /// worker) so every worker reaches its drain phase, then drop the
+    /// coordinator sender. The drain phase finishes once the channel is
+    /// empty and no fetches are in flight.
     pub fn spawn_workers(
         n: usize,
         hull: Arc<Hull>,
@@ -133,53 +204,25 @@ impl SiphonWorker {
 
         let (tx, rx) = tokio::sync::mpsc::channel::<SiphonCommand>(config.channel_capacity);
         let rx = Arc::new(Mutex::new(rx));
-        let shared_tx = Arc::new(tokio::sync::Mutex::new(Some(tx.clone())));
+        let active = Arc::new(AtomicU64::new(0));
+        let terminate = Arc::new(AtomicBool::new(false));
         let mut joinset = tokio::task::JoinSet::new();
 
         for _ in 0..n {
-            let mut worker = SiphonWorker::new(Arc::clone(&hull), config.clone());
+            let worker = SiphonWorker::new(
+                Arc::clone(&hull),
+                config.clone(),
+                Arc::clone(&active),
+                Arc::clone(&terminate),
+                tx.clone(),
+            );
             let rx = Arc::clone(&rx);
-            let shared_tx = Arc::clone(&shared_tx);
             let fetcher = fetcher.clone();
-            joinset.spawn(async move { worker.run(rx, shared_tx, fetcher).await });
+            joinset.spawn(async move { worker.run(rx, fetcher).await });
         }
 
-        (joinset, tx, shared_tx)
+        (joinset, tx, terminate)
     }
-}
-
-/// Drain the shared channel after receiving Terminate.
-///
-/// Uses `try_recv()` so other workers can still acquire the lock. If another
-/// Terminate is encountered, draining stops — it belongs to a different worker.
-async fn drain_channel(
-    hull: &Arc<Hull>,
-    config: &CrawlConfig,
-    shared_tx: &Arc<tokio::sync::Mutex<Option<Sender<SiphonCommand>>>>,
-    fetcher: &StatsFetcher,
-    rx: &Arc<Mutex<Receiver<SiphonCommand>>>,
-    results: &mut Vec<SiphonResult>,
-) {
-    loop {
-        let cmd = {
-            let mut guard = rx.lock().await;
-            guard.try_recv().ok()
-        };
-        match cmd {
-            Some(SiphonCommand::Crawl { uid, depth }) => {
-                let result = {
-                    let guard = shared_tx.lock().await;
-                    process_crawl(uid.as_str(), depth, hull, config, guard.as_ref(), fetcher).await
-                };
-                results.push(result);
-            }
-            Some(SiphonCommand::Terminate) => break,
-            None => break,
-        }
-        tokio::task::yield_now().await;
-    }
-    let mut guard = shared_tx.lock().await;
-    *guard = None;
 }
 
 /// Core recursive crawl logic executed inside a worker loop.
@@ -189,7 +232,12 @@ async fn drain_channel(
 /// 2. Fetch stats for the UID via the pluggable [`StatsFetcher`].
 /// 3. For each discovered UID where `depth + 1 < max_depth`, send a new
 ///    [`SiphonCommand::Crawl`] back to the shared channel.
-/// 4. Return a [`SiphonResult`] summarising what was found.
+/// 4. Return a [`SiphonResult`] summarising what was queued.
+///
+/// `active` is incremented before the fetch and decremented only **after**
+/// every child has been queued. This gives drain workers a reliable
+/// "in-flight work" signal — if a drain worker observes both an empty queue
+/// and `active == 0`, it can be sure no more items will appear.
 async fn process_crawl(
     uid: &str,
     depth: usize,
@@ -197,6 +245,7 @@ async fn process_crawl(
     config: &CrawlConfig,
     tx: Option<&Sender<SiphonCommand>>,
     fetcher: &StatsFetcher,
+    active: &Arc<AtomicU64>,
 ) -> SiphonResult {
     if hull.check_or_insert(uid) {
         return SiphonResult {
@@ -207,12 +256,16 @@ async fn process_crawl(
         };
     }
 
+    active.fetch_add(1, Ordering::SeqCst);
     let discovered = fetcher(uid).await.unwrap_or_default();
 
     let mut queued: Vec<String> = Vec::new();
     if depth + 1 < config.max_depth {
         if let Some(tx) = tx {
             for discovered_uid in &discovered {
+                if hull.contains(discovered_uid) {
+                    continue;
+                }
                 let cmd = SiphonCommand::Crawl {
                     uid: discovered_uid.clone(),
                     depth: depth + 1,
@@ -223,6 +276,10 @@ async fn process_crawl(
             }
         }
     }
+    // Decrement only after every child has been pushed onto the channel so a
+    // drain worker can never observe a transient "queue empty + active == 0"
+    // window between fetcher completion and child enqueue.
+    active.fetch_sub(1, Ordering::SeqCst);
 
     SiphonResult {
         uid: uid.to_string(),
@@ -265,8 +322,6 @@ mod tests {
     }
 
     /// Drive a single worker: send `seeds` then one Terminate, collect results.
-    /// The coordinator keeps its sender alive so the worker's drain phase can
-    /// complete (channel stays open until the worker finishes draining).
     async fn drive_worker(
         hull: Arc<Hull>,
         config: CrawlConfig,
@@ -275,7 +330,7 @@ mod tests {
     ) -> Vec<SiphonResult> {
         let (tx, rx) = tokio::sync::mpsc::channel::<SiphonCommand>(config.channel_capacity);
         let rx = Arc::new(Mutex::new(rx));
-        let shared_tx = Arc::new(tokio::sync::Mutex::new(Some(tx.clone())));
+        let active = Arc::new(AtomicU64::new(0));
 
         for cmd in seeds {
             tx.send(cmd).await.expect("seed send");
@@ -284,12 +339,20 @@ mod tests {
             .await
             .expect("terminate send");
 
-        let mut worker = SiphonWorker::new(hull, config);
-        let handle = tokio::spawn(async move { worker.run(rx, shared_tx, fetcher).await });
+        let worker = SiphonWorker::new(
+            hull,
+            config,
+            active,
+            Arc::new(AtomicBool::new(false)),
+            tx.clone(),
+        );
+        let handle = tokio::spawn(async move { worker.run(rx, fetcher).await });
 
-        let results = handle.await.expect("worker task panicked");
+        // Drop the coordinator sender so the channel can close once the
+        // worker drops its own clone on exit.
         drop(tx);
-        results
+
+        handle.await.expect("worker task panicked")
     }
 
     #[tokio::test]
@@ -308,18 +371,45 @@ mod tests {
         )
         .await;
 
-        // max_depth=3, fetcher returns [A, B]: depth0 seeds A,B → depth1 A,B each return [C,D],[E,F] → depth2 C,D,E,F hit cap
-        assert_eq!(results.len(), 7);
-
-        let uids: Vec<&str> = results.iter().map(|r| r.uid.as_str()).collect();
-        assert!(uids.contains(&"seed-uid"), "seed must be in results");
-        assert!(uids.contains(&"uid-A"), "uid-A must be in results");
-        assert!(uids.contains(&"uid-B"), "uid-B must be in results");
+        // max_depth=3, fetcher returns [A, B] for every UID.
+        // depth 0: seed crawls, discovers A,B. Enqueues A@1, B@1.
+        // depth 1: A crawls, discovers A,B. A already in bloom → skip. B not
+        //   yet crawled at this point → enqueues B@2.
+        // depth 1: B crawls, discovers A,B. Both already in bloom → skip.
+        // depth 2: B bloom-skipped (already crawled at depth 1).
+        // Total: seed + A@1 + B@1 + B@2(bloom-skip) = 4.
+        assert_eq!(results.len(), 4, "got {results:?}");
 
         let seed = results.iter().find(|r| r.uid == "seed-uid").unwrap();
         assert_eq!(seed.depth, 0);
         assert_eq!(seed.discovered_uids, vec!["uid-A", "uid-B"]);
         assert!(seed.stats.is_none());
+
+        let a = results
+            .iter()
+            .find(|r| r.uid == "uid-A" && r.depth == 1)
+            .unwrap();
+        assert_eq!(
+            a.discovered_uids,
+            vec!["uid-B"],
+            "A@1 discovers [A,B]; A already in bloom (skip), B not yet crawled (enqueue)"
+        );
+
+        let b = results
+            .iter()
+            .find(|r| r.uid == "uid-B" && r.depth == 1)
+            .unwrap();
+        assert!(
+            b.discovered_uids.is_empty(),
+            "B@1 discovers [A,B]; both already in bloom (skip all)"
+        );
+
+        let b2 = results
+            .iter()
+            .find(|r| r.uid == "uid-B" && r.depth == 2)
+            .unwrap();
+        assert!(b2.discovered_uids.is_empty());
+        assert!(b2.stats.is_none());
     }
 
     #[tokio::test]
@@ -342,7 +432,7 @@ mod tests {
         )
         .await;
 
-        assert_eq!(results.len(), 2, "expected 2 results, got {:?}", results);
+        assert_eq!(results.len(), 2, "expected 2 results, got {results:?}");
 
         let seed = results.iter().find(|r| r.uid == "seed").unwrap();
         assert_eq!(seed.depth, 0);
@@ -417,7 +507,7 @@ mod tests {
         const WORKERS: usize = 4;
         const JOBS: usize = 20;
 
-        let (mut joinset, tx, _shared_tx) =
+        let (mut joinset, tx, _terminate) =
             SiphonWorker::spawn_workers(WORKERS, hull, config, fetcher);
 
         for i in 0..JOBS {
@@ -500,6 +590,65 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn test_recursive_discovery_concurrent_pool() {
+        // Verifies multiple workers actually cooperate on a deep crawl rather
+        // than serialising through the old shared_tx mutex.
+        let hull = Arc::new(Hull::default());
+        let config = CrawlConfig {
+            max_depth: 5,
+            channel_capacity: 64,
+            ..default_config()
+        };
+
+        // Each crawl returns two children; bloom dedup keeps the search
+        // tree finite.
+        let fetcher: StatsFetcher = Arc::new(move |uid: &str| {
+            let a = format!("{uid}-a");
+            let b = format!("{uid}-b");
+            Box::pin(async move { Ok(vec![a, b]) })
+        });
+
+        const WORKERS: usize = 4;
+        let (mut joinset, tx, terminate_flag) =
+            SiphonWorker::spawn_workers(WORKERS, hull, config, fetcher);
+
+        tx.send(SiphonCommand::Crawl {
+            uid: "seed".into(),
+            depth: 0,
+        })
+        .await
+        .expect("seed send");
+
+        for _ in 0..WORKERS {
+            tx.send(SiphonCommand::Terminate)
+                .await
+                .expect("terminate send");
+        }
+        drop(tx);
+        // Signal the global termination flag so any worker still in main
+        // mode (racing ahead of Terminate messages) will enter drain mode.
+        terminate_flag.store(true, Ordering::SeqCst);
+
+        let mut all_results: Vec<SiphonResult> = Vec::new();
+        while let Some(Ok(task_results)) = joinset.join_next().await {
+            all_results.extend(task_results);
+        }
+
+        // With max_depth=5 and a binary tree, expect 1 + 2 + 4 + 8 + 16 = 31
+        // unique uids visited (depth 0..=4). depth 5+ never enters
+        // process_crawl because process_crawl at depth 4 has
+        // depth+1=5 == max_depth, so it doesn't enqueue.
+        assert_eq!(all_results.len(), 31, "got {} results", all_results.len());
+
+        // Depths 0..=4 should all be represented.
+        let mut depths_seen: std::collections::BTreeSet<usize> =
+            all_results.iter().map(|r| r.depth).collect();
+        let depths_vec: Vec<usize> = depths_seen.iter().copied().collect();
+        assert_eq!(depths_vec, vec![0, 1, 2, 3, 4]);
+        depths_seen.clear();
+    }
+
+    #[tokio::test]
     async fn test_fetch_error_graceful() {
         let hull = Arc::new(Hull::default());
         let fetcher: StatsFetcher =
@@ -525,7 +674,7 @@ mod tests {
     #[tokio::test]
     async fn test_spawn_workers_minimum_one() {
         let hull = Arc::new(Hull::default());
-        let (mut joinset, tx, _shared_tx) =
+        let (mut joinset, tx, _terminate) =
             SiphonWorker::spawn_workers(1, hull, default_config(), mock_fetcher(Vec::new()));
         tx.send(SiphonCommand::Terminate)
             .await

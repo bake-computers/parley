@@ -51,7 +51,10 @@ impl BrawlStarsClient {
         let resp = self.get(&url).await?;
         let status = resp.status().as_u16();
         if status == 200 {
-            let body = resp.bytes().await.map_err(|e| BrawlStarsError::Network(e.to_string()))?;
+            let body = resp
+                .bytes()
+                .await
+                .map_err(|e| BrawlStarsError::Network(e.to_string()))?;
             let profile: PlayerProfile =
                 serde_json::from_slice(&body).map_err(|e| BrawlStarsError::Api {
                     status,
@@ -72,7 +75,10 @@ impl BrawlStarsClient {
         let resp = self.get(&url).await?;
         let status = resp.status().as_u16();
         if status == 200 {
-            let body = resp.bytes().await.map_err(|e| BrawlStarsError::Network(e.to_string()))?;
+            let body = resp
+                .bytes()
+                .await
+                .map_err(|e| BrawlStarsError::Network(e.to_string()))?;
             let log: BattleLog =
                 serde_json::from_slice(&body).map_err(|e| BrawlStarsError::Api {
                     status,

@@ -85,7 +85,7 @@ impl<'a> NuxtResolver<'a> {
             if let Some(arr) = val.as_array() {
                 if arr.len() == 2 {
                     if let Some(tag) = arr[0].as_str() {
-                        if NUXT_WRAPPER_TAGS.iter().any(|w| *w == tag) {
+                        if NUXT_WRAPPER_TAGS.contains(&tag) {
                             val = &arr[1];
                             continue;
                         }

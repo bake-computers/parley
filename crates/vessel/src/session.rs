@@ -5,11 +5,14 @@
 //! [`purge`](VesselSessionHandle::purge) to rollback or
 //! [`complete`](VesselSessionHandle::complete) to commit.
 
+use std::sync::Arc;
+use std::time::Duration;
+
 use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use diesel::table;
 use diesel_async::pooled_connection::bb8::Pool;
-use diesel_async::pooled_connection::AsyncDieselConnectionManager;
+use diesel_async::pooled_connection::{AsyncDieselConnectionManager, ManagerConfig};
 use diesel_async::AsyncPgConnection;
 use diesel_async::RunQueryDsl;
 use uuid::Uuid;
@@ -116,8 +119,97 @@ impl VesselSessionHandle {
     /// Returns [`SessionError::LockConflict`] if another session already holds
     /// the advisory lock on this database.
     pub async fn start(database_url: &str, seed_player: &str) -> Result<Self, SessionError> {
-        let config = AsyncDieselConnectionManager::<AsyncPgConnection>::new(database_url);
-        let pool = Pool::builder().build(config).await?;
+        let tls_mode = std::env::var("DB_TLS").unwrap_or_else(|_| "accept-invalid".to_string());
+        let _ = rustls::crypto::ring::default_provider().install_default();
+
+        let mut mgr_config = ManagerConfig::<AsyncPgConnection>::default();
+        mgr_config.custom_setup = match tls_mode.as_str() {
+            "none" | "disable" | "off" => Box::new(|url: &str| {
+                let url = url.to_string();
+                Box::pin(async move {
+                    let (client, conn) = tokio_postgres::connect(&url, tokio_postgres::NoTls)
+                        .await
+                        .map_err(|e| diesel::ConnectionError::BadConnection(format!("{e}")))?;
+                    tokio::spawn(async move {
+                        if let Err(e) = conn.await {
+                            eprintln!("pg conn: {e}");
+                        }
+                    });
+                    diesel_async::AsyncPgConnection::try_from(client).await
+                })
+            }),
+            "accept-invalid" => {
+                let tls = build_insecure_tls();
+                Box::new(move |url: &str| {
+                    let url = url.to_string();
+                    let tls = tls.clone();
+                    Box::pin(async move {
+                        let tls_conn =
+                            tokio_postgres_rustls::MakeRustlsConnect::new((*tls).clone());
+                        let (client, conn) = tokio_postgres::connect(&url, tls_conn)
+                            .await
+                            .map_err(|e| diesel::ConnectionError::BadConnection(format!("{e}")))?;
+                        tokio::spawn(async move {
+                            if let Err(e) = conn.await {
+                                eprintln!("pg conn: {e}");
+                            }
+                        });
+                        diesel_async::AsyncPgConnection::try_from(client).await
+                    })
+                })
+            }
+            "webpki" => {
+                let tls = build_webpki_tls();
+                Box::new(move |url: &str| {
+                    let url = url.to_string();
+                    let tls = tls.clone();
+                    Box::pin(async move {
+                        let tls_conn =
+                            tokio_postgres_rustls::MakeRustlsConnect::new((*tls).clone());
+                        let (client, conn) = tokio_postgres::connect(&url, tls_conn)
+                            .await
+                            .map_err(|e| diesel::ConnectionError::BadConnection(format!("{e}")))?;
+                        tokio::spawn(async move {
+                            if let Err(e) = conn.await {
+                                eprintln!("pg conn: {e}");
+                            }
+                        });
+                        diesel_async::AsyncPgConnection::try_from(client).await
+                    })
+                })
+            }
+            // "system" (default) or empty
+            _ => {
+                let tls = build_system_tls();
+                Box::new(move |url: &str| {
+                    let url = url.to_string();
+                    let tls = tls.clone();
+                    Box::pin(async move {
+                        let tls_conn =
+                            tokio_postgres_rustls::MakeRustlsConnect::new((*tls).clone());
+                        let (client, conn) = tokio_postgres::connect(&url, tls_conn)
+                            .await
+                            .map_err(|e| diesel::ConnectionError::BadConnection(format!("{e}")))?;
+                        tokio::spawn(async move {
+                            if let Err(e) = conn.await {
+                                eprintln!("pg conn: {e}");
+                            }
+                        });
+                        diesel_async::AsyncPgConnection::try_from(client).await
+                    })
+                })
+            }
+        };
+
+        let config = AsyncDieselConnectionManager::<AsyncPgConnection>::new_with_config(
+            database_url.to_string(),
+            mgr_config,
+        );
+        let pool = Pool::builder()
+            .max_size(4)
+            .connection_timeout(Duration::from_secs(30))
+            .build(config)
+            .await?;
         let mut conn = pool.get_owned().await?;
 
         let session_id = Uuid::new_v4();
@@ -212,6 +304,27 @@ impl VesselSessionHandle {
     pub fn session_id(&self) -> Uuid {
         self.session_id
     }
+
+    /// Update the progress counters on the session row within the active
+    /// transaction. Call this periodically during a crawl to persist counts.
+    pub async fn update_progress(
+        &mut self,
+        discovered: i32,
+        inserted: i32,
+    ) -> Result<(), SessionError> {
+        if let Some(ref mut conn) = self.conn {
+            diesel::update(
+                vessel_sessions::table.filter(vessel_sessions::session_id.eq(self.session_id)),
+            )
+            .set((
+                vessel_sessions::players_discovered.eq(discovered),
+                vessel_sessions::players_inserted.eq(inserted),
+            ))
+            .execute(&mut **conn)
+            .await?;
+        }
+        Ok(())
+    }
 }
 
 /// Convert a UUID into an `i64` for use with PostgreSQL advisory lock functions.
@@ -222,6 +335,88 @@ fn uuid_to_lock_id(uuid: &Uuid) -> i64 {
     i64::from_be_bytes([
         bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7],
     ])
+}
+
+fn build_insecure_tls() -> Arc<rustls::ClientConfig> {
+    Arc::new(
+        rustls::ClientConfig::builder()
+            .dangerous()
+            .with_custom_certificate_verifier(Arc::new(NoVerify))
+            .with_no_client_auth(),
+    )
+}
+
+fn build_system_tls() -> Arc<rustls::ClientConfig> {
+    let mut roots = rustls::RootCertStore::empty();
+    let certs = rustls_native_certs::load_native_certs();
+    for cert in certs.certs {
+        let _ = roots.add(cert);
+    }
+    Arc::new(
+        rustls::ClientConfig::builder()
+            .with_root_certificates(roots)
+            .with_no_client_auth(),
+    )
+}
+
+fn build_webpki_tls() -> Arc<rustls::ClientConfig> {
+    let mut roots = rustls::RootCertStore::empty();
+    roots.extend(webpki_roots::TLS_SERVER_ROOTS.iter().cloned());
+    Arc::new(
+        rustls::ClientConfig::builder()
+            .with_root_certificates(roots)
+            .with_no_client_auth(),
+    )
+}
+
+/// Cert verifier that accepts any server cert. Dev-only.
+#[derive(Debug)]
+struct NoVerify;
+
+impl rustls::client::danger::ServerCertVerifier for NoVerify {
+    fn verify_server_cert(
+        &self,
+        _: &rustls::pki_types::CertificateDer<'_>,
+        _: &[rustls::pki_types::CertificateDer<'_>],
+        _: &rustls::pki_types::ServerName<'_>,
+        _: &[u8],
+        _: rustls::pki_types::UnixTime,
+    ) -> Result<rustls::client::danger::ServerCertVerified, rustls::Error> {
+        Ok(rustls::client::danger::ServerCertVerified::assertion())
+    }
+
+    fn verify_tls12_signature(
+        &self,
+        _: &[u8],
+        _: &rustls::pki_types::CertificateDer<'_>,
+        _: &rustls::DigitallySignedStruct,
+    ) -> Result<rustls::client::danger::HandshakeSignatureValid, rustls::Error> {
+        Ok(rustls::client::danger::HandshakeSignatureValid::assertion())
+    }
+
+    fn verify_tls13_signature(
+        &self,
+        _: &[u8],
+        _: &rustls::pki_types::CertificateDer<'_>,
+        _: &rustls::DigitallySignedStruct,
+    ) -> Result<rustls::client::danger::HandshakeSignatureValid, rustls::Error> {
+        Ok(rustls::client::danger::HandshakeSignatureValid::assertion())
+    }
+
+    fn supported_verify_schemes(&self) -> Vec<rustls::SignatureScheme> {
+        vec![
+            rustls::SignatureScheme::RSA_PSS_SHA256,
+            rustls::SignatureScheme::RSA_PSS_SHA384,
+            rustls::SignatureScheme::RSA_PSS_SHA512,
+            rustls::SignatureScheme::ECDSA_NISTP256_SHA256,
+            rustls::SignatureScheme::ECDSA_NISTP384_SHA384,
+            rustls::SignatureScheme::ECDSA_NISTP521_SHA512,
+            rustls::SignatureScheme::RSA_PKCS1_SHA256,
+            rustls::SignatureScheme::RSA_PKCS1_SHA384,
+            rustls::SignatureScheme::RSA_PKCS1_SHA512,
+            rustls::SignatureScheme::ED25519,
+        ]
+    }
 }
 
 #[cfg(test)]

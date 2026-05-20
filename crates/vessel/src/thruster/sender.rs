@@ -218,7 +218,10 @@ async fn send_one(
 }
 
 /// Build a set of synthetic interaction payloads for load-generation purposes.
-fn build_synthetic_payloads(count: usize, app_id: &str) -> Result<Vec<InteractionPayload>, crate::thruster::payload::BuildError> {
+fn build_synthetic_payloads(
+    count: usize,
+    app_id: &str,
+) -> Result<Vec<InteractionPayload>, crate::thruster::payload::BuildError> {
     (0..count)
         .map(|i| {
             InteractionPayload::builder()

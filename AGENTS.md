@@ -1,57 +1,171 @@
 # AGENTS.md
 
-## Project Context
+## Architecture
 
-Parley is a high-performance competitive matchmaking and tournament platform. The architecture integrates a Rust-based backend with a TypeScript web dashboard and Discord bot, running on Cloudflare Workers and Bun.
+Parley is a competitive matchmaking and tournament platform — a Rust-based backend
+(engine-service) with a TypeScript web dashboard and Discord bot, running on
+Cloudflare Workers and Bun.
 
-## Build & Execution Commands
+**The core is a monorepo of two halves** that share protobuf definitions:
 
-Agents must use the following commands to navigate, build, and test the repository.
+```
+proto/                     ← single source of truth (protobuf)
+  ├── common/
+  ├── engine/              → Rust: engine crate (image rendering RPCs)
+  ├── guild/               → Rust: guild settings RPCs
+  ├── identity/            → Rust: account linking RPCs
+  ├── ocr/
+  └── stats/               → Rust: stats.cc scraper RPCs
 
-### Rust Core
+Rust (Cargo workspace)    ← embed proto via protox in build.rs (no protoc needed)
+  src/                     ← parley binary: Axum + ConnectRPC HTTP server
+  crates/engine/           ← image rendering (profile cards, badges)
+  crates/stats-scraper/    ← web scraping (stats.cc) + Brawl Stars API backend
+  crates/brawl-stars/      ← Brawl Stars API client
+  crates/vessel/           ← HQ CLI/TUI (browser automation, data import)
 
-- **Build:** `cargo build`
-- **Test:** `cargo test`
-- **Run:** `cargo run`
+TypeScript (Bun workspaces) ← buf generate → packages/generated-ts
+  apps/worker/             ← Cloudflare Worker: Hono REST API, @parley/proto clients
+  packages/runtime/        ← Custom Discord API wrapper (Embeds & Components v2)
+  packages/generated-ts/   ← @parley/proto: buf-generated TS + ConnectRPC clients
+  packages/db/             ← @parley/db: FROZEN legacy Drizzle schema (see below)
+  packages/tsconfig-base/  ← Shared TS strict-mode base config
+```
 
-### TypeScript / Web
+**Request flow**: Discord/Web → Cloudflare Worker (Hono) → ConnectRPC over HTTP → Rust engine-service (Axum) → Postgres (Diesel-async) / external APIs.
 
-- **Package Management:** `bun install`
-- **Type Checking:** `tsc --noEmit`
-- **Build:** `tsc` (or `bun run build` depending on package script)
+## Build & Run
+
+### Rust (engine-service)
+
+| Command | What it does |
+|---|---|
+| `cargo build` | Builds all crates + proto codegen via `build.rs` (protox, no protoc) |
+| `cargo test` | Runs all unit + integration tests (some skip without `DATABASE_URL`) |
+| `cargo test --lib` | Unit tests only (no DB needed) |
+| `cargo test --test migration_roundtrip` | Single integration test (needs `DATABASE_URL`) |
+| `cargo run` | Starts the engine-service (needs `DATABASE_URL` or runs degraded) |
+| `cargo fmt` | Rust formatting |
+| `cargo clippy -- -D warnings` | Rust linting (warnings are errors) |
+
+### TypeScript (Turborepo, managed via `bun`)
+
+| Command | What it does |
+|---|---|
+| `bun install` | Install all workspace dependencies |
+| `bun run build` | `turbo run build` — builds all TS packages (tsc) |
+| `bun run typecheck` | `turbo run typecheck` — type-checks all packages |
+| `bun run lint` | `turbo run lint` — oxlint across all packages |
+| `bun run lint:root` | oxlint on root-level files only |
+| `bun run format` | `oxfmt --write .` |
+| `bun run format:check` | `oxfmt --check .` |
+| `bun run test` | `turbo run test` — runs `bun test` in each package |
+| `bun run dev` | `turbo run dev` — starts dev servers |
+| `cd apps/worker && bun run dev` | Start Cloudflare Worker locally (`wrangler dev`) |
+
+### Proto generation (TypeScript side)
+
+```bash
+cd packages/generated-ts && bun run generate   # runs `buf generate` from repo root
+```
+
+Output: `packages/generated-ts/src/{package}/{version}/*_pb.ts` (messages) and `*_connect.ts` (service descriptors). The Rust side compiles protos automatically via `build.rs` during `cargo build`.
+
+### Database
+
+The canonical schema is the Diesel migrations in `/migrations`. Rust bindings live in `/src/db/schema.rs`.
+
+```bash
+# Apply migrations locally
+diesel setup --database-url postgres://localhost/parley_dev
+diesel migration run
+
+# Or set RUN_MIGRATIONS=1 and the service applies them at boot
+```
+
+**The `@parley/db` Drizzle package is FROZEN.** It is the legacy Parley v1 schema, retained only for remaining in-flight TypeScript consumers. Do not add tables, columns, or migrations there — edit the Diesel migrations instead. See `/docs/db.md` for the full schema, rename map (Drizzle→Diesel), and game discriminator convention.
+
+### Environment setup
+
+Copy `.env.example` to `.env`. The service runs in degraded (in-memory) mode without `DATABASE_URL`. For full functionality, set `DATABASE_URL` and optionally:
+- `RUN_MIGRATIONS=1` — auto-apply migrations at boot
+- `BRAWL_STARS_API_KEY` — enables Brawl Stars backend
+- `ENGINE_SERVICE_ADDR` — listen address (default `0.0.0.0:50051`)
+
+`DB_TLS=system` is the secure default for managed Postgres providers. Use `DB_TLS=accept-invalid` only for local dev with self-signed certs.
 
 ## Linting & Formatting
 
-Strict adherence to the project's formatting tools is mandatory. Agents must ensure all code passes these checks before completing a task.
+All code must pass formatting and linting before a task is considered complete.
 
 ### Rust
+- Format: `cargo fmt`
+- Lint: `cargo clippy -- -D warnings` (warnings are hard errors)
 
-- **Formatting:** `cargo fmt` (uses `rustfmt`)
-- **Linting:** `cargo clippy -- -D warnings`
+### TypeScript
+- Format: `oxfmt .`
+- Lint: `oxlint`
 
-### TypeScript & JavaScript
+**Oxlint config** (`oxlint.config.ts`): `correctness` → error, `suspicious`/`pedantic`/`perf` → warn, `style`/`restriction`/`nursery` → off. Notable enforced rules: `eqeqeq`, `curly`, `no-var`, `prefer-const`, `typescript/no-explicit-any` (warn), `unicorn/prefer-node-protocol`, `import/no-cycle`.
 
-- **Formatting:** `oxfmt .`
-- **Linting:** `oxlint`
+**Oxfmt config** (`oxfmt.config.ts`): 100 char width, 2-space indent, double quotes, trailing commas, no tabs.
 
 ## Code Style & Conventions
 
-### Commenting Standards
+### Commenting
 
-- **CRITICAL RULE:** Do absolutely **not** use visual divider comments or ASCII art lines (e.g., `// ======`, `// -------`, `// *****`).
-- Maintain a clean, professional, and standard commenting style.
-- Document public APIs using standard `///` for Rustdoc and `/** ... */` for TSDoc.
-- Inline comments (`//`) must explain _why_ a complex decision was made, not _what_ the code is doing.
+- Never use visual divider comments or ASCII art lines (`// ====`, `// ----`, `// ****`).
+- Document public APIs with `///` (Rustdoc) or `/** ... */` (TSDoc).
+- Inline comments (`//`) must explain *why*, not *what*.
 
-### Engineering Rules
+### Rust
 
-- **Rust:** Adhere to idiomatic Rust. Handle `Result` and `Option` types explicitly; do not use `.unwrap()` or `.expect()` unless in test files.
-- **TypeScript:** Strict mode is enforced. Avoid `any` at all costs. Prefer functional, immutable data patterns.
-- **Discord Integrations:** Never hardcode raw Discord emoji ID strings. UI construction must rely exclusively on the custom type-safe API wrapper for Embeds and Components v2.
+- No `.unwrap()` or `.expect()` except in test files. Handle `Result` and `Option` explicitly.
+- The `parley` binary enables `mimalloc` by default (`default = ["mimalloc"]`).
+- Release build: LTO thin, single codegen unit, stripped, panic=abort.
+- Protobuf codegen uses `protox` (pure Rust) — no `protoc` required. If you add a `.proto` file, add it to the relevant crate's `build.rs`.
 
-## Workflow & PR Instructions
+### TypeScript
 
-1. Run `cargo fmt` and `oxfmt .` after modifying files.
-2. Run `cargo clippy` and `oxlint` to catch structural issues.
-3. Ensure both `cargo test` and `bun test` pass.
-4. Add or update tests for any new logic introduced.
+- Strict mode is enforced. Avoid `any`. Prefer functional, immutable patterns.
+- All `tsconfig.json` files extend `@parley/tsconfig-base`. The base enables `verbatimModuleSyntax`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, and `noUnusedLocals`/`noUnusedParameters`.
+- `@total-typescript/ts-reset` is applied globally via `reset.d.ts`.
+
+### Discord Integrations
+
+- Never hardcode raw Discord emoji ID strings.
+- UI construction must use the custom type-safe API wrapper in `@parley/runtime` for Embeds and Components v2.
+- See `DESIGN.md` for the Discord embed design system and visual conventions.
+
+### Database conventions
+
+Every game-scoped table carries a `game games NOT NULL DEFAULT 'r6'` column (Postgres enum). Auth tables (`user`, `session`, `account`, `verification`) are game-agnostic. Composite unique indexes always include `game`. Adding a new game is a migration: `ALTER TYPE games ADD VALUE 'new_game'`.
+
+Domain table timestamps use `bigint` epoch milliseconds (application-set). Better-auth tables use `timestamptz` (library convention).
+
+## Testing
+
+### Rust
+
+- `cargo test` runs everything. Some integration tests skip if `DATABASE_URL` is unset (they print `[skip]`).
+- `cargo test --lib` runs unit tests only — no DB needed, fast for local iteration.
+- The `tests/` directory contains integration tests that mount the full router. The `perf_smoke.rs` test uses `wiremock` to simulate upstream services.
+- The `migration_roundtrip` test applies and reverts all migrations against a real Postgres — set `DATABASE_URL` to a disposable database.
+
+### TypeScript
+
+- Run via `bun test` per package or `bun run test` (Turborepo) at root.
+- Many packages currently have no tests (`echo 'No tests yet'`).
+
+## Companion Documents
+
+- `DESIGN.md` — Visual design system (colors, typography, Discord embed conventions, web platform layout).
+- `SPEC.md` — Product specification (features, data model, architecture decisions).
+- `docs/db.md` — Database schema documentation, rename map, indexes, stats cache strategy.
+
+## Workflow & PR Checklist
+
+1. Run `cargo fmt && oxfmt .` after modifying files.
+2. Run `cargo clippy -- -D warnings && oxlint` — fix all errors.
+3. Run `cargo test && bun run test` — all tests must pass.
+4. Add or update tests for any new logic.
