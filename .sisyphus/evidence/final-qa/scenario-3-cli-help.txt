@@ -1,0 +1,17 @@
+=== QA Scenario 3: CLI Help Output ===
+Date: 2026-05-15
+Command: cargo run -p vessel --example siphon -- siphon --help
+
+Exit code: 0
+Required flags present:
+- --seed-player <SEED_PLAYER>          ✅ (required)
+- --platform <PLATFORM>               ✅ (default: pc, values: pc, xbox, playstation)
+- --max-depth <MAX_DEPTH>             ✅ (default: 5)
+
+Additional flags:
+- --database-url <DATABASE_URL>       ✅
+- --bloom-fp-rate <BLOOM_FP_RATE>     ✅ (default: 0.01)
+- --channel-capacity <CHANNEL_CAPACITY> ✅ (default: 1024)
+- --verbose / -v                      ✅
+
+VERDICT: ✅ ALL REQUIRED FLAGS PRESENT

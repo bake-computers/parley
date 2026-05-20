@@ -454,6 +454,19 @@ diesel::table! {
     }
 }
 
+diesel::table! {
+    vessel_sessions (id) {
+        id -> Int4,
+        session_id -> Uuid,
+        started_at -> Timestamptz,
+        status -> Text,
+        seed_player -> Text,
+        players_discovered -> Int4,
+        players_inserted -> Int4,
+        interactions_sent -> Int4,
+    }
+}
+
 diesel::joinable!(account -> user (user_id));
 diesel::joinable!(bracket_matches -> matches (custom_match_id));
 diesel::joinable!(bracket_matches -> tournaments (tournament_id));
@@ -494,4 +507,5 @@ diesel::allow_tables_to_appear_in_same_query!(
     tournaments,
     user,
     verification,
+    vessel_sessions,
 );

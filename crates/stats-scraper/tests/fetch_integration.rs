@@ -242,5 +242,5 @@ async fn fetch_stats_retries_transient_500_then_succeeds() {
     // 500 for the first 2 hits and 200 thereafter, so attempt 1 gets two 500s,
     // attempt 2 gets one 500 + one 200 (which is the successful parse).
     let total = hits.load(Ordering::SeqCst);
-    assert!(total >= 3 && total <= 4, "unexpected hit count: {total}");
+    assert!((3..=4).contains(&total), "unexpected hit count: {total}");
 }

@@ -308,7 +308,7 @@ fn key_matches_playlist(key: &str, pl: &str) -> bool {
         return false;
     };
     let rest = &key[pos + PREFIX.len()..];
-    rest.as_bytes().len() > pl.len()
+    rest.len() > pl.len()
         && rest.as_bytes()[..pl.len()] == *pl.as_bytes()
         && rest.as_bytes()[pl.len()] == b'"'
 }
@@ -512,7 +512,7 @@ fn build_ranked_for_season<'a>(
                 m.as_object()
                     .and_then(|o| o.get("started_at"))
                     .and_then(|v| v.as_str())
-                    .map_or(false, |s| s >= start)
+                    .is_some_and(|s| s >= start)
             })
             .collect()
     };
@@ -655,7 +655,7 @@ fn build_fallback_ranked_mode_stats<'a>(
                 m.as_object()
                     .and_then(|o| o.get("started_at"))
                     .and_then(|v| v.as_str())
-                    .map_or(false, |s| s >= start)
+                    .is_some_and(|s| s >= start)
             })
             .collect()
     };
@@ -687,7 +687,7 @@ fn build_fallback_ranked_mode_stats<'a>(
     };
 
     let record_obj = record.as_object();
-    let has_key = |k: &str| -> bool { record_obj.map_or(false, |o| o.contains_key(k)) };
+    let has_key = |k: &str| -> bool { record_obj.is_some_and(|o| o.contains_key(k)) };
 
     Some(RankedStats {
         season: season_slug.to_string(),

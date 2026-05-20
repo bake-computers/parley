@@ -415,7 +415,19 @@ impl StatsClient {
         )))
     }
 
-    async fn fetch_stats_page(
+    /// Fetch the resolved profile page HTML. This is the canonical stats.cc
+    /// page that contains the full `__NUXT_DATA__` payload with player data
+    /// and opponent links.
+    pub async fn fetch_stats_page(
+        &self,
+        username: &str,
+        platform: StatsPlatform,
+    ) -> Result<String, StatsFetchError> {
+        let (_, html) = self.fetch_stats_page_inner(username, platform).await?;
+        Ok(html)
+    }
+
+    async fn fetch_stats_page_inner(
         &self,
         username: &str,
         platform: StatsPlatform,
@@ -472,6 +484,69 @@ impl StatsClient {
         Ok((target, html))
     }
 
+    /// Fetch the full multi-season collection along with the raw page HTML.
+    /// Same retry semantics as [`fetch_stats_collection`].
+    pub async fn fetch_stats_collection_with_html(
+        &self,
+        username: &str,
+        platform: StatsPlatform,
+    ) -> Result<(ScrapedStatsCollection, String), StatsFetchError> {
+        let mut attempt: u32 = 0;
+        let mut backoff_ms = self.retry.initial_backoff_ms;
+        loop {
+            attempt += 1;
+            match self
+                .fetch_stats_collection_with_html_once(username, platform)
+                .await
+            {
+                Ok(v) => return Ok(v),
+                Err(e) if e.retryable && attempt < self.retry.max_attempts => {
+                    tracing::warn!(
+                        username,
+                        attempt,
+                        max = self.retry.max_attempts,
+                        backoff_ms,
+                        error = %e,
+                        "stats fetch retryable error; backing off"
+                    );
+                    if backoff_ms > 0 {
+                        tokio::time::sleep(std::time::Duration::from_millis(backoff_ms)).await;
+                    }
+                    backoff_ms = (backoff_ms.saturating_mul(2)).min(self.retry.max_backoff_ms);
+                }
+                Err(e) => return Err(e),
+            }
+        }
+    }
+
+    async fn fetch_stats_collection_with_html_once(
+        &self,
+        username: &str,
+        platform: StatsPlatform,
+    ) -> Result<(ScrapedStatsCollection, String), StatsFetchError> {
+        let (target, html) = self.fetch_stats_page_inner(username, platform).await?;
+        let mut collection = scrape_html_stats_collection(&html);
+
+        let looks_empty = collection.season_catalog.is_empty()
+            && collection.by_season.is_empty()
+            && collection.latest.profile.username.is_empty();
+        if looks_empty {
+            return Err(StatsFetchError::new(
+                StatsFetchErrorKind::InvalidPayload,
+                "Scraped payload was empty",
+                true,
+            ));
+        }
+
+        collection.latest.profile.username = username.to_string();
+        for stats in collection.by_season.values_mut() {
+            stats.profile.username = username.to_string();
+        }
+
+        attach_resolved_target(&mut collection, &target);
+        Ok((collection, html))
+    }
+
     /// Fetch the full multi-season collection. Mirrors TS
     /// `fetchAndScrapeStatsCollectionResult`. Retries up to `self.retry.max_attempts`
     /// times on retryable errors (429, 5xx, transient network).
@@ -510,7 +585,7 @@ impl StatsClient {
         username: &str,
         platform: StatsPlatform,
     ) -> Result<ScrapedStatsCollection, StatsFetchError> {
-        let (target, html) = self.fetch_stats_page(username, platform).await?;
+        let (target, html) = self.fetch_stats_page_inner(username, platform).await?;
         let mut collection = scrape_html_stats_collection(&html);
 
         // If parsing the body returned nothing at all (empty profile + no seasons)

@@ -139,7 +139,10 @@ impl Engine {
             req.is_top_100,
             avatar.as_ref(),
         );
-        encode(canvas, RenderedImageFormat::from_proto(render_format(&req.options)))
+        encode(
+            canvas,
+            RenderedImageFormat::from_proto(render_format(&req.options)),
+        )
     }
 
     pub async fn render_account_card(
@@ -154,7 +157,10 @@ impl Engine {
             req.rank.as_ref(),
             avatar.as_ref(),
         );
-        encode(canvas, RenderedImageFormat::from_proto(render_format(&req.options)))
+        encode(
+            canvas,
+            RenderedImageFormat::from_proto(render_format(&req.options)),
+        )
     }
 
     pub async fn render_badge_strip(
@@ -162,7 +168,10 @@ impl Engine {
         req: &BadgeStripRequest,
     ) -> Result<RenderedImage, EngineError> {
         let canvas = compose_badge_strip(&self.font, &req.badges, req.max_display);
-        encode(canvas, RenderedImageFormat::from_proto(render_format(&req.options)))
+        encode(
+            canvas,
+            RenderedImageFormat::from_proto(render_format(&req.options)),
+        )
     }
 
     async fn fetch_avatar_if_present(
@@ -253,7 +262,15 @@ fn compose_profile_card(
             Some(p) if p > 0 => format!("TOP 100 — #{p}"),
             _ => "TOP 100".to_string(),
         };
-        text::draw_text(&mut img, font, &label, content_x, y, 18.0, [240, 220, 80, 255]);
+        text::draw_text(
+            &mut img,
+            font,
+            &label,
+            content_x,
+            y,
+            18.0,
+            [240, 220, 80, 255],
+        );
         y += 24;
     }
 
@@ -271,9 +288,7 @@ fn compose_profile_card(
     if let Some(stats) = stats {
         let stats_line_a = format!(
             "W/L {}-{} · KD {:.2}",
-            stats.wins,
-            stats.losses,
-            stats.kd_ratio,
+            stats.wins, stats.losses, stats.kd_ratio,
         );
         let stats_line_b = format!(
             "Matches {} · Win% {:.1}",
@@ -283,7 +298,15 @@ fn compose_profile_card(
         y += 26;
         text::draw_text(&mut img, font, &stats_line_b, content_x, y, 18.0, FG_COLOR);
     } else {
-        text::draw_text(&mut img, font, "No stats available", content_x, y, 18.0, FG_MUTED);
+        text::draw_text(
+            &mut img,
+            font,
+            "No stats available",
+            content_x,
+            y,
+            18.0,
+            FG_MUTED,
+        );
     }
 
     img
@@ -390,7 +413,13 @@ fn compose_badge_strip(
             Rgba(color),
         );
         imageops::overlay(&mut img, &disc, x as i64, y as i64);
-        let letter = b.label.chars().next().unwrap_or('?').to_string().to_uppercase();
+        let letter = b
+            .label
+            .chars()
+            .next()
+            .unwrap_or('?')
+            .to_string()
+            .to_uppercase();
         let tw = text::text_width(font, &letter, 26.0) as i32;
         text::draw_text(
             &mut img,

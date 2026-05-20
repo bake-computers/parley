@@ -1,0 +1,12 @@
+=== QA Scenario 6: Bounded Channel Test ===
+Date: 2026-05-15
+Command: cargo test -p vessel channel -- --nocapture
+
+Results: 5 passed, 0 failed
+- channel_blocks_at_capacity: PASS (bounded channel enforces capacity with backpressure)
+- terminate_drains_gracefully: PASS (Terminate drains current work then exits cleanly)
+- concurrent_send_receive: PASS
+- crawl_config_has_expected_defaults: PASS
+- siphon_result_contains_expected_fields: PASS
+
+VERDICT: ✅ ALL PASS

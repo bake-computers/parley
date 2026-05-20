@@ -1,0 +1,14 @@
+=== QA Scenario 1: Ed25519 Signing Compat ===
+Date: 2026-05-15
+Command: cargo test -p vessel signing -- --nocapture
+
+Results: 7 passed, 0 failed
+- test_sign_and_verify_roundtrip: PASS (produces valid hex signature, roundtrip verifies)
+- test_invalid_key_length_error: PASS (returns error, no panic)
+- test_invalid_hex_signature_error: PASS
+- test_verify_wrong_key_fails: PASS
+- test_verify_wrong_message_fails: PASS
+- test_empty_body: PASS
+- test_large_body: PASS
+
+VERDICT: ✅ ALL PASS
