@@ -95,7 +95,7 @@ tokio = { version = "1.42", features = ["full"] }
 
 # HTTP
 reqwest = { version = "0.13.3", default-features = false, features = [
-  "rustls-tls",
+  "rustls",
   "gzip",
   "brotli",
   "json",
@@ -154,7 +154,7 @@ diesel = { version = "2.3.9", default-features = false, features = [
 ] }
 diesel-async = { version = "0.9", features = ["postgres", "bb8"] }
 diesel-derive-enum = { version = "2.1", features = ["postgres"] }
-bb8 = "0.8"
+bb8 = "0.9.1"
 diesel_migrations = { version = "2.3.2", features = ["postgres"] }
 chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
 uuid = { version = "1.11", features = ["v4", "serde"] }
