@@ -20,20 +20,28 @@ async fn start_echo_server() -> (SocketAddr, Arc<AtomicUsize>) {
     let counter = Arc::new(AtomicUsize::new(0));
 
     let c = counter.clone();
-    tokio::spawn(async move {
-        loop {
-            let Ok((mut socket, _)) = listener.accept().await else {
-                break;
-            };
-            let c = c.clone();
-            tokio::spawn(async move {
-                let mut buf = [0u8; 8192];
-                let _ = socket.read(&mut buf).await;
-                let response = b"HTTP/1.1 200 OK\r\nContent-Length: 0\r\nConnection: close\r\n\r\n";
-                let _ = socket.write_all(response).await;
-                c.fetch_add(1, Ordering::Relaxed);
-            });
-        }
+    std::thread::spawn(move || {
+        let rt = tokio::runtime::Builder::new_multi_thread()
+            .worker_threads(8)
+            .enable_all()
+            .build()
+            .unwrap();
+        rt.block_on(async move {
+            loop {
+                let Ok((mut socket, _)) = listener.accept().await else {
+                    break;
+                };
+                let c = c.clone();
+                tokio::spawn(async move {
+                    let mut buf = [0u8; 8192];
+                    let _ = socket.read(&mut buf).await;
+                    let response =
+                        b"HTTP/1.1 200 OK\r\nContent-Length: 0\r\nConnection: keep-alive\r\n\r\n";
+                    let _ = socket.write_all(response).await;
+                    c.fetch_add(1, Ordering::Relaxed);
+                });
+            }
+        });
     });
 
     (addr, counter)
@@ -41,7 +49,7 @@ async fn start_echo_server() -> (SocketAddr, Arc<AtomicUsize>) {
 
 fn bench_throughput(c: &mut Criterion) {
     let rt = tokio::runtime::Builder::new_multi_thread()
-        .worker_threads(4)
+        .worker_threads(8)
         .enable_all()
         .build()
         .unwrap();

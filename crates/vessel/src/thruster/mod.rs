@@ -62,17 +62,16 @@ impl ThrusterOrchestrator {
         tokio::select! {
             stats = self.sender.run(self.duration) => stats,
             _ = tokio::signal::ctrl_c() => {
-                ThrusterStats {
+                return ThrusterStats {
                     requests_sent: 0,
                     errors: 0,
                     latency_p50: Duration::ZERO,
                     latency_p99: Duration::ZERO,
                     actual_tps: 0.0,
                     duration: Duration::ZERO,
-                }
+                };
             }
         }
-        return stats;
     }
 }
 
