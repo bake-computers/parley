@@ -30,18 +30,18 @@ pub mod proto {
 }
 
 pub use backends::{
-    brawl_stars::BrawlStarsBackend, r6::R6Backend, Game, StatsBackend, StatsBackendRegistry,
+    Game, StatsBackend, StatsBackendRegistry, brawl_stars::BrawlStarsBackend, r6::R6Backend,
 };
 pub use cache::{StatsCache, StatsCacheConfig};
 pub use cache_store::{
     CachedStats, InMemoryStatsCacheStore, SingleFlight, StatsCacheConfigV2, StatsCacheStore,
 };
 pub use fetch::{
-    fetch_stats, fetch_stats_collection, StatsClient, StatsFetchError, StatsFetchErrorKind,
-    StatsPlatform,
+    StatsClient, StatsFetchError, StatsFetchErrorKind, StatsPlatform, fetch_stats,
+    fetch_stats_collection,
 };
 pub use nuxt::NuxtResolver;
 pub use scrape::{
-    scrape_html_stats, scrape_html_stats_collection, CalculatedMetrics, RankedStats, ScrapedStats,
-    ScrapedStatsCollection, SeasonCatalogEntry, StatsProfile,
+    CalculatedMetrics, RankedStats, ScrapedStats, ScrapedStatsCollection, SeasonCatalogEntry,
+    StatsProfile, scrape_html_stats, scrape_html_stats_collection,
 };

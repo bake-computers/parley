@@ -90,32 +90,42 @@ impl ThrusterSender {
 
     /// Run the sender for the given duration, returning aggregated statistics.
     ///
-    /// Requests are dispatched via `tokio::time::interval`-based rate limiting.
+    /// Dispatch rate is controlled by `tokio::time::interval` for precise timing.
     /// A semaphore caps the number of concurrent in-flight requests to
     /// `max_concurrent`, providing backpressure when the target cannot keep up.
+    /// `try_acquire_owned` is used on the fast path to avoid yielding to the
+    /// runtime scheduler when permits are available.
     pub async fn run(&self, duration: Duration) -> ThrusterStats {
         let tick_interval = Duration::from_micros((1_000_000u64 / self.tps_target as u64).max(1));
 
         let semaphore = Arc::new(Semaphore::new(self.max_concurrent));
         let sent = Arc::new(AtomicU64::new(0));
         let errors = Arc::new(AtomicU64::new(0));
-        let latencies: Arc<Mutex<Vec<Duration>>> = Arc::new(Mutex::new(Vec::new()));
+        let latencies: Arc<Mutex<Vec<Duration>>> = Arc::new(Mutex::new(Vec::with_capacity(
+            (self.tps_target as usize) * duration.as_secs().max(1) as usize,
+        )));
 
         let start = Instant::now();
         let deadline = start + duration;
 
         let mut handles = Vec::new();
+        let mut interval = tokio::time::interval(tick_interval);
 
         while Instant::now() < deadline {
-            let tick_start = Instant::now();
+            interval.tick().await;
 
-            let Ok(permit) = semaphore.clone().acquire_owned().await else {
-                // Semaphore was closed (only possible if explicitly closed —
-                // we never do, so this branch is unreachable in practice).
+            if Instant::now() >= deadline {
                 break;
+            }
+
+            let permit = match semaphore.clone().try_acquire_owned() {
+                Ok(p) => p,
+                Err(_) => match semaphore.clone().acquire_owned().await {
+                    Ok(p) => p,
+                    Err(_) => break,
+                },
             };
 
-            // Re-check deadline after potentially blocking on semaphore.
             if Instant::now() >= deadline {
                 break;
             }
@@ -152,12 +162,6 @@ impl ThrusterSender {
                 }
             });
             handles.push(handle);
-
-            // Rate-limit: sleep for the remainder of this tick.
-            let elapsed = tick_start.elapsed();
-            if elapsed < tick_interval {
-                tokio::time::sleep(tick_interval - elapsed).await;
-            }
         }
 
         // Wait for all in-flight requests to complete.
@@ -198,11 +202,16 @@ impl ThrusterSender {
             .pool_max_idle_per_host(100)
             .pool_idle_timeout(Duration::from_secs(120))
             .tcp_keepalive(Duration::from_secs(60))
+            .tcp_nodelay(true)
             .build()
     }
 }
 
 /// Send a single signed request via HTTP POST.
+///
+/// The response body is drained so the underlying TCP connection can be
+/// returned to the client's connection pool for reuse. Without this,
+/// every request incurs a full TCP handshake.
 async fn send_one(
     client: &Client,
     url: &str,
@@ -213,7 +222,8 @@ async fn send_one(
         req = req.header(key.as_str(), value.as_str());
     }
     req = req.header("Content-Type", "application/json");
-    req.body(signed.body.clone()).send().await?;
+    let response = req.body(signed.body.clone()).send().await?;
+    let _ = response.bytes().await?;
     Ok(())
 }
 

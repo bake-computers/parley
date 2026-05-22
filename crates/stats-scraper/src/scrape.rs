@@ -10,8 +10,8 @@
 use crate::metrics;
 use crate::nuxt::NuxtResolver;
 use serde::{Deserialize, Serialize};
-use simd_json::prelude::*;
 use simd_json::BorrowedValue;
+use simd_json::prelude::*;
 use std::collections::BTreeMap;
 
 /// A single player profile block.
@@ -238,11 +238,7 @@ fn sort_season_slugs_by_start_desc<'a>(
     slugs.sort_by(|l, r| {
         let ls = season_started_at(l, seasons_meta, resolver);
         let rs = season_started_at(r, seasons_meta, resolver);
-        if ls == rs {
-            r.cmp(l)
-        } else {
-            rs.cmp(ls)
-        }
+        if ls == rs { r.cmp(l) } else { rs.cmp(ls) }
     });
 }
 
@@ -1064,7 +1060,7 @@ pub fn canonicalize_season_selector(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use serde_json::{json, Value};
+    use serde_json::{Value, json};
 
     fn wrap_in_nuxt_html(payload: &Value) -> String {
         let body = payload.to_string();

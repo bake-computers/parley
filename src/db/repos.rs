@@ -9,6 +9,7 @@ use diesel::prelude::*;
 use diesel::sql_types::BigInt;
 use diesel_async::{AsyncPgConnection, RunQueryDsl};
 
+use crate::db::Game;
 use crate::db::models::{
     DiscordIdentity, ExternalMatchHistoryEntry, NewDiscordIdentity, NewExternalMatchHistoryEntry,
     NewPlayer, NewPlayerStatSnapshot, Player, PlayerStatSnapshot,
@@ -16,7 +17,6 @@ use crate::db::models::{
 use crate::db::schema::{
     discord_identities, external_match_history, player_stat_snapshots, players,
 };
-use crate::db::Game;
 
 /// Epoch-millis helper used by every write path.
 pub fn now_ms() -> i64 {

@@ -11,10 +11,10 @@ use std::time::Duration;
 use chrono::{DateTime, Utc};
 use diesel::prelude::*;
 use diesel::table;
-use diesel_async::pooled_connection::bb8::Pool;
-use diesel_async::pooled_connection::{AsyncDieselConnectionManager, ManagerConfig};
 use diesel_async::AsyncPgConnection;
 use diesel_async::RunQueryDsl;
+use diesel_async::pooled_connection::bb8::Pool;
+use diesel_async::pooled_connection::{AsyncDieselConnectionManager, ManagerConfig};
 use uuid::Uuid;
 
 #[derive(Debug, diesel::deserialize::QueryableByName)]

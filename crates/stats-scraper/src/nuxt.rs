@@ -15,8 +15,8 @@
 //! a "stop when we'd revisit the same index" check is enough and avoids the
 //! cost of maintaining a HashSet.
 
-use simd_json::prelude::*;
 use simd_json::BorrowedValue;
+use simd_json::prelude::*;
 
 /// Tags that wrap an index reference inside the Nuxt payload.
 /// e.g. `["Reactive", 42]` means "resolve index 42".

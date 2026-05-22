@@ -3,8 +3,8 @@
 //! real Nuxt payload shape closely enough to exercise the full scrape pipeline.
 
 use stats_scraper::{
-    fetch::{StatsFetchErrorKind, StatsPlatform},
     StatsClient,
+    fetch::{StatsFetchErrorKind, StatsPlatform},
 };
 use wiremock::matchers::{method, path, query_param};
 use wiremock::{Mock, MockServer, ResponseTemplate};
@@ -187,8 +187,8 @@ async fn fetch_stats_parses_nuxt_payload_even_on_500_body() {
 
 #[tokio::test]
 async fn fetch_stats_retries_transient_500_then_succeeds() {
-    use std::sync::atomic::{AtomicUsize, Ordering};
     use std::sync::Arc;
+    use std::sync::atomic::{AtomicUsize, Ordering};
 
     // First two canonical-page hits return 500 with NO payload; third returns 200 with payload.
     let server = MockServer::start().await;

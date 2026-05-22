@@ -2,8 +2,8 @@
 //! and `fetchStatsPageInternal` in the TS source.
 
 use crate::scrape::{
-    canonicalize_season_selector, scrape_html_stats_collection, ScrapedStats,
-    ScrapedStatsCollection, SeasonCatalogEntry,
+    ScrapedStats, ScrapedStatsCollection, SeasonCatalogEntry, canonicalize_season_selector,
+    scrape_html_stats_collection,
 };
 use once_cell::sync::Lazy;
 use regex::Regex;

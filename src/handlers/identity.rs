@@ -8,9 +8,9 @@ use axum::{body::Bytes, extract::State, http::HeaderMap, response::Response};
 
 use crate::connect::{decode_body, detect_encoding, encode_ok};
 use crate::context::AppContext;
+use crate::db::Game as DbGame;
 use crate::db::models::Player;
 use crate::db::repos::{DiscordIdentityRepo, GuildMembershipRepo, PlayerRepo};
-use crate::db::Game as DbGame;
 use crate::proto::common::v1::{Error as ProtoError, Game as ProtoGame};
 use crate::proto::identity::v1::{
     LinkAccountRequest, LinkAccountResponse, LinkedIdentity, LookupByDiscordRequest,
@@ -103,7 +103,7 @@ pub async fn link_account_rpc(
                     ..Default::default()
                 },
                 enc,
-            )
+            );
         }
     };
 
@@ -126,7 +126,7 @@ pub async fn link_account_rpc(
                     ..Default::default()
                 },
                 enc,
-            )
+            );
         }
     };
 
@@ -211,7 +211,7 @@ pub async fn unlink_account_rpc(
                     ..Default::default()
                 },
                 enc,
-            )
+            );
         }
     };
 
@@ -225,7 +225,7 @@ pub async fn unlink_account_rpc(
                     ..Default::default()
                 },
                 enc,
-            )
+            );
         }
     };
 
@@ -274,7 +274,7 @@ pub async fn lookup_by_discord_rpc(
                     ..Default::default()
                 },
                 enc,
-            )
+            );
         }
     };
 
@@ -291,7 +291,7 @@ pub async fn lookup_by_discord_rpc(
                         ..Default::default()
                     },
                     enc,
-                )
+                );
             }
         };
 
@@ -355,7 +355,7 @@ pub async fn lookup_by_username_rpc(
                     ..Default::default()
                 },
                 enc,
-            )
+            );
         }
     };
 
@@ -370,7 +370,7 @@ pub async fn lookup_by_username_rpc(
                         ..Default::default()
                     },
                     enc,
-                )
+                );
             }
         };
 

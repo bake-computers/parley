@@ -17,12 +17,12 @@
 use std::time::Duration;
 
 use axum::{
+    Router,
     body::Bytes,
     extract::State,
-    http::{header, HeaderMap, StatusCode},
+    http::{HeaderMap, StatusCode, header},
     response::{IntoResponse, Response},
     routing::{get, post},
-    Router,
 };
 use serde::Serialize;
 use std::sync::Arc;
@@ -220,7 +220,7 @@ pub(crate) fn encode_ok<T: prost::Message + serde::Serialize>(msg: &T, enc: Enco
                         StatusCode::INTERNAL_SERVER_ERROR,
                         "internal",
                         e.to_string(),
-                    )
+                    );
                 }
             };
             (

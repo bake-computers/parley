@@ -113,8 +113,8 @@ fn cli_interaction_to_payload(cli_type: &crate::cli::InteractionType) -> Interac
 mod tests {
     use super::*;
     use std::net::SocketAddr;
-    use std::sync::atomic::{AtomicUsize, Ordering};
     use std::sync::Arc;
+    use std::sync::atomic::{AtomicUsize, Ordering};
 
     use tokio::io::{AsyncReadExt, AsyncWriteExt};
     use tokio::net::TcpListener;

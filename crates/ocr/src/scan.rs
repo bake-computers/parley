@@ -1,8 +1,8 @@
 use leptess::LepTess;
 use std::time::Duration;
 
-use crate::parse::{parse_scoreboard_text, ParsedMatch};
 use crate::OcrError;
+use crate::parse::{ParsedMatch, parse_scoreboard_text};
 
 pub struct OcrClient {
     http: reqwest::Client,

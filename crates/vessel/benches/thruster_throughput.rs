@@ -1,9 +1,9 @@
 use std::net::SocketAddr;
-use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Duration;
 
-use criterion::{criterion_group, criterion_main, Criterion};
+use criterion::{Criterion, criterion_group, criterion_main};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpListener;
 
@@ -34,11 +34,18 @@ async fn start_echo_server() -> (SocketAddr, Arc<AtomicUsize>) {
                 let c = c.clone();
                 tokio::spawn(async move {
                     let mut buf = [0u8; 8192];
-                    let _ = socket.read(&mut buf).await;
-                    let response =
-                        b"HTTP/1.1 200 OK\r\nContent-Length: 0\r\nConnection: keep-alive\r\n\r\n";
-                    let _ = socket.write_all(response).await;
-                    c.fetch_add(1, Ordering::Relaxed);
+                    loop {
+                        // Read next HTTP request (returns 0 on orderly close).
+                        match socket.read(&mut buf).await {
+                            Ok(0) | Err(_) => break,
+                            Ok(_) => {}
+                        }
+                        let response = b"HTTP/1.1 200 OK\r\nContent-Length: 0\r\nConnection: keep-alive\r\n\r\n";
+                        if socket.write_all(response).await.is_err() {
+                            break;
+                        }
+                        c.fetch_add(1, Ordering::Relaxed);
+                    }
                 });
             }
         });

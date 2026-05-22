@@ -1,8 +1,9 @@
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex};
+use std::time::Instant;
 
 use crate::thruster::payload::InteractionPayload;
-use crate::thruster::signing::{sign_interaction, SigningError};
+use crate::thruster::signing::{SigningError, sign_interaction};
 
 const FRESHNESS_SECONDS: i64 = 300;
 
@@ -41,6 +42,7 @@ pub struct PreSignedBuffer {
     buffer: Arc<Box<[Arc<SignedRequest>]>>,
     index: AtomicUsize,
     resign_lock: Mutex<()>,
+    created: Instant,
 }
 
 impl PreSignedBuffer {
@@ -82,6 +84,7 @@ impl PreSignedBuffer {
             buffer: Arc::from(buf.into_boxed_slice()),
             index: AtomicUsize::new(0),
             resign_lock: Mutex::new(()),
+            created: Instant::now(),
         })
     }
 
@@ -98,7 +101,13 @@ impl PreSignedBuffer {
         let idx = self.index.fetch_add(1, Ordering::Relaxed) % len;
         let entry = Arc::clone(&buf[idx]);
 
-        let needs_resign = {
+        // Short-circuit: the entire buffer was signed at creation time,
+        // so if FRESHNESS_SECONDS haven't elapsed yet, no entry needs
+        // re-signing. This avoids a chrono::Utc::now() syscall and
+        // timestamp header parse on every hot-path invocation.
+        let needs_resign = if self.created.elapsed().as_secs() <= FRESHNESS_SECONDS as u64 {
+            false
+        } else {
             let entry_ts: Option<i64> = entry
                 .headers
                 .iter()
@@ -136,9 +145,8 @@ impl PreSignedBuffer {
             // This is safe because we hold the resign_lock mutex, ensuring
             // only one writer at a time.
             #[allow(clippy::cast_ref_to_mut)]
-            let buf_mut = unsafe {
-                &mut *(Arc::as_ptr(&self.buffer) as *mut Box<[Arc<SignedRequest>]>)
-            };
+            let buf_mut =
+                unsafe { &mut *(Arc::as_ptr(&self.buffer) as *mut Box<[Arc<SignedRequest>]>) };
             buf_mut[idx] = new_entry;
             return Ok((*buf_mut[idx]).clone());
         }
