@@ -1,0 +1,22 @@
+F3 QA: Cross-Task Integration
+==============================
+
+app.ts command loading: INITIAL FAIL → FIXED
+  - Before: Only loaded pingCommand + profileCommand
+  - After: Loads all 4 (helpCommand, linkCommand, pingCommand, profileCommand)
+  - Fix: Added missing imports + loadHandlers call in src/app.ts
+
+register-commands.ts: PASS
+  - Imports all 4: ping, help, link, profile via dynamic import
+
+embeds.ts sharing: PASS
+  - link.ts: imports createSuccessEmbed, createErrorEmbed
+  - profile.ts: imports createSuccessEmbed, createInfoEmbed, createErrorEmbed
+
+transport.ts sharing: PASS
+  - Both link.ts and profile.ts import getIdentityClient from ../transport.js
+
+Proto barrel (packages/generated-ts/src/index.ts): PASS
+  - Exports guild/v1/guild_pb.js + identity/v1/identity_pb.js
+
+Verdict: INITIAL FAIL (app.ts omitted help/link) → FIXED → PASS

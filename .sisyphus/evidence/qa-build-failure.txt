@@ -1,0 +1,41 @@
+F3 QA: Build Failure Analysis
+===============================
+
+Worker BUILD FAILURE — wrangler dev and wrangler deploy --dry-run both fail.
+
+Root Cause 1: Buf plugin naming mismatch
+  - @bufbuild/protoc-gen-es v2 generates: guild_pb.ts, identity_pb.ts
+  - @connectrpc/protoc-gen-connect-es v1.6.1 generates imports: "./guild_pbjs", "./identity_pbjs"
+  - esbuild (wrangler) cannot resolve _pbjs to _pb.ts
+
+Workaround attempted: Created bridge files (guild_pbjs.ts, identity_pbjs.ts)
+  - export * from "./guild_pb.js" — partial fix, resolution succeeds
+
+Root Cause 2: @bufbuild/protobuf v1 → v2 breaking change
+  - connect-es v1 code imports: import { MethodKind } from "@bufbuild/protobuf"
+  - @bufbuild/protobuf v2.12.0 removes MethodKind export
+  - esbuild fails: "No matching export for import 'MethodKind'"
+
+Dependency versions:
+  - @bufbuild/protobuf: ^2.2.3 → installed 2.12.0 (v2)
+  - @bufbuild/protoc-gen-es: ^2.2.3 (v2, generates _pb.ts)
+  - @connectrpc/protoc-gen-connect-es: ^1.6.1 (v1, no v2 exists)
+  - @connectrpc/connect: ^2.0.0 (v2 runtime)
+
+These are INCOMPATIBLE: protoc-gen-es v2 + protoc-gen-connect-es v1
+produce code targeting different @bufbuild/protobuf API versions.
+
+Worker startup: FAILED — cannot start with either `wrangler dev` or `bun run`.
+  wrangler dev output:
+    ✘ Could not resolve "./guild_pbjs" (guild_connect.ts:6)
+    ✘ Could not resolve "./identity_pbjs" (identity_connect.ts:6)
+    
+  bun run src/index.ts output:
+    error: Cannot find module '@parley/proto/identity/v1/identity_connect.js'
+
+Note: The same import resolution issue exists for ALL connect files
+(stats, engine, ocr — same _pbjs pattern), meaning the worker has NEVER
+been runnable with Bun or wrangler dev — only `tsc` validation passes
+because generated files have @ts-nocheck directives.
+
+Verdict: BLOCKING FAIL

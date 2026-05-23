@@ -10,7 +10,8 @@
     "deploy": "wrangler deploy",
     "typecheck": "tsc --noEmit",
     "lint": "oxlint .",
-    "test": "bun test"
+    "test": "bun test",
+    "register-commands": "bun run src/register-commands.ts"
   },
   "dependencies": {
     "@connectrpc/connect": "^2.0.0",

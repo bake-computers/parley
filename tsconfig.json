@@ -2,6 +2,6 @@
   "compilerOptions": {
     "composite": true
   },
-  "include": [],
+  "include": ["alchemy.run.ts"],
   "references": [{ "path": "./packages/tsconfig-base" }, { "path": "./packages/runtime" }]
 }

@@ -7,7 +7,7 @@ import { FetchStatsCollectionRequest, FetchStatsCollectionResponse, FetchStatsRe
 import { MethodKind } from "@bufbuild/protobuf";
 
 /**
- * StatsService scrapes R6 Siege player stats from stats.cc (Nuxt payload based).
+ * StatsService fetches player stats for supported games (R6 Siege, Brawl Stars).
  * Callers choose between a single-season fetch (FetchStats) and a full
  * seasons-collection fetch (FetchStatsCollection).
  *

@@ -5,6 +5,8 @@
   "compatibility_date": "2025-05-14",
   "compatibility_flags": ["nodejs_compat"],
   // Discord secrets (DISCORD_PUBLIC_KEY, DISCORD_BOT_TOKEN) are managed via Cloudflare Workers Secrets or `wrangler secret put`
+  // Placement hint: ENGINE_SERVICE_HOSTNAME is probed by Cloudflare to determine optimal worker placement near the NL backend.
+  // Set ENGINE_SERVICE_HOSTNAME in Cloudflare dashboard vars to your Dutch backend hostname (e.g. "engine.example.com").
   "vars": {
     "ENGINE_SERVICE_URL": "http://localhost:50051",
     "DISCORD_APPLICATION_ID": ""

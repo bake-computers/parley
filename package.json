@@ -17,15 +17,18 @@
     "format:check": "oxfmt --check . -c oxfmt.config.ts",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
+    "deploy": "bun alchemy.run.ts",
+    "deploy:dev": "bun alchemy.run.ts --dev",
     "changeset": "changeset",
     "version": "changeset version",
     "release": "changeset publish"
   },
   "devDependencies": {
+    "alchemy": "^0.93.9",
     "@changesets/cli": "^2.31.0",
     "@total-typescript/ts-reset": "^0.6.1",
     "bun-types": "^1.3.13",
-    "oxfmt": "^0.48.0",
+    "oxfmt": "^0.51.0",
     "oxlint": "^1.63.0",
     "turbo": "^2.9.9",
     "typescript": "^6.0.3"

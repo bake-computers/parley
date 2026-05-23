@@ -1,0 +1,27 @@
+F3 QA: Configuration Verification
+==================================
+
+wrangler.jsonc: PASS
+  - Has DISCORD_APPLICATION_ID in vars (safe, plaintext ID)
+  - Does NOT contain DISCORD_BOT_TOKEN or DISCORD_PUBLIC_KEY (secrets)
+  - Comment instructs using wrangler secret put for secrets
+
+.dev.vars: PASS
+  - DISCORD_PUBLIC_KEY=your_public_key_here
+  - DISCORD_BOT_TOKEN=your_bot_token_here
+  - DISCORD_APPLICATION_ID=your_application_id_here
+  - DISCORD_BOT_OWNER_ID=
+  - ENGINE_SERVICE_URL=http://localhost:50051
+  - All values are placeholders, no real credentials
+
+.dev.vars.example: PASS
+  - All 4 Discord vars with placeholder comments
+
+alchemy.run.ts: PASS
+  - All secrets read from process.env.* (never hardcoded)
+  - DISCORD_PUBLIC_KEY + DISCORD_BOT_TOKEN wrapped in alchemy.secret()
+  - DISCORD_APPLICATION_ID as plaintext binding (safe)
+  - ENGINE_SERVICE_HOSTNAME for placement optimization
+  - ENGINE_SERVICE_URL with fallback
+
+Verdict: PASS

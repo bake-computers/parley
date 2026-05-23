@@ -49,6 +49,7 @@ tmp
 
 # Cloudflare Workers
 .wrangler
+.alchemy
 
 # Rust
 target
