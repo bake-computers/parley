@@ -4,7 +4,9 @@
   "main": "src/index.ts",
   "compatibility_date": "2025-05-14",
   "compatibility_flags": ["nodejs_compat"],
+  // Discord secrets (DISCORD_PUBLIC_KEY, DISCORD_BOT_TOKEN) are managed via Cloudflare Workers Secrets or `wrangler secret put`
   "vars": {
-    "ENGINE_SERVICE_URL": "http://localhost:50051"
+    "ENGINE_SERVICE_URL": "http://localhost:50051",
+    "DISCORD_APPLICATION_ID": ""
   }
 }

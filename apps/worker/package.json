@@ -5,21 +5,24 @@
   "description": "Cloudflare Worker REST API for the Parley platform, powered by typed ConnectRPC clients.",
   "type": "module",
   "scripts": {
+    "build": "tsc",
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
     "typecheck": "tsc --noEmit",
     "lint": "oxlint .",
-    "test": "echo 'No tests yet'"
+    "test": "bun test"
   },
   "dependencies": {
     "@connectrpc/connect": "^2.0.0",
     "@connectrpc/connect-web": "^2.0.0",
     "@parley/proto": "workspace:*",
+    "@parley/runtime": "workspace:*",
     "hono": "^4.7.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260506.1",
     "@parley/tsconfig-base": "workspace:*",
+    "neverthrow": "^8.2.0",
     "typescript": "^6.0.3",
     "wrangler": "^4.14.0"
   }

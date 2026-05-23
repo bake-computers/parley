@@ -12,11 +12,13 @@
     "./common/v1/*": "./src/common/v1/*",
     "./engine/v1/*": "./src/engine/v1/*",
     "./stats/v1/*": "./src/stats/v1/*",
-    "./ocr/v1/*": "./src/ocr/v1/*"
+    "./ocr/v1/*": "./src/ocr/v1/*",
+    "./guild/v1/*": "./src/guild/v1/*",
+    "./identity/v1/*": "./src/identity/v1/*"
   },
   "scripts": {
     "generate": "cd ../.. && buf generate",
-    "clean": "rm -rf src/common src/engine src/stats src/ocr",
+    "clean": "rm -rf src/common src/engine src/stats src/ocr src/guild src/identity",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
