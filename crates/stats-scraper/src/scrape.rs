@@ -326,10 +326,10 @@ fn extract_matches_by_playlist<'a>(
             if !k.contains("\"matches\"") {
                 continue;
             }
-            if let Some(pl) = playlist {
-                if !key_matches_playlist(k, pl) {
-                    continue;
-                }
+            if let Some(pl) = playlist
+                && !key_matches_playlist(k, pl)
+            {
+                continue;
             }
 
             let resolved_query = resolver.resolve(value);
@@ -478,10 +478,10 @@ fn build_ranked_for_season<'a>(
     // Mode record: prefer `ranked-bomb`, else the first mode whose key contains "ranked".
     let season_modes_opt = resolver.field(season_mode_records, season_slug);
     let mode_record: Option<&BorrowedValue> = season_modes_opt.and_then(|sm| {
-        if let Some(r) = resolver.field(sm, "ranked-bomb") {
-            if r.is_object() {
-                return Some(r);
-            }
+        if let Some(r) = resolver.field(sm, "ranked-bomb")
+            && r.is_object()
+        {
+            return Some(r);
         }
         if let Some(sm_obj) = sm.as_object() {
             for (ms, rec_raw) in sm_obj.iter() {

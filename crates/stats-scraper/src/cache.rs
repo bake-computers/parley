@@ -129,14 +129,13 @@ impl StatsCache {
         }
         let now = Instant::now();
         map.retain(|_, v| v.expires_at > now);
-        if map.len() >= max {
-            if let Some(k) = map
+        if map.len() >= max
+            && let Some(k) = map
                 .iter()
                 .min_by_key(|(_, v)| v.expires_at)
                 .map(|(k, _)| k.clone())
-            {
-                map.remove(&k);
-            }
+        {
+            map.remove(&k);
         }
     }
 
