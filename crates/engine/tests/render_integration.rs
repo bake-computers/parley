@@ -4,9 +4,9 @@
 //! network dependency. The mock is spun up through `tokio::net::TcpListener`
 //! with a minimal hand-rolled HTTP server (no extra dev dep beyond tokio).
 
+use engine::Engine;
 use engine::proto::common::v1::{PlayerStats, Rank, RankTier};
 use engine::proto::engine::v1::{ImageFormat, ProfileCardRequest, RenderOptions};
-use engine::Engine;
 use image::{Rgb, RgbImage};
 use std::io::Cursor;
 use std::net::SocketAddr;

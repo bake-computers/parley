@@ -10,8 +10,8 @@
 use crate::metrics;
 use crate::nuxt::NuxtResolver;
 use serde::{Deserialize, Serialize};
-use simd_json::prelude::*;
 use simd_json::BorrowedValue;
+use simd_json::prelude::*;
 use std::collections::BTreeMap;
 
 /// A single player profile block.
@@ -238,11 +238,7 @@ fn sort_season_slugs_by_start_desc<'a>(
     slugs.sort_by(|l, r| {
         let ls = season_started_at(l, seasons_meta, resolver);
         let rs = season_started_at(r, seasons_meta, resolver);
-        if ls == rs {
-            r.cmp(l)
-        } else {
-            rs.cmp(ls)
-        }
+        if ls == rs { r.cmp(l) } else { rs.cmp(ls) }
     });
 }
 
@@ -330,10 +326,10 @@ fn extract_matches_by_playlist<'a>(
             if !k.contains("\"matches\"") {
                 continue;
             }
-            if let Some(pl) = playlist {
-                if !key_matches_playlist(k, pl) {
-                    continue;
-                }
+            if let Some(pl) = playlist
+                && !key_matches_playlist(k, pl)
+            {
+                continue;
             }
 
             let resolved_query = resolver.resolve(value);
@@ -482,10 +478,10 @@ fn build_ranked_for_season<'a>(
     // Mode record: prefer `ranked-bomb`, else the first mode whose key contains "ranked".
     let season_modes_opt = resolver.field(season_mode_records, season_slug);
     let mode_record: Option<&BorrowedValue> = season_modes_opt.and_then(|sm| {
-        if let Some(r) = resolver.field(sm, "ranked-bomb") {
-            if r.is_object() {
-                return Some(r);
-            }
+        if let Some(r) = resolver.field(sm, "ranked-bomb")
+            && r.is_object()
+        {
+            return Some(r);
         }
         if let Some(sm_obj) = sm.as_object() {
             for (ms, rec_raw) in sm_obj.iter() {
@@ -1064,7 +1060,7 @@ pub fn canonicalize_season_selector(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use serde_json::{json, Value};
+    use serde_json::{Value, json};
 
     fn wrap_in_nuxt_html(payload: &Value) -> String {
         let body = payload.to_string();

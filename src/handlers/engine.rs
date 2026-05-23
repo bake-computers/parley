@@ -1,10 +1,10 @@
 //! Engine service handler implementations.
 
+use engine::Engine;
 use engine::proto::common::v1::Error as ProtoError;
 use engine::proto::engine::v1::{
     AccountCardRequest, BadgeStripRequest, ImageResponse, ProfileCardRequest,
 };
-use engine::Engine;
 use std::sync::Arc;
 
 #[derive(Clone)]

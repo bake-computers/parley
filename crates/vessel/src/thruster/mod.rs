@@ -62,14 +62,14 @@ impl ThrusterOrchestrator {
         tokio::select! {
             stats = self.sender.run(self.duration) => stats,
             _ = tokio::signal::ctrl_c() => {
-                ThrusterStats {
+                return ThrusterStats {
                     requests_sent: 0,
                     errors: 0,
                     latency_p50: Duration::ZERO,
                     latency_p99: Duration::ZERO,
                     actual_tps: 0.0,
                     duration: Duration::ZERO,
-                }
+                };
             }
         }
     }
@@ -113,8 +113,8 @@ fn cli_interaction_to_payload(cli_type: &crate::cli::InteractionType) -> Interac
 mod tests {
     use super::*;
     use std::net::SocketAddr;
-    use std::sync::atomic::{AtomicUsize, Ordering};
     use std::sync::Arc;
+    use std::sync::atomic::{AtomicUsize, Ordering};
 
     use tokio::io::{AsyncReadExt, AsyncWriteExt};
     use tokio::net::TcpListener;

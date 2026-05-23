@@ -11,6 +11,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         proto_root.join("common/v1/types.proto"),
         proto_root.join("identity/v1/identity.proto"),
         proto_root.join("guild/v1/guild.proto"),
+        proto_root.join("ocr/v1/ocr.proto"),
     ];
 
     for p in &protos {
@@ -21,7 +22,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     prost_build::Config::new()
         .type_attribute(".", "#[derive(serde::Serialize, serde::Deserialize)]")
-        .type_attribute(".", "#[serde(rename_all = \"snake_case\")]")
+        .type_attribute(".", "#[serde(rename_all = \"camelCase\")]")
         .message_attribute(".", "#[serde(default)]")
         .compile_fds(file_descriptor_set)?;
 

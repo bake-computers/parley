@@ -7,10 +7,10 @@
 //! per-request latency.
 
 use axum::{
+    Json,
     extract::{Path, Query, State},
     http::StatusCode,
     response::{IntoResponse, Response},
-    Json,
 };
 use serde::Deserialize;
 use stats_scraper::backends::Game as BackendGame;
@@ -334,11 +334,7 @@ fn map_error(err: StatsFetchError) -> Response {
 // ---------- proto conversions ----------
 
 fn empty_to_none(s: &str) -> Option<&str> {
-    if s.trim().is_empty() {
-        None
-    } else {
-        Some(s)
-    }
+    if s.trim().is_empty() { None } else { Some(s) }
 }
 
 fn map_proto_platform(v: i32) -> StatsPlatform {

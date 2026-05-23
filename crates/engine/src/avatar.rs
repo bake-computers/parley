@@ -1,7 +1,7 @@
 //! Avatar fetch + circular crop.
 
 use bytes::Bytes;
-use image::{imageops::FilterType, GenericImageView, Rgba, RgbaImage};
+use image::{GenericImageView, Rgba, RgbaImage, imageops::FilterType};
 use reqwest::Client;
 use thiserror::Error;
 

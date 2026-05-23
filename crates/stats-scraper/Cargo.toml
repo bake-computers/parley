@@ -18,7 +18,7 @@ thiserror = { workspace = true }
 tracing = { workspace = true }
 once_cell = { workspace = true }
 async-trait = { workspace = true }
-tokio = { workspace = true, default-features = false, features = ["rt", "macros"] }
+tokio = { workspace = true, features = ["rt", "macros"] }
 simd-json = "0.17.0"
 
 brawl-stars = { path = "../brawl-stars" }

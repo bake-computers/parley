@@ -31,6 +31,6 @@ pub mod proto {
 }
 
 pub use card::{
-    render_account_card, render_badge_strip, render_profile_card, Engine, EngineError,
-    RenderedImage, RenderedImageFormat,
+    Engine, EngineError, RenderedImage, RenderedImageFormat, render_account_card,
+    render_badge_strip, render_profile_card,
 };

@@ -1,6 +1,6 @@
 //! Profile / account / badge card compositor.
 
-use crate::avatar::{decode_and_circular_crop, fetch_avatar, AvatarError};
+use crate::avatar::{AvatarError, decode_and_circular_crop, fetch_avatar};
 use crate::proto::common::v1::{PlayerStats, Rank, RankTier};
 use crate::proto::engine::v1::{
     AccountCardRequest, BadgeStripRequest, ImageFormat, ProfileCardRequest,
@@ -9,7 +9,7 @@ use crate::rank;
 use crate::text;
 use ab_glyph::FontArc;
 use bytes::Bytes;
-use image::{imageops, Rgba, RgbaImage};
+use image::{Rgba, RgbaImage, imageops};
 use once_cell::sync::Lazy;
 use reqwest::Client;
 use std::io::Cursor;

@@ -11,13 +11,14 @@ name = "parley"
 path = "src/main.rs"
 
 [features]
-default = ["mimalloc"]
+default = []
 mimalloc = ["dep:mimalloc"]
 
 [dependencies]
 engine = { path = "crates/engine" }
 stats-scraper = { path = "crates/stats-scraper" }
 brawl-stars = { path = "crates/brawl-stars" }
+ocr = { path = "crates/ocr" }
 
 axum = { workspace = true }
 tokio = { workspace = true }
@@ -39,7 +40,7 @@ tracing-subscriber = { workspace = true }
 async-trait = { workspace = true }
 
 # Optional global allocator.
-mimalloc = { version = "0.1", optional = true }
+mimalloc = { version = "0.1.51", optional = true }
 
 # Database (async Diesel + bb8 pool + embedded migrations)
 diesel = { workspace = true }
@@ -57,7 +58,7 @@ tokio-postgres-rustls = "0.13"
 rustls = { version = "0.23", default-features = false, features = ["std", "ring"] }
 rustls-native-certs = "0.8"
 rustls-pemfile = "2"
-webpki-roots = "0.26"
+webpki-roots = "1.0.7"
 
 # Metrics
 metrics = { workspace = true }
@@ -74,16 +75,17 @@ protox = { workspace = true }
 [workspace]
 resolver = "2"
 members = [
-    "crates/engine",
-    "crates/stats-scraper",
-    "crates/brawl-stars",
-    "crates/vessel",
+  "crates/engine",
+  "crates/stats-scraper",
+  "crates/brawl-stars",
+  "crates/vessel",
+  "crates/ocr",
 ]
 
 [workspace.package]
 version = "0.1.0"
-edition = "2021"
-rust-version = "1.88"
+edition = "2024"
+rust-version = "1.93"
 license = "MIT OR Apache-2.0"
 publish = false
 
@@ -92,10 +94,22 @@ publish = false
 tokio = { version = "1.42", features = ["full"] }
 
 # HTTP
-reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "gzip", "brotli", "json", "stream"] }
+reqwest = { version = "0.13.3", default-features = false, features = [
+  "rustls",
+  "gzip",
+  "brotli",
+  "json",
+  "stream",
+] }
 axum = { version = "0.8", features = ["macros"] }
 tower = { version = "0.5", features = ["util"] }
-tower-http = { version = "0.6", features = ["trace", "cors", "compression-gzip", "compression-br", "timeout"] }
+tower-http = { version = "0.6.11", features = [
+  "trace",
+  "cors",
+  "compression-gzip",
+  "compression-br",
+  "timeout",
+] }
 hyper = "1.5"
 
 # Serialization
@@ -103,19 +117,19 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 
 # Protobuf (pure-Rust parser via protox, no protoc needed)
-prost = "0.13"
-prost-types = "0.13"
-prost-build = "0.13"
-protox = "0.7"
+prost = "0.14.3"
+prost-types = "0.14.3"
+prost-build = "0.14.3"
+protox = "0.9.1"
 
 # HTML / parsing
-scraper = "0.23"
+scraper = "0.27"
 regex = "1.11"
 url = "2.5"
 
 # Image rendering
 image = { version = "0.25", default-features = false, features = ["png", "jpeg", "webp"] }
-imageproc = { version = "0.25", default-features = false }
+imageproc = { version = "0.26.2", default-features = false }
 ab_glyph = "0.2"
 
 # Errors / logging
@@ -131,11 +145,17 @@ once_cell = "1.20"
 dotenvy = "0.15"
 
 # Database (async Diesel)
-diesel = { version = "2.2", default-features = false, features = ["postgres", "serde_json", "chrono", "numeric", "32-column-tables"] }
-diesel-async = { version = "0.5", features = ["postgres", "bb8"] }
+diesel = { version = "2.3.9", default-features = false, features = [
+  "postgres",
+  "serde_json",
+  "chrono",
+  "numeric",
+  "32-column-tables",
+] }
+diesel-async = { version = "0.9", features = ["postgres", "bb8"] }
 diesel-derive-enum = { version = "2.1", features = ["postgres"] }
-bb8 = "0.8"
-diesel_migrations = { version = "2.2", features = ["postgres"] }
+bb8 = "0.9.1"
+diesel_migrations = { version = "2.3.2", features = ["postgres"] }
 chrono = { version = "0.4", default-features = false, features = ["clock", "serde"] }
 uuid = { version = "1.11", features = ["v4", "serde"] }
 
@@ -146,7 +166,7 @@ metrics-exporter-prometheus = { version = "0.16", default-features = false }
 # Dev / testing
 wiremock = "0.6"
 tempfile = "3.14"
-criterion = "0.5"
+criterion = "0.8.2"
 
 # Cryptography / verification
 ed25519-dalek = { version = "2.1", features = ["std", "serde"] }
@@ -155,12 +175,12 @@ ed25519-dalek = { version = "2.1", features = ["std", "serde"] }
 fastbloom = { version = "0.17", default-features = false, features = ["serde"] }
 
 # Serialization / binary
-bincode = "1.3"
+bincode = "1"
 hex = "0.4"
 
 # CLI / progress
 clap = { version = "4.5", features = ["derive"] }
-indicatif = "0.17"
+indicatif = "0.18.4"
 
 [profile.release]
 lto = "thin"

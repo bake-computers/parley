@@ -5,6 +5,7 @@ import { ConnectError, Code } from "@connectrpc/connect";
 import { createConnectTransport } from "@connectrpc/connect-web";
 
 import { StatsService, StatsPlatform } from "@parley/proto";
+import ocrTestRoutes from "./ocr-test.js";
 
 type Bindings = {
   ENGINE_SERVICE_URL: string;
@@ -109,6 +110,8 @@ app.get("/stats/:username/collection", async (c) => {
     return connectErrorResponse(err);
   }
 });
+
+app.route("/ocr", ocrTestRoutes);
 
 app.all("*", (c) => c.text("Not Found", 404));
 

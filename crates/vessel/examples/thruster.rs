@@ -1,7 +1,7 @@
 use clap::Parser;
 use vessel::cli::{Command, VesselCli};
 use vessel::progress::VesselProgress;
-use vessel::thruster::{config_from_args, ThrusterOrchestrator};
+use vessel::thruster::{ThrusterOrchestrator, config_from_args};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {

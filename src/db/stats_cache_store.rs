@@ -22,10 +22,10 @@ use stats_scraper::cache_store::{CachedStats, SingleFlight, StatsCacheConfigV2, 
 use stats_scraper::fetch::{StatsFetchError, StatsFetchErrorKind, StatsPlatform};
 use stats_scraper::scrape::{ScrapedStats, ScrapedStatsCollection};
 
+use crate::db::Game as DbGame;
 use crate::db::models::NewPlayerStatSnapshot;
 use crate::db::pool::DbPool;
-use crate::db::repos::{now_ms, PlayerRepo, PlayerStatSnapshotRepo};
-use crate::db::Game as DbGame;
+use crate::db::repos::{PlayerRepo, PlayerStatSnapshotRepo, now_ms};
 
 /// Bridge between the backends-crate `Game` enum and the `db` crate one.
 fn to_db_game(g: Game) -> DbGame {

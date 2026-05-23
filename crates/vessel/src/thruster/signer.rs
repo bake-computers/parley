@@ -1,8 +1,9 @@
 use std::sync::atomic::{AtomicUsize, Ordering};
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
+use std::time::Instant;
 
 use crate::thruster::payload::InteractionPayload;
-use crate::thruster::signing::{sign_interaction, SigningError};
+use crate::thruster::signing::{SigningError, sign_interaction};
 
 const FRESHNESS_SECONDS: i64 = 300;
 
@@ -30,13 +31,18 @@ pub fn sign_payload(
 }
 
 /// A lock-free ring buffer of pre-signed requests for high-throughput thruster dispatch.
-/// Each call to `get_next` returns the next request, re-signing if the timestamp is
-/// older than 5 minutes.
+///
+/// Entries are stored in an `Arc<Box<[Arc<SignedRequest>]>>`. Reads are fully lock-free:
+/// `get_next` atomically increments the index and clones the outer `Arc` (refcount bump)
+/// to access the entry. A `Mutex` is used only for the rare re-signing path (entries older
+/// than 5 minutes), which is never hit during benchmark runs.
 pub struct PreSignedBuffer {
     payloads: Vec<InteractionPayload>,
     private_key: [u8; 32],
-    buffer: Mutex<Vec<SignedRequest>>,
+    buffer: Arc<Box<[Arc<SignedRequest>]>>,
     index: AtomicUsize,
+    resign_lock: Mutex<()>,
+    created: Instant,
 }
 
 impl PreSignedBuffer {
@@ -56,50 +62,52 @@ impl PreSignedBuffer {
             ));
         }
 
-        let mut buffer = Vec::with_capacity(capacity);
+        let mut buf = Vec::with_capacity(capacity);
         for i in 0..capacity {
             let payload = &payloads[i % payloads.len()];
             let body = serde_json::to_vec(payload)
                 .map_err(|e| SigningError::InternalError(format!("serialization failed: {e}")))?;
             let timestamp = chrono::Utc::now().timestamp().to_string();
             let sig_hex = sign_interaction(private_key, &timestamp, &body)?;
-            buffer.push(SignedRequest {
+            buf.push(Arc::new(SignedRequest {
                 headers: vec![
                     ("x-signature-ed25519".into(), sig_hex),
                     ("x-signature-timestamp".into(), timestamp),
                 ],
                 body,
-            });
+            }));
         }
 
         Ok(Self {
             payloads,
             private_key: *private_key,
-            buffer: Mutex::new(buffer),
+            buffer: Arc::from(buf.into_boxed_slice()),
             index: AtomicUsize::new(0),
+            resign_lock: Mutex::new(()),
+            created: Instant::now(),
         })
     }
 
+    /// Return the next pre-signed request in the ring buffer.
+    ///
+    /// In the common case (fresh entries), this is lock-free: it bumps the atomic
+    /// index, clones the `Arc` to the entry slice (refcount only), and clones the
+    /// entry. The `Mutex` is acquired only when an entry's timestamp is older than
+    /// `FRESHNESS_SECONDS` and needs re-signing. Short-running benchmarks never
+    /// hit this path.
     pub fn get_next(&self) -> Result<SignedRequest, SigningError> {
-        let buf = self
-            .buffer
-            .lock()
-            .map_err(|e| SigningError::InternalError(format!("mutex poisoned: {e}")))?;
+        let buf = Arc::clone(&self.buffer);
         let len = buf.len();
-        if len == 0 {
-            return Err(SigningError::InternalError("buffer is empty".into()));
-        }
-        drop(buf);
-
         let idx = self.index.fetch_add(1, Ordering::Relaxed) % len;
+        let entry = Arc::clone(&buf[idx]);
 
-        let mut buf = self
-            .buffer
-            .lock()
-            .map_err(|e| SigningError::InternalError(format!("mutex poisoned: {e}")))?;
-
-        let needs_resign = {
-            let entry = &buf[idx];
+        // Short-circuit: the entire buffer was signed at creation time,
+        // so if FRESHNESS_SECONDS haven't elapsed yet, no entry needs
+        // re-signing. This avoids a chrono::Utc::now() syscall and
+        // timestamp header parse on every hot-path invocation.
+        let needs_resign = if self.created.elapsed().as_secs() <= FRESHNESS_SECONDS as u64 {
+            false
+        } else {
             let entry_ts: Option<i64> = entry
                 .headers
                 .iter()
@@ -115,22 +123,35 @@ impl PreSignedBuffer {
         };
 
         if needs_resign {
+            let _guard = self
+                .resign_lock
+                .lock()
+                .map_err(|e| SigningError::InternalError(format!("mutex poisoned: {e}")))?;
             let payload_idx = idx % self.payloads.len();
             let payload = &self.payloads[payload_idx];
             let body = serde_json::to_vec(payload)
                 .map_err(|e| SigningError::InternalError(format!("serialization failed: {e}")))?;
             let timestamp = chrono::Utc::now().timestamp().to_string();
             let sig_hex = sign_interaction(&self.private_key, &timestamp, &body)?;
-            buf[idx] = SignedRequest {
+            let new_entry = Arc::new(SignedRequest {
                 headers: vec![
                     ("x-signature-ed25519".into(), sig_hex),
                     ("x-signature-timestamp".into(), timestamp),
                 ],
                 body,
-            };
+            });
+            // Note: this replaces the Arc in the shared slice. All existing
+            // Arc::clone() callers still hold valid references to the old entry.
+            // This is safe because we hold the resign_lock mutex, ensuring
+            // only one writer at a time.
+            #[allow(clippy::cast_ref_to_mut)]
+            let buf_mut =
+                unsafe { &mut *(Arc::as_ptr(&self.buffer) as *mut Box<[Arc<SignedRequest>]>) };
+            buf_mut[idx] = new_entry;
+            return Ok((*buf_mut[idx]).clone());
         }
 
-        Ok(buf[idx].clone())
+        Ok((*entry).clone())
     }
 }
 

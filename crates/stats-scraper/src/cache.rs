@@ -10,8 +10,8 @@
 //!   * Eviction happens lazily on lookup + opportunistically during insert
 //!     when the map grows past a soft cap.
 
-use crate::scrape::ScrapedStats;
 use crate::StatsPlatform;
+use crate::scrape::ScrapedStats;
 use std::collections::HashMap;
 use std::sync::Mutex;
 use std::time::{Duration, Instant};
@@ -129,14 +129,13 @@ impl StatsCache {
         }
         let now = Instant::now();
         map.retain(|_, v| v.expires_at > now);
-        if map.len() >= max {
-            if let Some(k) = map
+        if map.len() >= max
+            && let Some(k) = map
                 .iter()
                 .min_by_key(|(_, v)| v.expires_at)
                 .map(|(k, _)| k.clone())
-            {
-                map.remove(&k);
-            }
+        {
+            map.remove(&k);
         }
     }
 

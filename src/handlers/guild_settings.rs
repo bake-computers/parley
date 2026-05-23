@@ -7,14 +7,14 @@ use axum::{body::Bytes, extract::State, http::HeaderMap, response::Response};
 
 use crate::connect::{decode_body, detect_encoding, encode_ok};
 use crate::context::AppContext;
+use crate::db::Game as DbGame;
 use crate::db::models::{
     NewGuildMatchQuota, NewGuildMatchmakingRules, NewGuildNotificationSettings, NewGuildSettings,
 };
 use crate::db::repos::{
-    now_ms, GuildMatchQuotaRepo, GuildMatchmakingRulesRepo, GuildNotificationSettingsRepo,
-    GuildSettingsRepo,
+    GuildMatchQuotaRepo, GuildMatchmakingRulesRepo, GuildNotificationSettingsRepo,
+    GuildSettingsRepo, now_ms,
 };
-use crate::db::Game as DbGame;
 use crate::proto::common::v1::{Error as ProtoError, Game as ProtoGame};
 use crate::proto::guild::v1::{
     GetGuildSettingsRequest, GetMatchQuotasRequest, GetMatchmakingRulesRequest,
@@ -90,7 +90,7 @@ pub async fn get_guild_settings_rpc(
                     ..Default::default()
                 },
                 enc,
-            )
+            );
         }
     };
 
@@ -104,7 +104,7 @@ pub async fn get_guild_settings_rpc(
                     ..Default::default()
                 },
                 enc,
-            )
+            );
         }
     };
 
@@ -136,7 +136,7 @@ pub async fn get_guild_settings_rpc(
                     ..Default::default()
                 },
                 enc,
-            )
+            );
         }
     };
 
@@ -190,7 +190,7 @@ pub async fn upsert_guild_settings_rpc(
                     ..Default::default()
                 },
                 enc,
-            )
+            );
         }
     };
 
@@ -204,7 +204,7 @@ pub async fn upsert_guild_settings_rpc(
                     ..Default::default()
                 },
                 enc,
-            )
+            );
         }
     };
     let new_row = NewGuildSettings {
@@ -230,7 +230,7 @@ pub async fn upsert_guild_settings_rpc(
                     ..Default::default()
                 },
                 enc,
-            )
+            );
         }
     };
 
@@ -286,7 +286,7 @@ pub async fn get_matchmaking_rules_rpc(
                     ..Default::default()
                 },
                 enc,
-            )
+            );
         }
     };
     let mut conn = match pool.get().await {
@@ -299,7 +299,7 @@ pub async fn get_matchmaking_rules_rpc(
                     ..Default::default()
                 },
                 enc,
-            )
+            );
         }
     };
     let rules = match GuildMatchmakingRulesRepo::get(&mut conn, &req.guild_id, game).await {
@@ -331,7 +331,7 @@ pub async fn get_matchmaking_rules_rpc(
                     ..Default::default()
                 },
                 enc,
-            )
+            );
         }
     };
     encode_ok(
@@ -384,7 +384,7 @@ pub async fn upsert_matchmaking_rules_rpc(
                     ..Default::default()
                 },
                 enc,
-            )
+            );
         }
     };
     let mut conn = match pool.get().await {
@@ -397,7 +397,7 @@ pub async fn upsert_matchmaking_rules_rpc(
                     ..Default::default()
                 },
                 enc,
-            )
+            );
         }
     };
     let new_row = NewGuildMatchmakingRules {
@@ -436,7 +436,7 @@ pub async fn upsert_matchmaking_rules_rpc(
                     ..Default::default()
                 },
                 enc,
-            )
+            );
         }
     };
     encode_ok(
@@ -492,7 +492,7 @@ pub async fn get_notification_settings_rpc(
                     ..Default::default()
                 },
                 enc,
-            )
+            );
         }
     };
     let mut conn = match pool.get().await {
@@ -505,7 +505,7 @@ pub async fn get_notification_settings_rpc(
                     ..Default::default()
                 },
                 enc,
-            )
+            );
         }
     };
     let settings = match GuildNotificationSettingsRepo::get(&mut conn, &req.guild_id, game).await {
@@ -535,7 +535,7 @@ pub async fn get_notification_settings_rpc(
                     ..Default::default()
                 },
                 enc,
-            )
+            );
         }
     };
     encode_ok(
@@ -588,7 +588,7 @@ pub async fn upsert_notification_settings_rpc(
                     ..Default::default()
                 },
                 enc,
-            )
+            );
         }
     };
     let mut conn = match pool.get().await {
@@ -601,7 +601,7 @@ pub async fn upsert_notification_settings_rpc(
                     ..Default::default()
                 },
                 enc,
-            )
+            );
         }
     };
     let new_row = NewGuildNotificationSettings {
@@ -630,7 +630,7 @@ pub async fn upsert_notification_settings_rpc(
                     ..Default::default()
                 },
                 enc,
-            )
+            );
         }
     };
     encode_ok(
@@ -686,7 +686,7 @@ pub async fn get_match_quotas_rpc(
                     ..Default::default()
                 },
                 enc,
-            )
+            );
         }
     };
     let mut conn = match pool.get().await {
@@ -699,7 +699,7 @@ pub async fn get_match_quotas_rpc(
                     ..Default::default()
                 },
                 enc,
-            )
+            );
         }
     };
     let quota = match GuildMatchQuotaRepo::get(&mut conn, &req.guild_id, game).await {
@@ -725,7 +725,7 @@ pub async fn get_match_quotas_rpc(
                     ..Default::default()
                 },
                 enc,
-            )
+            );
         }
     };
     encode_ok(
@@ -778,7 +778,7 @@ pub async fn upsert_match_quotas_rpc(
                     ..Default::default()
                 },
                 enc,
-            )
+            );
         }
     };
     let mut conn = match pool.get().await {
@@ -791,7 +791,7 @@ pub async fn upsert_match_quotas_rpc(
                     ..Default::default()
                 },
                 enc,
-            )
+            );
         }
     };
     let new_row = NewGuildMatchQuota {
@@ -812,7 +812,7 @@ pub async fn upsert_match_quotas_rpc(
                     ..Default::default()
                 },
                 enc,
-            )
+            );
         }
     };
     encode_ok(

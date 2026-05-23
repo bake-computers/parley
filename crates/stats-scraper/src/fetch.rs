@@ -2,8 +2,8 @@
 //! and `fetchStatsPageInternal` in the TS source.
 
 use crate::scrape::{
-    canonicalize_season_selector, scrape_html_stats_collection, ScrapedStats,
-    ScrapedStatsCollection, SeasonCatalogEntry,
+    ScrapedStats, ScrapedStatsCollection, SeasonCatalogEntry, canonicalize_season_selector,
+    scrape_html_stats_collection,
 };
 use once_cell::sync::Lazy;
 use regex::Regex;
@@ -436,10 +436,10 @@ impl StatsClient {
 
         // If resolve already downloaded a body that contains the Nuxt payload,
         // reuse it — no second network round-trip.
-        if let Some(html) = body {
-            if html.contains("__NUXT_DATA__") {
-                return Ok((target, html));
-            }
+        if let Some(html) = body
+            && html.contains("__NUXT_DATA__")
+        {
+            return Ok((target, html));
         }
 
         // Fall back to an explicit fetch for the canonical URL. This happens

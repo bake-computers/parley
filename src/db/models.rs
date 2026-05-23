@@ -3,10 +3,10 @@
 //! Field order **must** match the schema column order for Queryable derives
 //! to position correctly.
 
+use crate::db::Game;
 use crate::db::schema::{
     discord_identities, external_match_history, player_stat_snapshots, players,
 };
-use crate::db::Game;
 
 // ---------- players ----------
 

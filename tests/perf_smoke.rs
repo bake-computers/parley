@@ -6,8 +6,8 @@
 //!   * warm fetch via the in-process REST endpoint's cache is <10ms.
 
 use std::net::SocketAddr;
-use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
+use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::{Duration, Instant};
 use tokio::net::TcpListener;
 use wiremock::matchers::{method, path, path_regex};
@@ -26,7 +26,7 @@ mod metrics_setup;
 #[path = "../src/proto.rs"]
 mod proto;
 
-use connect::{build_router_with_state, AppState};
+use connect::{AppState, build_router_with_state};
 use handlers::engine::EngineHandler;
 use handlers::stats::StatsHandler;
 use stats_scraper::StatsClient;
@@ -59,7 +59,9 @@ fn nuxt_html() -> String {
             "seasons": { "prep-phase": { "display": "Prep Phase", "started_at": "2026-01-01T00:00:00Z" } }
         }
     ]);
-    format!("<html><head><script id=\"__NUXT_DATA__\" type=\"application/json\">{payload}</script></head><body></body></html>")
+    format!(
+        "<html><head><script id=\"__NUXT_DATA__\" type=\"application/json\">{payload}</script></head><body></body></html>"
+    )
 }
 
 async fn spawn_service(stats: StatsHandler) -> SocketAddr {

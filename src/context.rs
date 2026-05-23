@@ -10,6 +10,7 @@ use stats_scraper::{R6Backend, StatsClient};
 use crate::db::pool::{self, DbPool, PoolConfig};
 use crate::db::stats_cache_store::PostgresStatsCacheStore;
 use crate::handlers::engine::EngineHandler;
+use crate::handlers::ocr::OcrHandler;
 use crate::handlers::stats::StatsHandler;
 use crate::metrics_setup::PrometheusHandle;
 
@@ -20,6 +21,7 @@ use crate::metrics_setup::PrometheusHandle;
 pub struct AppContext {
     pub pool: Option<DbPool>,
     pub engine: Arc<EngineHandler>,
+    pub ocr: Arc<OcrHandler>,
     pub stats: Arc<StatsHandler>,
     pub metrics: Option<PrometheusHandle>,
 }
@@ -86,6 +88,7 @@ impl AppContext {
         Ok(Self {
             pool,
             engine: Arc::new(EngineHandler::default()),
+            ocr: Arc::new(OcrHandler::default()),
             stats,
             metrics: crate::metrics_setup::handle(),
         })
@@ -96,6 +99,7 @@ impl AppContext {
         Self {
             pool: None,
             engine: Arc::new(EngineHandler::default()),
+            ocr: Arc::new(OcrHandler::default()),
             stats: Arc::new(StatsHandler::default()),
             metrics: None,
         }
