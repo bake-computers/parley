@@ -17,15 +17,16 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 use diesel_async::AsyncPgConnection;
-use stats_scraper::backends::{Game, StatsBackendRegistry};
-use stats_scraper::cache_store::{CachedStats, SingleFlight, StatsCacheConfigV2, StatsCacheStore};
-use stats_scraper::fetch::{StatsFetchError, StatsFetchErrorKind, StatsPlatform};
-use stats_scraper::scrape::{ScrapedStats, ScrapedStatsCollection};
 
+use crate::backends::{Game, StatsBackendRegistry};
+use crate::cache_store::{CachedStats, SingleFlight, StatsCacheConfigV2, StatsCacheStore};
 use crate::db::Game as DbGame;
 use crate::db::models::NewPlayerStatSnapshot;
 use crate::db::pool::DbPool;
 use crate::db::repos::{PlayerRepo, PlayerStatSnapshotRepo, now_ms};
+use crate::fetch::{StatsFetchError, StatsFetchErrorKind, StatsPlatform};
+use crate::logging::AxiomLogger;
+use crate::scrape::{ScrapedStats, ScrapedStatsCollection};
 
 /// Bridge between the backends-crate `Game` enum and the `db` crate one.
 fn to_db_game(g: Game) -> DbGame {
@@ -40,15 +41,17 @@ pub struct PostgresStatsCacheStore {
     registry: Arc<StatsBackendRegistry>,
     cfg: StatsCacheConfigV2,
     flight: SingleFlight<(Game, i32, Option<String>), Arc<Result<ScrapedStats, StatsFetchError>>>,
+    axiom: AxiomLogger,
 }
 
 impl PostgresStatsCacheStore {
-    pub fn new(pool: DbPool, registry: Arc<StatsBackendRegistry>, cfg: StatsCacheConfigV2) -> Self {
+    pub fn new(pool: DbPool, registry: Arc<StatsBackendRegistry>, cfg: StatsCacheConfigV2, axiom: AxiomLogger) -> Self {
         Self {
             pool,
             registry,
             cfg,
             flight: SingleFlight::new(),
+            axiom,
         }
     }
 
@@ -182,13 +185,13 @@ impl StatsCacheStore for PostgresStatsCacheStore {
         // 2. fast path (fresh snapshot)
         let ttl_ms = self.cfg.ttl_for(game).as_millis() as i64;
         if let Some(stats) = self.read_snapshot_within(game, player_id, ttl_ms).await? {
-            metrics::counter!("stats_cache_hits", "game" => game.as_str()).increment(1);
+            self.axiom.log_cache("hit", game.as_str(), None);
             return Ok(CachedStats {
                 stats,
                 degraded: false,
             });
         }
-        metrics::counter!("stats_cache_misses", "game" => game.as_str()).increment(1);
+        self.axiom.log_cache("miss", game.as_str(), None);
 
         // 3. single-flight cold miss
         let registry = self.registry.clone();
@@ -227,11 +230,7 @@ impl StatsCacheStore for PostgresStatsCacheStore {
                     if let Some(stats) =
                         self.read_snapshot_within(game, player_id, grace_ms).await?
                     {
-                        metrics::counter!(
-                            "stats_cache_stale_serves",
-                            "game" => game.as_str()
-                        )
-                        .increment(1);
+                        self.axiom.log_cache("stale_serve", game.as_str(), None);
                         return Ok(CachedStats {
                             stats,
                             degraded: true,

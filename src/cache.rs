@@ -10,7 +10,7 @@
 //!   * Eviction happens lazily on lookup + opportunistically during insert
 //!     when the map grows past a soft cap.
 
-use crate::StatsPlatform;
+use crate::fetch::StatsPlatform;
 use crate::scrape::ScrapedStats;
 use std::collections::HashMap;
 use std::sync::Mutex;

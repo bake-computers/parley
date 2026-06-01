@@ -13,11 +13,11 @@ use axum::{
     response::{IntoResponse, Response},
 };
 use serde::Deserialize;
-use stats_scraper::backends::Game as BackendGame;
-use stats_scraper::cache_store::StatsCacheStore;
-use stats_scraper::fetch::{StatsFetchError, StatsFetchErrorKind, StatsPlatform};
-use stats_scraper::proto::common::v1::Error as ProtoError;
-use stats_scraper::proto::stats::v1::{
+use crate::backends::Game as BackendGame;
+use crate::cache_store::StatsCacheStore;
+use crate::fetch::{StatsFetchError, StatsFetchErrorKind, StatsPlatform};
+use crate::stats_proto::common::v1::Error as ProtoError;
+use crate::stats_proto::stats::v1::{
     CalculatedMetrics as ProtoCalculatedMetrics, FetchStatsCollectionRequest,
     FetchStatsCollectionResponse, FetchStatsRequest, FetchStatsResponse,
     RankedStats as ProtoRanked, ScrapedStats as ProtoScrapedStats,
@@ -25,10 +25,13 @@ use stats_scraper::proto::stats::v1::{
     SeasonCatalogEntry as ProtoSeasonCatalogEntry, StatsPlatform as ProtoPlatform,
     StatsProfile as ProtoProfile,
 };
-use stats_scraper::{
+use crate::scrape::{
     CalculatedMetrics, RankedStats, ScrapedStats, ScrapedStatsCollection, SeasonCatalogEntry,
-    StatsBackendRegistry, StatsCache, StatsClient, StatsProfile,
+    StatsProfile,
 };
+use crate::backends::StatsBackendRegistry;
+use crate::cache::StatsCache;
+use crate::fetch::StatsClient;
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -51,7 +54,7 @@ impl Default for StatsHandler {
     fn default() -> Self {
         let client = StatsClient::default();
         let mut registry = StatsBackendRegistry::new();
-        registry.register(Arc::new(stats_scraper::R6Backend::new(client.clone())));
+        registry.register(Arc::new(crate::backends::r6::R6Backend::new(client.clone())));
         Self {
             client,
             cache: Arc::new(StatsCache::default()),
@@ -64,7 +67,7 @@ impl Default for StatsHandler {
 impl StatsHandler {
     pub fn with_client(client: StatsClient) -> Self {
         let mut registry = StatsBackendRegistry::new();
-        registry.register(Arc::new(stats_scraper::R6Backend::new(client.clone())));
+        registry.register(Arc::new(crate::backends::r6::R6Backend::new(client.clone())));
         Self {
             client,
             cache: Arc::new(StatsCache::default()),
@@ -75,7 +78,7 @@ impl StatsHandler {
 
     pub fn with_client_and_cache(client: StatsClient, cache: StatsCache) -> Self {
         let mut registry = StatsBackendRegistry::new();
-        registry.register(Arc::new(stats_scraper::R6Backend::new(client.clone())));
+        registry.register(Arc::new(crate::backends::r6::R6Backend::new(client.clone())));
         Self {
             client,
             cache: Arc::new(cache),
@@ -349,7 +352,7 @@ fn map_proto_platform(v: i32) -> StatsPlatform {
 /// Proto `Game` → backend `Game`. Defaults to R6 for GAME_UNSPECIFIED so that
 /// existing clients who never set the field keep working.
 fn map_proto_game(v: i32) -> BackendGame {
-    use stats_scraper::proto::common::v1::Game as ProtoGame;
+    use crate::stats_proto::common::v1::Game as ProtoGame;
     match ProtoGame::try_from(v).unwrap_or(ProtoGame::Unspecified) {
         ProtoGame::BrawlStars => BackendGame::BrawlStars,
         _ => BackendGame::R6,

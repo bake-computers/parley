@@ -3,9 +3,10 @@
 use std::sync::Arc;
 use std::time::Duration;
 
-use stats_scraper::backends::StatsBackendRegistry;
-use stats_scraper::cache_store::{StatsCacheConfigV2, StatsCacheStore};
-use stats_scraper::{R6Backend, StatsClient};
+use crate::backends::StatsBackendRegistry;
+use crate::backends::r6::R6Backend;
+use crate::cache_store::{StatsCacheConfigV2, StatsCacheStore};
+use crate::fetch::StatsClient;
 
 use crate::db::pool::{self, DbPool, PoolConfig};
 use crate::db::stats_cache_store::PostgresStatsCacheStore;
@@ -62,7 +63,7 @@ impl AppContext {
         let cache_cfg = cache_config_from_env();
         let stats = if let Some(p) = pool.clone() {
             let store: Arc<dyn StatsCacheStore> =
-                Arc::new(PostgresStatsCacheStore::new(p, registry.clone(), cache_cfg));
+                Arc::new(PostgresStatsCacheStore::new(p, registry.clone(), cache_cfg, axiom.clone()));
             Arc::new(
                 StatsHandler::with_client(client)
                     .with_registry(registry)

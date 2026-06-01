@@ -110,11 +110,11 @@ impl AxiomLogger {
         let batch_size = config.batch_size;
         let flush_interval = config.flush_interval;
 
-        let (tx, rx) = mpsc::channel(config.buffer_size);
+        let (tx, mut rx) = mpsc::channel(config.buffer_size);
 
         // Spawn the background batch worker
         tokio::spawn(async move {
-            let client = axiom_rs::Client::new(&token, org_id.as_deref())
+            let client = axiom_rs::Client::new()
                 .expect("axiom client builds");
             let client = Arc::new(client);
 
@@ -218,7 +218,7 @@ impl AxiomLogger {
             return;
         }
         let events = std::mem::take(batch);
-        match client.ingest(dataset, &events, Default::default()).await {
+        match client.ingest(dataset, &events).await {
             Ok(_) => {}
             Err(e) => {
                 tracing::warn!(error = %e, "axiom ingest failed (dropping batch)");
@@ -239,9 +239,8 @@ impl Default for AxiomLogger {
 // ======================================================================
 
 use axum::{
-    body::Body,
     extract::Request,
-    http::{header::CONTENT_TYPE, HeaderMap},
+    http::{header::CONTENT_TYPE, HeaderMap, HeaderName},
     response::Response,
 };
 use tower::{Layer, Service};
@@ -271,6 +270,7 @@ impl<S> Layer<S> for AxiomLogLayer {
     }
 }
 
+#[derive(Clone)]
 pub struct AxiomLogService<S> {
     inner: S,
     logger: AxiomLogger,
@@ -306,7 +306,7 @@ where
             let path = req.uri().path().to_string();
             let user_agent = req
                 .headers()
-                .get(http::header::USER_AGENT)
+                .get(HeaderName::from_static("user-agent"))
                 .and_then(|v| v.to_str().ok())
                 .map(String::from);
 
