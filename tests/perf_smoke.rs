@@ -21,15 +21,11 @@ mod context;
 mod db;
 #[path = "../src/handlers/mod.rs"]
 mod handlers;
-#[path = "../src/metrics_setup.rs"]
-mod metrics_setup;
 #[path = "../src/proto.rs"]
 mod proto;
 
-use connect::{AppState, build_router_with_state};
-use handlers::engine::EngineHandler;
 use handlers::stats::StatsHandler;
-use stats_scraper::StatsClient;
+use crate::fetch::StatsClient;
 
 const UUID: &str = "aaaaaaaa-bbbb-4ccc-9ddd-eeeeeeeeeeee";
 
@@ -67,11 +63,7 @@ fn nuxt_html() -> String {
 async fn spawn_service(stats: StatsHandler) -> SocketAddr {
     let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
     let addr = listener.local_addr().unwrap();
-    let state = AppState {
-        engine: Arc::new(EngineHandler::default()),
-        stats: Arc::new(stats),
-    };
-    let app = build_router_with_state(state);
+    let app = connect::build_router_with_context(context::AppContext::in_memory_for_tests());
     tokio::spawn(async move {
         axum::serve(listener, app).await.unwrap();
     });

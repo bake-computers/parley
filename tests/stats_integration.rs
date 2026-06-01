@@ -1,4 +1,4 @@
-//! End-to-end smoke test: bring up engine-service, point `/stats/:username`
+//! End-to-end smoke test: bring up the stats service, point `/stats/:username`
 //! at a wiremock server serving a fixture stats.cc HTML page, and assert the
 //! JSON response contains the expected fields.
 
@@ -15,8 +15,6 @@ mod context;
 mod db;
 #[path = "../src/handlers/mod.rs"]
 mod handlers;
-#[path = "../src/metrics_setup.rs"]
-mod metrics_setup;
 #[path = "../src/proto.rs"]
 mod proto;
 
@@ -165,7 +163,7 @@ fn urlencoding_encode(v: &str) -> String {
         if is_unreserved {
             out.push(b as char);
         } else {
-            out.push_str(&format!("%{b:02X}"));
+            out.push_str(&format!("%{:02X}", b));
         }
     }
     out

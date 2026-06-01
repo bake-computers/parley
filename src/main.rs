@@ -38,7 +38,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing_subscriber::fmt()
         .with_env_filter(
             tracing_subscriber::EnvFilter::try_from_default_env().unwrap_or_else(|_| {
-                "engine_service=info,brawl_stars=debug,stats_scraper=info,tower_http=info,parley=info,ocr=debug".into()
+                "parley=info,tower_http=info".into()
             }),
         )
         .init();
