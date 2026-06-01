@@ -3,14 +3,14 @@
 use std::sync::Arc;
 use std::time::Duration;
 
-use stats_scraper::backends::{Game as BackendGame, StatsBackendRegistry};
+use stats_scraper::backends::StatsBackendRegistry;
 use stats_scraper::cache_store::{StatsCacheConfigV2, StatsCacheStore};
 use stats_scraper::{R6Backend, StatsClient};
 
 use crate::db::pool::{self, DbPool, PoolConfig};
 use crate::db::stats_cache_store::PostgresStatsCacheStore;
 use crate::handlers::stats::StatsHandler;
-use crate::metrics_setup::PrometheusHandle;
+use crate::logging::AxiomLogger;
 
 /// Everything the service routes need at request time.
 ///
@@ -19,7 +19,7 @@ use crate::metrics_setup::PrometheusHandle;
 pub struct AppContext {
     pub pool: Option<DbPool>,
     pub stats: Arc<StatsHandler>,
-    pub metrics: Option<PrometheusHandle>,
+    pub axiom: AxiomLogger,
 }
 
 impl AppContext {
@@ -29,7 +29,7 @@ impl AppContext {
     /// When a DB pool is built, a `PostgresStatsCacheStore` is also wired into
     /// the stats handler so FetchStats RPCs get DB-backed snapshot reuse with
     /// single-flight coalescing + stale-grace fallback.
-    pub async fn from_env() -> anyhow::Result<Self> {
+    pub async fn from_env(axiom: AxiomLogger) -> anyhow::Result<Self> {
         let client = StatsClient::default();
 
         // Pre-warm the stats.cc TCP+TLS connection at startup so the first
@@ -41,15 +41,6 @@ impl AppContext {
         let mut registry = StatsBackendRegistry::new();
         registry.register(Arc::new(R6Backend::new(client.clone())));
 
-        if let Ok(cfg) = brawl_stars::BrawlStarsConfig::from_env() {
-            let bs_client = Arc::new(brawl_stars::BrawlStarsClient::new(cfg));
-            registry.register(Arc::new(stats_scraper::BrawlStarsBackend::new(bs_client)));
-            tracing::info!("brawl stars backend registered");
-        } else {
-            tracing::info!("BRAWL_STARS_API_KEY not set — brawl stars backend disabled");
-        }
-
-        let _ = BackendGame::BrawlStars;
         let registry = Arc::new(registry);
 
         let pool = if let Some(cfg) = PoolConfig::from_env() {
@@ -84,7 +75,7 @@ impl AppContext {
         Ok(Self {
             pool,
             stats,
-            metrics: crate::metrics_setup::handle(),
+            axiom,
         })
     }
 
@@ -93,7 +84,7 @@ impl AppContext {
         Self {
             pool: None,
             stats: Arc::new(StatsHandler::default()),
-            metrics: None,
+            axiom: AxiomLogger::default(),
         }
     }
 
@@ -103,10 +94,6 @@ impl AppContext {
             pool::ping(p).await?;
         }
         Ok(())
-    }
-
-    pub fn render_metrics(&self) -> Option<String> {
-        self.metrics.as_ref().map(|h| h.render())
     }
 }
 

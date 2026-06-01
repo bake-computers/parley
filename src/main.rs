@@ -14,6 +14,7 @@ mod context;
 mod db;
 mod fetch;
 mod handlers;
+mod logging;
 mod nuxt;
 mod proto;
 mod scrape;
@@ -46,7 +47,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .unwrap_or_else(|_| "0.0.0.0:50051".into())
         .parse()?;
 
-    let ctx = AppContext::from_env().await?;
+    let axiom_logger = logging::AxiomLogger::new(logging::AxiomConfig::default());
+    let ctx = AppContext::from_env(axiom_logger).await?;
     let app = connect::build_router_with_context(ctx);
     tracing::info!(%addr, "engine-service listening");
 
