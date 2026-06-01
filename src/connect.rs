@@ -1,13 +1,5 @@
 //! Axum + ConnectRPC wiring.
 //!
-//! Two states coexist:
-//!   * `AppContext` — the full, DB-aware state used by the binary and by
-//!     tests that want to reach the pool. This is the modern path.
-//!   * `AppState` — the small pre-Diesel handler bundle used by the existing
-//!     integration tests (`tests/*`). Kept so those tests continue to pass
-//!     unchanged; `build_router_with_state` is a thin adapter that fabricates
-//!     an `AppContext` with `pool = None`.
-//!
 //! Connect envelope (unary):
 //!   POST /{package}.{Service}/{Method}
 //!   Content-Type: application/json | application/proto
@@ -25,35 +17,11 @@ use axum::{
     routing::{get, post},
 };
 use serde::Serialize;
-use std::sync::Arc;
 use tower_http::compression::CompressionLayer;
 use tower_http::timeout::TimeoutLayer;
 
 use crate::context::AppContext;
-use crate::handlers::{
-    engine::EngineHandler,
-    ocr::OcrHandler,
-    stats::{self, StatsHandler},
-};
-
-/// Legacy state bundle used by tests created before `AppContext` existed.
-#[derive(Clone)]
-pub struct AppState {
-    pub engine: Arc<EngineHandler>,
-    pub stats: Arc<StatsHandler>,
-}
-
-/// Build a router with the legacy AppState (tests-only).
-pub fn build_router_with_state(state: AppState) -> Router {
-    let ctx = AppContext {
-        pool: None,
-        engine: state.engine,
-        ocr: Arc::new(OcrHandler::default()),
-        stats: state.stats,
-        metrics: None,
-    };
-    build_router_with_context(ctx)
-}
+use crate::handlers::stats;
 
 /// Build a router with sensible defaults (no DB). Used by ad-hoc callers
 /// and by the legacy `build_router()` fn name kept for old tests.
@@ -67,19 +35,6 @@ pub fn build_router_with_context(ctx: AppContext) -> Router {
         .route("/health", get(health))
         .route("/ready", get(ready))
         .route("/metrics", get(metrics_endpoint))
-        // Engine
-        .route(
-            "/parley.engine.v1.EngineService/RenderProfileCard",
-            post(render_profile_card),
-        )
-        .route(
-            "/parley.engine.v1.EngineService/RenderAccountCard",
-            post(render_account_card),
-        )
-        .route(
-            "/parley.engine.v1.EngineService/RenderBadgeStrip",
-            post(render_badge_strip),
-        )
         // Stats
         .route(
             "/parley.stats.v1.StatsService/FetchStats",
@@ -90,12 +45,6 @@ pub fn build_router_with_context(ctx: AppContext) -> Router {
             post(fetch_stats_collection_rpc),
         )
         .route("/stats/{username}", get(stats::stats_get))
-        // OCR
-        .route(
-            "/parley.ocr.v1.OcrService/ScanScreenshot",
-            post(scan_screenshot),
-        )
-        .route("/parley.ocr.v1.OcrService/ScanBatch", post(scan_batch))
         // Identity
         .route(
             "/parley.identity.v1.IdentityService/LinkAccount",
@@ -257,81 +206,7 @@ pub(crate) fn decode_body<T: prost::Message + Default + serde::de::DeserializeOw
     }
 }
 
-use engine::proto::engine::v1::{
-    AccountCardRequest, BadgeStripRequest, ImageResponse, ProfileCardRequest,
-};
-
-use crate::proto::ocr::v1::{
-    ScanBatchRequest, ScanBatchResponse, ScanScreenshotRequest, ScanScreenshotResponse,
-};
-
-async fn scan_screenshot(
-    State(ctx): State<AppContext>,
-    headers: HeaderMap,
-    body: Bytes,
-) -> Response {
-    let enc = detect_encoding(&headers);
-    let req: ScanScreenshotRequest = match decode_body(enc, &body) {
-        Ok(r) => r,
-        Err(r) => return r,
-    };
-    let resp: ScanScreenshotResponse = ctx.ocr.scan_screenshot(req).await;
-    encode_ok(&resp, enc)
-}
-
-async fn scan_batch(State(ctx): State<AppContext>, headers: HeaderMap, body: Bytes) -> Response {
-    let enc = detect_encoding(&headers);
-    let req: ScanBatchRequest = match decode_body(enc, &body) {
-        Ok(r) => r,
-        Err(r) => return r,
-    };
-    let resp: ScanBatchResponse = ctx.ocr.scan_batch(req).await;
-    encode_ok(&resp, enc)
-}
-
-async fn render_profile_card(
-    State(ctx): State<AppContext>,
-    headers: HeaderMap,
-    body: Bytes,
-) -> Response {
-    let enc = detect_encoding(&headers);
-    let req: ProfileCardRequest = match decode_body(enc, &body) {
-        Ok(r) => r,
-        Err(r) => return r,
-    };
-    let resp: ImageResponse = ctx.engine.render_profile_card(req).await;
-    encode_ok(&resp, enc)
-}
-
-async fn render_account_card(
-    State(ctx): State<AppContext>,
-    headers: HeaderMap,
-    body: Bytes,
-) -> Response {
-    let enc = detect_encoding(&headers);
-    let req: AccountCardRequest = match decode_body(enc, &body) {
-        Ok(r) => r,
-        Err(r) => return r,
-    };
-    let resp: ImageResponse = ctx.engine.render_account_card(req).await;
-    encode_ok(&resp, enc)
-}
-
-async fn render_badge_strip(
-    State(ctx): State<AppContext>,
-    headers: HeaderMap,
-    body: Bytes,
-) -> Response {
-    let enc = detect_encoding(&headers);
-    let req: BadgeStripRequest = match decode_body(enc, &body) {
-        Ok(r) => r,
-        Err(r) => return r,
-    };
-    let resp: ImageResponse = ctx.engine.render_badge_strip(req).await;
-    encode_ok(&resp, enc)
-}
-
-use stats_scraper::proto::stats::v1::{
+use crate::stats_proto::stats::v1::{
     FetchStatsCollectionRequest, FetchStatsCollectionResponse, FetchStatsRequest,
     FetchStatsResponse,
 };
