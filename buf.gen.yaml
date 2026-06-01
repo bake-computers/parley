@@ -1,14 +1,11 @@
 version: v2
 plugins:
-  # Generates message types and enums as plain TypeScript (no runtime class deps).
+  # Protobuf-ES v2 generates both message types and service descriptors.
+  # Connect-ES v2 no longer needs its own code generator plugin.
+  # See: https://github.com/connectrpc/connect-es/blob/main/MIGRATING.md
   - remote: buf.build/bufbuild/es
     out: packages/generated-ts/src
-    opt:
-      - target=ts
-      - import_extension=js
-  # Generates service descriptors for @connectrpc/connect-es clients.
-  - remote: buf.build/connectrpc/es
-    out: packages/generated-ts/src
+    include_imports: true
     opt:
       - target=ts
       - import_extension=js

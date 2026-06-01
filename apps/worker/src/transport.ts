@@ -1,7 +1,7 @@
 import { createClient } from "@connectrpc/connect";
 import { createConnectTransport } from "@connectrpc/connect-web";
-import { IdentityService } from "@parley/proto/identity/v1/identity_connect.js";
-import { GuildSettingsService } from "@parley/proto/guild/v1/guild_connect.js";
+import { IdentityService } from "@parley/proto/identity/v1/identity_pb.js";
+import { GuildSettingsService } from "@parley/proto/guild/v1/guild_pb.js";
 
 const clientCache = new Map<string, unknown>();
 
