@@ -11,6 +11,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         proto_root.join("common/v1/types.proto"),
         proto_root.join("identity/v1/identity.proto"),
         proto_root.join("guild/v1/guild.proto"),
+        proto_root.join("stats/v1/stats.proto"),
     ];
 
     for p in &protos {
