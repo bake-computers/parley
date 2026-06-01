@@ -1,4 +1,4 @@
-//! Build script: compile identity + guild protos for the engine-service crate
+//! Build script: compile identity + guild protos for the parley binary
 //! using `protox` (no protoc required).
 
 use std::path::PathBuf;
@@ -11,7 +11,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         proto_root.join("common/v1/types.proto"),
         proto_root.join("identity/v1/identity.proto"),
         proto_root.join("guild/v1/guild.proto"),
-        proto_root.join("ocr/v1/ocr.proto"),
     ];
 
     for p in &protos {
