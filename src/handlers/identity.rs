@@ -54,7 +54,12 @@ pub async fn link_account_rpc(
     };
     let Some(pool) = ctx.pool.clone() else {
         let msg = "DATABASE_URL not configured".to_string();
-        ctx.axiom.log_error("identity.link_account", "FailedPrecondition", &msg, Some("/parley.identity.v1.IdentityService/LinkAccount".into()));
+        ctx.axiom.log_error(
+            "identity.link_account",
+            "FailedPrecondition",
+            &msg,
+            Some("/parley.identity.v1.IdentityService/LinkAccount".into()),
+        );
         return encode_ok(
             &LinkAccountResponse {
                 success: false,
@@ -66,7 +71,12 @@ pub async fn link_account_rpc(
     };
     let Some(game) = proto_game_to_db(req.game) else {
         let msg = "game must be R6 or BrawlStars".to_string();
-        ctx.axiom.log_error("identity.link_account", "InvalidArgument", &msg, Some("/parley.identity.v1.IdentityService/LinkAccount".into()));
+        ctx.axiom.log_error(
+            "identity.link_account",
+            "InvalidArgument",
+            &msg,
+            Some("/parley.identity.v1.IdentityService/LinkAccount".into()),
+        );
         return encode_ok(
             &LinkAccountResponse {
                 success: false,
@@ -81,7 +91,12 @@ pub async fn link_account_rpc(
         || req.platform.trim().is_empty()
     {
         let msg = "discord_user_id, username and platform are required".to_string();
-        ctx.axiom.log_error("identity.link_account", "InvalidArgument", &msg, Some("/parley.identity.v1.IdentityService/LinkAccount".into()));
+        ctx.axiom.log_error(
+            "identity.link_account",
+            "InvalidArgument",
+            &msg,
+            Some("/parley.identity.v1.IdentityService/LinkAccount".into()),
+        );
         return encode_ok(
             &LinkAccountResponse {
                 success: false,
@@ -96,7 +111,12 @@ pub async fn link_account_rpc(
         Ok(c) => c,
         Err(e) => {
             let msg = format!("db pool: {e}");
-            ctx.axiom.log_error("identity.link_account", "Internal", &msg, Some("/parley.identity.v1.IdentityService/LinkAccount".into()));
+            ctx.axiom.log_error(
+                "identity.link_account",
+                "Internal",
+                &msg,
+                Some("/parley.identity.v1.IdentityService/LinkAccount".into()),
+            );
             return encode_ok(
                 &LinkAccountResponse {
                     success: false,
@@ -121,7 +141,12 @@ pub async fn link_account_rpc(
         Ok(p) => p,
         Err(e) => {
             let msg = format!("upsert player: {e}");
-            ctx.axiom.log_error("identity.link_account", "Internal", &msg, Some("/parley.identity.v1.IdentityService/LinkAccount".into()));
+            ctx.axiom.log_error(
+                "identity.link_account",
+                "Internal",
+                &msg,
+                Some("/parley.identity.v1.IdentityService/LinkAccount".into()),
+            );
             return encode_ok(
                 &LinkAccountResponse {
                     success: false,
@@ -137,7 +162,12 @@ pub async fn link_account_rpc(
         DiscordIdentityRepo::link(&mut conn, game, &req.discord_user_id, player.id).await
     {
         let msg = format!("link discord identity: {e}");
-        ctx.axiom.log_error("identity.link_account", "Internal", &msg, Some("/parley.identity.v1.IdentityService/LinkAccount".into()));
+        ctx.axiom.log_error(
+            "identity.link_account",
+            "Internal",
+            &msg,
+            Some("/parley.identity.v1.IdentityService/LinkAccount".into()),
+        );
         return encode_ok(
             &LinkAccountResponse {
                 success: false,
@@ -187,7 +217,12 @@ pub async fn unlink_account_rpc(
     };
     let Some(pool) = ctx.pool.clone() else {
         let msg = "DATABASE_URL not configured".to_string();
-        ctx.axiom.log_error("identity.unlink_account", "FailedPrecondition", &msg, Some("/parley.identity.v1.IdentityService/UnlinkAccount".into()));
+        ctx.axiom.log_error(
+            "identity.unlink_account",
+            "FailedPrecondition",
+            &msg,
+            Some("/parley.identity.v1.IdentityService/UnlinkAccount".into()),
+        );
         return encode_ok(
             &UnlinkAccountResponse {
                 success: false,
@@ -199,7 +234,12 @@ pub async fn unlink_account_rpc(
     };
     let Some(game) = proto_game_to_db(req.game) else {
         let msg = "game must be R6 or BrawlStars".to_string();
-        ctx.axiom.log_error("identity.unlink_account", "InvalidArgument", &msg, Some("/parley.identity.v1.IdentityService/UnlinkAccount".into()));
+        ctx.axiom.log_error(
+            "identity.unlink_account",
+            "InvalidArgument",
+            &msg,
+            Some("/parley.identity.v1.IdentityService/UnlinkAccount".into()),
+        );
         return encode_ok(
             &UnlinkAccountResponse {
                 success: false,
@@ -214,7 +254,12 @@ pub async fn unlink_account_rpc(
         Ok(c) => c,
         Err(e) => {
             let msg = format!("db pool: {e}");
-            ctx.axiom.log_error("identity.unlink_account", "Internal", &msg, Some("/parley.identity.v1.IdentityService/UnlinkAccount".into()));
+            ctx.axiom.log_error(
+                "identity.unlink_account",
+                "Internal",
+                &msg,
+                Some("/parley.identity.v1.IdentityService/UnlinkAccount".into()),
+            );
             return encode_ok(
                 &UnlinkAccountResponse {
                     success: false,
@@ -230,7 +275,12 @@ pub async fn unlink_account_rpc(
         Ok(n) => n,
         Err(e) => {
             let msg = format!("unlink: {e}");
-            ctx.axiom.log_error("identity.unlink_account", "Internal", &msg, Some("/parley.identity.v1.IdentityService/UnlinkAccount".into()));
+            ctx.axiom.log_error(
+                "identity.unlink_account",
+                "Internal",
+                &msg,
+                Some("/parley.identity.v1.IdentityService/UnlinkAccount".into()),
+            );
             return encode_ok(
                 &UnlinkAccountResponse {
                     success: false,
@@ -266,7 +316,12 @@ pub async fn lookup_by_discord_rpc(
     };
     let Some(pool) = ctx.pool.clone() else {
         let msg = "DATABASE_URL not configured".to_string();
-        ctx.axiom.log_error("identity.lookup_by_discord", "FailedPrecondition", &msg, Some("/parley.identity.v1.IdentityService/LookupByDiscord".into()));
+        ctx.axiom.log_error(
+            "identity.lookup_by_discord",
+            "FailedPrecondition",
+            &msg,
+            Some("/parley.identity.v1.IdentityService/LookupByDiscord".into()),
+        );
         return encode_ok(
             &LookupByDiscordResponse {
                 success: false,
@@ -283,7 +338,12 @@ pub async fn lookup_by_discord_rpc(
         Ok(c) => c,
         Err(e) => {
             let msg = format!("db pool: {e}");
-            ctx.axiom.log_error("identity.lookup_by_discord", "Internal", &msg, Some("/parley.identity.v1.IdentityService/LookupByDiscord".into()));
+            ctx.axiom.log_error(
+                "identity.lookup_by_discord",
+                "Internal",
+                &msg,
+                Some("/parley.identity.v1.IdentityService/LookupByDiscord".into()),
+            );
             return encode_ok(
                 &LookupByDiscordResponse {
                     success: false,
@@ -302,7 +362,12 @@ pub async fn lookup_by_discord_rpc(
             Ok(v) => v,
             Err(e) => {
                 let msg = format!("lookup: {e}");
-                ctx.axiom.log_error("identity.lookup_by_discord", "Internal", &msg, Some("/parley.identity.v1.IdentityService/LookupByDiscord".into()));
+                ctx.axiom.log_error(
+                    "identity.lookup_by_discord",
+                    "Internal",
+                    &msg,
+                    Some("/parley.identity.v1.IdentityService/LookupByDiscord".into()),
+                );
                 return encode_ok(
                     &LookupByDiscordResponse {
                         success: false,
@@ -345,7 +410,12 @@ pub async fn lookup_by_username_rpc(
     };
     let Some(pool) = ctx.pool.clone() else {
         let msg = "DATABASE_URL not configured".to_string();
-        ctx.axiom.log_error("identity.lookup_by_username", "FailedPrecondition", &msg, Some("/parley.identity.v1.IdentityService/LookupByUsername".into()));
+        ctx.axiom.log_error(
+            "identity.lookup_by_username",
+            "FailedPrecondition",
+            &msg,
+            Some("/parley.identity.v1.IdentityService/LookupByUsername".into()),
+        );
         return encode_ok(
             &LookupByUsernameResponse {
                 success: false,
@@ -357,7 +427,12 @@ pub async fn lookup_by_username_rpc(
     };
     let Some(game) = proto_game_to_db(req.game) else {
         let msg = "game must be R6 or BrawlStars".to_string();
-        ctx.axiom.log_error("identity.lookup_by_username", "InvalidArgument", &msg, Some("/parley.identity.v1.IdentityService/LookupByUsername".into()));
+        ctx.axiom.log_error(
+            "identity.lookup_by_username",
+            "InvalidArgument",
+            &msg,
+            Some("/parley.identity.v1.IdentityService/LookupByUsername".into()),
+        );
         return encode_ok(
             &LookupByUsernameResponse {
                 success: false,
@@ -372,7 +447,12 @@ pub async fn lookup_by_username_rpc(
         Ok(c) => c,
         Err(e) => {
             let msg = format!("db pool: {e}");
-            ctx.axiom.log_error("identity.lookup_by_username", "Internal", &msg, Some("/parley.identity.v1.IdentityService/LookupByUsername".into()));
+            ctx.axiom.log_error(
+                "identity.lookup_by_username",
+                "Internal",
+                &msg,
+                Some("/parley.identity.v1.IdentityService/LookupByUsername".into()),
+            );
             return encode_ok(
                 &LookupByUsernameResponse {
                     success: false,
@@ -389,7 +469,12 @@ pub async fn lookup_by_username_rpc(
             Ok(p) => p,
             Err(e) => {
                 let msg = format!("lookup: {e}");
-                ctx.axiom.log_error("identity.lookup_by_username", "Internal", &msg, Some("/parley.identity.v1.IdentityService/LookupByUsername".into()));
+                ctx.axiom.log_error(
+                    "identity.lookup_by_username",
+                    "Internal",
+                    &msg,
+                    Some("/parley.identity.v1.IdentityService/LookupByUsername".into()),
+                );
                 return encode_ok(
                     &LookupByUsernameResponse {
                         success: false,

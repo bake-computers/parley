@@ -68,7 +68,12 @@ pub async fn get_guild_settings_rpc(
     };
     let Some(pool) = ctx.pool.clone() else {
         let msg = "DATABASE_URL not configured".to_string();
-        ctx.axiom.log_error("guild.get_settings", "FailedPrecondition", &msg, Some("/parley.guild.v1.GuildSettingsService/GetGuildSettings".into()));
+        ctx.axiom.log_error(
+            "guild.get_settings",
+            "FailedPrecondition",
+            &msg,
+            Some("/parley.guild.v1.GuildSettingsService/GetGuildSettings".into()),
+        );
         return encode_ok(
             &GuildSettingsResponse {
                 success: false,
@@ -81,7 +86,12 @@ pub async fn get_guild_settings_rpc(
     let game = match need_game(req.game) {
         Ok(g) => g,
         Err(e) => {
-            ctx.axiom.log_error("guild.get_settings", &e.code, &e.message, Some("/parley.guild.v1.GuildSettingsService/GetGuildSettings".into()));
+            ctx.axiom.log_error(
+                "guild.get_settings",
+                &e.code,
+                &e.message,
+                Some("/parley.guild.v1.GuildSettingsService/GetGuildSettings".into()),
+            );
             return encode_ok(
                 &GuildSettingsResponse {
                     success: false,
@@ -97,7 +107,12 @@ pub async fn get_guild_settings_rpc(
         Ok(c) => c,
         Err(e) => {
             let msg = format!("db pool: {e}");
-            ctx.axiom.log_error("guild.get_settings", "Internal", &msg, Some("/parley.guild.v1.GuildSettingsService/GetGuildSettings".into()));
+            ctx.axiom.log_error(
+                "guild.get_settings",
+                "Internal",
+                &msg,
+                Some("/parley.guild.v1.GuildSettingsService/GetGuildSettings".into()),
+            );
             return encode_ok(
                 &GuildSettingsResponse {
                     success: false,
@@ -131,7 +146,12 @@ pub async fn get_guild_settings_rpc(
         },
         Err(e) => {
             let msg = format!("get: {e}");
-            ctx.axiom.log_error("guild.get_settings", "Internal", &msg, Some("/parley.guild.v1.GuildSettingsService/GetGuildSettings".into()));
+            ctx.axiom.log_error(
+                "guild.get_settings",
+                "Internal",
+                &msg,
+                Some("/parley.guild.v1.GuildSettingsService/GetGuildSettings".into()),
+            );
             return encode_ok(
                 &GuildSettingsResponse {
                     success: false,
@@ -165,7 +185,12 @@ pub async fn upsert_guild_settings_rpc(
     };
     let Some(pool) = ctx.pool.clone() else {
         let msg = "DATABASE_URL not configured".to_string();
-        ctx.axiom.log_error("guild.upsert_settings", "FailedPrecondition", &msg, Some("/parley.guild.v1.GuildSettingsService/UpsertGuildSettings".into()));
+        ctx.axiom.log_error(
+            "guild.upsert_settings",
+            "FailedPrecondition",
+            &msg,
+            Some("/parley.guild.v1.GuildSettingsService/UpsertGuildSettings".into()),
+        );
         return encode_ok(
             &GuildSettingsResponse {
                 success: false,
@@ -177,7 +202,12 @@ pub async fn upsert_guild_settings_rpc(
     };
     let Some(s) = req.settings else {
         let msg = "settings payload required".to_string();
-        ctx.axiom.log_error("guild.upsert_settings", "InvalidArgument", &msg, Some("/parley.guild.v1.GuildSettingsService/UpsertGuildSettings".into()));
+        ctx.axiom.log_error(
+            "guild.upsert_settings",
+            "InvalidArgument",
+            &msg,
+            Some("/parley.guild.v1.GuildSettingsService/UpsertGuildSettings".into()),
+        );
         return encode_ok(
             &GuildSettingsResponse {
                 success: false,
@@ -190,7 +220,12 @@ pub async fn upsert_guild_settings_rpc(
     let game = match need_game(s.game) {
         Ok(g) => g,
         Err(e) => {
-            ctx.axiom.log_error("guild.upsert_settings", &e.code, &e.message, Some("/parley.guild.v1.GuildSettingsService/UpsertGuildSettings".into()));
+            ctx.axiom.log_error(
+                "guild.upsert_settings",
+                &e.code,
+                &e.message,
+                Some("/parley.guild.v1.GuildSettingsService/UpsertGuildSettings".into()),
+            );
             return encode_ok(
                 &GuildSettingsResponse {
                     success: false,
@@ -206,7 +241,12 @@ pub async fn upsert_guild_settings_rpc(
         Ok(c) => c,
         Err(e) => {
             let msg = format!("db pool: {e}");
-            ctx.axiom.log_error("guild.upsert_settings", "Internal", &msg, Some("/parley.guild.v1.GuildSettingsService/UpsertGuildSettings".into()));
+            ctx.axiom.log_error(
+                "guild.upsert_settings",
+                "Internal",
+                &msg,
+                Some("/parley.guild.v1.GuildSettingsService/UpsertGuildSettings".into()),
+            );
             return encode_ok(
                 &GuildSettingsResponse {
                     success: false,
@@ -234,7 +274,12 @@ pub async fn upsert_guild_settings_rpc(
         Ok(r) => r,
         Err(e) => {
             let msg = format!("upsert: {e}");
-            ctx.axiom.log_error("guild.upsert_settings", "Internal", &msg, Some("/parley.guild.v1.GuildSettingsService/UpsertGuildSettings".into()));
+            ctx.axiom.log_error(
+                "guild.upsert_settings",
+                "Internal",
+                &msg,
+                Some("/parley.guild.v1.GuildSettingsService/UpsertGuildSettings".into()),
+            );
             return encode_ok(
                 &GuildSettingsResponse {
                     success: false,
@@ -280,7 +325,12 @@ pub async fn get_matchmaking_rules_rpc(
     };
     let Some(pool) = ctx.pool.clone() else {
         let msg = "DATABASE_URL not configured".to_string();
-        ctx.axiom.log_error("guild.get_matchmaking_rules", "FailedPrecondition", &msg, Some("/parley.guild.v1.GuildSettingsService/GetMatchmakingRules".into()));
+        ctx.axiom.log_error(
+            "guild.get_matchmaking_rules",
+            "FailedPrecondition",
+            &msg,
+            Some("/parley.guild.v1.GuildSettingsService/GetMatchmakingRules".into()),
+        );
         return encode_ok(
             &GuildMatchmakingRulesResponse {
                 success: false,
@@ -293,7 +343,12 @@ pub async fn get_matchmaking_rules_rpc(
     let game = match need_game(req.game) {
         Ok(g) => g,
         Err(e) => {
-            ctx.axiom.log_error("guild.get_matchmaking_rules", &e.code, &e.message, Some("/parley.guild.v1.GuildSettingsService/GetMatchmakingRules".into()));
+            ctx.axiom.log_error(
+                "guild.get_matchmaking_rules",
+                &e.code,
+                &e.message,
+                Some("/parley.guild.v1.GuildSettingsService/GetMatchmakingRules".into()),
+            );
             return encode_ok(
                 &GuildMatchmakingRulesResponse {
                     success: false,
@@ -308,7 +363,12 @@ pub async fn get_matchmaking_rules_rpc(
         Ok(c) => c,
         Err(e) => {
             let msg = format!("db pool: {e}");
-            ctx.axiom.log_error("guild.get_matchmaking_rules", "Internal", &msg, Some("/parley.guild.v1.GuildSettingsService/GetMatchmakingRules".into()));
+            ctx.axiom.log_error(
+                "guild.get_matchmaking_rules",
+                "Internal",
+                &msg,
+                Some("/parley.guild.v1.GuildSettingsService/GetMatchmakingRules".into()),
+            );
             return encode_ok(
                 &GuildMatchmakingRulesResponse {
                     success: false,
@@ -342,7 +402,12 @@ pub async fn get_matchmaking_rules_rpc(
         },
         Err(e) => {
             let msg = format!("get: {e}");
-            ctx.axiom.log_error("guild.get_matchmaking_rules", "Internal", &msg, Some("/parley.guild.v1.GuildSettingsService/GetMatchmakingRules".into()));
+            ctx.axiom.log_error(
+                "guild.get_matchmaking_rules",
+                "Internal",
+                &msg,
+                Some("/parley.guild.v1.GuildSettingsService/GetMatchmakingRules".into()),
+            );
             return encode_ok(
                 &GuildMatchmakingRulesResponse {
                     success: false,
@@ -375,7 +440,12 @@ pub async fn upsert_matchmaking_rules_rpc(
     };
     let Some(pool) = ctx.pool.clone() else {
         let msg = "DATABASE_URL not configured".to_string();
-        ctx.axiom.log_error("guild.upsert_matchmaking_rules", "FailedPrecondition", &msg, Some("/parley.guild.v1.GuildSettingsService/UpsertMatchmakingRules".into()));
+        ctx.axiom.log_error(
+            "guild.upsert_matchmaking_rules",
+            "FailedPrecondition",
+            &msg,
+            Some("/parley.guild.v1.GuildSettingsService/UpsertMatchmakingRules".into()),
+        );
         return encode_ok(
             &GuildMatchmakingRulesResponse {
                 success: false,
@@ -387,7 +457,12 @@ pub async fn upsert_matchmaking_rules_rpc(
     };
     let Some(r) = req.rules else {
         let msg = "rules payload required".to_string();
-        ctx.axiom.log_error("guild.upsert_matchmaking_rules", "InvalidArgument", &msg, Some("/parley.guild.v1.GuildSettingsService/UpsertMatchmakingRules".into()));
+        ctx.axiom.log_error(
+            "guild.upsert_matchmaking_rules",
+            "InvalidArgument",
+            &msg,
+            Some("/parley.guild.v1.GuildSettingsService/UpsertMatchmakingRules".into()),
+        );
         return encode_ok(
             &GuildMatchmakingRulesResponse {
                 success: false,
@@ -400,7 +475,12 @@ pub async fn upsert_matchmaking_rules_rpc(
     let game = match need_game(r.game) {
         Ok(g) => g,
         Err(e) => {
-            ctx.axiom.log_error("guild.upsert_matchmaking_rules", &e.code, &e.message, Some("/parley.guild.v1.GuildSettingsService/UpsertMatchmakingRules".into()));
+            ctx.axiom.log_error(
+                "guild.upsert_matchmaking_rules",
+                &e.code,
+                &e.message,
+                Some("/parley.guild.v1.GuildSettingsService/UpsertMatchmakingRules".into()),
+            );
             return encode_ok(
                 &GuildMatchmakingRulesResponse {
                     success: false,
@@ -415,7 +495,12 @@ pub async fn upsert_matchmaking_rules_rpc(
         Ok(c) => c,
         Err(e) => {
             let msg = format!("db pool: {e}");
-            ctx.axiom.log_error("guild.upsert_matchmaking_rules", "Internal", &msg, Some("/parley.guild.v1.GuildSettingsService/UpsertMatchmakingRules".into()));
+            ctx.axiom.log_error(
+                "guild.upsert_matchmaking_rules",
+                "Internal",
+                &msg,
+                Some("/parley.guild.v1.GuildSettingsService/UpsertMatchmakingRules".into()),
+            );
             return encode_ok(
                 &GuildMatchmakingRulesResponse {
                     success: false,
@@ -456,7 +541,12 @@ pub async fn upsert_matchmaking_rules_rpc(
         Ok(r) => r,
         Err(e) => {
             let msg = format!("upsert: {e}");
-            ctx.axiom.log_error("guild.upsert_matchmaking_rules", "Internal", &msg, Some("/parley.guild.v1.GuildSettingsService/UpsertMatchmakingRules".into()));
+            ctx.axiom.log_error(
+                "guild.upsert_matchmaking_rules",
+                "Internal",
+                &msg,
+                Some("/parley.guild.v1.GuildSettingsService/UpsertMatchmakingRules".into()),
+            );
             return encode_ok(
                 &GuildMatchmakingRulesResponse {
                     success: false,
@@ -498,7 +588,12 @@ pub async fn get_notification_settings_rpc(
     };
     let Some(pool) = ctx.pool.clone() else {
         let msg = "DATABASE_URL not configured".to_string();
-        ctx.axiom.log_error("guild.get_notification_settings", "FailedPrecondition", &msg, Some("/parley.guild.v1.GuildSettingsService/GetNotificationSettings".into()));
+        ctx.axiom.log_error(
+            "guild.get_notification_settings",
+            "FailedPrecondition",
+            &msg,
+            Some("/parley.guild.v1.GuildSettingsService/GetNotificationSettings".into()),
+        );
         return encode_ok(
             &GuildNotificationSettingsResponse {
                 success: false,
@@ -511,7 +606,12 @@ pub async fn get_notification_settings_rpc(
     let game = match need_game(req.game) {
         Ok(g) => g,
         Err(e) => {
-            ctx.axiom.log_error("guild.get_notification_settings", &e.code, &e.message, Some("/parley.guild.v1.GuildSettingsService/GetNotificationSettings".into()));
+            ctx.axiom.log_error(
+                "guild.get_notification_settings",
+                &e.code,
+                &e.message,
+                Some("/parley.guild.v1.GuildSettingsService/GetNotificationSettings".into()),
+            );
             return encode_ok(
                 &GuildNotificationSettingsResponse {
                     success: false,
@@ -526,7 +626,12 @@ pub async fn get_notification_settings_rpc(
         Ok(c) => c,
         Err(e) => {
             let msg = format!("db pool: {e}");
-            ctx.axiom.log_error("guild.get_notification_settings", "Internal", &msg, Some("/parley.guild.v1.GuildSettingsService/GetNotificationSettings".into()));
+            ctx.axiom.log_error(
+                "guild.get_notification_settings",
+                "Internal",
+                &msg,
+                Some("/parley.guild.v1.GuildSettingsService/GetNotificationSettings".into()),
+            );
             return encode_ok(
                 &GuildNotificationSettingsResponse {
                     success: false,
@@ -558,7 +663,12 @@ pub async fn get_notification_settings_rpc(
         },
         Err(e) => {
             let msg = format!("get: {e}");
-            ctx.axiom.log_error("guild.get_notification_settings", "Internal", &msg, Some("/parley.guild.v1.GuildSettingsService/GetNotificationSettings".into()));
+            ctx.axiom.log_error(
+                "guild.get_notification_settings",
+                "Internal",
+                &msg,
+                Some("/parley.guild.v1.GuildSettingsService/GetNotificationSettings".into()),
+            );
             return encode_ok(
                 &GuildNotificationSettingsResponse {
                     success: false,
@@ -591,7 +701,12 @@ pub async fn upsert_notification_settings_rpc(
     };
     let Some(pool) = ctx.pool.clone() else {
         let msg = "DATABASE_URL not configured".to_string();
-        ctx.axiom.log_error("guild.upsert_notification_settings", "FailedPrecondition", &msg, Some("/parley.guild.v1.GuildSettingsService/UpsertNotificationSettings".into()));
+        ctx.axiom.log_error(
+            "guild.upsert_notification_settings",
+            "FailedPrecondition",
+            &msg,
+            Some("/parley.guild.v1.GuildSettingsService/UpsertNotificationSettings".into()),
+        );
         return encode_ok(
             &GuildNotificationSettingsResponse {
                 success: false,
@@ -603,7 +718,12 @@ pub async fn upsert_notification_settings_rpc(
     };
     let Some(s) = req.settings else {
         let msg = "settings payload required".to_string();
-        ctx.axiom.log_error("guild.upsert_notification_settings", "InvalidArgument", &msg, Some("/parley.guild.v1.GuildSettingsService/UpsertNotificationSettings".into()));
+        ctx.axiom.log_error(
+            "guild.upsert_notification_settings",
+            "InvalidArgument",
+            &msg,
+            Some("/parley.guild.v1.GuildSettingsService/UpsertNotificationSettings".into()),
+        );
         return encode_ok(
             &GuildNotificationSettingsResponse {
                 success: false,
@@ -616,7 +736,12 @@ pub async fn upsert_notification_settings_rpc(
     let game = match need_game(s.game) {
         Ok(g) => g,
         Err(e) => {
-            ctx.axiom.log_error("guild.upsert_notification_settings", &e.code, &e.message, Some("/parley.guild.v1.GuildSettingsService/UpsertNotificationSettings".into()));
+            ctx.axiom.log_error(
+                "guild.upsert_notification_settings",
+                &e.code,
+                &e.message,
+                Some("/parley.guild.v1.GuildSettingsService/UpsertNotificationSettings".into()),
+            );
             return encode_ok(
                 &GuildNotificationSettingsResponse {
                     success: false,
@@ -631,7 +756,12 @@ pub async fn upsert_notification_settings_rpc(
         Ok(c) => c,
         Err(e) => {
             let msg = format!("db pool: {e}");
-            ctx.axiom.log_error("guild.upsert_notification_settings", "Internal", &msg, Some("/parley.guild.v1.GuildSettingsService/UpsertNotificationSettings".into()));
+            ctx.axiom.log_error(
+                "guild.upsert_notification_settings",
+                "Internal",
+                &msg,
+                Some("/parley.guild.v1.GuildSettingsService/UpsertNotificationSettings".into()),
+            );
             return encode_ok(
                 &GuildNotificationSettingsResponse {
                     success: false,
@@ -662,7 +792,12 @@ pub async fn upsert_notification_settings_rpc(
         Ok(r) => r,
         Err(e) => {
             let msg = format!("upsert: {e}");
-            ctx.axiom.log_error("guild.upsert_notification_settings", "Internal", &msg, Some("/parley.guild.v1.GuildSettingsService/UpsertNotificationSettings".into()));
+            ctx.axiom.log_error(
+                "guild.upsert_notification_settings",
+                "Internal",
+                &msg,
+                Some("/parley.guild.v1.GuildSettingsService/UpsertNotificationSettings".into()),
+            );
             return encode_ok(
                 &GuildNotificationSettingsResponse {
                     success: false,
@@ -692,7 +827,6 @@ pub async fn upsert_notification_settings_rpc(
     )
 }
 
-
 pub async fn get_match_quotas_rpc(
     State(ctx): State<AppContext>,
     headers: HeaderMap,
@@ -705,7 +839,12 @@ pub async fn get_match_quotas_rpc(
     };
     let Some(pool) = ctx.pool.clone() else {
         let msg = "DATABASE_URL not configured".to_string();
-        ctx.axiom.log_error("guild.get_match_quotas", "FailedPrecondition", &msg, Some("/parley.guild.v1.GuildSettingsService/GetMatchQuotas".into()));
+        ctx.axiom.log_error(
+            "guild.get_match_quotas",
+            "FailedPrecondition",
+            &msg,
+            Some("/parley.guild.v1.GuildSettingsService/GetMatchQuotas".into()),
+        );
         return encode_ok(
             &GuildMatchQuotasResponse {
                 success: false,
@@ -718,7 +857,12 @@ pub async fn get_match_quotas_rpc(
     let game = match need_game(req.game) {
         Ok(g) => g,
         Err(e) => {
-            ctx.axiom.log_error("guild.get_match_quotas", &e.code, &e.message, Some("/parley.guild.v1.GuildSettingsService/GetMatchQuotas".into()));
+            ctx.axiom.log_error(
+                "guild.get_match_quotas",
+                &e.code,
+                &e.message,
+                Some("/parley.guild.v1.GuildSettingsService/GetMatchQuotas".into()),
+            );
             return encode_ok(
                 &GuildMatchQuotasResponse {
                     success: false,
@@ -733,7 +877,12 @@ pub async fn get_match_quotas_rpc(
         Ok(c) => c,
         Err(e) => {
             let msg = format!("db pool: {e}");
-            ctx.axiom.log_error("guild.get_match_quotas", "Internal", &msg, Some("/parley.guild.v1.GuildSettingsService/GetMatchQuotas".into()));
+            ctx.axiom.log_error(
+                "guild.get_match_quotas",
+                "Internal",
+                &msg,
+                Some("/parley.guild.v1.GuildSettingsService/GetMatchQuotas".into()),
+            );
             return encode_ok(
                 &GuildMatchQuotasResponse {
                     success: false,
@@ -761,7 +910,12 @@ pub async fn get_match_quotas_rpc(
         },
         Err(e) => {
             let msg = format!("get: {e}");
-            ctx.axiom.log_error("guild.get_match_quotas", "Internal", &msg, Some("/parley.guild.v1.GuildSettingsService/GetMatchQuotas".into()));
+            ctx.axiom.log_error(
+                "guild.get_match_quotas",
+                "Internal",
+                &msg,
+                Some("/parley.guild.v1.GuildSettingsService/GetMatchQuotas".into()),
+            );
             return encode_ok(
                 &GuildMatchQuotasResponse {
                     success: false,
@@ -794,7 +948,12 @@ pub async fn upsert_match_quotas_rpc(
     };
     let Some(pool) = ctx.pool.clone() else {
         let msg = "DATABASE_URL not configured".to_string();
-        ctx.axiom.log_error("guild.upsert_match_quotas", "FailedPrecondition", &msg, Some("/parley.guild.v1.GuildSettingsService/UpsertMatchQuotas".into()));
+        ctx.axiom.log_error(
+            "guild.upsert_match_quotas",
+            "FailedPrecondition",
+            &msg,
+            Some("/parley.guild.v1.GuildSettingsService/UpsertMatchQuotas".into()),
+        );
         return encode_ok(
             &GuildMatchQuotasResponse {
                 success: false,
@@ -806,7 +965,12 @@ pub async fn upsert_match_quotas_rpc(
     };
     let Some(q) = req.quota else {
         let msg = "quota payload required".to_string();
-        ctx.axiom.log_error("guild.upsert_match_quotas", "InvalidArgument", &msg, Some("/parley.guild.v1.GuildSettingsService/UpsertMatchQuotas".into()));
+        ctx.axiom.log_error(
+            "guild.upsert_match_quotas",
+            "InvalidArgument",
+            &msg,
+            Some("/parley.guild.v1.GuildSettingsService/UpsertMatchQuotas".into()),
+        );
         return encode_ok(
             &GuildMatchQuotasResponse {
                 success: false,
@@ -819,7 +983,12 @@ pub async fn upsert_match_quotas_rpc(
     let game = match need_game(q.game) {
         Ok(g) => g,
         Err(e) => {
-            ctx.axiom.log_error("guild.upsert_match_quotas", &e.code, &e.message, Some("/parley.guild.v1.GuildSettingsService/UpsertMatchQuotas".into()));
+            ctx.axiom.log_error(
+                "guild.upsert_match_quotas",
+                &e.code,
+                &e.message,
+                Some("/parley.guild.v1.GuildSettingsService/UpsertMatchQuotas".into()),
+            );
             return encode_ok(
                 &GuildMatchQuotasResponse {
                     success: false,
@@ -834,7 +1003,12 @@ pub async fn upsert_match_quotas_rpc(
         Ok(c) => c,
         Err(e) => {
             let msg = format!("db pool: {e}");
-            ctx.axiom.log_error("guild.upsert_match_quotas", "Internal", &msg, Some("/parley.guild.v1.GuildSettingsService/UpsertMatchQuotas".into()));
+            ctx.axiom.log_error(
+                "guild.upsert_match_quotas",
+                "Internal",
+                &msg,
+                Some("/parley.guild.v1.GuildSettingsService/UpsertMatchQuotas".into()),
+            );
             return encode_ok(
                 &GuildMatchQuotasResponse {
                     success: false,
@@ -857,7 +1031,12 @@ pub async fn upsert_match_quotas_rpc(
         Ok(r) => r,
         Err(e) => {
             let msg = format!("upsert: {e}");
-            ctx.axiom.log_error("guild.upsert_match_quotas", "Internal", &msg, Some("/parley.guild.v1.GuildSettingsService/UpsertMatchQuotas".into()));
+            ctx.axiom.log_error(
+                "guild.upsert_match_quotas",
+                "Internal",
+                &msg,
+                Some("/parley.guild.v1.GuildSettingsService/UpsertMatchQuotas".into()),
+            );
             return encode_ok(
                 &GuildMatchQuotasResponse {
                     success: false,

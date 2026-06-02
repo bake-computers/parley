@@ -7,8 +7,8 @@
 //! strings are allocated only at the very last step when we materialise the
 //! public `ScrapedStats` / `RankedStats` structs.
 
-use crate::stats_metrics;
 use crate::nuxt::NuxtResolver;
+use crate::stats_metrics;
 use serde::{Deserialize, Serialize};
 use simd_json::BorrowedValue;
 use simd_json::prelude::*;
@@ -124,11 +124,21 @@ pub fn extract_nuxt_payload(html: &str) -> Option<&str> {
 #[inline]
 fn num(v: Option<&BorrowedValue>) -> f64 {
     let Some(v) = v else { return 0.0 };
-    if let Some(i) = v.as_i64() { return i as f64; }
-    if let Some(u) = v.as_u64() { return u as f64; }
-    if let Some(f) = v.as_f64() { return f; }
-    if let Some(b) = v.as_bool() { return if b { 1.0 } else { 0.0 }; }
-    if let Some(s) = v.as_str() { return s.parse().unwrap_or(0.0); }
+    if let Some(i) = v.as_i64() {
+        return i as f64;
+    }
+    if let Some(u) = v.as_u64() {
+        return u as f64;
+    }
+    if let Some(f) = v.as_f64() {
+        return f;
+    }
+    if let Some(b) = v.as_bool() {
+        return if b { 1.0 } else { 0.0 };
+    }
+    if let Some(s) = v.as_str() {
+        return s.parse().unwrap_or(0.0);
+    }
     0.0
 }
 
@@ -154,7 +164,9 @@ fn find_profile_and_constants_indices(payload: &[BorrowedValue]) -> (Option<usiz
     let mut constants: Option<usize> = None;
 
     for (i, item) in payload.iter().enumerate() {
-        let Some(obj) = item.as_object() else { continue; };
+        let Some(obj) = item.as_object() else {
+            continue;
+        };
 
         if profile.is_none()
             && obj.contains_key("username")
@@ -182,17 +194,29 @@ fn find_profile_and_constants_indices(payload: &[BorrowedValue]) -> (Option<usiz
 
 // ---------- season catalog ----------
 
-fn season_display<'a>(slug: &'a str, seasons_meta: &'a BorrowedValue<'a>, resolver: &NuxtResolver<'a>) -> &'a str {
+fn season_display<'a>(
+    slug: &'a str,
+    seasons_meta: &'a BorrowedValue<'a>,
+    resolver: &NuxtResolver<'a>,
+) -> &'a str {
     let meta = resolver.field(seasons_meta, slug);
     nonempty_str(meta.and_then(|m| resolver.field(m, "display"))).unwrap_or(slug)
 }
 
-fn season_started_at<'a>(slug: &str, seasons_meta: &'a BorrowedValue<'a>, resolver: &NuxtResolver<'a>) -> &'a str {
+fn season_started_at<'a>(
+    slug: &str,
+    seasons_meta: &'a BorrowedValue<'a>,
+    resolver: &NuxtResolver<'a>,
+) -> &'a str {
     let meta = resolver.field(seasons_meta, slug);
     str_field(meta.and_then(|m| resolver.field(m, "started_at"))).unwrap_or("")
 }
 
-fn sort_season_slugs_by_start_desc<'a>(slugs: &mut [&'a str], seasons_meta: &'a BorrowedValue<'a>, resolver: &NuxtResolver<'a>) {
+fn sort_season_slugs_by_start_desc<'a>(
+    slugs: &mut [&'a str],
+    seasons_meta: &'a BorrowedValue<'a>,
+    resolver: &NuxtResolver<'a>,
+) {
     slugs.sort_by(|l, r| {
         let ls = season_started_at(l, seasons_meta, resolver);
         let rs = season_started_at(r, seasons_meta, resolver);
@@ -200,26 +224,50 @@ fn sort_season_slugs_by_start_desc<'a>(slugs: &mut [&'a str], seasons_meta: &'a 
     });
 }
 
-fn build_season_catalog<'a>(ranked_seasons: &'a BorrowedValue<'a>, seasons_meta: &'a BorrowedValue<'a>, resolver: &NuxtResolver<'a>) -> Vec<SeasonCatalogEntry> {
-    let Some(obj) = resolver.resolve(ranked_seasons).as_object() else { return Vec::new(); };
+fn build_season_catalog<'a>(
+    ranked_seasons: &'a BorrowedValue<'a>,
+    seasons_meta: &'a BorrowedValue<'a>,
+    resolver: &NuxtResolver<'a>,
+) -> Vec<SeasonCatalogEntry> {
+    let Some(obj) = resolver.resolve(ranked_seasons).as_object() else {
+        return Vec::new();
+    };
     let mut slugs: Vec<&str> = obj.keys().map(|k| k.as_ref()).collect();
     sort_season_slugs_by_start_desc(&mut slugs, seasons_meta, resolver);
-    slugs.into_iter().map(|slug| SeasonCatalogEntry {
-        slug: slug.to_string(),
-        display: season_display(slug, seasons_meta, resolver).to_string(),
-        started_at: season_started_at(slug, seasons_meta, resolver).to_string(),
-    }).collect()
+    slugs
+        .into_iter()
+        .map(|slug| SeasonCatalogEntry {
+            slug: slug.to_string(),
+            display: season_display(slug, seasons_meta, resolver).to_string(),
+            started_at: season_started_at(slug, seasons_meta, resolver).to_string(),
+        })
+        .collect()
 }
 
 // ---------- rank label resolution ----------
 
-fn rank_label<'a>(rank_slug: Option<&str>, ranks: &'a BorrowedValue<'a>, rank_tiers: &'a BorrowedValue<'a>, resolver: &NuxtResolver<'a>) -> (String, String) {
-    let Some(slug) = rank_slug else { return ("Unknown".into(), "Unknown".into()); };
+fn rank_label<'a>(
+    rank_slug: Option<&str>,
+    ranks: &'a BorrowedValue<'a>,
+    rank_tiers: &'a BorrowedValue<'a>,
+    resolver: &NuxtResolver<'a>,
+) -> (String, String) {
+    let Some(slug) = rank_slug else {
+        return ("Unknown".into(), "Unknown".into());
+    };
     let rank_entry = resolver.field(ranks, slug);
-    let display = nonempty_str(rank_entry.and_then(|r| resolver.field(r, "display"))).unwrap_or(slug).to_string();
+    let display = nonempty_str(rank_entry.and_then(|r| resolver.field(r, "display")))
+        .unwrap_or(slug)
+        .to_string();
     let tier_slug = nonempty_str(rank_entry.and_then(|r| resolver.field(r, "tier")));
     let tier = match tier_slug {
-        Some(t) => nonempty_str(resolver.field(rank_tiers, t).and_then(|tm| resolver.field(tm, "display"))).unwrap_or(t).to_string(),
+        Some(t) => nonempty_str(
+            resolver
+                .field(rank_tiers, t)
+                .and_then(|tm| resolver.field(tm, "display")),
+        )
+        .unwrap_or(t)
+        .to_string(),
         None => "Unknown".to_string(),
     };
     (display, tier)
@@ -229,34 +277,65 @@ fn rank_label<'a>(rank_slug: Option<&str>, ranks: &'a BorrowedValue<'a>, rank_ti
 
 fn key_matches_playlist(key: &str, pl: &str) -> bool {
     const PREFIX: &str = "\"playlist\":\"";
-    let Some(pos) = key.find(PREFIX) else { return false; };
+    let Some(pos) = key.find(PREFIX) else {
+        return false;
+    };
     let rest = &key[pos + PREFIX.len()..];
-    rest.len() > pl.len() && rest.as_bytes()[..pl.len()] == *pl.as_bytes() && rest.as_bytes()[pl.len()] == b'"'
+    rest.len() > pl.len()
+        && rest.as_bytes()[..pl.len()] == *pl.as_bytes()
+        && rest.as_bytes()[pl.len()] == b'"'
 }
 
-fn extract_matches_by_playlist<'a>(resolver: &NuxtResolver<'a>, playlist: Option<&str>) -> Vec<&'a BorrowedValue<'a>> {
+fn extract_matches_by_playlist<'a>(
+    resolver: &NuxtResolver<'a>,
+    playlist: Option<&str>,
+) -> Vec<&'a BorrowedValue<'a>> {
     for item in resolver.payload() {
-        let Some(obj) = item.as_object() else { continue; };
+        let Some(obj) = item.as_object() else {
+            continue;
+        };
         for (key, value) in obj.iter() {
             let k: &str = key.as_ref();
-            if !k.contains("\"matches\"") { continue; }
-            if let Some(pl) = playlist && !key_matches_playlist(k, pl) { continue; }
+            if !k.contains("\"matches\"") {
+                continue;
+            }
+            if let Some(pl) = playlist
+                && !key_matches_playlist(k, pl)
+            {
+                continue;
+            }
             let resolved_query = resolver.resolve(value);
-            let Some(arr) = resolved_query.as_array() else { continue; };
+            let Some(arr) = resolved_query.as_array() else {
+                continue;
+            };
             let Some(first) = arr.first() else { continue };
             let first = resolver.resolve(first);
-            let Some(query_map) = first.as_object() else { continue; };
-            let Some(pages_raw) = query_map.get("pages") else { continue; };
+            let Some(query_map) = first.as_object() else {
+                continue;
+            };
+            let Some(pages_raw) = query_map.get("pages") else {
+                continue;
+            };
             let pages = resolver.resolve(pages_raw);
-            let Some(pages_arr) = pages.as_array() else { continue; };
-            let Some(first_page_raw) = pages_arr.first() else { continue };
+            let Some(pages_arr) = pages.as_array() else {
+                continue;
+            };
+            let Some(first_page_raw) = pages_arr.first() else {
+                continue;
+            };
             let first_page = resolver.resolve(first_page_raw);
-            let Some(first_page_arr) = first_page.as_array() else { continue; };
-            if first_page_arr.is_empty() { continue; }
+            let Some(first_page_arr) = first_page.as_array() else {
+                continue;
+            };
+            if first_page_arr.is_empty() {
+                continue;
+            }
             let mut out: Vec<&'a BorrowedValue<'a>> = Vec::with_capacity(first_page_arr.len());
             for m_raw in first_page_arr.iter() {
                 let m = resolver.resolve(m_raw);
-                if m.is_object() { out.push(m); }
+                if m.is_object() {
+                    out.push(m);
+                }
             }
             return out;
         }
@@ -273,10 +352,15 @@ struct MatchRoundTotals {
     kill_rounds: i32,
 }
 
-fn summarize_match_rounds<'a>(resolver: &NuxtResolver<'a>, matches: &[&'a BorrowedValue<'a>]) -> MatchRoundTotals {
+fn summarize_match_rounds<'a>(
+    resolver: &NuxtResolver<'a>,
+    matches: &[&'a BorrowedValue<'a>],
+) -> MatchRoundTotals {
     let mut t = MatchRoundTotals::default();
     for m in matches {
-        let Some(s) = resolver.field(m, "player_summary") else { continue; };
+        let Some(s) = resolver.field(m, "player_summary") else {
+            continue;
+        };
         let rounds = num_i32(resolver.field(s, "rounds"));
         t.rounds_played += rounds;
         t.survival_rounds += num_i32(resolver.field(s, "round_survivals"));
@@ -297,8 +381,14 @@ fn summarize_match_rounds<'a>(resolver: &NuxtResolver<'a>, matches: &[&'a Borrow
 // ---------- profile materialisation ----------
 
 fn base_profile<'a>(profile: &'a BorrowedValue<'a>, resolver: &NuxtResolver<'a>) -> StatsProfile {
-    let username = nonempty_str(resolver.field(profile, "username")).unwrap_or("Unknown").to_string();
-    StatsProfile { username, level: num_i32(resolver.field(profile, "level")), ..Default::default() }
+    let username = nonempty_str(resolver.field(profile, "username"))
+        .unwrap_or("Unknown")
+        .to_string();
+    StatsProfile {
+        username,
+        level: num_i32(resolver.field(profile, "level")),
+        ..Default::default()
+    }
 }
 
 fn to_scraped(profile: &StatsProfile, ranked: RankedStats) -> ScrapedStats {
@@ -316,11 +406,20 @@ fn to_scraped(profile: &StatsProfile, ranked: RankedStats) -> ScrapedStats {
 
 // ---------- ranked stats per season ----------
 
-fn build_ranked_for_season<'a>(resolver: &NuxtResolver<'a>, ranked_seasons: &'a BorrowedValue<'a>, season_mode_records: &'a BorrowedValue<'a>, seasons_meta: &'a BorrowedValue<'a>, ranks: &'a BorrowedValue<'a>, rank_tiers: &'a BorrowedValue<'a>, season_slug: &str) -> RankedStats {
+fn build_ranked_for_season<'a>(
+    resolver: &NuxtResolver<'a>,
+    ranked_seasons: &'a BorrowedValue<'a>,
+    season_mode_records: &'a BorrowedValue<'a>,
+    seasons_meta: &'a BorrowedValue<'a>,
+    ranks: &'a BorrowedValue<'a>,
+    rank_tiers: &'a BorrowedValue<'a>,
+    season_slug: &str,
+) -> RankedStats {
     let current_season = resolver.field(ranked_seasons, season_slug);
     let current_rank_slug = nonempty_str(current_season.and_then(|s| resolver.field(s, "rank")));
     let peak_rank_slug = nonempty_str(current_season.and_then(|s| resolver.field(s, "max_rank")));
-    let (current_rank, current_rank_tier) = rank_label(current_rank_slug, ranks, rank_tiers, resolver);
+    let (current_rank, current_rank_tier) =
+        rank_label(current_rank_slug, ranks, rank_tiers, resolver);
     let (peak_rank, peak_rank_tier) = rank_label(peak_rank_slug, ranks, rank_tiers, resolver);
 
     let mut all_time_peak_season: Option<&str> = None;
@@ -337,17 +436,25 @@ fn build_ranked_for_season<'a>(resolver: &NuxtResolver<'a>, ranked_seasons: &'a 
             }
         }
     }
-    let all_time_peak_slug = all_time_peak_record.and_then(|r| nonempty_str(resolver.field(r, "max_rank")));
-    let (all_time_peak_rank, all_time_peak_rank_tier) = rank_label(all_time_peak_slug, ranks, rank_tiers, resolver);
+    let all_time_peak_slug =
+        all_time_peak_record.and_then(|r| nonempty_str(resolver.field(r, "max_rank")));
+    let (all_time_peak_rank, all_time_peak_rank_tier) =
+        rank_label(all_time_peak_slug, ranks, rank_tiers, resolver);
 
     let season_modes_opt = resolver.field(season_mode_records, season_slug);
     let mode_record: Option<&BorrowedValue> = season_modes_opt.and_then(|sm| {
-        if let Some(r) = resolver.field(sm, "ranked-bomb") && r.is_object() { return Some(r); }
+        if let Some(r) = resolver.field(sm, "ranked-bomb")
+            && r.is_object()
+        {
+            return Some(r);
+        }
         if let Some(sm_obj) = sm.as_object() {
             for (ms, rec_raw) in sm_obj.iter() {
                 if ms.as_ref().contains("ranked") {
                     let r = resolver.resolve(rec_raw);
-                    if r.is_object() { return Some(r); }
+                    if r.is_object() {
+                        return Some(r);
+                    }
                 }
             }
         }
@@ -359,9 +466,15 @@ fn build_ranked_for_season<'a>(resolver: &NuxtResolver<'a>, ranked_seasons: &'a 
     let season_matches: Vec<&'a BorrowedValue<'a>> = if start.is_empty() {
         ranked_matches
     } else {
-        ranked_matches.into_iter().filter(|m| {
-            m.as_object().and_then(|o| o.get("started_at")).and_then(|v| v.as_str()).is_some_and(|s| s >= start)
-        }).collect()
+        ranked_matches
+            .into_iter()
+            .filter(|m| {
+                m.as_object()
+                    .and_then(|o| o.get("started_at"))
+                    .and_then(|v| v.as_str())
+                    .is_some_and(|s| s >= start)
+            })
+            .collect()
     };
     let rounds = summarize_match_rounds(resolver, &season_matches);
     let mr = mode_record;
@@ -381,10 +494,15 @@ fn build_ranked_for_season<'a>(resolver: &NuxtResolver<'a>, ranked_seasons: &'a 
         assists: num_i32(mr.and_then(|r| resolver.field(r, "assists"))),
         headshots: num_i32(mr.and_then(|r| resolver.field(r, "headshots"))),
         kd_ratio: stats_metrics::round_to(num(mr.and_then(|r| resolver.field(r, "kd"))), 4),
-        headshot_percentage: stats_metrics::round_to(num(mr.and_then(|r| resolver.field(r, "hs"))), 2),
+        headshot_percentage: stats_metrics::round_to(
+            num(mr.and_then(|r| resolver.field(r, "hs"))),
+            2,
+        ),
         win_rate: stats_metrics::round_to(num(mr.and_then(|r| resolver.field(r, "wr"))), 2),
         rank_points: num_i32(current_season.and_then(|s| resolver.field(s, "rank_points"))),
-        peak_rank_points: num_i32(current_season.and_then(|s| resolver.field(s, "max_rank_points"))),
+        peak_rank_points: num_i32(
+            current_season.and_then(|s| resolver.field(s, "max_rank_points")),
+        ),
         current_rank_slug: current_rank_slug.unwrap_or("").to_string(),
         current_rank,
         current_rank_tier,
@@ -413,39 +531,83 @@ struct ModeRecordSelection<'a> {
     record: &'a BorrowedValue<'a>,
 }
 
-fn find_mode_record<'a>(season_mode_records: &'a BorrowedValue<'a>, seasons_meta: &'a BorrowedValue<'a>, resolver: &NuxtResolver<'a>, mut matcher: impl FnMut(&str) -> bool) -> Option<ModeRecordSelection<'a>> {
+fn find_mode_record<'a>(
+    season_mode_records: &'a BorrowedValue<'a>,
+    seasons_meta: &'a BorrowedValue<'a>,
+    resolver: &NuxtResolver<'a>,
+    mut matcher: impl FnMut(&str) -> bool,
+) -> Option<ModeRecordSelection<'a>> {
     let smr = resolver.resolve(season_mode_records).as_object()?;
     let mut slugs: Vec<&str> = smr.keys().map(|k| k.as_ref()).collect();
     sort_season_slugs_by_start_desc(&mut slugs, seasons_meta, resolver);
     let mut best_zero: Option<ModeRecordSelection<'a>> = None;
     for season_slug in slugs {
-        let Some(season_modes_raw) = smr.get(season_slug) else { continue; };
+        let Some(season_modes_raw) = smr.get(season_slug) else {
+            continue;
+        };
         let season_modes = resolver.resolve(season_modes_raw);
-        let Some(season_modes_obj) = season_modes.as_object() else { continue; };
+        let Some(season_modes_obj) = season_modes.as_object() else {
+            continue;
+        };
         for (mode_slug, record_raw) in season_modes_obj.iter() {
             let mode_slug_ref: &str = mode_slug.as_ref();
-            if !matcher(mode_slug_ref) { continue; }
+            if !matcher(mode_slug_ref) {
+                continue;
+            }
             let record = resolver.resolve(record_raw);
-            if !record.is_object() { continue; }
-            let candidate = ModeRecordSelection { season_slug, mode_slug: mode_slug_ref, record };
-            if num_i32(resolver.field(record, "matches")) > 0 { return Some(candidate); }
-            if best_zero.is_none() { best_zero = Some(candidate); }
+            if !record.is_object() {
+                continue;
+            }
+            let candidate = ModeRecordSelection {
+                season_slug,
+                mode_slug: mode_slug_ref,
+                record,
+            };
+            if num_i32(resolver.field(record, "matches")) > 0 {
+                return Some(candidate);
+            }
+            if best_zero.is_none() {
+                best_zero = Some(candidate);
+            }
         }
     }
     best_zero
 }
 
-fn build_fallback_ranked_mode_stats<'a>(resolver: &NuxtResolver<'a>, season_mode_records: &'a BorrowedValue<'a>, seasons_meta: &'a BorrowedValue<'a>) -> Option<RankedStats> {
-    let quick = find_mode_record(season_mode_records, seasons_meta, resolver, |m| m.contains("quick-match") || m.contains("quickmatch"));
-    let selection = quick.or_else(|| find_mode_record(season_mode_records, seasons_meta, resolver, |_| true))?;
-    let ModeRecordSelection { season_slug, mode_slug, record } = selection;
+fn build_fallback_ranked_mode_stats<'a>(
+    resolver: &NuxtResolver<'a>,
+    season_mode_records: &'a BorrowedValue<'a>,
+    seasons_meta: &'a BorrowedValue<'a>,
+) -> Option<RankedStats> {
+    let quick = find_mode_record(season_mode_records, seasons_meta, resolver, |m| {
+        m.contains("quick-match") || m.contains("quickmatch")
+    });
+    let selection = quick
+        .or_else(|| find_mode_record(season_mode_records, seasons_meta, resolver, |_| true))?;
+    let ModeRecordSelection {
+        season_slug,
+        mode_slug,
+        record,
+    } = selection;
     let quick_matches = extract_matches_by_playlist(resolver, Some("quickmatch"));
-    let past_matches = if quick_matches.is_empty() { extract_matches_by_playlist(resolver, None) } else { quick_matches };
+    let past_matches = if quick_matches.is_empty() {
+        extract_matches_by_playlist(resolver, None)
+    } else {
+        quick_matches
+    };
     let start = season_started_at(season_slug, seasons_meta, resolver);
-    let season_matches: Vec<&'a BorrowedValue<'a>> = if start.is_empty() { past_matches } else {
-        past_matches.into_iter().filter(|m| {
-            m.as_object().and_then(|o| o.get("started_at")).and_then(|v| v.as_str()).is_some_and(|s| s >= start)
-        }).collect()
+    let season_matches: Vec<&'a BorrowedValue<'a>> = if start.is_empty() {
+        past_matches
+    } else {
+        past_matches
+            .into_iter()
+            .filter(|m| {
+                m.as_object()
+                    .and_then(|o| o.get("started_at"))
+                    .and_then(|v| v.as_str())
+                    .is_some_and(|s| s >= start)
+            })
+            .collect()
     };
     let rounds = summarize_match_rounds(resolver, &season_matches);
     let matches = num_i32(resolver.field(record, "matches")).max(season_matches.len() as i32);
@@ -455,9 +617,21 @@ fn build_fallback_ranked_mode_stats<'a>(resolver: &NuxtResolver<'a>, season_mode
     let deaths = num_i32(resolver.field(record, "deaths"));
     let assists = num_i32(resolver.field(record, "assists"));
     let headshots = num_i32(resolver.field(record, "headshots"));
-    let kd = if deaths > 0 { kills as f64 / deaths as f64 } else { kills as f64 };
-    let hs = if kills > 0 { headshots as f64 / kills as f64 * 100.0 } else { 0.0 };
-    let wr = if matches > 0 { wins as f64 / matches as f64 * 100.0 } else { 0.0 };
+    let kd = if deaths > 0 {
+        kills as f64 / deaths as f64
+    } else {
+        kills as f64
+    };
+    let hs = if kills > 0 {
+        headshots as f64 / kills as f64 * 100.0
+    } else {
+        0.0
+    };
+    let wr = if matches > 0 {
+        wins as f64 / matches as f64 * 100.0
+    } else {
+        0.0
+    };
     let record_obj = record.as_object();
     let has_key = |k: &str| -> bool { record_obj.is_some_and(|o| o.contains_key(k)) };
 
@@ -467,16 +641,49 @@ fn build_fallback_ranked_mode_stats<'a>(resolver: &NuxtResolver<'a>, season_mode
         season_display: season_display(season_slug, seasons_meta, resolver).to_string(),
         season_started_at: start.to_string(),
         mode: mode_slug.to_string(),
-        matches, wins, losses, abandons: num_i32(resolver.field(record, "abandons")),
-        kills, deaths, assists, headshots,
-        kd_ratio: stats_metrics::round_to(if has_key("kd") { num(resolver.field(record, "kd")) } else { kd }, 4),
-        headshot_percentage: stats_metrics::round_to(if has_key("hs") { num(resolver.field(record, "hs")) } else { hs }, 2),
-        win_rate: stats_metrics::round_to(if has_key("wr") { num(resolver.field(record, "wr")) } else { wr }, 2),
-        current_rank: "Unranked".into(), current_rank_tier: "Unranked".into(),
-        peak_rank: "Unranked".into(), peak_rank_tier: "Unranked".into(),
-        all_time_peak_rank: "Unranked".into(), all_time_peak_rank_tier: "Unranked".into(),
-        rounds_played: rounds.rounds_played, kill_rounds: rounds.kill_rounds, survival_rounds: rounds.survival_rounds,
-        traded_rounds: rounds.traded_rounds, opening_kill_rounds: rounds.opening_kill_rounds,
+        matches,
+        wins,
+        losses,
+        abandons: num_i32(resolver.field(record, "abandons")),
+        kills,
+        deaths,
+        assists,
+        headshots,
+        kd_ratio: stats_metrics::round_to(
+            if has_key("kd") {
+                num(resolver.field(record, "kd"))
+            } else {
+                kd
+            },
+            4,
+        ),
+        headshot_percentage: stats_metrics::round_to(
+            if has_key("hs") {
+                num(resolver.field(record, "hs"))
+            } else {
+                hs
+            },
+            2,
+        ),
+        win_rate: stats_metrics::round_to(
+            if has_key("wr") {
+                num(resolver.field(record, "wr"))
+            } else {
+                wr
+            },
+            2,
+        ),
+        current_rank: "Unranked".into(),
+        current_rank_tier: "Unranked".into(),
+        peak_rank: "Unranked".into(),
+        peak_rank_tier: "Unranked".into(),
+        all_time_peak_rank: "Unranked".into(),
+        all_time_peak_rank_tier: "Unranked".into(),
+        rounds_played: rounds.rounds_played,
+        kill_rounds: rounds.kill_rounds,
+        survival_rounds: rounds.survival_rounds,
+        traded_rounds: rounds.traded_rounds,
+        opening_kill_rounds: rounds.opening_kill_rounds,
         matches_in_cache: season_matches.len() as i32,
         ..Default::default()
     })
@@ -484,11 +691,20 @@ fn build_fallback_ranked_mode_stats<'a>(resolver: &NuxtResolver<'a>, season_mode
 
 fn build_fallback_past_matches<'a>(resolver: &NuxtResolver<'a>) -> Option<RankedStats> {
     let past = extract_matches_by_playlist(resolver, None);
-    if past.is_empty() { return None; }
-    let mut kills = 0i32; let mut deaths = 0i32; let mut assists = 0i32;
-    let mut headshots = 0i32; let mut wins = 0i32; let mut losses = 0i32; let mut abandons = 0i32;
+    if past.is_empty() {
+        return None;
+    }
+    let mut kills = 0i32;
+    let mut deaths = 0i32;
+    let mut assists = 0i32;
+    let mut headshots = 0i32;
+    let mut wins = 0i32;
+    let mut losses = 0i32;
+    let mut abandons = 0i32;
     for m in &past {
-        let Some(s) = resolver.field(m, "player_summary") else { continue; };
+        let Some(s) = resolver.field(m, "player_summary") else {
+            continue;
+        };
         kills += num_i32(resolver.field(s, "kills"));
         deaths += num_i32(resolver.field(s, "deaths"));
         assists += num_i32(resolver.field(s, "assists"));
@@ -498,26 +714,70 @@ fn build_fallback_past_matches<'a>(resolver: &NuxtResolver<'a>) -> Option<Ranked
             let won = obj.get("won").or_else(|| obj.get("win"));
             if let Some(v) = won {
                 let v = resolver.resolve(v);
-                if let Some(b) = v.as_bool() { if b { wins += 1; } else { losses += 1; } }
-                else if let Some(i) = v.as_i64() { if i == 1 { wins += 1; } else if i == 0 { losses += 1; } }
-                else if let Some(sv) = v.as_str() { if sv.eq_ignore_ascii_case("win") { wins += 1; } else if sv.eq_ignore_ascii_case("loss") { losses += 1; } }
+                if let Some(b) = v.as_bool() {
+                    if b {
+                        wins += 1;
+                    } else {
+                        losses += 1;
+                    }
+                } else if let Some(i) = v.as_i64() {
+                    if i == 1 {
+                        wins += 1;
+                    } else if i == 0 {
+                        losses += 1;
+                    }
+                } else if let Some(sv) = v.as_str() {
+                    if sv.eq_ignore_ascii_case("win") {
+                        wins += 1;
+                    } else if sv.eq_ignore_ascii_case("loss") {
+                        losses += 1;
+                    }
+                }
             }
         }
     }
     let rounds = summarize_match_rounds(resolver, &past);
     let matches = past.len() as i32;
-    let kd = if deaths > 0 { kills as f64 / deaths as f64 } else { kills as f64 };
-    let hs = if kills > 0 { headshots as f64 / kills as f64 * 100.0 } else { 0.0 };
-    let wr = if matches > 0 { wins as f64 / matches as f64 * 100.0 } else { 0.0 };
+    let kd = if deaths > 0 {
+        kills as f64 / deaths as f64
+    } else {
+        kills as f64
+    };
+    let hs = if kills > 0 {
+        headshots as f64 / kills as f64 * 100.0
+    } else {
+        0.0
+    };
+    let wr = if matches > 0 {
+        wins as f64 / matches as f64 * 100.0
+    } else {
+        0.0
+    };
     Some(RankedStats {
-        season_display: "Recent Matches".into(), mode: "past-matches".into(),
-        matches, wins, losses, abandons, kills, deaths, assists, headshots,
-        kd_ratio: stats_metrics::round_to(kd, 4), headshot_percentage: stats_metrics::round_to(hs, 2), win_rate: stats_metrics::round_to(wr, 2),
-        current_rank: "Unranked".into(), current_rank_tier: "Unranked".into(),
-        peak_rank: "Unranked".into(), peak_rank_tier: "Unranked".into(),
-        all_time_peak_rank: "Unranked".into(), all_time_peak_rank_tier: "Unranked".into(),
-        rounds_played: rounds.rounds_played, kill_rounds: rounds.kill_rounds, survival_rounds: rounds.survival_rounds,
-        traded_rounds: rounds.traded_rounds, opening_kill_rounds: rounds.opening_kill_rounds,
+        season_display: "Recent Matches".into(),
+        mode: "past-matches".into(),
+        matches,
+        wins,
+        losses,
+        abandons,
+        kills,
+        deaths,
+        assists,
+        headshots,
+        kd_ratio: stats_metrics::round_to(kd, 4),
+        headshot_percentage: stats_metrics::round_to(hs, 2),
+        win_rate: stats_metrics::round_to(wr, 2),
+        current_rank: "Unranked".into(),
+        current_rank_tier: "Unranked".into(),
+        peak_rank: "Unranked".into(),
+        peak_rank_tier: "Unranked".into(),
+        all_time_peak_rank: "Unranked".into(),
+        all_time_peak_rank_tier: "Unranked".into(),
+        rounds_played: rounds.rounds_played,
+        kill_rounds: rounds.kill_rounds,
+        survival_rounds: rounds.survival_rounds,
+        traded_rounds: rounds.traded_rounds,
+        opening_kill_rounds: rounds.opening_kill_rounds,
         matches_in_cache: matches,
         ..Default::default()
     })
@@ -568,8 +828,12 @@ fn scrape_payload(payload: &[BorrowedValue]) -> ScrapedStatsCollection {
         }
     };
     static NULL: BorrowedValue<'static> = BorrowedValue::Static(simd_json::StaticNode::Null);
-    let ranked_seasons = resolver.field(profile, "ranked_season_records").unwrap_or(&NULL);
-    let season_mode_records = resolver.field(profile, "season_mode_records").unwrap_or(&NULL);
+    let ranked_seasons = resolver
+        .field(profile, "ranked_season_records")
+        .unwrap_or(&NULL);
+    let season_mode_records = resolver
+        .field(profile, "season_mode_records")
+        .unwrap_or(&NULL);
     let seasons_meta = resolver.field(constants, "seasons").unwrap_or(&NULL);
     let ranks = resolver.field(constants, "ranks").unwrap_or(&NULL);
     let rank_tiers = resolver.field(constants, "rank_tiers").unwrap_or(&NULL);
@@ -577,22 +841,44 @@ fn scrape_payload(payload: &[BorrowedValue]) -> ScrapedStatsCollection {
     let catalog = build_season_catalog(ranked_seasons, seasons_meta, &resolver);
     let mut by_season = BTreeMap::new();
     for entry in &catalog {
-        let ranked = build_ranked_for_season(&resolver, ranked_seasons, season_mode_records, seasons_meta, ranks, rank_tiers, &entry.slug);
+        let ranked = build_ranked_for_season(
+            &resolver,
+            ranked_seasons,
+            season_mode_records,
+            seasons_meta,
+            ranks,
+            rank_tiers,
+            &entry.slug,
+        );
         by_season.insert(entry.slug.clone(), to_scraped(&base, ranked));
     }
     let latest = if let Some(first) = catalog.first() {
-        by_season.get(&first.slug).cloned().unwrap_or_else(|| to_scraped(&base, RankedStats::default()))
+        by_season
+            .get(&first.slug)
+            .cloned()
+            .unwrap_or_else(|| to_scraped(&base, RankedStats::default()))
     } else {
-        let ranked = build_fallback_ranked_mode_stats(&resolver, season_mode_records, seasons_meta).or_else(|| build_fallback_past_matches(&resolver)).unwrap_or_default();
+        let ranked = build_fallback_ranked_mode_stats(&resolver, season_mode_records, seasons_meta)
+            .or_else(|| build_fallback_past_matches(&resolver))
+            .unwrap_or_default();
         to_scraped(&base, ranked)
     };
-    ScrapedStatsCollection { latest, by_season, season_catalog: catalog }
+    ScrapedStatsCollection {
+        latest,
+        by_season,
+        season_catalog: catalog,
+    }
 }
 
 pub fn scrape_html_stats(html: &str, season_selector: Option<&str>) -> ScrapedStats {
     let collection = scrape_html_stats_collection(html);
-    match season_selector.and_then(|s| canonicalize_season_selector(s, &collection.season_catalog)) {
-        Some(slug) => collection.by_season.get(&slug).cloned().unwrap_or(collection.latest),
+    match season_selector.and_then(|s| canonicalize_season_selector(s, &collection.season_catalog))
+    {
+        Some(slug) => collection
+            .by_season
+            .get(&slug)
+            .cloned()
+            .unwrap_or(collection.latest),
         None => collection.latest,
     }
 }
@@ -606,7 +892,13 @@ struct SlugCanon<'a> {
 }
 
 impl<'a> SlugCanon<'a> {
-    fn new(s: &'a str) -> Self { Self { bytes: s.as_bytes().iter(), prev_was_sep: false, started: false } }
+    fn new(s: &'a str) -> Self {
+        Self {
+            bytes: s.as_bytes().iter(),
+            prev_was_sep: false,
+            started: false,
+        }
+    }
 }
 
 impl<'a> Iterator for SlugCanon<'a> {
@@ -615,8 +907,12 @@ impl<'a> Iterator for SlugCanon<'a> {
         for &b in self.bytes.by_ref() {
             let is_sep = b == b' ' || b == b'_' || b == b'-' || b == b'\t';
             if is_sep {
-                if !self.started { continue; }
-                if self.prev_was_sep { continue; }
+                if !self.started {
+                    continue;
+                }
+                if self.prev_was_sep {
+                    continue;
+                }
                 self.prev_was_sep = true;
                 return Some(b'-');
             }
@@ -646,14 +942,23 @@ fn display_canon_eq(a: &str, b: &str) -> bool {
     slug_canon_eq(a, b)
 }
 
-pub fn canonicalize_season_selector(selector: &str, catalog: &[SeasonCatalogEntry]) -> Option<String> {
+pub fn canonicalize_season_selector(
+    selector: &str,
+    catalog: &[SeasonCatalogEntry],
+) -> Option<String> {
     let trimmed = selector.trim();
-    if trimmed.is_empty() { return None; }
-    for entry in catalog {
-        if slug_canon_eq(&entry.slug, trimmed) { return Some(entry.slug.clone()); }
+    if trimmed.is_empty() {
+        return None;
     }
     for entry in catalog {
-        if display_canon_eq(&entry.display, trimmed) { return Some(entry.slug.clone()); }
+        if slug_canon_eq(&entry.slug, trimmed) {
+            return Some(entry.slug.clone());
+        }
+    }
+    for entry in catalog {
+        if display_canon_eq(&entry.display, trimmed) {
+            return Some(entry.slug.clone());
+        }
     }
     None
 }
@@ -664,7 +969,10 @@ mod tests {
     use serde_json::{Value, json};
 
     fn wrap_in_nuxt_html(payload: &Value) -> String {
-        format!("<html><head><script id=\"__NUXT_DATA__\" type=\"application/json\">{}</script></head><body></body></html>", payload.to_string())
+        format!(
+            "<html><head><script id=\"__NUXT_DATA__\" type=\"application/json\">{}</script></head><body></body></html>",
+            payload.to_string()
+        )
     }
 
     #[test]
@@ -684,10 +992,23 @@ mod tests {
 
     #[test]
     fn season_selector_canonicalises_display_name() {
-        let catalog = vec![SeasonCatalogEntry { slug: "prep-phase".into(), display: "Prep Phase".into(), started_at: "2026-01-01".into() }];
-        assert_eq!(canonicalize_season_selector("Prep Phase", &catalog).as_deref(), Some("prep-phase"));
-        assert_eq!(canonicalize_season_selector("prep_phase", &catalog).as_deref(), Some("prep-phase"));
-        assert_eq!(canonicalize_season_selector("  PREP-phase ", &catalog).as_deref(), Some("prep-phase"));
+        let catalog = vec![SeasonCatalogEntry {
+            slug: "prep-phase".into(),
+            display: "Prep Phase".into(),
+            started_at: "2026-01-01".into(),
+        }];
+        assert_eq!(
+            canonicalize_season_selector("Prep Phase", &catalog).as_deref(),
+            Some("prep-phase")
+        );
+        assert_eq!(
+            canonicalize_season_selector("prep_phase", &catalog).as_deref(),
+            Some("prep-phase")
+        );
+        assert_eq!(
+            canonicalize_season_selector("  PREP-phase ", &catalog).as_deref(),
+            Some("prep-phase")
+        );
         assert_eq!(canonicalize_season_selector("unknown", &catalog), None);
     }
 }

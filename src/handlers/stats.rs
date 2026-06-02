@@ -6,16 +6,16 @@
 //! reqwest's HTTP/2 connection pool can keep TLS sessions alive and cut
 //! per-request latency.
 
-use axum::{
-    Json,
-    extract::{Path, Query, State},
-    http::StatusCode,
-    response::{IntoResponse, Response},
-};
-use serde::Deserialize;
 use crate::backends::Game as BackendGame;
+use crate::backends::StatsBackendRegistry;
+use crate::cache::StatsCache;
 use crate::cache_store::StatsCacheStore;
+use crate::fetch::StatsClient;
 use crate::fetch::{StatsFetchError, StatsFetchErrorKind, StatsPlatform};
+use crate::scrape::{
+    CalculatedMetrics, RankedStats, ScrapedStats, ScrapedStatsCollection, SeasonCatalogEntry,
+    StatsProfile,
+};
 use crate::stats_proto::common::v1::Error as ProtoError;
 use crate::stats_proto::stats::v1::{
     CalculatedMetrics as ProtoCalculatedMetrics, FetchStatsCollectionRequest,
@@ -25,13 +25,13 @@ use crate::stats_proto::stats::v1::{
     SeasonCatalogEntry as ProtoSeasonCatalogEntry, StatsPlatform as ProtoPlatform,
     StatsProfile as ProtoProfile,
 };
-use crate::scrape::{
-    CalculatedMetrics, RankedStats, ScrapedStats, ScrapedStatsCollection, SeasonCatalogEntry,
-    StatsProfile,
+use axum::{
+    Json,
+    extract::{Path, Query, State},
+    http::StatusCode,
+    response::{IntoResponse, Response},
 };
-use crate::backends::StatsBackendRegistry;
-use crate::cache::StatsCache;
-use crate::fetch::StatsClient;
+use serde::Deserialize;
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -54,7 +54,9 @@ impl Default for StatsHandler {
     fn default() -> Self {
         let client = StatsClient::default();
         let mut registry = StatsBackendRegistry::new();
-        registry.register(Arc::new(crate::backends::r6::R6Backend::new(client.clone())));
+        registry.register(Arc::new(crate::backends::r6::R6Backend::new(
+            client.clone(),
+        )));
         Self {
             client,
             cache: Arc::new(StatsCache::default()),
@@ -67,7 +69,9 @@ impl Default for StatsHandler {
 impl StatsHandler {
     pub fn with_client(client: StatsClient) -> Self {
         let mut registry = StatsBackendRegistry::new();
-        registry.register(Arc::new(crate::backends::r6::R6Backend::new(client.clone())));
+        registry.register(Arc::new(crate::backends::r6::R6Backend::new(
+            client.clone(),
+        )));
         Self {
             client,
             cache: Arc::new(StatsCache::default()),
@@ -78,7 +82,9 @@ impl StatsHandler {
 
     pub fn with_client_and_cache(client: StatsClient, cache: StatsCache) -> Self {
         let mut registry = StatsBackendRegistry::new();
-        registry.register(Arc::new(crate::backends::r6::R6Backend::new(client.clone())));
+        registry.register(Arc::new(crate::backends::r6::R6Backend::new(
+            client.clone(),
+        )));
         Self {
             client,
             cache: Arc::new(cache),

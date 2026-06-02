@@ -62,8 +62,12 @@ impl AppContext {
 
         let cache_cfg = cache_config_from_env();
         let stats = if let Some(p) = pool.clone() {
-            let store: Arc<dyn StatsCacheStore> =
-                Arc::new(PostgresStatsCacheStore::new(p, registry.clone(), cache_cfg, axiom.clone()));
+            let store: Arc<dyn StatsCacheStore> = Arc::new(PostgresStatsCacheStore::new(
+                p,
+                registry.clone(),
+                cache_cfg,
+                axiom.clone(),
+            ));
             Arc::new(
                 StatsHandler::with_client(client)
                     .with_registry(registry)
@@ -73,11 +77,7 @@ impl AppContext {
             Arc::new(StatsHandler::with_client(client).with_registry(registry))
         };
 
-        Ok(Self {
-            pool,
-            stats,
-            axiom,
-        })
+        Ok(Self { pool, stats, axiom })
     }
 
     /// Test/dev helper: no DB, default handlers.

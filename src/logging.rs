@@ -284,13 +284,13 @@ impl Default for AxiomLogger {
 
 use axum::{
     extract::Request,
-    http::{header::CONTENT_TYPE, HeaderName},
+    http::{HeaderName, header::CONTENT_TYPE},
     response::Response,
 };
-use std::net::SocketAddr;
-use tower::{Layer, Service};
 use std::future::Future;
+use std::net::SocketAddr;
 use std::pin::Pin;
+use tower::{Layer, Service};
 
 /// Tower middleware layer for Axiom HTTP logging.
 #[derive(Clone)]
@@ -368,7 +368,15 @@ where
                 .and_then(|v| v.to_str().ok())
                 .map(String::from);
 
-            logger.log_http(&method, &path, status, duration_ms, user_agent, content_type, origin);
+            logger.log_http(
+                &method,
+                &path,
+                status,
+                duration_ms,
+                user_agent,
+                content_type,
+                origin,
+            );
 
             Ok(response)
         })

@@ -45,7 +45,12 @@ pub struct PostgresStatsCacheStore {
 }
 
 impl PostgresStatsCacheStore {
-    pub fn new(pool: DbPool, registry: Arc<StatsBackendRegistry>, cfg: StatsCacheConfigV2, axiom: AxiomLogger) -> Self {
+    pub fn new(
+        pool: DbPool,
+        registry: Arc<StatsBackendRegistry>,
+        cfg: StatsCacheConfigV2,
+        axiom: AxiomLogger,
+    ) -> Self {
         Self {
             pool,
             registry,
@@ -115,7 +120,8 @@ impl PostgresStatsCacheStore {
         .await;
         let duration_ms = start.elapsed().as_secs_f64() * 1000.0;
         let error = row.as_ref().err().map(|e| e.to_string());
-        self.axiom.log_db("select", "player_stat_snapshots", duration_ms, error);
+        self.axiom
+            .log_db("select", "player_stat_snapshots", duration_ms, error);
         row.map(|opt| opt.and_then(|r| serde_json::from_str::<ScrapedStats>(&r.payload_json).ok()))
             .map_err(map_diesel)
     }
@@ -163,7 +169,8 @@ impl PostgresStatsCacheStore {
         let result = PlayerStatSnapshotRepo::insert(&mut conn, new_row).await;
         let duration_ms = start.elapsed().as_secs_f64() * 1000.0;
         let error = result.as_ref().err().map(|e| e.to_string());
-        self.axiom.log_db("insert", "player_stat_snapshots", duration_ms, error);
+        self.axiom
+            .log_db("insert", "player_stat_snapshots", duration_ms, error);
         result.map(|_| ()).map_err(map_diesel)
     }
 }
