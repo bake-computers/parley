@@ -27,6 +27,7 @@ use diesel_async::pooled_connection::bb8::Pool;
 use diesel_async::pooled_connection::{AsyncDieselConnectionManager, ManagerConfig};
 use futures_util::FutureExt;
 use futures_util::future::BoxFuture;
+use crate::db::MIGRATIONS;
 
 /// Production alias — prefer this in handler signatures.
 pub type DbPool = Pool<AsyncPgConnection>;
@@ -255,7 +256,7 @@ pub async fn run_migrations_if_requested(cfg: &PoolConfig) -> anyhow::Result<()>
         use diesel_migrations::MigrationHarness;
         let mut conn = diesel::pg::PgConnection::establish(&url)
             .map_err(|e| anyhow::anyhow!("migrations connect failed: {e}"))?;
-        conn.run_pending_migrations(super::MIGRATIONS)
+        conn.run_pending_migrations(MIGRATIONS)
             .map_err(|e| anyhow::anyhow!("run_pending_migrations failed: {e}"))?;
         Ok::<_, anyhow::Error>(())
     })
