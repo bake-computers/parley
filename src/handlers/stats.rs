@@ -278,7 +278,15 @@ pub async fn stats_get(
             .await;
         return match result {
             Ok(stats) => Json(stats).into_response(),
-            Err(err) => map_error(err).into_response(),
+            Err(err) => {
+                state.axiom.log_error(
+                    "stats.fetch",
+                    &format!("{:?}", err.kind),
+                    &err.message,
+                    Some(format!("/stats/{username}")),
+                );
+                map_error(err).into_response()
+            }
         };
     }
 
@@ -300,7 +308,15 @@ pub async fn stats_get(
 
     match result {
         Ok(stats) => Json(stats).into_response(),
-        Err(err) => map_error(err).into_response(),
+        Err(err) => {
+            state.axiom.log_error(
+                "stats.fetch",
+                &format!("{:?}", err.kind),
+                &err.message,
+                Some(format!("/stats/{username}")),
+            );
+            map_error(err).into_response()
+        }
     }
 }
 
