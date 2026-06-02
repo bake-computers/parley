@@ -32,7 +32,6 @@ use crate::scrape::{ScrapedStats, ScrapedStatsCollection};
 fn to_db_game(g: Game) -> DbGame {
     match g {
         Game::R6 => DbGame::R6,
-        Game::BrawlStars => DbGame::BrawlStars,
     }
 }
 

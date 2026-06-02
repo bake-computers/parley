@@ -100,11 +100,9 @@ impl AppContext {
 
 fn cache_config_from_env() -> StatsCacheConfigV2 {
     let ttl_r6 = Duration::from_millis(read_u64("STATS_TTL_R6_MS", 60_000));
-    let ttl_brawl_stars = Duration::from_millis(read_u64("STATS_TTL_BRAWL_STARS_MS", 120_000));
     let stale_grace = Duration::from_millis(read_u64("STATS_STALE_GRACE_MS", 24 * 3600 * 1000));
     StatsCacheConfigV2 {
         ttl_r6,
-        ttl_brawl_stars,
         stale_grace,
         in_memory_max_entries: 1024,
     }

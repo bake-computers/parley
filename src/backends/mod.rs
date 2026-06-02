@@ -1,10 +1,3 @@
-//! Game-agnostic stats fetching.
-//!
-//! Each game (R6, Brawl Stars, …) implements `StatsBackend` against whatever
-//! upstream source is appropriate — HTML scraping for R6, the official Brawl
-//! Stars REST API, etc. A `StatsBackendRegistry` routes incoming `FetchStats`
-//! RPCs to the right backend based on the `Game` enum on the request.
-
 use std::collections::HashMap;
 use std::sync::Arc;
 
@@ -20,14 +13,12 @@ pub mod r6;
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum Game {
     R6,
-    BrawlStars,
 }
 
 impl Game {
     pub fn as_str(self) -> &'static str {
         match self {
             Game::R6 => "r6",
-            Game::BrawlStars => "brawl_stars",
         }
     }
 }

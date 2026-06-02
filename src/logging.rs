@@ -161,6 +161,13 @@ impl AxiomLogger {
                         }
                     }
                     _ = shutdown_rx.changed() => {
+                        // Drain any remaining events that are already queued in the channel so they get flushed before shutdown
+                        while let Ok(event) = rx.try_recv() {
+                            batch.push(event);
+                            if batch.len() >= batch_size {
+                                Self::flush_batch(&client, &dataset, &mut batch).await;
+                            }
+                        }
                         if !batch.is_empty() {
                             Self::flush_batch(&client, &dataset, &mut batch).await;
                         }

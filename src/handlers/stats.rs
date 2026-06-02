@@ -166,7 +166,7 @@ impl StatsHandler {
                 error: Some(ProtoError {
                     code: "GcUnavailable".into(),
                     message: format!(
-                        "no backend registered for game {} (start with DATABASE_URL set and a brawl-stars backend)",
+                        "no backend registered for game {}",
                         game.as_str()
                     ),
                 }),
@@ -247,7 +247,7 @@ pub struct StatsQuery {
     pub platform: Option<String>,
     #[serde(default)]
     pub season: Option<String>,
-    /// `"r6"` (default) or `"brawl_stars"`.
+    /// `"r6"` (default).
     #[serde(default)]
     pub game: Option<String>,
     /// Optional base URL override, used by tests to point at a mock server.
@@ -268,33 +268,11 @@ pub async fn stats_get(
         Some(other) => return bad_request(format!("unsupported platform: {other}")),
     };
 
-    let game = match q.game.as_deref() {
-        None | Some("") | Some("r6") | Some("R6") => BackendGame::R6,
-        Some("brawl_stars") | Some("brawlstars") | Some("BrawlStars") => BackendGame::BrawlStars,
+    // Validate game parameter (R6 only).
+    match q.game.as_deref() {
+        None | Some("") | Some("r6") | Some("R6") => {}
         Some(other) => return bad_request(format!("unsupported game: {other}")),
     };
-
-    // Non-R6 games go through the backend registry. The legacy `?base_url=`
-    // wiremock path is R6-only.
-    if matches!(game, BackendGame::BrawlStars) {
-        let result = state
-            .stats
-            .registry()
-            .fetch(game, &username, platform, q.season.as_deref())
-            .await;
-        return match result {
-            Ok(stats) => Json(stats).into_response(),
-            Err(err) => {
-                state.axiom.log_error(
-                    "stats.fetch",
-                    &format!("{:?}", err.kind),
-                    &err.message,
-                    Some(format!("/stats/{username}")),
-                );
-                map_error(err).into_response()
-            }
-        };
-    }
 
     // R6 path — preserves the existing wiremock `?base_url=` test hook.
     let result = match q.base_url.as_deref() {
@@ -373,12 +351,8 @@ fn map_proto_platform(v: i32) -> StatsPlatform {
 
 /// Proto `Game` → backend `Game`. Defaults to R6 for GAME_UNSPECIFIED so that
 /// existing clients who never set the field keep working.
-fn map_proto_game(v: i32) -> BackendGame {
-    use crate::stats_proto::common::v1::Game as ProtoGame;
-    match ProtoGame::try_from(v).unwrap_or(ProtoGame::Unspecified) {
-        ProtoGame::BrawlStars => BackendGame::BrawlStars,
-        _ => BackendGame::R6,
-    }
+fn map_proto_game(_v: i32) -> BackendGame {
+    BackendGame::R6
 }
 
 fn proto_error(e: &StatsFetchError) -> ProtoError {

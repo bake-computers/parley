@@ -29,15 +29,14 @@ use crate::proto::guild::v1::{
 fn proto_game_to_db(v: i32) -> Option<DbGame> {
     match ProtoGame::try_from(v).unwrap_or(ProtoGame::Unspecified) {
         ProtoGame::R6 => Some(DbGame::R6),
-        ProtoGame::BrawlStars => Some(DbGame::BrawlStars),
         ProtoGame::Unspecified => None,
+        _ => None,
     }
 }
 
 fn db_game_to_proto(g: DbGame) -> i32 {
     match g {
         DbGame::R6 => ProtoGame::R6 as i32,
-        DbGame::BrawlStars => ProtoGame::BrawlStars as i32,
     }
 }
 
@@ -49,7 +48,7 @@ fn err(code: &str, msg: impl Into<String>) -> ProtoError {
 }
 
 fn need_game(game: i32) -> Result<DbGame, ProtoError> {
-    proto_game_to_db(game).ok_or_else(|| err("InvalidArgument", "game must be R6 or BrawlStars"))
+    proto_game_to_db(game).ok_or_else(|| err("InvalidArgument", "game must be R6"))
 }
 
 // ======================================================================

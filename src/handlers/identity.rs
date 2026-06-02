@@ -21,15 +21,14 @@ use crate::proto::identity::v1::{
 fn proto_game_to_db(v: i32) -> Option<DbGame> {
     match ProtoGame::try_from(v).unwrap_or(ProtoGame::Unspecified) {
         ProtoGame::R6 => Some(DbGame::R6),
-        ProtoGame::BrawlStars => Some(DbGame::BrawlStars),
         ProtoGame::Unspecified => None,
+        _ => None,
     }
 }
 
 fn db_game_to_proto(g: DbGame) -> i32 {
     match g {
         DbGame::R6 => ProtoGame::R6 as i32,
-        DbGame::BrawlStars => ProtoGame::BrawlStars as i32,
     }
 }
 
@@ -70,7 +69,7 @@ pub async fn link_account_rpc(
         );
     };
     let Some(game) = proto_game_to_db(req.game) else {
-        let msg = "game must be R6 or BrawlStars".to_string();
+        let msg = "game must be R6".to_string();
         ctx.axiom.log_error(
             "identity.link_account",
             "InvalidArgument",
@@ -233,7 +232,7 @@ pub async fn unlink_account_rpc(
         );
     };
     let Some(game) = proto_game_to_db(req.game) else {
-        let msg = "game must be R6 or BrawlStars".to_string();
+        let msg = "game must be R6".to_string();
         ctx.axiom.log_error(
             "identity.unlink_account",
             "InvalidArgument",
@@ -426,7 +425,7 @@ pub async fn lookup_by_username_rpc(
         );
     };
     let Some(game) = proto_game_to_db(req.game) else {
-        let msg = "game must be R6 or BrawlStars".to_string();
+        let msg = "game must be R6".to_string();
         ctx.axiom.log_error(
             "identity.lookup_by_username",
             "InvalidArgument",
