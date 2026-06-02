@@ -48,11 +48,23 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .parse()?;
 
     let axiom_logger = logging::AxiomLogger::new(logging::AxiomConfig::default());
+    let axiom_for_shutdown = axiom_logger.clone();
     let ctx = AppContext::from_env(axiom_logger).await?;
     let app = connect::build_router_with_context(ctx);
     tracing::info!(%addr, "engine-service listening");
 
     let listener = tokio::net::TcpListener::bind(addr).await?;
-    axum::serve(listener, app).await?;
+
+    let shutdown_signal = async {
+        tokio::signal::ctrl_c().await.ok();
+    };
+
+    axum::serve(listener, app)
+        .with_graceful_shutdown(shutdown_signal)
+        .await?;
+
+    axiom_for_shutdown.shutdown();
+    tokio::time::sleep(std::time::Duration::from_millis(500)).await;
+
     Ok(())
 }

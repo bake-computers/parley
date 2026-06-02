@@ -102,6 +102,7 @@ impl AxiomConfig {
 #[derive(Clone)]
 pub struct AxiomLogger {
     tx: Option<mpsc::Sender<AxiomEvent>>,
+    shutdown: Option<tokio::sync::watch::Sender<()>>,
 }
 
 impl AxiomLogger {
@@ -109,7 +110,10 @@ impl AxiomLogger {
     pub fn new(config: AxiomConfig) -> Self {
         if !config.is_configured() {
             tracing::info!("axiom logging disabled (no token or AXIOM_ENABLED=false)");
-            return Self { tx: None };
+            return Self {
+                tx: None,
+                shutdown: None,
+            };
         }
 
         let token = config.token.clone().unwrap();
@@ -119,11 +123,11 @@ impl AxiomLogger {
         let flush_interval = config.flush_interval;
 
         let (tx, mut rx) = mpsc::channel(config.buffer_size);
+        let (shutdown_tx, mut shutdown_rx) = tokio::sync::watch::channel(());
 
         // Spawn the background batch worker
         tokio::spawn(async move {
-            let mut builder = axiom_rs::Client::builder()
-                .with_token(&token);
+            let mut builder = axiom_rs::Client::builder().with_token(&token);
             if let Some(ref org) = org_id {
                 builder = builder.with_org_id(org);
             }
@@ -134,13 +138,11 @@ impl AxiomLogger {
 
             loop {
                 tokio::select! {
-                    // Flush on interval
                     _ = interval.tick() => {
                         if !batch.is_empty() {
                             Self::flush_batch(&client, &dataset, &mut batch).await;
                         }
                     }
-                    // Collect events
                     event = rx.recv() => {
                         match event {
                             Some(e) => {
@@ -150,14 +152,20 @@ impl AxiomLogger {
                                 }
                             }
                             None => {
-                                // Channel closed — flush remaining and exit
                                 if !batch.is_empty() {
                                     Self::flush_batch(&client, &dataset, &mut batch).await;
                                 }
-                                tracing::info!("axiom logging worker shutdown");
+                                tracing::info!("axiom logging worker shutdown (channel closed)");
                                 break;
                             }
                         }
+                    }
+                    _ = shutdown_rx.changed() => {
+                        if !batch.is_empty() {
+                            Self::flush_batch(&client, &dataset, &mut batch).await;
+                        }
+                        tracing::info!("axiom logging worker shutdown (signal)");
+                        break;
                     }
                 }
             }
@@ -170,7 +178,10 @@ impl AxiomLogger {
             "axiom logging enabled"
         );
 
-        Self { tx: Some(tx) }
+        Self {
+            tx: Some(tx),
+            shutdown: Some(shutdown_tx),
+        }
     }
 
     /// Send an event to Axiom (no-op if disabled).
@@ -233,6 +244,13 @@ impl AxiomLogger {
         });
     }
 
+    /// Signal the background worker to flush and shut down.
+    pub fn shutdown(&self) {
+        if let Some(shutdown) = &self.shutdown {
+            let _ = shutdown.send(());
+        }
+    }
+
     async fn flush_batch(
         client: &Arc<axiom_rs::Client>,
         dataset: &str,
@@ -254,13 +272,12 @@ impl AxiomLogger {
 /// No-op logger for when Axiom is disabled.
 impl Default for AxiomLogger {
     fn default() -> Self {
-        Self { tx: None }
+        Self {
+            tx: None,
+            shutdown: None,
+        }
     }
 }
-
-// ======================================================================
-// HTTP Request Logging Middleware
-// ======================================================================
 
 use axum::{
     extract::Request,
