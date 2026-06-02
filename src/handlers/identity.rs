@@ -177,8 +177,8 @@ pub async fn link_account_rpc(
         );
     }
 
-    if !req.guild_id.trim().is_empty() {
-        if let Err(e) = GuildMembershipRepo::upsert(
+    if !req.guild_id.trim().is_empty()
+        && let Err(e) = GuildMembershipRepo::upsert(
             &mut conn,
             game,
             &req.guild_id,
@@ -189,7 +189,6 @@ pub async fn link_account_rpc(
         {
             tracing::warn!(error = %e, "guild membership upsert failed (non-fatal)");
         }
-    }
 
     encode_ok(
         &LinkAccountResponse {
