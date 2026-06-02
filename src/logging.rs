@@ -30,6 +30,7 @@ pub enum AxiomEvent {
         duration_ms: f64,
         user_agent: Option<String>,
         content_type: Option<String>,
+        origin: Option<String>,
     },
     /// Database query event.
     Db {
@@ -181,6 +182,7 @@ impl AxiomLogger {
     }
 
     /// Log an HTTP request event.
+    #[allow(clippy::too_many_arguments)]
     pub fn log_http(
         &self,
         method: &str,
@@ -189,6 +191,7 @@ impl AxiomLogger {
         duration_ms: f64,
         user_agent: Option<String>,
         content_type: Option<String>,
+        origin: Option<String>,
     ) {
         self.log(AxiomEvent::Http {
             method: method.to_string(),
@@ -197,6 +200,7 @@ impl AxiomLogger {
             duration_ms,
             user_agent,
             content_type,
+            origin,
         });
     }
 
@@ -259,10 +263,11 @@ impl Default for AxiomLogger {
 // ======================================================================
 
 use axum::{
-    extract::Request,
-    http::{header::CONTENT_TYPE, HeaderMap, HeaderName},
+    extract::{ConnectInfo, Request},
+    http::{header::CONTENT_TYPE, HeaderName},
     response::Response,
 };
+use std::net::SocketAddr;
 use tower::{Layer, Service};
 use std::future::Future;
 use std::pin::Pin;
@@ -317,6 +322,9 @@ where
         let logger = self.logger.clone();
         let start = Instant::now();
 
+        // Extract origin before moving req into async block
+        let origin = extract_origin(&req);
+
         // Clone service for the async block
         let clone = self.inner.clone();
         let mut inner = std::mem::replace(&mut self.inner, clone);
@@ -340,9 +348,33 @@ where
                 .and_then(|v| v.to_str().ok())
                 .map(String::from);
 
-            logger.log_http(&method, &path, status, duration_ms, user_agent, content_type);
+            logger.log_http(&method, &path, status, duration_ms, user_agent, content_type, origin);
 
             Ok(response)
         })
     }
+}
+
+fn extract_origin(req: &Request) -> Option<String> {
+    // Check proxy headers first (Cloudflare, load balancers)
+    if let Some(v) = req.headers().get("cf-connecting-ip")
+        && let Ok(s) = v.to_str()
+    {
+        return Some(s.to_string());
+    }
+    if let Some(v) = req.headers().get("x-forwarded-for")
+        && let Ok(s) = v.to_str()
+    {
+        // Take the first IP in the chain
+        return Some(s.split(',').next()?.trim().to_string());
+    }
+    if let Some(v) = req.headers().get("x-real-ip")
+        && let Ok(s) = v.to_str()
+    {
+        return Some(s.to_string());
+    }
+    // Fall back to socket peer address (works in local dev)
+    req.extensions()
+        .get::<ConnectInfo<SocketAddr>>()
+        .map(|info| info.0.ip().to_string())
 }
