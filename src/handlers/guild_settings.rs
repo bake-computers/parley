@@ -458,10 +458,6 @@ pub async fn upsert_matchmaking_rules_rpc(
     )
 }
 
-// ======================================================================
-// GuildNotificationSettings
-// ======================================================================
-
 pub async fn get_notification_settings_rpc(
     State(ctx): State<AppContext>,
     headers: HeaderMap,
@@ -652,9 +648,6 @@ pub async fn upsert_notification_settings_rpc(
     )
 }
 
-// ======================================================================
-// GuildMatchQuota
-// ======================================================================
 
 pub async fn get_match_quotas_rpc(
     State(ctx): State<AppContext>,
