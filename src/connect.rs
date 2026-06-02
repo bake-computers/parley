@@ -22,6 +22,7 @@ use tower_http::timeout::TimeoutLayer;
 
 use crate::context::AppContext;
 use crate::handlers::stats;
+use crate::logging::AxiomLogLayer;
 
 /// Build a router with sensible defaults (no DB). Used by ad-hoc callers
 /// and by the legacy `build_router()` fn name kept for old tests.
@@ -34,7 +35,6 @@ pub fn build_router_with_context(ctx: AppContext) -> Router {
     Router::new()
         .route("/health", get(health))
         .route("/ready", get(ready))
-        .route("/metrics", get(metrics_endpoint))
         // Stats
         .route(
             "/parley.stats.v1.StatsService/FetchStats",
@@ -95,6 +95,7 @@ pub fn build_router_with_context(ctx: AppContext) -> Router {
             "/parley.guild.v1.GuildSettingsService/UpsertMatchQuotas",
             post(crate::handlers::guild_settings::upsert_match_quotas_rpc),
         )
+        .layer(AxiomLogLayer::new(ctx.axiom.clone()))
         .layer(CompressionLayer::new())
         .layer(TimeoutLayer::new(Duration::from_secs(30)))
         .with_state(ctx)
@@ -111,18 +112,6 @@ async fn ready(State(ctx): State<AppContext>) -> Response {
             tracing::warn!(error = %e, "readiness probe failed");
             (StatusCode::SERVICE_UNAVAILABLE, format!("NOT READY: {e}")).into_response()
         }
-    }
-}
-
-async fn metrics_endpoint(State(ctx): State<AppContext>) -> Response {
-    match ctx.render_metrics() {
-        Some(body) => (
-            StatusCode::OK,
-            [(header::CONTENT_TYPE, "text/plain; version=0.0.4")],
-            body,
-        )
-            .into_response(),
-        None => (StatusCode::SERVICE_UNAVAILABLE, "metrics disabled").into_response(),
     }
 }
 
