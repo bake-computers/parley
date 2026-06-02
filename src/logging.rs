@@ -30,6 +30,7 @@ pub enum AxiomEvent {
         duration_ms: f64,
         user_agent: Option<String>,
         content_type: Option<String>,
+        origin: Option<String>,
     },
     /// Database query event.
     Db {
@@ -43,6 +44,13 @@ pub enum AxiomEvent {
         action: String,
         game: String,
         username_hash: Option<String>,
+    },
+    /// Handler-level error event.
+    Error {
+        service: String,
+        code: String,
+        message: String,
+        path: Option<String>,
     },
 }
 
@@ -94,6 +102,7 @@ impl AxiomConfig {
 #[derive(Clone)]
 pub struct AxiomLogger {
     tx: Option<mpsc::Sender<AxiomEvent>>,
+    shutdown: Option<tokio::sync::watch::Sender<()>>,
 }
 
 impl AxiomLogger {
@@ -101,7 +110,10 @@ impl AxiomLogger {
     pub fn new(config: AxiomConfig) -> Self {
         if !config.is_configured() {
             tracing::info!("axiom logging disabled (no token or AXIOM_ENABLED=false)");
-            return Self { tx: None };
+            return Self {
+                tx: None,
+                shutdown: None,
+            };
         }
 
         let token = config.token.clone().unwrap();
@@ -111,25 +123,26 @@ impl AxiomLogger {
         let flush_interval = config.flush_interval;
 
         let (tx, mut rx) = mpsc::channel(config.buffer_size);
+        let (shutdown_tx, mut shutdown_rx) = tokio::sync::watch::channel(());
 
         // Spawn the background batch worker
         tokio::spawn(async move {
-            let client = axiom_rs::Client::new()
-                .expect("axiom client builds");
-            let client = Arc::new(client);
+            let mut builder = axiom_rs::Client::builder().with_token(&token);
+            if let Some(ref org) = org_id {
+                builder = builder.with_org_id(org);
+            }
+            let client = Arc::new(builder.build().expect("axiom client builds"));
 
             let mut batch = Vec::with_capacity(batch_size);
             let mut interval = tokio::time::interval(flush_interval);
 
             loop {
                 tokio::select! {
-                    // Flush on interval
                     _ = interval.tick() => {
                         if !batch.is_empty() {
                             Self::flush_batch(&client, &dataset, &mut batch).await;
                         }
                     }
-                    // Collect events
                     event = rx.recv() => {
                         match event {
                             Some(e) => {
@@ -139,14 +152,27 @@ impl AxiomLogger {
                                 }
                             }
                             None => {
-                                // Channel closed — flush remaining and exit
                                 if !batch.is_empty() {
                                     Self::flush_batch(&client, &dataset, &mut batch).await;
                                 }
-                                tracing::info!("axiom logging worker shutdown");
+                                tracing::info!("axiom logging worker shutdown (channel closed)");
                                 break;
                             }
                         }
+                    }
+                    _ = shutdown_rx.changed() => {
+                        // Drain any remaining events that are already queued in the channel so they get flushed before shutdown
+                        while let Ok(event) = rx.try_recv() {
+                            batch.push(event);
+                            if batch.len() >= batch_size {
+                                Self::flush_batch(&client, &dataset, &mut batch).await;
+                            }
+                        }
+                        if !batch.is_empty() {
+                            Self::flush_batch(&client, &dataset, &mut batch).await;
+                        }
+                        tracing::info!("axiom logging worker shutdown (signal)");
+                        break;
                     }
                 }
             }
@@ -159,7 +185,10 @@ impl AxiomLogger {
             "axiom logging enabled"
         );
 
-        Self { tx: Some(tx) }
+        Self {
+            tx: Some(tx),
+            shutdown: Some(shutdown_tx),
+        }
     }
 
     /// Send an event to Axiom (no-op if disabled).
@@ -171,6 +200,7 @@ impl AxiomLogger {
     }
 
     /// Log an HTTP request event.
+    #[allow(clippy::too_many_arguments)]
     pub fn log_http(
         &self,
         method: &str,
@@ -179,6 +209,7 @@ impl AxiomLogger {
         duration_ms: f64,
         user_agent: Option<String>,
         content_type: Option<String>,
+        origin: Option<String>,
     ) {
         self.log(AxiomEvent::Http {
             method: method.to_string(),
@@ -187,6 +218,7 @@ impl AxiomLogger {
             duration_ms,
             user_agent,
             content_type,
+            origin,
         });
     }
 
@@ -209,6 +241,23 @@ impl AxiomLogger {
         });
     }
 
+    /// Log a handler-level error event.
+    pub fn log_error(&self, service: &str, code: &str, message: &str, path: Option<String>) {
+        self.log(AxiomEvent::Error {
+            service: service.to_string(),
+            code: code.to_string(),
+            message: message.to_string(),
+            path,
+        });
+    }
+
+    /// Signal the background worker to flush and shut down.
+    pub fn shutdown(&self) {
+        if let Some(shutdown) = &self.shutdown {
+            let _ = shutdown.send(());
+        }
+    }
+
     async fn flush_batch(
         client: &Arc<axiom_rs::Client>,
         dataset: &str,
@@ -217,11 +266,14 @@ impl AxiomLogger {
         if batch.is_empty() {
             return;
         }
+        let count = batch.len();
         let events = std::mem::take(batch);
         match client.ingest(dataset, &events).await {
-            Ok(_) => {}
+            Ok(status) => {
+                tracing::debug!(count, ingested = status.ingested, "axiom batch flushed");
+            }
             Err(e) => {
-                tracing::warn!(error = %e, "axiom ingest failed (dropping batch)");
+                tracing::warn!(error = %e, count, "axiom ingest failed (dropping batch)");
             }
         }
     }
@@ -230,22 +282,22 @@ impl AxiomLogger {
 /// No-op logger for when Axiom is disabled.
 impl Default for AxiomLogger {
     fn default() -> Self {
-        Self { tx: None }
+        Self {
+            tx: None,
+            shutdown: None,
+        }
     }
 }
 
-// ======================================================================
-// HTTP Request Logging Middleware
-// ======================================================================
-
 use axum::{
     extract::Request,
-    http::{header::CONTENT_TYPE, HeaderMap, HeaderName},
+    http::{HeaderName, header::CONTENT_TYPE},
     response::Response,
 };
-use tower::{Layer, Service};
 use std::future::Future;
+use std::net::SocketAddr;
 use std::pin::Pin;
+use tower::{Layer, Service};
 
 /// Tower middleware layer for Axiom HTTP logging.
 #[derive(Clone)]
@@ -297,6 +349,9 @@ where
         let logger = self.logger.clone();
         let start = Instant::now();
 
+        // Extract origin before moving req into async block
+        let origin = extract_origin(&req);
+
         // Clone service for the async block
         let clone = self.inner.clone();
         let mut inner = std::mem::replace(&mut self.inner, clone);
@@ -320,9 +375,41 @@ where
                 .and_then(|v| v.to_str().ok())
                 .map(String::from);
 
-            logger.log_http(&method, &path, status, duration_ms, user_agent, content_type);
+            logger.log_http(
+                &method,
+                &path,
+                status,
+                duration_ms,
+                user_agent,
+                content_type,
+                origin,
+            );
 
             Ok(response)
         })
     }
+}
+
+fn extract_origin(req: &Request) -> Option<String> {
+    // Check proxy headers first (Cloudflare, load balancers)
+    if let Some(v) = req.headers().get("cf-connecting-ip")
+        && let Ok(s) = v.to_str()
+    {
+        return Some(s.to_string());
+    }
+    if let Some(v) = req.headers().get("x-forwarded-for")
+        && let Ok(s) = v.to_str()
+    {
+        // Take the first IP in the chain
+        return Some(s.split(',').next()?.trim().to_string());
+    }
+    if let Some(v) = req.headers().get("x-real-ip")
+        && let Ok(s) = v.to_str()
+    {
+        return Some(s.to_string());
+    }
+    // Fall back to socket peer address (works in local dev)
+    req.extensions()
+        .get::<SocketAddr>()
+        .map(|addr| addr.ip().to_string())
 }

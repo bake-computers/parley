@@ -97,7 +97,7 @@ pub fn build_router_with_context(ctx: AppContext) -> Router {
         )
         .layer(AxiomLogLayer::new(ctx.axiom.clone()))
         .layer(CompressionLayer::new())
-        .layer(TimeoutLayer::new(Duration::from_secs(30)))
+        .layer(TimeoutLayer::with_status_code(StatusCode::REQUEST_TIMEOUT, Duration::from_secs(30)))
         .with_state(ctx)
 }
 

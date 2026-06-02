@@ -29,7 +29,6 @@ use crate::scrape::{ScrapedStats, ScrapedStatsCollection};
 #[derive(Debug, Clone)]
 pub struct StatsCacheConfigV2 {
     pub ttl_r6: Duration,
-    pub ttl_brawl_stars: Duration,
     pub stale_grace: Duration,
     pub in_memory_max_entries: usize,
 }
@@ -38,7 +37,6 @@ impl Default for StatsCacheConfigV2 {
     fn default() -> Self {
         Self {
             ttl_r6: Duration::from_secs(60),
-            ttl_brawl_stars: Duration::from_secs(120),
             stale_grace: Duration::from_secs(24 * 3600),
             in_memory_max_entries: 1024,
         }
@@ -49,7 +47,6 @@ impl StatsCacheConfigV2 {
     pub fn ttl_for(&self, game: Game) -> Duration {
         match game {
             Game::R6 => self.ttl_r6,
-            Game::BrawlStars => self.ttl_brawl_stars,
         }
     }
 }

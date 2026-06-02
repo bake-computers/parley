@@ -353,7 +353,10 @@ mod tests {
         let r = NuxtResolver::new(&payload);
 
         let profile = r.resolve(&payload[1]);
-        assert_eq!(r.field(profile, "username").unwrap().as_str(), Some("Avqny"));
+        assert_eq!(
+            r.field(profile, "username").unwrap().as_str(),
+            Some("Avqny")
+        );
         assert_eq!(r.field(profile, "level").unwrap().as_i64(), Some(200));
 
         let season_modes = r.field(profile, "season_mode_records").unwrap();
@@ -366,10 +369,16 @@ mod tests {
         // some unrelated value if position 60 existed in the array.
         assert_eq!(r.field(ranked_bomb, "deaths").unwrap().as_i64(), Some(60));
         assert_eq!(r.field(ranked_bomb, "wr").unwrap().as_i64(), Some(60));
-        assert_eq!(r.field(ranked_bomb, "rank").unwrap().as_str(), Some("bronze-ii"));
+        assert_eq!(
+            r.field(ranked_bomb, "rank").unwrap().as_str(),
+            Some("bronze-ii")
+        );
         assert_eq!(r.field(ranked_bomb, "abandons").unwrap().as_i64(), Some(0));
         // rank_points=19 -> payload[19] = 1883. Must stop at 1883, not treat
         // it as another index reference.
-        assert_eq!(r.field(ranked_bomb, "rank_points").unwrap().as_i64(), Some(1883));
+        assert_eq!(
+            r.field(ranked_bomb, "rank_points").unwrap().as_i64(),
+            Some(1883)
+        );
     }
 }

@@ -8,16 +8,6 @@ use wiremock::matchers::{method, path, query_param};
 use wiremock::{Mock, MockServer, ResponseTemplate};
 
 // Declare all modules that connect depends on transitively
-#[path = "../src/connect.rs"]
-mod connect;
-#[path = "../src/context.rs"]
-mod context;
-#[path = "../src/db/mod.rs"]
-mod db;
-#[path = "../src/handlers/mod.rs"]
-mod handlers;
-#[path = "../src/proto.rs"]
-mod proto;
 #[path = "../src/backends/mod.rs"]
 mod backends;
 #[path = "../src/backends/r6.rs"]
@@ -26,28 +16,38 @@ mod backends_r6;
 mod cache;
 #[path = "../src/cache_store.rs"]
 mod cache_store;
+#[path = "../src/connect.rs"]
+mod connect;
+#[path = "../src/context.rs"]
+mod context;
+#[path = "../src/db/mod.rs"]
+mod db;
+#[path = "../src/db/models.rs"]
+mod db_models;
+#[path = "../src/db/pool.rs"]
+mod db_pool;
+#[path = "../src/db/repos.rs"]
+mod db_repos;
+#[path = "../src/db/schema.rs"]
+mod db_schema;
+#[path = "../src/db/stats_cache_store.rs"]
+mod db_stats_cache_store;
 #[path = "../src/fetch.rs"]
 mod fetch;
+#[path = "../src/handlers/mod.rs"]
+mod handlers;
 #[path = "../src/logging.rs"]
 mod logging;
 #[path = "../src/nuxt.rs"]
 mod nuxt;
+#[path = "../src/proto.rs"]
+mod proto;
 #[path = "../src/scrape.rs"]
 mod scrape;
 #[path = "../src/stats_metrics.rs"]
 mod stats_metrics;
 #[path = "../src/stats_proto.rs"]
 mod stats_proto;
-#[path = "../src/db/pool.rs"]
-mod db_pool;
-#[path = "../src/db/repos.rs"]
-mod db_repos;
-#[path = "../src/db/models.rs"]
-mod db_models;
-#[path = "../src/db/schema.rs"]
-mod db_schema;
-#[path = "../src/db/stats_cache_store.rs"]
-mod db_stats_cache_store;
 
 const UUID: &str = "aaaaaaaa-bbbb-4ccc-9ddd-eeeeeeeeeeee";
 

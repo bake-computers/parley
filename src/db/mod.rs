@@ -41,16 +41,12 @@ pub const MIGRATIONS: diesel_migrations::EmbeddedMigrations =
 #[serde(rename_all = "lowercase")]
 pub enum Game {
     R6,
-    #[serde(rename = "brawl_stars")]
-    #[db_rename = "brawl_stars"]
-    BrawlStars,
 }
 
 impl Game {
     pub fn as_str(&self) -> &'static str {
         match self {
             Game::R6 => "r6",
-            Game::BrawlStars => "brawl_stars",
         }
     }
 }
@@ -66,7 +62,6 @@ impl std::str::FromStr for Game {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "r6" | "R6" => Ok(Game::R6),
-            "brawl_stars" | "BrawlStars" | "brawlstars" => Ok(Game::BrawlStars),
             other => Err(format!("unknown game: {other}")),
         }
     }

@@ -32,7 +32,6 @@ use crate::scrape::{ScrapedStats, ScrapedStatsCollection};
 fn to_db_game(g: Game) -> DbGame {
     match g {
         Game::R6 => DbGame::R6,
-        Game::BrawlStars => DbGame::BrawlStars,
     }
 }
 
@@ -45,7 +44,12 @@ pub struct PostgresStatsCacheStore {
 }
 
 impl PostgresStatsCacheStore {
-    pub fn new(pool: DbPool, registry: Arc<StatsBackendRegistry>, cfg: StatsCacheConfigV2, axiom: AxiomLogger) -> Self {
+    pub fn new(
+        pool: DbPool,
+        registry: Arc<StatsBackendRegistry>,
+        cfg: StatsCacheConfigV2,
+        axiom: AxiomLogger,
+    ) -> Self {
         Self {
             pool,
             registry,
@@ -80,8 +84,9 @@ impl PostgresStatsCacheStore {
         username: &str,
         platform: StatsPlatform,
     ) -> Result<i32, StatsFetchError> {
+        let start = std::time::Instant::now();
         let mut conn = self.conn().await?;
-        let player = PlayerRepo::upsert_by_identity(
+        let result = PlayerRepo::upsert_by_identity(
             &mut conn,
             to_db_game(game),
             username,
@@ -89,9 +94,11 @@ impl PostgresStatsCacheStore {
             None,
             None,
         )
-        .await
-        .map_err(map_diesel)?;
-        Ok(player.id)
+        .await;
+        let duration_ms = start.elapsed().as_secs_f64() * 1000.0;
+        let error = result.as_ref().err().map(|e| e.to_string());
+        self.axiom.log_db("upsert", "players", duration_ms, error);
+        result.map(|p| p.id).map_err(map_diesel)
     }
 
     async fn read_snapshot_within(
@@ -100,6 +107,7 @@ impl PostgresStatsCacheStore {
         player_id: i32,
         max_age_ms: i64,
     ) -> Result<Option<ScrapedStats>, StatsFetchError> {
+        let start = std::time::Instant::now();
         let mut conn = self.conn().await?;
         let row = PlayerStatSnapshotRepo::latest_fresh(
             &mut conn,
@@ -108,9 +116,13 @@ impl PostgresStatsCacheStore {
             now_ms(),
             max_age_ms,
         )
-        .await
-        .map_err(map_diesel)?;
-        Ok(row.and_then(|r| serde_json::from_str::<ScrapedStats>(&r.payload_json).ok()))
+        .await;
+        let duration_ms = start.elapsed().as_secs_f64() * 1000.0;
+        let error = row.as_ref().err().map(|e| e.to_string());
+        self.axiom
+            .log_db("select", "player_stat_snapshots", duration_ms, error);
+        row.map(|opt| opt.and_then(|r| serde_json::from_str::<ScrapedStats>(&r.payload_json).ok()))
+            .map_err(map_diesel)
     }
 
     async fn write_snapshot(
@@ -151,11 +163,14 @@ impl PostgresStatsCacheStore {
             payload_json: &payload_json,
             created_at: now,
         };
+        let start = std::time::Instant::now();
         let mut conn = self.conn().await?;
-        PlayerStatSnapshotRepo::insert(&mut conn, new_row)
-            .await
-            .map_err(map_diesel)?;
-        Ok(())
+        let result = PlayerStatSnapshotRepo::insert(&mut conn, new_row).await;
+        let duration_ms = start.elapsed().as_secs_f64() * 1000.0;
+        let error = result.as_ref().err().map(|e| e.to_string());
+        self.axiom
+            .log_db("insert", "player_stat_snapshots", duration_ms, error);
+        result.map(|_| ()).map_err(map_diesel)
     }
 }
 

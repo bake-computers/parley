@@ -21,15 +21,14 @@ use crate::proto::identity::v1::{
 fn proto_game_to_db(v: i32) -> Option<DbGame> {
     match ProtoGame::try_from(v).unwrap_or(ProtoGame::Unspecified) {
         ProtoGame::R6 => Some(DbGame::R6),
-        ProtoGame::BrawlStars => Some(DbGame::BrawlStars),
         ProtoGame::Unspecified => None,
+        _ => None,
     }
 }
 
 fn db_game_to_proto(g: DbGame) -> i32 {
     match g {
         DbGame::R6 => ProtoGame::R6 as i32,
-        DbGame::BrawlStars => ProtoGame::BrawlStars as i32,
     }
 }
 
@@ -38,10 +37,6 @@ fn err(code: &str, msg: impl Into<String>) -> ProtoError {
         code: code.to_string(),
         message: msg.into(),
     }
-}
-
-fn pool_err() -> ProtoError {
-    err("FailedPrecondition", "DATABASE_URL not configured")
 }
 
 // ---------- LinkAccount ----------
@@ -57,20 +52,34 @@ pub async fn link_account_rpc(
         Err(r) => return r,
     };
     let Some(pool) = ctx.pool.clone() else {
+        let msg = "DATABASE_URL not configured".to_string();
+        ctx.axiom.log_error(
+            "identity.link_account",
+            "FailedPrecondition",
+            &msg,
+            Some("/parley.identity.v1.IdentityService/LinkAccount".into()),
+        );
         return encode_ok(
             &LinkAccountResponse {
                 success: false,
-                error: Some(pool_err()),
+                error: Some(err("FailedPrecondition", msg)),
                 ..Default::default()
             },
             enc,
         );
     };
     let Some(game) = proto_game_to_db(req.game) else {
+        let msg = "game must be R6".to_string();
+        ctx.axiom.log_error(
+            "identity.link_account",
+            "InvalidArgument",
+            &msg,
+            Some("/parley.identity.v1.IdentityService/LinkAccount".into()),
+        );
         return encode_ok(
             &LinkAccountResponse {
                 success: false,
-                error: Some(err("InvalidArgument", "game must be R6 or BrawlStars")),
+                error: Some(err("InvalidArgument", msg)),
                 ..Default::default()
             },
             enc,
@@ -80,13 +89,17 @@ pub async fn link_account_rpc(
         || req.username.trim().is_empty()
         || req.platform.trim().is_empty()
     {
+        let msg = "discord_user_id, username and platform are required".to_string();
+        ctx.axiom.log_error(
+            "identity.link_account",
+            "InvalidArgument",
+            &msg,
+            Some("/parley.identity.v1.IdentityService/LinkAccount".into()),
+        );
         return encode_ok(
             &LinkAccountResponse {
                 success: false,
-                error: Some(err(
-                    "InvalidArgument",
-                    "discord_user_id, username and platform are required",
-                )),
+                error: Some(err("InvalidArgument", msg)),
                 ..Default::default()
             },
             enc,
@@ -96,10 +109,17 @@ pub async fn link_account_rpc(
     let mut conn = match pool.get().await {
         Ok(c) => c,
         Err(e) => {
+            let msg = format!("db pool: {e}");
+            ctx.axiom.log_error(
+                "identity.link_account",
+                "Internal",
+                &msg,
+                Some("/parley.identity.v1.IdentityService/LinkAccount".into()),
+            );
             return encode_ok(
                 &LinkAccountResponse {
                     success: false,
-                    error: Some(err("Internal", format!("db pool: {e}"))),
+                    error: Some(err("Internal", msg)),
                     ..Default::default()
                 },
                 enc,
@@ -119,10 +139,17 @@ pub async fn link_account_rpc(
     {
         Ok(p) => p,
         Err(e) => {
+            let msg = format!("upsert player: {e}");
+            ctx.axiom.log_error(
+                "identity.link_account",
+                "Internal",
+                &msg,
+                Some("/parley.identity.v1.IdentityService/LinkAccount".into()),
+            );
             return encode_ok(
                 &LinkAccountResponse {
                     success: false,
-                    error: Some(err("Internal", format!("upsert player: {e}"))),
+                    error: Some(err("Internal", msg)),
                     ..Default::default()
                 },
                 enc,
@@ -133,10 +160,17 @@ pub async fn link_account_rpc(
     if let Err(e) =
         DiscordIdentityRepo::link(&mut conn, game, &req.discord_user_id, player.id).await
     {
+        let msg = format!("link discord identity: {e}");
+        ctx.axiom.log_error(
+            "identity.link_account",
+            "Internal",
+            &msg,
+            Some("/parley.identity.v1.IdentityService/LinkAccount".into()),
+        );
         return encode_ok(
             &LinkAccountResponse {
                 success: false,
-                error: Some(err("Internal", format!("link discord identity: {e}"))),
+                error: Some(err("Internal", msg)),
                 ..Default::default()
             },
             enc,
@@ -181,20 +215,34 @@ pub async fn unlink_account_rpc(
         Err(r) => return r,
     };
     let Some(pool) = ctx.pool.clone() else {
+        let msg = "DATABASE_URL not configured".to_string();
+        ctx.axiom.log_error(
+            "identity.unlink_account",
+            "FailedPrecondition",
+            &msg,
+            Some("/parley.identity.v1.IdentityService/UnlinkAccount".into()),
+        );
         return encode_ok(
             &UnlinkAccountResponse {
                 success: false,
-                error: Some(pool_err()),
+                error: Some(err("FailedPrecondition", msg)),
                 ..Default::default()
             },
             enc,
         );
     };
     let Some(game) = proto_game_to_db(req.game) else {
+        let msg = "game must be R6".to_string();
+        ctx.axiom.log_error(
+            "identity.unlink_account",
+            "InvalidArgument",
+            &msg,
+            Some("/parley.identity.v1.IdentityService/UnlinkAccount".into()),
+        );
         return encode_ok(
             &UnlinkAccountResponse {
                 success: false,
-                error: Some(err("InvalidArgument", "game must be R6 or BrawlStars")),
+                error: Some(err("InvalidArgument", msg)),
                 ..Default::default()
             },
             enc,
@@ -204,10 +252,17 @@ pub async fn unlink_account_rpc(
     let mut conn = match pool.get().await {
         Ok(c) => c,
         Err(e) => {
+            let msg = format!("db pool: {e}");
+            ctx.axiom.log_error(
+                "identity.unlink_account",
+                "Internal",
+                &msg,
+                Some("/parley.identity.v1.IdentityService/UnlinkAccount".into()),
+            );
             return encode_ok(
                 &UnlinkAccountResponse {
                     success: false,
-                    error: Some(err("Internal", format!("db pool: {e}"))),
+                    error: Some(err("Internal", msg)),
                     ..Default::default()
                 },
                 enc,
@@ -218,10 +273,17 @@ pub async fn unlink_account_rpc(
     let removed = match DiscordIdentityRepo::unlink(&mut conn, game, &req.discord_user_id).await {
         Ok(n) => n,
         Err(e) => {
+            let msg = format!("unlink: {e}");
+            ctx.axiom.log_error(
+                "identity.unlink_account",
+                "Internal",
+                &msg,
+                Some("/parley.identity.v1.IdentityService/UnlinkAccount".into()),
+            );
             return encode_ok(
                 &UnlinkAccountResponse {
                     success: false,
-                    error: Some(err("Internal", format!("unlink: {e}"))),
+                    error: Some(err("Internal", msg)),
                     ..Default::default()
                 },
                 enc,
@@ -252,10 +314,17 @@ pub async fn lookup_by_discord_rpc(
         Err(r) => return r,
     };
     let Some(pool) = ctx.pool.clone() else {
+        let msg = "DATABASE_URL not configured".to_string();
+        ctx.axiom.log_error(
+            "identity.lookup_by_discord",
+            "FailedPrecondition",
+            &msg,
+            Some("/parley.identity.v1.IdentityService/LookupByDiscord".into()),
+        );
         return encode_ok(
             &LookupByDiscordResponse {
                 success: false,
-                error: Some(pool_err()),
+                error: Some(err("FailedPrecondition", msg)),
                 ..Default::default()
             },
             enc,
@@ -267,10 +336,17 @@ pub async fn lookup_by_discord_rpc(
     let mut conn = match pool.get().await {
         Ok(c) => c,
         Err(e) => {
+            let msg = format!("db pool: {e}");
+            ctx.axiom.log_error(
+                "identity.lookup_by_discord",
+                "Internal",
+                &msg,
+                Some("/parley.identity.v1.IdentityService/LookupByDiscord".into()),
+            );
             return encode_ok(
                 &LookupByDiscordResponse {
                     success: false,
-                    error: Some(err("Internal", format!("db pool: {e}"))),
+                    error: Some(err("Internal", msg)),
                     ..Default::default()
                 },
                 enc,
@@ -284,10 +360,17 @@ pub async fn lookup_by_discord_rpc(
         {
             Ok(v) => v,
             Err(e) => {
+                let msg = format!("lookup: {e}");
+                ctx.axiom.log_error(
+                    "identity.lookup_by_discord",
+                    "Internal",
+                    &msg,
+                    Some("/parley.identity.v1.IdentityService/LookupByDiscord".into()),
+                );
                 return encode_ok(
                     &LookupByDiscordResponse {
                         success: false,
-                        error: Some(err("Internal", format!("lookup: {e}"))),
+                        error: Some(err("Internal", msg)),
                         ..Default::default()
                     },
                     enc,
@@ -325,20 +408,34 @@ pub async fn lookup_by_username_rpc(
         Err(r) => return r,
     };
     let Some(pool) = ctx.pool.clone() else {
+        let msg = "DATABASE_URL not configured".to_string();
+        ctx.axiom.log_error(
+            "identity.lookup_by_username",
+            "FailedPrecondition",
+            &msg,
+            Some("/parley.identity.v1.IdentityService/LookupByUsername".into()),
+        );
         return encode_ok(
             &LookupByUsernameResponse {
                 success: false,
-                error: Some(pool_err()),
+                error: Some(err("FailedPrecondition", msg)),
                 ..Default::default()
             },
             enc,
         );
     };
     let Some(game) = proto_game_to_db(req.game) else {
+        let msg = "game must be R6".to_string();
+        ctx.axiom.log_error(
+            "identity.lookup_by_username",
+            "InvalidArgument",
+            &msg,
+            Some("/parley.identity.v1.IdentityService/LookupByUsername".into()),
+        );
         return encode_ok(
             &LookupByUsernameResponse {
                 success: false,
-                error: Some(err("InvalidArgument", "game must be R6 or BrawlStars")),
+                error: Some(err("InvalidArgument", msg)),
                 ..Default::default()
             },
             enc,
@@ -348,10 +445,17 @@ pub async fn lookup_by_username_rpc(
     let mut conn = match pool.get().await {
         Ok(c) => c,
         Err(e) => {
+            let msg = format!("db pool: {e}");
+            ctx.axiom.log_error(
+                "identity.lookup_by_username",
+                "Internal",
+                &msg,
+                Some("/parley.identity.v1.IdentityService/LookupByUsername".into()),
+            );
             return encode_ok(
                 &LookupByUsernameResponse {
                     success: false,
-                    error: Some(err("Internal", format!("db pool: {e}"))),
+                    error: Some(err("Internal", msg)),
                     ..Default::default()
                 },
                 enc,
@@ -363,10 +467,17 @@ pub async fn lookup_by_username_rpc(
         match PlayerRepo::find_by_identity(&mut conn, game, &req.username, &req.platform).await {
             Ok(p) => p,
             Err(e) => {
+                let msg = format!("lookup: {e}");
+                ctx.axiom.log_error(
+                    "identity.lookup_by_username",
+                    "Internal",
+                    &msg,
+                    Some("/parley.identity.v1.IdentityService/LookupByUsername".into()),
+                );
                 return encode_ok(
                     &LookupByUsernameResponse {
                         success: false,
-                        error: Some(err("Internal", format!("lookup: {e}"))),
+                        error: Some(err("Internal", msg)),
                         ..Default::default()
                     },
                     enc,

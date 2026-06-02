@@ -62,8 +62,12 @@ impl AppContext {
 
         let cache_cfg = cache_config_from_env();
         let stats = if let Some(p) = pool.clone() {
-            let store: Arc<dyn StatsCacheStore> =
-                Arc::new(PostgresStatsCacheStore::new(p, registry.clone(), cache_cfg, axiom.clone()));
+            let store: Arc<dyn StatsCacheStore> = Arc::new(PostgresStatsCacheStore::new(
+                p,
+                registry.clone(),
+                cache_cfg,
+                axiom.clone(),
+            ));
             Arc::new(
                 StatsHandler::with_client(client)
                     .with_registry(registry)
@@ -73,11 +77,7 @@ impl AppContext {
             Arc::new(StatsHandler::with_client(client).with_registry(registry))
         };
 
-        Ok(Self {
-            pool,
-            stats,
-            axiom,
-        })
+        Ok(Self { pool, stats, axiom })
     }
 
     /// Test/dev helper: no DB, default handlers.
@@ -100,11 +100,9 @@ impl AppContext {
 
 fn cache_config_from_env() -> StatsCacheConfigV2 {
     let ttl_r6 = Duration::from_millis(read_u64("STATS_TTL_R6_MS", 60_000));
-    let ttl_brawl_stars = Duration::from_millis(read_u64("STATS_TTL_BRAWL_STARS_MS", 120_000));
     let stale_grace = Duration::from_millis(read_u64("STATS_STALE_GRACE_MS", 24 * 3600 * 1000));
     StatsCacheConfigV2 {
         ttl_r6,
-        ttl_brawl_stars,
         stale_grace,
         in_memory_max_entries: 1024,
     }

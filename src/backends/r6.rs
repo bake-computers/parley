@@ -2,7 +2,7 @@
 
 use async_trait::async_trait;
 
-use super::{Game, StatsBackend};
+use crate::backends::{Game, StatsBackend};
 use crate::fetch::{StatsClient, StatsFetchError, StatsPlatform};
 use crate::scrape::{ScrapedStats, ScrapedStatsCollection};
 
