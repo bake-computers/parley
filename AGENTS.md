@@ -2,7 +2,7 @@
 
 ## Architecture
 
-Parley is a competitive matchmaking and tournament platform — a Rust-based backend
+Parley is a competitive matchmaking and tournament platform — a Rust backend
 (engine-service) with a TypeScript web dashboard and Discord bot, running on
 Cloudflare Workers and Bun.
 
@@ -10,19 +10,14 @@ Cloudflare Workers and Bun.
 
 ```
 proto/                     ← single source of truth (protobuf)
-  ├── common/
-  ├── engine/              → Rust: engine crate (image rendering RPCs)
-  ├── guild/               → Rust: guild settings RPCs
-  ├── identity/            → Rust: account linking RPCs
-  ├── ocr/
-  └── stats/               → Rust: stats.cc scraper RPCs
+  ├── common/              → shared types (Game, Rank, Region, PlayerStats, Badge)
+  ├── guild/               → guild settings RPCs
+  ├── identity/            → account linking RPCs
+  └── stats/               → stats.cc scraper RPCs
 
-Rust (Cargo workspace)    ← embed proto via protox in build.rs (no protoc needed)
+Rust (single crate)       ← embed proto via protox in build.rs (no protoc needed)
   src/                     ← parley binary: Axum + ConnectRPC HTTP server
-  crates/engine/           ← image rendering (profile cards, badges)
-  crates/stats-scraper/    ← web scraping (stats.cc) + Brawl Stars API backend
-  crates/brawl-stars/      ← Brawl Stars API client
-  crates/vessel/           ← HQ CLI/TUI (browser automation, data import)
+  src/db/                  ← Diesel schema, pool, models, repos
 
 TypeScript (Bun workspaces) ← buf generate → packages/generated-ts
   apps/worker/             ← Cloudflare Worker: Hono REST API, @parley/proto clients
@@ -71,9 +66,11 @@ cd packages/generated-ts && bun run generate   # runs `buf generate` from repo r
 
 Output: `packages/generated-ts/src/{package}/{version}/*_pb.ts` (messages) and `*_connect.ts` (service descriptors). The Rust side compiles protos automatically via `build.rs` during `cargo build`.
 
+Note: `engine/v1/` and `ocr/v1/` generated TS files exist in `packages/generated-ts/src/` but have no corresponding `.proto` source files in `proto/`. They are pre-generated artifacts — do not edit them directly.
+
 ### Database
 
-The canonical schema is the Diesel migrations in `/migrations`. Rust bindings live in `/src/db/schema.rs`.
+The canonical schema is the hand-maintained Diesel bindings in `/src/db/schema.rs` (mirrors the SQL migrations exactly). The Diesel CLI output at `/src/schema.rs` is also present but the hand-maintained version is authoritative.
 
 ```bash
 # Apply migrations locally
@@ -93,6 +90,10 @@ Copy `.env.example` to `.env`. The service runs in degraded (in-memory) mode wit
 - `ENGINE_SERVICE_ADDR` — listen address (default `0.0.0.0:50051`)
 
 `DB_TLS=system` is the secure default for managed Postgres providers. Use `DB_TLS=accept-invalid` only for local dev with self-signed certs.
+
+### Deploy
+
+Cloudflare Worker deploy uses Alchemy: `bun run deploy` (or `bun run deploy:dev`).
 
 ## Linting & Formatting
 
@@ -123,7 +124,7 @@ All code must pass formatting and linting before a task is considered complete.
 - No `.unwrap()` or `.expect()` except in test files. Handle `Result` and `Option` explicitly.
 - The `parley` binary enables `mimalloc` by default (`default = ["mimalloc"]`).
 - Release build: LTO thin, single codegen unit, stripped, panic=abort.
-- Protobuf codegen uses `protox` (pure Rust) — no `protoc` required. If you add a `.proto` file, add it to the relevant crate's `build.rs`.
+- Protobuf codegen uses `protox` (pure Rust) — no `protoc` required. If you add a `.proto` file, add it to `build.rs`.
 
 ### TypeScript
 
@@ -139,7 +140,7 @@ All code must pass formatting and linting before a task is considered complete.
 
 ### Database conventions
 
-Every game-scoped table carries a `game games NOT NULL DEFAULT 'r6'` column (Postgres enum). Auth tables (`user`, `session`, `account`, `verification`) are game-agnostic. Composite unique indexes always include `game`. Adding a new game is a migration: `ALTER TYPE games ADD VALUE 'new_game'`.
+Every game-scoped table carries a `game games NOT NULL DEFAULT 'r6'` column (Postgres enum: `'r6'`, `'brawl_stars'`). Auth tables (`user`, `session`, `account`, `verification`) are game-agnostic. Composite unique indexes always include `game`. Adding a new game is a migration: `ALTER TYPE games ADD VALUE 'new_game'`.
 
 Domain table timestamps use `bigint` epoch milliseconds (application-set). Better-auth tables use `timestamptz` (library convention).
 
@@ -169,3 +170,16 @@ Domain table timestamps use `bigint` epoch milliseconds (application-set). Bette
 2. Run `cargo clippy -- -D warnings && oxlint` — fix all errors.
 3. Run `cargo test && bun run test` — all tests must pass.
 4. Add or update tests for any new logic.
+
+## graphify
+
+This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
+
+When the user types `/graphify`, invoke the `skill` tool with `skill: "graphify"` before doing anything else.
+
+Rules:
+- For codebase questions, first run `graphify query "<question>"` when graphify-out/graph.json exists. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
+- Dirty graphify-out/ files are expected after hooks or incremental updates; dirty graph files are not a reason to skip graphify. Only skip graphify if the task is about stale or incorrect graph output, or the user explicitly says not to use it.
+- If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
+- Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
+- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
