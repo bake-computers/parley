@@ -44,6 +44,13 @@ pub enum AxiomEvent {
         game: String,
         username_hash: Option<String>,
     },
+    /// Handler-level error event.
+    Error {
+        service: String,
+        code: String,
+        message: String,
+        path: Option<String>,
+    },
 }
 
 /// Configuration resolved from environment.
@@ -114,9 +121,12 @@ impl AxiomLogger {
 
         // Spawn the background batch worker
         tokio::spawn(async move {
-            let client = axiom_rs::Client::new()
-                .expect("axiom client builds");
-            let client = Arc::new(client);
+            let mut builder = axiom_rs::Client::builder()
+                .with_token(&token);
+            if let Some(ref org) = org_id {
+                builder = builder.with_org_id(org);
+            }
+            let client = Arc::new(builder.build().expect("axiom client builds"));
 
             let mut batch = Vec::with_capacity(batch_size);
             let mut interval = tokio::time::interval(flush_interval);
@@ -206,6 +216,16 @@ impl AxiomLogger {
             action: action.to_string(),
             game: game.to_string(),
             username_hash,
+        });
+    }
+
+    /// Log a handler-level error event.
+    pub fn log_error(&self, service: &str, code: &str, message: &str, path: Option<String>) {
+        self.log(AxiomEvent::Error {
+            service: service.to_string(),
+            code: code.to_string(),
+            message: message.to_string(),
+            path,
         });
     }
 
