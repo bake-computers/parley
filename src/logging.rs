@@ -263,7 +263,7 @@ impl Default for AxiomLogger {
 // ======================================================================
 
 use axum::{
-    extract::{ConnectInfo, Request},
+    extract::Request,
     http::{header::CONTENT_TYPE, HeaderName},
     response::Response,
 };
@@ -375,6 +375,6 @@ fn extract_origin(req: &Request) -> Option<String> {
     }
     // Fall back to socket peer address (works in local dev)
     req.extensions()
-        .get::<ConnectInfo<SocketAddr>>()
-        .map(|info| info.0.ip().to_string())
+        .get::<SocketAddr>()
+        .map(|addr| addr.ip().to_string())
 }
