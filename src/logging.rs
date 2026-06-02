@@ -259,11 +259,14 @@ impl AxiomLogger {
         if batch.is_empty() {
             return;
         }
+        let count = batch.len();
         let events = std::mem::take(batch);
         match client.ingest(dataset, &events).await {
-            Ok(_) => {}
+            Ok(status) => {
+                tracing::debug!(count, ingested = status.ingested, "axiom batch flushed");
+            }
             Err(e) => {
-                tracing::warn!(error = %e, "axiom ingest failed (dropping batch)");
+                tracing::warn!(error = %e, count, "axiom ingest failed (dropping batch)");
             }
         }
     }
