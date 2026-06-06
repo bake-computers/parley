@@ -95,9 +95,21 @@ pub fn build_router_with_context(ctx: AppContext) -> Router {
             "/parley.guild.v1.GuildSettingsService/UpsertMatchQuotas",
             post(crate::handlers::guild_settings::upsert_match_quotas_rpc),
         )
+        // Leaderboard
+        .route(
+            "/parley.leaderboard.v1.LeaderboardService/GetLeaderboard",
+            post(crate::handlers::leaderboard::get_leaderboard_rpc),
+        )
+        .route(
+            "/parley.leaderboard.v1.LeaderboardService/GetPlayerRank",
+            post(crate::handlers::leaderboard::get_player_rank_rpc),
+        )
         .layer(AxiomLogLayer::new(ctx.axiom.clone()))
         .layer(CompressionLayer::new())
-        .layer(TimeoutLayer::with_status_code(StatusCode::REQUEST_TIMEOUT, Duration::from_secs(30)))
+        .layer(TimeoutLayer::with_status_code(
+            StatusCode::REQUEST_TIMEOUT,
+            Duration::from_secs(30),
+        ))
         .with_state(ctx)
 }
 
