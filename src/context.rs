@@ -1,40 +1,29 @@
-//! Shared application context.
-
 use std::sync::Arc;
 use std::time::Duration;
 
 use crate::backends::StatsBackendRegistry;
 use crate::backends::r6::R6Backend;
+use crate::cache_redis::RedisStatsCacheStore;
 use crate::cache_store::{StatsCacheConfigV2, StatsCacheStore};
 use crate::fetch::StatsClient;
+use crate::leaderboard::LeaderboardStore;
 
 use crate::db::pool::{self, DbPool, PoolConfig};
-use crate::stats_cache_store::PostgresStatsCacheStore;
 use crate::handlers::stats::StatsHandler;
 use crate::logging::AxiomLogger;
 
-/// Everything the service routes need at request time.
-///
-/// Clone is cheap (all inner fields are Arcs or pool handles).
 #[derive(Clone)]
 pub struct AppContext {
     pub pool: Option<DbPool>,
     pub stats: Arc<StatsHandler>,
     pub axiom: AxiomLogger,
+    pub leaderboard: Option<Arc<LeaderboardStore>>,
 }
 
 impl AppContext {
-    /// Boot from environment. Reads `DATABASE_URL` (optional), runs migrations
-    /// when `RUN_MIGRATIONS=1`, and constructs handlers.
-    ///
-    /// When a DB pool is built, a `PostgresStatsCacheStore` is also wired into
-    /// the stats handler so FetchStats RPCs get DB-backed snapshot reuse with
-    /// single-flight coalescing + stale-grace fallback.
     pub async fn from_env(axiom: AxiomLogger) -> anyhow::Result<Self> {
         let client = StatsClient::default();
 
-        // Pre-warm the stats.cc TCP+TLS connection at startup so the first
-        // real request doesn't pay the ~200-500ms connection handshake.
         let warmup_client = client.clone();
         tokio::spawn(async move {
             warmup_client.warmup().await;
@@ -54,42 +43,60 @@ impl AppContext {
             );
             Some(p)
         } else {
-            tracing::warn!(
-                "DATABASE_URL not set — running in DB-less degraded mode; only in-memory stats work"
-            );
+            tracing::warn!("DATABASE_URL not set — running in DB-less degraded mode");
             None
         };
 
         let cache_cfg = cache_config_from_env();
-        let stats = if let Some(p) = pool.clone() {
-            let store: Arc<dyn StatsCacheStore> = Arc::new(PostgresStatsCacheStore::new(
-                p,
-                registry.clone(),
-                cache_cfg,
-                axiom.clone(),
-            ));
-            Arc::new(
-                StatsHandler::with_client(client)
-                    .with_registry(registry)
-                    .with_cache_store(store),
-            )
-        } else {
-            Arc::new(StatsHandler::with_client(client).with_registry(registry))
-        };
+        let (stats, leaderboard) =
+            if let Some(redis_url) = std::env::var("REDIS_URL").ok().filter(|s| !s.is_empty()) {
+                let redis_client = redis::Client::open(redis_url.as_str())
+                    .map_err(|e| anyhow::anyhow!("redis: {e}"))?;
+                let conn = redis::aio::ConnectionManager::new(redis_client)
+                    .await
+                    .map_err(|e| anyhow::anyhow!("redis connect: {e}"))?;
+                tracing::info!("redis connected for stats cache + leaderboard");
 
-        Ok(Self { pool, stats, axiom })
+                let lb = Arc::new(LeaderboardStore::new(conn.clone()));
+                let store: Arc<dyn StatsCacheStore> = Arc::new(RedisStatsCacheStore::new(
+                    conn,
+                    registry.clone(),
+                    cache_cfg,
+                    Some(lb.clone()),
+                ));
+                (
+                    Arc::new(
+                        StatsHandler::with_client(client)
+                            .with_registry(registry)
+                            .with_cache_store(store),
+                    ),
+                    Some(lb),
+                )
+            } else {
+                tracing::warn!("REDIS_URL not set — running without cache store");
+                (
+                    Arc::new(StatsHandler::with_client(client).with_registry(registry)),
+                    None,
+                )
+            };
+
+        Ok(Self {
+            pool,
+            stats,
+            axiom,
+            leaderboard,
+        })
     }
 
-    /// Test/dev helper: no DB, default handlers.
     pub fn in_memory_for_tests() -> Self {
         Self {
             pool: None,
             stats: Arc::new(StatsHandler::default()),
             axiom: AxiomLogger::default(),
+            leaderboard: None,
         }
     }
 
-    /// Readiness: pool must hand out a working connection (when enabled).
     pub async fn readiness_check(&self) -> anyhow::Result<()> {
         if let Some(p) = &self.pool {
             pool::ping(p).await?;
@@ -104,7 +111,6 @@ fn cache_config_from_env() -> StatsCacheConfigV2 {
     StatsCacheConfigV2 {
         ttl_r6,
         stale_grace,
-        in_memory_max_entries: 1024,
     }
 }
 
