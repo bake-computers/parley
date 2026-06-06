@@ -18,8 +18,10 @@ mod logging;
 mod nuxt;
 mod proto;
 mod scrape;
+mod stats_cache_store;
 mod stats_metrics;
 mod stats_proto;
+mod schema;
 
 use context::AppContext;
 

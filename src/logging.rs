@@ -66,6 +66,7 @@ pub struct AxiomConfig {
     pub enabled: bool,
 }
 
+
 impl Default for AxiomConfig {
     fn default() -> Self {
         Self {

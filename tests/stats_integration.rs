@@ -30,8 +30,6 @@ mod db_pool;
 mod db_repos;
 #[path = "../src/db/schema.rs"]
 mod db_schema;
-#[path = "../src/db/stats_cache_store.rs"]
-mod db_stats_cache_store;
 #[path = "../src/fetch.rs"]
 mod fetch;
 #[path = "../src/handlers/mod.rs"]
@@ -44,6 +42,8 @@ mod nuxt;
 mod proto;
 #[path = "../src/scrape.rs"]
 mod scrape;
+#[path = "../src/stats_cache_store.rs"]
+mod stats_cache_store;
 #[path = "../src/stats_metrics.rs"]
 mod stats_metrics;
 #[path = "../src/stats_proto.rs"]

@@ -9,7 +9,7 @@ use crate::cache_store::{StatsCacheConfigV2, StatsCacheStore};
 use crate::fetch::StatsClient;
 
 use crate::db::pool::{self, DbPool, PoolConfig};
-use crate::db::stats_cache_store::PostgresStatsCacheStore;
+use crate::stats_cache_store::PostgresStatsCacheStore;
 use crate::handlers::stats::StatsHandler;
 use crate::logging::AxiomLogger;
 

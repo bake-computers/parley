@@ -28,7 +28,6 @@ use crate::fetch::{StatsFetchError, StatsFetchErrorKind, StatsPlatform};
 use crate::logging::AxiomLogger;
 use crate::scrape::{ScrapedStats, ScrapedStatsCollection};
 
-/// Bridge between the backends-crate `Game` enum and the `db` crate one.
 fn to_db_game(g: Game) -> DbGame {
     match g {
         Game::R6 => DbGame::R6,
@@ -87,7 +86,7 @@ impl PostgresStatsCacheStore {
         let start = std::time::Instant::now();
         let mut conn = self.conn().await?;
         let result = PlayerRepo::upsert_by_identity(
-            &mut conn,
+            &mut *conn,
             to_db_game(game),
             username,
             platform.as_str(),
@@ -110,7 +109,7 @@ impl PostgresStatsCacheStore {
         let start = std::time::Instant::now();
         let mut conn = self.conn().await?;
         let row = PlayerStatSnapshotRepo::latest_fresh(
-            &mut conn,
+            &mut *conn,
             to_db_game(game),
             player_id,
             now_ms(),
@@ -165,7 +164,7 @@ impl PostgresStatsCacheStore {
         };
         let start = std::time::Instant::now();
         let mut conn = self.conn().await?;
-        let result = PlayerStatSnapshotRepo::insert(&mut conn, new_row).await;
+        let result = PlayerStatSnapshotRepo::insert(&mut *conn, new_row).await;
         let duration_ms = start.elapsed().as_secs_f64() * 1000.0;
         let error = result.as_ref().err().map(|e| e.to_string());
         self.axiom

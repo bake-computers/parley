@@ -13,7 +13,6 @@ pub mod models;
 pub mod pool;
 pub mod repos;
 pub mod schema;
-pub mod stats_cache_store;
 
 /// Embedded migrations bundle. Used by [`pool::run_migrations`] on startup
 /// when `RUN_MIGRATIONS=1`.
