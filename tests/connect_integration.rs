@@ -12,10 +12,10 @@ use tokio::net::TcpListener;
 mod backends;
 #[path = "../src/backends/r6.rs"]
 mod backends_r6;
-#[path = "../src/cache.rs"]
-mod cache;
 #[path = "../src/cache_store.rs"]
 mod cache_store;
+#[path = "../src/cache_redis.rs"]
+mod cache_redis;
 #[path = "../src/connect.rs"]
 mod connect;
 #[path = "../src/context.rs"]
@@ -34,6 +34,8 @@ mod db_schema;
 mod fetch;
 #[path = "../src/handlers/mod.rs"]
 mod handlers;
+#[path = "../src/leaderboard.rs"]
+mod leaderboard;
 #[path = "../src/logging.rs"]
 mod logging;
 #[path = "../src/nuxt.rs"]
@@ -42,8 +44,6 @@ mod nuxt;
 mod proto;
 #[path = "../src/scrape.rs"]
 mod scrape;
-#[path = "../src/stats_cache_store.rs"]
-mod stats_cache_store;
 #[path = "../src/stats_metrics.rs"]
 mod stats_metrics;
 #[path = "../src/stats_proto.rs"]
