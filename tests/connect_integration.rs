@@ -12,10 +12,10 @@ use tokio::net::TcpListener;
 mod backends;
 #[path = "../src/backends/r6.rs"]
 mod backends_r6;
-#[path = "../src/cache_store.rs"]
-mod cache_store;
 #[path = "../src/cache_redis.rs"]
 mod cache_redis;
+#[path = "../src/cache_store.rs"]
+mod cache_store;
 #[path = "../src/connect.rs"]
 mod connect;
 #[path = "../src/context.rs"]
