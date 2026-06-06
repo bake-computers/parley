@@ -186,9 +186,9 @@ pub async fn link_account_rpc(
             player.id,
         )
         .await
-        {
-            tracing::warn!(error = %e, "guild membership upsert failed (non-fatal)");
-        }
+    {
+        tracing::warn!(error = %e, "guild membership upsert failed (non-fatal)");
+    }
 
     encode_ok(
         &LinkAccountResponse {

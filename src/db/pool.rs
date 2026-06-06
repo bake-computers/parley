@@ -22,12 +22,12 @@
 use std::sync::Arc;
 use std::time::Duration;
 
+use crate::db::MIGRATIONS;
 use diesel_async::AsyncPgConnection;
 use diesel_async::pooled_connection::bb8::Pool;
 use diesel_async::pooled_connection::{AsyncDieselConnectionManager, ManagerConfig};
 use futures_util::FutureExt;
 use futures_util::future::BoxFuture;
-use crate::db::MIGRATIONS;
 
 /// Production alias — prefer this in handler signatures.
 pub type DbPool = Pool<AsyncPgConnection>;
