@@ -7,21 +7,21 @@ static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
 use std::net::SocketAddr;
 
 mod backends;
-mod cache;
+mod cache_redis;
 mod cache_store;
 mod connect;
 mod context;
 mod db;
 mod fetch;
 mod handlers;
+mod leaderboard;
 mod logging;
 mod nuxt;
 mod proto;
+mod schema;
 mod scrape;
-mod stats_cache_store;
 mod stats_metrics;
 mod stats_proto;
-mod schema;
 
 use context::AppContext;
 

@@ -16,12 +16,12 @@
 use std::collections::HashMap;
 use std::hash::Hash;
 use std::sync::Arc;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 
 use async_trait::async_trait;
 use tokio::sync::{Mutex, watch};
 
-use crate::backends::{Game, StatsBackendRegistry};
+use crate::backends::Game;
 use crate::fetch::{StatsFetchError, StatsPlatform};
 use crate::scrape::{ScrapedStats, ScrapedStatsCollection};
 
@@ -30,7 +30,6 @@ use crate::scrape::{ScrapedStats, ScrapedStatsCollection};
 pub struct StatsCacheConfigV2 {
     pub ttl_r6: Duration,
     pub stale_grace: Duration,
-    pub in_memory_max_entries: usize,
 }
 
 impl Default for StatsCacheConfigV2 {
@@ -38,7 +37,6 @@ impl Default for StatsCacheConfigV2 {
         Self {
             ttl_r6: Duration::from_secs(60),
             stale_grace: Duration::from_secs(24 * 3600),
-            in_memory_max_entries: 1024,
         }
     }
 }
@@ -140,128 +138,15 @@ where
             value
         } else {
             let mut rx = sender.subscribe();
-            // If leader already completed, the initial borrow shows the result.
             if let Some(v) = rx.borrow().clone() {
                 return v;
             }
-            // Otherwise wait for the leader's publish.
             rx.wait_for(|v| v.is_some())
                 .await
                 .ok()
                 .and_then(|g| g.clone())
                 .expect("single-flight leader sent result")
         }
-    }
-}
-
-// ======================================================================
-// InMemoryStatsCacheStore — reference implementation for tests/dev.
-// ======================================================================
-
-type InMemKey = (Game, String, StatsPlatform, Option<String>);
-
-pub struct InMemoryStatsCacheStore {
-    registry: Arc<StatsBackendRegistry>,
-    entries: Mutex<HashMap<InMemKey, (Instant, ScrapedStats)>>,
-    cfg: StatsCacheConfigV2,
-    flight: SingleFlight<InMemKey, Arc<Result<ScrapedStats, StatsFetchError>>>,
-}
-
-impl InMemoryStatsCacheStore {
-    pub fn new(registry: Arc<StatsBackendRegistry>, cfg: StatsCacheConfigV2) -> Self {
-        Self {
-            registry,
-            entries: Mutex::new(HashMap::new()),
-            cfg,
-            flight: SingleFlight::new(),
-        }
-    }
-}
-
-#[async_trait]
-impl StatsCacheStore for InMemoryStatsCacheStore {
-    async fn fetch(
-        &self,
-        game: Game,
-        username: &str,
-        platform: StatsPlatform,
-        season: Option<&str>,
-    ) -> Result<CachedStats, StatsFetchError> {
-        let key = (
-            game,
-            username.trim().to_ascii_lowercase(),
-            platform,
-            season.map(|s| s.to_string()),
-        );
-
-        // Fast path.
-        if let Some(stats) = {
-            let entries = self.entries.lock().await;
-            entries
-                .get(&key)
-                .filter(|(exp, _)| *exp > Instant::now())
-                .map(|(_, v)| v.clone())
-        } {
-            return Ok(CachedStats {
-                stats,
-                degraded: false,
-            });
-        }
-
-        // Cold miss — coalesce.
-        let registry = self.registry.clone();
-        let (game_c, user_c, plat_c, seas_c) = (
-            game,
-            username.to_string(),
-            platform,
-            season.map(|s| s.to_string()),
-        );
-        let result = self
-            .flight
-            .do_or_wait(key.clone(), move || async move {
-                Arc::new(
-                    registry
-                        .fetch(game_c, &user_c, plat_c, seas_c.as_deref())
-                        .await,
-                )
-            })
-            .await;
-
-        match &*result {
-            Ok(stats) => {
-                let expires_at = Instant::now() + self.cfg.ttl_for(game);
-                let mut entries = self.entries.lock().await;
-                if entries.len() >= self.cfg.in_memory_max_entries {
-                    // Evict anything already past its TTL.
-                    let now = Instant::now();
-                    entries.retain(|_, (exp, _)| *exp > now);
-                }
-                entries.insert(key, (expires_at, stats.clone()));
-                Ok(CachedStats {
-                    stats: stats.clone(),
-                    degraded: false,
-                })
-            }
-            Err(e) => Err(StatsFetchError {
-                kind: e.kind.clone(),
-                message: e.message.clone(),
-                retryable: e.retryable,
-                status: e.status,
-                requested_season: e.requested_season.clone(),
-                available_seasons: e.available_seasons.clone(),
-            }),
-        }
-    }
-
-    async fn fetch_collection(
-        &self,
-        game: Game,
-        username: &str,
-        platform: StatsPlatform,
-    ) -> Result<ScrapedStatsCollection, StatsFetchError> {
-        self.registry
-            .fetch_collection(game, username, platform)
-            .await
     }
 }
 
@@ -275,7 +160,6 @@ mod tests {
         let sf: SingleFlight<&'static str, usize> = SingleFlight::new();
         let counter = Arc::new(AtomicUsize::new(0));
 
-        // 50 concurrent callers for the same key should invoke the closure once.
         let mut handles = Vec::new();
         for _ in 0..50 {
             let sf = &sf;

@@ -8,7 +8,6 @@
 
 use crate::backends::Game as BackendGame;
 use crate::backends::StatsBackendRegistry;
-use crate::cache::StatsCache;
 use crate::cache_store::StatsCacheStore;
 use crate::fetch::StatsClient;
 use crate::fetch::{StatsFetchError, StatsFetchErrorKind, StatsPlatform};
@@ -39,13 +38,10 @@ use crate::context::AppContext;
 
 /// Shared handler state. Wraps a long-lived `StatsClient` so the reqwest
 /// connection pool is reused across requests, plus:
-///   * legacy in-memory `StatsCache` for the R6-only `/stats/:username` REST
-///     endpoint (kept for backwards compatibility);
 ///   * optional modern `StatsCacheStore` for game-aware ConnectRPC traffic,
-///     which may be backed by Postgres snapshots in production.
+///     which may be backed by Redis in production.
 pub struct StatsHandler {
     client: StatsClient,
-    cache: Arc<StatsCache>,
     cache_store: Option<Arc<dyn StatsCacheStore>>,
     registry: Arc<StatsBackendRegistry>,
 }
@@ -59,7 +55,6 @@ impl Default for StatsHandler {
         )));
         Self {
             client,
-            cache: Arc::new(StatsCache::default()),
             cache_store: None,
             registry: Arc::new(registry),
         }
@@ -74,29 +69,14 @@ impl StatsHandler {
         )));
         Self {
             client,
-            cache: Arc::new(StatsCache::default()),
             cache_store: None,
             registry: Arc::new(registry),
         }
     }
 
-    pub fn with_client_and_cache(client: StatsClient, cache: StatsCache) -> Self {
-        let mut registry = StatsBackendRegistry::new();
-        registry.register(Arc::new(crate::backends::r6::R6Backend::new(
-            client.clone(),
-        )));
-        Self {
-            client,
-            cache: Arc::new(cache),
-            cache_store: None,
-            registry: Arc::new(registry),
-        }
-    }
-
-    /// Enable the game-aware cache store for ConnectRPC traffic. When set,
-    /// `fetch_stats_rpc` / `fetch_stats_collection_rpc` route through it;
-    /// the REST `/stats/:username` path keeps using the legacy in-memory
-    /// cache for backwards compatibility.
+    /// Enable the game-aware cache store. When set, both the REST
+    /// `/stats/:username` endpoint and the ConnectRPC stats endpoints
+    /// route through the cache store.
     pub fn with_cache_store(mut self, store: Arc<dyn StatsCacheStore>) -> Self {
         self.cache_store = Some(store);
         self
@@ -111,29 +91,28 @@ impl StatsHandler {
         &self.client
     }
 
-    pub fn cache(&self) -> &StatsCache {
-        &self.cache
-    }
-
     pub fn registry(&self) -> &StatsBackendRegistry {
         &self.registry
     }
 
-    /// Cache-aware fetch. Returns a cached copy when available; otherwise
-    /// scrapes upstream and populates the cache on success.
+    /// Cache-aware fetch. Uses the `cache_store` when available; otherwise
+    /// scrapes upstream directly.
     pub async fn fetch_cached(
         &self,
         username: &str,
         platform: StatsPlatform,
         season: Option<&str>,
     ) -> Result<ScrapedStats, StatsFetchError> {
-        if let Some(hit) = self.cache.get(username, platform, season) {
-            tracing::debug!(%username, ?platform, cached = true, "stats cache hit");
-            return Ok(hit);
+        if let Some(store) = &self.cache_store {
+            match store
+                .fetch(BackendGame::R6, username, platform, season)
+                .await
+            {
+                Ok(cached) => return Ok(cached.stats),
+                Err(e) => return Err(e),
+            }
         }
-        let stats = self.client.fetch_stats(username, platform, season).await?;
-        self.cache.put(username, platform, season, stats.clone());
-        Ok(stats)
+        self.client.fetch_stats(username, platform, season).await
     }
 
     pub async fn fetch_stats_rpc(&self, req: FetchStatsRequest) -> FetchStatsResponse {
@@ -141,7 +120,6 @@ impl StatsHandler {
         let season = empty_to_none(&req.season_selector);
         let game = map_proto_game(req.game);
 
-        // Prefer the game-aware cache store when present (production path).
         if let Some(store) = &self.cache_store {
             return match store.fetch(game, &req.username, platform, season).await {
                 Ok(cached) => FetchStatsResponse {
@@ -157,18 +135,13 @@ impl StatsHandler {
             };
         }
 
-        // Legacy in-memory R6-only path.
         if !matches!(game, BackendGame::R6) {
-            // No cache store + non-R6 game == no backend wired yet.
             return FetchStatsResponse {
                 success: false,
                 stats: None,
                 error: Some(ProtoError {
                     code: "GcUnavailable".into(),
-                    message: format!(
-                        "no backend registered for game {}",
-                        game.as_str()
-                    ),
+                    message: format!("no backend registered for game {}", game.as_str()),
                 }),
             };
         }
@@ -208,28 +181,16 @@ impl StatsHandler {
             };
         }
 
-        // Legacy R6-only path.
-        if let Some(cached) = self.cache.get_collection(&req.username, platform) {
-            return FetchStatsCollectionResponse {
-                success: true,
-                collection: Some(proto_from_collection(&cached)),
-                error: None,
-            };
-        }
         match self
             .client
             .fetch_stats_collection(&req.username, platform)
             .await
         {
-            Ok(c) => {
-                self.cache
-                    .put_collection(&req.username, platform, c.clone());
-                FetchStatsCollectionResponse {
-                    success: true,
-                    collection: Some(proto_from_collection(&c)),
-                    error: None,
-                }
-            }
+            Ok(c) => FetchStatsCollectionResponse {
+                success: true,
+                collection: Some(proto_from_collection(&c)),
+                error: None,
+            },
             Err(e) => FetchStatsCollectionResponse {
                 success: false,
                 collection: None,
