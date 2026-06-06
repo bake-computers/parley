@@ -7,24 +7,6 @@ pub mod sql_types {
 }
 
 diesel::table! {
-    account (id) {
-        id -> Text,
-        account_id -> Text,
-        provider_id -> Text,
-        user_id -> Text,
-        access_token -> Nullable<Text>,
-        refresh_token -> Nullable<Text>,
-        id_token -> Nullable<Text>,
-        access_token_expires_at -> Nullable<Timestamptz>,
-        refresh_token_expires_at -> Nullable<Timestamptz>,
-        scope -> Nullable<Text>,
-        password -> Nullable<Text>,
-        created_at -> Timestamptz,
-        updated_at -> Timestamptz,
-    }
-}
-
-diesel::table! {
     use diesel::sql_types::*;
     use super::sql_types::Games;
 
@@ -316,19 +298,6 @@ diesel::table! {
 }
 
 diesel::table! {
-    session (id) {
-        id -> Text,
-        expires_at -> Timestamptz,
-        token -> Text,
-        ip_address -> Nullable<Text>,
-        user_agent -> Nullable<Text>,
-        user_id -> Text,
-        created_at -> Timestamptz,
-        updated_at -> Timestamptz,
-    }
-}
-
-diesel::table! {
     use diesel::sql_types::*;
     use super::sql_types::Games;
 
@@ -426,35 +395,6 @@ diesel::table! {
 }
 
 diesel::table! {
-    user (id) {
-        id -> Text,
-        name -> Text,
-        email -> Text,
-        email_verified -> Bool,
-        image -> Nullable<Text>,
-        username -> Nullable<Text>,
-        display_username -> Nullable<Text>,
-        role -> Nullable<Text>,
-        banned -> Nullable<Bool>,
-        ban_reason -> Nullable<Text>,
-        ban_expires -> Nullable<Timestamptz>,
-        created_at -> Timestamptz,
-        updated_at -> Timestamptz,
-    }
-}
-
-diesel::table! {
-    verification (id) {
-        id -> Text,
-        identifier -> Text,
-        value -> Text,
-        expires_at -> Timestamptz,
-        created_at -> Nullable<Timestamptz>,
-        updated_at -> Nullable<Timestamptz>,
-    }
-}
-
-diesel::table! {
     vessel_sessions (id) {
         id -> Int4,
         session_id -> Uuid,
@@ -467,7 +407,6 @@ diesel::table! {
     }
 }
 
-diesel::joinable!(account -> user (user_id));
 diesel::joinable!(bracket_matches -> matches (custom_match_id));
 diesel::joinable!(bracket_matches -> tournaments (tournament_id));
 diesel::joinable!(discord_identities -> players (player_id));
@@ -479,13 +418,11 @@ diesel::joinable!(matchmaking_queue_participants -> matchmaking_queues (queue_id
 diesel::joinable!(matchmaking_queue_participants -> players (player_id));
 diesel::joinable!(matchmaking_queues -> matches (matched_match_id));
 diesel::joinable!(player_stat_snapshots -> players (player_id));
-diesel::joinable!(session -> user (user_id));
 diesel::joinable!(tournament_team_rosters -> players (player_id));
 diesel::joinable!(tournament_team_rosters -> tournament_teams (team_id));
 diesel::joinable!(tournament_team_rosters -> tournaments (tournament_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
-    account,
     bracket_matches,
     discord_identities,
     external_match_history,
@@ -500,12 +437,9 @@ diesel::allow_tables_to_appear_in_same_query!(
     matchmaking_queues,
     player_stat_snapshots,
     players,
-    session,
     tournament_schedules,
     tournament_team_rosters,
     tournament_teams,
     tournaments,
-    user,
-    verification,
     vessel_sessions,
 );

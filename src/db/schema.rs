@@ -5,10 +5,9 @@
 //!     Diesel's `Queryable` derive positions fields by ordinal.
 //!   * Every game-scoped table exposes its `game` column as `games` SQL type
 //!     mapping to the Rust enum [`crate::db::Game`].
-//!   * Timestamps for domain tables are `BigInt` (epoch millis); the
-//!     better-auth tables keep `timestamptz` (matching the upstream lib).
+//!   * Timestamps for domain tables are `BigInt` (epoch millis).
 
-#![allow(non_snake_case, clippy::diesel_table_operator_useless_paren_chains)]
+#![allow(non_snake_case)]
 
 // ---------- Custom SQL types ----------
 
@@ -18,90 +17,6 @@ pub mod sql_types {
     #[diesel(postgres_type(name = "games"))]
     pub struct Games;
 }
-
-// ---------- better-auth: user ----------
-
-diesel::table! {
-    #[sql_name = "user"]
-    auth_users (id) {
-        id -> Text,
-        name -> Text,
-        email -> Text,
-        email_verified -> Bool,
-        image -> Nullable<Text>,
-        username -> Nullable<Text>,
-        display_username -> Nullable<Text>,
-        role -> Nullable<Text>,
-        banned -> Nullable<Bool>,
-        ban_reason -> Nullable<Text>,
-        ban_expires -> Nullable<Timestamptz>,
-        created_at -> Timestamptz,
-        updated_at -> Timestamptz,
-    }
-}
-
-// ---------- better-auth: session ----------
-
-diesel::table! {
-    #[sql_name = "session"]
-    auth_sessions (id) {
-        id -> Text,
-        expires_at -> Timestamptz,
-        token -> Text,
-        ip_address -> Nullable<Text>,
-        user_agent -> Nullable<Text>,
-        user_id -> Text,
-        created_at -> Timestamptz,
-        updated_at -> Timestamptz,
-    }
-}
-
-// ---------- better-auth: account ----------
-
-diesel::table! {
-    #[sql_name = "account"]
-    auth_accounts (id) {
-        id -> Text,
-        account_id -> Text,
-        provider_id -> Text,
-        user_id -> Text,
-        access_token -> Nullable<Text>,
-        refresh_token -> Nullable<Text>,
-        id_token -> Nullable<Text>,
-        access_token_expires_at -> Nullable<Timestamptz>,
-        refresh_token_expires_at -> Nullable<Timestamptz>,
-        scope -> Nullable<Text>,
-        password -> Nullable<Text>,
-        created_at -> Timestamptz,
-        updated_at -> Timestamptz,
-    }
-}
-
-// ---------- better-auth: verification ----------
-
-diesel::table! {
-    #[sql_name = "verification"]
-    auth_verifications (id) {
-        id -> Text,
-        identifier -> Text,
-        value -> Text,
-        expires_at -> Timestamptz,
-        created_at -> Nullable<Timestamptz>,
-        updated_at -> Nullable<Timestamptz>,
-    }
-}
-
-// ---------- FK wiring ----------
-
-diesel::joinable!(auth_sessions -> auth_users (user_id));
-diesel::joinable!(auth_accounts -> auth_users (user_id));
-
-diesel::allow_tables_to_appear_in_same_query!(
-    auth_users,
-    auth_sessions,
-    auth_accounts,
-    auth_verifications,
-);
 
 // ---------- players ----------
 
