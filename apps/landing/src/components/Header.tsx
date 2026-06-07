@@ -14,12 +14,11 @@ export function SiteHeader() {
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-6">
         <a href="#top" className="flex items-center gap-3">
           <Image
-            src="/parley-logo.png"
+            src="/parley-logo.svg"
             alt="Parley logo"
             width={32}
             height={32}
             className="size-8"
-            priority
           />
           <span className="text-sm font-semibold uppercase tracking-[0.2em] text-foreground">
             Parley

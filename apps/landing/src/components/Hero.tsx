@@ -30,12 +30,11 @@ export function Hero() {
         </span>
 
         <Image
-          src="/parley-logo.png"
+          src="/parley-logo.svg"
           alt="Parley logo"
           width={120}
           height={120}
           className="mb-10 size-24 animate-in fade-in zoom-in-95 duration-1000 md:size-28"
-          priority
         />
 
         <h1 className="max-w-3xl text-balance text-4xl font-semibold leading-tight tracking-tight text-foreground animate-in fade-in slide-in-from-bottom-4 duration-1000 md:text-6xl">

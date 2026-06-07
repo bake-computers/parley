@@ -1,7 +1,5 @@
-import { Button } from "@/components/ui/button";
 import { MessageCircle, Bell } from "lucide-react";
 
-// Replace with the real invite once the server is public.
 const DISCORD_URL = "https://discord.gg/parley";
 
 export function DiscordCta() {
@@ -20,15 +18,15 @@ export function DiscordCta() {
         </p>
 
         <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <Button
-            size="lg"
-            className="h-11 bg-foreground text-background transition-transform hover:-translate-y-0.5 hover:bg-foreground/90"
+          <a
+            href={DISCORD_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-foreground px-2.5 h-11 text-sm font-medium text-background whitespace-nowrap transition-transform hover:-translate-y-0.5 hover:bg-foreground/90"
           >
-            <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer">
-              <MessageCircle className="size-4" aria-hidden="true" />
-              Join the Discord
-            </a>
-          </Button>
+            <MessageCircle className="size-4" aria-hidden="true" />
+            Join the Discord
+          </a>
         </div>
 
         <div className="mx-auto mt-10 flex max-w-md items-center justify-center gap-2 border border-border/70 bg-secondary/30 px-5 py-4">
