@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::sync::Arc;
 
 use async_trait::async_trait;
@@ -11,6 +12,13 @@ use crate::leaderboard::LeaderboardStore;
 use crate::scrape::{ScrapedStats, ScrapedStatsCollection};
 
 type FlightKey = (Game, String, StatsPlatform, Option<String>);
+
+const H_PROFILE: &str = "p";
+const H_RANKED: &str = "r";
+const H_METRICS: &str = "m";
+const H_LATEST: &str = "latest";
+const H_BY_SEASON: &str = "by_season";
+const H_CATALOG: &str = "catalog";
 
 fn fresh_key(game: Game, username: &str, platform: StatsPlatform, season: Option<&str>) -> String {
     format!(
@@ -48,6 +56,28 @@ fn platform_key(p: StatsPlatform) -> &'static str {
         StatsPlatform::Xbox => "xbox",
         StatsPlatform::Playstation => "psn",
     }
+}
+
+fn stats_from_hash(fields: &HashMap<String, String>) -> Option<ScrapedStats> {
+    let profile = serde_json::from_str(fields.get(H_PROFILE)?).ok()?;
+    let ranked_stats = serde_json::from_str(fields.get(H_RANKED)?).ok()?;
+    let calculated_metrics = serde_json::from_str(fields.get(H_METRICS)?).ok()?;
+    Some(ScrapedStats {
+        profile,
+        ranked_stats,
+        calculated_metrics,
+    })
+}
+
+fn collection_from_hash(fields: &HashMap<String, String>) -> Option<ScrapedStatsCollection> {
+    let latest = serde_json::from_str(fields.get(H_LATEST)?).ok()?;
+    let by_season = serde_json::from_str(fields.get(H_BY_SEASON)?).ok()?;
+    let season_catalog = serde_json::from_str(fields.get(H_CATALOG)?).ok()?;
+    Some(ScrapedStatsCollection {
+        latest,
+        by_season,
+        season_catalog,
+    })
 }
 
 pub struct RedisStatsCacheStore {
@@ -88,9 +118,9 @@ impl StatsCacheStore for RedisStatsCacheStore {
         let stale = stale_key(game, username, platform, season);
 
         let mut conn = self.conn.clone();
-        if let Some(raw) = conn.get::<_, Option<String>>(&fresh).await.ok().flatten()
-            && let Ok(stats) = serde_json::from_str::<ScrapedStats>(&raw)
-        {
+        let fields: HashMap<String, String> =
+            conn.hgetall(&fresh).await.unwrap_or_default();
+        if let Some(stats) = stats_from_hash(&fields) {
             return Ok(CachedStats {
                 stats,
                 degraded: false,
@@ -127,14 +157,22 @@ impl StatsCacheStore for RedisStatsCacheStore {
 
         match &*result {
             Ok(stats) => {
-                let payload = serde_json::to_string(stats).unwrap_or_default();
-                let ttl_ms = self.cfg.ttl_for(game).as_secs();
-                let grace_ms = self.cfg.stale_grace.as_secs();
+                let profile_json = serde_json::to_string(&stats.profile).unwrap_or_default();
+                let ranked_json = serde_json::to_string(&stats.ranked_stats).unwrap_or_default();
+                let metrics_json = serde_json::to_string(&stats.calculated_metrics).unwrap_or_default();
+                let ttl_secs = self.cfg.ttl_for(game).as_secs() as i64;
+                let grace_secs = self.cfg.stale_grace.as_secs() as i64;
                 let mut conn = self.conn.clone();
                 let _: () = redis::pipe()
                     .atomic()
-                    .set_ex(&fresh, &payload, ttl_ms)
-                    .set_ex(&stale, &payload, grace_ms)
+                    .hset(&fresh, H_PROFILE, &profile_json)
+                    .hset(&fresh, H_RANKED, &ranked_json)
+                    .hset(&fresh, H_METRICS, &metrics_json)
+                    .expire(&fresh, ttl_secs)
+                    .hset(&stale, H_PROFILE, &profile_json)
+                    .hset(&stale, H_RANKED, &ranked_json)
+                    .hset(&stale, H_METRICS, &metrics_json)
+                    .expire(&stale, grace_secs)
                     .query_async(&mut conn)
                     .await
                     .unwrap_or(());
@@ -151,9 +189,9 @@ impl StatsCacheStore for RedisStatsCacheStore {
             Err(err) => {
                 if matches!(err.kind, StatsFetchErrorKind::GcUnavailable) {
                     let mut conn = self.conn.clone();
-                    if let Some(raw) = conn.get::<_, Option<String>>(&stale).await.ok().flatten()
-                        && let Ok(stats) = serde_json::from_str::<ScrapedStats>(&raw)
-                    {
+                    let fields: HashMap<String, String> =
+                        conn.hgetall(&stale).await.unwrap_or_default();
+                    if let Some(stats) = stats_from_hash(&fields) {
                         return Ok(CachedStats {
                             stats,
                             degraded: true,
@@ -181,9 +219,9 @@ impl StatsCacheStore for RedisStatsCacheStore {
         let key = collection_key(game, username, platform);
 
         let mut conn = self.conn.clone();
-        if let Some(raw) = conn.get::<_, Option<String>>(&key).await.ok().flatten()
-            && let Ok(collection) = serde_json::from_str::<ScrapedStatsCollection>(&raw)
-        {
+        let fields: HashMap<String, String> =
+            conn.hgetall(&key).await.unwrap_or_default();
+        if let Some(collection) = collection_from_hash(&fields) {
             return Ok(collection);
         }
 
@@ -192,10 +230,20 @@ impl StatsCacheStore for RedisStatsCacheStore {
             .fetch_collection(game, username, platform)
             .await?;
 
-        let payload = serde_json::to_string(&result).unwrap_or_default();
-        let ttl = self.cfg.ttl_for(game).as_secs();
+        let latest_json = serde_json::to_string(&result.latest).unwrap_or_default();
+        let by_season_json = serde_json::to_string(&result.by_season).unwrap_or_default();
+        let catalog_json = serde_json::to_string(&result.season_catalog).unwrap_or_default();
+        let ttl_secs = self.cfg.ttl_for(game).as_secs() as i64;
         let mut conn = self.conn.clone();
-        let _: () = conn.set_ex(&key, &payload, ttl).await.unwrap_or(());
+        let _: () = redis::pipe()
+            .atomic()
+            .hset(&key, H_LATEST, &latest_json)
+            .hset(&key, H_BY_SEASON, &by_season_json)
+            .hset(&key, H_CATALOG, &catalog_json)
+            .expire(&key, ttl_secs)
+            .query_async(&mut conn)
+            .await
+            .unwrap_or(());
 
         Ok(result)
     }
