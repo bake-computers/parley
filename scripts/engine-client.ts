@@ -447,6 +447,311 @@ export function getPlayerRank(baseUrl: string, req: GetPlayerRankRequest) {
 }
 
 // ---------------------------------------------------------------------------
+// Top ranked R6 Siege players (tracker.gg leaderboard snapshot)
+// ---------------------------------------------------------------------------
+
+const TOP_PLAYERS = [
+  "GriII",
+  "Aiden.SSG",
+  "Mikasa",
+  "MingJce",
+  "Swlsher",
+  "fsu",
+  "creeds",
+  "zkcz",
+  "GENDARMERlE",
+  "TrojanRat",
+  "mue",
+  "PugR6S",
+  "Causing",
+  "Viherk-",
+  "ltzPanda.Rip",
+  "SnowStrippers",
+  "iywo",
+  "Xerqzlax.C9",
+  "cxkegirls",
+  "Lugano777",
+  "Fi9ure",
+  "Azezd.",
+  "azko92",
+  "caamero.",
+  "Siyheelu",
+  "stzv",
+  "SmackingOpps",
+  "gek",
+  "xohhVPN",
+  "Joshaven",
+  "sguindy",
+  "Memphis",
+  "pokerjr",
+  "Kippu_JJ",
+  "jobbi.",
+  "Tamime247",
+  "omy",
+  "Tukkleton",
+  "Jefferson.JPG",
+  "MargieIaBag",
+  "Toko2turNt",
+  "Raid.SSG",
+  "Pauxxle",
+  "MeM4m4ai",
+  "Ambi.SR",
+  "tt-coinfuzz",
+  "ka7e...",
+  "TTVAzheed",
+  "blob.ZT",
+  "Riccicapo",
+  "ph9ntm",
+  "Bapnzao",
+  "v7--",
+  "iatina.cp",
+  "shenVIogs",
+  "Fenz.5F",
+  "Alizawerf",
+  "JoeDaGreat8",
+  "Wizard.FNC",
+  "parlaSharKK",
+  "Effect2K",
+  "Relaes.CHIEFS",
+  "Sliko.",
+  "dxce.",
+  "Pururuca-.",
+  "Rockytop",
+  "fxntomss",
+  "asdfyLayla",
+  "t_yl",
+  "Yuhip.JPG",
+  "mThree.",
+  "MlKE-.-",
+  "displaced",
+  "mxezz",
+  "h8td-",
+  "SPOKENBONKAI",
+  "ArculIy.CAG",
+  "StopGraee",
+  "Ponders",
+  "Mv.MYD",
+  "Stompn.G2",
+  "JellyBaits",
+  "fonust540",
+  "xmvo",
+  "withvon",
+  "F1iiNTYS",
+  "b.ootz",
+  "BuIItumbo",
+  "Konjuy.",
+  "Stressi.Kanone",
+  "Rival.SSG",
+  "KAYASuOWO",
+  "Sps7",
+  "Dnamite",
+  "Gizbo.Kanone",
+  "duck.OLDSTAR",
+  "Lowkyy.MYD",
+  "Skyte-",
+  "Septis",
+  "Gabu7z.LOUD",
+  "b0xo.ARC",
+  "Baelezera",
+  "Elemzje.Rebels",
+  "Shift.TV8",
+  "Kobelax",
+  "k-aylr",
+  "BringYourLove",
+  "daefromhell",
+  "thrtn.SK",
+  "ScusPope",
+  "KungFuErz",
+  "KidjoTK",
+  "sgsla",
+  "BobzGN",
+  "prevailing",
+  "Snoopbulla",
+  "isoheru",
+  "Fifties.AOT",
+  "MKG",
+  "Rude.xyz",
+  "BleachCapone",
+  "kirimpitbulll",
+  "Adenn.oL",
+  "Tuhanwga",
+  "elx.LES",
+  "N0isy2K.",
+  "Ritzao",
+  "syIo-",
+  "Sm1ss.FNC",
+  "lachybananapeel",
+  "Orion",
+  "sx.I",
+  "Seke.",
+  "SKEPTIC-.-",
+  "ik.",
+  "Yotora",
+  "jlaD.Twis",
+  "BaaasK",
+  "Fleexy.EX",
+  "TungTung.C9",
+  "s3nt",
+  "Goo.GODSENT",
+  "KungFuAres-",
+  "iXizl",
+  "Glo.GODSENT",
+  "RimaHassan",
+  "whatahella",
+  "IVX",
+  "xunai",
+  "Embure_Rise",
+  "odav",
+  "AidenKEKE",
+  "Dream.SSG",
+  "Vaip",
+  "xez.SK",
+  "Madonna.-",
+  "fpi",
+  "EunSang.BFX",
+  "into_the_force",
+  "aos",
+  "Skaters.",
+  "ShadowVex-",
+  "Endux-iwnl",
+  "Xina.NM",
+  "Csensy247",
+  "autoaim",
+  "tre1ko",
+  "phoenix",
+  "Jovo7",
+  "crook.SK",
+  "Gity.SSG",
+  "LBorgesJr",
+  "sbx",
+  "RazaH.Liquid",
+  "Faide.SECRET",
+  "auntsteph",
+  "Cxt1",
+  "PingWIN.69",
+  "Mirney007",
+  "Mew",
+  "Rhqnz",
+  "B_aT_M_aN",
+  "HATES88",
+  "maafia",
+  "Campo",
+  "SheMightBe13",
+  "gaIores",
+  "M4SOPMOD-Il",
+  "Xuvei.",
+  "AIyssaLiu",
+  "oChu",
+  "JirkeZzzz",
+  "ZakKilla",
+  "RattIed",
+  "Inazkii",
+  "Wristbands",
+  "vxvt",
+  "Atom.100T",
+  "nukeszao.",
+  "GMZ.100T",
+  "Squiisjy",
+  "BIayde",
+  "vlongchamp.007",
+  "discgg.glaciers",
+  "Escololoo",
+  "Krinitx",
+  "Dtains",
+  "KJH",
+  "Misa.BFX",
+  "Soldier.BFX",
+  "Kira.-69",
+  "Champ.AVN",
+  "Bluebrird",
+  "peekzao",
+  "Lambe",
+  "FIowERA",
+  "Blunt",
+  "Dxni",
+  "Hakase._.",
+  "Reaz.HERETICS",
+  "Salsalino",
+  "Bmzyy",
+  "Nyulu",
+  "Mike.SS",
+  "Sogen..",
+  "Kazi.WiM",
+  "juicier",
+  "aay1K",
+  "Eupor.Geekay",
+  "Hxsky.-",
+  "Pengujn-San",
+  "Zyplo.",
+  "Skedar.",
+  "scriptingchud",
+  "milker",
+  "Mp4__",
+  "KKaizyn",
+  "pgzap-",
+  "Hash.CU",
+  "FlickyChally",
+  "WRMdog",
+  "StopFlo",
+  "Sleqt-Arial",
+  "Fairhs",
+  "Marto.Rebels",
+  "Sarks.Geekay",
+  "lsonade.",
+  "PSG-LGD-xNova",
+  "MukiBetts",
+  "FjlloZ-",
+  "RORICK.VP",
+  "xYello",
+  "rquj",
+  "Cheatz.",
+  "laqkn",
+  "SlyHeh.",
+  "spdr",
+  "G34",
+  "Lavezi.",
+  "Sailor.Lost",
+  "curs",
+  "AFu.Impart",
+  "pbrRAW",
+  "KAF",
+  "NE0NNNNNNNNNNNN",
+  "IAreNoodle.",
+  "heqq",
+  "CHAMPBONKAI",
+  "King_Phreak97",
+  "MontyJay",
+  "b40x",
+  "H.ybrid",
+  "saiq.",
+  "Awaken.Vitality",
+  "Chkn3",
+  "Jxssim.RAF",
+  "SpiriTz.100T",
+  "DEDEZAO.TLAW",
+  "MkH..",
+  "kynvx",
+  "ducavstt",
+  "avsro",
+  "Huntr.",
+  "SHUCKZyt",
+  "Dodez.FX",
+  "KixaGN",
+  "casshh.",
+  "Rinnzera-Kun",
+  "vntz",
+  "GAMEPRO1223",
+  "Husky.-",
+  "CuervoFED",
+  "bhu.",
+  "CroNxqq",
+  "nartiik",
+  "BSB769DOIS",
+  "TheL3BON",
+  "Della.G2",
+];
+
+// ---------------------------------------------------------------------------
 // Example usage — edit whatever you want
 // ---------------------------------------------------------------------------
 
@@ -454,233 +759,276 @@ async function main() {
   const baseUrl = Bun.argv[2] || Bun.env.ENGINE_URL || "http://127.0.0.1:50051";
   console.log(`Engine URL: ${baseUrl}\n`);
 
-  try {
-    const h = await health(baseUrl);
-    console.log("GET /health  →", h.status, h.body);
-  } catch (e) {
-    console.log("GET /health  →", (e as Error).message);
-  }
+  // try {
+  //   const h = await health(baseUrl);
+  //   console.log("GET /health  →", h.status, h.body);
+  // } catch (e) {
+  //   console.log("GET /health  →", (e as Error).message);
+  // }
 
-  try {
-    const r = await ready(baseUrl);
-    console.log("GET /ready  →", r.status, r.body);
-  } catch (e) {
-    console.log("GET /ready  →", (e as Error).message);
-  }
+  // try {
+  //   const r = await ready(baseUrl);
+  //   console.log("GET /ready  →", r.status, r.body);
+  // } catch (e) {
+  //   console.log("GET /ready  →", (e as Error).message);
+  // }
 
-  // --- Identity ---
+  // // --- Identity ---
 
-  console.log("\n--- IdentityService ---");
+  // console.log("\n--- IdentityService ---");
 
-  try {
-    const link = await linkAccount(baseUrl, {
-      discordUserId: "123456789",
-      game: GAME_R6,
-      username: "Pengu.PSG",
-      platform: "pc",
-    });
-    console.log("LinkAccount:", JSON.stringify(link, null, 2));
-  } catch (e) {
-    console.log("LinkAccount:", (e as Error).message);
-  }
+  // try {
+  //   const link = await linkAccount(baseUrl, {
+  //     discordUserId: "123456789",
+  //     game: GAME_R6,
+  //     username: "Pengu",
+  //     platform: "pc",
+  //   });
+  //   console.log("LinkAccount:", JSON.stringify(link, null, 2));
+  // } catch (e) {
+  //   console.log("LinkAccount:", (e as Error).message);
+  // }
 
-  try {
-    const lu = await lookupByDiscord(baseUrl, {
-      discordUserId: "123456789",
-      game: GAME_R6,
-    });
-    console.log("LookupByDiscord:", JSON.stringify(lu, null, 2));
-  } catch (e) {
-    console.log("LookupByDiscord:", (e as Error).message);
-  }
+  // try {
+  //   const lu = await lookupByDiscord(baseUrl, {
+  //     discordUserId: "123456789",
+  //     game: GAME_R6,
+  //   });
+  //   console.log("LookupByDiscord:", JSON.stringify(lu, null, 2));
+  // } catch (e) {
+  //   console.log("LookupByDiscord:", (e as Error).message);
+  // }
 
-  try {
-    const lu = await lookupByUsername(baseUrl, {
-      game: GAME_R6,
-      username: "Pengu.PSG",
-      platform: "pc",
-    });
-    console.log("LookupByUsername:", JSON.stringify(lu, null, 2));
-  } catch (e) {
-    console.log("LookupByUsername:", (e as Error).message);
-  }
+  // try {
+  //   const lu = await lookupByUsername(baseUrl, {
+  //     game: GAME_R6,
+  //     username: "Shaiiko",
+  //     platform: "pc",
+  //   });
+  //   console.log("LookupByUsername:", JSON.stringify(lu, null, 2));
+  // } catch (e) {
+  //   console.log("LookupByUsername:", (e as Error).message);
+  // }
 
-  try {
-    const unlink = await unlinkAccount(baseUrl, {
-      discordUserId: "123456789",
-      game: GAME_R6,
-    });
-    console.log("UnlinkAccount:", JSON.stringify(unlink, null, 2));
-  } catch (e) {
-    console.log("UnlinkAccount:", (e as Error).message);
-  }
+  // try {
+  //   const unlink = await unlinkAccount(baseUrl, {
+  //     discordUserId: "123456789",
+  //     game: GAME_R6,
+  //   });
+  //   console.log("UnlinkAccount:", JSON.stringify(unlink, null, 2));
+  // } catch (e) {
+  //   console.log("UnlinkAccount:", (e as Error).message);
+  // }
 
-  // --- Guild Settings ---
+  // // --- Guild Settings ---
 
-  console.log("\n--- GuildSettingsService ---");
+  // console.log("\n--- GuildSettingsService ---");
 
-  try {
-    const gs = await getGuildSettings(baseUrl, {
-      guildId: "guild_123",
-      game: GAME_R6,
-    });
-    console.log("GetGuildSettings:", JSON.stringify(gs, null, 2));
-  } catch (e) {
-    console.log("GetGuildSettings:", (e as Error).message);
-  }
+  // try {
+  //   const gs = await getGuildSettings(baseUrl, {
+  //     guildId: "guild_123",
+  //     game: GAME_R6,
+  //   });
+  //   console.log("GetGuildSettings:", JSON.stringify(gs, null, 2));
+  // } catch (e) {
+  //   console.log("GetGuildSettings:", (e as Error).message);
+  // }
 
-  try {
-    const upsert = await upsertGuildSettings(baseUrl, {
-      settings: {
-        guildId: "guild_123",
+  // try {
+  //   const upsert = await upsertGuildSettings(baseUrl, {
+  //     settings: {
+  //       guildId: "guild_123",
+  //       game: GAME_R6,
+  //       defaultTeamFormat: "5v5",
+  //       autoBalance: true,
+  //       crossGuildMatchmaking: false,
+  //       updatedAtMs: Date.now(),
+  //       updatedByDiscordUserId: "123456789",
+  //     },
+  //   });
+  //   console.log("UpsertGuildSettings:", JSON.stringify(upsert, null, 2));
+  // } catch (e) {
+  //   console.log("UpsertGuildSettings:", (e as Error).message);
+  // }
+
+  // try {
+  //   const mr = await getMatchmakingRules(baseUrl, {
+  //     guildId: "guild_123",
+  //     game: GAME_R6,
+  //   });
+  //   console.log("GetMatchmakingRules:", JSON.stringify(mr, null, 2));
+  // } catch (e) {
+  //   console.log("GetMatchmakingRules:", (e as Error).message);
+  // }
+
+  // try {
+  //   const upsert = await upsertMatchmakingRules(baseUrl, {
+  //     rules: {
+  //       guildId: "guild_123",
+  //       game: GAME_R6,
+  //       minElo: 800,
+  //       maxElo: 2000,
+  //       platforms: ["pc"],
+  //       requireVerified: false,
+  //       maxEloGap: 500,
+  //       updatedAtMs: Date.now(),
+  //     },
+  //   });
+  //   console.log("UpsertMatchmakingRules:", JSON.stringify(upsert, null, 2));
+  // } catch (e) {
+  //   console.log("UpsertMatchmakingRules:", (e as Error).message);
+  // }
+
+  // try {
+  //   const ns = await getNotificationSettings(baseUrl, {
+  //     guildId: "guild_123",
+  //     game: GAME_R6,
+  //   });
+  //   console.log("GetNotificationSettings:", JSON.stringify(ns, null, 2));
+  // } catch (e) {
+  //   console.log("GetNotificationSettings:", (e as Error).message);
+  // }
+
+  // try {
+  //   const upsert = await upsertNotificationSettings(baseUrl, {
+  //     settings: {
+  //       guildId: "guild_123",
+  //       game: GAME_R6,
+  //       matchResultsChannel: "channel_456",
+  //       tournamentAnnouncementsChannel: "channel_789",
+  //       leaderboardUpdatesEnabled: true,
+  //       updatedAtMs: Date.now(),
+  //     },
+  //   });
+  //   console.log("UpsertNotificationSettings:", JSON.stringify(upsert, null, 2));
+  // } catch (e) {
+  //   console.log("UpsertNotificationSettings:", (e as Error).message);
+  // }
+
+  // try {
+  //   const mq = await getMatchQuotas(baseUrl, {
+  //     guildId: "guild_123",
+  //     game: GAME_R6,
+  //   });
+  //   console.log("GetMatchQuotas:", JSON.stringify(mq, null, 2));
+  // } catch (e) {
+  //   console.log("GetMatchQuotas:", (e as Error).message);
+  // }
+
+  // try {
+  //   const upsert = await upsertMatchQuotas(baseUrl, {
+  //     quota: {
+  //       guildId: "guild_123",
+  //       game: GAME_R6,
+  //       dailyMatchLimit: 10,
+  //       updatedByDiscordUserId: "123456789",
+  //       updatedAtMs: Date.now(),
+  //     },
+  //   });
+  //   console.log("UpsertMatchQuotas:", JSON.stringify(upsert, null, 2));
+  // } catch (e) {
+  //   console.log("UpsertMatchQuotas:", (e as Error).message);
+  // }
+
+  // // --- Stats ---
+
+  // console.log("\n--- StatsService ---");
+
+  // // Fetch stats for a single known player (detailed output)
+  // try {
+  //   const stats = await fetchStats(baseUrl, {
+  //     username: "Shaiiko",
+  //     platform: PLATFORM_AUTO,
+  //     game: GAME_R6,
+  //   });
+  //   console.log("FetchStats (Shaiiko):", JSON.stringify(stats, null, 2));
+  // } catch (e) {
+  //   console.log("FetchStats (Shaiiko):", (e as Error).message);
+  // }
+
+  // try {
+  //   const coll = await fetchStatsCollection(baseUrl, {
+  //     username: "Shaiiko",
+  //     platform: PLATFORM_AUTO,
+  //     game: GAME_R6,
+  //   });
+  //   console.log("FetchStatsCollection (Shaiiko):", JSON.stringify(coll, null, 2));
+  // } catch (e) {
+  //   console.log("FetchStatsCollection (Shaiiko):", (e as Error).message);
+  // }
+
+  // // --- Leaderboard ---
+
+  // console.log("\n--- LeaderboardService ---");
+
+  // try {
+  //   const lb = await getLeaderboard(baseUrl, {
+  //     game: GAME_R6,
+  //     guildId: "guild_123",
+  //     type: LEADERBOARD_ELO,
+  //     limit: 10,
+  //     offset: 0,
+  //   });
+  //   console.log("GetLeaderboard:", JSON.stringify(lb, null, 2));
+  // } catch (e) {
+  //   console.log("GetLeaderboard:", (e as Error).message);
+  // }
+
+  // try {
+  //   const pr = await getPlayerRank(baseUrl, {
+  //     game: GAME_R6,
+  //     guildId: "guild_123",
+  //     playerId: "42",
+  //     type: LEADERBOARD_ELO,
+  //   });
+  //   console.log("GetPlayerRank:", JSON.stringify(pr, null, 2));
+  // } catch (e) {
+  //   console.log("GetPlayerRank:", (e as Error).message);
+  // }
+
+  // --- Batch fetch top 100 players for cache warmup ---
+  console.log(`\n--- Fetching stats for ${TOP_PLAYERS.length} top R6 players ---`);
+
+  const CONCURRENCY = 70;
+  let success = 0;
+  let fail = 0;
+  const start = performance.now();
+
+  async function fetchOne(username: string): Promise<void> {
+    try {
+      const stats = await fetchStats(baseUrl, {
+        username,
+        platform: PLATFORM_AUTO,
         game: GAME_R6,
-        defaultTeamFormat: "5v5",
-        autoBalance: true,
-        crossGuildMatchmaking: false,
-        updatedAtMs: Date.now(),
-        updatedByDiscordUserId: "123456789",
-      },
-    });
-    console.log("UpsertGuildSettings:", JSON.stringify(upsert, null, 2));
-  } catch (e) {
-    console.log("UpsertGuildSettings:", (e as Error).message);
+      });
+      if (stats.success) {
+        success++;
+        const s = stats.stats as Record<string, unknown> | undefined;
+        const ranked =
+          (s as Record<string, unknown> | undefined)?.rankedStats as Record<string, unknown> | undefined;
+        console.log(
+          `  OK  ${username.padEnd(20)} RP=${ranked?.rankPoints ?? "?"}  WL=${ranked?.wins ?? "?"}-${ranked?.losses ?? "?"}`,
+        );
+      } else {
+        fail++;
+        console.log(`  ERR ${username.padEnd(20)} ${stats.error?.code ?? "unknown"}`);
+      }
+    } catch (e) {
+      fail++;
+      const msg = (e as Error).message.slice(0, 60);
+      console.log(`  ERR ${username.padEnd(20)} ${msg}`);
+    }
   }
 
-  try {
-    const mr = await getMatchmakingRules(baseUrl, {
-      guildId: "guild_123",
-      game: GAME_R6,
-    });
-    console.log("GetMatchmakingRules:", JSON.stringify(mr, null, 2));
-  } catch (e) {
-    console.log("GetMatchmakingRules:", (e as Error).message);
+  for (let i = 0; i < TOP_PLAYERS.length; i += CONCURRENCY) {
+    const chunk = TOP_PLAYERS.slice(i, i + CONCURRENCY);
+    await Promise.allSettled(chunk.map((u) => fetchOne(u)));
   }
 
-  try {
-    const upsert = await upsertMatchmakingRules(baseUrl, {
-      rules: {
-        guildId: "guild_123",
-        game: GAME_R6,
-        minElo: 800,
-        maxElo: 2000,
-        platforms: ["pc"],
-        requireVerified: false,
-        maxEloGap: 500,
-        updatedAtMs: Date.now(),
-      },
-    });
-    console.log("UpsertMatchmakingRules:", JSON.stringify(upsert, null, 2));
-  } catch (e) {
-    console.log("UpsertMatchmakingRules:", (e as Error).message);
-  }
-
-  try {
-    const ns = await getNotificationSettings(baseUrl, {
-      guildId: "guild_123",
-      game: GAME_R6,
-    });
-    console.log("GetNotificationSettings:", JSON.stringify(ns, null, 2));
-  } catch (e) {
-    console.log("GetNotificationSettings:", (e as Error).message);
-  }
-
-  try {
-    const upsert = await upsertNotificationSettings(baseUrl, {
-      settings: {
-        guildId: "guild_123",
-        game: GAME_R6,
-        matchResultsChannel: "channel_456",
-        tournamentAnnouncementsChannel: "channel_789",
-        leaderboardUpdatesEnabled: true,
-        updatedAtMs: Date.now(),
-      },
-    });
-    console.log("UpsertNotificationSettings:", JSON.stringify(upsert, null, 2));
-  } catch (e) {
-    console.log("UpsertNotificationSettings:", (e as Error).message);
-  }
-
-  try {
-    const mq = await getMatchQuotas(baseUrl, {
-      guildId: "guild_123",
-      game: GAME_R6,
-    });
-    console.log("GetMatchQuotas:", JSON.stringify(mq, null, 2));
-  } catch (e) {
-    console.log("GetMatchQuotas:", (e as Error).message);
-  }
-
-  try {
-    const upsert = await upsertMatchQuotas(baseUrl, {
-      quota: {
-        guildId: "guild_123",
-        game: GAME_R6,
-        dailyMatchLimit: 10,
-        updatedByDiscordUserId: "123456789",
-        updatedAtMs: Date.now(),
-      },
-    });
-    console.log("UpsertMatchQuotas:", JSON.stringify(upsert, null, 2));
-  } catch (e) {
-    console.log("UpsertMatchQuotas:", (e as Error).message);
-  }
-
-  // --- Stats ---
-
-  console.log("\n--- StatsService ---");
-
-  try {
-    const stats = await fetchStats(baseUrl, {
-      username: "Pengu.PSG",
-      platform: PLATFORM_AUTO,
-      game: GAME_R6,
-    });
-    console.log("FetchStats:", JSON.stringify(stats, null, 2));
-  } catch (e) {
-    console.log("FetchStats:", (e as Error).message);
-  }
-
-  try {
-    const coll = await fetchStatsCollection(baseUrl, {
-      username: "Pengu.PSG",
-      platform: PLATFORM_AUTO,
-      game: GAME_R6,
-    });
-    console.log("FetchStatsCollection:", JSON.stringify(coll, null, 2));
-  } catch (e) {
-    console.log("FetchStatsCollection:", (e as Error).message);
-  }
-
-  // --- Leaderboard ---
-
-  console.log("\n--- LeaderboardService ---");
-
-  try {
-    const lb = await getLeaderboard(baseUrl, {
-      game: GAME_R6,
-      guildId: "guild_123",
-      type: LEADERBOARD_ELO,
-      limit: 10,
-      offset: 0,
-    });
-    console.log("GetLeaderboard:", JSON.stringify(lb, null, 2));
-  } catch (e) {
-    console.log("GetLeaderboard:", (e as Error).message);
-  }
-
-  try {
-    const pr = await getPlayerRank(baseUrl, {
-      game: GAME_R6,
-      guildId: "guild_123",
-      playerId: "42",
-      type: LEADERBOARD_ELO,
-    });
-    console.log("GetPlayerRank:", JSON.stringify(pr, null, 2));
-  } catch (e) {
-    console.log("GetPlayerRank:", (e as Error).message);
-  }
-
-  console.log("\nDone.");
+  const elapsed = ((performance.now() - start) / 1000).toFixed(1);
+  console.log(
+    `\nDone. ${success} OK, ${fail} failed out of ${TOP_PLAYERS.length} in ${elapsed}s`,
+  );
 }
 
 main();
