@@ -11,10 +11,10 @@ function PrivacyPage() {
         <p>
           Parley (&ldquo;we,&rdquo; &ldquo;our,&rdquo; or &ldquo;us&rdquo;) is committed to
           protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and
-          safeguard your information when you use our Discord application, website, and related
-          matchmaking services (collectively, the &ldquo;Service&rdquo;). Because our primary
-          database infrastructure is hosted in the European Union (Amsterdam), we align our data
-          practices with the principles of the General Data Protection Regulation (GDPR).
+          safeguard your information when you interact with our Discord matchmaking bot and related
+          services (collectively, the &ldquo;Service&rdquo;). Because our primary database
+          infrastructure is hosted in the European Union (Amsterdam), we align our data practices
+          with the principles of the General Data Protection Regulation (GDPR).
         </p>
       </section>
 
@@ -22,43 +22,42 @@ function PrivacyPage() {
         <h2 className="mb-3 text-base font-medium text-foreground">2. Information We Collect</h2>
 
         <h3 className="mt-4 mb-2 text-sm font-medium text-foreground/90">
-          2.1 Discord and Profile Data
+          2.1 Discord Bot Interactions
         </h3>
         <p>
-          We do not collect traditional credentials like emails or passwords. Instead, we collect
-          identifiers required to operate the Service via Discord OAuth. This includes your Discord
-          User ID, platform usernames (e.g., PC, PlayStation, Xbox), Discord server (Guild)
-          memberships, and tournament participation history.
+          We do not use OAuth2 web authentication, nor do we collect traditional credentials like
+          emails or passwords. Data collection occurs exclusively through your explicit, direct
+          interactions with the Parley Discord bot (e.g., executing slash commands, clicking UI
+          buttons). When you register to use the bot, we collect your Discord User ID, Discord
+          server (Guild) memberships, and the gaming platform usernames you provide to us.
         </p>
 
         <h3 className="mt-4 mb-2 text-sm font-medium text-foreground/90">
-          2.2 Game Telemetry and Matchmaking Data
+          2.2 Game Telemetry and Third-Party Data Sources
         </h3>
         <p>
           To power our skill-based matchmaking, bracket generation, and auto-balancing systems, we
-          store specific telemetry tied to your profile for supported games (such as Rainbow Six
-          Siege and Brawl Stars). This includes:
+          process specific in-game telemetry for Rainbow Six Siege. Because Ubisoft does not provide
+          direct public APIs for all necessary metrics, we obtain your external statistics (Rank
+          points, K/D ratio, KOST, headshot percentages, win rates) from third-party public
+          aggregator platforms, primarily <strong>stats.cc</strong>.
         </p>
-        <ul className="mt-2 list-inside list-disc space-y-1.5 pl-1">
-          <li>
-            External statistics (Rank points, K/D ratio, KOST, headshot percentages, win rates).
-          </li>
-          <li>
-            Internal platform metrics (Parley ELO, internal win/loss records, balance ratings).
-          </li>
-          <li>
-            Match history timestamps and specific in-match performance data (kills, deaths, seeds).
-          </li>
-        </ul>
+        <p className="mt-2">
+          This external data is then combined with our internal platform metrics (Parley ELO,
+          internal win/loss records, balance ratings) and match history timestamps to generate your
+          player profile. We are not responsible for the accuracy of data provided by third-party
+          aggregators.
+        </p>
 
         <h3 className="mt-4 mb-2 text-sm font-medium text-foreground/90">
-          2.3 Infrastructure and Automatically Collected Information
+          2.3 Infrastructure and Edge Processing
         </h3>
         <p>
-          When you interact with our bot or website, requests are processed through Cloudflare
-          Workers. During this routing, standard network data such as IP addresses, browser types,
-          and interaction timestamps are temporarily processed at edge nodes for security, caching,
-          and abuse prevention.
+          When you interact with our bot or companion dashboard, requests are processed through
+          Cloudflare Workers. During this routing, standard network data such as IP addresses,
+          browser types, and interaction timestamps are temporarily processed at edge nodes for
+          security, caching, and abuse prevention. We do not use tracking cookies or third-party
+          marketing analytics on our web properties.
         </p>
       </section>
 
@@ -74,7 +73,7 @@ function PrivacyPage() {
           </li>
           <li>
             <strong>Tournament Operations:</strong> Managing team rosters, bracket progression, and
-            enforcing guild-specific matchmaking limits (quotas, ELO caps).
+            enforcing guild-specific matchmaking rules.
           </li>
           <li>
             <strong>Service Delivery:</strong> Sending automated match results and tournament
@@ -102,7 +101,7 @@ function PrivacyPage() {
             hosting within the European Union.
           </li>
           <li>
-            <span className="font-medium text-foreground/80">Discord:</span> For user authentication
+            <span className="font-medium text-foreground/80">Discord:</span> For user identification
             and message delivery.
           </li>
         </ul>
@@ -135,10 +134,10 @@ function PrivacyPage() {
       <section>
         <h2 className="mb-3 text-base font-medium text-foreground">7. Children&rsquo;s Privacy</h2>
         <p>
-          The Service is not intended for individuals under the age of 13 (or the minimum age of
-          digital consent in your jurisdiction, such as 16 in certain EU countries). We do not
-          knowingly collect data from children. If we discover a user is under age, we will
-          immediately delete their profile data.
+          The Service is not intended for individuals under the age of 16 (or the applicable minimum
+          age of digital consent in your jurisdiction). We do not knowingly collect data from
+          children. If we discover a user is under the age of consent, we will immediately delete
+          their profile data and block further bot interactions.
         </p>
       </section>
 
@@ -181,13 +180,13 @@ function PrivacyPage() {
       <section>
         <h2 className="mb-3 text-base font-medium text-foreground">9. Changes to This Policy</h2>
         <p>
-          We may update this Privacy Policy as we add support for new games or alter our matchmaking
-          algorithms. Material changes to how we handle your telemetry or Discord data will be
-          announced via our bot in your Discord server before taking effect.
+          We may update this Privacy Policy as we alter our matchmaking algorithms or integrate new
+          third-party data sources. Material changes to how we handle your telemetry or Discord data
+          will be announced via our bot in your Discord server before taking effect.
         </p>
       </section>
 
-      <div className="mt-14! border-t border-border/60 pt-6">
+      <div className="!mt-14 border-t border-border/60 pt-6">
         <p className="text-xs text-muted-foreground/60">
           This document was last updated on June 7, 2026. It is effective as of that date and
           supersedes all prior versions.
