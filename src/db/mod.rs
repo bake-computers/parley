@@ -65,3 +65,48 @@ impl std::str::FromStr for Game {
         }
     }
 }
+
+/// The `languages` Postgres enum, mirrored in Rust.
+#[derive(
+    Debug,
+    Copy,
+    Clone,
+    PartialEq,
+    Eq,
+    Hash,
+    serde::Serialize,
+    serde::Deserialize,
+    diesel_derive_enum::DbEnum,
+)]
+#[ExistingTypePath = "crate::db::schema::sql_types::Languages"]
+#[serde(rename_all = "lowercase")]
+pub enum Language {
+    En,
+    De,
+}
+
+impl Language {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Language::En => "en",
+            Language::De => "de",
+        }
+    }
+}
+
+impl std::fmt::Display for Language {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(self.as_str())
+    }
+}
+
+impl std::str::FromStr for Language {
+    type Err = String;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "en" | "EN" => Ok(Language::En),
+            "de" | "DE" => Ok(Language::De),
+            other => Err(format!("unknown language: {other}")),
+        }
+    }
+}

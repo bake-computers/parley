@@ -16,6 +16,11 @@ pub mod sql_types {
     #[derive(diesel::sql_types::SqlType, diesel::query_builder::QueryId)]
     #[diesel(postgres_type(name = "games"))]
     pub struct Games;
+
+    /// `CREATE TYPE languages AS ENUM ('en', 'de')` — Postgres enum.
+    #[derive(diesel::sql_types::SqlType, diesel::query_builder::QueryId)]
+    #[diesel(postgres_type(name = "languages"))]
+    pub struct Languages;
 }
 
 // ---------- players ----------
@@ -120,6 +125,32 @@ diesel::allow_tables_to_appear_in_same_query!(
     external_match_history,
 );
 
+// ---------- user_settings ----------
+
+diesel::table! {
+    use diesel::sql_types::*;
+    use super::sql_types::Languages;
+
+    user_settings (discord_user_id) {
+        discord_user_id -> Text,
+        language -> Languages,
+        created_at -> Int8,
+        updated_at -> Int8,
+    }
+}
+
+// ---------- account_deletion_cooldowns ----------
+
+diesel::table! {
+    account_deletion_cooldowns (discord_user_id_hash) {
+        discord_user_id_hash -> Text,
+        deleted_at -> Int8,
+        cooldown_until -> Int8,
+    }
+}
+
+diesel::allow_tables_to_appear_in_same_query!(user_settings, account_deletion_cooldowns);
+
 // ---------- guild_memberships ----------
 
 diesel::table! {
@@ -164,6 +195,7 @@ diesel::table! {
 diesel::table! {
     use diesel::sql_types::*;
     use super::sql_types::Games;
+    use super::sql_types::Languages;
 
     guild_settings (guild_id, game) {
         guild_id -> Text,
@@ -173,6 +205,7 @@ diesel::table! {
         cross_guild_matchmaking -> Bool,
         updated_at -> Int8,
         updated_by_discord_user_id -> Text,
+        default_language -> Languages,
     }
 }
 

@@ -12,10 +12,11 @@ use diesel_async::{AsyncPgConnection, RunQueryDsl};
 use crate::db::Game;
 use crate::db::models::{
     DiscordIdentity, ExternalMatchHistoryEntry, NewDiscordIdentity, NewExternalMatchHistoryEntry,
-    NewPlayer, NewPlayerStatSnapshot, Player, PlayerStatSnapshot,
+    NewPlayer, NewPlayerStatSnapshot, NewUserSettings, Player, PlayerStatSnapshot, UserSettings,
 };
 use crate::db::schema::{
-    discord_identities, external_match_history, player_stat_snapshots, players,
+    account_deletion_cooldowns, discord_identities, external_match_history, player_stat_snapshots,
+    players, user_settings,
 };
 
 /// Epoch-millis helper used by every write path.
@@ -414,6 +415,7 @@ impl GuildSettingsRepo {
         let updated_by_discord_user_id = row.updated_by_discord_user_id.to_string();
         let auto_balance = row.auto_balance;
         let cross_guild_matchmaking = row.cross_guild_matchmaking;
+        let default_language = row.default_language;
         diesel::insert_into(guild_settings::table)
             .values(&row)
             .on_conflict((guild_settings::guild_id, guild_settings::game))
@@ -424,6 +426,7 @@ impl GuildSettingsRepo {
                 guild_settings::cross_guild_matchmaking.eq(cross_guild_matchmaking),
                 guild_settings::updated_at.eq(now),
                 guild_settings::updated_by_discord_user_id.eq(updated_by_discord_user_id),
+                guild_settings::default_language.eq(default_language),
             ))
             .returning(GuildSettings::as_returning())
             .get_result(conn)
@@ -568,5 +571,323 @@ impl GuildMatchQuotaRepo {
             .returning(GuildMatchQuota::as_returning())
             .get_result(conn)
             .await
+    }
+}
+
+// ======================================================================
+// UserSettings
+// ======================================================================
+
+pub struct UserSettingsRepo;
+
+impl UserSettingsRepo {
+    pub async fn get(
+        conn: &mut AsyncPgConnection,
+        discord_user_id: &str,
+    ) -> QueryResult<Option<UserSettings>> {
+        user_settings::table
+            .find(discord_user_id)
+            .select(UserSettings::as_select())
+            .first(conn)
+            .await
+            .optional()
+    }
+
+    pub async fn upsert(
+        conn: &mut AsyncPgConnection,
+        row: NewUserSettings<'_>,
+    ) -> QueryResult<UserSettings> {
+        let now = row.updated_at;
+        let language = row.language;
+        diesel::insert_into(user_settings::table)
+            .values(&row)
+            .on_conflict(user_settings::discord_user_id)
+            .do_update()
+            .set((
+                user_settings::language.eq(language),
+                user_settings::updated_at.eq(now),
+            ))
+            .returning(UserSettings::as_returning())
+            .get_result(conn)
+            .await
+    }
+
+    pub async fn delete(conn: &mut AsyncPgConnection, discord_user_id: &str) -> QueryResult<usize> {
+        diesel::delete(user_settings::table.find(discord_user_id))
+            .execute(conn)
+            .await
+    }
+}
+
+// ======================================================================
+// AccountDeletionCooldown
+// ======================================================================
+
+/// Thirty-day re-registration ban after GDPR deletion.
+pub const DELETION_COOLDOWN_MS: i64 = 30 * 24 * 60 * 60 * 1000;
+
+pub struct AccountDeletionCooldownRepo;
+
+impl AccountDeletionCooldownRepo {
+    pub fn discord_user_id_hash(discord_user_id: &str, secret: &str) -> String {
+        use hmac::{Hmac, Mac};
+        use sha2::Sha256;
+        type HmacSha256 = Hmac<Sha256>;
+        let mut mac =
+            HmacSha256::new_from_slice(secret.as_bytes()).expect("HMAC accepts any key length");
+        mac.update(discord_user_id.as_bytes());
+        hex::encode(mac.finalize().into_bytes())
+    }
+
+    /// Returns `cooldown_until` epoch ms when the user is still blocked.
+    pub async fn is_blocked(
+        conn: &mut AsyncPgConnection,
+        discord_user_id: &str,
+        secret: &str,
+    ) -> QueryResult<Option<i64>> {
+        let hash = Self::discord_user_id_hash(discord_user_id, secret);
+        let now = now_ms();
+        let row: Option<i64> = account_deletion_cooldowns::table
+            .find(&hash)
+            .select(account_deletion_cooldowns::cooldown_until)
+            .first(conn)
+            .await
+            .optional()?;
+        Ok(row.filter(|until| *until > now))
+    }
+
+    pub async fn record(
+        conn: &mut AsyncPgConnection,
+        discord_user_id: &str,
+        secret: &str,
+        deleted_at: i64,
+    ) -> QueryResult<()> {
+        use crate::db::models::NewAccountDeletionCooldown;
+        let hash = Self::discord_user_id_hash(discord_user_id, secret);
+        let row = NewAccountDeletionCooldown {
+            discord_user_id_hash: &hash,
+            deleted_at,
+            cooldown_until: deleted_at + DELETION_COOLDOWN_MS,
+        };
+        diesel::insert_into(account_deletion_cooldowns::table)
+            .values(&row)
+            .on_conflict(account_deletion_cooldowns::discord_user_id_hash)
+            .do_update()
+            .set((
+                account_deletion_cooldowns::deleted_at.eq(deleted_at),
+                account_deletion_cooldowns::cooldown_until.eq(deleted_at + DELETION_COOLDOWN_MS),
+            ))
+            .execute(conn)
+            .await?;
+        Ok(())
+    }
+}
+
+// ======================================================================
+// UserDataAnonymization
+// ======================================================================
+
+#[derive(Debug, Clone, Default)]
+pub struct AnonymizationReport {
+    pub anonymized_discord_user_id: String,
+    pub players: usize,
+    pub discord_identities: usize,
+    pub guild_memberships: usize,
+    pub matches: usize,
+    pub match_participants: usize,
+    pub matchmaking_queues: usize,
+    pub matchmaking_queue_participants: usize,
+    pub tournaments: usize,
+    pub tournament_teams: usize,
+    pub tournament_team_rosters: usize,
+    pub guild_settings_audit: usize,
+    pub guild_match_quotas_audit: usize,
+}
+
+pub struct UserDataAnonymizationRepo;
+
+impl UserDataAnonymizationRepo {
+    pub async fn anonymize_all(
+        conn: &mut AsyncPgConnection,
+        discord_user_id: &str,
+        hmac_secret: &str,
+    ) -> QueryResult<AnonymizationReport> {
+        use diesel_async::AsyncConnection;
+
+        let identities = DiscordIdentityRepo::find_by_discord(conn, None, discord_user_id).await?;
+        if identities.is_empty() {
+            return Ok(AnonymizationReport::default());
+        }
+
+        let sentinel = format!("deleted_{}", uuid::Uuid::new_v4());
+        let deleted_at = now_ms();
+
+        conn.transaction::<AnonymizationReport, diesel::result::Error, _>(async |conn| {
+            let mut report = AnonymizationReport {
+                anonymized_discord_user_id: sentinel.clone(),
+                ..Default::default()
+            };
+
+            let player_ids: Vec<i32> = identities.iter().map(|i| i.player_id).collect();
+
+            for player_id in &player_ids {
+                let normalized = format!("deleted_{player_id}");
+                let n = diesel::update(players::table.find(player_id))
+                    .set((
+                        players::username.eq("Deleted User"),
+                        players::username_normalized.eq(&normalized),
+                        players::profile_id.eq(None::<&str>),
+                        players::profile_url.eq(None::<&str>),
+                        players::updated_at.eq(deleted_at),
+                    ))
+                    .execute(conn)
+                    .await?;
+                report.players += n;
+            }
+
+            report.discord_identities = diesel::update(
+                discord_identities::table
+                    .filter(discord_identities::discord_user_id.eq(discord_user_id)),
+            )
+            .set((
+                discord_identities::discord_user_id.eq(&sentinel),
+                discord_identities::updated_at.eq(deleted_at),
+            ))
+            .execute(conn)
+            .await?;
+
+            use crate::db::schema::{
+                guild_match_quotas, guild_memberships, guild_settings, match_participants, matches,
+                matchmaking_queue_participants, matchmaking_queues, tournament_team_rosters,
+                tournament_teams, tournaments,
+            };
+
+            report.guild_memberships = diesel::update(
+                guild_memberships::table
+                    .filter(guild_memberships::discord_user_id.eq(discord_user_id)),
+            )
+            .set((
+                guild_memberships::discord_user_id.eq(&sentinel),
+                guild_memberships::updated_at.eq(deleted_at),
+            ))
+            .execute(conn)
+            .await?;
+
+            report.matches = diesel::update(
+                matches::table.filter(matches::created_by_discord_user_id.eq(discord_user_id)),
+            )
+            .set((
+                matches::created_by_discord_user_id.eq(&sentinel),
+                matches::updated_at.eq(deleted_at),
+            ))
+            .execute(conn)
+            .await?;
+
+            report.matches += diesel::update(
+                matches::table
+                    .filter(matches::opponent_captain_discord_user_id.eq(discord_user_id)),
+            )
+            .set((
+                matches::opponent_captain_discord_user_id.eq(Some(&sentinel)),
+                matches::updated_at.eq(deleted_at),
+            ))
+            .execute(conn)
+            .await?;
+
+            report.match_participants = diesel::update(
+                match_participants::table
+                    .filter(match_participants::discord_user_id.eq(discord_user_id)),
+            )
+            .set((
+                match_participants::discord_user_id.eq(&sentinel),
+                match_participants::updated_at.eq(deleted_at),
+            ))
+            .execute(conn)
+            .await?;
+
+            report.matchmaking_queues = diesel::update(
+                matchmaking_queues::table
+                    .filter(matchmaking_queues::captain_discord_user_id.eq(discord_user_id)),
+            )
+            .set((
+                matchmaking_queues::captain_discord_user_id.eq(&sentinel),
+                matchmaking_queues::updated_at.eq(deleted_at),
+            ))
+            .execute(conn)
+            .await?;
+
+            report.matchmaking_queue_participants = diesel::update(
+                matchmaking_queue_participants::table
+                    .filter(matchmaking_queue_participants::discord_user_id.eq(discord_user_id)),
+            )
+            .set((
+                matchmaking_queue_participants::discord_user_id.eq(&sentinel),
+                matchmaking_queue_participants::username.eq("Deleted User"),
+                matchmaking_queue_participants::updated_at.eq(deleted_at),
+            ))
+            .execute(conn)
+            .await?;
+
+            report.tournaments = diesel::update(
+                tournaments::table
+                    .filter(tournaments::created_by_discord_user_id.eq(discord_user_id)),
+            )
+            .set((
+                tournaments::created_by_discord_user_id.eq(&sentinel),
+                tournaments::updated_at.eq(deleted_at),
+            ))
+            .execute(conn)
+            .await?;
+
+            report.tournament_teams = diesel::update(
+                tournament_teams::table
+                    .filter(tournament_teams::captain_discord_user_id.eq(discord_user_id)),
+            )
+            .set((
+                tournament_teams::captain_discord_user_id.eq(&sentinel),
+                tournament_teams::updated_at.eq(deleted_at),
+            ))
+            .execute(conn)
+            .await?;
+
+            report.tournament_team_rosters = diesel::update(
+                tournament_team_rosters::table
+                    .filter(tournament_team_rosters::discord_user_id.eq(discord_user_id)),
+            )
+            .set((
+                tournament_team_rosters::discord_user_id.eq(&sentinel),
+                tournament_team_rosters::username.eq("Deleted User"),
+                tournament_team_rosters::updated_at.eq(deleted_at),
+            ))
+            .execute(conn)
+            .await?;
+
+            report.guild_settings_audit = diesel::update(
+                guild_settings::table
+                    .filter(guild_settings::updated_by_discord_user_id.eq(discord_user_id)),
+            )
+            .set(guild_settings::updated_by_discord_user_id.eq(&sentinel))
+            .execute(conn)
+            .await?;
+
+            report.guild_match_quotas_audit = diesel::update(
+                guild_match_quotas::table
+                    .filter(guild_match_quotas::updated_by_discord_user_id.eq(discord_user_id)),
+            )
+            .set((
+                guild_match_quotas::updated_by_discord_user_id.eq(&sentinel),
+                guild_match_quotas::updated_at.eq(deleted_at),
+            ))
+            .execute(conn)
+            .await?;
+
+            let _ = UserSettingsRepo::delete(conn, discord_user_id).await?;
+
+            AccountDeletionCooldownRepo::record(conn, discord_user_id, hmac_secret, deleted_at)
+                .await?;
+
+            Ok(report)
+        })
+        .await
     }
 }

@@ -3,10 +3,11 @@
 //! Field order **must** match the schema column order for Queryable derives
 //! to position correctly.
 
-use crate::db::Game;
 use crate::db::schema::{
-    discord_identities, external_match_history, player_stat_snapshots, players,
+    account_deletion_cooldowns, discord_identities, external_match_history, player_stat_snapshots,
+    players, user_settings,
 };
+use crate::db::{Game, Language};
 
 // ---------- players ----------
 
@@ -171,6 +172,44 @@ pub struct NewExternalMatchHistoryEntry<'a> {
     pub created_at: i64,
 }
 
+// ---------- user_settings ----------
+
+#[derive(Debug, Clone, diesel::Queryable, diesel::Selectable)]
+#[diesel(table_name = user_settings)]
+pub struct UserSettings {
+    pub discord_user_id: String,
+    pub language: Language,
+    pub created_at: i64,
+    pub updated_at: i64,
+}
+
+#[derive(Debug, Clone, diesel::Insertable)]
+#[diesel(table_name = user_settings)]
+pub struct NewUserSettings<'a> {
+    pub discord_user_id: &'a str,
+    pub language: Language,
+    pub created_at: i64,
+    pub updated_at: i64,
+}
+
+// ---------- account_deletion_cooldowns ----------
+
+#[derive(Debug, Clone, diesel::Queryable, diesel::Selectable)]
+#[diesel(table_name = account_deletion_cooldowns)]
+pub struct AccountDeletionCooldown {
+    pub discord_user_id_hash: String,
+    pub deleted_at: i64,
+    pub cooldown_until: i64,
+}
+
+#[derive(Debug, Clone, diesel::Insertable)]
+#[diesel(table_name = account_deletion_cooldowns)]
+pub struct NewAccountDeletionCooldown<'a> {
+    pub discord_user_id_hash: &'a str,
+    pub deleted_at: i64,
+    pub cooldown_until: i64,
+}
+
 // ===================================================================
 // Task 4 — guild + matchmaking + match tables
 // ===================================================================
@@ -253,6 +292,7 @@ pub struct GuildSettings {
     pub cross_guild_matchmaking: bool,
     pub updated_at: i64,
     pub updated_by_discord_user_id: String,
+    pub default_language: Language,
 }
 
 #[derive(Debug, Clone, diesel::Insertable)]
@@ -265,6 +305,7 @@ pub struct NewGuildSettings<'a> {
     pub cross_guild_matchmaking: bool,
     pub updated_at: i64,
     pub updated_by_discord_user_id: &'a str,
+    pub default_language: Language,
 }
 
 // ---------- guild_matchmaking_rules ----------
