@@ -11,8 +11,10 @@ import type { Message } from "@bufbuild/protobuf";
 /**
  * Describes the file leaderboard/v1/leaderboard.proto.
  */
-export const file_leaderboard_v1_leaderboard: GenFile = /*@__PURE__*/
-  fileDesc("CiBsZWFkZXJib2FyZC92MS9sZWFkZXJib2FyZC5wcm90bxIVcGFybGV5LmxlYWRlcmJvYXJkLnYxIqQBChVHZXRMZWFkZXJib2FyZFJlcXVlc3QSJAoEZ2FtZRgBIAEoDjIWLnBhcmxleS5jb21tb24udjEuR2FtZRIQCghndWlsZF9pZBgCIAEoCRI0CgR0eXBlGAMgASgOMiYucGFybGV5LmxlYWRlcmJvYXJkLnYxLkxlYWRlcmJvYXJkVHlwZRINCgVsaW1pdBgEIAEoBRIOCgZvZmZzZXQYBSABKAUilQEKEExlYWRlcmJvYXJkRW50cnkSEQoJcGxheWVyX2lkGAEgASgJEhAKCHVzZXJuYW1lGAIgASgJEgwKBHJhbmsYAyABKAMSDQoFc2NvcmUYBCABKAESDwoHbWF0Y2hlcxgFIAEoBRIMCgR3aW5zGAYgASgFEg4KBmxvc3NlcxgHIAEoBRIQCgh3aW5fcmF0ZRgIIAEoAiJnChZHZXRMZWFkZXJib2FyZFJlc3BvbnNlEjgKB2VudHJpZXMYASADKAsyJy5wYXJsZXkubGVhZGVyYm9hcmQudjEuTGVhZGVyYm9hcmRFbnRyeRITCgt0b3RhbF9jb3VudBgCIAEoAyKXAQoUR2V0UGxheWVyUmFua1JlcXVlc3QSJAoEZ2FtZRgBIAEoDjIWLnBhcmxleS5jb21tb24udjEuR2FtZRIQCghndWlsZF9pZBgCIAEoCRIRCglwbGF5ZXJfaWQYAyABKAkSNAoEdHlwZRgEIAEoDjImLnBhcmxleS5sZWFkZXJib2FyZC52MS5MZWFkZXJib2FyZFR5cGUiTwoVR2V0UGxheWVyUmFua1Jlc3BvbnNlEjYKBWVudHJ5GAEgASgLMicucGFybGV5LmxlYWRlcmJvYXJkLnYxLkxlYWRlcmJvYXJkRW50cnkqjgEKD0xlYWRlcmJvYXJkVHlwZRIgChxMRUFERVJCT0FSRF9UWVBFX1VOU1BFQ0lGSUVEEAASGAoUTEVBREVSQk9BUkRfVFlQRV9FTE8QARIdChlMRUFERVJCT0FSRF9UWVBFX1dJTl9SQVRFEAISIAocTEVBREVSQk9BUkRfVFlQRV9SQU5LX1BPSU5UUxADMu8BChJMZWFkZXJib2FyZFNlcnZpY2USbQoOR2V0TGVhZGVyYm9hcmQSLC5wYXJsZXkubGVhZGVyYm9hcmQudjEuR2V0TGVhZGVyYm9hcmRSZXF1ZXN0Gi0ucGFybGV5LmxlYWRlcmJvYXJkLnYxLkdldExlYWRlcmJvYXJkUmVzcG9uc2USagoNR2V0UGxheWVyUmFuaxIrLnBhcmxleS5sZWFkZXJib2FyZC52MS5HZXRQbGF5ZXJSYW5rUmVxdWVzdBosLnBhcmxleS5sZWFkZXJib2FyZC52MS5HZXRQbGF5ZXJSYW5rUmVzcG9uc2ViBnByb3RvMw", [file_common_v1_types]);
+export const file_leaderboard_v1_leaderboard: GenFile /*@__PURE__*/ = fileDesc(
+  "CiBsZWFkZXJib2FyZC92MS9sZWFkZXJib2FyZC5wcm90bxIVcGFybGV5LmxlYWRlcmJvYXJkLnYxIqQBChVHZXRMZWFkZXJib2FyZFJlcXVlc3QSJAoEZ2FtZRgBIAEoDjIWLnBhcmxleS5jb21tb24udjEuR2FtZRIQCghndWlsZF9pZBgCIAEoCRI0CgR0eXBlGAMgASgOMiYucGFybGV5LmxlYWRlcmJvYXJkLnYxLkxlYWRlcmJvYXJkVHlwZRINCgVsaW1pdBgEIAEoBRIOCgZvZmZzZXQYBSABKAUilQEKEExlYWRlcmJvYXJkRW50cnkSEQoJcGxheWVyX2lkGAEgASgJEhAKCHVzZXJuYW1lGAIgASgJEgwKBHJhbmsYAyABKAMSDQoFc2NvcmUYBCABKAESDwoHbWF0Y2hlcxgFIAEoBRIMCgR3aW5zGAYgASgFEg4KBmxvc3NlcxgHIAEoBRIQCgh3aW5fcmF0ZRgIIAEoAiJnChZHZXRMZWFkZXJib2FyZFJlc3BvbnNlEjgKB2VudHJpZXMYASADKAsyJy5wYXJsZXkubGVhZGVyYm9hcmQudjEuTGVhZGVyYm9hcmRFbnRyeRITCgt0b3RhbF9jb3VudBgCIAEoAyKXAQoUR2V0UGxheWVyUmFua1JlcXVlc3QSJAoEZ2FtZRgBIAEoDjIWLnBhcmxleS5jb21tb24udjEuR2FtZRIQCghndWlsZF9pZBgCIAEoCRIRCglwbGF5ZXJfaWQYAyABKAkSNAoEdHlwZRgEIAEoDjImLnBhcmxleS5sZWFkZXJib2FyZC52MS5MZWFkZXJib2FyZFR5cGUiTwoVR2V0UGxheWVyUmFua1Jlc3BvbnNlEjYKBWVudHJ5GAEgASgLMicucGFybGV5LmxlYWRlcmJvYXJkLnYxLkxlYWRlcmJvYXJkRW50cnkqjgEKD0xlYWRlcmJvYXJkVHlwZRIgChxMRUFERVJCT0FSRF9UWVBFX1VOU1BFQ0lGSUVEEAASGAoUTEVBREVSQk9BUkRfVFlQRV9FTE8QARIdChlMRUFERVJCT0FSRF9UWVBFX1dJTl9SQVRFEAISIAocTEVBREVSQk9BUkRfVFlQRV9SQU5LX1BPSU5UUxADMu8BChJMZWFkZXJib2FyZFNlcnZpY2USbQoOR2V0TGVhZGVyYm9hcmQSLC5wYXJsZXkubGVhZGVyYm9hcmQudjEuR2V0TGVhZGVyYm9hcmRSZXF1ZXN0Gi0ucGFybGV5LmxlYWRlcmJvYXJkLnYxLkdldExlYWRlcmJvYXJkUmVzcG9uc2USagoNR2V0UGxheWVyUmFuaxIrLnBhcmxleS5sZWFkZXJib2FyZC52MS5HZXRQbGF5ZXJSYW5rUmVxdWVzdBosLnBhcmxleS5sZWFkZXJib2FyZC52MS5HZXRQbGF5ZXJSYW5rUmVzcG9uc2ViBnByb3RvMw",
+  [file_common_v1_types],
+);
 
 /**
  * @generated from message parley.leaderboard.v1.GetLeaderboardRequest
@@ -48,7 +50,7 @@ export type GetLeaderboardRequest = Message<"parley.leaderboard.v1.GetLeaderboar
  * Describes the message parley.leaderboard.v1.GetLeaderboardRequest.
  * Use `create(GetLeaderboardRequestSchema)` to create a new message.
  */
-export const GetLeaderboardRequestSchema: GenMessage<GetLeaderboardRequest> = /*@__PURE__*/
+export const GetLeaderboardRequestSchema: GenMessage<GetLeaderboardRequest> /*@__PURE__*/ =
   messageDesc(file_leaderboard_v1_leaderboard, 0);
 
 /**
@@ -100,8 +102,10 @@ export type LeaderboardEntry = Message<"parley.leaderboard.v1.LeaderboardEntry">
  * Describes the message parley.leaderboard.v1.LeaderboardEntry.
  * Use `create(LeaderboardEntrySchema)` to create a new message.
  */
-export const LeaderboardEntrySchema: GenMessage<LeaderboardEntry> = /*@__PURE__*/
-  messageDesc(file_leaderboard_v1_leaderboard, 1);
+export const LeaderboardEntrySchema: GenMessage<LeaderboardEntry> /*@__PURE__*/ = messageDesc(
+  file_leaderboard_v1_leaderboard,
+  1,
+);
 
 /**
  * @generated from message parley.leaderboard.v1.GetLeaderboardResponse
@@ -122,7 +126,7 @@ export type GetLeaderboardResponse = Message<"parley.leaderboard.v1.GetLeaderboa
  * Describes the message parley.leaderboard.v1.GetLeaderboardResponse.
  * Use `create(GetLeaderboardResponseSchema)` to create a new message.
  */
-export const GetLeaderboardResponseSchema: GenMessage<GetLeaderboardResponse> = /*@__PURE__*/
+export const GetLeaderboardResponseSchema: GenMessage<GetLeaderboardResponse> /*@__PURE__*/ =
   messageDesc(file_leaderboard_v1_leaderboard, 2);
 
 /**
@@ -154,7 +158,7 @@ export type GetPlayerRankRequest = Message<"parley.leaderboard.v1.GetPlayerRankR
  * Describes the message parley.leaderboard.v1.GetPlayerRankRequest.
  * Use `create(GetPlayerRankRequestSchema)` to create a new message.
  */
-export const GetPlayerRankRequestSchema: GenMessage<GetPlayerRankRequest> = /*@__PURE__*/
+export const GetPlayerRankRequestSchema: GenMessage<GetPlayerRankRequest> /*@__PURE__*/ =
   messageDesc(file_leaderboard_v1_leaderboard, 3);
 
 /**
@@ -171,7 +175,7 @@ export type GetPlayerRankResponse = Message<"parley.leaderboard.v1.GetPlayerRank
  * Describes the message parley.leaderboard.v1.GetPlayerRankResponse.
  * Use `create(GetPlayerRankResponseSchema)` to create a new message.
  */
-export const GetPlayerRankResponseSchema: GenMessage<GetPlayerRankResponse> = /*@__PURE__*/
+export const GetPlayerRankResponseSchema: GenMessage<GetPlayerRankResponse> /*@__PURE__*/ =
   messageDesc(file_leaderboard_v1_leaderboard, 4);
 
 /**
@@ -202,8 +206,10 @@ export enum LeaderboardType {
 /**
  * Describes the enum parley.leaderboard.v1.LeaderboardType.
  */
-export const LeaderboardTypeSchema: GenEnum<LeaderboardType> = /*@__PURE__*/
-  enumDesc(file_leaderboard_v1_leaderboard, 0);
+export const LeaderboardTypeSchema: GenEnum<LeaderboardType> /*@__PURE__*/ = enumDesc(
+  file_leaderboard_v1_leaderboard,
+  0,
+);
 
 /**
  * @generated from service parley.leaderboard.v1.LeaderboardService
@@ -216,7 +222,7 @@ export const LeaderboardService: GenService<{
     methodKind: "unary";
     input: typeof GetLeaderboardRequestSchema;
     output: typeof GetLeaderboardResponseSchema;
-  },
+  };
   /**
    * @generated from rpc parley.leaderboard.v1.LeaderboardService.GetPlayerRank
    */
@@ -224,7 +230,5 @@ export const LeaderboardService: GenService<{
     methodKind: "unary";
     input: typeof GetPlayerRankRequestSchema;
     output: typeof GetPlayerRankResponseSchema;
-  },
-}> = /*@__PURE__*/
-  serviceDesc(file_leaderboard_v1_leaderboard, 0);
-
+  };
+}> /*@__PURE__*/ = serviceDesc(file_leaderboard_v1_leaderboard, 0);

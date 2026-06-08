@@ -9,8 +9,9 @@ import type { Message } from "@bufbuild/protobuf";
 /**
  * Describes the file common/v1/types.proto.
  */
-export const file_common_v1_types: GenFile = /*@__PURE__*/
-  fileDesc("ChVjb21tb24vdjEvdHlwZXMucHJvdG8SEHBhcmxleS5jb21tb24udjEiUgoEUmFuaxIoCgR0aWVyGAEgASgOMhoucGFybGV5LmNvbW1vbi52MS5SYW5rVGllchIOCgZyYXRpbmcYAiABKAUSEAoIcG9zaXRpb24YAyABKAUisAEKBUJhZGdlEgoKAmlkGAEgASgJEg0KBWxhYmVsGAIgASgJEhMKC2Rlc2NyaXB0aW9uGAMgASgJEhAKCGljb25fdXJsGAQgASgJEg0KBWNvbG9yGAUgASgJEjEKCGNhdGVnb3J5GAYgASgOMh8ucGFybGV5LmNvbW1vbi52MS5CYWRnZUNhdGVnb3J5Eg8KB2lzX3JhcmUYByABKAgSEgoKYXdhcmRlZF9hdBgIIAEoAyKUAQoLUGxheWVyU3RhdHMSFgoObWF0Y2hlc19wbGF5ZWQYASABKAUSDAoEd2lucxgCIAEoBRIOCgZsb3NzZXMYAyABKAUSDQoFa2lsbHMYBCABKAUSDgoGZGVhdGhzGAUgASgFEhAKCGtkX3JhdGlvGAYgASgCEhAKCHdpbl9yYXRlGAcgASgCEgwKBGdhbWUYCCABKAkiJgoFRXJyb3ISDAoEY29kZRgBIAEoCRIPCgdtZXNzYWdlGAIgASgJKvMBCghSYW5rVGllchIZChVSQU5LX1RJRVJfVU5TUEVDSUZJRUQQABISCg5SQU5LX1RJRVJfSVJPThABEhQKEFJBTktfVElFUl9CUk9OWkUQAhIUChBSQU5LX1RJRVJfU0lMVkVSEAMSEgoOUkFOS19USUVSX0dPTEQQBBIWChJSQU5LX1RJRVJfUExBVElOVU0QBRIVChFSQU5LX1RJRVJfRElBTU9ORBAGEhQKEFJBTktfVElFUl9NQVNURVIQBxIZChVSQU5LX1RJRVJfR1JBTkRNQVNURVIQCBIYChRSQU5LX1RJRVJfQ0hBTExFTkdFUhAJKokCCg1CYWRnZUNhdGVnb3J5Eh4KGkJBREdFX0NBVEVHT1JZX1VOU1BFQ0lGSUVEEAASFwoTQkFER0VfQ0FURUdPUllfUkFOSxABEhsKF0JBREdFX0NBVEVHT1JZX0FDVElWSVRZEAISGAoUQkFER0VfQ0FURUdPUllfRVZFTlQQAxIXChNCQURHRV9DQVRFR09SWV9WT1RFEAQSGgoWQkFER0VfQ0FURUdPUllfUFJFTUlVTRAFEhsKF0JBREdFX0NBVEVHT1JZX1NFQVNPTkFMEAYSGAoUQkFER0VfQ0FURUdPUllfU1RBRkYQBxIcChhCQURHRV9DQVRFR09SWV9ERVZFTE9QRVIQCCpeCgZSZWdpb24SFgoSUkVHSU9OX1VOU1BFQ0lGSUVEEAASDQoJUkVHSU9OX0VVEAESDQoJUkVHSU9OX05BEAISDwoLUkVHSU9OX0FQQUMQAxINCglSRUdJT05fU0EQBCo/CgRHYW1lEhQKEEdBTUVfVU5TUEVDSUZJRUQQABILCgdHQU1FX1I2EAESFAoQR0FNRV9CUkFXTF9TVEFSUxACKkYKCExhbmd1YWdlEhgKFExBTkdVQUdFX1VOU1BFQ0lGSUVEEAASDwoLTEFOR1VBR0VfRU4QARIPCgtMQU5HVUFHRV9ERRACQhYKFGJvdC5wYXJsZXkuY29tbW9uLnYxYgZwcm90bzM");
+export const file_common_v1_types: GenFile /*@__PURE__*/ = fileDesc(
+  "ChVjb21tb24vdjEvdHlwZXMucHJvdG8SEHBhcmxleS5jb21tb24udjEiUgoEUmFuaxIoCgR0aWVyGAEgASgOMhoucGFybGV5LmNvbW1vbi52MS5SYW5rVGllchIOCgZyYXRpbmcYAiABKAUSEAoIcG9zaXRpb24YAyABKAUisAEKBUJhZGdlEgoKAmlkGAEgASgJEg0KBWxhYmVsGAIgASgJEhMKC2Rlc2NyaXB0aW9uGAMgASgJEhAKCGljb25fdXJsGAQgASgJEg0KBWNvbG9yGAUgASgJEjEKCGNhdGVnb3J5GAYgASgOMh8ucGFybGV5LmNvbW1vbi52MS5CYWRnZUNhdGVnb3J5Eg8KB2lzX3JhcmUYByABKAgSEgoKYXdhcmRlZF9hdBgIIAEoAyKUAQoLUGxheWVyU3RhdHMSFgoObWF0Y2hlc19wbGF5ZWQYASABKAUSDAoEd2lucxgCIAEoBRIOCgZsb3NzZXMYAyABKAUSDQoFa2lsbHMYBCABKAUSDgoGZGVhdGhzGAUgASgFEhAKCGtkX3JhdGlvGAYgASgCEhAKCHdpbl9yYXRlGAcgASgCEgwKBGdhbWUYCCABKAkiJgoFRXJyb3ISDAoEY29kZRgBIAEoCRIPCgdtZXNzYWdlGAIgASgJKvMBCghSYW5rVGllchIZChVSQU5LX1RJRVJfVU5TUEVDSUZJRUQQABISCg5SQU5LX1RJRVJfSVJPThABEhQKEFJBTktfVElFUl9CUk9OWkUQAhIUChBSQU5LX1RJRVJfU0lMVkVSEAMSEgoOUkFOS19USUVSX0dPTEQQBBIWChJSQU5LX1RJRVJfUExBVElOVU0QBRIVChFSQU5LX1RJRVJfRElBTU9ORBAGEhQKEFJBTktfVElFUl9NQVNURVIQBxIZChVSQU5LX1RJRVJfR1JBTkRNQVNURVIQCBIYChRSQU5LX1RJRVJfQ0hBTExFTkdFUhAJKokCCg1CYWRnZUNhdGVnb3J5Eh4KGkJBREdFX0NBVEVHT1JZX1VOU1BFQ0lGSUVEEAASFwoTQkFER0VfQ0FURUdPUllfUkFOSxABEhsKF0JBREdFX0NBVEVHT1JZX0FDVElWSVRZEAISGAoUQkFER0VfQ0FURUdPUllfRVZFTlQQAxIXChNCQURHRV9DQVRFR09SWV9WT1RFEAQSGgoWQkFER0VfQ0FURUdPUllfUFJFTUlVTRAFEhsKF0JBREdFX0NBVEVHT1JZX1NFQVNPTkFMEAYSGAoUQkFER0VfQ0FURUdPUllfU1RBRkYQBxIcChhCQURHRV9DQVRFR09SWV9ERVZFTE9QRVIQCCpeCgZSZWdpb24SFgoSUkVHSU9OX1VOU1BFQ0lGSUVEEAASDQoJUkVHSU9OX0VVEAESDQoJUkVHSU9OX05BEAISDwoLUkVHSU9OX0FQQUMQAxINCglSRUdJT05fU0EQBCo/CgRHYW1lEhQKEEdBTUVfVU5TUEVDSUZJRUQQABILCgdHQU1FX1I2EAESFAoQR0FNRV9CUkFXTF9TVEFSUxACKkYKCExhbmd1YWdlEhgKFExBTkdVQUdFX1VOU1BFQ0lGSUVEEAASDwoLTEFOR1VBR0VfRU4QARIPCgtMQU5HVUFHRV9ERRACQhYKFGJvdC5wYXJsZXkuY29tbW9uLnYxYgZwcm90bzM",
+);
 
 /**
  * @generated from message parley.common.v1.Rank
@@ -36,8 +37,7 @@ export type Rank = Message<"parley.common.v1.Rank"> & {
  * Describes the message parley.common.v1.Rank.
  * Use `create(RankSchema)` to create a new message.
  */
-export const RankSchema: GenMessage<Rank> = /*@__PURE__*/
-  messageDesc(file_common_v1_types, 0);
+export const RankSchema: GenMessage<Rank> /*@__PURE__*/ = messageDesc(file_common_v1_types, 0);
 
 /**
  * @generated from message parley.common.v1.Badge
@@ -92,8 +92,7 @@ export type Badge = Message<"parley.common.v1.Badge"> & {
  * Describes the message parley.common.v1.Badge.
  * Use `create(BadgeSchema)` to create a new message.
  */
-export const BadgeSchema: GenMessage<Badge> = /*@__PURE__*/
-  messageDesc(file_common_v1_types, 1);
+export const BadgeSchema: GenMessage<Badge> /*@__PURE__*/ = messageDesc(file_common_v1_types, 1);
 
 /**
  * @generated from message parley.common.v1.PlayerStats
@@ -147,8 +146,10 @@ export type PlayerStats = Message<"parley.common.v1.PlayerStats"> & {
  * Describes the message parley.common.v1.PlayerStats.
  * Use `create(PlayerStatsSchema)` to create a new message.
  */
-export const PlayerStatsSchema: GenMessage<PlayerStats> = /*@__PURE__*/
-  messageDesc(file_common_v1_types, 2);
+export const PlayerStatsSchema: GenMessage<PlayerStats> /*@__PURE__*/ = messageDesc(
+  file_common_v1_types,
+  2,
+);
 
 /**
  * @generated from message parley.common.v1.Error
@@ -173,8 +174,7 @@ export type Error = Message<"parley.common.v1.Error"> & {
  * Describes the message parley.common.v1.Error.
  * Use `create(ErrorSchema)` to create a new message.
  */
-export const ErrorSchema: GenMessage<Error> = /*@__PURE__*/
-  messageDesc(file_common_v1_types, 3);
+export const ErrorSchema: GenMessage<Error> /*@__PURE__*/ = messageDesc(file_common_v1_types, 3);
 
 /**
  * @generated from enum parley.common.v1.RankTier
@@ -234,8 +234,7 @@ export enum RankTier {
 /**
  * Describes the enum parley.common.v1.RankTier.
  */
-export const RankTierSchema: GenEnum<RankTier> = /*@__PURE__*/
-  enumDesc(file_common_v1_types, 0);
+export const RankTierSchema: GenEnum<RankTier> /*@__PURE__*/ = enumDesc(file_common_v1_types, 0);
 
 /**
  * @generated from enum parley.common.v1.BadgeCategory
@@ -290,8 +289,10 @@ export enum BadgeCategory {
 /**
  * Describes the enum parley.common.v1.BadgeCategory.
  */
-export const BadgeCategorySchema: GenEnum<BadgeCategory> = /*@__PURE__*/
-  enumDesc(file_common_v1_types, 1);
+export const BadgeCategorySchema: GenEnum<BadgeCategory> /*@__PURE__*/ = enumDesc(
+  file_common_v1_types,
+  1,
+);
 
 /**
  * @generated from enum parley.common.v1.Region
@@ -326,8 +327,7 @@ export enum Region {
 /**
  * Describes the enum parley.common.v1.Region.
  */
-export const RegionSchema: GenEnum<Region> = /*@__PURE__*/
-  enumDesc(file_common_v1_types, 2);
+export const RegionSchema: GenEnum<Region> /*@__PURE__*/ = enumDesc(file_common_v1_types, 2);
 
 /**
  * @generated from enum parley.common.v1.Game
@@ -352,8 +352,7 @@ export enum Game {
 /**
  * Describes the enum parley.common.v1.Game.
  */
-export const GameSchema: GenEnum<Game> = /*@__PURE__*/
-  enumDesc(file_common_v1_types, 3);
+export const GameSchema: GenEnum<Game> /*@__PURE__*/ = enumDesc(file_common_v1_types, 3);
 
 /**
  * @generated from enum parley.common.v1.Language
@@ -378,6 +377,4 @@ export enum Language {
 /**
  * Describes the enum parley.common.v1.Language.
  */
-export const LanguageSchema: GenEnum<Language> = /*@__PURE__*/
-  enumDesc(file_common_v1_types, 4);
-
+export const LanguageSchema: GenEnum<Language> /*@__PURE__*/ = enumDesc(file_common_v1_types, 4);
