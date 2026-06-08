@@ -13,15 +13,19 @@ mod connect;
 mod context;
 mod db;
 mod fetch;
+mod guild_cache;
 mod handlers;
 mod leaderboard;
 mod logging;
+mod matchmaking;
 mod nuxt;
 mod proto;
 mod schema;
 mod scrape;
 mod stats_metrics;
+mod stats_persist;
 mod stats_proto;
+mod tourney;
 
 use context::AppContext;
 
@@ -51,6 +55,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let axiom_logger = logging::AxiomLogger::new(logging::AxiomConfig::default());
     let axiom_for_shutdown = axiom_logger.clone();
     let ctx = AppContext::from_env(axiom_logger).await?;
+    if let Some(ref pool) = ctx.pool {
+        matchmaking::sweeper::spawn(std::sync::Arc::new(pool.clone()), ctx.clone());
+    }
     let app = connect::build_router_with_context(ctx);
     tracing::info!(%addr, "engine-service listening");
 

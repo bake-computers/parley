@@ -57,6 +57,7 @@ fn row_to_proto(row: &crate::db::models::UserSettings) -> ProtoUserSettings {
         discord_user_id: row.discord_user_id.clone(),
         language: db_lang_to_proto(row.language),
         updated_at_ms: row.updated_at,
+        matchmaking_enabled: row.matchmaking_enabled,
     }
 }
 
@@ -145,6 +146,7 @@ pub async fn get_user_settings_rpc(
             discord_user_id: req.discord_user_id,
             language: ProtoLanguage::En as i32,
             updated_at_ms: 0,
+            matchmaking_enabled: true,
         },
         Err(e) => {
             return encode_ok(
@@ -247,6 +249,7 @@ pub async fn upsert_user_settings_rpc(
         language,
         created_at: now,
         updated_at: now,
+        matchmaking_enabled: s.matchmaking_enabled,
     };
     let saved = match UserSettingsRepo::upsert(&mut conn, new_row).await {
         Ok(row) => row,

@@ -110,6 +110,22 @@ impl PlayerRepo {
             .optional()
     }
 
+    /// First linked player row for a normalized username (any platform).
+    pub async fn find_by_username_normalized(
+        conn: &mut AsyncPgConnection,
+        game: Game,
+        username: &str,
+    ) -> QueryResult<Option<Player>> {
+        let normalized = normalize_username(username);
+        players::table
+            .filter(players::game.eq(game))
+            .filter(players::username_normalized.eq(normalized))
+            .select(Player::as_select())
+            .first(conn)
+            .await
+            .optional()
+    }
+
     pub async fn touch_internal_updated_at(
         conn: &mut AsyncPgConnection,
         id: i32,
@@ -265,6 +281,28 @@ impl PlayerStatSnapshotRepo {
             .first(conn)
             .await
     }
+
+    /// Latest snapshot per player in a single round-trip (`DISTINCT ON`).
+    pub async fn latest_for_players(
+        conn: &mut AsyncPgConnection,
+        game: Game,
+        player_ids: &[i32],
+    ) -> QueryResult<Vec<PlayerStatSnapshot>> {
+        if player_ids.is_empty() {
+            return Ok(Vec::new());
+        }
+        player_stat_snapshots::table
+            .filter(player_stat_snapshots::game.eq(game))
+            .filter(player_stat_snapshots::player_id.eq_any(player_ids))
+            .distinct_on(player_stat_snapshots::player_id)
+            .order((
+                player_stat_snapshots::player_id.asc(),
+                player_stat_snapshots::fetched_at.desc(),
+            ))
+            .select(PlayerStatSnapshot::as_select())
+            .load(conn)
+            .await
+    }
 }
 
 // ======================================================================
@@ -346,6 +384,7 @@ impl GuildMembershipRepo {
             discord_user_id,
             player_id,
             internal_elo: 1000.0,
+            rating_deviation: 350.0,
             internal_matches: 0,
             internal_wins: 0,
             internal_losses: 0,
@@ -385,6 +424,120 @@ impl GuildMembershipRepo {
             .load(conn)
             .await
     }
+
+    /// Full guild roster joined with player identity fields.
+    pub async fn list_for_guild(
+        conn: &mut AsyncPgConnection,
+        game: Game,
+        guild_id: &str,
+    ) -> QueryResult<Vec<GuildMemberRow>> {
+        guild_memberships::table
+            .inner_join(players::table)
+            .filter(guild_memberships::game.eq(game))
+            .filter(guild_memberships::guild_id.eq(guild_id))
+            .select((
+                guild_memberships::discord_user_id,
+                guild_memberships::player_id,
+                guild_memberships::internal_elo,
+                guild_memberships::rating_deviation,
+                players::username,
+                players::platform,
+            ))
+            .load(conn)
+            .await
+    }
+
+    /// Load memberships for a subset of Discord users within a guild.
+    pub async fn find_many_by_discord_ids(
+        conn: &mut AsyncPgConnection,
+        game: Game,
+        guild_id: &str,
+        discord_user_ids: &[String],
+    ) -> QueryResult<Vec<GuildMemberRow>> {
+        if discord_user_ids.is_empty() {
+            return Ok(Vec::new());
+        }
+        guild_memberships::table
+            .inner_join(players::table)
+            .filter(guild_memberships::game.eq(game))
+            .filter(guild_memberships::guild_id.eq(guild_id))
+            .filter(guild_memberships::discord_user_id.eq_any(discord_user_ids))
+            .select((
+                guild_memberships::discord_user_id,
+                guild_memberships::player_id,
+                guild_memberships::internal_elo,
+                guild_memberships::rating_deviation,
+                players::username,
+                players::platform,
+            ))
+            .load(conn)
+            .await
+    }
+
+    pub async fn update_rating(
+        conn: &mut AsyncPgConnection,
+        game: Game,
+        guild_id: &str,
+        discord_user_id: &str,
+        new_elo: f64,
+        new_phi: f64,
+        won: bool,
+    ) -> QueryResult<()> {
+        let now = now_ms();
+        let membership: GuildMembership = guild_memberships::table
+            .filter(guild_memberships::game.eq(game))
+            .filter(guild_memberships::guild_id.eq(guild_id))
+            .filter(guild_memberships::discord_user_id.eq(discord_user_id))
+            .select(GuildMembership::as_select())
+            .first(conn)
+            .await?;
+
+        let wins = membership.internal_wins + if won { 1 } else { 0 };
+        let losses = membership.internal_losses + if won { 0 } else { 1 };
+        diesel::update(
+            guild_memberships::table
+                .filter(guild_memberships::game.eq(game))
+                .filter(guild_memberships::guild_id.eq(guild_id))
+                .filter(guild_memberships::discord_user_id.eq(discord_user_id)),
+        )
+        .set((
+            guild_memberships::internal_elo.eq(new_elo),
+            guild_memberships::rating_deviation.eq(new_phi),
+            guild_memberships::internal_matches.eq(membership.internal_matches + 1),
+            guild_memberships::internal_wins.eq(wins),
+            guild_memberships::internal_losses.eq(losses),
+            guild_memberships::internal_updated_at.eq(Some(now)),
+            guild_memberships::updated_at.eq(now),
+        ))
+        .execute(conn)
+        .await?;
+        Ok(())
+    }
+
+    /// Guild IDs where a player is registered (for cache invalidation).
+    pub async fn guild_ids_for_player(
+        conn: &mut AsyncPgConnection,
+        game: Game,
+        player_id: i32,
+    ) -> QueryResult<Vec<String>> {
+        guild_memberships::table
+            .filter(guild_memberships::game.eq(game))
+            .filter(guild_memberships::player_id.eq(player_id))
+            .select(guild_memberships::guild_id)
+            .load(conn)
+            .await
+    }
+}
+
+/// Joined guild membership + player identity row.
+#[derive(Debug, Clone, diesel::Queryable, serde::Serialize, serde::Deserialize)]
+pub struct GuildMemberRow {
+    pub discord_user_id: String,
+    pub player_id: i32,
+    pub internal_elo: f64,
+    pub rating_deviation: f64,
+    pub username: String,
+    pub platform: String,
 }
 
 // ---------- GuildSettings ----------
@@ -416,6 +569,7 @@ impl GuildSettingsRepo {
         let auto_balance = row.auto_balance;
         let cross_guild_matchmaking = row.cross_guild_matchmaking;
         let default_language = row.default_language;
+        let matchmaking_enabled = row.matchmaking_enabled;
         diesel::insert_into(guild_settings::table)
             .values(&row)
             .on_conflict((guild_settings::guild_id, guild_settings::game))
@@ -427,6 +581,7 @@ impl GuildSettingsRepo {
                 guild_settings::updated_at.eq(now),
                 guild_settings::updated_by_discord_user_id.eq(updated_by_discord_user_id),
                 guild_settings::default_language.eq(default_language),
+                guild_settings::matchmaking_enabled.eq(matchmaking_enabled),
             ))
             .returning(GuildSettings::as_returning())
             .get_result(conn)
@@ -599,6 +754,7 @@ impl UserSettingsRepo {
     ) -> QueryResult<UserSettings> {
         let now = row.updated_at;
         let language = row.language;
+        let matchmaking_enabled = row.matchmaking_enabled;
         diesel::insert_into(user_settings::table)
             .values(&row)
             .on_conflict(user_settings::discord_user_id)
@@ -606,6 +762,7 @@ impl UserSettingsRepo {
             .set((
                 user_settings::language.eq(language),
                 user_settings::updated_at.eq(now),
+                user_settings::matchmaking_enabled.eq(matchmaking_enabled),
             ))
             .returning(UserSettings::as_returning())
             .get_result(conn)

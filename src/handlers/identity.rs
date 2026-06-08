@@ -210,8 +210,8 @@ pub async fn link_account_rpc(
         );
     }
 
-    if !req.guild_id.trim().is_empty()
-        && let Err(e) = GuildMembershipRepo::upsert(
+    if !req.guild_id.trim().is_empty() {
+        match GuildMembershipRepo::upsert(
             &mut conn,
             game,
             &req.guild_id,
@@ -219,8 +219,16 @@ pub async fn link_account_rpc(
             player.id,
         )
         .await
-    {
-        tracing::warn!(error = %e, "guild membership upsert failed (non-fatal)");
+        {
+            Ok(_) => {
+                if let Some(cache) = &ctx.guild_cache {
+                    cache.invalidate_guild(game, &req.guild_id).await;
+                }
+            }
+            Err(e) => {
+                tracing::warn!(error = %e, "guild membership upsert failed (non-fatal)");
+            }
+        }
     }
 
     encode_ok(

@@ -136,6 +136,7 @@ diesel::table! {
         language -> Languages,
         created_at -> Int8,
         updated_at -> Int8,
+        matchmaking_enabled -> Bool,
     }
 }
 
@@ -164,6 +165,7 @@ diesel::table! {
         discord_user_id -> Text,
         player_id -> Int4,
         internal_elo -> Float8,
+        rating_deviation -> Float8,
         internal_matches -> Int4,
         internal_wins -> Int4,
         internal_losses -> Int4,
@@ -206,6 +208,7 @@ diesel::table! {
         updated_at -> Int8,
         updated_by_discord_user_id -> Text,
         default_language -> Languages,
+        matchmaking_enabled -> Bool,
     }
 }
 
@@ -345,6 +348,7 @@ diesel::table! {
         expires_at -> Int8,
         created_at -> Int8,
         updated_at -> Int8,
+        team_size -> Int4,
     }
 }
 

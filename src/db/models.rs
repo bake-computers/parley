@@ -181,6 +181,7 @@ pub struct UserSettings {
     pub language: Language,
     pub created_at: i64,
     pub updated_at: i64,
+    pub matchmaking_enabled: bool,
 }
 
 #[derive(Debug, Clone, diesel::Insertable)]
@@ -190,6 +191,7 @@ pub struct NewUserSettings<'a> {
     pub language: Language,
     pub created_at: i64,
     pub updated_at: i64,
+    pub matchmaking_enabled: bool,
 }
 
 // ---------- account_deletion_cooldowns ----------
@@ -231,6 +233,7 @@ pub struct GuildMembership {
     pub discord_user_id: String,
     pub player_id: i32,
     pub internal_elo: f64,
+    pub rating_deviation: f64,
     pub internal_matches: i32,
     pub internal_wins: i32,
     pub internal_losses: i32,
@@ -247,6 +250,7 @@ pub struct NewGuildMembership<'a> {
     pub discord_user_id: &'a str,
     pub player_id: i32,
     pub internal_elo: f64,
+    pub rating_deviation: f64,
     pub internal_matches: i32,
     pub internal_wins: i32,
     pub internal_losses: i32,
@@ -293,6 +297,7 @@ pub struct GuildSettings {
     pub updated_at: i64,
     pub updated_by_discord_user_id: String,
     pub default_language: Language,
+    pub matchmaking_enabled: bool,
 }
 
 #[derive(Debug, Clone, diesel::Insertable)]
@@ -306,6 +311,7 @@ pub struct NewGuildSettings<'a> {
     pub updated_at: i64,
     pub updated_by_discord_user_id: &'a str,
     pub default_language: Language,
+    pub matchmaking_enabled: bool,
 }
 
 // ---------- guild_matchmaking_rules ----------
@@ -408,6 +414,32 @@ pub struct MatchRow {
     pub updated_at: i64,
 }
 
+#[derive(Debug, Clone, diesel::Insertable)]
+#[diesel(table_name = matches)]
+pub struct NewMatch<'a> {
+    pub game: Game,
+    pub guild_id: &'a str,
+    pub channel_id: &'a str,
+    pub message_id: &'a str,
+    pub created_by_discord_user_id: &'a str,
+    pub status: &'a str,
+    pub match_type: &'a str,
+    pub opponent_guild_id: Option<&'a str>,
+    pub opponent_channel_id: Option<&'a str>,
+    pub opponent_message_id: Option<&'a str>,
+    pub opponent_captain_discord_user_id: Option<&'a str>,
+    pub team_a_seed_total: f64,
+    pub team_b_seed_total: f64,
+    pub seed_gap: f64,
+    pub winning_team: Option<&'a str>,
+    pub resolution_type: &'a str,
+    pub team_a_balance_total: f64,
+    pub team_b_balance_total: f64,
+    pub balance_gap: f64,
+    pub created_at: i64,
+    pub updated_at: i64,
+}
+
 // ---------- match_participants ----------
 
 #[derive(Debug, Clone, diesel::Queryable, diesel::Selectable, diesel::Identifiable)]
@@ -433,6 +465,49 @@ pub struct MatchParticipant {
     pub updated_at: i64,
 }
 
+#[derive(Debug, Clone, diesel::Insertable)]
+#[diesel(table_name = match_participants)]
+pub struct NewMatchParticipant<'a> {
+    pub game: Game,
+    pub match_id: i32,
+    pub discord_user_id: &'a str,
+    pub player_id: i32,
+    pub team: &'a str,
+    pub slot: i32,
+    pub seed_rank_points: i32,
+    pub seed_kd_ratio: f64,
+    pub seed_kost: f64,
+    pub seed_kpr: f64,
+    pub seed_headshot_percentage: f64,
+    pub seed_score: f64,
+    pub balance_rating: f64,
+    pub kills: Option<i32>,
+    pub deaths: Option<i32>,
+    pub created_at: i64,
+    pub updated_at: i64,
+}
+
+#[derive(Debug, Clone, diesel::Insertable)]
+#[diesel(table_name = matchmaking_queue_participants)]
+pub struct NewMatchmakingQueueParticipant<'a> {
+    pub game: Game,
+    pub queue_id: i32,
+    pub discord_user_id: &'a str,
+    pub player_id: i32,
+    pub slot: i32,
+    pub username: &'a str,
+    pub platform: &'a str,
+    pub balance_rating: f64,
+    pub seed_rank_points: i32,
+    pub seed_kd_ratio: f64,
+    pub seed_kost: f64,
+    pub seed_kpr: f64,
+    pub seed_headshot_percentage: f64,
+    pub seed_score: f64,
+    pub created_at: i64,
+    pub updated_at: i64,
+}
+
 // ---------- matchmaking_queues ----------
 
 #[derive(Debug, Clone, diesel::Queryable, diesel::Selectable, diesel::Identifiable)]
@@ -451,6 +526,25 @@ pub struct MatchmakingQueue {
     pub expires_at: i64,
     pub created_at: i64,
     pub updated_at: i64,
+    pub team_size: i32,
+}
+
+#[derive(Debug, Clone, diesel::Insertable)]
+#[diesel(table_name = matchmaking_queues)]
+pub struct NewMatchmakingQueue<'a> {
+    pub game: Game,
+    pub guild_id: &'a str,
+    pub channel_id: &'a str,
+    pub captain_discord_user_id: &'a str,
+    pub status: &'a str,
+    pub player_count: i32,
+    pub stack_balance_total: f64,
+    pub stack_balance_average: f64,
+    pub matched_match_id: Option<i32>,
+    pub expires_at: i64,
+    pub created_at: i64,
+    pub updated_at: i64,
+    pub team_size: i32,
 }
 
 // ---------- matchmaking_queue_participants ----------
@@ -547,6 +641,93 @@ pub struct TournamentTeamRoster {
     pub seed_kpr: f64,
     pub seed_headshot_percentage: f64,
     pub seed_score: f64,
+    pub created_at: i64,
+    pub updated_at: i64,
+}
+
+#[derive(Debug, Clone, diesel::Insertable)]
+#[diesel(table_name = tournaments)]
+pub struct NewTournament<'a> {
+    pub game: Game,
+    pub name: &'a str,
+    pub name_normalized: &'a str,
+    pub format: &'a str,
+    pub team_cap: i32,
+    pub visibility: &'a str,
+    pub status: &'a str,
+    pub created_by_guild_id: &'a str,
+    pub created_by_channel_id: &'a str,
+    pub created_by_discord_user_id: &'a str,
+    pub hub_message_id: Option<&'a str>,
+    pub filled_at: Option<i64>,
+    pub auto_start_at: Option<i64>,
+    pub started_at: Option<i64>,
+    pub completed_at: Option<i64>,
+    pub winner_entry_id: Option<i32>,
+    pub created_at: i64,
+    pub updated_at: i64,
+}
+
+#[derive(Debug, Clone, diesel::Insertable)]
+#[diesel(table_name = tournament_teams)]
+pub struct NewTournamentTeam<'a> {
+    pub game: Game,
+    pub tournament_id: i32,
+    pub guild_id: &'a str,
+    pub channel_id: &'a str,
+    pub captain_discord_user_id: &'a str,
+    pub team_name: &'a str,
+    pub team_name_normalized: &'a str,
+    pub status: &'a str,
+    pub seed_number: Option<i32>,
+    pub stack_balance_total: f64,
+    pub stack_balance_average: f64,
+    pub joined_at: i64,
+    pub eliminated_at: Option<i64>,
+    pub created_at: i64,
+    pub updated_at: i64,
+}
+
+#[derive(Debug, Clone, diesel::Insertable)]
+#[diesel(table_name = tournament_team_rosters)]
+pub struct NewTournamentTeamRoster<'a> {
+    pub game: Game,
+    pub tournament_id: i32,
+    pub team_id: i32,
+    pub discord_user_id: &'a str,
+    pub player_id: i32,
+    pub slot: i32,
+    pub username: &'a str,
+    pub platform: &'a str,
+    pub balance_rating: f64,
+    pub seed_rank_points: i32,
+    pub seed_kd_ratio: f64,
+    pub seed_kost: f64,
+    pub seed_kpr: f64,
+    pub seed_headshot_percentage: f64,
+    pub seed_score: f64,
+    pub created_at: i64,
+    pub updated_at: i64,
+}
+
+#[derive(Debug, Clone, diesel::Insertable)]
+#[diesel(table_name = bracket_matches)]
+pub struct NewBracketMatch<'a> {
+    pub game: Game,
+    pub tournament_id: i32,
+    pub bracket: &'a str,
+    pub round_number: i32,
+    pub match_number: i32,
+    pub status: &'a str,
+    pub team_a_id: Option<i32>,
+    pub team_b_id: Option<i32>,
+    pub winner_team_id: Option<i32>,
+    pub loser_team_id: Option<i32>,
+    pub winner_to_match_id: Option<i32>,
+    pub winner_to_slot: Option<&'a str>,
+    pub loser_to_match_id: Option<i32>,
+    pub loser_to_slot: Option<&'a str>,
+    pub custom_match_id: Option<i32>,
     pub created_at: i64,
     pub updated_at: i64,
 }

@@ -58,6 +58,48 @@ pub struct CachedStats {
     pub degraded: bool,
 }
 
+/// Passthrough store that always calls the backend registry (no Redis).
+pub struct DirectStatsCacheStore {
+    registry: std::sync::Arc<crate::backends::StatsBackendRegistry>,
+}
+
+impl DirectStatsCacheStore {
+    pub fn new(registry: std::sync::Arc<crate::backends::StatsBackendRegistry>) -> Self {
+        Self { registry }
+    }
+}
+
+#[async_trait]
+impl StatsCacheStore for DirectStatsCacheStore {
+    async fn fetch(
+        &self,
+        game: Game,
+        username: &str,
+        platform: StatsPlatform,
+        season: Option<&str>,
+    ) -> Result<CachedStats, StatsFetchError> {
+        let stats = self
+            .registry
+            .fetch(game, username, platform, season)
+            .await?;
+        Ok(CachedStats {
+            stats,
+            degraded: false,
+        })
+    }
+
+    async fn fetch_collection(
+        &self,
+        game: Game,
+        username: &str,
+        platform: StatsPlatform,
+    ) -> Result<ScrapedStatsCollection, StatsFetchError> {
+        self.registry
+            .fetch_collection(game, username, platform)
+            .await
+    }
+}
+
 /// Game-aware cache-or-fetch facade.
 #[async_trait]
 pub trait StatsCacheStore: Send + Sync {

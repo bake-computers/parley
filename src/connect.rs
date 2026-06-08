@@ -121,6 +121,76 @@ pub fn build_router_with_context(ctx: AppContext) -> Router {
             "/parley.leaderboard.v1.LeaderboardService/GetPlayerRank",
             post(crate::handlers::leaderboard::get_player_rank_rpc),
         )
+        // Matchmaking
+        .route(
+            "/parley.matchmaking.v1.MatchmakingService/BuildTeams",
+            post(crate::handlers::matchmaking::build_teams_rpc),
+        )
+        .route(
+            "/parley.matchmaking.v1.MatchmakingService/ListGuildMembers",
+            post(crate::handlers::matchmaking::list_guild_members_rpc),
+        )
+        .route(
+            "/parley.matchmaking.v1.MatchmakingService/JoinQueue",
+            post(crate::handlers::match_queue::join_queue_rpc),
+        )
+        .route(
+            "/parley.matchmaking.v1.MatchmakingService/LeaveQueue",
+            post(crate::handlers::match_queue::leave_queue_rpc),
+        )
+        .route(
+            "/parley.matchmaking.v1.MatchmakingService/GetQueueStatus",
+            post(crate::handlers::match_queue::get_queue_status_rpc),
+        )
+        .route(
+            "/parley.matchmaking.v1.MatchmakingService/CreateCustomMatch",
+            post(crate::handlers::match_queue::create_custom_match_rpc),
+        )
+        .route(
+            "/parley.matchmaking.v1.MatchmakingService/ReportMatchResult",
+            post(crate::handlers::match_queue::report_match_result_rpc),
+        )
+        .route(
+            "/parley.matchmaking.v1.MatchmakingService/GetMatch",
+            post(crate::handlers::match_queue::get_match_rpc),
+        )
+        // Tournaments
+        .route(
+            "/parley.tournament.v1.TournamentService/CreateTournament",
+            post(crate::handlers::tournament::create_tournament_rpc),
+        )
+        .route(
+            "/parley.tournament.v1.TournamentService/GetTournament",
+            post(crate::handlers::tournament::get_tournament_rpc),
+        )
+        .route(
+            "/parley.tournament.v1.TournamentService/ListTournaments",
+            post(crate::handlers::tournament::list_tournaments_rpc),
+        )
+        .route(
+            "/parley.tournament.v1.TournamentService/RegisterTeam",
+            post(crate::handlers::tournament::register_team_rpc),
+        )
+        .route(
+            "/parley.tournament.v1.TournamentService/UpdateTeamRoster",
+            post(crate::handlers::tournament::update_team_roster_rpc),
+        )
+        .route(
+            "/parley.tournament.v1.TournamentService/UnregisterTeam",
+            post(crate::handlers::tournament::unregister_team_rpc),
+        )
+        .route(
+            "/parley.tournament.v1.TournamentService/StartTournament",
+            post(crate::handlers::tournament::start_tournament_rpc),
+        )
+        .route(
+            "/parley.tournament.v1.TournamentService/ReportBracketResult",
+            post(crate::handlers::tournament::report_bracket_result_rpc),
+        )
+        .route(
+            "/parley.tournament.v1.TournamentService/CancelTournament",
+            post(crate::handlers::tournament::cancel_tournament_rpc),
+        )
         .layer(AxiomLogLayer::new(ctx.axiom.clone()))
         .layer(CompressionLayer::new())
         .layer(TimeoutLayer::with_status_code(

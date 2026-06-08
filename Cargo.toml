@@ -21,12 +21,20 @@ futures-util = { version = "0.3", default-features = false, features = ["std", "
 
 # HTTP
 reqwest = { version = "0.13.3", default-features = false, features = [
-  "rustls", "gzip", "brotli", "json", "stream",
+  "rustls",
+  "gzip",
+  "brotli",
+  "json",
+  "stream",
 ] }
 axum = { version = "0.8", features = ["macros"] }
 tower = { version = "0.5", features = ["util"] }
 tower-http = { version = "0.6.11", features = [
-  "trace", "cors", "compression-gzip", "compression-br", "timeout",
+  "trace",
+  "cors",
+  "compression-gzip",
+  "compression-br",
+  "timeout",
 ] }
 hyper = "1.5"
 
@@ -51,7 +59,11 @@ dotenvy = "0.15"
 
 # Database (async Diesel)
 diesel = { version = "2.3.9", default-features = false, features = [
-  "postgres", "serde_json", "chrono", "numeric", "32-column-tables",
+  "postgres",
+  "serde_json",
+  "chrono",
+  "numeric",
+  "32-column-tables",
 ] }
 diesel-async = { version = "0.9", features = ["postgres", "bb8"] }
 diesel-derive-enum = { version = "2.1", features = ["postgres"] }

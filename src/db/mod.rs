@@ -9,10 +9,12 @@
 
 #![allow(dead_code)] // Individual tasks fill this in; surfaces land task by task.
 
+pub mod matchmaking_repos;
 pub mod models;
 pub mod pool;
 pub mod repos;
 pub mod schema;
+pub mod tournament_repos;
 
 /// Embedded migrations bundle. Used by [`pool::run_migrations`] on startup
 /// when `RUN_MIGRATIONS=1`.

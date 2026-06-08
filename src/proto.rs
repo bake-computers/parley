@@ -33,3 +33,15 @@ pub mod user {
         include!(concat!(env!("OUT_DIR"), "/parley.user.v1.rs"));
     }
 }
+
+pub mod matchmaking {
+    pub mod v1 {
+        include!(concat!(env!("OUT_DIR"), "/parley.matchmaking.v1.rs"));
+    }
+}
+
+pub mod tournament {
+    pub mod v1 {
+        include!(concat!(env!("OUT_DIR"), "/parley.tournament.v1.rs"));
+    }
+}

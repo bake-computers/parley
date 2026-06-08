@@ -4,9 +4,11 @@ use std::time::Duration;
 use crate::backends::StatsBackendRegistry;
 use crate::backends::r6::R6Backend;
 use crate::cache_redis::RedisStatsCacheStore;
-use crate::cache_store::{StatsCacheConfigV2, StatsCacheStore};
+use crate::cache_store::{DirectStatsCacheStore, StatsCacheConfigV2, StatsCacheStore};
 use crate::fetch::StatsClient;
+use crate::guild_cache::GuildCache;
 use crate::leaderboard::LeaderboardStore;
+use crate::stats_persist::{PersistingStatsCacheStore, StatsPersister};
 
 use crate::db::pool::{self, DbPool, PoolConfig};
 use crate::handlers::stats::StatsHandler;
@@ -18,6 +20,7 @@ pub struct AppContext {
     pub stats: Arc<StatsHandler>,
     pub axiom: AxiomLogger,
     pub leaderboard: Option<Arc<LeaderboardStore>>,
+    pub guild_cache: Option<Arc<GuildCache>>,
 }
 
 impl AppContext {
@@ -48,7 +51,10 @@ impl AppContext {
         };
 
         let cache_cfg = cache_config_from_env();
-        let (stats, leaderboard) =
+        let guild_cache: Option<Arc<GuildCache>> =
+            pool.as_ref().map(|_| Arc::new(GuildCache::in_memory()));
+
+        let (stats, leaderboard, guild_cache) =
             if let Some(redis_url) = std::env::var("REDIS_URL").ok().filter(|s| !s.is_empty()) {
                 let redis_client = redis::Client::open(redis_url.as_str())
                     .map_err(|e| anyhow::anyhow!("redis: {e}"))?;
@@ -58,12 +64,19 @@ impl AppContext {
                 tracing::info!("redis connected for stats cache + leaderboard");
 
                 let lb = Arc::new(LeaderboardStore::new(conn.clone()));
-                let store: Arc<dyn StatsCacheStore> = Arc::new(RedisStatsCacheStore::new(
+                let gc = Arc::new(GuildCache::redis(conn.clone()));
+                let redis_store: Arc<dyn StatsCacheStore> = Arc::new(RedisStatsCacheStore::new(
                     conn,
                     registry.clone(),
                     cache_cfg,
                     Some(lb.clone()),
                 ));
+                let store: Arc<dyn StatsCacheStore> = if let Some(ref p) = pool {
+                    let persister = Arc::new(StatsPersister::new(p.clone(), Some(gc.clone())));
+                    Arc::new(PersistingStatsCacheStore::new(redis_store, Some(persister)))
+                } else {
+                    redis_store
+                };
                 (
                     Arc::new(
                         StatsHandler::with_client(client)
@@ -71,13 +84,20 @@ impl AppContext {
                             .with_cache_store(store),
                     ),
                     Some(lb),
+                    Some(gc),
                 )
             } else {
                 tracing::warn!("REDIS_URL not set — running without cache store");
-                (
-                    Arc::new(StatsHandler::with_client(client).with_registry(registry)),
-                    None,
-                )
+                let mut handler = StatsHandler::with_client(client).with_registry(registry.clone());
+                if let Some(ref p) = pool {
+                    let persister = Arc::new(StatsPersister::new(p.clone(), guild_cache.clone()));
+                    let store: Arc<dyn StatsCacheStore> = Arc::new(PersistingStatsCacheStore::new(
+                        Arc::new(DirectStatsCacheStore::new(registry)),
+                        Some(persister),
+                    ));
+                    handler = handler.with_cache_store(store);
+                }
+                (Arc::new(handler), None, guild_cache)
             };
 
         Ok(Self {
@@ -85,6 +105,7 @@ impl AppContext {
             stats,
             axiom,
             leaderboard,
+            guild_cache,
         })
     }
 
@@ -94,6 +115,7 @@ impl AppContext {
             stats: Arc::new(StatsHandler::default()),
             axiom: AxiomLogger::default(),
             leaderboard: None,
+            guild_cache: Some(Arc::new(GuildCache::in_memory())),
         }
     }
 

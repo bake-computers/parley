@@ -4,6 +4,18 @@ pub mod sql_types {
     #[derive(diesel::query_builder::QueryId, Clone, diesel::sql_types::SqlType)]
     #[diesel(postgres_type(name = "games"))]
     pub struct Games;
+
+    #[derive(diesel::query_builder::QueryId, Clone, diesel::sql_types::SqlType)]
+    #[diesel(postgres_type(name = "languages"))]
+    pub struct Languages;
+}
+
+diesel::table! {
+    account_deletion_cooldowns (discord_user_id_hash) {
+        discord_user_id_hash -> Text,
+        deleted_at -> Int8,
+        cooldown_until -> Int8,
+    }
 }
 
 diesel::table! {
@@ -110,6 +122,7 @@ diesel::table! {
         internal_updated_at -> Nullable<Int8>,
         created_at -> Int8,
         updated_at -> Int8,
+        rating_deviation -> Float8,
     }
 }
 
@@ -130,6 +143,7 @@ diesel::table! {
 diesel::table! {
     use diesel::sql_types::*;
     use super::sql_types::Games;
+    use super::sql_types::Languages;
 
     guild_settings (guild_id, game) {
         guild_id -> Text,
@@ -139,6 +153,8 @@ diesel::table! {
         cross_guild_matchmaking -> Bool,
         updated_at -> Int8,
         updated_by_discord_user_id -> Text,
+        default_language -> Languages,
+        matchmaking_enabled -> Bool,
     }
 }
 
@@ -241,6 +257,7 @@ diesel::table! {
         expires_at -> Int8,
         created_at -> Int8,
         updated_at -> Int8,
+        team_size -> Int4,
     }
 }
 
@@ -395,6 +412,19 @@ diesel::table! {
 }
 
 diesel::table! {
+    use diesel::sql_types::*;
+    use super::sql_types::Languages;
+
+    user_settings (discord_user_id) {
+        discord_user_id -> Text,
+        language -> Languages,
+        created_at -> Int8,
+        updated_at -> Int8,
+        matchmaking_enabled -> Bool,
+    }
+}
+
+diesel::table! {
     vessel_sessions (id) {
         id -> Int4,
         session_id -> Uuid,
@@ -423,6 +453,7 @@ diesel::joinable!(tournament_team_rosters -> tournament_teams (team_id));
 diesel::joinable!(tournament_team_rosters -> tournaments (tournament_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
+    account_deletion_cooldowns,
     bracket_matches,
     discord_identities,
     external_match_history,
@@ -441,5 +472,6 @@ diesel::allow_tables_to_appear_in_same_query!(
     tournament_team_rosters,
     tournament_teams,
     tournaments,
+    user_settings,
     vessel_sessions,
 );

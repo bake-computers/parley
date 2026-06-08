@@ -149,6 +149,7 @@ pub async fn get_guild_settings_rpc(
             updated_at_ms: s.updated_at,
             updated_by_discord_user_id: s.updated_by_discord_user_id,
             default_language: db_lang_to_proto(s.default_language),
+            matchmaking_enabled: s.matchmaking_enabled,
         },
         Ok(None) => ProtoGuildSettings {
             guild_id: req.guild_id.clone(),
@@ -159,6 +160,7 @@ pub async fn get_guild_settings_rpc(
             updated_at_ms: 0,
             updated_by_discord_user_id: String::new(),
             default_language: ProtoLanguage::En as i32,
+            matchmaking_enabled: true,
         },
         Err(e) => {
             let msg = format!("get: {e}");
@@ -286,6 +288,7 @@ pub async fn upsert_guild_settings_rpc(
         updated_at: now_ms(),
         updated_by_discord_user_id: &s.updated_by_discord_user_id,
         default_language: proto_lang_to_db(s.default_language),
+        matchmaking_enabled: s.matchmaking_enabled,
     };
     let saved = match GuildSettingsRepo::upsert(&mut conn, new_row).await {
         Ok(r) => r,
@@ -320,6 +323,7 @@ pub async fn upsert_guild_settings_rpc(
                 updated_at_ms: saved.updated_at,
                 updated_by_discord_user_id: saved.updated_by_discord_user_id,
                 default_language: db_lang_to_proto(saved.default_language),
+                matchmaking_enabled: saved.matchmaking_enabled,
             }),
             error: None,
         },

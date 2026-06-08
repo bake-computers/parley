@@ -1004,8 +1004,9 @@ async function main() {
       if (stats.success) {
         success++;
         const s = stats.stats as Record<string, unknown> | undefined;
-        const ranked =
-          (s as Record<string, unknown> | undefined)?.rankedStats as Record<string, unknown> | undefined;
+        const ranked = (s as Record<string, unknown> | undefined)?.rankedStats as
+          | Record<string, unknown>
+          | undefined;
         console.log(
           `  OK  ${username.padEnd(20)} RP=${ranked?.rankPoints ?? "?"}  WL=${ranked?.wins ?? "?"}-${ranked?.losses ?? "?"}`,
         );
@@ -1026,9 +1027,7 @@ async function main() {
   }
 
   const elapsed = ((performance.now() - start) / 1000).toFixed(1);
-  console.log(
-    `\nDone. ${success} OK, ${fail} failed out of ${TOP_PLAYERS.length} in ${elapsed}s`,
-  );
+  console.log(`\nDone. ${success} OK, ${fail} failed out of ${TOP_PLAYERS.length} in ${elapsed}s`);
 }
 
 main();
