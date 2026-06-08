@@ -8,42 +8,42 @@ export class TextInputBuilder implements JSONEncodable<JsonObject> {
   };
 
   setCustomId(customId: string): this {
-    this.data['custom_id'] = customId;
+    this.data["custom_id"] = customId;
     return this;
   }
 
   setLabel(label: string): this {
-    this.data['label'] = label;
+    this.data["label"] = label;
     return this;
   }
 
   setStyle(style: TextInputStyle): this {
-    this.data['style'] = style;
+    this.data["style"] = style;
     return this;
   }
 
   setRequired(required = true): this {
-    this.data['required'] = required;
+    this.data["required"] = required;
     return this;
   }
 
   setPlaceholder(placeholder: string): this {
-    this.data['placeholder'] = placeholder;
+    this.data["placeholder"] = placeholder;
     return this;
   }
 
   setMinLength(minLength: number): this {
-    this.data['min_length'] = minLength;
+    this.data["min_length"] = minLength;
     return this;
   }
 
   setMaxLength(maxLength: number): this {
-    this.data['max_length'] = maxLength;
+    this.data["max_length"] = maxLength;
     return this;
   }
 
   setValue(value: string): this {
-    this.data['value'] = value;
+    this.data["value"] = value;
     return this;
   }
 

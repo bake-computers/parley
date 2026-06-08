@@ -24,7 +24,7 @@ export class SectionBuilder implements JSONEncodable<JsonObject> {
     };
 
     if (this.accessory) {
-      data['accessory'] = this.accessory.toJSON();
+      data["accessory"] = this.accessory.toJSON();
     }
 
     return data;

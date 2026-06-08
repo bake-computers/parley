@@ -11,22 +11,22 @@ export class SlashCommandStringOption extends BaseCommandOptionBuilder {
   }
 
   setMinLength(minLength: number): this {
-    this.data['min_length'] = minLength;
+    this.data["min_length"] = minLength;
     return this;
   }
 
   setMaxLength(maxLength: number): this {
-    this.data['max_length'] = maxLength;
+    this.data["max_length"] = maxLength;
     return this;
   }
 
   setAutocomplete(autocomplete = true): this {
-    this.data['autocomplete'] = autocomplete;
+    this.data["autocomplete"] = autocomplete;
     return this;
   }
 
   addChoices(...choices: APIApplicationCommandOptionChoice<string>[]): this {
-    this.data['choices'] = choices.map((choice) => encodeValue(choice));
+    this.data["choices"] = choices.map((choice) => encodeValue(choice));
     return this;
   }
 }

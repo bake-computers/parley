@@ -8,7 +8,7 @@ export class TextDisplayBuilder implements JSONEncodable<JsonObject> {
   };
 
   setContent(content: string): this {
-    this.data['content'] = content;
+    this.data["content"] = content;
     return this;
   }
 

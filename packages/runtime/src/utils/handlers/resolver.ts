@@ -18,7 +18,9 @@ import type { ResolvedSelectedGuildMember } from "./types.js";
  * @returns {Map<string, T>} A `Map` containing the same key-value pairs, or an empty `Map`.
  */
 export function collectionFromRecord<T>(value: Record<string, T> | undefined): Map<string, T> {
-  if (!value) { return new Map(); }
+  if (!value) {
+    return new Map();
+  }
   return new Map(Object.entries(value));
 }
 
@@ -129,13 +131,16 @@ export class CommandInteractionOptionResolver {
     this.users = collectionFromRecord(resolved?.users);
     this.attachments = collectionFromRecord(resolved?.attachments);
     this.members = new Map(
-      Object.entries(resolved?.members ?? {}).map(([id, member]) => [
-        id,
-        {
-          ...member,
-          user: resolved?.users?.[id],
-        },
-      ] as [string, ResolvedSelectedGuildMember]),
+      Object.entries(resolved?.members ?? {}).map(
+        ([id, member]) =>
+          [
+            id,
+            {
+              ...member,
+              user: resolved?.users?.[id],
+            },
+          ] as [string, ResolvedSelectedGuildMember],
+      ),
     );
 
     // Unwrap subcommand group, then subcommand, to reach the leaf options.

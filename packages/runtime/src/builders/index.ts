@@ -1,10 +1,5 @@
 // Types & helpers
-export {
-  type JSONEncodable,
-  encodeValue,
-  isJSONEncodable,
-  resolveJson,
-} from "./types.js";
+export { type JSONEncodable, encodeValue, isJSONEncodable, resolveJson } from "./types.js";
 
 // Component builders
 export { EmbedBuilder } from "./embed.js";

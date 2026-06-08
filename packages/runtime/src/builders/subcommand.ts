@@ -9,12 +9,12 @@ export class SlashCommandSubcommand extends OptionContainer implements JSONEncod
   };
 
   setName(name: string): this {
-    this.data['name'] = name;
+    this.data["name"] = name;
     return this;
   }
 
   setDescription(description: string): this {
-    this.data['description'] = description;
+    this.data["description"] = description;
     return this;
   }
 

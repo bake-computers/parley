@@ -31,11 +31,11 @@ export class ContainerBuilder<
     };
 
     if (this.accentColor !== undefined) {
-      data['accent_color'] = this.accentColor;
+      data["accent_color"] = this.accentColor;
     }
 
     if (this.spoiler !== undefined) {
-      data['spoiler'] = this.spoiler;
+      data["spoiler"] = this.spoiler;
     }
 
     return data;

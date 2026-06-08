@@ -95,19 +95,28 @@ export {
 } from "./utils/handlers/index.js";
 
 // Register
-export {
-  registerApplicationCommands,
-  registerApplicationCommandsWithOptions,
-} from "./register.js";
+export { registerApplicationCommands, registerApplicationCommandsWithOptions } from "./register.js";
 
 // REST
 export { discordRequest, DiscordRestClient, type DiscordRequestOptions } from "./rest.js";
 
 // Logger
-export { logger, log, setLogSinkForTests, type LogLevel, type LogFields, type LogRecord, type SerializedError } from "./utils/logger.js";
+export {
+  logger,
+  log,
+  setLogSinkForTests,
+  type LogLevel,
+  type LogFields,
+  type LogRecord,
+  type SerializedError,
+} from "./utils/logger.js";
 
 // Verify
-export { verifyDiscordRequest, type VerifyDiscordRequestError, type VerifiedDiscordRequest } from "./utils/verify.js";
+export {
+  verifyDiscordRequest,
+  type VerifyDiscordRequestError,
+  type VerifiedDiscordRequest,
+} from "./utils/verify.js";
 
 // Emojis
 export {

@@ -6,10 +6,7 @@ import type {
   JsonObject,
   JsonValue,
 } from "../types/index.js";
-import {
-  INITIAL_RESPONSE_CONTEXT_KEY,
-  INITIAL_RESPONSE_RESOLVE_CONTEXT_KEY,
-} from "./constants.js";
+import { INITIAL_RESPONSE_CONTEXT_KEY, INITIAL_RESPONSE_RESOLVE_CONTEXT_KEY } from "./constants.js";
 
 type InitialResponseResolver = (response: JsonObject | null) => void;
 
@@ -44,7 +41,9 @@ function resolveArray(value: unknown): JsonValue[] | undefined {
   if (!Array.isArray(value)) {
     return undefined;
   }
-  return value.map((item: unknown) => (isJSONEncodable(item) ? item.toJSON() : (item as JsonValue)));
+  return value.map((item: unknown) =>
+    isJSONEncodable(item) ? item.toJSON() : (item as JsonValue),
+  );
 }
 
 function prepareResponsePayload(options: InteractionResponseOptions): JsonObject {

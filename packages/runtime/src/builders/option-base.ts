@@ -10,17 +10,17 @@ export abstract class BaseCommandOptionBuilder implements JSONEncodable<JsonObje
   }
 
   setName(name: string): this {
-    this.data['name'] = name;
+    this.data["name"] = name;
     return this;
   }
 
   setDescription(description: string): this {
-    this.data['description'] = description;
+    this.data["description"] = description;
     return this;
   }
 
   setRequired(required = true): this {
-    this.data['required'] = required;
+    this.data["required"] = required;
     return this;
   }
 

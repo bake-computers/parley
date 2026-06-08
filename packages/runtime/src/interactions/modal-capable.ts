@@ -12,11 +12,13 @@ export class ModalCapableInteraction<
   showModal(data: JsonObject | ModalBuilder): Promise<Result<JsonValue, DiscordApiError>> {
     const modal = data instanceof ModalBuilder ? data.toJSON() : data;
     if (!modal["custom_id"] || !modal["title"] || !modal["components"]) {
-      return Promise.resolve(interactionErrorResult(
-        "POST",
-        `/interactions/${this.id}/${this.token}/callback`,
-        "Modal payload is missing required fields",
-      ));
+      return Promise.resolve(
+        interactionErrorResult(
+          "POST",
+          `/interactions/${this.id}/${this.token}/callback`,
+          "Modal payload is missing required fields",
+        ),
+      );
     }
 
     const payload = {

@@ -8,32 +8,32 @@ export class ButtonBuilder implements JSONEncodable<JsonObject> {
   };
 
   setCustomId(customId: string): this {
-    this.data['custom_id'] = customId;
+    this.data["custom_id"] = customId;
     return this;
   }
 
   setLabel(label: string): this {
-    this.data['label'] = label;
+    this.data["label"] = label;
     return this;
   }
 
   setStyle(style: ButtonStyle): this {
-    this.data['style'] = style;
+    this.data["style"] = style;
     return this;
   }
 
   setURL(url: string): this {
-    this.data['url'] = url;
+    this.data["url"] = url;
     return this;
   }
 
   setEmoji(emoji: APIMessageComponentEmoji): this {
-    this.data['emoji'] = encodeValue(emoji);
+    this.data["emoji"] = encodeValue(emoji);
     return this;
   }
 
   setDisabled(disabled = true): this {
-    this.data['disabled'] = disabled;
+    this.data["disabled"] = disabled;
     return this;
   }
 

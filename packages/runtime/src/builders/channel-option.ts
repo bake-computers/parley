@@ -7,7 +7,7 @@ export class SlashCommandChannelOption extends BaseCommandOptionBuilder {
   }
 
   addChannelTypes(...channelTypes: ChannelType[]): this {
-    this.data['channel_types'] = channelTypes;
+    this.data["channel_types"] = channelTypes;
     return this;
   }
 }

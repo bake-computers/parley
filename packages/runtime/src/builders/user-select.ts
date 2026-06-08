@@ -12,32 +12,32 @@ export class UserSelectMenuBuilder implements JSONEncodable<JsonObject> {
   };
 
   setCustomId(customId: string): this {
-    this.data['custom_id'] = customId;
+    this.data["custom_id"] = customId;
     return this;
   }
 
   setPlaceholder(placeholder: string): this {
-    this.data['placeholder'] = placeholder;
+    this.data["placeholder"] = placeholder;
     return this;
   }
 
   setMinValues(minValues: number): this {
-    this.data['min_values'] = minValues;
+    this.data["min_values"] = minValues;
     return this;
   }
 
   setMaxValues(maxValues: number): this {
-    this.data['max_values'] = maxValues;
+    this.data["max_values"] = maxValues;
     return this;
   }
 
   setDisabled(disabled = true): this {
-    this.data['disabled'] = disabled;
+    this.data["disabled"] = disabled;
     return this;
   }
 
   setDefaultValues(...values: APISelectMenuDefaultValue<SelectMenuDefaultValueType.User>[]): this {
-    this.data['default_values'] = encodeValue(values);
+    this.data["default_values"] = encodeValue(values);
     return this;
   }
 

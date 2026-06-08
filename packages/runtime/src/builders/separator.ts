@@ -8,12 +8,12 @@ export class SeparatorBuilder implements JSONEncodable<JsonObject> {
   };
 
   setDivider(divider = true): this {
-    this.data['divider'] = divider;
+    this.data["divider"] = divider;
     return this;
   }
 
   setSpacing(spacing: SeparatorSpacingSize): this {
-    this.data['spacing'] = spacing;
+    this.data["spacing"] = spacing;
     return this;
   }
 

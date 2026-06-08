@@ -1,7 +1,4 @@
-import {
-  ComponentType,
-  type APIMessageComponentInteraction,
-} from "discord-api-types/v10";
+import { ComponentType, type APIMessageComponentInteraction } from "discord-api-types/v10";
 import { ModalCapableInteraction } from "./modal-capable.js";
 
 export class MessageComponentInteraction extends ModalCapableInteraction<APIMessageComponentInteraction> {
