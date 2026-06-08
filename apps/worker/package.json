@@ -6,8 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "dev": "wrangler dev",
-    "deploy": "wrangler deploy",
+    "deploy": "alchemy deploy",
     "typecheck": "tsc --noEmit",
     "lint": "oxlint .",
     "test": "bun test",
@@ -16,6 +15,7 @@
   "dependencies": {
     "@connectrpc/connect": "^2.0.0",
     "@connectrpc/connect-web": "^2.0.0",
+    "@parley/axiom": "workspace:*",
     "@parley/proto": "workspace:*",
     "@parley/runtime": "workspace:*",
     "hono": "^4.7.0"
@@ -23,8 +23,8 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260506.1",
     "@parley/tsconfig-base": "workspace:*",
+    "alchemy": "^0.93.9",
     "neverthrow": "^8.2.0",
-    "typescript": "^6.0.3",
-    "wrangler": "^4.14.0"
+    "typescript": "^6.0.3"
   }
 }
