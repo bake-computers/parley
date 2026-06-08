@@ -10,7 +10,9 @@ use crate::connect::{decode_body, detect_encoding, encode_ok};
 use crate::context::AppContext;
 use crate::db::Game as DbGame;
 use crate::db::models::Player;
-use crate::db::repos::{DiscordIdentityRepo, GuildMembershipRepo, PlayerRepo};
+use crate::db::repos::{
+    AccountDeletionCooldownRepo, DiscordIdentityRepo, GuildMembershipRepo, PlayerRepo,
+};
 use crate::proto::common::v1::{Error as ProtoError, Game as ProtoGame};
 use crate::proto::identity::v1::{
     LinkAccountRequest, LinkAccountResponse, LinkedIdentity, LookupByDiscordRequest,
@@ -126,6 +128,37 @@ pub async fn link_account_rpc(
             );
         }
     };
+
+    if let Some(secret) = std::env::var("ACCOUNT_DELETION_HMAC_SECRET")
+        .ok()
+        .filter(|s| !s.is_empty())
+    {
+        match AccountDeletionCooldownRepo::is_blocked(&mut conn, &req.discord_user_id, &secret)
+            .await
+        {
+            Ok(Some(until)) => {
+                let msg = format!("account deletion cooldown active until {until} ms since epoch");
+                ctx.axiom.log_error(
+                    "identity.link_account",
+                    "FailedPrecondition",
+                    &msg,
+                    Some("/parley.identity.v1.IdentityService/LinkAccount".into()),
+                );
+                return encode_ok(
+                    &LinkAccountResponse {
+                        success: false,
+                        error: Some(err("FailedPrecondition", msg)),
+                        ..Default::default()
+                    },
+                    enc,
+                );
+            }
+            Ok(None) => {}
+            Err(e) => {
+                tracing::warn!(error = %e, "deletion cooldown check failed (non-fatal)");
+            }
+        }
+    }
 
     let player = match PlayerRepo::upsert_by_identity(
         &mut conn,

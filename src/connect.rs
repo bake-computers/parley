@@ -95,6 +95,23 @@ pub fn build_router_with_context(ctx: AppContext) -> Router {
             "/parley.guild.v1.GuildSettingsService/UpsertMatchQuotas",
             post(crate::handlers::guild_settings::upsert_match_quotas_rpc),
         )
+        // User settings
+        .route(
+            "/parley.user.v1.UserSettingsService/GetUserSettings",
+            post(crate::handlers::user_settings::get_user_settings_rpc),
+        )
+        .route(
+            "/parley.user.v1.UserSettingsService/UpsertUserSettings",
+            post(crate::handlers::user_settings::upsert_user_settings_rpc),
+        )
+        .route(
+            "/parley.user.v1.UserSettingsService/ResolveLanguage",
+            post(crate::handlers::user_settings::resolve_language_rpc),
+        )
+        .route(
+            "/parley.user.v1.UserSettingsService/DeleteUserData",
+            post(crate::handlers::user_settings::delete_user_data_rpc),
+        )
         // Leaderboard
         .route(
             "/parley.leaderboard.v1.LeaderboardService/GetLeaderboard",

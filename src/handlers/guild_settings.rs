@@ -8,6 +8,7 @@ use axum::{body::Bytes, extract::State, http::HeaderMap, response::Response};
 use crate::connect::{decode_body, detect_encoding, encode_ok};
 use crate::context::AppContext;
 use crate::db::Game as DbGame;
+use crate::db::Language as DbLanguage;
 use crate::db::models::{
     NewGuildMatchQuota, NewGuildMatchmakingRules, NewGuildNotificationSettings, NewGuildSettings,
 };
@@ -15,7 +16,7 @@ use crate::db::repos::{
     GuildMatchQuotaRepo, GuildMatchmakingRulesRepo, GuildNotificationSettingsRepo,
     GuildSettingsRepo, now_ms,
 };
-use crate::proto::common::v1::{Error as ProtoError, Game as ProtoGame};
+use crate::proto::common::v1::{Error as ProtoError, Game as ProtoGame, Language as ProtoLanguage};
 use crate::proto::guild::v1::{
     GetGuildSettingsRequest, GetMatchQuotasRequest, GetMatchmakingRulesRequest,
     GetNotificationSettingsRequest, GuildMatchQuota as ProtoGuildMatchQuota,
@@ -37,6 +38,20 @@ fn proto_game_to_db(v: i32) -> Option<DbGame> {
 fn db_game_to_proto(g: DbGame) -> i32 {
     match g {
         DbGame::R6 => ProtoGame::R6 as i32,
+    }
+}
+
+fn proto_lang_to_db(v: i32) -> DbLanguage {
+    match ProtoLanguage::try_from(v).unwrap_or(ProtoLanguage::Unspecified) {
+        ProtoLanguage::De => DbLanguage::De,
+        ProtoLanguage::En | ProtoLanguage::Unspecified => DbLanguage::En,
+    }
+}
+
+fn db_lang_to_proto(lang: DbLanguage) -> i32 {
+    match lang {
+        DbLanguage::En => ProtoLanguage::En as i32,
+        DbLanguage::De => ProtoLanguage::De as i32,
     }
 }
 
@@ -133,6 +148,7 @@ pub async fn get_guild_settings_rpc(
             cross_guild_matchmaking: s.cross_guild_matchmaking,
             updated_at_ms: s.updated_at,
             updated_by_discord_user_id: s.updated_by_discord_user_id,
+            default_language: db_lang_to_proto(s.default_language),
         },
         Ok(None) => ProtoGuildSettings {
             guild_id: req.guild_id.clone(),
@@ -142,6 +158,7 @@ pub async fn get_guild_settings_rpc(
             cross_guild_matchmaking: true,
             updated_at_ms: 0,
             updated_by_discord_user_id: String::new(),
+            default_language: ProtoLanguage::En as i32,
         },
         Err(e) => {
             let msg = format!("get: {e}");
@@ -268,6 +285,7 @@ pub async fn upsert_guild_settings_rpc(
         cross_guild_matchmaking: s.cross_guild_matchmaking,
         updated_at: now_ms(),
         updated_by_discord_user_id: &s.updated_by_discord_user_id,
+        default_language: proto_lang_to_db(s.default_language),
     };
     let saved = match GuildSettingsRepo::upsert(&mut conn, new_row).await {
         Ok(r) => r,
@@ -301,6 +319,7 @@ pub async fn upsert_guild_settings_rpc(
                 cross_guild_matchmaking: saved.cross_guild_matchmaking,
                 updated_at_ms: saved.updated_at,
                 updated_by_discord_user_id: saved.updated_by_discord_user_id,
+                default_language: db_lang_to_proto(saved.default_language),
             }),
             error: None,
         },
