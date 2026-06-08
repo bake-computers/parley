@@ -23,9 +23,7 @@ export function LegalPage({ label, title, lastUpdated, children }: LegalPageProp
                 {title}
               </h1>
               {lastUpdated != null && (
-                <p className="mt-3 text-xs text-muted-foreground/60">
-                  Last updated: {lastUpdated}
-                </p>
+                <p className="mt-3 text-xs text-muted-foreground/60">Last updated: {lastUpdated}</p>
               )}
             </div>
 
