@@ -1,3 +1,4 @@
+import { axiomMiddleware, type AxiomVariables } from "@parley/axiom";
 import { Hono } from "hono";
 import { GlobalLeaderboard } from "./do/global-leaderboard.js";
 import {
@@ -11,7 +12,9 @@ import { metricToDoId, parseMetric } from "./types.js";
 
 export { GlobalLeaderboard };
 
-const app = new Hono<{ Bindings: Env }>();
+const app = new Hono<{ Bindings: Env; Variables: AxiomVariables }>();
+
+app.use("*", axiomMiddleware("bridge"));
 
 app.get("/health", (c) => c.json({ ok: true }));
 
@@ -76,8 +79,19 @@ app.get("/ws", async (c) => {
 
   const ip = c.req.header("CF-Connecting-IP") ?? "unknown";
   if (!checkConnectionRateLimit(ip)) {
+    c.var.axiom.logWs({
+      action: "rate_limited",
+      metric,
+      client_ip: ip,
+    });
     return c.text("Too Many Requests", 429);
   }
+
+  c.var.axiom.logWs({
+    action: "connect",
+    metric,
+    client_ip: ip,
+  });
 
   const stub = c.env.GLOBAL_LEADERBOARD.get(
     c.env.GLOBAL_LEADERBOARD.idFromName(metricToDoId(metric)),

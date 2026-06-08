@@ -1,3 +1,5 @@
+import type { AxiomEnv } from "@parley/axiom";
+
 export const METRICS = ["rank_points", "elo", "win_rate"] as const;
 
 export type LeaderboardMetric = (typeof METRICS)[number];
@@ -22,7 +24,7 @@ export interface WireMessage extends LeaderboardSnapshot {
   type: WireMessageType;
 }
 
-export interface Env {
+export interface Env extends AxiomEnv {
   GLOBAL_LEADERBOARD: DurableObjectNamespace;
   ENGINE_SERVICE_URL: string;
   ALLOWED_ORIGINS: string;

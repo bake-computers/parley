@@ -1,3 +1,4 @@
+import { createAxiomLogger } from "@parley/axiom";
 import { DurableObject } from "cloudflare:workers";
 import { fetchLeaderboard } from "../engine.js";
 import { hashEntries, shouldBroadcast } from "../hash.js";
@@ -52,15 +53,25 @@ export class GlobalLeaderboard extends DurableObject<Env> {
   }
 
   async alarm(): Promise<void> {
-    if (this.metric !== null) {
-      await this.refresh(this.metric, false);
+    const logger = createAxiomLogger(this.env, "bridge");
+    try {
+      if (this.metric !== null) {
+        await this.refresh(this.metric, false, logger);
+      }
+      await this.scheduleNextAlarm();
+    } finally {
+      this.ctx.waitUntil(logger.flush());
     }
-    await this.scheduleNextAlarm();
   }
 
   private async getSnapshot(metric: LeaderboardMetric): Promise<LeaderboardSnapshot> {
     if (this.snapshot === null || this.snapshot.metric !== metric) {
-      await this.refresh(metric, true);
+      const logger = createAxiomLogger(this.env, "bridge");
+      try {
+        await this.refresh(metric, true, logger);
+      } finally {
+        this.ctx.waitUntil(logger.flush());
+      }
     }
     return this.snapshot ?? emptySnapshot(metric);
   }
@@ -71,7 +82,12 @@ export class GlobalLeaderboard extends DurableObject<Env> {
       await this.scheduleNextAlarm();
     }
     if (this.metric !== null && this.snapshot === null) {
-      await this.refresh(this.metric, true);
+      const logger = createAxiomLogger(this.env, "bridge");
+      try {
+        await this.refresh(this.metric, true, logger);
+      } finally {
+        this.ctx.waitUntil(logger.flush());
+      }
     }
   }
 
@@ -81,8 +97,13 @@ export class GlobalLeaderboard extends DurableObject<Env> {
     await this.ctx.storage.setAlarm(Date.now() + interval);
   }
 
-  private async refresh(metric: LeaderboardMetric, force: boolean): Promise<void> {
+  private async refresh(
+    metric: LeaderboardMetric,
+    force: boolean,
+    logger: ReturnType<typeof createAxiomLogger>,
+  ): Promise<void> {
     const previousHash = this.snapshot?.hash ?? "";
+    const start = Date.now();
 
     try {
       const { entries, totalCount } = await fetchLeaderboard(this.env.ENGINE_SERVICE_URL, metric);
@@ -99,28 +120,72 @@ export class GlobalLeaderboard extends DurableObject<Env> {
         this.snapshot = nextSnapshot;
         await this.ctx.storage.put(SNAPSHOT_KEY, nextSnapshot);
         if (!force && previousHash.length > 0) {
-          this.broadcast(toWireMessage("update", nextSnapshot));
+          this.broadcast(toWireMessage("update", nextSnapshot), logger, metric);
         }
+        logger.logDo({
+          action: force ? "refresh_forced" : "refresh_broadcast",
+          metric,
+          duration_ms: Date.now() - start,
+          entry_count: entries.length,
+        });
       } else if (this.snapshot === null) {
         this.snapshot = nextSnapshot;
         await this.ctx.storage.put(SNAPSHOT_KEY, nextSnapshot);
+        logger.logDo({
+          action: "refresh_initialized",
+          metric,
+          duration_ms: Date.now() - start,
+          entry_count: entries.length,
+        });
+      } else {
+        logger.logDo({
+          action: "refresh_unchanged",
+          metric,
+          duration_ms: Date.now() - start,
+          entry_count: entries.length,
+        });
       }
     } catch (error) {
-      console.error("leaderboard refresh failed", error);
+      const message = error instanceof Error ? error.message : String(error);
+      logger.logDo({
+        action: "refresh_failed",
+        metric,
+        duration_ms: Date.now() - start,
+        error: message,
+      });
       if (this.snapshot === null) {
         this.snapshot = emptySnapshot(metric);
       }
     }
   }
 
-  private broadcast(message: WireMessage): void {
+  private broadcast(
+    message: WireMessage,
+    logger: ReturnType<typeof createAxiomLogger>,
+    metric: LeaderboardMetric,
+  ): void {
     const payload = JSON.stringify(message);
-    for (const socket of this.ctx.getWebSockets()) {
+    const sockets = this.ctx.getWebSockets();
+    let delivered = 0;
+
+    for (const socket of sockets) {
       try {
         socket.send(payload);
+        delivered += 1;
       } catch (error) {
-        console.error("leaderboard broadcast failed", error);
+        const errMessage = error instanceof Error ? error.message : String(error);
+        logger.logDo({
+          action: "broadcast_failed",
+          metric,
+          error: errMessage,
+        });
       }
     }
+
+    logger.logWs({
+      action: "broadcast",
+      metric,
+      connection_count: delivered,
+    });
   }
 }
