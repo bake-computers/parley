@@ -19,8 +19,8 @@ fn map_leaderboard_type(t: i32) -> LeaderboardKind {
 
 fn proto_entry(e: LeaderboardEntry) -> ProtoEntry {
     ProtoEntry {
-        player_id: e.player_id,
-        username: String::new(),
+        player_id: e.player_id.clone(),
+        username: e.player_id,
         rank: e.rank,
         score: e.score,
         matches: 0,
