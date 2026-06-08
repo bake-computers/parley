@@ -8,114 +8,170 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from "./routes/__root";
-import { Route as TermsRouteImport } from "./routes/terms";
-import { Route as PrivacyRouteImport } from "./routes/privacy";
-import { Route as LegalNoticeRouteImport } from "./routes/legal-notice";
-import { Route as LeaderboardRouteImport } from "./routes/leaderboard";
-import { Route as IndexRouteImport } from "./routes/index";
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as LegalNoticeRouteImport } from './routes/legal-notice'
+import { Route as LeaderboardRouteImport } from './routes/leaderboard'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiBridgeWsRouteImport } from './routes/api.bridge.ws'
+import { Route as ApiBridgeSnapshotRouteImport } from './routes/api.bridge.snapshot'
 
 const TermsRoute = TermsRouteImport.update({
-  id: "/terms",
-  path: "/terms",
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const PrivacyRoute = PrivacyRouteImport.update({
-  id: "/privacy",
-  path: "/privacy",
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const LegalNoticeRoute = LegalNoticeRouteImport.update({
-  id: "/legal-notice",
-  path: "/legal-notice",
+  id: '/legal-notice',
+  path: '/legal-notice',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const LeaderboardRoute = LeaderboardRouteImport.update({
-  id: "/leaderboard",
-  path: "/leaderboard",
+  id: '/leaderboard',
+  path: '/leaderboard',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const IndexRoute = IndexRouteImport.update({
-  id: "/",
-  path: "/",
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
+const ApiBridgeWsRoute = ApiBridgeWsRouteImport.update({
+  id: '/api/bridge/ws',
+  path: '/api/bridge/ws',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiBridgeSnapshotRoute = ApiBridgeSnapshotRouteImport.update({
+  id: '/api/bridge/snapshot',
+  path: '/api/bridge/snapshot',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
-  "/": typeof IndexRoute;
-  "/leaderboard": typeof LeaderboardRoute;
-  "/legal-notice": typeof LegalNoticeRoute;
-  "/privacy": typeof PrivacyRoute;
-  "/terms": typeof TermsRoute;
+  '/': typeof IndexRoute
+  '/leaderboard': typeof LeaderboardRoute
+  '/legal-notice': typeof LegalNoticeRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
+  '/api/bridge/snapshot': typeof ApiBridgeSnapshotRoute
+  '/api/bridge/ws': typeof ApiBridgeWsRoute
 }
 export interface FileRoutesByTo {
-  "/": typeof IndexRoute;
-  "/leaderboard": typeof LeaderboardRoute;
-  "/legal-notice": typeof LegalNoticeRoute;
-  "/privacy": typeof PrivacyRoute;
-  "/terms": typeof TermsRoute;
+  '/': typeof IndexRoute
+  '/leaderboard': typeof LeaderboardRoute
+  '/legal-notice': typeof LegalNoticeRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
+  '/api/bridge/snapshot': typeof ApiBridgeSnapshotRoute
+  '/api/bridge/ws': typeof ApiBridgeWsRoute
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport;
-  "/": typeof IndexRoute;
-  "/leaderboard": typeof LeaderboardRoute;
-  "/legal-notice": typeof LegalNoticeRoute;
-  "/privacy": typeof PrivacyRoute;
-  "/terms": typeof TermsRoute;
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/leaderboard': typeof LeaderboardRoute
+  '/legal-notice': typeof LegalNoticeRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
+  '/api/bridge/snapshot': typeof ApiBridgeSnapshotRoute
+  '/api/bridge/ws': typeof ApiBridgeWsRoute
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath;
-  fullPaths: "/" | "/leaderboard" | "/legal-notice" | "/privacy" | "/terms";
-  fileRoutesByTo: FileRoutesByTo;
-  to: "/" | "/leaderboard" | "/legal-notice" | "/privacy" | "/terms";
-  id: "__root__" | "/" | "/leaderboard" | "/legal-notice" | "/privacy" | "/terms";
-  fileRoutesById: FileRoutesById;
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths:
+    | '/'
+    | '/leaderboard'
+    | '/legal-notice'
+    | '/privacy'
+    | '/terms'
+    | '/api/bridge/snapshot'
+    | '/api/bridge/ws'
+  fileRoutesByTo: FileRoutesByTo
+  to:
+    | '/'
+    | '/leaderboard'
+    | '/legal-notice'
+    | '/privacy'
+    | '/terms'
+    | '/api/bridge/snapshot'
+    | '/api/bridge/ws'
+  id:
+    | '__root__'
+    | '/'
+    | '/leaderboard'
+    | '/legal-notice'
+    | '/privacy'
+    | '/terms'
+    | '/api/bridge/snapshot'
+    | '/api/bridge/ws'
+  fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute;
-  LeaderboardRoute: typeof LeaderboardRoute;
-  LegalNoticeRoute: typeof LegalNoticeRoute;
-  PrivacyRoute: typeof PrivacyRoute;
-  TermsRoute: typeof TermsRoute;
+  IndexRoute: typeof IndexRoute
+  LeaderboardRoute: typeof LeaderboardRoute
+  LegalNoticeRoute: typeof LegalNoticeRoute
+  PrivacyRoute: typeof PrivacyRoute
+  TermsRoute: typeof TermsRoute
+  ApiBridgeSnapshotRoute: typeof ApiBridgeSnapshotRoute
+  ApiBridgeWsRoute: typeof ApiBridgeWsRoute
 }
 
-declare module "@tanstack/react-router" {
+declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    "/terms": {
-      id: "/terms";
-      path: "/terms";
-      fullPath: "/terms";
-      preLoaderRoute: typeof TermsRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/privacy": {
-      id: "/privacy";
-      path: "/privacy";
-      fullPath: "/privacy";
-      preLoaderRoute: typeof PrivacyRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/legal-notice": {
-      id: "/legal-notice";
-      path: "/legal-notice";
-      fullPath: "/legal-notice";
-      preLoaderRoute: typeof LegalNoticeRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/leaderboard": {
-      id: "/leaderboard";
-      path: "/leaderboard";
-      fullPath: "/leaderboard";
-      preLoaderRoute: typeof LeaderboardRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/": {
-      id: "/";
-      path: "/";
-      fullPath: "/";
-      preLoaderRoute: typeof IndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal-notice': {
+      id: '/legal-notice'
+      path: '/legal-notice'
+      fullPath: '/legal-notice'
+      preLoaderRoute: typeof LegalNoticeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/leaderboard': {
+      id: '/leaderboard'
+      path: '/leaderboard'
+      fullPath: '/leaderboard'
+      preLoaderRoute: typeof LeaderboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/bridge/ws': {
+      id: '/api/bridge/ws'
+      path: '/api/bridge/ws'
+      fullPath: '/api/bridge/ws'
+      preLoaderRoute: typeof ApiBridgeWsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/bridge/snapshot': {
+      id: '/api/bridge/snapshot'
+      path: '/api/bridge/snapshot'
+      fullPath: '/api/bridge/snapshot'
+      preLoaderRoute: typeof ApiBridgeSnapshotRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -125,16 +181,18 @@ const rootRouteChildren: RootRouteChildren = {
   LegalNoticeRoute: LegalNoticeRoute,
   PrivacyRoute: PrivacyRoute,
   TermsRoute: TermsRoute,
-};
+  ApiBridgeSnapshotRoute: ApiBridgeSnapshotRoute,
+  ApiBridgeWsRoute: ApiBridgeWsRoute,
+}
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>();
+  ._addFileTypes<FileRouteTypes>()
 
-import type { getRouter } from "./router.tsx";
-import type { createStart } from "@tanstack/react-start";
-declare module "@tanstack/react-start" {
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
   interface Register {
-    ssr: true;
-    router: Awaited<ReturnType<typeof getRouter>>;
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
   }
 }

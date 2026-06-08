@@ -23,18 +23,12 @@ export const METRIC_LABELS: Record<LeaderboardMetric, string> = {
   win_rate: "Win Rate",
 };
 
-export function getBridgeBaseUrl(): string {
-  const configured = import.meta.env.VITE_LEADERBOARD_BRIDGE_URL;
-  if (typeof configured === "string" && configured.length > 0) {
-    return configured.replace(/\/$/, "");
-  }
-  return "http://localhost:8788";
-}
+export const BRIDGE_SNAPSHOT_PATH = "/api/bridge/snapshot";
+export const BRIDGE_WS_PATH = "/api/bridge/ws";
 
-export function toWebSocketUrl(baseUrl: string, path: string, metric: LeaderboardMetric): string {
-  const url = new URL(baseUrl);
-  url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
-  url.pathname = path;
+export function toWebSocketUrl(path: string, metric: LeaderboardMetric): string {
+  const protocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+  const url = new URL(`${protocol}//${window.location.host}${path}`);
   url.searchParams.set("type", metric);
   return url.toString();
 }

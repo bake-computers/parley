@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import {
-  getBridgeBaseUrl,
+  BRIDGE_SNAPSHOT_PATH,
+  BRIDGE_WS_PATH,
   type LeaderboardMetric,
   type LeaderboardSnapshot,
   toWebSocketUrl,
@@ -21,7 +22,6 @@ export function useLeaderboardStream(metric: LeaderboardMetric): LeaderboardStre
   const [status, setStatus] = useState<LeaderboardConnectionStatus>("loading");
 
   useEffect(() => {
-    const bridgeBaseUrl = getBridgeBaseUrl();
     let cancelled = false;
     let socket: WebSocket | null = null;
     let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
@@ -46,7 +46,7 @@ export function useLeaderboardStream(metric: LeaderboardMetric): LeaderboardStre
       clearReconnectTimer();
       socket?.close();
 
-      const wsUrl = toWebSocketUrl(bridgeBaseUrl, "/ws", metric);
+      const wsUrl = toWebSocketUrl(BRIDGE_WS_PATH, metric);
       socket = new WebSocket(wsUrl);
 
       socket.addEventListener("open", () => {
@@ -92,7 +92,7 @@ export function useLeaderboardStream(metric: LeaderboardMetric): LeaderboardStre
     const bootstrap = async () => {
       setStatus("loading");
       try {
-        const response = await fetch(`${bridgeBaseUrl}/snapshot?type=${metric}`);
+        const response = await fetch(`${BRIDGE_SNAPSHOT_PATH}?type=${metric}`);
         if (response.ok) {
           const parsed = (await response.json()) as LeaderboardSnapshot;
           applySnapshot(parsed);
