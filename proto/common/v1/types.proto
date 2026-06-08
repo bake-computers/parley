@@ -73,6 +73,12 @@ enum Game {
   GAME_BRAWL_STARS = 2;
 }
 
+enum Language {
+  LANGUAGE_UNSPECIFIED = 0;
+  LANGUAGE_EN          = 1;
+  LANGUAGE_DE          = 2;
+}
+
 message Error {
   string code    = 1; // machine-readable e.g. "SCAN_PARSE_FAILED"
   string message = 2; // human-readable detail

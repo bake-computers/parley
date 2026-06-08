@@ -13,6 +13,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         proto_root.join("guild/v1/guild.proto"),
         proto_root.join("stats/v1/stats.proto"),
         proto_root.join("leaderboard/v1/leaderboard.proto"),
+        proto_root.join("user/v1/user.proto"),
     ];
 
     for p in &protos {

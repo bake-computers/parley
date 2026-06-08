@@ -1,0 +1,85 @@
+syntax = "proto3";
+
+package parley.user.v1;
+
+import "common/v1/types.proto";
+
+option java_package = "bot.parley.user.v1";
+
+// Per-Discord-user preferences (global, not per-game).
+//
+// Language resolution order: user setting → guild default → en.
+service UserSettingsService {
+  rpc GetUserSettings(GetUserSettingsRequest)       returns (UserSettingsResponse);
+  rpc UpsertUserSettings(UpsertUserSettingsRequest) returns (UserSettingsResponse);
+  rpc ResolveLanguage(ResolveLanguageRequest)       returns (ResolveLanguageResponse);
+  rpc DeleteUserData(DeleteUserDataRequest)         returns (DeleteUserDataResponse);
+}
+
+message UserSettings {
+  string discord_user_id           = 1;
+  parley.common.v1.Language language = 2;
+  int64  updated_at_ms             = 3;
+}
+
+message GetUserSettingsRequest {
+  string discord_user_id = 1;
+}
+
+message UpsertUserSettingsRequest {
+  UserSettings settings = 1;
+}
+
+message UserSettingsResponse {
+  bool success                 = 1;
+  UserSettings settings        = 2;
+  parley.common.v1.Error error = 3;
+}
+
+enum LanguageSource {
+  LANGUAGE_SOURCE_UNSPECIFIED = 0;
+  LANGUAGE_SOURCE_USER        = 1;
+  LANGUAGE_SOURCE_GUILD       = 2;
+  LANGUAGE_SOURCE_DEFAULT     = 3;
+}
+
+message ResolveLanguageRequest {
+  string discord_user_id     = 1;
+  // When set together with game, guild default_language is used as fallback.
+  string guild_id            = 2;
+  parley.common.v1.Game game = 3;
+}
+
+message ResolveLanguageResponse {
+  bool success                       = 1;
+  parley.common.v1.Language language = 2;
+  LanguageSource source              = 3;
+  parley.common.v1.Error error       = 4;
+}
+
+message DeleteUserDataRequest {
+  string discord_user_id = 1;
+}
+
+message AnonymizationCounts {
+  int32 players                        = 1;
+  int32 discord_identities             = 2;
+  int32 guild_memberships              = 3;
+  int32 matches                        = 4;
+  int32 match_participants             = 5;
+  int32 matchmaking_queues             = 6;
+  int32 matchmaking_queue_participants = 7;
+  int32 tournaments                    = 8;
+  int32 tournament_teams               = 9;
+  int32 tournament_team_rosters        = 10;
+  int32 guild_settings_audit           = 11;
+  int32 guild_match_quotas_audit       = 12;
+}
+
+message DeleteUserDataResponse {
+  bool success                       = 1;
+  string anonymized_discord_user_id  = 2;
+  int64  cooldown_until_ms           = 3;
+  AnonymizationCounts tables_affected = 4;
+  parley.common.v1.Error error       = 5;
+}

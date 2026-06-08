@@ -27,3 +27,9 @@ pub mod leaderboard {
         include!(concat!(env!("OUT_DIR"), "/parley.leaderboard.v1.rs"));
     }
 }
+
+pub mod user {
+    pub mod v1 {
+        include!(concat!(env!("OUT_DIR"), "/parley.user.v1.rs"));
+    }
+}

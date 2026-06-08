@@ -34,6 +34,7 @@ message GuildSettings {
   bool   cross_guild_matchmaking   = 5;
   int64  updated_at_ms             = 6;
   string updated_by_discord_user_id = 7;
+  parley.common.v1.Language default_language = 8;
 }
 
 message GetGuildSettingsRequest {
