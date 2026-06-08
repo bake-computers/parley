@@ -1,0 +1,1 @@
+ALTER TABLE guild_memberships DROP COLUMN rating_deviation;
