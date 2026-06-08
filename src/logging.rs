@@ -8,6 +8,8 @@
 //!   AXIOM_TOKEN         — required API token
 //!   AXIOM_DATASET      — dataset name (default: "parley")
 //!   AXIOM_ORG_ID       — organization ID (optional)
+//!   AXIOM_EDGE         — edge deployment domain (e.g. eu-central-1.aws.edge.axiom.co)
+//!   AXIOM_EDGE_URL     — full edge ingest URL (optional, overrides AXIOM_EDGE)
 //!   AXIOM_BATCH_SIZE   — max events per batch (default: 100)
 //!   AXIOM_FLUSH_MS     — flush interval ms (default: 1000)
 //!   AXIOM_BUFFER       — channel capacity (default: 2048)
