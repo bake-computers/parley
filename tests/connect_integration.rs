@@ -32,12 +32,16 @@ mod db_repos;
 mod db_schema;
 #[path = "../src/fetch.rs"]
 mod fetch;
+#[path = "../src/guild_cache.rs"]
+mod guild_cache;
 #[path = "../src/handlers/mod.rs"]
 mod handlers;
 #[path = "../src/leaderboard.rs"]
 mod leaderboard;
 #[path = "../src/logging.rs"]
 mod logging;
+#[path = "../src/matchmaking/mod.rs"]
+mod matchmaking;
 #[path = "../src/nuxt.rs"]
 mod nuxt;
 #[path = "../src/proto.rs"]
@@ -46,8 +50,12 @@ mod proto;
 mod scrape;
 #[path = "../src/stats_metrics.rs"]
 mod stats_metrics;
+#[path = "../src/stats_persist.rs"]
+mod stats_persist;
 #[path = "../src/stats_proto.rs"]
 mod stats_proto;
+#[path = "../src/tourney/mod.rs"]
+mod tourney;
 
 async fn spawn_test_server() -> SocketAddr {
     let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();

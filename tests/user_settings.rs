@@ -49,6 +49,7 @@ async fn resolve_language_user_overrides_guild_default() {
             language: Language::De,
             created_at: now,
             updated_at: now,
+            matchmaking_enabled: false,
         },
     )
     .await
@@ -65,6 +66,7 @@ async fn resolve_language_user_overrides_guild_default() {
             updated_at: now,
             updated_by_discord_user_id: &discord_id,
             default_language: Language::En,
+            matchmaking_enabled: true,
         },
     )
     .await
@@ -75,6 +77,7 @@ async fn resolve_language_user_overrides_guild_default() {
         .expect("get user")
         .expect("user row");
     assert_eq!(user_row.language, Language::De);
+    assert!(!user_row.matchmaking_enabled);
 
     let guild_row = GuildSettingsRepo::get(&mut conn, &guild_id, Game::R6)
         .await
@@ -93,16 +96,10 @@ async fn delete_anonymizes_and_blocks_relink() {
     let secret = std::env::var("ACCOUNT_DELETION_HMAC_SECRET").expect("secret");
     let discord_id = format!("delete_user_{}", uuid::Uuid::new_v4());
 
-    let player = PlayerRepo::upsert_by_identity(
-        &mut conn,
-        Game::R6,
-        "TestPlayer",
-        "uplay",
-        None,
-        None,
-    )
-    .await
-    .expect("upsert player");
+    let player =
+        PlayerRepo::upsert_by_identity(&mut conn, Game::R6, "TestPlayer", "uplay", None, None)
+            .await
+            .expect("upsert player");
 
     DiscordIdentityRepo::link(&mut conn, Game::R6, &discord_id, player.id)
         .await
