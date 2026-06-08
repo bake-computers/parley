@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
-    "composite": true
+    "composite": true,
+    "types": ["bun-types"]
   },
-  "include": ["alchemy.run.ts", "scripts/**/*.ts"],
+  "include": ["alchemy.run.ts"],
   "references": [{ "path": "./packages/tsconfig-base" }, { "path": "./packages/runtime" }]
 }
