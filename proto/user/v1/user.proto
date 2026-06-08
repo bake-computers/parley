@@ -20,6 +20,7 @@ message UserSettings {
   string discord_user_id           = 1;
   parley.common.v1.Language language = 2;
   int64  updated_at_ms             = 3;
+  bool   matchmaking_enabled       = 4;
 }
 
 message GetUserSettingsRequest {

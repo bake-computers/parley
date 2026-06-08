@@ -1,0 +1,179 @@
+syntax = "proto3";
+
+package parley.matchmaking.v1;
+
+import "common/v1/types.proto";
+
+option java_package = "bot.parley.matchmaking.v1";
+
+service MatchmakingService {
+  rpc BuildTeams(BuildTeamsRequest) returns (BuildTeamsResponse);
+  rpc ListGuildMembers(ListGuildMembersRequest) returns (ListGuildMembersResponse);
+  rpc JoinQueue(JoinQueueRequest) returns (JoinQueueResponse);
+  rpc LeaveQueue(LeaveQueueRequest) returns (LeaveQueueResponse);
+  rpc GetQueueStatus(GetQueueStatusRequest) returns (GetQueueStatusResponse);
+  rpc CreateCustomMatch(CreateCustomMatchRequest) returns (CreateCustomMatchResponse);
+  rpc ReportMatchResult(ReportMatchResultRequest) returns (ReportMatchResultResponse);
+  rpc GetMatch(GetMatchRequest) returns (GetMatchResponse);
+}
+
+message BuildTeamsRequest {
+  string guild_id = 1;
+  parley.common.v1.Game game = 2;
+  repeated string discord_user_ids = 3;
+  int32  team_size = 4;
+}
+
+message TeamAssignment {
+  string discord_user_id = 1;
+  int32  player_id = 2;
+  string username = 3;
+  string platform = 4;
+  double balance_rating = 5;
+  double mu = 6;
+  double phi = 7;
+  double cpr = 8;
+}
+
+message BuildTeamsResponse {
+  bool success = 1;
+  repeated TeamAssignment team_a = 2;
+  repeated TeamAssignment team_b = 3;
+  double win_probability = 4;
+  double balance_gap = 5;
+  double expected_lobby_cpr = 6;
+  parley.common.v1.Error error = 7;
+}
+
+message GuildMember {
+  string discord_user_id = 1;
+  int32  player_id = 2;
+  string username = 3;
+  string platform = 4;
+  double internal_elo = 5;
+}
+
+message ListGuildMembersRequest {
+  string guild_id = 1;
+  parley.common.v1.Game game = 2;
+  string query = 3;
+  int32  limit = 4;
+}
+
+message ListGuildMembersResponse {
+  bool success = 1;
+  repeated GuildMember members = 2;
+  parley.common.v1.Error error = 3;
+}
+
+message JoinQueueRequest {
+  string guild_id = 1;
+  string channel_id = 2;
+  string captain_discord_user_id = 3;
+  parley.common.v1.Game game = 4;
+  repeated string discord_user_ids = 5;
+  int32  team_size = 6;
+}
+
+message JoinQueueResponse {
+  bool success = 1;
+  string status = 2;
+  int32  queue_id = 3;
+  int32  match_id = 4;
+  repeated TeamAssignment team_a = 5;
+  repeated TeamAssignment team_b = 6;
+  double win_probability = 7;
+  int32  pool_waiting_players = 8;
+  parley.common.v1.Error error = 9;
+}
+
+message LeaveQueueRequest {
+  string captain_discord_user_id = 1;
+  parley.common.v1.Game game = 2;
+}
+
+message LeaveQueueResponse {
+  bool success = 1;
+  parley.common.v1.Error error = 2;
+}
+
+message GetQueueStatusRequest {
+  string discord_user_id = 1;
+  string guild_id = 2;
+  parley.common.v1.Game game = 3;
+  int32  team_size = 4;
+}
+
+message GetQueueStatusResponse {
+  bool success = 1;
+  string status = 2;
+  int32  queue_id = 3;
+  int32  match_id = 4;
+  int32  pool_waiting_players = 5;
+  int32  pool_waiting_stacks = 6;
+  parley.common.v1.Error error = 7;
+}
+
+message CreateCustomMatchRequest {
+  string guild_id = 1;
+  string channel_id = 2;
+  string created_by_discord_user_id = 3;
+  parley.common.v1.Game game = 4;
+  repeated string discord_user_ids = 5;
+  int32  team_size = 6;
+}
+
+message CreateCustomMatchResponse {
+  bool success = 1;
+  int32  match_id = 2;
+  repeated TeamAssignment team_a = 3;
+  repeated TeamAssignment team_b = 4;
+  double win_probability = 5;
+  double balance_gap = 6;
+  parley.common.v1.Error error = 7;
+}
+
+message MatchParticipant {
+  string discord_user_id = 1;
+  int32  player_id = 2;
+  string team = 3;
+  int32  slot = 4;
+  string username = 5;
+  double balance_rating = 6;
+}
+
+message Match {
+  int32  id = 1;
+  string guild_id = 2;
+  string channel_id = 3;
+  string status = 4;
+  string match_type = 5;
+  string winning_team = 6;
+  double balance_gap = 7;
+  int64  created_at_ms = 8;
+  repeated MatchParticipant participants = 9;
+}
+
+message ReportMatchResultRequest {
+  int32  match_id = 1;
+  parley.common.v1.Game game = 2;
+  string winning_team = 3;
+  string reported_by_discord_user_id = 4;
+}
+
+message ReportMatchResultResponse {
+  bool success = 1;
+  Match match = 2;
+  parley.common.v1.Error error = 3;
+}
+
+message GetMatchRequest {
+  int32  match_id = 1;
+  parley.common.v1.Game game = 2;
+}
+
+message GetMatchResponse {
+  bool success = 1;
+  Match match = 2;
+  parley.common.v1.Error error = 3;
+}

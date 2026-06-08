@@ -1,0 +1,165 @@
+syntax = "proto3";
+
+package parley.tournament.v1;
+
+import "common/v1/types.proto";
+import "matchmaking/v1/matchmaking.proto";
+
+option java_package = "bot.parley.tournament.v1";
+
+service TournamentService {
+  rpc CreateTournament(CreateTournamentRequest) returns (TournamentResponse);
+  rpc GetTournament(GetTournamentRequest) returns (TournamentResponse);
+  rpc ListTournaments(ListTournamentsRequest) returns (ListTournamentsResponse);
+  rpc RegisterTeam(RegisterTeamRequest) returns (TeamResponse);
+  rpc UpdateTeamRoster(UpdateTeamRosterRequest) returns (TeamResponse);
+  rpc UnregisterTeam(UnregisterTeamRequest) returns (TeamResponse);
+  rpc StartTournament(StartTournamentRequest) returns (TournamentResponse);
+  rpc ReportBracketResult(ReportBracketResultRequest) returns (BracketMatchResponse);
+  rpc CancelTournament(CancelTournamentRequest) returns (TournamentResponse);
+}
+
+message Tournament {
+  int32  id = 1;
+  parley.common.v1.Game game = 2;
+  string name = 3;
+  string format = 4;
+  int32  team_cap = 5;
+  string visibility = 6;
+  string status = 7;
+  string created_by_guild_id = 8;
+  string created_by_channel_id = 9;
+  string created_by_discord_user_id = 10;
+  int64  started_at_ms = 11;
+  int64  completed_at_ms = 12;
+  int32  winner_team_id = 13;
+  int64  created_at_ms = 14;
+  int64  updated_at_ms = 15;
+  repeated TournamentTeam teams = 16;
+  repeated BracketMatch bracket_matches = 17;
+}
+
+message TournamentTeam {
+  int32  id = 1;
+  int32  tournament_id = 2;
+  string guild_id = 3;
+  string channel_id = 4;
+  string captain_discord_user_id = 5;
+  string team_name = 6;
+  string status = 7;
+  int32  seed_number = 8;
+  double stack_balance_average = 9;
+  repeated parley.matchmaking.v1.TeamAssignment roster = 10;
+}
+
+message BracketMatch {
+  int32  id = 1;
+  int32  tournament_id = 2;
+  string bracket = 3;
+  int32  round_number = 4;
+  int32  match_number = 5;
+  string status = 6;
+  int32  team_a_id = 7;
+  int32  team_b_id = 8;
+  int32  winner_team_id = 9;
+  int32  loser_team_id = 10;
+  int32  winner_to_match_id = 11;
+  string winner_to_slot = 12;
+  int32  loser_to_match_id = 13;
+  string loser_to_slot = 14;
+  int32  custom_match_id = 15;
+}
+
+message CreateTournamentRequest {
+  string guild_id = 1;
+  string channel_id = 2;
+  string created_by_discord_user_id = 3;
+  parley.common.v1.Game game = 4;
+  string name = 5;
+  string format = 6;
+  int32  team_cap = 7;
+  string visibility = 8;
+}
+
+message GetTournamentRequest {
+  int32  tournament_id = 1;
+  parley.common.v1.Game game = 2;
+}
+
+message ListTournamentsRequest {
+  string guild_id = 1;
+  parley.common.v1.Game game = 2;
+  string status = 3;
+  int32  limit = 4;
+}
+
+message ListTournamentsResponse {
+  bool success = 1;
+  repeated Tournament tournaments = 2;
+  parley.common.v1.Error error = 3;
+}
+
+message RegisterTeamRequest {
+  int32  tournament_id = 1;
+  parley.common.v1.Game game = 2;
+  string guild_id = 3;
+  string channel_id = 4;
+  string captain_discord_user_id = 5;
+  string team_name = 6;
+  repeated string discord_user_ids = 7;
+}
+
+message UpdateTeamRosterRequest {
+  int32  tournament_id = 1;
+  int32  team_id = 2;
+  parley.common.v1.Game game = 3;
+  string captain_discord_user_id = 4;
+  repeated string discord_user_ids = 5;
+}
+
+message UnregisterTeamRequest {
+  int32  tournament_id = 1;
+  int32  team_id = 2;
+  parley.common.v1.Game game = 3;
+  string captain_discord_user_id = 4;
+}
+
+message StartTournamentRequest {
+  int32  tournament_id = 1;
+  parley.common.v1.Game game = 2;
+  int32  min_teams = 3;
+}
+
+message ReportBracketResultRequest {
+  int32  bracket_match_id = 1;
+  parley.common.v1.Game game = 2;
+  int32  winner_team_id = 3;
+  bool   create_scrim_match = 4;
+  string channel_id = 5;
+  string created_by_discord_user_id = 6;
+}
+
+message CancelTournamentRequest {
+  int32  tournament_id = 1;
+  parley.common.v1.Game game = 2;
+  string cancelled_by_discord_user_id = 3;
+}
+
+message TournamentResponse {
+  bool success = 1;
+  Tournament tournament = 2;
+  parley.common.v1.Error error = 3;
+}
+
+message TeamResponse {
+  bool success = 1;
+  TournamentTeam team = 2;
+  parley.common.v1.Error error = 3;
+}
+
+message BracketMatchResponse {
+  bool success = 1;
+  BracketMatch bracket_match = 2;
+  Tournament tournament = 3;
+  parley.common.v1.Error error = 4;
+}

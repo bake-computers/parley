@@ -35,6 +35,7 @@ message GuildSettings {
   int64  updated_at_ms             = 6;
   string updated_by_discord_user_id = 7;
   parley.common.v1.Language default_language = 8;
+  bool   matchmaking_enabled = 9;
 }
 
 message GetGuildSettingsRequest {
