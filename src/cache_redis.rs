@@ -118,8 +118,7 @@ impl StatsCacheStore for RedisStatsCacheStore {
         let stale = stale_key(game, username, platform, season);
 
         let mut conn = self.conn.clone();
-        let fields: HashMap<String, String> =
-            conn.hgetall(&fresh).await.unwrap_or_default();
+        let fields: HashMap<String, String> = conn.hgetall(&fresh).await.unwrap_or_default();
         if let Some(stats) = stats_from_hash(&fields) {
             return Ok(CachedStats {
                 stats,
@@ -159,7 +158,8 @@ impl StatsCacheStore for RedisStatsCacheStore {
             Ok(stats) => {
                 let profile_json = serde_json::to_string(&stats.profile).unwrap_or_default();
                 let ranked_json = serde_json::to_string(&stats.ranked_stats).unwrap_or_default();
-                let metrics_json = serde_json::to_string(&stats.calculated_metrics).unwrap_or_default();
+                let metrics_json =
+                    serde_json::to_string(&stats.calculated_metrics).unwrap_or_default();
                 let ttl_secs = self.cfg.ttl_for(game).as_secs() as i64;
                 let grace_secs = self.cfg.stale_grace.as_secs() as i64;
                 let mut conn = self.conn.clone();
@@ -219,8 +219,7 @@ impl StatsCacheStore for RedisStatsCacheStore {
         let key = collection_key(game, username, platform);
 
         let mut conn = self.conn.clone();
-        let fields: HashMap<String, String> =
-            conn.hgetall(&key).await.unwrap_or_default();
+        let fields: HashMap<String, String> = conn.hgetall(&key).await.unwrap_or_default();
         if let Some(collection) = collection_from_hash(&fields) {
             return Ok(collection);
         }

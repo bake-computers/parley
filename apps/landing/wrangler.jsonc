@@ -11,13 +11,13 @@
   "observability": {
     "enabled": true,
   },
-  "routes": [
-    {
-      "custom_domain": true,
-      "pattern": "parley.bot",
-      "enabled": true,
-    },
-  ],
+  // "routes": [
+  //   {
+  //     "custom_domain": true,
+  //     "pattern": "parley.bot",
+  //     "enabled": true,
+  //   },
+  // ],
   /**
    * Smart Placement
    * https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
