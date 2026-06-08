@@ -9,6 +9,6 @@
   // Set ENGINE_SERVICE_HOSTNAME in Cloudflare dashboard vars to your Dutch backend hostname (e.g. "engine.example.com").
   "vars": {
     "ENGINE_SERVICE_URL": "http://localhost:50051",
-    "DISCORD_APPLICATION_ID": ""
-  }
+    "DISCORD_APPLICATION_ID": "",
+  },
 }

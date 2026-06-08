@@ -119,9 +119,7 @@ describe("profileCommand", () => {
 
   it("shows error embed when RPC fails", async () => {
     const mockClient = createMockIdentityClient();
-    mockClient.lookupByDiscord.mockResolvedValue(
-      err(new ConnectError("backend unreachable", 14)),
-    );
+    mockClient.lookupByDiscord.mockResolvedValue(err(new ConnectError("backend unreachable", 14)));
 
     mock.module("../transport.js", () => ({
       getIdentityClient: () => mockClient,

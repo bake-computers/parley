@@ -19,11 +19,11 @@ export interface MockIdentityClient {
 
 export function createMockIdentityClient(): MockIdentityClient {
   return {
-    linkAccount: mock<
-      (req: LinkAccountRequest) => Promise<Result<LinkAccountResponse, ConnectError>>
-    >(),
-    lookupByDiscord: mock<
-      (req: LookupByDiscordRequest) => Promise<Result<LookupByDiscordResponse, ConnectError>>
-    >(),
+    linkAccount:
+      mock<(req: LinkAccountRequest) => Promise<Result<LinkAccountResponse, ConnectError>>>(),
+    lookupByDiscord:
+      mock<
+        (req: LookupByDiscordRequest) => Promise<Result<LookupByDiscordResponse, ConnectError>>
+      >(),
   };
 }

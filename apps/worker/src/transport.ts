@@ -2,6 +2,7 @@ import { createClient } from "@connectrpc/connect";
 import { createConnectTransport } from "@connectrpc/connect-web";
 import { IdentityService } from "@parley/proto/identity/v1/identity_pb.js";
 import { GuildSettingsService } from "@parley/proto/guild/v1/guild_pb.js";
+import { MatchmakingService } from "@parley/proto/matchmaking/v1/matchmaking_pb.js";
 
 const clientCache = new Map<string, unknown>();
 
@@ -31,6 +32,21 @@ export function getGuildSettingsClient(baseUrl: string) {
     jsonOptions: { enumAsInteger: true },
   });
   const client = createClient(GuildSettingsService as never, transport);
+  clientCache.set(key, client);
+  return client;
+}
+
+export function getMatchmakingClient(baseUrl: string) {
+  const key = `${MatchmakingService.typeName}:${baseUrl}`;
+  const cached = clientCache.get(key);
+  if (cached !== undefined) {
+    return cached;
+  }
+  const transport = createConnectTransport({
+    baseUrl,
+    jsonOptions: { enumAsInteger: true },
+  });
+  const client = createClient(MatchmakingService as never, transport);
   clientCache.set(key, client);
   return client;
 }

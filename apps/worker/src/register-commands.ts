@@ -26,7 +26,14 @@ if (!token || !applicationId) {
 console.log(`Registering commands for application ${applicationId}...`);
 
 const [pingCommand, helpCommand, linkCommand, profileCommand] = await loadCommands();
-const result = await registerApplicationCommands(token, applicationId, pingCommand, helpCommand, linkCommand, profileCommand);
+const result = await registerApplicationCommands(
+  token,
+  applicationId,
+  pingCommand,
+  helpCommand,
+  linkCommand,
+  profileCommand,
+);
 
 if (result.isErr()) {
   console.error(`Failed to register commands: ${result.error.message}`);

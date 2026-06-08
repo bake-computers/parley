@@ -12,6 +12,7 @@ type IdentityClient = {
     game: number;
     username: string;
     platform: string;
+    guildId?: string;
   }): Promise<Result<LinkAccountResponse, ConnectError>>;
 };
 
@@ -19,10 +20,7 @@ export const linkCommand = new SlashCommand()
   .setName("link")
   .setDescription("Link your Discord account to your game account")
   .addStringOption((option) =>
-    option
-      .setName("username")
-      .setDescription("Your in-game username")
-      .setRequired(true),
+    option.setName("username").setDescription("Your in-game username").setRequired(true),
   )
   .addStringOption((option) =>
     option
@@ -38,10 +36,7 @@ export const linkCommand = new SlashCommand()
   .addHandler(async (interaction) => {
     if (!interaction.user) {
       await interaction.deferReply(true);
-      const embed = createErrorEmbed(
-        "Link Failed",
-        "Could not identify Discord user.",
-      );
+      const embed = createErrorEmbed("Link Failed", "Could not identify Discord user.");
       await interaction.editReply({ embeds: [embed.toJSON()] });
       return;
     }
@@ -55,21 +50,21 @@ export const linkCommand = new SlashCommand()
     const env = interaction.context.env as Record<string, string>;
     const engineServiceUrl = env["ENGINE_SERVICE_URL"];
     if (!engineServiceUrl) {
-      const embed = createErrorEmbed(
-        "Link Failed",
-        "Engine service URL is not configured.",
-      );
+      const embed = createErrorEmbed("Link Failed", "Engine service URL is not configured.");
       await interaction.editReply({ embeds: [embed.toJSON()] });
       return;
     }
 
     const identityClient = getIdentityClient(engineServiceUrl) as unknown as IdentityClient;
 
+    const guildId = interaction.guildId ?? undefined;
+
     const result = await identityClient.linkAccount({
       discordUserId,
       game: Game.R6,
       username,
       platform,
+      ...(guildId !== undefined ? { guildId } : {}),
     });
 
     if (result.isOk()) {

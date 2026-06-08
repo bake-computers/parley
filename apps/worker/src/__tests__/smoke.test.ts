@@ -6,11 +6,13 @@ describe("MockIdentityClient", () => {
   it("linkAccount returns success response", async () => {
     const mockClient = createMockIdentityClient();
 
-    mockClient.linkAccount.mockResolvedValue(ok({
-      success: true,
-      playerId: 123,
-      usernameNormalized: "player123",
-    } as any));
+    mockClient.linkAccount.mockResolvedValue(
+      ok({
+        success: true,
+        playerId: 123,
+        usernameNormalized: "player123",
+      } as any),
+    );
 
     const req = {
       discordUserId: "123456",
@@ -31,23 +33,27 @@ describe("MockIdentityClient", () => {
   it("lookupByDiscord returns identities list", async () => {
     const mockClient = createMockIdentityClient();
 
-    mockClient.lookupByDiscord.mockResolvedValue(ok({
-      success: true,
-      identities: [{
-        game: 1,
-        discordUserId: "123456",
-        playerId: 123,
-        username: "player123",
-        usernameNormalized: "player123",
-        platform: "uplay",
-        profileId: "",
-        profileUrl: "",
-        internalElo: 1200,
-        internalMatches: 10,
-        internalWins: 5,
-        internalLosses: 5,
-      }],
-    } as any));
+    mockClient.lookupByDiscord.mockResolvedValue(
+      ok({
+        success: true,
+        identities: [
+          {
+            game: 1,
+            discordUserId: "123456",
+            playerId: 123,
+            username: "player123",
+            usernameNormalized: "player123",
+            platform: "uplay",
+            profileId: "",
+            profileUrl: "",
+            internalElo: 1200,
+            internalMatches: 10,
+            internalWins: 5,
+            internalLosses: 5,
+          },
+        ],
+      } as any),
+    );
 
     const req = {
       discordUserId: "123456",

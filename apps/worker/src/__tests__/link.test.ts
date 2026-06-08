@@ -15,9 +15,8 @@ function createMockIdentityClient(): {
   >;
 } {
   return {
-    linkAccount: mock<
-      (req: LinkAccountRequest) => Promise<Result<LinkAccountResponse, ConnectError>>
-    >(),
+    linkAccount:
+      mock<(req: LinkAccountRequest) => Promise<Result<LinkAccountResponse, ConnectError>>>(),
   };
 }
 
@@ -89,8 +88,12 @@ describe("linkCommand", () => {
     const mockInteraction = {
       options: {
         getString: mock((name: string, _required?: boolean): string | null => {
-          if (name === "username") { return "PlayerOne"; }
-          if (name === "platform") { return "pc"; }
+          if (name === "username") {
+            return "PlayerOne";
+          }
+          if (name === "platform") {
+            return "pc";
+          }
           return null;
         }),
       },
@@ -114,9 +117,11 @@ describe("linkCommand", () => {
 
     expect(editReplyMock).toHaveBeenCalledTimes(1);
 
-    const callArg = (editReplyMock as ReturnType<typeof mock> & {
-      mock: { calls: [unknown[]][] };
-    }).mock?.calls?.[0]?.[0] as { embeds?: Record<string, unknown>[] } | undefined;
+    const callArg = (
+      editReplyMock as ReturnType<typeof mock> & {
+        mock: { calls: [unknown[]][] };
+      }
+    ).mock?.calls?.[0]?.[0] as { embeds?: Record<string, unknown>[] } | undefined;
 
     expect(callArg?.embeds).toBeDefined();
     expect(Array.isArray(callArg?.embeds)).toBe(true);
@@ -139,8 +144,12 @@ describe("linkCommand", () => {
     const mockInteraction = {
       options: {
         getString: mock((name: string, _required?: boolean): string | null => {
-          if (name === "username") { return "BadPlayer"; }
-          if (name === "platform") { return "xbox"; }
+          if (name === "username") {
+            return "BadPlayer";
+          }
+          if (name === "platform") {
+            return "xbox";
+          }
           return null;
         }),
       },
@@ -158,9 +167,11 @@ describe("linkCommand", () => {
 
     expect(editReplyMock).toHaveBeenCalledTimes(1);
 
-    const callArg = (editReplyMock as ReturnType<typeof mock> & {
-      mock: { calls: [unknown[]][] };
-    }).mock?.calls?.[0]?.[0] as { embeds?: Record<string, unknown>[] } | undefined;
+    const callArg = (
+      editReplyMock as ReturnType<typeof mock> & {
+        mock: { calls: [unknown[]][] };
+      }
+    ).mock?.calls?.[0]?.[0] as { embeds?: Record<string, unknown>[] } | undefined;
 
     expect(callArg?.embeds).toBeDefined();
 
@@ -181,8 +192,12 @@ describe("linkCommand", () => {
     const mockInteraction = {
       options: {
         getString: mock((name: string, _required?: boolean): string | null => {
-          if (name === "username") { return "Alice"; }
-          if (name === "platform") { return "playstation"; }
+          if (name === "username") {
+            return "Alice";
+          }
+          if (name === "platform") {
+            return "playstation";
+          }
           return null;
         }),
       },
@@ -206,9 +221,11 @@ describe("linkCommand", () => {
 
     expect(mockClient.linkAccount).toHaveBeenCalledTimes(1);
 
-    const calls = (mockClient.linkAccount as ReturnType<typeof mock> & {
-      mock: { calls: [LinkAccountRequest[]][] };
-    }).mock?.calls;
+    const calls = (
+      mockClient.linkAccount as ReturnType<typeof mock> & {
+        mock: { calls: [LinkAccountRequest[]][] };
+      }
+    ).mock?.calls;
     const rpcArg = calls?.[0]?.[0] as LinkAccountRequest | undefined;
 
     expect(rpcArg?.discordUserId).toBe("444555666");

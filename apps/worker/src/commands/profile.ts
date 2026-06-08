@@ -34,12 +34,7 @@ export const profileCommand = new SlashCommand()
     ];
     if (!engineServiceUrl) {
       await interaction.editReply({
-        embeds: [
-          createErrorEmbed(
-            "Configuration Error",
-            "ENGINE_SERVICE_URL is not configured.",
-          ),
-        ],
+        embeds: [createErrorEmbed("Configuration Error", "ENGINE_SERVICE_URL is not configured.")],
       });
       return;
     }
@@ -61,10 +56,7 @@ export const profileCommand = new SlashCommand()
     if (identities.length === 0) {
       await interaction.editReply({
         embeds: [
-          createInfoEmbed(
-            "No Linked Accounts",
-            "No accounts linked. Use /link to get started!",
-          ),
+          createInfoEmbed("No Linked Accounts", "No accounts linked. Use /link to get started!"),
         ],
       });
       return;
