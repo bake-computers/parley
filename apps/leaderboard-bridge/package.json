@@ -1,0 +1,25 @@
+{
+  "name": "@parley/leaderboard-bridge",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Secure WebSocket bridge for the Parley global leaderboard.",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "dev": "wrangler dev --port 8788",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit",
+    "lint": "oxlint .",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@parley/proto": "workspace:*",
+    "hono": "^4.7.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260506.1",
+    "@parley/tsconfig-base": "workspace:*",
+    "typescript": "^6.0.3",
+    "wrangler": "^4.14.0"
+  }
+}

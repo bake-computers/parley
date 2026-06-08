@@ -1,0 +1,16 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "leaderboard-bridge",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-05-14",
+  "compatibility_flags": ["nodejs_compat"],
+  "durable_objects": {
+    "bindings": [{ "name": "GLOBAL_LEADERBOARD", "class_name": "GlobalLeaderboard" }],
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["GlobalLeaderboard"] }],
+  "vars": {
+    "ENGINE_SERVICE_URL": "http://localhost:50051",
+    "ALLOWED_ORIGINS": "https://parley.bot,http://localhost:3000,http://127.0.0.1:3000",
+    "POLL_INTERVAL_MS": "60000",
+  },
+}

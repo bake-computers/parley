@@ -1,0 +1,3 @@
+ENGINE_SERVICE_URL=http://127.0.0.1:50051
+ALLOWED_ORIGINS=https://parley.bot,http://localhost:3000,http://127.0.0.1:3000
+POLL_INTERVAL_MS=60000
