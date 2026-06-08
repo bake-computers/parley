@@ -2,17 +2,18 @@ import { Image } from "@unpic/react";
 import { Button } from "@/components/ui/button";
 
 const navItems = [
-  { label: "The Problem", href: "#problem" },
-  { label: "Matchmaking", href: "#matchmaking" },
-  { label: "How it works", href: "#experience" },
-  { label: "FAQ", href: "#faq" },
+  { label: "The Problem", href: "/#problem" },
+  { label: "Matchmaking", href: "/#matchmaking" },
+  { label: "How it works", href: "/#experience" },
+  { label: "Leaderboard", href: "/leaderboard" },
+  { label: "FAQ", href: "/#faq" },
 ];
 
 export function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-6">
-        <a href="#top" className="flex items-center gap-3">
+        <a href="/" className="flex items-center gap-3">
           <Image
             src="/parley-logo.svg"
             alt="Parley logo"

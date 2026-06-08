@@ -1,6 +1,7 @@
 import { Image } from "@unpic/react";
 
-const legalLinks = [
+const footerLinks = [
+  { label: "Leaderboard", href: "/leaderboard" },
   { label: "Legal Notice", href: "/legal-notice" },
   { label: "Privacy Policy", href: "/privacy" },
   { label: "Terms of Service", href: "/terms" },
@@ -36,7 +37,7 @@ export function SiteFooter() {
         </div>
 
         <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 border-t border-border/60 pt-6">
-          {legalLinks.map((link) => (
+          {footerLinks.map((link) => (
             <a
               key={link.href}
               href={link.href}

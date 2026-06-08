@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from "./routes/__root";
 import { Route as TermsRouteImport } from "./routes/terms";
 import { Route as PrivacyRouteImport } from "./routes/privacy";
 import { Route as LegalNoticeRouteImport } from "./routes/legal-notice";
+import { Route as LeaderboardRouteImport } from "./routes/leaderboard";
 import { Route as IndexRouteImport } from "./routes/index";
 
 const TermsRoute = TermsRouteImport.update({
@@ -29,6 +30,11 @@ const LegalNoticeRoute = LegalNoticeRouteImport.update({
   path: "/legal-notice",
   getParentRoute: () => rootRouteImport,
 } as any);
+const LeaderboardRoute = LeaderboardRouteImport.update({
+  id: "/leaderboard",
+  path: "/leaderboard",
+  getParentRoute: () => rootRouteImport,
+} as any);
 const IndexRoute = IndexRouteImport.update({
   id: "/",
   path: "/",
@@ -37,12 +43,14 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   "/": typeof IndexRoute;
+  "/leaderboard": typeof LeaderboardRoute;
   "/legal-notice": typeof LegalNoticeRoute;
   "/privacy": typeof PrivacyRoute;
   "/terms": typeof TermsRoute;
 }
 export interface FileRoutesByTo {
   "/": typeof IndexRoute;
+  "/leaderboard": typeof LeaderboardRoute;
   "/legal-notice": typeof LegalNoticeRoute;
   "/privacy": typeof PrivacyRoute;
   "/terms": typeof TermsRoute;
@@ -50,20 +58,22 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport;
   "/": typeof IndexRoute;
+  "/leaderboard": typeof LeaderboardRoute;
   "/legal-notice": typeof LegalNoticeRoute;
   "/privacy": typeof PrivacyRoute;
   "/terms": typeof TermsRoute;
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath;
-  fullPaths: "/" | "/legal-notice" | "/privacy" | "/terms";
+  fullPaths: "/" | "/leaderboard" | "/legal-notice" | "/privacy" | "/terms";
   fileRoutesByTo: FileRoutesByTo;
-  to: "/" | "/legal-notice" | "/privacy" | "/terms";
-  id: "__root__" | "/" | "/legal-notice" | "/privacy" | "/terms";
+  to: "/" | "/leaderboard" | "/legal-notice" | "/privacy" | "/terms";
+  id: "__root__" | "/" | "/leaderboard" | "/legal-notice" | "/privacy" | "/terms";
   fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute;
+  LeaderboardRoute: typeof LeaderboardRoute;
   LegalNoticeRoute: typeof LegalNoticeRoute;
   PrivacyRoute: typeof PrivacyRoute;
   TermsRoute: typeof TermsRoute;
@@ -92,6 +102,13 @@ declare module "@tanstack/react-router" {
       preLoaderRoute: typeof LegalNoticeRouteImport;
       parentRoute: typeof rootRouteImport;
     };
+    "/leaderboard": {
+      id: "/leaderboard";
+      path: "/leaderboard";
+      fullPath: "/leaderboard";
+      preLoaderRoute: typeof LeaderboardRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
     "/": {
       id: "/";
       path: "/";
@@ -104,6 +121,7 @@ declare module "@tanstack/react-router" {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  LeaderboardRoute: LeaderboardRoute,
   LegalNoticeRoute: LegalNoticeRoute,
   PrivacyRoute: PrivacyRoute,
   TermsRoute: TermsRoute,
