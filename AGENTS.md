@@ -33,30 +33,30 @@ TypeScript (Bun workspaces) ← buf generate → packages/generated-ts
 
 ### Rust (engine-service)
 
-| Command | What it does |
-|---|---|
-| `cargo build` | Builds all crates + proto codegen via `build.rs` (protox, no protoc) |
-| `cargo test` | Runs all unit + integration tests (some skip without `DATABASE_URL`) |
-| `cargo test --lib` | Unit tests only (no DB needed) |
-| `cargo test --test migration_roundtrip` | Single integration test (needs `DATABASE_URL`) |
-| `cargo run` | Starts the engine-service (needs `DATABASE_URL` or runs degraded) |
-| `cargo fmt` | Rust formatting |
-| `cargo clippy -- -D warnings` | Rust linting (warnings are errors) |
+| Command                                 | What it does                                                         |
+| --------------------------------------- | -------------------------------------------------------------------- |
+| `cargo build`                           | Builds all crates + proto codegen via `build.rs` (protox, no protoc) |
+| `cargo test`                            | Runs all unit + integration tests (some skip without `DATABASE_URL`) |
+| `cargo test --lib`                      | Unit tests only (no DB needed)                                       |
+| `cargo test --test migration_roundtrip` | Single integration test (needs `DATABASE_URL`)                       |
+| `cargo run`                             | Starts the engine-service (needs `DATABASE_URL` or runs degraded)    |
+| `cargo fmt`                             | Rust formatting                                                      |
+| `cargo clippy -- -D warnings`           | Rust linting (warnings are errors)                                   |
 
 ### TypeScript (Turborepo, managed via `bun`)
 
-| Command | What it does |
-|---|---|
-| `bun install` | Install all workspace dependencies |
-| `bun run build` | `turbo run build` — builds all TS packages (tsc) |
-| `bun run typecheck` | `turbo run typecheck` — type-checks all packages |
-| `bun run lint` | `turbo run lint` — oxlint across all packages |
-| `bun run lint:root` | oxlint on root-level files only |
-| `bun run format` | `oxfmt --write .` |
-| `bun run format:check` | `oxfmt --check .` |
-| `bun run test` | `turbo run test` — runs `bun test` in each package |
-| `bun run dev` | `turbo run dev` — starts dev servers |
-| `cd apps/worker && bun run dev` | Start Cloudflare Worker locally (`wrangler dev`) |
+| Command                         | What it does                                       |
+| ------------------------------- | -------------------------------------------------- |
+| `bun install`                   | Install all workspace dependencies                 |
+| `bun run build`                 | `turbo run build` — builds all TS packages (tsc)   |
+| `bun run typecheck`             | `turbo run typecheck` — type-checks all packages   |
+| `bun run lint`                  | `turbo run lint` — oxlint across all packages      |
+| `bun run lint:root`             | oxlint on root-level files only                    |
+| `bun run format`                | `oxfmt --write .`                                  |
+| `bun run format:check`          | `oxfmt --check .`                                  |
+| `bun run test`                  | `turbo run test` — runs `bun test` in each package |
+| `bun run dev`                   | `turbo run dev` — starts dev servers               |
+| `cd apps/worker && bun run dev` | Start Cloudflare Worker locally (`wrangler dev`)   |
 
 ### Proto generation (TypeScript side)
 
@@ -85,6 +85,7 @@ diesel migration run
 ### Environment setup
 
 Copy `.env.example` to `.env`. The service runs in degraded (in-memory) mode without `DATABASE_URL`. For full functionality, set `DATABASE_URL` and optionally:
+
 - `RUN_MIGRATIONS=1` — auto-apply migrations at boot
 - `BRAWL_STARS_API_KEY` — enables Brawl Stars backend
 - `ENGINE_SERVICE_ADDR` — listen address (default `0.0.0.0:50051`)
@@ -100,10 +101,12 @@ Cloudflare Worker deploy uses Alchemy: `bun run deploy` (or `bun run deploy:dev`
 All code must pass formatting and linting before a task is considered complete.
 
 ### Rust
+
 - Format: `cargo fmt`
 - Lint: `cargo clippy -- -D warnings` (warnings are hard errors)
 
 ### TypeScript
+
 - Format: `oxfmt .`
 - Lint: `oxlint`
 
@@ -117,7 +120,7 @@ All code must pass formatting and linting before a task is considered complete.
 
 - Never use visual divider comments or ASCII art lines (`// ====`, `// ----`, `// ****`).
 - Document public APIs with `///` (Rustdoc) or `/** ... */` (TSDoc).
-- Inline comments (`//`) must explain *why*, not *what*.
+- Inline comments (`//`) must explain _why_, not _what_.
 
 ### Rust
 
@@ -178,6 +181,7 @@ This project has a knowledge graph at graphify-out/ with god nodes, community st
 When the user types `/graphify`, invoke the `skill` tool with `skill: "graphify"` before doing anything else.
 
 Rules:
+
 - For codebase questions, first run `graphify query "<question>"` when graphify-out/graph.json exists. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
 - Dirty graphify-out/ files are expected after hooks or incremental updates; dirty graph files are not a reason to skip graphify. Only skip graphify if the task is about stale or incorrect graph output, or the user explicitly says not to use it.
 - If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.

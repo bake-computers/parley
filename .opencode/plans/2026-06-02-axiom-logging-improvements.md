@@ -13,6 +13,7 @@
 ## Current State Analysis
 
 The existing `logging.rs` (328 lines) already implements:
+
 - `AxiomEvent` enum (Http, Db, Cache variants)
 - `AxiomConfig` with env var support (AXIOM_TOKEN, AXIOM_DATASET, AXIOM_BATCH_SIZE, AXIOM_FLUSH_MS, etc.)
 - `AxiomLogger` with background batch worker (mpsc → tokio::select! loop → flush on interval or threshold)
@@ -20,6 +21,7 @@ The existing `logging.rs` (328 lines) already implements:
 - HTTP events log: method, path, status, duration_ms, user_agent, content_type
 
 **Gaps to fix:**
+
 1. Client construction uses `Client::new()` (env fallback) instead of builder with parsed config token
 2. HTTP middleware doesn't log request origin (client IP)
 3. `AxiomEvent` has no `Error` variant for handler-level error logging
@@ -32,6 +34,7 @@ The existing `logging.rs` (328 lines) already implements:
 ### Task 1: Fix axiom client construction to use builder with config token
 
 **Files:**
+
 - Modify: `src/logging.rs:107-119`
 
 The current code creates the axiom client with `Client::new()` which reads `AXIOM_TOKEN` from env. This works but is fragile — if the token is passed programmatically (e.g., tests), it won't be used. Use the builder instead.
@@ -68,6 +71,7 @@ Expected: no warnings
 ### Task 2: Add `Error` variant to `AxiomEvent` and `log_error` helper
 
 **Files:**
+
 - Modify: `src/logging.rs:22-47` (AxiomEvent enum)
 - Modify: `src/logging.rs:165-210` (log methods)
 
@@ -125,6 +129,7 @@ pub fn log_error(&self, service: &str, code: &str, message: &str, path: Option<S
 ### Task 3: Add request origin (client IP) to HTTP logging
 
 **Files:**
+
 - Modify: `src/logging.rs:26-33` (Http variant)
 - Modify: `src/logging.rs:174-191` (log_http method)
 - Modify: `src/logging.rs:296-327` (AxiomLogService::call)
@@ -246,6 +251,7 @@ fn extract_origin(req: &Request) -> Option<String> {
 ### Task 4: Add DB operation logging to repos
 
 **Files:**
+
 - Modify: `src/db/stats_cache_store.rs`
 
 The repos currently don't log to Axiom. Since repos don't have access to `AxiomLogger` (they only take `&mut AsyncPgConnection`), we log DB operations at the call sites in `stats_cache_store.rs`.
@@ -332,6 +338,7 @@ async fn write_snapshot(
 ### Task 5: Add error logging in handlers
 
 **Files:**
+
 - Modify: `src/handlers/identity.rs`
 - Modify: `src/handlers/guild_settings.rs`
 - Modify: `src/handlers/stats.rs`
@@ -394,6 +401,7 @@ Err(err) => {
 ### Task 6: Add graceful shutdown to background worker
 
 **Files:**
+
 - Modify: `src/logging.rs:94-163` (AxiomLogger)
 - Modify: `src/main.rs`
 
@@ -507,6 +515,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 ### Task 7: Log batch flush results
 
 **Files:**
+
 - Modify: `src/logging.rs:212-227` (flush_batch)
 
 Currently `flush_batch` discards the `IngestStatus`. Log the count for observability.
@@ -557,12 +566,12 @@ Run: `cargo run` without `AXIOM_TOKEN` set. Expected: starts normally, logs "axi
 
 ## Environment Variables Reference
 
-| Variable | Default | Description |
-|---|---|---|
-| `AXIOM_TOKEN` | (none) | Required API token. Without this, axiom logging is disabled. |
-| `AXIOM_DATASET` | `"parley"` | Dataset name for log ingestion. |
-| `AXIOM_ORG_ID` | (none) | Organization ID (required for personal tokens). |
-| `AXIOM_BATCH_SIZE` | `100` | Max events per batch before forced flush. |
-| `AXIOM_FLUSH_MS` | `1000` | Flush interval in milliseconds (time-based fallback). |
-| `AXIOM_BUFFER` | `2048` | mpsc channel capacity (backpressure threshold). |
-| `AXIOM_ENABLED` | `"true"` | Set to `"false"` to disable entirely. |
+| Variable           | Default    | Description                                                  |
+| ------------------ | ---------- | ------------------------------------------------------------ |
+| `AXIOM_TOKEN`      | (none)     | Required API token. Without this, axiom logging is disabled. |
+| `AXIOM_DATASET`    | `"parley"` | Dataset name for log ingestion.                              |
+| `AXIOM_ORG_ID`     | (none)     | Organization ID (required for personal tokens).              |
+| `AXIOM_BATCH_SIZE` | `100`      | Max events per batch before forced flush.                    |
+| `AXIOM_FLUSH_MS`   | `1000`     | Flush interval in milliseconds (time-based fallback).        |
+| `AXIOM_BUFFER`     | `2048`     | mpsc channel capacity (backpressure threshold).              |
+| `AXIOM_ENABLED`    | `"true"`   | Set to `"false"` to disable entirely.                        |
