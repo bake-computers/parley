@@ -14,10 +14,6 @@
  * Content-Type: application/json.
  */
 
-// ---------------------------------------------------------------------------
-// Shared types
-// ---------------------------------------------------------------------------
-
 const GAME_R6 = 1;
 const GAME_BRAWL_STARS = 2;
 
@@ -27,10 +23,6 @@ interface ErrorResponse {
   code: string;
   message: string;
 }
-
-// ---------------------------------------------------------------------------
-// Low-level ConnectRPC call
-// ---------------------------------------------------------------------------
 
 async function call<T>(baseUrl: string, path: string, body: unknown): Promise<T> {
   const url = `${baseUrl}${path}`;
@@ -49,10 +41,6 @@ async function call<T>(baseUrl: string, path: string, body: unknown): Promise<T>
   return json;
 }
 
-// ---------------------------------------------------------------------------
-// Health / Ready
-// ---------------------------------------------------------------------------
-
 export async function health(baseUrl: string) {
   const res = await fetch(`${baseUrl}/health`);
   return { status: res.status, body: await res.text() };
@@ -62,10 +50,6 @@ export async function ready(baseUrl: string) {
   const res = await fetch(`${baseUrl}/ready`);
   return { status: res.status, body: await res.text() };
 }
-
-// ---------------------------------------------------------------------------
-// IdentityService (parley.identity.v1)
-// ---------------------------------------------------------------------------
 
 export interface LinkAccountRequest {
   discordUserId: string;
@@ -158,10 +142,6 @@ export function lookupByUsername(baseUrl: string, req: LookupByUsernameRequest) 
     req,
   );
 }
-
-// ---------------------------------------------------------------------------
-// GuildSettingsService (parley.guild.v1)
-// ---------------------------------------------------------------------------
 
 export interface GuildSettingsPayload {
   guildId: string;
@@ -328,10 +308,6 @@ export function upsertMatchQuotas(baseUrl: string, req: UpsertMatchQuotasRequest
   );
 }
 
-// ---------------------------------------------------------------------------
-// StatsService (parley.stats.v1)
-// ---------------------------------------------------------------------------
-
 const PLATFORM_AUTO = 0;
 const PLATFORM_PC = 1;
 const PLATFORM_XBOX = 2;
@@ -381,10 +357,6 @@ export function fetchStatsCollection(baseUrl: string, req: FetchStatsCollectionR
     req,
   );
 }
-
-// ---------------------------------------------------------------------------
-// LeaderboardService (parley.leaderboard.v1)
-// ---------------------------------------------------------------------------
 
 const LEADERBOARD_ELO = 1;
 const LEADERBOARD_WIN_RATE = 2;
@@ -445,10 +417,6 @@ export function getPlayerRank(baseUrl: string, req: GetPlayerRankRequest) {
     req,
   );
 }
-
-// ---------------------------------------------------------------------------
-// Top ranked R6 Siege players (tracker.gg leaderboard snapshot)
-// ---------------------------------------------------------------------------
 
 const TOP_PLAYERS = [
   "GriII",
@@ -751,10 +719,6 @@ const TOP_PLAYERS = [
   "Della.G2",
 ];
 
-// ---------------------------------------------------------------------------
-// Example usage — edit whatever you want
-// ---------------------------------------------------------------------------
-
 async function main() {
   const baseUrl = Bun.argv[2] || Bun.env.ENGINE_URL || "http://127.0.0.1:50051";
   console.log(`Engine URL: ${baseUrl}\n`);
@@ -772,8 +736,6 @@ async function main() {
   // } catch (e) {
   //   console.log("GET /ready  →", (e as Error).message);
   // }
-
-  // // --- Identity ---
 
   // console.log("\n--- IdentityService ---");
 
@@ -819,8 +781,6 @@ async function main() {
   // } catch (e) {
   //   console.log("UnlinkAccount:", (e as Error).message);
   // }
-
-  // // --- Guild Settings ---
 
   // console.log("\n--- GuildSettingsService ---");
 
@@ -930,8 +890,6 @@ async function main() {
   //   console.log("UpsertMatchQuotas:", (e as Error).message);
   // }
 
-  // // --- Stats ---
-
   // console.log("\n--- StatsService ---");
 
   // // Fetch stats for a single known player (detailed output)
@@ -956,8 +914,6 @@ async function main() {
   // } catch (e) {
   //   console.log("FetchStatsCollection (Shaiiko):", (e as Error).message);
   // }
-
-  // // --- Leaderboard ---
 
   // console.log("\n--- LeaderboardService ---");
 
@@ -986,7 +942,6 @@ async function main() {
   //   console.log("GetPlayerRank:", (e as Error).message);
   // }
 
-  // --- Batch fetch top 100 players for cache warmup ---
   console.log(`\n--- Fetching stats for ${TOP_PLAYERS.length} top R6 players ---`);
 
   const CONCURRENCY = 70;

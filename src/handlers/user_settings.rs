@@ -90,10 +90,6 @@ fn deletion_hmac_secret() -> Result<String, ProtoError> {
         })
 }
 
-// ======================================================================
-// GetUserSettings
-// ======================================================================
-
 pub async fn get_user_settings_rpc(
     State(ctx): State<AppContext>,
     headers: HeaderMap,
@@ -169,10 +165,6 @@ pub async fn get_user_settings_rpc(
         enc,
     )
 }
-
-// ======================================================================
-// UpsertUserSettings
-// ======================================================================
 
 pub async fn upsert_user_settings_rpc(
     State(ctx): State<AppContext>,
@@ -275,10 +267,6 @@ pub async fn upsert_user_settings_rpc(
     )
 }
 
-// ======================================================================
-// ResolveLanguage
-// ======================================================================
-
 pub async fn resolve_language_rpc(
     State(ctx): State<AppContext>,
     headers: HeaderMap,
@@ -362,10 +350,6 @@ pub async fn resolve_language_rpc(
         enc,
     )
 }
-
-// ======================================================================
-// DeleteUserData
-// ======================================================================
 
 pub async fn delete_user_data_rpc(
     State(ctx): State<AppContext>,

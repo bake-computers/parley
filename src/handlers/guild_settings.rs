@@ -66,10 +66,6 @@ fn need_game(game: i32) -> Result<DbGame, ProtoError> {
     proto_game_to_db(game).ok_or_else(|| err("InvalidArgument", "game must be R6"))
 }
 
-// ======================================================================
-// GuildSettings
-// ======================================================================
-
 pub async fn get_guild_settings_rpc(
     State(ctx): State<AppContext>,
     headers: HeaderMap,
@@ -330,10 +326,6 @@ pub async fn upsert_guild_settings_rpc(
         enc,
     )
 }
-
-// ======================================================================
-// GuildMatchmakingRules
-// ======================================================================
 
 pub async fn get_matchmaking_rules_rpc(
     State(ctx): State<AppContext>,

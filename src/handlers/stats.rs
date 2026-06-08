@@ -200,8 +200,6 @@ impl StatsHandler {
     }
 }
 
-// ---------- REST endpoint ----------
-
 #[derive(Debug, Deserialize)]
 pub struct StatsQuery {
     #[serde(default)]
@@ -294,8 +292,6 @@ fn map_error(err: StatsFetchError) -> Response {
     });
     (status, Json(body)).into_response()
 }
-
-// ---------- proto conversions ----------
 
 fn empty_to_none(s: &str) -> Option<&str> {
     if s.trim().is_empty() { None } else { Some(s) }

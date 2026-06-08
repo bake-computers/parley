@@ -107,8 +107,6 @@ pub struct ScrapedStatsCollection {
 const KOST_DESCRIPTION: &str =
     "Estimated KOST% from aggregated match summaries (no round-level K/O/S/T flags in payload)";
 
-// ---------- HTML slicing ----------
-
 /// Pull the `__NUXT_DATA__` JSON array out of an HTML document.
 pub fn extract_nuxt_payload(html: &str) -> Option<&str> {
     let id_pos = html
@@ -118,8 +116,6 @@ pub fn extract_nuxt_payload(html: &str) -> Option<&str> {
     let content_end = html[content_start..].find("</script>")? + content_start;
     Some(html[content_start..content_end].trim())
 }
-
-// ---------- Small BorrowedValue accessors ----------
 
 #[inline]
 fn num(v: Option<&BorrowedValue>) -> f64 {
@@ -157,8 +153,6 @@ fn nonempty_str<'a>(v: Option<&'a BorrowedValue<'a>>) -> Option<&'a str> {
     v?.as_str().filter(|s| !s.is_empty())
 }
 
-// ---------- payload shape detection ----------
-
 fn find_profile_and_constants_indices(payload: &[BorrowedValue]) -> (Option<usize>, Option<usize>) {
     let mut profile: Option<usize> = None;
     let mut constants: Option<usize> = None;
@@ -191,8 +185,6 @@ fn find_profile_and_constants_indices(payload: &[BorrowedValue]) -> (Option<usiz
 
     (profile, constants)
 }
-
-// ---------- season catalog ----------
 
 fn season_display<'a>(
     slug: &'a str,
@@ -244,8 +236,6 @@ fn build_season_catalog<'a>(
         .collect()
 }
 
-// ---------- rank label resolution ----------
-
 fn rank_label<'a>(
     rank_slug: Option<&str>,
     ranks: &'a BorrowedValue<'a>,
@@ -272,8 +262,6 @@ fn rank_label<'a>(
     };
     (display, tier)
 }
-
-// ---------- match extraction ----------
 
 fn key_matches_playlist(key: &str, pl: &str) -> bool {
     const PREFIX: &str = "\"playlist\":\"";
@@ -378,8 +366,6 @@ fn summarize_match_rounds<'a>(
     t
 }
 
-// ---------- profile materialisation ----------
-
 fn base_profile<'a>(profile: &'a BorrowedValue<'a>, resolver: &NuxtResolver<'a>) -> StatsProfile {
     let username = nonempty_str(resolver.field(profile, "username"))
         .unwrap_or("Unknown")
@@ -403,8 +389,6 @@ fn to_scraped(profile: &StatsProfile, ranked: RankedStats) -> ScrapedStats {
         ranked_stats: ranked,
     }
 }
-
-// ---------- ranked stats per season ----------
 
 fn build_ranked_for_season<'a>(
     resolver: &NuxtResolver<'a>,
@@ -522,8 +506,6 @@ fn build_ranked_for_season<'a>(
         matches_in_cache: season_matches.len() as i32,
     }
 }
-
-// ---------- fallback ranked-mode stats ----------
 
 struct ModeRecordSelection<'a> {
     season_slug: &'a str,
@@ -783,8 +765,6 @@ fn build_fallback_past_matches<'a>(resolver: &NuxtResolver<'a>) -> Option<Ranked
     })
 }
 
-// ---------- public entry points ----------
-
 pub fn scrape_html_stats_collection(html: &str) -> ScrapedStatsCollection {
     let Some(payload_str) = extract_nuxt_payload(html) else {
         tracing::warn!("stats.scrape.missing_payload: __NUXT_DATA__ not found");
@@ -882,8 +862,6 @@ pub fn scrape_html_stats(html: &str, season_selector: Option<&str>) -> ScrapedSt
         None => collection.latest,
     }
 }
-
-// ---------- season selector normalisation ----------
 
 struct SlugCanon<'a> {
     bytes: std::slice::Iter<'a, u8>,

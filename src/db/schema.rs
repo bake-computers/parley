@@ -9,8 +9,6 @@
 
 #![allow(non_snake_case)]
 
-// ---------- Custom SQL types ----------
-
 pub mod sql_types {
     /// `CREATE TYPE games AS ENUM ('r6', 'brawl_stars')` — Postgres enum.
     #[derive(diesel::sql_types::SqlType, diesel::query_builder::QueryId)]
@@ -22,8 +20,6 @@ pub mod sql_types {
     #[diesel(postgres_type(name = "languages"))]
     pub struct Languages;
 }
-
-// ---------- players ----------
 
 diesel::table! {
     use diesel::sql_types::*;
@@ -48,8 +44,6 @@ diesel::table! {
     }
 }
 
-// ---------- discord_identities ----------
-
 diesel::table! {
     use diesel::sql_types::*;
     use super::sql_types::Games;
@@ -63,8 +57,6 @@ diesel::table! {
         updated_at -> Int8,
     }
 }
-
-// ---------- player_stat_snapshots ----------
 
 diesel::table! {
     use diesel::sql_types::*;
@@ -96,8 +88,6 @@ diesel::table! {
     }
 }
 
-// ---------- external_match_history ----------
-
 diesel::table! {
     use diesel::sql_types::*;
     use super::sql_types::Games;
@@ -125,8 +115,6 @@ diesel::allow_tables_to_appear_in_same_query!(
     external_match_history,
 );
 
-// ---------- user_settings ----------
-
 diesel::table! {
     use diesel::sql_types::*;
     use super::sql_types::Languages;
@@ -140,8 +128,6 @@ diesel::table! {
     }
 }
 
-// ---------- account_deletion_cooldowns ----------
-
 diesel::table! {
     account_deletion_cooldowns (discord_user_id_hash) {
         discord_user_id_hash -> Text,
@@ -151,8 +137,6 @@ diesel::table! {
 }
 
 diesel::allow_tables_to_appear_in_same_query!(user_settings, account_deletion_cooldowns);
-
-// ---------- guild_memberships ----------
 
 diesel::table! {
     use diesel::sql_types::*;
@@ -175,8 +159,6 @@ diesel::table! {
     }
 }
 
-// ---------- guild_match_quotas ----------
-
 diesel::table! {
     use diesel::sql_types::*;
     use super::sql_types::Games;
@@ -191,8 +173,6 @@ diesel::table! {
         updated_at -> Int8,
     }
 }
-
-// ---------- guild_settings ----------
 
 diesel::table! {
     use diesel::sql_types::*;
@@ -212,8 +192,6 @@ diesel::table! {
     }
 }
 
-// ---------- guild_matchmaking_rules ----------
-
 diesel::table! {
     use diesel::sql_types::*;
     use super::sql_types::Games;
@@ -230,8 +208,6 @@ diesel::table! {
     }
 }
 
-// ---------- guild_notification_settings ----------
-
 diesel::table! {
     use diesel::sql_types::*;
     use super::sql_types::Games;
@@ -245,8 +221,6 @@ diesel::table! {
         updated_at -> Int8,
     }
 }
-
-// ---------- tournament_schedules ----------
 
 diesel::table! {
     use diesel::sql_types::*;
@@ -267,8 +241,6 @@ diesel::table! {
         updated_at -> Int8,
     }
 }
-
-// ---------- matches ----------
 
 diesel::table! {
     use diesel::sql_types::*;
@@ -300,8 +272,6 @@ diesel::table! {
     }
 }
 
-// ---------- match_participants ----------
-
 diesel::table! {
     use diesel::sql_types::*;
     use super::sql_types::Games;
@@ -328,8 +298,6 @@ diesel::table! {
     }
 }
 
-// ---------- matchmaking_queues ----------
-
 diesel::table! {
     use diesel::sql_types::*;
     use super::sql_types::Games;
@@ -351,8 +319,6 @@ diesel::table! {
         team_size -> Int4,
     }
 }
-
-// ---------- matchmaking_queue_participants ----------
 
 diesel::table! {
     use diesel::sql_types::*;
@@ -401,8 +367,6 @@ diesel::allow_tables_to_appear_in_same_query!(
     players,
 );
 
-// ---------- tournaments ----------
-
 diesel::table! {
     use diesel::sql_types::*;
     use super::sql_types::Games;
@@ -430,8 +394,6 @@ diesel::table! {
     }
 }
 
-// ---------- tournament_teams ----------
-
 diesel::table! {
     use diesel::sql_types::*;
     use super::sql_types::Games;
@@ -455,8 +417,6 @@ diesel::table! {
         updated_at -> Int8,
     }
 }
-
-// ---------- tournament_team_rosters ----------
 
 diesel::table! {
     use diesel::sql_types::*;
@@ -483,8 +443,6 @@ diesel::table! {
         updated_at -> Int8,
     }
 }
-
-// ---------- bracket_matches ----------
 
 diesel::table! {
     use diesel::sql_types::*;

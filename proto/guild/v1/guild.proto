@@ -24,7 +24,6 @@ service GuildSettingsService {
   rpc UpsertMatchQuotas(UpsertMatchQuotasRequest)                 returns (GuildMatchQuotasResponse);
 }
 
-// --------- guild_settings ---------
 
 message GuildSettings {
   string guild_id                  = 1;
@@ -53,7 +52,6 @@ message GuildSettingsResponse {
   parley.common.v1.Error error = 3;
 }
 
-// --------- guild_matchmaking_rules ---------
 
 message GuildMatchmakingRules {
   string guild_id             = 1;
@@ -81,7 +79,6 @@ message GuildMatchmakingRulesResponse {
   parley.common.v1.Error error = 3;
 }
 
-// --------- guild_notification_settings ---------
 
 message GuildNotificationSettings {
   string guild_id                            = 1;
@@ -107,7 +104,6 @@ message GuildNotificationSettingsResponse {
   parley.common.v1.Error error         = 3;
 }
 
-// --------- guild_match_quotas ---------
 
 message GuildMatchQuota {
   string guild_id                   = 1;

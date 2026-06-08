@@ -28,10 +28,6 @@ pub fn normalize_username(u: &str) -> String {
     u.trim().to_ascii_lowercase()
 }
 
-// ======================================================================
-// Player
-// ======================================================================
-
 pub struct PlayerRepo;
 
 impl PlayerRepo {
@@ -141,10 +137,6 @@ impl PlayerRepo {
     }
 }
 
-// ======================================================================
-// DiscordIdentity
-// ======================================================================
-
 pub struct DiscordIdentityRepo;
 
 impl DiscordIdentityRepo {
@@ -209,10 +201,6 @@ impl DiscordIdentityRepo {
         q.select(DiscordIdentity::as_select()).load(conn).await
     }
 }
-
-// ======================================================================
-// PlayerStatSnapshot
-// ======================================================================
 
 pub struct PlayerStatSnapshotRepo;
 
@@ -305,10 +293,6 @@ impl PlayerStatSnapshotRepo {
     }
 }
 
-// ======================================================================
-// ExternalMatchHistoryEntry
-// ======================================================================
-
 pub struct ExternalMatchHistoryRepo;
 
 impl ExternalMatchHistoryRepo {
@@ -349,11 +333,6 @@ impl ExternalMatchHistoryRepo {
     }
 }
 
-// ======================================================================
-// Task 4 repos — guild-scoped CRUD (remaining match/queue repos are built
-// on demand; the schema is enough for Task 15 + future work to compile).
-// ======================================================================
-
 use crate::db::models::{
     GuildMatchQuota, GuildMatchmakingRules, GuildMembership, GuildNotificationSettings,
     GuildSettings, NewGuildMatchQuota, NewGuildMatchmakingRules, NewGuildMembership,
@@ -363,8 +342,6 @@ use crate::db::schema::{
     guild_match_quotas, guild_matchmaking_rules, guild_memberships, guild_notification_settings,
     guild_settings,
 };
-
-// ---------- GuildMembership ----------
 
 pub struct GuildMembershipRepo;
 
@@ -540,8 +517,6 @@ pub struct GuildMemberRow {
     pub platform: String,
 }
 
-// ---------- GuildSettings ----------
-
 pub struct GuildSettingsRepo;
 
 impl GuildSettingsRepo {
@@ -588,8 +563,6 @@ impl GuildSettingsRepo {
             .await
     }
 }
-
-// ---------- GuildMatchmakingRules ----------
 
 pub struct GuildMatchmakingRulesRepo;
 
@@ -639,8 +612,6 @@ impl GuildMatchmakingRulesRepo {
     }
 }
 
-// ---------- GuildNotificationSettings ----------
-
 pub struct GuildNotificationSettingsRepo;
 
 impl GuildNotificationSettingsRepo {
@@ -688,8 +659,6 @@ impl GuildNotificationSettingsRepo {
     }
 }
 
-// ---------- GuildMatchQuota ----------
-
 pub struct GuildMatchQuotaRepo;
 
 impl GuildMatchQuotaRepo {
@@ -728,10 +697,6 @@ impl GuildMatchQuotaRepo {
             .await
     }
 }
-
-// ======================================================================
-// UserSettings
-// ======================================================================
 
 pub struct UserSettingsRepo;
 
@@ -775,10 +740,6 @@ impl UserSettingsRepo {
             .await
     }
 }
-
-// ======================================================================
-// AccountDeletionCooldown
-// ======================================================================
 
 /// Thirty-day re-registration ban after GDPR deletion.
 pub const DELETION_COOLDOWN_MS: i64 = 30 * 24 * 60 * 60 * 1000;
@@ -839,10 +800,6 @@ impl AccountDeletionCooldownRepo {
         Ok(())
     }
 }
-
-// ======================================================================
-// UserDataAnonymization
-// ======================================================================
 
 #[derive(Debug, Clone, Default)]
 pub struct AnonymizationReport {

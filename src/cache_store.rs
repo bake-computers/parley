@@ -119,10 +119,6 @@ pub trait StatsCacheStore: Send + Sync {
     ) -> Result<ScrapedStatsCollection, StatsFetchError>;
 }
 
-// ======================================================================
-// SingleFlight — coalesce concurrent misses for the same key.
-// ======================================================================
-
 /// A minimal, request-bounded single-flight group. Each key's result is
 /// shared across all awaiting callers via a `watch` channel; once the
 /// leader publishes the result, every follower wakes up at once.

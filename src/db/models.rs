@@ -9,8 +9,6 @@ use crate::db::schema::{
 };
 use crate::db::{Game, Language};
 
-// ---------- players ----------
-
 #[derive(Debug, Clone, diesel::Queryable, diesel::Selectable, diesel::Identifiable)]
 #[diesel(table_name = players)]
 pub struct Player {
@@ -67,8 +65,6 @@ pub struct PlayerChangeset<'a> {
     pub updated_at: Option<i64>,
 }
 
-// ---------- discord_identities ----------
-
 #[derive(Debug, Clone, diesel::Queryable, diesel::Selectable, diesel::Identifiable)]
 #[diesel(table_name = discord_identities)]
 pub struct DiscordIdentity {
@@ -89,8 +85,6 @@ pub struct NewDiscordIdentity<'a> {
     pub created_at: i64,
     pub updated_at: i64,
 }
-
-// ---------- player_stat_snapshots ----------
 
 #[derive(Debug, Clone, diesel::Queryable, diesel::Selectable, diesel::Identifiable)]
 #[diesel(table_name = player_stat_snapshots)]
@@ -145,8 +139,6 @@ pub struct NewPlayerStatSnapshot<'a> {
     pub created_at: i64,
 }
 
-// ---------- external_match_history ----------
-
 #[derive(Debug, Clone, diesel::Queryable, diesel::Selectable, diesel::Identifiable)]
 #[diesel(table_name = external_match_history)]
 pub struct ExternalMatchHistoryEntry {
@@ -172,8 +164,6 @@ pub struct NewExternalMatchHistoryEntry<'a> {
     pub created_at: i64,
 }
 
-// ---------- user_settings ----------
-
 #[derive(Debug, Clone, diesel::Queryable, diesel::Selectable)]
 #[diesel(table_name = user_settings)]
 pub struct UserSettings {
@@ -194,8 +184,6 @@ pub struct NewUserSettings<'a> {
     pub matchmaking_enabled: bool,
 }
 
-// ---------- account_deletion_cooldowns ----------
-
 #[derive(Debug, Clone, diesel::Queryable, diesel::Selectable)]
 #[diesel(table_name = account_deletion_cooldowns)]
 pub struct AccountDeletionCooldown {
@@ -212,17 +200,11 @@ pub struct NewAccountDeletionCooldown<'a> {
     pub cooldown_until: i64,
 }
 
-// ===================================================================
-// Task 4 — guild + matchmaking + match tables
-// ===================================================================
-
 use crate::db::schema::{
     guild_match_quotas, guild_matchmaking_rules, guild_memberships, guild_notification_settings,
     guild_settings, match_participants, matches, matchmaking_queue_participants,
     matchmaking_queues, tournament_schedules,
 };
-
-// ---------- guild_memberships ----------
 
 #[derive(Debug, Clone, diesel::Queryable, diesel::Selectable, diesel::Identifiable)]
 #[diesel(table_name = guild_memberships)]
@@ -259,8 +241,6 @@ pub struct NewGuildMembership<'a> {
     pub updated_at: i64,
 }
 
-// ---------- guild_match_quotas ----------
-
 #[derive(Debug, Clone, diesel::Queryable, diesel::Selectable, diesel::Identifiable)]
 #[diesel(table_name = guild_match_quotas)]
 pub struct GuildMatchQuota {
@@ -283,8 +263,6 @@ pub struct NewGuildMatchQuota<'a> {
     pub created_at: i64,
     pub updated_at: i64,
 }
-
-// ---------- guild_settings ----------
 
 #[derive(Debug, Clone, diesel::Queryable, diesel::Selectable)]
 #[diesel(table_name = guild_settings)]
@@ -314,8 +292,6 @@ pub struct NewGuildSettings<'a> {
     pub matchmaking_enabled: bool,
 }
 
-// ---------- guild_matchmaking_rules ----------
-
 #[derive(Debug, Clone, diesel::Queryable, diesel::Selectable)]
 #[diesel(table_name = guild_matchmaking_rules)]
 pub struct GuildMatchmakingRules {
@@ -342,8 +318,6 @@ pub struct NewGuildMatchmakingRules<'a> {
     pub updated_at: i64,
 }
 
-// ---------- guild_notification_settings ----------
-
 #[derive(Debug, Clone, diesel::Queryable, diesel::Selectable)]
 #[diesel(table_name = guild_notification_settings)]
 pub struct GuildNotificationSettings {
@@ -366,8 +340,6 @@ pub struct NewGuildNotificationSettings<'a> {
     pub updated_at: i64,
 }
 
-// ---------- tournament_schedules ----------
-
 #[derive(Debug, Clone, diesel::Queryable, diesel::Selectable, diesel::Identifiable)]
 #[diesel(table_name = tournament_schedules)]
 pub struct TournamentSchedule {
@@ -384,8 +356,6 @@ pub struct TournamentSchedule {
     pub created_at: i64,
     pub updated_at: i64,
 }
-
-// ---------- matches ----------
 
 #[derive(Debug, Clone, diesel::Queryable, diesel::Selectable, diesel::Identifiable)]
 #[diesel(table_name = matches)]
@@ -439,8 +409,6 @@ pub struct NewMatch<'a> {
     pub created_at: i64,
     pub updated_at: i64,
 }
-
-// ---------- match_participants ----------
 
 #[derive(Debug, Clone, diesel::Queryable, diesel::Selectable, diesel::Identifiable)]
 #[diesel(table_name = match_participants)]
@@ -508,8 +476,6 @@ pub struct NewMatchmakingQueueParticipant<'a> {
     pub updated_at: i64,
 }
 
-// ---------- matchmaking_queues ----------
-
 #[derive(Debug, Clone, diesel::Queryable, diesel::Selectable, diesel::Identifiable)]
 #[diesel(table_name = matchmaking_queues)]
 pub struct MatchmakingQueue {
@@ -547,8 +513,6 @@ pub struct NewMatchmakingQueue<'a> {
     pub team_size: i32,
 }
 
-// ---------- matchmaking_queue_participants ----------
-
 #[derive(Debug, Clone, diesel::Queryable, diesel::Selectable, diesel::Identifiable)]
 #[diesel(table_name = matchmaking_queue_participants)]
 pub struct MatchmakingQueueParticipant {
@@ -570,10 +534,6 @@ pub struct MatchmakingQueueParticipant {
     pub created_at: i64,
     pub updated_at: i64,
 }
-
-// ===================================================================
-// Task 5 — tournament tables (Queryable only; repos follow consumers)
-// ===================================================================
 
 use crate::db::schema::{bracket_matches, tournament_team_rosters, tournament_teams, tournaments};
 

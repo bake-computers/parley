@@ -207,8 +207,6 @@ mod tests {
         assert_eq!(result.as_i64(), Some(0));
     }
 
-    // --- Regression tests for stats.cc Nuxt 3 payload format ---
-
     // Stats.cc uses a dedup table where small integers (like match counts)
     // are stored at positions that also happen to hold other unrelated
     // values. After one index dereference, the result IS the actual value

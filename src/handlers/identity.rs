@@ -41,8 +41,6 @@ fn err(code: &str, msg: impl Into<String>) -> ProtoError {
     }
 }
 
-// ---------- LinkAccount ----------
-
 pub async fn link_account_rpc(
     State(ctx): State<AppContext>,
     headers: HeaderMap,
@@ -242,8 +240,6 @@ pub async fn link_account_rpc(
     )
 }
 
-// ---------- UnlinkAccount ----------
-
 pub async fn unlink_account_rpc(
     State(ctx): State<AppContext>,
     headers: HeaderMap,
@@ -341,8 +337,6 @@ pub async fn unlink_account_rpc(
     )
 }
 
-// ---------- LookupByDiscord ----------
-
 pub async fn lookup_by_discord_rpc(
     State(ctx): State<AppContext>,
     headers: HeaderMap,
@@ -434,8 +428,6 @@ pub async fn lookup_by_discord_rpc(
         enc,
     )
 }
-
-// ---------- LookupByUsername ----------
 
 pub async fn lookup_by_username_rpc(
     State(ctx): State<AppContext>,
