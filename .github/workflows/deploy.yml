@@ -39,10 +39,10 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
 
-- name: Push Binary and Deploy
+      - name: Push Binary and Deploy
         env:
           TARGET_DIR: "/home/deployer/apps/parley"
           VERSION: "${{ github.sha }}"
         run: |
           scp -i ~/.ssh/id_ed25519 target/release/parley deployer@${{ secrets.SERVER_HOST }}:$TARGET_DIR/releases/parley_$VERSION
-          ssh -i ~/.ssh/id_ed25519 deployer@${{ secrets.SERVER_HOST }} "VERSION=$VERSION bash $TARGET_DIR/deploy.sh"
+          ssh -i ~/.ssh/id_ed25519 deployer@${{ secrets.SERVER_HOST }} "export VERSION=$VERSION; bash $TARGET_DIR/deploy.sh"
