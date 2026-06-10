@@ -10,6 +10,7 @@
     "build": "vite build",
     "preview": "bun run build && vite preview",
     "test": "vitest run",
+    "cache:founders": "bun run scripts/cache-founder-avatars.ts",
     "deploy": "alchemy deploy",
     "cf-typegen": "alchemy dev --dry-run"
   },
