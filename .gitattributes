@@ -1,0 +1,6 @@
+# GitHub language stats: only count Rust and TypeScript.
+# See https://github.com/github-linguist/linguist/blob/main/docs/overrides.md
+* -linguist-detectable
+*.rs linguist-detectable
+*.ts linguist-detectable
+*.tsx linguist-detectable
