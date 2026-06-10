@@ -35,13 +35,13 @@ The platform is **Discord-first**: the primary interaction surface is a Cloudfla
 
 ## 3. Architectural Principles
 
-| Principle | Rationale |
-| --- | --- |
-| **Single source of truth for contracts** | All RPC messages and service definitions live in `proto/`. Rust embeds them via `protox`; TypeScript generates clients via `buf`. |
-| **Engine owns state** | Postgres is the system of record. Redis accelerates stats caching and leaderboard reads when present. Edge workers remain stateless except for the leaderboard Durable Object. |
-| **Game-scoped multi-tenancy** | Every domain table carries a `game` discriminator (`r6`, `brawl_stars`). Composite unique indexes always include `game`, allowing one schema to serve multiple titles. |
-| **Graceful degradation** | Without `DATABASE_URL`, the engine runs in memory-only mode. Without `REDIS_URL`, caching falls back to direct backend calls. The service remains operable for development and partial outages. |
-| **Edge locality** | Discord interactions and web traffic terminate at Cloudflare Workers globally. Only RPC calls to the engine cross into the origin network. |
+| Principle                                | Rationale                                                                                                                                                                                       |
+| ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Single source of truth for contracts** | All RPC messages and service definitions live in `proto/`. Rust embeds them via `protox`; TypeScript generates clients via `buf`.                                                               |
+| **Engine owns state**                    | Postgres is the system of record. Redis accelerates stats caching and leaderboard reads when present. Edge workers remain stateless except for the leaderboard Durable Object.                  |
+| **Game-scoped multi-tenancy**            | Every domain table carries a `game` discriminator (`r6`, `brawl_stars`). Composite unique indexes always include `game`, allowing one schema to serve multiple titles.                          |
+| **Graceful degradation**                 | Without `DATABASE_URL`, the engine runs in memory-only mode. Without `REDIS_URL`, caching falls back to direct backend calls. The service remains operable for development and partial outages. |
+| **Edge locality**                        | Discord interactions and web traffic terminate at Cloudflare Workers globally. Only RPC calls to the engine cross into the origin network.                                                      |
 
 ---
 
@@ -84,15 +84,15 @@ Parley divides into four logical tiers:
 
 Protobuf definitions are the canonical API surface. Seven services are defined:
 
-| Service | Responsibility |
-| --- | --- |
-| `IdentityService` | Link, unlink, and resolve Discord-to-player mappings |
-| `StatsService` | Fetch single-season or full-season-collection player statistics |
+| Service                | Responsibility                                                              |
+| ---------------------- | --------------------------------------------------------------------------- |
+| `IdentityService`      | Link, unlink, and resolve Discord-to-player mappings                        |
+| `StatsService`         | Fetch single-season or full-season-collection player statistics             |
 | `GuildSettingsService` | Per-guild configuration: settings, matchmaking rules, notifications, quotas |
-| `UserSettingsService` | Per-user preferences within a guild context |
-| `MatchmakingService` | Team building, queue lifecycle, custom matches, result reporting |
-| `TournamentService` | Tournament creation, registration, bracket progression |
-| `LeaderboardService` | Guild and global leaderboard queries |
+| `UserSettingsService`  | Per-user preferences within a guild context                                 |
+| `MatchmakingService`   | Team building, queue lifecycle, custom matches, result reporting            |
+| `TournamentService`    | Tournament creation, registration, bracket progression                      |
+| `LeaderboardService`   | Guild and global leaderboard queries                                        |
 
 Shared types (`Game`, `Rank`, `PlayerStats`, `Badge`, `Region`, `Language`) reside in `common/v1/types.proto`.
 
@@ -108,11 +108,11 @@ The `parley` binary is an Axum HTTP server exposing ConnectRPC endpoints. Intern
 
 ### 5.3 Edge Applications
 
-| Application | Runtime | Role |
-| --- | --- | --- |
-| `apps/worker` | Cloudflare Worker (Hono) | Discord bot: slash commands, interaction verification, embed rendering |
-| `apps/landing` | TanStack Start on Cloudflare | Public website, leaderboard UI, legal pages |
-| `apps/bridge` | Cloudflare Worker (Hono) | Leaderboard aggregation; hosts `GlobalLeaderboard` Durable Object |
+| Application    | Runtime                      | Role                                                                   |
+| -------------- | ---------------------------- | ---------------------------------------------------------------------- |
+| `apps/worker`  | Cloudflare Worker (Hono)     | Discord bot: slash commands, interaction verification, embed rendering |
+| `apps/landing` | TanStack Start on Cloudflare | Public website, leaderboard UI, legal pages                            |
+| `apps/bridge`  | Cloudflare Worker (Hono)     | Leaderboard aggregation; hosts `GlobalLeaderboard` Durable Object      |
 
 The Discord Worker uses `@parley/runtime` — a type-safe wrapper over Discord's API for Embeds and Components v2 — and `@parley/proto` ConnectRPC clients to call the engine.
 
@@ -120,13 +120,13 @@ The Bridge Worker polls `LeaderboardService` on a configurable interval, stores 
 
 ### 5.4 Shared TypeScript Packages
 
-| Package | Purpose |
-| --- | --- |
-| `@parley/proto` | Buf-generated message types and Connect service descriptors |
-| `@parley/runtime` | Discord interaction framework, embed builders, component builders |
-| `@parley/axiom` | Structured logging middleware shared across Workers |
-| `@parley/tsconfig-base` | Strict TypeScript compiler defaults for all workspaces |
-| `@parley/db` | Legacy Drizzle schema (frozen; not extended) |
+| Package                 | Purpose                                                           |
+| ----------------------- | ----------------------------------------------------------------- |
+| `@parley/proto`         | Buf-generated message types and Connect service descriptors       |
+| `@parley/runtime`       | Discord interaction framework, embed builders, component builders |
+| `@parley/axiom`         | Structured logging middleware shared across Workers               |
+| `@parley/tsconfig-base` | Strict TypeScript compiler defaults for all workspaces            |
+| `@parley/db`            | Legacy Drizzle schema (frozen; not extended)                      |
 
 ### 5.5 Data Stores
 
@@ -168,11 +168,11 @@ Leaderboard page loads follow a parallel path through the Landing App to the Bri
 
 Infrastructure is provisioned through **Alchemy** (`alchemy.run.ts`), which deploys three Cloudflare Workers:
 
-| Worker | Domain |
-| --- | --- |
-| Discord Worker | `app.parley.bot` |
-| Landing App | `parley.bot` |
-| Bridge Worker | `bridge.parley.bot` |
+| Worker         | Domain              |
+| -------------- | ------------------- |
+| Discord Worker | `app.parley.bot`    |
+| Landing App    | `parley.bot`        |
+| Bridge Worker  | `bridge.parley.bot` |
 
 The engine-service runs as a standalone process (default listen address `0.0.0.0:50051`) on origin infrastructure with `DATABASE_URL` and optionally `REDIS_URL`. Workers receive `ENGINE_SERVICE_URL` as a binding.
 
@@ -367,10 +367,10 @@ Domain timestamps use `bigint` epoch milliseconds. Auth-adjacent tables (managed
 
 ## 11. Supported Games
 
-| Game | Proto enum | Stats source | Matchmaking |
-| --- | --- | --- | --- |
-| Rainbow Six Siege | `GAME_R6` | stats.cc scraper | Full CPR engine |
-| Brawl Stars | `GAME_BRAWL_STARS` | Brawl Stars API | Identity linking; extended matchmaking planned |
+| Game              | Proto enum         | Stats source     | Matchmaking                                    |
+| ----------------- | ------------------ | ---------------- | ---------------------------------------------- |
+| Rainbow Six Siege | `GAME_R6`          | stats.cc scraper | Full CPR engine                                |
+| Brawl Stars       | `GAME_BRAWL_STARS` | Brawl Stars API  | Identity linking; extended matchmaking planned |
 
 Adding a new title requires a Postgres migration (`ALTER TYPE games ADD VALUE`), a stats backend implementation, and proto enum extension.
 
@@ -395,13 +395,13 @@ cargo run
 bun run dev
 ```
 
-| Command | Scope |
-| --- | --- |
-| `cargo test --lib` | Rust unit tests (no database) |
-| `cargo test` | Full Rust test suite |
-| `bun run typecheck` | TypeScript strict checking |
-| `bun run lint` | Oxlint across workspaces |
-| `cargo fmt && bun run format` | Format Rust and TypeScript |
+| Command                       | Scope                         |
+| ----------------------------- | ----------------------------- |
+| `cargo test --lib`            | Rust unit tests (no database) |
+| `cargo test`                  | Full Rust test suite          |
+| `bun run typecheck`           | TypeScript strict checking    |
+| `bun run lint`                | Oxlint across workspaces      |
+| `cargo fmt && bun run format` | Format Rust and TypeScript    |
 
 Generate TypeScript proto clients after modifying `.proto` files:
 
