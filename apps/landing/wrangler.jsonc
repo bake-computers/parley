@@ -1,6 +1,6 @@
 {
   "name": "landing",
-  "main": "dist/server/index.js",
+  "main": "@tanstack/react-start/server-entry",
   "compatibility_date": "2025-09-02",
   "compatibility_flags": [
     "nodejs_compat"
