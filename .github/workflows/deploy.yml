@@ -9,7 +9,7 @@ on:
       - "proto/**"
       - "Cargo.toml"
       - "Cargo.lock"
-      - "build.rs"
+      - ".github/**"
 
 jobs:
   build-and-deploy:
@@ -18,7 +18,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Install Protobuf Compiler (Required for prost/protox)
+      - name: Install Protobuf Compiler (For prost/protox)
         run: |
           sudo apt-get update
           sudo apt-get install -y protobuf-compiler
@@ -37,12 +37,16 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+          # Note the -p 2222 flag here to scan the correct port
+          ssh-keyscan -p 2222 -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
 
       - name: Push Binary and Deploy
         env:
           TARGET_DIR: "/home/deployer/apps/parley"
           VERSION: "${{ github.sha }}"
         run: |
-          scp -i ~/.ssh/id_ed25519 target/release/parley deployer@${{ secrets.SERVER_HOST }}:$TARGET_DIR/releases/parley_$VERSION
-          ssh -i ~/.ssh/id_ed25519 deployer@${{ secrets.SERVER_HOST }} "export VERSION=$VERSION; bash $TARGET_DIR/deploy.sh"
+          # Capital -P 2222 for scp
+          scp -P 2222 -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 target/release/parley deployer@${{ secrets.SERVER_HOST }}:$TARGET_DIR/releases/parley_$VERSION
+
+          # Lowercase -p 2222 for ssh
+          ssh -p 2222 -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 deployer@${{ secrets.SERVER_HOST }} "export VERSION=$VERSION; bash $TARGET_DIR/deploy.sh"
