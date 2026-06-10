@@ -12,13 +12,14 @@ const DISCORD_URL = "https://discord.gg/parley";
 
 const navItems = [
   { label: "The Problem", href: "/#problem", sectionId: "problem" },
+  { label: "Our Story", href: "/#story", sectionId: "story" },
   { label: "Matchmaking", href: "/#matchmaking", sectionId: "matchmaking" },
   { label: "How it works", href: "/#experience", sectionId: "experience" },
   { label: "Leaderboard", href: "/leaderboard", sectionId: null },
   { label: "FAQ", href: "/#faq", sectionId: "faq" },
 ];
 
-const SECTION_IDS = ["problem", "matchmaking", "experience", "discord", "faq"];
+const SECTION_IDS = ["problem", "story", "matchmaking", "experience", "discord", "faq"];
 const MOBILE_MENU_ID = "parley-mobile-nav";
 
 export function SiteHeader() {
