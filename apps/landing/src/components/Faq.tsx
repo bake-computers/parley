@@ -1,3 +1,10 @@
+"use client";
+
+import { Fragment, useState } from "react";
+import { ChevronDown } from "lucide-react";
+import { Reveal } from "#/components/ui/reveal";
+import { cn } from "#/lib/utils";
+
 const faqs = [
   {
     q: "Is Parley live yet?",
@@ -22,23 +29,72 @@ const faqs = [
 ];
 
 export function Faq() {
+  const [openIndex, setOpenIndex] = useState<number | null>(0);
+
+  const toggle = (index: number) => {
+    setOpenIndex((current) => (current === index ? null : index));
+  };
+
   return (
     <section id="faq" className="border-b border-border/60">
       <div className="mx-auto w-full max-w-3xl px-6 py-20 md:py-28">
-        <div className="text-center">
+        <Reveal className="text-center">
           <span className="text-xs uppercase tracking-[0.25em] text-muted-foreground">FAQ</span>
           <h2 className="mt-4 text-balance text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
             Questions, answered.
           </h2>
-        </div>
+        </Reveal>
 
-        <dl className="mt-12 divide-y divide-border/60 border-y border-border/60">
-          {faqs.map((item) => (
-            <div key={item.q} className="py-6">
-              <dt className="text-base font-medium text-foreground">{item.q}</dt>
-              <dd className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.a}</dd>
-            </div>
-          ))}
+        <dl className="mt-12 border-y border-border/60">
+          {faqs.map((item, index) => {
+            const isOpen = openIndex === index;
+            return (
+              <Fragment key={item.q}>
+                <dt className={cn(index > 0 && "border-t border-border/60")}>
+                  <Reveal delay={index * 80}>
+                    <button
+                      type="button"
+                      onClick={() => toggle(index)}
+                      aria-expanded={isOpen}
+                      className={cn(
+                        "flex w-full items-center justify-between gap-4 py-5 text-left transition-colors",
+                        isOpen
+                          ? "border-l-2 border-[#c0c5ce] pl-4 text-foreground"
+                          : "border-l-2 border-transparent pl-4 text-foreground hover:text-[#c0c5ce]",
+                      )}
+                    >
+                      <span className="text-base font-medium">{item.q}</span>
+                      <ChevronDown
+                        className={cn(
+                          "size-4 shrink-0 text-muted-foreground transition-transform duration-300",
+                          isOpen && "rotate-180 text-[#c0c5ce]",
+                        )}
+                        aria-hidden="true"
+                      />
+                    </button>
+                  </Reveal>
+                </dt>
+                <dd
+                  className={cn(
+                    "grid transition-all duration-300 ease-out",
+                    isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
+                  )}
+                >
+                  <div className="overflow-hidden">
+                    <p className="pb-5 pl-4 text-sm leading-relaxed text-muted-foreground">
+                      {item.a}
+                    </p>
+                    {isOpen && (
+                      <span
+                        className="mb-4 ml-4 block h-px w-full max-w-xs origin-left bg-[#c0c5ce] parley-line-grow"
+                        aria-hidden="true"
+                      />
+                    )}
+                  </div>
+                </dd>
+              </Fragment>
+            );
+          })}
         </dl>
       </div>
     </section>

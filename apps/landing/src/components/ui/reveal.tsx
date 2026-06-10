@@ -10,7 +10,17 @@ type RevealProps = {
   delay?: number;
   /** Direction the element slides in from. */
   direction?: "up" | "left" | "right";
-  as?: "div" | "section" | "li";
+  as?: "div" | "section" | "li" | "article";
+};
+
+type RevealStaggerProps = {
+  children: React.ReactNode[];
+  className?: string;
+  direction?: "up" | "left" | "right";
+  as?: "div" | "section" | "li" | "ul";
+  /** Base delay between each child in ms. */
+  interval?: number;
+  itemAs?: "div" | "section" | "li" | "article";
 };
 
 export function Reveal({
@@ -71,6 +81,27 @@ export function Reveal({
       )}
     >
       {children}
+    </Tag>
+  );
+}
+
+export function RevealStagger({
+  children,
+  className,
+  direction = "up",
+  as = "div",
+  interval = 120,
+  itemAs = "div",
+}: RevealStaggerProps) {
+  const Tag = as as React.ElementType;
+
+  return (
+    <Tag className={className}>
+      {children.map((child, index) => (
+        <Reveal key={index} as={itemAs} direction={direction} delay={index * interval}>
+          {child}
+        </Reveal>
+      ))}
     </Tag>
   );
 }

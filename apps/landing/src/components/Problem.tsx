@@ -1,5 +1,7 @@
 import { ShieldOff, ScaleIcon, UserX } from "lucide-react";
-import { Reveal } from "#/components/ui/reveal";
+import { CountUp } from "#/components/ui/count-up";
+import { Reveal, RevealStagger } from "#/components/ui/reveal";
+import { SectionBackdrop } from "#/components/ui/section-backdrop";
 
 const symptoms = [
   {
@@ -24,12 +26,16 @@ const symptoms = [
 
 export function Problem() {
   return (
-    <section id="problem" className="border-b border-border/60">
-      <div className="mx-auto grid w-full max-w-6xl gap-12 px-6 py-20 md:grid-cols-[0.9fr_1.1fr] md:gap-16 md:py-28">
-        {/* Left: framing */}
+    <section id="problem" className="relative overflow-hidden border-b border-border/60">
+      <SectionBackdrop glow="left" />
+
+      <div className="relative mx-auto grid w-full max-w-6xl gap-12 px-6 py-20 md:grid-cols-[0.9fr_1.1fr] md:gap-16 md:py-28">
         <Reveal direction="left" className="md:sticky md:top-24 md:self-start">
           <span className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-[#c0c5ce]">
-            <span className="h-px w-6 bg-[#c0c5ce]" aria-hidden="true" />
+            <span
+              className="h-px w-6 origin-left bg-[#c0c5ce] parley-line-grow"
+              aria-hidden="true"
+            />
             Queue Report
           </span>
           <h2 className="mt-5 text-balance text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
@@ -41,7 +47,7 @@ export function Problem() {
           </p>
 
           <div className="mt-8 flex items-baseline gap-4 border-t border-border/60 pt-6">
-            <span className="font-mono text-4xl font-semibold text-foreground">3</span>
+            <CountUp target={3} className="font-mono text-4xl font-semibold text-foreground" />
             <span className="text-sm leading-snug text-muted-foreground">
               recurring failures Parley is built to eliminate — before the Discord app even
               launches.
@@ -49,13 +55,10 @@ export function Problem() {
           </div>
         </Reveal>
 
-        {/* Right: indexed symptom rows */}
-        <ul className="flex flex-col">
-          {symptoms.map((item, i) => (
-            <Reveal
-              as="li"
+        <RevealStagger as="ul" itemAs="li" className="flex flex-col">
+          {symptoms.map((item) => (
+            <div
               key={item.title}
-              delay={i * 120}
               className="group flex gap-6 border-t border-border/60 py-7 first:border-t-0 first:pt-0 md:py-8 md:first:pt-0"
             >
               <span className="font-mono text-sm leading-none text-muted-foreground/60 transition-colors group-hover:text-[#c0c5ce]">
@@ -63,7 +66,9 @@ export function Problem() {
               </span>
               <div className="flex-1">
                 <div className="flex items-center gap-3">
-                  <item.icon className="size-5 shrink-0 text-[#c0c5ce]" aria-hidden="true" />
+                  <div className="parley-icon-pop flex size-8 shrink-0 items-center justify-center border border-border/70 bg-secondary/40">
+                    <item.icon className="size-4 text-[#c0c5ce]" aria-hidden="true" />
+                  </div>
                   <h3 className="text-lg font-medium text-foreground">{item.title}</h3>
                 </div>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{item.body}</p>
@@ -72,9 +77,9 @@ export function Problem() {
                   aria-hidden="true"
                 />
               </div>
-            </Reveal>
+            </div>
           ))}
-        </ul>
+        </RevealStagger>
       </div>
     </section>
   );

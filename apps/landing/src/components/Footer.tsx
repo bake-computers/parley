@@ -1,4 +1,5 @@
 import { Image } from "@unpic/react";
+import { Reveal } from "#/components/ui/reveal";
 
 const footerLinks = [
   { label: "Leaderboard", href: "/leaderboard" },
@@ -10,7 +11,7 @@ const footerLinks = [
 export function SiteFooter() {
   return (
     <footer className="bg-background">
-      <div className="mx-auto w-full max-w-6xl px-6 py-12">
+      <Reveal direction="up" className="mx-auto w-full max-w-6xl px-6 py-12">
         <div className="flex flex-col items-center justify-between gap-6 sm:flex-row">
           <div className="flex items-center gap-3">
             <Image
@@ -41,13 +42,13 @@ export function SiteFooter() {
             <a
               key={link.href}
               href={link.href}
-              className="text-xs uppercase tracking-widest text-muted-foreground/60 transition-colors hover:text-foreground"
+              className="parley-footer-link text-xs uppercase tracking-widest text-muted-foreground/60 transition-colors hover:text-foreground"
             >
               {link.label}
             </a>
           ))}
         </div>
-      </div>
+      </Reveal>
     </footer>
   );
 }

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Users, Swords, Trophy } from "lucide-react";
+import { Reveal } from "#/components/ui/reveal";
 import { cn } from "#/lib/utils";
 
 const steps = [
@@ -33,11 +34,12 @@ export function Experience() {
   const [active, setActive] = useState(0);
   const current = steps[active];
 
+  const progressPct = steps.length > 1 ? (active / (steps.length - 1)) * 100 : 0;
+
   return (
     <section id="experience" className="border-b border-border/60">
       <div className="mx-auto grid w-full max-w-6xl gap-14 px-6 py-20 md:grid-cols-[0.9fr_1.1fr] md:py-28">
-        {/* Sticky intro column */}
-        <div className="md:sticky md:top-24 md:self-start">
+        <Reveal direction="left" className="md:sticky md:top-24 md:self-start">
           <span className="text-xs uppercase tracking-[0.25em] text-muted-foreground">
             Experience Parley
           </span>
@@ -55,16 +57,25 @@ export function Experience() {
               Pre-launch preview
             </span>
           </div>
-        </div>
+        </Reveal>
 
-        {/* Interactive timeline */}
-        <div>
-          <ul className="space-y-3" aria-label="How Parley works">
+        <div className="relative">
+          <div
+            aria-hidden="true"
+            className="absolute bottom-4 left-3 top-4 hidden w-px bg-border/60 md:block"
+          >
+            <div
+              className="w-full bg-[#c0c5ce] transition-[height] duration-500 ease-out motion-reduce:transition-none"
+              style={{ height: `${progressPct}%` }}
+            />
+          </div>
+
+          <ul className="space-y-3 md:pl-8" aria-label="How Parley works">
             {steps.map((item, index) => {
               const isActive = index === active;
               const Icon = item.icon;
               return (
-                <li key={item.id}>
+                <Reveal key={item.id} as="li" delay={index * 100}>
                   <button
                     type="button"
                     onClick={() => setActive(index)}
@@ -78,9 +89,9 @@ export function Experience() {
                   >
                     <div
                       className={cn(
-                        "flex size-11 shrink-0 items-center justify-center border transition-colors",
+                        "parley-icon-pop flex size-11 shrink-0 items-center justify-center border transition-colors",
                         isActive
-                          ? "border-[#c0c5ce]/60 bg-[#c0c5ce]/10"
+                          ? "border-[#c0c5ce]/60 bg-[#c0c5ce]/10 parley-icon-pop-active"
                           : "border-border/70 bg-secondary/40",
                       )}
                     >
@@ -112,7 +123,6 @@ export function Experience() {
                         </span>
                       </div>
 
-                      {/* Reveal-on-select detail */}
                       <div
                         className={cn(
                           "grid transition-all duration-300 ease-out",
@@ -139,15 +149,17 @@ export function Experience() {
                       </div>
                     </div>
                   </button>
-                </li>
+                </Reveal>
               );
             })}
           </ul>
 
-          <p className="mt-6 text-[11px] leading-relaxed text-muted-foreground/70">
-            Interactive preview of planned functionality. The Discord app is not yet live — join the
-            waitlist to be notified at launch.
-          </p>
+          <Reveal delay={steps.length * 100}>
+            <p className="mt-6 text-[11px] leading-relaxed text-muted-foreground/70 md:pl-8">
+              Interactive preview of planned functionality. The Discord app is not yet live — join
+              the Discord to be notified at launch.
+            </p>
+          </Reveal>
           <span className="sr-only" aria-live="polite">
             {current.title} selected
           </span>
