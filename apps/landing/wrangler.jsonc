@@ -1,0 +1,11 @@
+{
+  "name": "landing",
+  "main": "dist/server/index.js",
+  "compatibility_date": "2025-09-02",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "observability": {
+    "enabled": true
+  }
+}
