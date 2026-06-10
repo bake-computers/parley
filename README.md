@@ -56,13 +56,13 @@ Parley divides into four logical tiers:
 └────────────────────────────┬────────────────────────────────────┘
                              │
 ┌────────────────────────────▼────────────────────────────────────┐
-│  Edge (Cloudflare Workers)                                    │
-│  Discord Worker · Landing App · Leaderboard Bridge Worker     │
+│  Edge (Cloudflare Workers)                                      │
+│  Discord Worker · Landing App · Leaderboard Bridge Worker       │
 └────────────────────────────┬────────────────────────────────────┘
                              │ ConnectRPC / HTTP
 ┌────────────────────────────▼────────────────────────────────────┐
-│  Engine (Rust / Axum)                                         │
-│  ConnectRPC handlers · Matchmaking engine · Stats backends    │
+│  Engine (Rust / Axum)                                           │
+│  ConnectRPC handlers · Matchmaking engine · Stats backends      │
 └────────────┬───────────────────────────────┬────────────────────┘
              │                               │
 ┌────────────▼──────────┐       ┌────────────▼──────────────────┐
@@ -367,10 +367,9 @@ Domain timestamps use `bigint` epoch milliseconds. Auth-adjacent tables (managed
 
 ## 11. Supported Games
 
-| Game              | Proto enum         | Stats source     | Matchmaking                                    |
-| ----------------- | ------------------ | ---------------- | ---------------------------------------------- |
-| Rainbow Six Siege | `GAME_R6`          | stats.cc scraper | Full CPR engine                                |
-| Brawl Stars       | `GAME_BRAWL_STARS` | Brawl Stars API  | Identity linking; extended matchmaking planned |
+| Game              | Proto enum | Stats source     | Matchmaking     |
+| ----------------- | ---------- | ---------------- | --------------- |
+| Rainbow Six Siege | `GAME_R6`  | stats.cc scraper | Full CPR engine |
 
 Adding a new title requires a Postgres migration (`ALTER TYPE games ADD VALUE`), a stats backend implementation, and proto enum extension.
 
