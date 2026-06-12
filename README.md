@@ -166,13 +166,15 @@ Leaderboard page loads follow a parallel path through the Landing App to the Bri
 
 ## 8. Deployment
 
-Infrastructure is provisioned through **Alchemy** (`alchemy.run.ts`), which deploys three Cloudflare Workers:
+Infrastructure is provisioned with **Wrangler**. Each app owns its `wrangler.jsonc` (bindings, routes, observability, secrets), and `bun run deploy` fans out `wrangler deploy` across all three via Turbo:
 
-| Worker         | Domain              |
-| -------------- | ------------------- |
-| Discord Worker | `app.parley.bot`    |
-| Landing App    | `parley.bot`        |
-| Bridge Worker  | `bridge.parley.bot` |
+| Worker         | Config                        | Domain              |
+| -------------- | ----------------------------- | ------------------- |
+| Discord Worker | `apps/worker/wrangler.jsonc`  | `app.parley.bot`    |
+| Landing App    | `apps/landing/wrangler.jsonc` | `parley.bot`        |
+| Bridge Worker  | `apps/bridge/wrangler.jsonc`  | `bridge.parley.bot` |
+
+Local secrets live in each app's `.dev.vars` (gitignored); production secrets are managed with `wrangler secret put <NAME>` (run from the app directory).
 
 The engine-service runs as a standalone process (default listen address `0.0.0.0:50051`) on origin infrastructure with `DATABASE_URL` and optionally `REDIS_URL`. Workers receive `ENGINE_SERVICE_URL` as a binding.
 
@@ -427,7 +429,7 @@ parley/
 │   ├── axiom/              @parley/axiom — logging middleware
 │   ├── db/                 @parley/db — frozen legacy schema
 │   └── tsconfig-base/      Shared TypeScript config
-├── alchemy.run.ts          Cloudflare deployment orchestration
+├── apps/                   Cloudflare Workers, each with its own wrangler.jsonc
 └── AGENTS.md               Contributor and agent reference
 ```
 

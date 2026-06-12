@@ -94,7 +94,7 @@ Copy `.env.example` to `.env`. The service runs in degraded (in-memory) mode wit
 
 ### Deploy
 
-Cloudflare Worker deploy uses Alchemy: `bun run deploy` (or `bun run deploy:dev`).
+Cloudflare Worker deploys use Wrangler: `bun run deploy` (runs each app's `wrangler deploy` via Turbo).
 
 ## Linting & Formatting
 
