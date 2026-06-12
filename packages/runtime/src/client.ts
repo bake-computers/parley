@@ -32,6 +32,11 @@ import {
   ComponentHandler,
   ContextCommand,
   flattenHandlers,
+  isComponentHandler,
+  isContextCommandHandler,
+  isModalHandler,
+  isSlashCommandHandler,
+  isWebhookHandler,
   ModalHandler,
   parseCustomId,
   SlashCommand,
@@ -205,7 +210,7 @@ export class ParleyClient {
   }
 
   private registerSingleHandler(handler: AnyHandler): void {
-    if (handler instanceof SlashCommand || handler instanceof ContextCommand) {
+    if (isSlashCommandHandler(handler) || isContextCommandHandler(handler)) {
       if (handler.isGuildCommand()) {
         for (const guildId of handler.guildIds) {
           const key = `${guildId}:${handler.name}`;
@@ -225,21 +230,21 @@ export class ParleyClient {
         }
         this.globalCommandHandlers.set(handler.name, handler);
       }
-    } else if (handler instanceof ComponentHandler) {
+    } else if (isComponentHandler(handler)) {
       if (this.componentHandlers.has(handler.prefix)) {
         logger.warn("discord.handler.duplicate", "Overwriting component handler", {
           prefix: handler.prefix,
         });
       }
       this.componentHandlers.set(handler.prefix, handler);
-    } else if (handler instanceof ModalHandler) {
+    } else if (isModalHandler(handler)) {
       if (this.modalHandlers.has(handler.prefix)) {
         logger.warn("discord.handler.duplicate", "Overwriting modal handler", {
           prefix: handler.prefix,
         });
       }
       this.modalHandlers.set(handler.prefix, handler);
-    } else if (handler instanceof WebhookEventHandler) {
+    } else if (isWebhookHandler(handler)) {
       if (this.webhookHandlers.has(handler.eventType)) {
         logger.warn("discord.handler.duplicate", "Overwriting webhook handler", {
           eventType: handler.eventType,
@@ -316,13 +321,31 @@ export class ParleyClient {
       }
     });
 
-    executionContext.waitUntil(processing);
-
     const response = await initialResponse;
+
+    executionContext.waitUntil(processing);
     if (response) {
+      const responseType = response["type"];
+      logger.info("discord.interaction.ack", "Interaction acknowledged", {
+        requestId: context.requestId,
+        interactionType: interaction.type,
+        responseType: typeof responseType === "number" ? responseType : undefined,
+        surface: context.get<string | undefined>("analytics.surface"),
+        name: context.get<string | undefined>("analytics.name"),
+        outcome: context.get<string | undefined>("analytics.outcome"),
+        ...("id" in interaction ? { interactionId: interaction.id } : {}),
+      });
       return jsonResponse(response);
     }
 
+    logger.error("discord.interaction.empty_response", "Interaction returned no callback payload", {
+      requestId: context.requestId,
+      interactionType: interaction.type,
+      surface: context.get<string | undefined>("analytics.surface"),
+      name: context.get<string | undefined>("analytics.name"),
+      outcome: context.get<string | undefined>("analytics.outcome"),
+      ...("id" in interaction ? { interactionId: interaction.id } : {}),
+    });
     return new Response(null, { status: 204 });
   }
 
@@ -384,10 +407,16 @@ export class ParleyClient {
         error,
       });
     } finally {
-      logger.debug("discord.interaction.completed", "Interaction processing completed", {
+      const outcome = context.get<string | undefined>("analytics.outcome");
+      const level = outcome === "error" || outcome === "missing_handler" ? "warn" : "info";
+      logger[level]("discord.interaction.completed", "Interaction processing completed", {
         requestId: context.requestId,
-        ...("id" in interaction ? { interactionId: interaction.id } : {}),
+        interactionType: interaction.type,
+        surface: context.get<string | undefined>("analytics.surface"),
+        name: context.get<string | undefined>("analytics.name"),
+        outcome,
         durationMs: Date.now() - startedAt,
+        ...("id" in interaction ? { interactionId: interaction.id } : {}),
       });
     }
   }
@@ -444,13 +473,13 @@ export class ParleyClient {
       for (const handler of handlers) {
         try {
           if (
-            handler instanceof SlashCommand &&
+            isSlashCommandHandler(handler) &&
             interactionObj instanceof ChatInputCommandInteraction
           ) {
             // eslint-disable-next-line no-await-in-loop -- handlers must execute sequentially
             await handler.execute(interactionObj);
           } else if (
-            handler instanceof ContextCommand &&
+            isContextCommandHandler(handler) &&
             !(interactionObj instanceof ChatInputCommandInteraction)
           ) {
             // eslint-disable-next-line no-await-in-loop -- handlers must execute sequentially
@@ -492,7 +521,7 @@ export class ParleyClient {
         ? this.guildCommandHandlers.get(`${interaction.guild_id}:${commandName}`)
         : undefined) ?? this.globalCommandHandlers.get(commandName);
 
-    if (!(handler instanceof SlashCommand)) {
+    if (!isSlashCommandHandler(handler)) {
       context.set("analytics.outcome", "missing_handler");
       logger.warn("discord.autocomplete.missing_handler", "No autocomplete handler registered", {
         requestId: context.requestId,

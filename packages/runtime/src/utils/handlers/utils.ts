@@ -1,12 +1,45 @@
 import type { APIApplicationCommandOptionChoice } from "discord-api-types/v10";
-import type {
-  SlashCommand,
-  ContextCommand,
-  ComponentHandler,
-  ModalHandler,
-  WebhookEventHandler,
-} from "./index.js";
+import type { ContextCommand } from "./context-command.js";
+import type { SlashCommand } from "./slash-command.js";
+import type { ComponentHandler } from "./component-handler.js";
+import type { ModalHandler } from "./modal-handler.js";
+import type { WebhookEventHandler } from "./webhook-handler.js";
 import type { AnyHandler } from "./types.js";
+
+function hasHandlerType(handler: unknown, handlerType: string): boolean {
+  return (
+    typeof handler === "object" &&
+    handler !== null &&
+    "handlerType" in handler &&
+    (handler as { handlerType: string }).handlerType === handlerType
+  );
+}
+
+export function isSlashCommandHandler(handler: unknown): handler is SlashCommand {
+  return hasHandlerType(handler, "slash");
+}
+
+export function isContextCommandHandler(handler: unknown): handler is ContextCommand {
+  return hasHandlerType(handler, "context");
+}
+
+export function isComponentHandler(handler: unknown): handler is ComponentHandler {
+  return hasHandlerType(handler, "component");
+}
+
+export function isModalHandler(handler: unknown): handler is ModalHandler {
+  return hasHandlerType(handler, "modal");
+}
+
+export function isWebhookHandler(handler: unknown): handler is WebhookEventHandler {
+  return hasHandlerType(handler, "webhook");
+}
+
+export function isRegisterableApplicationCommand(
+  handler: unknown,
+): handler is SlashCommand | ContextCommand {
+  return isSlashCommandHandler(handler) || isContextCommandHandler(handler);
+}
 
 /**
  * Recursively flattens a (possibly nested) array of {@link AnyHandler} values

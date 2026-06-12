@@ -13,4 +13,13 @@ export { ContextCommand } from "./context-command.js";
 export { ComponentHandler } from "./component-handler.js";
 export { ModalHandler } from "./modal-handler.js";
 export { WebhookEventHandler } from "./webhook-handler.js";
-export { flattenHandlers, autocompleteChoice } from "./utils.js";
+export {
+  flattenHandlers,
+  autocompleteChoice,
+  isSlashCommandHandler,
+  isContextCommandHandler,
+  isComponentHandler,
+  isModalHandler,
+  isWebhookHandler,
+  isRegisterableApplicationCommand,
+} from "./utils.js";

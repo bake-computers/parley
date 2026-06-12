@@ -225,6 +225,8 @@ export async function resolveApplicationEmojiCatalog(input: {
   cache?: KVNamespace | null;
   fetcher?: typeof fetch;
   apiBaseUrl?: string;
+  /** When false, returns {} if KV is empty instead of calling Discord REST. */
+  network?: boolean;
 }): Promise<ApplicationEmojiCatalog> {
   if (!input.applicationId || !input.botToken) {
     return {};
@@ -233,6 +235,10 @@ export async function resolveApplicationEmojiCatalog(input: {
   const cached = await readCachedApplicationEmojiCatalog(input.cache);
   if (cached) {
     return cached;
+  }
+
+  if (input.network === false) {
+    return {};
   }
 
   const rest = new DiscordRestClient(input.botToken, input.fetcher, input.apiBaseUrl);
@@ -254,11 +260,7 @@ export async function resolveApplicationEmojiCatalog(input: {
     return {};
   }
 
-  const wroteCache = await writeCachedApplicationEmojiCatalog(input.cache, entries);
-  if (!wroteCache) {
-    return {};
-  }
-
+  await writeCachedApplicationEmojiCatalog(input.cache, entries);
   return entries;
 }
 

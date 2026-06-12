@@ -19,4 +19,9 @@ export class ModalInteraction extends BaseInteraction<APIModalSubmitInteraction>
   get customId(): string {
     return this.raw.data.custom_id;
   }
+
+  /** Message that launched the modal (the wizard card to update after submit). */
+  get messageId(): string | undefined {
+    return this.raw.message?.id;
+  }
 }

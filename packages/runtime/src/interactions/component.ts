@@ -9,4 +9,8 @@ export class MessageComponentInteraction extends ModalCapableInteraction<APIMess
   get componentType(): ComponentType {
     return this.raw.data.component_type;
   }
+
+  get messageId(): string | undefined {
+    return this.raw.message?.id;
+  }
 }

@@ -2,8 +2,7 @@ import { err, ok, type Result } from "neverthrow";
 import { discordRequest } from "./rest.js";
 import {
   flattenHandlers,
-  SlashCommand,
-  ContextCommand,
+  isRegisterableApplicationCommand,
   type AnyHandler,
 } from "~/utils/handlers/index.js";
 import type {
@@ -21,7 +20,7 @@ function collectCommands(handlers: readonly AnyHandler[]): {
   const guildCommands: Record<string, JsonObject[]> = {};
 
   for (const handler of flattenHandlers(handlers)) {
-    if (!(handler instanceof SlashCommand) && !(handler instanceof ContextCommand)) {
+    if (!isRegisterableApplicationCommand(handler)) {
       continue;
     }
 

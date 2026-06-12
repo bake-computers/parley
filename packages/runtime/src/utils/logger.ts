@@ -64,9 +64,11 @@ export interface LogRecord extends LogFields {
 
 type LogSink = (record: LogRecord) => void;
 
-let logSink: LogSink = (record) => {
+const defaultLogSink: LogSink = (record) => {
   console.log(JSON.stringify(record));
 };
+
+let logSink: LogSink = defaultLogSink;
 
 function serializeError(error: unknown): SerializedError {
   if (error instanceof Error) {
@@ -100,12 +102,20 @@ function normalizeFields(fields: LogFields = {}): LogFields {
  * @param {LogSink | null} sink - The log sink function, or null to reset to default (console.log JSON).
  * @returns {void}
  */
+export function configureLogSink(sink: LogSink): void {
+  logSink = sink;
+}
+
+export function resetLogSink(): void {
+  logSink = defaultLogSink;
+}
+
 export function setLogSinkForTests(sink: LogSink | null): void {
-  logSink =
-    sink ??
-    ((record) => {
-      console.log(JSON.stringify(record));
-    });
+  if (sink === null) {
+    resetLogSink();
+    return;
+  }
+  configureLogSink(sink);
 }
 
 /**

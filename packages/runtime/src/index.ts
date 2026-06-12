@@ -89,6 +89,9 @@ export {
   flattenHandlers,
   parseCustomId,
   autocompleteChoice,
+  isSlashCommandHandler,
+  isContextCommandHandler,
+  isRegisterableApplicationCommand,
   type AnyHandler,
   type AutocompleteFocusedOption,
   type ModalFieldData,
@@ -104,6 +107,8 @@ export { discordRequest, DiscordRestClient, type DiscordRequestOptions } from ".
 export {
   logger,
   log,
+  configureLogSink,
+  resetLogSink,
   setLogSinkForTests,
   type LogLevel,
   type LogFields,
