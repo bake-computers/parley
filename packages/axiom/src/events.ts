@@ -39,4 +39,12 @@ export type AxiomEvent =
       service: string;
       message: string;
       [key: string]: string | number | boolean | undefined;
+    }
+  | {
+      event: "discord";
+      service: string;
+      level: string;
+      discord_event: string;
+      message: string;
+      [key: string]: string | number | boolean | undefined;
     };

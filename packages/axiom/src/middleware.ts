@@ -59,6 +59,16 @@ export function axiomMiddleware(
       if (error !== undefined) {
         const message = error instanceof Error ? error.message : String(error);
         logger.logError("unhandled_exception", message, c.req.path);
+      } else if (
+        (c.req.path === "/interactions" || c.req.path === "/") &&
+        c.req.method === "POST" &&
+        status === 204
+      ) {
+        logger.logError(
+          "discord_empty_ack",
+          "Discord interaction returned HTTP 204 with no callback payload",
+          c.req.path,
+        );
       }
 
       c.executionCtx.waitUntil(logger.flush());

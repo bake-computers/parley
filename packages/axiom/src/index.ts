@@ -8,3 +8,4 @@ export {
   withAxiomFlush,
   type AxiomVariables,
 } from "./middleware.js";
+export { createRuntimeLogSink } from "./runtime-bridge.js";
