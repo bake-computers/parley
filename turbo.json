@@ -2,13 +2,8 @@
   "$schema": "https://turbo.build/schema.json",
   "globalEnv": [
     "NODE_ENV",
-    "ALCHEMY_SECRET_PASSPHRASE",
-    "ALCHEMY_STAGE",
     "CLOUDFLARE_API_TOKEN",
     "CLOUDFLARE_ACCOUNT_ID",
-    "PARLEY_WORKER_NAME",
-    "LANDING_WORKER_NAME",
-    "BRIDGE_WORKER_NAME",
     "AXIOM_TOKEN",
     "AXIOM_DATASET",
     "AXIOM_ORG_ID",
@@ -23,21 +18,11 @@
     "BRIDGE_ALLOWED_ORIGINS",
     "BRIDGE_POLL_INTERVAL_MS"
   ],
-  "globalDependencies": ["tsconfig.json", "alchemy.run.ts"],
+  "globalDependencies": ["tsconfig.json"],
   "tasks": {
-    "//#alchemy:prepare": {
-      "cache": true,
-      "outputs": ["apps/landing/.alchemy/**"],
-      "inputs": ["alchemy.run.ts", ".env*"]
-    },
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**", ".next/**", "!.next/cache/**"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*", "!**/*.test.ts", "!**/*.spec.ts"]
-    },
-    "landing#build": {
-      "dependsOn": ["//#alchemy:prepare", "^build"],
-      "outputs": ["dist/**"],
       "inputs": ["$TURBO_DEFAULT$", ".env*", "!**/*.test.ts", "!**/*.spec.ts"]
     },
     "typecheck": {
@@ -47,7 +32,7 @@
     "test": {
       "dependsOn": ["build"]
     },
-    "//#dev": {
+    "dev": {
       "cache": false,
       "persistent": true
     },

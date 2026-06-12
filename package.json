@@ -10,18 +10,17 @@
   "type": "module",
   "scripts": {
     "build": "turbo run build",
-    "dev:stop": "bun scripts/stop-alchemy-dev.ts",
-    "predev": "bun run dev:stop && turbo run build --filter=@parley/axiom",
-    "dev": "alchemy dev",
+    "dev": "turbo run dev",
     "lint": "turbo run lint",
     "lint:root": "oxlint . -c oxlint.config.ts",
     "format": "oxfmt --write . -c oxfmt.config.ts",
     "format:check": "oxfmt --check . -c oxfmt.config.ts",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
-    "alchemy:prepare": "bun alchemy.run.ts --prepare",
-    "deploy": "alchemy deploy alchemy.run.ts --adopt --env-file .env --stage dev",
-    "deploy:dev": "alchemy deploy alchemy.run.ts --adopt --env-file .env --stage dev",
+    "deploy": "turbo run deploy",
+    "deploy:worker": "bun run --filter @parley/worker deploy",
+    "deploy:bridge": "bun run --filter @parley/bridge deploy",
+    "deploy:landing": "bun run --filter landing deploy",
     "changeset": "changeset",
     "version": "changeset version",
     "release": "changeset publish"
@@ -30,12 +29,12 @@
     "@changesets/cli": "^2.31.0",
     "@total-typescript/ts-reset": "^0.6.1",
     "@types/bun": "^1.3.14",
-    "alchemy": "^0.93.9",
     "bun-types": "^1.3.13",
     "oxfmt": "^0.51.0",
     "oxlint": "^1.63.0",
     "turbo": "^2.9.9",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "wrangler": "^4.98.0"
   },
   "packageManager": "bun@1.3.12"
 }

@@ -6,8 +6,9 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "deploy": "alchemy deploy",
-    "typecheck": "tsc --noEmit",
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev --port 8788",
+    "typecheck": "tsc --noEmit && wrangler types --check",
     "lint": "oxlint .",
     "test": "bun test"
   },
@@ -19,7 +20,7 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260506.1",
     "@parley/tsconfig-base": "workspace:*",
-    "alchemy": "^0.93.9",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "wrangler": "^4.98.0"
   }
 }
