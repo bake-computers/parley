@@ -60,7 +60,7 @@ describe("profileCommand", () => {
       context: { env: { ENGINE_SERVICE_URL: "http://localhost:50051" } },
     } as unknown as ChatInputCommandInteraction;
 
-    const { profileCommand } = await import("../commands/profile.js");
+    const { profileCommand } = await import("../interactions/profile.js");
     await profileCommand.execute(mockInteraction);
 
     expect(deferMock).toHaveBeenCalledWith(true);
@@ -100,7 +100,7 @@ describe("profileCommand", () => {
       context: { env: { ENGINE_SERVICE_URL: "http://localhost:50051" } },
     } as unknown as ChatInputCommandInteraction;
 
-    const { profileCommand } = await import("../commands/profile.js");
+    const { profileCommand } = await import("../interactions/profile.js");
     await profileCommand.execute(mockInteraction);
 
     expect(deferMock).toHaveBeenCalledWith(true);
@@ -134,7 +134,7 @@ describe("profileCommand", () => {
       context: { env: { ENGINE_SERVICE_URL: "http://localhost:50051" } },
     } as unknown as ChatInputCommandInteraction;
 
-    const { profileCommand } = await import("../commands/profile.js");
+    const { profileCommand } = await import("../interactions/profile.js");
     await profileCommand.execute(mockInteraction);
 
     expect(deferMock).toHaveBeenCalledWith(true);

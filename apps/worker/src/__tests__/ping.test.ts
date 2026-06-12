@@ -9,7 +9,7 @@ describe("pingCommand", () => {
     } as unknown as ChatInputCommandInteraction;
 
     // Dynamic import to ensure fresh module (no cached handlers)
-    const { pingCommand } = await import("../commands/ping.js");
+    const { pingCommand } = await import("../interactions/ping.js");
 
     await pingCommand.execute(mockInteraction);
 

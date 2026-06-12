@@ -2,7 +2,7 @@ import { SlashCommand, type ChatInputCommandInteraction } from "@parley/runtime"
 import { Game } from "@parley/proto";
 import type { LinkedIdentity } from "@parley/proto";
 import type { LookupByDiscordResponse } from "@parley/proto";
-import { getIdentityClient } from "../transport.js";
+import { getIdentityClient, type EngineTransportEnv } from "../transport.js";
 import { createSuccessEmbed, createInfoEmbed, createErrorEmbed } from "../embeds.js";
 import type { Result } from "neverthrow";
 import type { ConnectError } from "@connectrpc/connect";
@@ -29,17 +29,15 @@ export const profileCommand = new SlashCommand()
   .addHandler(async (interaction: ChatInputCommandInteraction) => {
     await interaction.deferReply(true);
 
-    const engineServiceUrl = (interaction.context.env as Record<string, string>)[
-      "ENGINE_SERVICE_URL"
-    ];
-    if (!engineServiceUrl) {
+    const env = interaction.context.env as EngineTransportEnv;
+    if (!env.ENGINE_SERVICE_URL && !env.VPC_SERVICE) {
       await interaction.editReply({
-        embeds: [createErrorEmbed("Configuration Error", "ENGINE_SERVICE_URL is not configured.")],
+        embeds: [createErrorEmbed("Configuration Error", "Engine service is not configured.")],
       });
       return;
     }
 
-    const client = getIdentityClient(engineServiceUrl) as IdentityClient;
+    const client = getIdentityClient(env) as unknown as IdentityClient;
     const result = await client.lookupByDiscord({
       discordUserId: interaction.user?.id ?? "",
       game: Game.UNSPECIFIED,

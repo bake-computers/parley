@@ -1,39 +1,71 @@
-import { registerApplicationCommands } from "@parley/runtime";
+import { join } from "node:path";
+import {
+  flattenHandlers,
+  isSlashCommandHandler,
+  registerApplicationCommands,
+} from "@parley/runtime";
+import { helpCommand } from "./interactions/help.js";
+import { linkSlashCommand } from "./interactions/link/slash.js";
+import { pingCommand } from "./interactions/ping.js";
+import { profileCommand } from "./interactions/profile.js";
 
-async function loadCommands() {
-  try {
-    const [ping, help, link, profile] = await Promise.all([
-      import("./commands/ping.js" as string),
-      import("./commands/help.js" as string),
-      import("./commands/link.js" as string),
-      import("./commands/profile.js" as string),
-    ]);
-    return [ping.pingCommand, help.helpCommand, link.linkCommand, profile.profileCommand];
-  } catch {
-    console.error("Error: One or more command modules not found. Ensure T9-T12 are implemented.");
-    process.exit(1);
+async function loadEnvFile(path: string): Promise<void> {
+  const file = Bun.file(path);
+  if (!(await file.exists())) {
+    return;
+  }
+
+  const text = await file.text();
+  for (const line of text.split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) {
+      continue;
+    }
+
+    const separator = trimmed.indexOf("=");
+    if (separator <= 0) {
+      continue;
+    }
+
+    const key = trimmed.slice(0, separator).trim();
+    let value = trimmed.slice(separator + 1).trim();
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1);
+    }
+
+    const current = process.env[key];
+    if (current === undefined || current === "") {
+      process.env[key] = value;
+    }
   }
 }
+
+const scriptDir = import.meta.dirname;
+const workerDir = join(scriptDir, "..");
+const repoRoot = join(workerDir, "../..");
+
+await loadEnvFile(join(repoRoot, ".env"));
+await loadEnvFile(join(workerDir, ".env"));
 
 const token = process.env["DISCORD_BOT_TOKEN"];
 const applicationId = process.env["DISCORD_APPLICATION_ID"];
 
 if (!token || !applicationId) {
   console.error("Error: DISCORD_BOT_TOKEN and DISCORD_APPLICATION_ID must be set");
+  console.error("Set them in apps/worker/.env or the repo root .env file.");
   process.exit(1);
 }
 
-console.log(`Registering commands for application ${applicationId}...`);
+const commands = [pingCommand, helpCommand, linkSlashCommand, profileCommand];
 
-const [pingCommand, helpCommand, linkCommand, profileCommand] = await loadCommands();
-const result = await registerApplicationCommands(
-  token,
-  applicationId,
-  pingCommand,
-  helpCommand,
-  linkCommand,
-  profileCommand,
-);
+console.log(`Registering commands for application ${applicationId}...`);
+const slashCommandCount = flattenHandlers(commands).filter(isSlashCommandHandler).length;
+console.log(`Loaded ${slashCommandCount} slash commands`);
+
+const result = await registerApplicationCommands(token, applicationId, ...commands);
 
 if (result.isErr()) {
   console.error(`Failed to register commands: ${result.error.message}`);

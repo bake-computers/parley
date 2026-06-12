@@ -9,7 +9,7 @@ describe("helpCommand", () => {
     } as unknown as ChatInputCommandInteraction;
 
     // Dynamic import to ensure fresh module (no cached handlers)
-    const { helpCommand } = await import("../commands/help.js");
+    const { helpCommand } = await import("../interactions/help.js");
 
     await helpCommand.execute(mockInteraction);
 
