@@ -1,0 +1,44 @@
+/**
+ * Cloudflare Worker configuration for the Parley leaderboard bridge.
+ *
+ * Local secrets belong in `apps/bridge/.dev.vars` (gitignored).
+ * Production secrets are managed with `wrangler secret put`.
+ */
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "leaderboard-bridge",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-05-14",
+  "compatibility_flags": ["nodejs_compat"],
+  "placement": { "mode": "smart" },
+  "workers_dev": false,
+  "logpush": true,
+  "observability": { "enabled": true },
+
+  "vars": {
+    "SERVICE_NAME": "bridge",
+    "ENGINE_SERVICE_URL": "http://localhost:50051",
+    "ALLOWED_ORIGINS": "https://parley.bot,http://localhost:3000,http://127.0.0.1:3000",
+    "POLL_INTERVAL_MS": "60000",
+    "AXIOM_DATASET": "parley",
+    "AXIOM_ENABLED": "true",
+  },
+
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "GLOBAL_LEADERBOARD",
+        "class_name": "GlobalLeaderboard",
+      },
+    ],
+  },
+
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["GlobalLeaderboard"],
+    },
+  ],
+
+  "routes": [{ "pattern": "bridge.parley.bot", "custom_domain": true }],
+}

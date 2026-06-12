@@ -1,10 +1,8 @@
-ENGINE_SERVICE_URL=http://localhost:50051
-# Discord
-# DISCORD_PUBLIC_KEY=your_discord_application_public_key (Ed25519 verify key)
-# DISCORD_BOT_TOKEN=your_bot_token_here (Bot token for REST API auth)
-# DISCORD_APPLICATION_ID=your_application_id_here (Discord application ID)
-# DISCORD_BOT_OWNER_ID= (Optional: your Discord user ID for rate limit bypass)
 # AXIOM_TOKEN=your_axiom_ingest_token
 # AXIOM_DATASET=parley
 # AXIOM_ORG_ID=optional_org_id
 # AXIOM_EDGE=eu-central-1.aws.edge.axiom.co
+# DISCORD_PUBLIC_KEY=your_discord_application_public_key
+# DISCORD_BOT_TOKEN=your_bot_token_here
+# DISCORD_APPLICATION_ID=your_application_id_here
+# DISCORD_BOT_OWNER_ID=optional_user_id

@@ -1,0 +1,44 @@
+/**
+ * Cloudflare Worker configuration for the Parley Discord bot.
+ *
+ * Local secrets belong in `apps/worker/.dev.vars` (gitignored).
+ * Production secrets are managed with `wrangler secret put`.
+ */
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "parley-dev",
+  "main": "src/index.ts",
+  "compatibility_date": "2025-05-14",
+  "compatibility_flags": ["nodejs_compat"],
+  "placement": { "mode": "smart" },
+  "workers_dev": false,
+  "logpush": true,
+  "observability": { "enabled": true },
+
+  "vars": {
+    "SERVICE_NAME": "worker",
+    "AXIOM_DATASET": "parley",
+    "AXIOM_ENABLED": "true",
+    "AXIOM_EDGE": "eu-central-1.aws.edge.axiom.co",
+    "AXIOM_ORG_ID": "parley-sf7e",
+    "ENGINE_SERVICE_URL": "http://localhost:50051",
+    "ENGINE_INTERNAL_URL": "http://api.internal.parley.bot:50051",
+  },
+
+  "kv_namespaces": [
+    {
+      "binding": "KV",
+      "id": "d1811757b1204fd2ab1d0225c7bbb5e3",
+      "remote": true,
+    },
+  ],
+
+  "vpc_services": [
+    {
+      "binding": "VPC_SERVICE",
+      "service_id": "019e56b4-32d2-7843-bf2b-ec4b056d4400",
+    },
+  ],
+
+  "routes": [{ "pattern": "app.parley.bot", "custom_domain": true }],
+}
