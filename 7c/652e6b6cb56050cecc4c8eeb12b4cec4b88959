@@ -1,0 +1,21 @@
+migrations/2026-06-13-120000_user_settings_extend/up.sql
+  s_fda4ba2816fee6::t_4b3c7807c0dd6a 1-4
+migrations/2026-06-13-120000_user_settings_extend/down.sql
+  s_fda4ba2816fee6::t_546847d4f5b265 1-4
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "7c652e6b6cb56050cecc4c8eeb12b4cec4b88959",
+  "prompts": {},
+  "sessions": {
+    "s_fda4ba2816fee6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_13d10e592ffeAGeGQkHOEvx37z",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
