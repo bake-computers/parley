@@ -9,7 +9,6 @@ on:
       - "proto/**"
       - "Cargo.toml"
       - "Cargo.lock"
-      - ".github/**"
 
 env:
   CARGO_TERM_COLOR: always
@@ -26,22 +25,36 @@ jobs:
         id: cache-protoc
         uses: actions/cache@v5
         with:
-          path: /usr/bin/protoc
-          key: ${{ runner.os }}-protoc-v1
+          path: ~/.local/bin/protoc
+          key: ${{ runner.os }}-protoc-v25.1
 
       - name: Install Protobuf Compiler (Fallback)
         if: steps.cache-protoc.outputs.cache-hit != 'true'
         run: |
-          sudo apt-get update
-          sudo apt-get install -y protobuf-compiler
+          mkdir -p ~/.local/bin
+          curl -sSL https://github.com/protocolbuffers/protobuf/releases/download/v25.1/protoc-25.1-linux-x86_64.zip -o protoc.zip
+          unzip -q protoc.zip -d protoc_dist
+          mv protoc_dist/bin/protoc ~/.local/bin/
+          rm -rf protoc.zip protoc_dist
+
+      - name: Add local bin to PATH
+        run: echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Install Rust Toolchain
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Rust Cache
-        uses: Swatinem/rust-cache@v2
+      - name: Cache Cargo Dependencies
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/release/deps/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock', 'proto/**/*.proto') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
 
-      # Explicitly limit parallel compilation jobs to match the 2-vCPU hardware limits
       - name: Compile Release Binary
         run: cargo build --release --locked --jobs 2
         env:
