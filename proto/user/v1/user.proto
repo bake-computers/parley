@@ -17,10 +17,13 @@ service UserSettingsService {
 }
 
 message UserSettings {
-  string discord_user_id           = 1;
-  parley.common.v1.Language language = 2;
-  int64  updated_at_ms             = 3;
-  bool   matchmaking_enabled       = 4;
+  string discord_user_id              = 1;
+  parley.common.v1.Language language  = 2;
+  int64  updated_at_ms                = 3;
+  bool   matchmaking_enabled          = 4;
+  int64  terms_accepted_at_ms         = 5;
+  bool   profile_public               = 6;
+  string timezone                     = 7;
 }
 
 message GetUserSettingsRequest {

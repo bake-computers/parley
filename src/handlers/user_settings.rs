@@ -58,6 +58,9 @@ fn row_to_proto(row: &crate::db::models::UserSettings) -> ProtoUserSettings {
         language: db_lang_to_proto(row.language),
         updated_at_ms: row.updated_at,
         matchmaking_enabled: row.matchmaking_enabled,
+        terms_accepted_at_ms: 0,
+        profile_public: false,
+        timezone: String::new(),
     }
 }
 
@@ -143,6 +146,9 @@ pub async fn get_user_settings_rpc(
             language: ProtoLanguage::En as i32,
             updated_at_ms: 0,
             matchmaking_enabled: true,
+            terms_accepted_at_ms: 0,
+            profile_public: false,
+            timezone: String::new(),
         },
         Err(e) => {
             return encode_ok(

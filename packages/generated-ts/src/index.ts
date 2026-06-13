@@ -6,6 +6,8 @@ export * from "./guild/v1/guild_pb.js";
 
 export * from "./identity/v1/identity_pb.js";
 
+export * from "./user/v1/user_pb.js";
+
 export * from "./matchmaking/v1/matchmaking_pb.js";
 
 export * from "./leaderboard/v1/leaderboard_pb.js";

@@ -11,10 +11,8 @@ import type { Message } from "@bufbuild/protobuf";
 /**
  * Describes the file stats/v1/stats.proto.
  */
-export const file_stats_v1_stats: GenFile /*@__PURE__*/ = fileDesc(
-  "ChRzdGF0cy92MS9zdGF0cy5wcm90bxIPcGFybGV5LnN0YXRzLnYxIpYBChFGZXRjaFN0YXRzUmVxdWVzdBIQCgh1c2VybmFtZRgBIAEoCRIwCghwbGF0Zm9ybRgCIAEoDjIeLnBhcmxleS5zdGF0cy52MS5TdGF0c1BsYXRmb3JtEhcKD3NlYXNvbl9zZWxlY3RvchgDIAEoCRIkCgRnYW1lGAQgASgOMhYucGFybGV5LmNvbW1vbi52MS5HYW1lInsKEkZldGNoU3RhdHNSZXNwb25zZRIPCgdzdWNjZXNzGAEgASgIEiwKBXN0YXRzGAIgASgLMh0ucGFybGV5LnN0YXRzLnYxLlNjcmFwZWRTdGF0cxImCgVlcnJvchgDIAEoCzIXLnBhcmxleS5jb21tb24udjEuRXJyb3IihwEKG0ZldGNoU3RhdHNDb2xsZWN0aW9uUmVxdWVzdBIQCgh1c2VybmFtZRgBIAEoCRIwCghwbGF0Zm9ybRgCIAEoDjIeLnBhcmxleS5zdGF0cy52MS5TdGF0c1BsYXRmb3JtEiQKBGdhbWUYAyABKA4yFi5wYXJsZXkuY29tbW9uLnYxLkdhbWUilAEKHEZldGNoU3RhdHNDb2xsZWN0aW9uUmVzcG9uc2USDwoHc3VjY2VzcxgBIAEoCBI7Cgpjb2xsZWN0aW9uGAIgASgLMicucGFybGV5LnN0YXRzLnYxLlNjcmFwZWRTdGF0c0NvbGxlY3Rpb24SJgoFZXJyb3IYAyABKAsyFy5wYXJsZXkuY29tbW9uLnYxLkVycm9yIp4CChZTY3JhcGVkU3RhdHNDb2xsZWN0aW9uEi0KBmxhdGVzdBgBIAEoCzIdLnBhcmxleS5zdGF0cy52MS5TY3JhcGVkU3RhdHMSSAoJYnlfc2Vhc29uGAIgAygLMjUucGFybGV5LnN0YXRzLnYxLlNjcmFwZWRTdGF0c0NvbGxlY3Rpb24uQnlTZWFzb25FbnRyeRI7Cg5zZWFzb25fY2F0YWxvZxgDIAMoCzIjLnBhcmxleS5zdGF0cy52MS5TZWFzb25DYXRhbG9nRW50cnkaTgoNQnlTZWFzb25FbnRyeRILCgNrZXkYASABKAkSLAoFdmFsdWUYAiABKAsyHS5wYXJsZXkuc3RhdHMudjEuU2NyYXBlZFN0YXRzOgI4ASJHChJTZWFzb25DYXRhbG9nRW50cnkSDAoEc2x1ZxgBIAEoCRIPCgdkaXNwbGF5GAIgASgJEhIKCnN0YXJ0ZWRfYXQYAyABKAkisgEKDFNjcmFwZWRTdGF0cxIuCgdwcm9maWxlGAEgASgLMh0ucGFybGV5LnN0YXRzLnYxLlN0YXRzUHJvZmlsZRIyCgxyYW5rZWRfc3RhdHMYAiABKAsyHC5wYXJsZXkuc3RhdHMudjEuUmFua2VkU3RhdHMSPgoSY2FsY3VsYXRlZF9tZXRyaWNzGAMgASgLMiIucGFybGV5LnN0YXRzLnYxLkNhbGN1bGF0ZWRNZXRyaWNzImoKDFN0YXRzUHJvZmlsZRIQCgh1c2VybmFtZRgBIAEoCRINCgVsZXZlbBgCIAEoBRISCgpwcm9maWxlX2lkGAMgASgJEhAKCHBsYXRmb3JtGAQgASgJEhMKC3Byb2ZpbGVfdXJsGAUgASgJIq0GCgtSYW5rZWRTdGF0cxIOCgZzZWFzb24YASABKAkSEwoLc2Vhc29uX3NsdWcYAiABKAkSFgoOc2Vhc29uX2Rpc3BsYXkYAyABKAkSGQoRc2Vhc29uX3N0YXJ0ZWRfYXQYBCABKAkSDAoEbW9kZRgFIAEoCRIPCgdtYXRjaGVzGAYgASgFEgwKBHdpbnMYByABKAUSDgoGbG9zc2VzGAggASgFEhAKCGFiYW5kb25zGAkgASgFEg0KBWtpbGxzGAogASgFEg4KBmRlYXRocxgLIAEoBRIPCgdhc3Npc3RzGAwgASgFEhEKCWhlYWRzaG90cxgNIAEoBRIQCghrZF9yYXRpbxgOIAEoARIbChNoZWFkc2hvdF9wZXJjZW50YWdlGA8gASgBEhAKCHdpbl9yYXRlGBAgASgBEhMKC3JhbmtfcG9pbnRzGBEgASgFEhgKEHBlYWtfcmFua19wb2ludHMYEiABKAUSGQoRY3VycmVudF9yYW5rX3NsdWcYEyABKAkSFAoMY3VycmVudF9yYW5rGBQgASgJEhkKEWN1cnJlbnRfcmFua190aWVyGBUgASgJEhYKDnBlYWtfcmFua19zbHVnGBYgASgJEhEKCXBlYWtfcmFuaxgXIAEoCRIWCg5wZWFrX3JhbmtfdGllchgYIAEoCRIfChdhbGxfdGltZV9wZWFrX3Jhbmtfc2x1ZxgZIAEoCRIaChJhbGxfdGltZV9wZWFrX3JhbmsYGiABKAkSHwoXYWxsX3RpbWVfcGVha19yYW5rX3RpZXIYGyABKAkSIQoZYWxsX3RpbWVfcGVha19yYW5rX3BvaW50cxgcIAEoBRIhChlhbGxfdGltZV9wZWFrX3Jhbmtfc2Vhc29uGB0gASgJEhUKDXJvdW5kc19wbGF5ZWQYHiABKAUSEwoLa2lsbF9yb3VuZHMYHyABKAUSFwoPc3Vydml2YWxfcm91bmRzGCAgASgFEhUKDXRyYWRlZF9yb3VuZHMYISABKAUSGwoTb3BlbmluZ19raWxsX3JvdW5kcxgiIAEoBRIYChBtYXRjaGVzX2luX2NhY2hlGCMgASgFIm8KEUNhbGN1bGF0ZWRNZXRyaWNzEgwKBGtvc3QYASABKAESGAoQa29zdF9sb3dlcl9ib3VuZBgCIAEoARIYChBrb3N0X3VwcGVyX2JvdW5kGAMgASgBEhgKEGtvc3RfZGVzY3JpcHRpb24YBCABKAkqmAEKDVN0YXRzUGxhdGZvcm0SHgoaU1RBVFNfUExBVEZPUk1fVU5TUEVDSUZJRUQQABIXChNTVEFUU19QTEFURk9STV9BVVRPEAESFQoRU1RBVFNfUExBVEZPUk1fUEMQAhIXChNTVEFUU19QTEFURk9STV9YQk9YEAMSHgoaU1RBVFNfUExBVEZPUk1fUExBWVNUQVRJT04QBDLaAQoMU3RhdHNTZXJ2aWNlElUKCkZldGNoU3RhdHMSIi5wYXJsZXkuc3RhdHMudjEuRmV0Y2hTdGF0c1JlcXVlc3QaIy5wYXJsZXkuc3RhdHMudjEuRmV0Y2hTdGF0c1Jlc3BvbnNlEnMKFEZldGNoU3RhdHNDb2xsZWN0aW9uEiwucGFybGV5LnN0YXRzLnYxLkZldGNoU3RhdHNDb2xsZWN0aW9uUmVxdWVzdBotLnBhcmxleS5zdGF0cy52MS5GZXRjaFN0YXRzQ29sbGVjdGlvblJlc3BvbnNlQhUKE2JvdC5wYXJsZXkuc3RhdHMudjFiBnByb3RvMw",
-  [file_common_v1_types],
-);
+export const file_stats_v1_stats: GenFile = /*@__PURE__*/
+  fileDesc("ChRzdGF0cy92MS9zdGF0cy5wcm90bxIPcGFybGV5LnN0YXRzLnYxIpYBChFGZXRjaFN0YXRzUmVxdWVzdBIQCgh1c2VybmFtZRgBIAEoCRIwCghwbGF0Zm9ybRgCIAEoDjIeLnBhcmxleS5zdGF0cy52MS5TdGF0c1BsYXRmb3JtEhcKD3NlYXNvbl9zZWxlY3RvchgDIAEoCRIkCgRnYW1lGAQgASgOMhYucGFybGV5LmNvbW1vbi52MS5HYW1lInsKEkZldGNoU3RhdHNSZXNwb25zZRIPCgdzdWNjZXNzGAEgASgIEiwKBXN0YXRzGAIgASgLMh0ucGFybGV5LnN0YXRzLnYxLlNjcmFwZWRTdGF0cxImCgVlcnJvchgDIAEoCzIXLnBhcmxleS5jb21tb24udjEuRXJyb3IihwEKG0ZldGNoU3RhdHNDb2xsZWN0aW9uUmVxdWVzdBIQCgh1c2VybmFtZRgBIAEoCRIwCghwbGF0Zm9ybRgCIAEoDjIeLnBhcmxleS5zdGF0cy52MS5TdGF0c1BsYXRmb3JtEiQKBGdhbWUYAyABKA4yFi5wYXJsZXkuY29tbW9uLnYxLkdhbWUilAEKHEZldGNoU3RhdHNDb2xsZWN0aW9uUmVzcG9uc2USDwoHc3VjY2VzcxgBIAEoCBI7Cgpjb2xsZWN0aW9uGAIgASgLMicucGFybGV5LnN0YXRzLnYxLlNjcmFwZWRTdGF0c0NvbGxlY3Rpb24SJgoFZXJyb3IYAyABKAsyFy5wYXJsZXkuY29tbW9uLnYxLkVycm9yIp4CChZTY3JhcGVkU3RhdHNDb2xsZWN0aW9uEi0KBmxhdGVzdBgBIAEoCzIdLnBhcmxleS5zdGF0cy52MS5TY3JhcGVkU3RhdHMSSAoJYnlfc2Vhc29uGAIgAygLMjUucGFybGV5LnN0YXRzLnYxLlNjcmFwZWRTdGF0c0NvbGxlY3Rpb24uQnlTZWFzb25FbnRyeRI7Cg5zZWFzb25fY2F0YWxvZxgDIAMoCzIjLnBhcmxleS5zdGF0cy52MS5TZWFzb25DYXRhbG9nRW50cnkaTgoNQnlTZWFzb25FbnRyeRILCgNrZXkYASABKAkSLAoFdmFsdWUYAiABKAsyHS5wYXJsZXkuc3RhdHMudjEuU2NyYXBlZFN0YXRzOgI4ASJHChJTZWFzb25DYXRhbG9nRW50cnkSDAoEc2x1ZxgBIAEoCRIPCgdkaXNwbGF5GAIgASgJEhIKCnN0YXJ0ZWRfYXQYAyABKAkisgEKDFNjcmFwZWRTdGF0cxIuCgdwcm9maWxlGAEgASgLMh0ucGFybGV5LnN0YXRzLnYxLlN0YXRzUHJvZmlsZRIyCgxyYW5rZWRfc3RhdHMYAiABKAsyHC5wYXJsZXkuc3RhdHMudjEuUmFua2VkU3RhdHMSPgoSY2FsY3VsYXRlZF9tZXRyaWNzGAMgASgLMiIucGFybGV5LnN0YXRzLnYxLkNhbGN1bGF0ZWRNZXRyaWNzImoKDFN0YXRzUHJvZmlsZRIQCgh1c2VybmFtZRgBIAEoCRINCgVsZXZlbBgCIAEoBRISCgpwcm9maWxlX2lkGAMgASgJEhAKCHBsYXRmb3JtGAQgASgJEhMKC3Byb2ZpbGVfdXJsGAUgASgJIq0GCgtSYW5rZWRTdGF0cxIOCgZzZWFzb24YASABKAkSEwoLc2Vhc29uX3NsdWcYAiABKAkSFgoOc2Vhc29uX2Rpc3BsYXkYAyABKAkSGQoRc2Vhc29uX3N0YXJ0ZWRfYXQYBCABKAkSDAoEbW9kZRgFIAEoCRIPCgdtYXRjaGVzGAYgASgFEgwKBHdpbnMYByABKAUSDgoGbG9zc2VzGAggASgFEhAKCGFiYW5kb25zGAkgASgFEg0KBWtpbGxzGAogASgFEg4KBmRlYXRocxgLIAEoBRIPCgdhc3Npc3RzGAwgASgFEhEKCWhlYWRzaG90cxgNIAEoBRIQCghrZF9yYXRpbxgOIAEoARIbChNoZWFkc2hvdF9wZXJjZW50YWdlGA8gASgBEhAKCHdpbl9yYXRlGBAgASgBEhMKC3JhbmtfcG9pbnRzGBEgASgFEhgKEHBlYWtfcmFua19wb2ludHMYEiABKAUSGQoRY3VycmVudF9yYW5rX3NsdWcYEyABKAkSFAoMY3VycmVudF9yYW5rGBQgASgJEhkKEWN1cnJlbnRfcmFua190aWVyGBUgASgJEhYKDnBlYWtfcmFua19zbHVnGBYgASgJEhEKCXBlYWtfcmFuaxgXIAEoCRIWCg5wZWFrX3JhbmtfdGllchgYIAEoCRIfChdhbGxfdGltZV9wZWFrX3Jhbmtfc2x1ZxgZIAEoCRIaChJhbGxfdGltZV9wZWFrX3JhbmsYGiABKAkSHwoXYWxsX3RpbWVfcGVha19yYW5rX3RpZXIYGyABKAkSIQoZYWxsX3RpbWVfcGVha19yYW5rX3BvaW50cxgcIAEoBRIhChlhbGxfdGltZV9wZWFrX3Jhbmtfc2Vhc29uGB0gASgJEhUKDXJvdW5kc19wbGF5ZWQYHiABKAUSEwoLa2lsbF9yb3VuZHMYHyABKAUSFwoPc3Vydml2YWxfcm91bmRzGCAgASgFEhUKDXRyYWRlZF9yb3VuZHMYISABKAUSGwoTb3BlbmluZ19raWxsX3JvdW5kcxgiIAEoBRIYChBtYXRjaGVzX2luX2NhY2hlGCMgASgFIm8KEUNhbGN1bGF0ZWRNZXRyaWNzEgwKBGtvc3QYASABKAESGAoQa29zdF9sb3dlcl9ib3VuZBgCIAEoARIYChBrb3N0X3VwcGVyX2JvdW5kGAMgASgBEhgKEGtvc3RfZGVzY3JpcHRpb24YBCABKAkqmAEKDVN0YXRzUGxhdGZvcm0SHgoaU1RBVFNfUExBVEZPUk1fVU5TUEVDSUZJRUQQABIXChNTVEFUU19QTEFURk9STV9BVVRPEAESFQoRU1RBVFNfUExBVEZPUk1fUEMQAhIXChNTVEFUU19QTEFURk9STV9YQk9YEAMSHgoaU1RBVFNfUExBVEZPUk1fUExBWVNUQVRJT04QBDLaAQoMU3RhdHNTZXJ2aWNlElUKCkZldGNoU3RhdHMSIi5wYXJsZXkuc3RhdHMudjEuRmV0Y2hTdGF0c1JlcXVlc3QaIy5wYXJsZXkuc3RhdHMudjEuRmV0Y2hTdGF0c1Jlc3BvbnNlEnMKFEZldGNoU3RhdHNDb2xsZWN0aW9uEiwucGFybGV5LnN0YXRzLnYxLkZldGNoU3RhdHNDb2xsZWN0aW9uUmVxdWVzdBotLnBhcmxleS5zdGF0cy52MS5GZXRjaFN0YXRzQ29sbGVjdGlvblJlc3BvbnNlQhUKE2JvdC5wYXJsZXkuc3RhdHMudjFiBnByb3RvMw", [file_common_v1_types]);
 
 /**
  * @generated from message parley.stats.v1.FetchStatsRequest
@@ -52,10 +50,8 @@ export type FetchStatsRequest = Message<"parley.stats.v1.FetchStatsRequest"> & {
  * Describes the message parley.stats.v1.FetchStatsRequest.
  * Use `create(FetchStatsRequestSchema)` to create a new message.
  */
-export const FetchStatsRequestSchema: GenMessage<FetchStatsRequest> /*@__PURE__*/ = messageDesc(
-  file_stats_v1_stats,
-  0,
-);
+export const FetchStatsRequestSchema: GenMessage<FetchStatsRequest> = /*@__PURE__*/
+  messageDesc(file_stats_v1_stats, 0);
 
 /**
  * @generated from message parley.stats.v1.FetchStatsResponse
@@ -81,10 +77,8 @@ export type FetchStatsResponse = Message<"parley.stats.v1.FetchStatsResponse"> &
  * Describes the message parley.stats.v1.FetchStatsResponse.
  * Use `create(FetchStatsResponseSchema)` to create a new message.
  */
-export const FetchStatsResponseSchema: GenMessage<FetchStatsResponse> /*@__PURE__*/ = messageDesc(
-  file_stats_v1_stats,
-  1,
-);
+export const FetchStatsResponseSchema: GenMessage<FetchStatsResponse> = /*@__PURE__*/
+  messageDesc(file_stats_v1_stats, 1);
 
 /**
  * @generated from message parley.stats.v1.FetchStatsCollectionRequest
@@ -110,35 +104,34 @@ export type FetchStatsCollectionRequest = Message<"parley.stats.v1.FetchStatsCol
  * Describes the message parley.stats.v1.FetchStatsCollectionRequest.
  * Use `create(FetchStatsCollectionRequestSchema)` to create a new message.
  */
-export const FetchStatsCollectionRequestSchema: GenMessage<FetchStatsCollectionRequest> /*@__PURE__*/ =
+export const FetchStatsCollectionRequestSchema: GenMessage<FetchStatsCollectionRequest> = /*@__PURE__*/
   messageDesc(file_stats_v1_stats, 2);
 
 /**
  * @generated from message parley.stats.v1.FetchStatsCollectionResponse
  */
-export type FetchStatsCollectionResponse =
-  Message<"parley.stats.v1.FetchStatsCollectionResponse"> & {
-    /**
-     * @generated from field: bool success = 1;
-     */
-    success: boolean;
+export type FetchStatsCollectionResponse = Message<"parley.stats.v1.FetchStatsCollectionResponse"> & {
+  /**
+   * @generated from field: bool success = 1;
+   */
+  success: boolean;
 
-    /**
-     * @generated from field: parley.stats.v1.ScrapedStatsCollection collection = 2;
-     */
-    collection?: ScrapedStatsCollection | undefined;
+  /**
+   * @generated from field: parley.stats.v1.ScrapedStatsCollection collection = 2;
+   */
+  collection?: ScrapedStatsCollection | undefined;
 
-    /**
-     * @generated from field: parley.common.v1.Error error = 3;
-     */
-    error?: Error | undefined;
-  };
+  /**
+   * @generated from field: parley.common.v1.Error error = 3;
+   */
+  error?: Error | undefined;
+};
 
 /**
  * Describes the message parley.stats.v1.FetchStatsCollectionResponse.
  * Use `create(FetchStatsCollectionResponseSchema)` to create a new message.
  */
-export const FetchStatsCollectionResponseSchema: GenMessage<FetchStatsCollectionResponse> /*@__PURE__*/ =
+export const FetchStatsCollectionResponseSchema: GenMessage<FetchStatsCollectionResponse> = /*@__PURE__*/
   messageDesc(file_stats_v1_stats, 3);
 
 /**
@@ -169,7 +162,7 @@ export type ScrapedStatsCollection = Message<"parley.stats.v1.ScrapedStatsCollec
  * Describes the message parley.stats.v1.ScrapedStatsCollection.
  * Use `create(ScrapedStatsCollectionSchema)` to create a new message.
  */
-export const ScrapedStatsCollectionSchema: GenMessage<ScrapedStatsCollection> /*@__PURE__*/ =
+export const ScrapedStatsCollectionSchema: GenMessage<ScrapedStatsCollection> = /*@__PURE__*/
   messageDesc(file_stats_v1_stats, 4);
 
 /**
@@ -198,10 +191,8 @@ export type SeasonCatalogEntry = Message<"parley.stats.v1.SeasonCatalogEntry"> &
  * Describes the message parley.stats.v1.SeasonCatalogEntry.
  * Use `create(SeasonCatalogEntrySchema)` to create a new message.
  */
-export const SeasonCatalogEntrySchema: GenMessage<SeasonCatalogEntry> /*@__PURE__*/ = messageDesc(
-  file_stats_v1_stats,
-  5,
-);
+export const SeasonCatalogEntrySchema: GenMessage<SeasonCatalogEntry> = /*@__PURE__*/
+  messageDesc(file_stats_v1_stats, 5);
 
 /**
  * Mirrors TS ScrapedStats { profile, ranked_stats, calculated_metrics }.
@@ -229,10 +220,8 @@ export type ScrapedStats = Message<"parley.stats.v1.ScrapedStats"> & {
  * Describes the message parley.stats.v1.ScrapedStats.
  * Use `create(ScrapedStatsSchema)` to create a new message.
  */
-export const ScrapedStatsSchema: GenMessage<ScrapedStats> /*@__PURE__*/ = messageDesc(
-  file_stats_v1_stats,
-  6,
-);
+export const ScrapedStatsSchema: GenMessage<ScrapedStats> = /*@__PURE__*/
+  messageDesc(file_stats_v1_stats, 6);
 
 /**
  * @generated from message parley.stats.v1.StatsProfile
@@ -272,10 +261,8 @@ export type StatsProfile = Message<"parley.stats.v1.StatsProfile"> & {
  * Describes the message parley.stats.v1.StatsProfile.
  * Use `create(StatsProfileSchema)` to create a new message.
  */
-export const StatsProfileSchema: GenMessage<StatsProfile> /*@__PURE__*/ = messageDesc(
-  file_stats_v1_stats,
-  7,
-);
+export const StatsProfileSchema: GenMessage<StatsProfile> = /*@__PURE__*/
+  messageDesc(file_stats_v1_stats, 7);
 
 /**
  * @generated from message parley.stats.v1.RankedStats
@@ -461,10 +448,8 @@ export type RankedStats = Message<"parley.stats.v1.RankedStats"> & {
  * Describes the message parley.stats.v1.RankedStats.
  * Use `create(RankedStatsSchema)` to create a new message.
  */
-export const RankedStatsSchema: GenMessage<RankedStats> /*@__PURE__*/ = messageDesc(
-  file_stats_v1_stats,
-  8,
-);
+export const RankedStatsSchema: GenMessage<RankedStats> = /*@__PURE__*/
+  messageDesc(file_stats_v1_stats, 8);
 
 /**
  * @generated from message parley.stats.v1.CalculatedMetrics
@@ -495,10 +480,8 @@ export type CalculatedMetrics = Message<"parley.stats.v1.CalculatedMetrics"> & {
  * Describes the message parley.stats.v1.CalculatedMetrics.
  * Use `create(CalculatedMetricsSchema)` to create a new message.
  */
-export const CalculatedMetricsSchema: GenMessage<CalculatedMetrics> /*@__PURE__*/ = messageDesc(
-  file_stats_v1_stats,
-  9,
-);
+export const CalculatedMetricsSchema: GenMessage<CalculatedMetrics> = /*@__PURE__*/
+  messageDesc(file_stats_v1_stats, 9);
 
 /**
  * Platforms mirrored from the TS scraper. PLATFORM_AUTO tries pc -> xbox -> playstation.
@@ -535,10 +518,8 @@ export enum StatsPlatform {
 /**
  * Describes the enum parley.stats.v1.StatsPlatform.
  */
-export const StatsPlatformSchema: GenEnum<StatsPlatform> /*@__PURE__*/ = enumDesc(
-  file_stats_v1_stats,
-  0,
-);
+export const StatsPlatformSchema: GenEnum<StatsPlatform> = /*@__PURE__*/
+  enumDesc(file_stats_v1_stats, 0);
 
 /**
  * StatsService fetches player stats for supported games (R6 Siege, Brawl Stars).
@@ -557,7 +538,7 @@ export const StatsService: GenService<{
     methodKind: "unary";
     input: typeof FetchStatsRequestSchema;
     output: typeof FetchStatsResponseSchema;
-  };
+  },
   /**
    * Fetch stats for every ranked season the player has a record in.
    *
@@ -567,5 +548,7 @@ export const StatsService: GenService<{
     methodKind: "unary";
     input: typeof FetchStatsCollectionRequestSchema;
     output: typeof FetchStatsCollectionResponseSchema;
-  };
-}> /*@__PURE__*/ = serviceDesc(file_stats_v1_stats, 0);
+  },
+}> = /*@__PURE__*/
+  serviceDesc(file_stats_v1_stats, 0);
+

@@ -11,10 +11,8 @@ import type { Message } from "@bufbuild/protobuf";
 /**
  * Describes the file user/v1/user.proto.
  */
-export const file_user_v1_user: GenFile /*@__PURE__*/ = fileDesc(
-  "ChJ1c2VyL3YxL3VzZXIucHJvdG8SDnBhcmxleS51c2VyLnYxIokBCgxVc2VyU2V0dGluZ3MSFwoPZGlzY29yZF91c2VyX2lkGAEgASgJEiwKCGxhbmd1YWdlGAIgASgOMhoucGFybGV5LmNvbW1vbi52MS5MYW5ndWFnZRIVCg11cGRhdGVkX2F0X21zGAMgASgDEhsKE21hdGNobWFraW5nX2VuYWJsZWQYBCABKAgiMQoWR2V0VXNlclNldHRpbmdzUmVxdWVzdBIXCg9kaXNjb3JkX3VzZXJfaWQYASABKAkiSwoZVXBzZXJ0VXNlclNldHRpbmdzUmVxdWVzdBIuCghzZXR0aW5ncxgBIAEoCzIcLnBhcmxleS51c2VyLnYxLlVzZXJTZXR0aW5ncyJ/ChRVc2VyU2V0dGluZ3NSZXNwb25zZRIPCgdzdWNjZXNzGAEgASgIEi4KCHNldHRpbmdzGAIgASgLMhwucGFybGV5LnVzZXIudjEuVXNlclNldHRpbmdzEiYKBWVycm9yGAMgASgLMhcucGFybGV5LmNvbW1vbi52MS5FcnJvciJpChZSZXNvbHZlTGFuZ3VhZ2VSZXF1ZXN0EhcKD2Rpc2NvcmRfdXNlcl9pZBgBIAEoCRIQCghndWlsZF9pZBgCIAEoCRIkCgRnYW1lGAMgASgOMhYucGFybGV5LmNvbW1vbi52MS5HYW1lIrABChdSZXNvbHZlTGFuZ3VhZ2VSZXNwb25zZRIPCgdzdWNjZXNzGAEgASgIEiwKCGxhbmd1YWdlGAIgASgOMhoucGFybGV5LmNvbW1vbi52MS5MYW5ndWFnZRIuCgZzb3VyY2UYAyABKA4yHi5wYXJsZXkudXNlci52MS5MYW5ndWFnZVNvdXJjZRImCgVlcnJvchgEIAEoCzIXLnBhcmxleS5jb21tb24udjEuRXJyb3IiMAoVRGVsZXRlVXNlckRhdGFSZXF1ZXN0EhcKD2Rpc2NvcmRfdXNlcl9pZBgBIAEoCSLeAgoTQW5vbnltaXphdGlvbkNvdW50cxIPCgdwbGF5ZXJzGAEgASgFEhoKEmRpc2NvcmRfaWRlbnRpdGllcxgCIAEoBRIZChFndWlsZF9tZW1iZXJzaGlwcxgDIAEoBRIPCgdtYXRjaGVzGAQgASgFEhoKEm1hdGNoX3BhcnRpY2lwYW50cxgFIAEoBRIaChJtYXRjaG1ha2luZ19xdWV1ZXMYBiABKAUSJgoebWF0Y2htYWtpbmdfcXVldWVfcGFydGljaXBhbnRzGAcgASgFEhMKC3RvdXJuYW1lbnRzGAggASgFEhgKEHRvdXJuYW1lbnRfdGVhbXMYCSABKAUSHwoXdG91cm5hbWVudF90ZWFtX3Jvc3RlcnMYCiABKAUSHAoUZ3VpbGRfc2V0dGluZ3NfYXVkaXQYCyABKAUSIAoYZ3VpbGRfbWF0Y2hfcXVvdGFzX2F1ZGl0GAwgASgFIs4BChZEZWxldGVVc2VyRGF0YVJlc3BvbnNlEg8KB3N1Y2Nlc3MYASABKAgSIgoaYW5vbnltaXplZF9kaXNjb3JkX3VzZXJfaWQYAiABKAkSGQoRY29vbGRvd25fdW50aWxfbXMYAyABKAMSPAoPdGFibGVzX2FmZmVjdGVkGAQgASgLMiMucGFybGV5LnVzZXIudjEuQW5vbnltaXphdGlvbkNvdW50cxImCgVlcnJvchgFIAEoCzIXLnBhcmxleS5jb21tb24udjEuRXJyb3IqgwEKDkxhbmd1YWdlU291cmNlEh8KG0xBTkdVQUdFX1NPVVJDRV9VTlNQRUNJRklFRBAAEhgKFExBTkdVQUdFX1NPVVJDRV9VU0VSEAESGQoVTEFOR1VBR0VfU09VUkNFX0dVSUxEEAISGwoXTEFOR1VBR0VfU09VUkNFX0RFRkFVTFQQAzKiAwoTVXNlclNldHRpbmdzU2VydmljZRJfCg9HZXRVc2VyU2V0dGluZ3MSJi5wYXJsZXkudXNlci52MS5HZXRVc2VyU2V0dGluZ3NSZXF1ZXN0GiQucGFybGV5LnVzZXIudjEuVXNlclNldHRpbmdzUmVzcG9uc2USZQoSVXBzZXJ0VXNlclNldHRpbmdzEikucGFybGV5LnVzZXIudjEuVXBzZXJ0VXNlclNldHRpbmdzUmVxdWVzdBokLnBhcmxleS51c2VyLnYxLlVzZXJTZXR0aW5nc1Jlc3BvbnNlEmIKD1Jlc29sdmVMYW5ndWFnZRImLnBhcmxleS51c2VyLnYxLlJlc29sdmVMYW5ndWFnZVJlcXVlc3QaJy5wYXJsZXkudXNlci52MS5SZXNvbHZlTGFuZ3VhZ2VSZXNwb25zZRJfCg5EZWxldGVVc2VyRGF0YRIlLnBhcmxleS51c2VyLnYxLkRlbGV0ZVVzZXJEYXRhUmVxdWVzdBomLnBhcmxleS51c2VyLnYxLkRlbGV0ZVVzZXJEYXRhUmVzcG9uc2VCFAoSYm90LnBhcmxleS51c2VyLnYxYgZwcm90bzM",
-  [file_common_v1_types],
-);
+export const file_user_v1_user: GenFile = /*@__PURE__*/
+  fileDesc("ChJ1c2VyL3YxL3VzZXIucHJvdG8SDnBhcmxleS51c2VyLnYxItEBCgxVc2VyU2V0dGluZ3MSFwoPZGlzY29yZF91c2VyX2lkGAEgASgJEiwKCGxhbmd1YWdlGAIgASgOMhoucGFybGV5LmNvbW1vbi52MS5MYW5ndWFnZRIVCg11cGRhdGVkX2F0X21zGAMgASgDEhsKE21hdGNobWFraW5nX2VuYWJsZWQYBCABKAgSHAoUdGVybXNfYWNjZXB0ZWRfYXRfbXMYBSABKAMSFgoOcHJvZmlsZV9wdWJsaWMYBiABKAgSEAoIdGltZXpvbmUYByABKAkiMQoWR2V0VXNlclNldHRpbmdzUmVxdWVzdBIXCg9kaXNjb3JkX3VzZXJfaWQYASABKAkiSwoZVXBzZXJ0VXNlclNldHRpbmdzUmVxdWVzdBIuCghzZXR0aW5ncxgBIAEoCzIcLnBhcmxleS51c2VyLnYxLlVzZXJTZXR0aW5ncyJ/ChRVc2VyU2V0dGluZ3NSZXNwb25zZRIPCgdzdWNjZXNzGAEgASgIEi4KCHNldHRpbmdzGAIgASgLMhwucGFybGV5LnVzZXIudjEuVXNlclNldHRpbmdzEiYKBWVycm9yGAMgASgLMhcucGFybGV5LmNvbW1vbi52MS5FcnJvciJpChZSZXNvbHZlTGFuZ3VhZ2VSZXF1ZXN0EhcKD2Rpc2NvcmRfdXNlcl9pZBgBIAEoCRIQCghndWlsZF9pZBgCIAEoCRIkCgRnYW1lGAMgASgOMhYucGFybGV5LmNvbW1vbi52MS5HYW1lIrABChdSZXNvbHZlTGFuZ3VhZ2VSZXNwb25zZRIPCgdzdWNjZXNzGAEgASgIEiwKCGxhbmd1YWdlGAIgASgOMhoucGFybGV5LmNvbW1vbi52MS5MYW5ndWFnZRIuCgZzb3VyY2UYAyABKA4yHi5wYXJsZXkudXNlci52MS5MYW5ndWFnZVNvdXJjZRImCgVlcnJvchgEIAEoCzIXLnBhcmxleS5jb21tb24udjEuRXJyb3IiMAoVRGVsZXRlVXNlckRhdGFSZXF1ZXN0EhcKD2Rpc2NvcmRfdXNlcl9pZBgBIAEoCSLeAgoTQW5vbnltaXphdGlvbkNvdW50cxIPCgdwbGF5ZXJzGAEgASgFEhoKEmRpc2NvcmRfaWRlbnRpdGllcxgCIAEoBRIZChFndWlsZF9tZW1iZXJzaGlwcxgDIAEoBRIPCgdtYXRjaGVzGAQgASgFEhoKEm1hdGNoX3BhcnRpY2lwYW50cxgFIAEoBRIaChJtYXRjaG1ha2luZ19xdWV1ZXMYBiABKAUSJgoebWF0Y2htYWtpbmdfcXVldWVfcGFydGljaXBhbnRzGAcgASgFEhMKC3RvdXJuYW1lbnRzGAggASgFEhgKEHRvdXJuYW1lbnRfdGVhbXMYCSABKAUSHwoXdG91cm5hbWVudF90ZWFtX3Jvc3RlcnMYCiABKAUSHAoUZ3VpbGRfc2V0dGluZ3NfYXVkaXQYCyABKAUSIAoYZ3VpbGRfbWF0Y2hfcXVvdGFzX2F1ZGl0GAwgASgFIs4BChZEZWxldGVVc2VyRGF0YVJlc3BvbnNlEg8KB3N1Y2Nlc3MYASABKAgSIgoaYW5vbnltaXplZF9kaXNjb3JkX3VzZXJfaWQYAiABKAkSGQoRY29vbGRvd25fdW50aWxfbXMYAyABKAMSPAoPdGFibGVzX2FmZmVjdGVkGAQgASgLMiMucGFybGV5LnVzZXIudjEuQW5vbnltaXphdGlvbkNvdW50cxImCgVlcnJvchgFIAEoCzIXLnBhcmxleS5jb21tb24udjEuRXJyb3IqgwEKDkxhbmd1YWdlU291cmNlEh8KG0xBTkdVQUdFX1NPVVJDRV9VTlNQRUNJRklFRBAAEhgKFExBTkdVQUdFX1NPVVJDRV9VU0VSEAESGQoVTEFOR1VBR0VfU09VUkNFX0dVSUxEEAISGwoXTEFOR1VBR0VfU09VUkNFX0RFRkFVTFQQAzKiAwoTVXNlclNldHRpbmdzU2VydmljZRJfCg9HZXRVc2VyU2V0dGluZ3MSJi5wYXJsZXkudXNlci52MS5HZXRVc2VyU2V0dGluZ3NSZXF1ZXN0GiQucGFybGV5LnVzZXIudjEuVXNlclNldHRpbmdzUmVzcG9uc2USZQoSVXBzZXJ0VXNlclNldHRpbmdzEikucGFybGV5LnVzZXIudjEuVXBzZXJ0VXNlclNldHRpbmdzUmVxdWVzdBokLnBhcmxleS51c2VyLnYxLlVzZXJTZXR0aW5nc1Jlc3BvbnNlEmIKD1Jlc29sdmVMYW5ndWFnZRImLnBhcmxleS51c2VyLnYxLlJlc29sdmVMYW5ndWFnZVJlcXVlc3QaJy5wYXJsZXkudXNlci52MS5SZXNvbHZlTGFuZ3VhZ2VSZXNwb25zZRJfCg5EZWxldGVVc2VyRGF0YRIlLnBhcmxleS51c2VyLnYxLkRlbGV0ZVVzZXJEYXRhUmVxdWVzdBomLnBhcmxleS51c2VyLnYxLkRlbGV0ZVVzZXJEYXRhUmVzcG9uc2VCFAoSYm90LnBhcmxleS51c2VyLnYxYgZwcm90bzM", [file_common_v1_types]);
 
 /**
  * @generated from message parley.user.v1.UserSettings
@@ -39,16 +37,29 @@ export type UserSettings = Message<"parley.user.v1.UserSettings"> & {
    * @generated from field: bool matchmaking_enabled = 4;
    */
   matchmakingEnabled: boolean;
+
+  /**
+   * @generated from field: int64 terms_accepted_at_ms = 5;
+   */
+  termsAcceptedAtMs: bigint;
+
+  /**
+   * @generated from field: bool profile_public = 6;
+   */
+  profilePublic: boolean;
+
+  /**
+   * @generated from field: string timezone = 7;
+   */
+  timezone: string;
 };
 
 /**
  * Describes the message parley.user.v1.UserSettings.
  * Use `create(UserSettingsSchema)` to create a new message.
  */
-export const UserSettingsSchema: GenMessage<UserSettings> /*@__PURE__*/ = messageDesc(
-  file_user_v1_user,
-  0,
-);
+export const UserSettingsSchema: GenMessage<UserSettings> = /*@__PURE__*/
+  messageDesc(file_user_v1_user, 0);
 
 /**
  * @generated from message parley.user.v1.GetUserSettingsRequest
@@ -64,7 +75,7 @@ export type GetUserSettingsRequest = Message<"parley.user.v1.GetUserSettingsRequ
  * Describes the message parley.user.v1.GetUserSettingsRequest.
  * Use `create(GetUserSettingsRequestSchema)` to create a new message.
  */
-export const GetUserSettingsRequestSchema: GenMessage<GetUserSettingsRequest> /*@__PURE__*/ =
+export const GetUserSettingsRequestSchema: GenMessage<GetUserSettingsRequest> = /*@__PURE__*/
   messageDesc(file_user_v1_user, 1);
 
 /**
@@ -81,7 +92,7 @@ export type UpsertUserSettingsRequest = Message<"parley.user.v1.UpsertUserSettin
  * Describes the message parley.user.v1.UpsertUserSettingsRequest.
  * Use `create(UpsertUserSettingsRequestSchema)` to create a new message.
  */
-export const UpsertUserSettingsRequestSchema: GenMessage<UpsertUserSettingsRequest> /*@__PURE__*/ =
+export const UpsertUserSettingsRequestSchema: GenMessage<UpsertUserSettingsRequest> = /*@__PURE__*/
   messageDesc(file_user_v1_user, 2);
 
 /**
@@ -108,7 +119,7 @@ export type UserSettingsResponse = Message<"parley.user.v1.UserSettingsResponse"
  * Describes the message parley.user.v1.UserSettingsResponse.
  * Use `create(UserSettingsResponseSchema)` to create a new message.
  */
-export const UserSettingsResponseSchema: GenMessage<UserSettingsResponse> /*@__PURE__*/ =
+export const UserSettingsResponseSchema: GenMessage<UserSettingsResponse> = /*@__PURE__*/
   messageDesc(file_user_v1_user, 3);
 
 /**
@@ -137,7 +148,7 @@ export type ResolveLanguageRequest = Message<"parley.user.v1.ResolveLanguageRequ
  * Describes the message parley.user.v1.ResolveLanguageRequest.
  * Use `create(ResolveLanguageRequestSchema)` to create a new message.
  */
-export const ResolveLanguageRequestSchema: GenMessage<ResolveLanguageRequest> /*@__PURE__*/ =
+export const ResolveLanguageRequestSchema: GenMessage<ResolveLanguageRequest> = /*@__PURE__*/
   messageDesc(file_user_v1_user, 4);
 
 /**
@@ -169,7 +180,7 @@ export type ResolveLanguageResponse = Message<"parley.user.v1.ResolveLanguageRes
  * Describes the message parley.user.v1.ResolveLanguageResponse.
  * Use `create(ResolveLanguageResponseSchema)` to create a new message.
  */
-export const ResolveLanguageResponseSchema: GenMessage<ResolveLanguageResponse> /*@__PURE__*/ =
+export const ResolveLanguageResponseSchema: GenMessage<ResolveLanguageResponse> = /*@__PURE__*/
   messageDesc(file_user_v1_user, 5);
 
 /**
@@ -186,7 +197,7 @@ export type DeleteUserDataRequest = Message<"parley.user.v1.DeleteUserDataReques
  * Describes the message parley.user.v1.DeleteUserDataRequest.
  * Use `create(DeleteUserDataRequestSchema)` to create a new message.
  */
-export const DeleteUserDataRequestSchema: GenMessage<DeleteUserDataRequest> /*@__PURE__*/ =
+export const DeleteUserDataRequestSchema: GenMessage<DeleteUserDataRequest> = /*@__PURE__*/
   messageDesc(file_user_v1_user, 6);
 
 /**
@@ -258,10 +269,8 @@ export type AnonymizationCounts = Message<"parley.user.v1.AnonymizationCounts"> 
  * Describes the message parley.user.v1.AnonymizationCounts.
  * Use `create(AnonymizationCountsSchema)` to create a new message.
  */
-export const AnonymizationCountsSchema: GenMessage<AnonymizationCounts> /*@__PURE__*/ = messageDesc(
-  file_user_v1_user,
-  7,
-);
+export const AnonymizationCountsSchema: GenMessage<AnonymizationCounts> = /*@__PURE__*/
+  messageDesc(file_user_v1_user, 7);
 
 /**
  * @generated from message parley.user.v1.DeleteUserDataResponse
@@ -297,7 +306,7 @@ export type DeleteUserDataResponse = Message<"parley.user.v1.DeleteUserDataRespo
  * Describes the message parley.user.v1.DeleteUserDataResponse.
  * Use `create(DeleteUserDataResponseSchema)` to create a new message.
  */
-export const DeleteUserDataResponseSchema: GenMessage<DeleteUserDataResponse> /*@__PURE__*/ =
+export const DeleteUserDataResponseSchema: GenMessage<DeleteUserDataResponse> = /*@__PURE__*/
   messageDesc(file_user_v1_user, 8);
 
 /**
@@ -328,10 +337,8 @@ export enum LanguageSource {
 /**
  * Describes the enum parley.user.v1.LanguageSource.
  */
-export const LanguageSourceSchema: GenEnum<LanguageSource> /*@__PURE__*/ = enumDesc(
-  file_user_v1_user,
-  0,
-);
+export const LanguageSourceSchema: GenEnum<LanguageSource> = /*@__PURE__*/
+  enumDesc(file_user_v1_user, 0);
 
 /**
  * Per-Discord-user preferences (global, not per-game).
@@ -348,7 +355,7 @@ export const UserSettingsService: GenService<{
     methodKind: "unary";
     input: typeof GetUserSettingsRequestSchema;
     output: typeof UserSettingsResponseSchema;
-  };
+  },
   /**
    * @generated from rpc parley.user.v1.UserSettingsService.UpsertUserSettings
    */
@@ -356,7 +363,7 @@ export const UserSettingsService: GenService<{
     methodKind: "unary";
     input: typeof UpsertUserSettingsRequestSchema;
     output: typeof UserSettingsResponseSchema;
-  };
+  },
   /**
    * @generated from rpc parley.user.v1.UserSettingsService.ResolveLanguage
    */
@@ -364,7 +371,7 @@ export const UserSettingsService: GenService<{
     methodKind: "unary";
     input: typeof ResolveLanguageRequestSchema;
     output: typeof ResolveLanguageResponseSchema;
-  };
+  },
   /**
    * @generated from rpc parley.user.v1.UserSettingsService.DeleteUserData
    */
@@ -372,5 +379,7 @@ export const UserSettingsService: GenService<{
     methodKind: "unary";
     input: typeof DeleteUserDataRequestSchema;
     output: typeof DeleteUserDataResponseSchema;
-  };
-}> /*@__PURE__*/ = serviceDesc(file_user_v1_user, 0);
+  },
+}> = /*@__PURE__*/
+  serviceDesc(file_user_v1_user, 0);
+
