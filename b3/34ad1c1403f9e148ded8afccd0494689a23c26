@@ -1,0 +1,21 @@
+apps/worker/src/interactions/_shared/stats.ts
+  s_fda4ba2816fee6::t_2d7775f54d5dab 1-58
+apps/worker/src/interactions/link/rpc.ts
+  s_fda4ba2816fee6::t_f3aa57d7bd1c83 2,5,79-85
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "b334ad1c1403f9e148ded8afccd0494689a23c26",
+  "prompts": {},
+  "sessions": {
+    "s_fda4ba2816fee6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_13d10e592ffeAGeGQkHOEvx37z",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
