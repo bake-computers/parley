@@ -13,18 +13,15 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  # Disable incremental compilation to save disk I/O and prevent cache bloat
   CARGO_INCREMENTAL: 0
 
 jobs:
   build-and-deploy:
-    # Downgraded to 2vCPU to maximize your 3,000 free monthly minutes (1:1 consumption)
     runs-on: blacksmith-2vcpu-ubuntu-2404
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # Cache the protoc binary to skip apt-get update/install network overhead
       - name: Cache Protobuf Compiler
         id: cache-protoc
         uses: actions/cache@v5
