@@ -1,0 +1,27 @@
+apps/worker/src/interactions/link/components.ts
+  s_fda4ba2816fee6::t_4201f37f8e8e22 18-19
+  s_fda4ba2816fee6::t_7fa811326ef297 40-43
+apps/worker/src/interactions/link/slash.ts
+  s_fda4ba2816fee6::t_ad826302764ffd 2,6,12-15
+apps/worker/src/register-commands.ts
+  s_fda4ba2816fee6::t_fdacfdbf5606d6 63
+  s_fda4ba2816fee6::t_af14af457d802c 11
+apps/worker/src/app.ts
+  s_fda4ba2816fee6::t_761e681ddafc06 6,16-18
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "f51897e1c3d1d6a6a320ca85c98ff7831f17f567",
+  "prompts": {},
+  "sessions": {
+    "s_fda4ba2816fee6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_13d10e592ffeAGeGQkHOEvx37z",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
