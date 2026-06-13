@@ -1,0 +1,20 @@
+src/handlers/user_settings.rs
+  s_9e3de932fc5397::t_a7a5f1c3861e00 61-63
+  s_9e3de932fc5397::t_44fcd44f2d2d2b 149-151
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "25a26f46614126b911e358dc87b74786f1f4b2b5",
+  "prompts": {},
+  "sessions": {
+    "s_9e3de932fc5397": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_13d35326bffefwsIibBaqKpjHv",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
