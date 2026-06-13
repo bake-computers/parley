@@ -1,0 +1,19 @@
+src/db/schema.rs
+  s_fda4ba2816fee6::t_f8f63ccacdd9a9 128-130
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "d17de850752918a65f42fb1d55ee48cb23ea5125",
+  "prompts": {},
+  "sessions": {
+    "s_fda4ba2816fee6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_13d10e592ffeAGeGQkHOEvx37z",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
