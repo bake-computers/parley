@@ -312,3 +312,43 @@ None blocking. Two nice-to-haves for a follow-up cycle:
   (no IP, no timestamp from a trusted clock beyond the engine's
   `now_ms()`). For a production launch, a real audit log table is
   warranted in a follow-up cycle.
+
+## Application emoji catalog
+
+The Discord application has exactly 13 registered emojis (replacing the
+previous 18). All UI must use only these — no unicode fallbacks in
+shipped code:
+
+| Name | Replaces | Used for |
+|---|---|---|
+| `warning_orange` | ⚠️ | Warning cards, refresh errors |
+| `trash` | 🗑️ (default) | Non-destructive trash affordances |
+| `trash_red` | 🗑️ (destructive) | Delete-data button + result card |
+| `timeout` | ⏳ ⏱️ | "Wait" cards (stats fetching) |
+| `time` | 🕐 | Timezone, time-of-day |
+| `reload` | 🔄 | Refresh / re-fetch |
+| `redirect` | ↪️ ✅ | Continue / next step / confirm |
+| `pin` | 📌 🛡️ ⚙️ | Personal/pinned/your-settings; acceptance card |
+| `linked` | 🔗 | Linked account, link success |
+| `global` | 🌐 | Global / worldwide |
+| `calendar` | 📅 | Dates, schedule |
+| `ban_hammer` | 🚫 | Blocked / denied / error |
+| `ban_hammer_red` | 🚫 (destructive) | Destructive error / fatal error |
+
+UI titles that previously had a unicode emoji (⚙️ settings, 🛡️
+acceptance, ❌ error) now use `pin` (for personal/yours) and
+`ban_hammer_red` (for error) with the appropriate accent color.
+
+### Runtime change
+
+`packages/runtime/src/utils/emojis.ts` updates `APP_EMOJI_NAMES` from the
+old 18 entries to the new 13. `isAppEmojiName` and
+`normalizeApplicationEmojiCatalog` automatically pick up the new list.
+
+### Resolver wiring
+
+`apps/worker/src/ui/emojis.ts` currently returns an empty catalog
+fallback. Update to call `resolveApplicationEmojiCatalog(env)` from the
+runtime (KV-backed, 6h TTL), passing the worker's `KV` binding and a
+`DiscordRestClient` constructed from `env.DISCORD_BOT_TOKEN`. Cached in
+`interaction.context` per the existing pattern.

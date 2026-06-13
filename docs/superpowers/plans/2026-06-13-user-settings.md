@@ -16,6 +16,8 @@
 
 | Path | Action | Responsibility |
 |---|---|---|
+| `packages/runtime/src/utils/emojis.ts` | edit | Replace `APP_EMOJI_NAMES` with 13 new names |
+| `apps/worker/src/ui/emojis.ts` | edit | Wire `resolveEmojis` to runtime KV-backed resolver |
 | `proto/user/v1/user.proto` | edit | Add 3 fields to `UserSettings` |
 | `packages/generated-ts/src/index.ts` | edit | Re-export `./user/v1/user_pb.js` |
 | `migrations/2026-06-13-120000_user_settings_extend/` | create | 3 new columns |
@@ -26,10 +28,10 @@
 | `apps/worker/src/ui/tokens.ts` | create | `UI_TOKENS` const |
 | `apps/worker/src/embeds.ts` | delete | — |
 | `apps/worker/src/interactions/link/constants.ts` | edit | Drop `UI_SUCCESS/INFO_COLOR`; re-export from `tokens.ts` |
-| `apps/worker/src/interactions/link/ui.ts` | edit | Drop `footerDisplay`; swap color tokens |
+| `apps/worker/src/interactions/link/ui.ts` | edit | Drop `footerDisplay`; swap color tokens; remap to 13 app emojis |
 | `apps/worker/src/interactions/help.ts` | edit | Components v2 container, graphite accent |
 | `apps/worker/src/interactions/ping.ts` | edit | Components v2 one-liner, graphite accent |
-| `apps/worker/src/interactions/profile.ts` | edit | Add `assertAccepted` call, drop footer, swap color |
+| `apps/worker/src/interactions/profile.ts` | edit | Add `assertAccepted` call, drop footer, swap color, use app emojis |
 | `apps/worker/src/interactions/link/slash.ts` | edit | Add `assertAccepted` call |
 | `apps/worker/src/interactions/link/components.ts` | edit | Add `assertAccepted` call |
 | `apps/worker/src/transport.ts` | edit | Add `getUserSettingsClient` |
@@ -37,8 +39,8 @@
 | `apps/worker/src/interactions/_shared/acceptance.test.ts` | create | 3 unit tests |
 | `apps/worker/src/interactions/_shared/stats.ts` | create | Shared `executeFetchStats` |
 | `apps/worker/src/interactions/link/rpc.ts` | edit | Re-export `executeFetchStats` from `_shared/stats` |
-| `apps/worker/src/interactions/user/constants.ts` | create | UI tokens, custom IDs, label maps |
-| `apps/worker/src/interactions/user/ui.ts` | create | Card builders |
+| `apps/worker/src/interactions/user/constants.ts` | create | UI tokens, custom IDs, label maps, app-emoji names |
+| `apps/worker/src/interactions/user/ui.ts` | create | Card builders using 13 app emojis |
 | `apps/worker/src/interactions/user/ui.test.ts` | create | Snapshot + no-footer tests |
 | `apps/worker/src/interactions/user/rpc.ts` | create | Engine client wrappers |
 | `apps/worker/src/interactions/user/rpc.test.ts` | create | Unit tests |
@@ -49,6 +51,127 @@
 | `apps/worker/src/interactions/user/index.ts` | create | Re-exports |
 | `apps/worker/src/app.ts` | edit | Register user handlers + accept button |
 | `apps/worker/src/register-commands.ts` | edit | Add `userSlashCommand` to registration list |
+
+---
+
+## Task 0: Replace app emoji catalog + wire resolver
+
+**Files:**
+- Edit: `packages/runtime/src/utils/emojis.ts:13-31` (`APP_EMOJI_NAMES` const)
+- Edit: `apps/worker/src/ui/emojis.ts:1-21` (`resolveEmojis` body)
+- Edit: `apps/worker/src/index.ts` (env type — may need to add DISCORD_BOT_TOKEN/KV types)
+
+- [ ] **Step 1: Replace APP_EMOJI_NAMES in the runtime**
+
+In `packages/runtime/src/utils/emojis.ts`, replace lines 13-31:
+
+```ts
+export const APP_EMOJI_NAMES = [
+  "home",
+  "fire",
+  "flame",
+  "search",
+  "timer",
+  "tool",
+  "strong",
+  "diamond",
+  "letter",
+  "link",
+  "question_mark",
+  "minus",
+  "plus",
+  "cancel",
+  "confirm",
+  "warning",
+  "external_link",
+  "information",
+] as const;
+```
+
+with the 13 new names:
+
+```ts
+export const APP_EMOJI_NAMES = [
+  "warning_orange",
+  "trash",
+  "trash_red",
+  "timeout",
+  "time",
+  "reload",
+  "redirect",
+  "pin",
+  "linked",
+  "global",
+  "calendar",
+  "ban_hammer",
+  "ban_hammer_red",
+] as const;
+```
+
+- [ ] **Step 2: Wire resolveEmojis to the runtime resolver**
+
+Replace the body of `apps/worker/src/ui/emojis.ts` with:
+
+```ts
+import {
+  resolveApplicationEmojiCatalog,
+  type ApplicationEmojiCatalog,
+  type DiscordRequestContext,
+} from "@parley/runtime";
+
+const EMOJI_CONTEXT_KEY = "application-emojis";
+
+type EmojiEnv = {
+  KV?: KVNamespace;
+  DISCORD_BOT_TOKEN?: string;
+};
+
+type EmojiInteraction = {
+  context: DiscordRequestContext;
+};
+
+export async function resolveEmojis(
+  interaction: EmojiInteraction,
+): Promise<ApplicationEmojiCatalog> {
+  const cached = interaction.context.get<ApplicationEmojiCatalog>(EMOJI_CONTEXT_KEY);
+  if (cached) {
+    return cached;
+  }
+
+  const env = interaction.context.env as EmojiEnv;
+  const token = env.DISCORD_BOT_TOKEN;
+  const kv = env.KV;
+  if (!token || !kv) {
+    interaction.context.set(EMOJI_CONTEXT_KEY, {});
+    return {};
+  }
+
+  const catalog = (await resolveApplicationEmojiCatalog({
+    token,
+    kv,
+  })) ?? {};
+  interaction.context.set(EMOJI_CONTEXT_KEY, catalog);
+  return catalog;
+}
+```
+
+The runtime's `resolveApplicationEmojiCatalog` handles the KV cache + REST fetch + normalization internally.
+
+- [ ] **Step 3: Run typecheck**
+
+```bash
+cd /Users/juwen/dev/commerce/parley && bun run typecheck 2>&1 | tail -20
+```
+
+Expected: clean (or errors only at the link/ui.ts call sites that still reference the old emoji names — fixed in Task 8).
+
+- [ ] **Step 4: Commit**
+
+```bash
+cd /Users/juwen/dev/commerce/parley && git add packages/runtime/src/utils/emojis.ts apps/worker/src/ui/emojis.ts && git commit -m "feat(emojis): replace APP_EMOJI_NAMES with 13 new app emojis, wire resolver"
+```
+
+---
 
 ---
 
@@ -616,6 +739,31 @@ import {
 
 (c) Replace every `setAccentColor(UI_INFO_COLOR)` with `setAccentColor(UI_SUCCESS_COLOR)`. There are two: line 52 (platform picker) and line 172 (fetching-stats card). Now both are graphite, signaling "neutral info" with the main accent.
 
+(d) Remap every emoji name reference to the 13 new app emojis:
+
+| Old reference | New name | Notes |
+|---|---|---|
+| `"link"` (line 50, 70) | `"linked"` | Link wizard header + platform button |
+| `"warning"` (line 88) | `"warning_orange"` | Confirm card header |
+| `"confirm"` (line 108) | `"redirect"` | Continue button accessory |
+| `"cancel"` (line 116) | `"ban_hammer_red"` | Back/cancel button accessory |
+| `"timer"` (line 169) | `"timeout"` | Fetching-stats card header |
+| `"confirm"` (line 129) | `"redirect"` | Account linked card |
+| `"cancel"` (line 149) | `"ban_hammer_red"` | Link-failed card header |
+
+Drop the `?? { name: "🔗" }` style unicode fallbacks on `setEmoji()` — the runtime's `toComponentEmoji` returns `null` when the name isn't in the catalog, and `ButtonBuilder.setEmoji` requires a non-null value. Refactor each `setEmoji(...)` call site to:
+
+```ts
+const emoji = toComponentEmoji(catalog, "linked");
+const button = new ButtonBuilder()
+  .setCustomId(platformCustomId(platform))
+  .setLabel(platformLabel(platform))
+  .setStyle(ButtonStyle.Primary);
+if (emoji) button.setEmoji(emoji);
+```
+
+In `emojiOrFallback` (currently a helper at lines 34-40 of `link/ui.ts`), return `""` (empty string) when the catalog entry is missing — never a unicode fallback. The downstream titleWith pattern (`text ? `${text} **title**` : "**title**"`) drops the prefix when the helper returns empty.
+
 - [ ] **Step 3: Rewrite help.ts as a Components v2 container**
 
 Replace the entire contents of `apps/worker/src/interactions/help.ts` with:
@@ -1041,6 +1189,8 @@ import {
   ContainerBuilder,
   TextDisplayBuilder,
   ButtonBuilder,
+  formatApplicationEmoji,
+  type ApplicationEmojiCatalog,
   type ChatInputCommandInteraction,
   type MessageComponentInteraction,
   type ModalInteraction,
@@ -1085,11 +1235,13 @@ type GetUserSettingsClient = {
   getUserSettings: (req: GetUserSettingsRequest) => Promise<GetUserSettingsResponse>;
 };
 
-export function buildAcceptanceCard(_emojis: unknown): ContainerBuilder {
+export function buildAcceptanceCard(emojis: ApplicationEmojiCatalog): ContainerBuilder {
+  const formatted = formatApplicationEmoji(emojis, "pin");
+  const title = formatted ? `${formatted} **Before you start**` : "**Before you start**";
   return new ContainerBuilder()
     .setAccentColor(UI_TOKENS.main)
     .addComponents(
-      new TextDisplayBuilder().setContent("🛡️ **Before you start**"),
+      new TextDisplayBuilder().setContent(title),
       new TextDisplayBuilder().setContent(
         "Parley links your Discord to your in-game profile and stores match, stats, and tournament data so we can run ranked queues and tournaments.",
       ),
@@ -1166,7 +1318,7 @@ export async function assertAccepted(
   const replyable = interaction as unknown as GatedReplyInteraction;
   await replyable.reply(
     {
-      components: [buildAcceptanceCard({}).toJSON()],
+      components: [buildAcceptanceCard({} as ApplicationEmojiCatalog).toJSON()],
       flags: 64 | 32768,
     },
     true,
@@ -1390,6 +1542,7 @@ import {
   ContainerBuilder,
   TextDisplayBuilder,
   SeparatorBuilder,
+  formatApplicationEmoji,
   type ApplicationEmojiCatalog,
 } from "@parley/runtime";
 import { COLORS } from "./constants.js";
@@ -1414,9 +1567,15 @@ function visibilityLabel(public_: boolean): string {
   return public_ ? "Public" : "Hidden";
 }
 
+/** Prefix a title with an app-emoji formatted for Components v2, if present. */
+function titleWith(catalog: ApplicationEmojiCatalog, emojiName: string, title: string): string {
+  const formatted = formatApplicationEmoji(catalog, emojiName);
+  return formatted ? `${formatted} **${title}**` : `**${title}**`;
+}
+
 export function buildSettingsCard(
   settings: ProtoUserSettings,
-  _emojis: ApplicationEmojiCatalog,
+  emojis: ApplicationEmojiCatalog,
 ): ContainerBuilder {
   const cooldownLine =
     settings.termsAcceptedAtMs > 0
@@ -1426,7 +1585,7 @@ export function buildSettingsCard(
   return new ContainerBuilder()
     .setAccentColor(COLORS.main)
     .addComponents(
-      new TextDisplayBuilder().setContent("⚙️ **Your Settings**"),
+      new TextDisplayBuilder().setContent(titleWith(emojis, "pin", "Your Settings")),
       new TextDisplayBuilder().setContent(
         "Language · Matchmaking · Visibility · Timezone · Cooldown",
       ),
@@ -1460,12 +1619,12 @@ export function buildInfoCard(message: string): ContainerBuilder {
 
 export function buildErrorCard(
   message: string,
-  _emojis: ApplicationEmojiCatalog,
+  emojis: ApplicationEmojiCatalog,
 ): ContainerBuilder {
   return new ContainerBuilder()
     .setAccentColor(COLORS.error)
     .addComponents(
-      new TextDisplayBuilder().setContent("❌ **Settings Error**"),
+      new TextDisplayBuilder().setContent(titleWith(emojis, "ban_hammer_red", "Settings Error")),
       separator(),
       new TextDisplayBuilder().setContent(message),
     );
@@ -1473,12 +1632,12 @@ export function buildErrorCard(
 
 export function buildRefreshErrorCard(
   message: string,
-  _emojis: ApplicationEmojiCatalog,
+  emojis: ApplicationEmojiCatalog,
 ): ContainerBuilder {
   return new ContainerBuilder()
     .setAccentColor(COLORS.warning)
     .addComponents(
-      new TextDisplayBuilder().setContent("⚠️ **Stats Refresh Failed**"),
+      new TextDisplayBuilder().setContent(titleWith(emojis, "warning_orange", "Stats Refresh Failed")),
       separator(),
       new TextDisplayBuilder().setContent(message),
     );
@@ -1490,7 +1649,7 @@ export function buildDeleteResultCard(
     cooldownUntilMs: number;
     tablesAffected: AnonymizationCounts;
   },
-  _emojis: ApplicationEmojiCatalog,
+  emojis: ApplicationEmojiCatalog,
 ): ContainerBuilder {
   const t = response.tablesAffected;
   const lines = [
@@ -1511,7 +1670,7 @@ export function buildDeleteResultCard(
   return new ContainerBuilder()
     .setAccentColor(COLORS.error)
     .addComponents(
-      new TextDisplayBuilder().setContent("🗑️ **Data Deleted**"),
+      new TextDisplayBuilder().setContent(titleWith(emojis, "trash_red", "Data Deleted")),
       separator(),
       new TextDisplayBuilder().setContent(
         "Your records are anonymized. You may re-link a new account after the cooldown ends.",
@@ -1531,6 +1690,8 @@ export function buildDeleteResultCard(
 // Re-export for tests and components module
 export { languageLabel, languageValue, visibilityLabel };
 ```
+
+The acceptance card in `_shared/acceptance.ts` (Task 10) also uses a unicode 🛡️ — update that to use `pin` via the same `titleWith` pattern. The fix is a one-line change in Task 10's `buildAcceptanceCard`.
 
 - [ ] **Step 6: Run the test, expect green**
 
