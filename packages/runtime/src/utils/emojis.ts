@@ -11,24 +11,19 @@ const APPLICATION_EMOJI_CACHE_TTL_SECONDS = 21_600;
 const APPLICATION_EMOJI_CACHE_VERSION = 1;
 
 export const APP_EMOJI_NAMES = [
-  "home",
-  "fire",
-  "flame",
-  "search",
-  "timer",
-  "tool",
-  "strong",
-  "diamond",
-  "letter",
-  "link",
-  "question_mark",
-  "minus",
-  "plus",
-  "cancel",
-  "confirm",
-  "warning",
-  "external_link",
-  "information",
+  "warning_orange",
+  "trash",
+  "trash_red",
+  "timeout",
+  "time",
+  "reload",
+  "redirect",
+  "pin",
+  "linked",
+  "global",
+  "calendar",
+  "ban_hammer",
+  "ban_hammer_red",
 ] as const;
 
 export type AppEmojiName = (typeof APP_EMOJI_NAMES)[number];
