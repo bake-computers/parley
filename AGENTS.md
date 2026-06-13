@@ -29,6 +29,15 @@ TypeScript (Bun workspaces) ← buf generate → packages/generated-ts
 
 **Request flow**: Discord/Web → Cloudflare Worker (Hono) → ConnectRPC over HTTP → Rust engine-service (Axum) → Postgres (Diesel-async) / external APIs.
 
+**Internal engine wiring** (Rust binary `parley`, `src/main.rs`):
+
+- `src/main.rs` — entry; loads `.env`, inits tracing, builds `AppContext`, spawns queue sweeper, calls `connect::build_router_with_context`, serves Axum on `:50051`.
+- `src/context.rs` — `AppContext::from_env()` wires DB pool (Diesel-async + bb8), stats backend registry, Redis cache, leaderboard store, guild cache. Optional subsystems gracefully degrade to in-memory when `DATABASE_URL` / `REDIS_URL` are unset.
+- `src/connect.rs` — builds the Axum router. Routes are **manually registered** as `POST /parley.{package}.{Service}/{Method}` (no macros or `nest_service`). Plus `GET /health` and `GET /ready`.
+- **No `lib.rs`** — all 20+ modules are declared in `main.rs` (`mod handlers; mod db; mod matchmaking; …`). The crate has a single `[[bin]]` target; there is no shared library crate.
+
+Subdirectory guides: [`src/AGENTS.md`](src/AGENTS.md), [`proto/AGENTS.md`](proto/AGENTS.md), [`migrations/AGENTS.md`](migrations/AGENTS.md), [`apps/worker/AGENTS.md`](apps/worker/AGENTS.md), [`apps/landing/AGENTS.md`](apps/landing/AGENTS.md), [`apps/bridge/AGENTS.md`](apps/bridge/AGENTS.md), [`packages/runtime/AGENTS.md`](packages/runtime/AGENTS.md), [`packages/runtime/src/builders/AGENTS.md`](packages/runtime/src/builders/AGENTS.md).
+
 ## Build & Run
 
 ### Rust (engine-service)
@@ -160,12 +169,18 @@ Domain table timestamps use `bigint` epoch milliseconds (application-set). Bette
 
 - Run via `bun test` per package or `bun run test` (Turborepo) at root.
 - Many packages currently have no tests (`echo 'No tests yet'`).
+- **Two test frameworks in use**: `bun:test` everywhere by default; **`apps/landing` uses `vitest`** for React hooks (jsdom + `@testing-library/react`) via `apps/landing/vitest.config.ts`. Plain unit tests in `apps/landing/src/lib/*.test.ts` still use `bun:test`.
+- **No external fixture files**. All test data is constructed inline in test code (e.g. Rust `stats_integration.rs::nuxt_html()` builds a Nuxt HTML string in code).
 
 ## Companion Documents
 
 - `DESIGN.md` — Visual design system (colors, typography, Discord embed conventions, web platform layout).
 - `SPEC.md` — Product specification (features, data model, architecture decisions).
 - `docs/db.md` — Database schema documentation, rename map, indexes, stats cache strategy.
+
+## CI
+
+`.github/workflows/deploy.yml` is the only workflow. It runs on `blacksmith-2vcpu-ubuntu-2404` and is **Rust-only**: install protoc (vestigial — `build.rs` uses `protox`), build with `RUSTFLAGS="-C codegen-units=1"`, then SCP+SSH the binary to a bare-metal server. **No tests run in CI.** **No TS lint/typecheck/test** — TS deploys are manual via `wrangler deploy`. Triggered by `src/**`, `proto/**`, `Cargo.toml`, `Cargo.lock` path filters.
 
 ## Workflow & PR Checklist
 
