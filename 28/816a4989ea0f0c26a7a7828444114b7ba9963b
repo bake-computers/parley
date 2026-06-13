@@ -1,0 +1,45 @@
+apps/worker/src/interactions/ping.ts
+  s_fda4ba2816fee6::t_9dfe6a74ad8846 1
+apps/worker/src/interactions/user/ui.ts
+  s_fda4ba2816fee6::t_9dfe6a74ad8846 31-35,45,55,62,66,76,93-95,136-137
+apps/worker/src/interactions/profile.ts
+  s_fda4ba2816fee6::t_9dfe6a74ad8846 82
+apps/worker/src/app.ts
+  s_fda4ba2816fee6::t_9dfe6a74ad8846 3-7,10-14
+apps/worker/src/interactions/_shared/acceptance.ts
+  s_fda4ba2816fee6::t_9dfe6a74ad8846 14,38,74
+apps/worker/src/interactions/help.ts
+  s_fda4ba2816fee6::t_9dfe6a74ad8846 1,13-14
+apps/worker/src/interactions/user/modal.ts
+  s_fda4ba2816fee6::t_9dfe6a74ad8846 1,5
+apps/worker/src/interactions/user/components.ts
+  s_fda4ba2816fee6::t_aad4cdac6f46a7 183-185
+  s_fda4ba2816fee6::t_9dfe6a74ad8846 28-29,89,102,196
+apps/worker/src/interactions/link/ui.ts
+  s_fda4ba2816fee6::t_9dfe6a74ad8846 45,106-124
+  s_fda4ba2816fee6::t_e9277c17bf2e93 102-104
+apps/worker/src/interactions/_shared/acceptance.test.ts
+  s_fda4ba2816fee6::t_9dfe6a74ad8846 4-5,9-12
+apps/worker/src/interactions/link/components.ts
+  s_fda4ba2816fee6::t_9dfe6a74ad8846 90,149,153
+apps/worker/src/interactions/user/rpc.test.ts
+  s_fda4ba2816fee6::t_1c97812fa5b917 67-69
+  s_fda4ba2816fee6::t_949146a549e0c8 25-27
+  s_fda4ba2816fee6::t_9dfe6a74ad8846 4-5,40-50
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "28816a4989ea0f0c26a7a7828444114b7ba9963b",
+  "prompts": {},
+  "sessions": {
+    "s_fda4ba2816fee6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_13d10e592ffeAGeGQkHOEvx37z",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
