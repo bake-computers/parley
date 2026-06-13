@@ -1,0 +1,21 @@
+AGENTS.md
+  s_0f6ad92bdea18d::t_67addd46f3f775 32-40
+  s_0f6ad92bdea18d::t_908bd64e052710 172-173
+  s_0f6ad92bdea18d::t_ad27227cdcff32 181-184
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "c5de7b427beceaf5dc029acf599079ba87af2eec",
+  "prompts": {},
+  "sessions": {
+    "s_0f6ad92bdea18d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_13c9e9fdeffenGoLJthD3MHbkI",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
