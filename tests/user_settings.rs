@@ -50,6 +50,9 @@ async fn resolve_language_user_overrides_guild_default() {
             created_at: now,
             updated_at: now,
             matchmaking_enabled: false,
+            terms_accepted_at_ms: 0,
+            profile_public: true,
+            timezone: "UTC",
         },
     )
     .await

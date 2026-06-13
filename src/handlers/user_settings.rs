@@ -58,9 +58,9 @@ fn row_to_proto(row: &crate::db::models::UserSettings) -> ProtoUserSettings {
         language: db_lang_to_proto(row.language),
         updated_at_ms: row.updated_at,
         matchmaking_enabled: row.matchmaking_enabled,
-        terms_accepted_at_ms: 0,
-        profile_public: false,
-        timezone: String::new(),
+        terms_accepted_at_ms: row.terms_accepted_at_ms,
+        profile_public: row.profile_public,
+        timezone: row.timezone.clone(),
     }
 }
 
@@ -147,8 +147,8 @@ pub async fn get_user_settings_rpc(
             updated_at_ms: 0,
             matchmaking_enabled: true,
             terms_accepted_at_ms: 0,
-            profile_public: false,
-            timezone: String::new(),
+            profile_public: true,
+            timezone: "UTC".to_string(),
         },
         Err(e) => {
             return encode_ok(
@@ -248,6 +248,13 @@ pub async fn upsert_user_settings_rpc(
         created_at: now,
         updated_at: now,
         matchmaking_enabled: s.matchmaking_enabled,
+        terms_accepted_at_ms: s.terms_accepted_at_ms,
+        profile_public: s.profile_public,
+        timezone: if s.timezone.is_empty() {
+            "UTC"
+        } else {
+            &s.timezone
+        },
     };
     let saved = match UserSettingsRepo::upsert(&mut conn, new_row).await {
         Ok(row) => row,
@@ -485,5 +492,25 @@ mod tests {
         assert_eq!(proto_lang_to_db(0), None);
         assert_eq!(db_lang_to_proto(DbLanguage::En), ProtoLanguage::En as i32);
         assert_eq!(db_lang_to_proto(DbLanguage::De), ProtoLanguage::De as i32);
+    }
+
+    fn fake_row() -> crate::db::models::UserSettings {
+        crate::db::models::UserSettings {
+            discord_user_id: "u1".to_string(),
+            language: DbLanguage::De,
+            created_at: 1_000,
+            updated_at: 2_000,
+            matchmaking_enabled: false,
+            terms_accepted_at_ms: 0,
+            profile_public: false,
+            timezone: "Europe/Berlin".to_string(),
+        }
+    }
+
+    #[test]
+    fn row_to_proto_carries_new_fields() {
+        let p = row_to_proto(&fake_row());
+        assert_eq!(p.terms_accepted_at_ms, 0);
+        assert_eq!(p.profile_public, false);
     }
 }
