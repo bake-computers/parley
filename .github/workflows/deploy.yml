@@ -11,14 +11,29 @@ on:
       - "Cargo.lock"
       - ".github/**"
 
+env:
+  CARGO_TERM_COLOR: always
+  # Disable incremental compilation to save disk I/O and prevent cache bloat
+  CARGO_INCREMENTAL: 0
+
 jobs:
   build-and-deploy:
-    runs-on: blacksmith-4vcpu-ubuntu-2404
+    # Downgraded to 2vCPU to maximize your 3,000 free monthly minutes (1:1 consumption)
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Install Protobuf Compiler (For prost/protox)
+      # Cache the protoc binary to skip apt-get update/install network overhead
+      - name: Cache Protobuf Compiler
+        id: cache-protoc
+        uses: actions/cache@v5
+        with:
+          path: /usr/bin/protoc
+          key: ${{ runner.os }}-protoc-v1
+
+      - name: Install Protobuf Compiler (Fallback)
+        if: steps.cache-protoc.outputs.cache-hit != 'true'
         run: |
           sudo apt-get update
           sudo apt-get install -y protobuf-compiler
@@ -29,15 +44,17 @@ jobs:
       - name: Rust Cache
         uses: Swatinem/rust-cache@v2
 
+      # Explicitly limit parallel compilation jobs to match the 2-vCPU hardware limits
       - name: Compile Release Binary
-        run: cargo build --release
+        run: cargo build --release --locked --jobs 2
+        env:
+          RUSTFLAGS: "-C codegen-units=1"
 
       - name: Setup SSH Key
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          # Note the -p 2222 flag here to scan the correct port
           ssh-keyscan -p 2222 -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
 
       - name: Push Binary and Deploy
@@ -45,8 +62,5 @@ jobs:
           TARGET_DIR: "/home/deployer/apps/parley"
           VERSION: "${{ github.sha }}"
         run: |
-          # Capital -P 2222 for scp
           scp -P 2222 -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 target/release/parley deployer@${{ secrets.SERVER_HOST }}:$TARGET_DIR/releases/parley_$VERSION
-
-          # Lowercase -p 2222 for ssh
           ssh -p 2222 -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 deployer@${{ secrets.SERVER_HOST }} "export VERSION=$VERSION; bash $TARGET_DIR/deploy.sh"
