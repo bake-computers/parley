@@ -1,0 +1,27 @@
+apps/worker/src/interactions/profile.ts
+  s_fda4ba2816fee6::t_ac533f4cddca37 12
+  s_fda4ba2816fee6::t_279da57b507dcf 86,100
+  s_fda4ba2816fee6::t_2c1cc2dc45f43e 1-6,10,13,37-41,46-52,65-71,78-85,90-99
+apps/worker/src/interactions/help.ts
+  s_fda4ba2816fee6::t_71de835380b820 1-7,13-33
+apps/worker/src/interactions/link/ui.ts
+  s_fda4ba2816fee6::t_eca9e0ee196ace 33-37,48,50-51,56-63,69-70,85,88-101,103,114,117,127,133,146,151,165,168,170,192,201
+apps/worker/src/interactions/ping.ts
+  s_fda4ba2816fee6::t_75fd28c770487b 1-7,13-16
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "6ca9f3f3d78ee9f4b554898eaaef84df87c78fb2",
+  "prompts": {},
+  "sessions": {
+    "s_fda4ba2816fee6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_13d10e592ffeAGeGQkHOEvx37z",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
