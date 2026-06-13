@@ -8,7 +8,7 @@ import tailwindcss from "@tailwindcss/vite";
 
 const config = defineConfig({
   resolve: { tsconfigPaths: true },
-  plugins: [devtools(), cloudflare(), tailwindcss(), tanstackStart(), viteReact()],
+  plugins: [devtools(), cloudflare({ viteEnvironment: { name: "ssr" } }), tailwindcss(), tanstackStart(), viteReact()],
 });
 
 export default config;

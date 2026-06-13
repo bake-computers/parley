@@ -23,6 +23,7 @@
     "AXIOM_ORG_ID": "parley-sf7e",
     "ENGINE_SERVICE_URL": "http://localhost:50051",
     "ENGINE_INTERNAL_URL": "http://api.internal.parley.bot:50051",
+    "USE_LOCAL_ENGINE": "1"
   },
 
   "kv_namespaces": [
@@ -37,6 +38,7 @@
     {
       "binding": "VPC_SERVICE",
       "service_id": "019e56b4-32d2-7843-bf2b-ec4b056d4400",
+      "remote": true,
     },
   ],
 

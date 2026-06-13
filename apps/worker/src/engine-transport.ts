@@ -4,6 +4,13 @@ export type EngineTransportEnv = {
   VPC_SERVICE?: Fetcher;
   ENGINE_INTERNAL_URL?: string;
   ENGINE_SERVICE_URL?: string;
+  /**
+   * When set to `"1"` or `"true"`, force the local engine at
+   * `ENGINE_SERVICE_URL ?? http://localhost:50051` even if a VPC binding is
+   * configured. Use this for `wrangler dev` against `cargo run` so requests
+   * don't bounce through the production VPC.
+   */
+  USE_LOCAL_ENGINE?: string;
 };
 
 export type EngineFetch = (input: string | URL | Request, init?: RequestInit) => Promise<Response>;
@@ -14,8 +21,16 @@ export type EngineTransportConfig = {
   fetchImpl: EngineFetch;
 };
 
+function isTruthy(value: string | undefined): boolean {
+  if (value === undefined) {
+    return false;
+  }
+  const normalized = value.trim().toLowerCase();
+  return normalized === "1" || normalized === "true" || normalized === "yes" || normalized === "on";
+}
+
 export function resolveEngineTransport(env: EngineTransportEnv): EngineTransportConfig {
-  if (env.VPC_SERVICE && env.ENGINE_INTERNAL_URL) {
+  if (!isTruthy(env.USE_LOCAL_ENGINE) && env.VPC_SERVICE && env.ENGINE_INTERNAL_URL) {
     const baseUrl = env.ENGINE_INTERNAL_URL;
     const vpc = env.VPC_SERVICE;
     return {

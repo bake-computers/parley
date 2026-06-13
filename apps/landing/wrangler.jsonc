@@ -1,11 +1,23 @@
 {
-  "name": "landing",
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "parley-website",
   "main": "@tanstack/react-start/server-entry",
   "compatibility_date": "2025-09-02",
-  "compatibility_flags": [
-    "nodejs_compat"
+  "compatibility_flags": ["nodejs_compat"],
+  "placement": { "mode": "smart" },
+  "workers_dev": false,
+  "logpush": true,
+  "observability": { "enabled": true },
+
+  "vars": {
+    "SERVICE_NAME": "landing",
+    "AXIOM_DATASET": "parley",
+    "AXIOM_ENABLED": "true",
+  },
+
+  "services": [
+    { "binding": "BRIDGE", "service": "parley-bridge" },
   ],
-  "observability": {
-    "enabled": true
-  }
+
+  "routes": [{ "pattern": "parley.bot", "custom_domain": true }],
 }
