@@ -61,11 +61,11 @@ describe("invokeDeleteUserData", () => {
         Promise.resolve({
           success: true,
           anonymizedDiscordUserId: "anon",
-          cooldownUntilMs: 1234,
+          cooldownUntilMs: 1234n,
         } as unknown as DeleteUserDataResponse),
     };
     const r = await invokeDeleteUserData(client as never, "u1");
     expect(r.isOk()).toBe(true);
-    if (r.isOk()) expect(r.value.cooldownUntilMs).toBe(1234);
+    if (r.isOk()) expect(r.value.cooldownUntilMs).toBe(1234n);
   });
 });
