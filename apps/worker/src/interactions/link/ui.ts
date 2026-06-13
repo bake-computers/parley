@@ -1,3 +1,4 @@
+import type { FetchStatsResponse, ScrapedStats } from "@parley/proto/stats/v1/stats_pb.js";
 import {
   ButtonBuilder,
   ContainerBuilder,
@@ -8,23 +9,23 @@ import {
   toComponentEmoji,
   type ApplicationEmojiCatalog,
 } from "@parley/runtime";
-
-const BUTTON_PRIMARY = 1;
-const BUTTON_SECONDARY = 2;
-const BUTTON_SUCCESS = 3;
-const SEPARATOR_SPACING_SMALL = 1;
 import {
-  confirmCustomId,
+  ButtonStyle,
+  CANCEL_CUSTOM_ID,
   GAME_NAME,
   PLATFORM_HINTS,
   PLATFORMS,
-  platformLabel,
   UI_ERROR_COLOR,
   UI_INFO_COLOR,
   UI_SUCCESS_COLOR,
   UI_WARNING_COLOR,
+  confirmCustomId,
+  platformCustomId,
+  platformLabel,
   type Platform,
 } from "./constants.js";
+
+const SEPARATOR_SPACING_SMALL = 1;
 
 function footerDisplay(): TextDisplayBuilder {
   return new TextDisplayBuilder().setContent("-# Parley");
@@ -42,72 +43,43 @@ function separator(): SeparatorBuilder {
   return new SeparatorBuilder().setDivider(true).setSpacing(SEPARATOR_SPACING_SMALL);
 }
 
-function platformSection(platform: Platform, catalog: ApplicationEmojiCatalog): SectionBuilder {
-  const label = platformLabel(platform);
-  const hint = PLATFORM_HINTS[platform];
-
-  return new SectionBuilder()
-    .addText(new TextDisplayBuilder().setContent(`**${label}**\n${hint}`))
-    .setAccessory(
-      new ButtonBuilder()
-        .setCustomId(`link/platform/${platform}`)
-        .setLabel(label)
-        .setStyle(BUTTON_PRIMARY)
-        .setEmoji(toComponentEmoji(catalog, "link") ?? { name: "🔗" }),
-    );
-}
-
-export function buildPlatformSelectCard(catalog: ApplicationEmojiCatalog): ContainerBuilder {
+/** Step 1: platform picker. */
+export function buildPlatformSelectCard(
+  catalog: ApplicationEmojiCatalog,
+): ContainerBuilder {
   const linkEmoji = emojiOrFallback(catalog, "link", "🔗");
 
-  return new ContainerBuilder()
-    .setAccentColor(UI_INFO_COLOR)
-    .addComponents(
-      new TextDisplayBuilder().setContent(`${linkEmoji} **Link Your Account**`),
-      new TextDisplayBuilder().setContent(
-        `Connect your Discord to **${GAME_NAME}**. Choose your platform to begin.`,
-      ),
-      separator(),
-      ...PLATFORMS.map((platform) => platformSection(platform, catalog)),
-      separator(),
-      footerDisplay(),
-    );
-}
-
-export function buildUsernamePromptCard(
-  platform: Platform,
-  catalog: ApplicationEmojiCatalog,
-  wizardMessageId?: string,
-): ContainerBuilder {
-  const infoEmoji = emojiOrFallback(catalog, "information", "ℹ️");
-  const label = platformLabel(platform);
-
   return new ContainerBuilder().setAccentColor(UI_INFO_COLOR).addComponents(
-    new TextDisplayBuilder().setContent(`${infoEmoji} **Enter Username**`),
-    new TextDisplayBuilder().setContent(`Platform: **${label}**`),
+    new TextDisplayBuilder().setContent(`${linkEmoji} **Link Your Account**`),
+    new TextDisplayBuilder().setContent(
+      `Connect your Discord to **${GAME_NAME}**. Pick the platform you play on.`,
+    ),
     separator(),
-    new TextDisplayBuilder().setContent("Click below to enter your in-game username."),
-    new SectionBuilder()
-      .addText(
-        new TextDisplayBuilder().setContent(
-          `Your **${GAME_NAME}** username will be verified before linking.`,
+    ...PLATFORMS.map((platform) =>
+      new SectionBuilder()
+        .addText(
+          new TextDisplayBuilder().setContent(
+            `**${platformLabel(platform)}**\n${PLATFORM_HINTS[platform]}`,
+          ),
+        )
+        .setAccessory(
+          new ButtonBuilder()
+            .setCustomId(platformCustomId(platform))
+            .setLabel(platformLabel(platform))
+            .setStyle(ButtonStyle.Primary)
+            .setEmoji(toComponentEmoji(catalog, "link") ?? { name: "🔗" }),
         ),
-      )
-      .setAccessory(
-        new ButtonBuilder()
-          .setCustomId(
-            wizardMessageId
-              ? `link/username/${platform}/${wizardMessageId}`
-              : `link/username/${platform}`,
-          )
-          .setLabel("Enter Username")
-          .setStyle(BUTTON_PRIMARY)
-          .setEmoji(toComponentEmoji(catalog, "letter") ?? { name: "✏️" }),
-      ),
+    ),
     footerDisplay(),
   );
 }
 
+/**
+ * Step 3: confirm the platform + collected username before calling the engine.
+ *
+ * The username is encoded in the Continue button's customId so the handler can
+ * avoid a second round-trip and so re-renders don't need to rebuild it.
+ */
 export function buildConfirmCard(
   platform: Platform,
   username: string,
@@ -115,34 +87,33 @@ export function buildConfirmCard(
 ): ContainerBuilder {
   const warningEmoji = emojiOrFallback(catalog, "warning", "⚠️");
   const label = platformLabel(platform);
-  const confirmId = confirmCustomId(platform, username);
 
   return new ContainerBuilder().setAccentColor(UI_WARNING_COLOR).addComponents(
     new TextDisplayBuilder().setContent(`${warningEmoji} **Confirm Your Account**`),
-    new TextDisplayBuilder().setContent("Please verify these details are correct before linking."),
-    separator(),
-    new SectionBuilder().addText(
-      new TextDisplayBuilder().setContent(`**Username**\n\`${username}\``),
-      new TextDisplayBuilder().setContent(`**Platform**\n${label}`),
-      new TextDisplayBuilder().setContent(`**Game**\n${GAME_NAME}`),
+    new TextDisplayBuilder().setContent(
+      `The engine will look up your **${label}** account by your linked username. Continue?`,
     ),
     separator(),
+    new TextDisplayBuilder().setContent(`**Platform**\n${label}`),
+    new TextDisplayBuilder().setContent(`**Username**\n\`${username}\``),
+    new TextDisplayBuilder().setContent(`**Game**\n${GAME_NAME}`),
+    separator(),
     new SectionBuilder()
-      .addText(new TextDisplayBuilder().setContent("Ready to link this account to your Discord?"))
+      .addText(new TextDisplayBuilder().setContent("Ready to link?"))
       .setAccessory(
         new ButtonBuilder()
-          .setCustomId(confirmId)
-          .setLabel("Confirm")
-          .setStyle(BUTTON_SUCCESS)
+          .setCustomId(confirmCustomId(platform, username))
+          .setLabel("Continue")
+          .setStyle(ButtonStyle.Success)
           .setEmoji(toComponentEmoji(catalog, "confirm") ?? { name: "✅" }),
       ),
     new SectionBuilder()
-      .addText(new TextDisplayBuilder().setContent("Need to start over?"))
+      .addText(new TextDisplayBuilder().setContent("Pick a different platform?"))
       .setAccessory(
         new ButtonBuilder()
-          .setCustomId("link/cancel")
-          .setLabel("Cancel")
-          .setStyle(BUTTON_SECONDARY)
+          .setCustomId(CANCEL_CUSTOM_ID)
+          .setLabel("Back")
+          .setStyle(ButtonStyle.Secondary)
           .setEmoji(toComponentEmoji(catalog, "cancel") ?? { name: "✖️" }),
       ),
     footerDisplay(),
@@ -164,11 +135,9 @@ export function buildSuccessCard(
       new TextDisplayBuilder().setContent(`${confirmEmoji} **Account Linked**`),
       separator(),
       new TextDisplayBuilder().setContent(`### ${GAME_NAME}`),
-      new SectionBuilder().addText(
-        new TextDisplayBuilder().setContent(`**Username**\n\`${usernameNormalized}\``),
-        new TextDisplayBuilder().setContent(`**Player ID**\n\`${playerId}\``),
-        new TextDisplayBuilder().setContent(`**Platform**\n${label}`),
-      ),
+      new TextDisplayBuilder().setContent(`**Username**\n\`${usernameNormalized}\``),
+      new TextDisplayBuilder().setContent(`**Player ID**\n\`${playerId}\``),
+      new TextDisplayBuilder().setContent(`**Platform**\n${label}`),
       footerDisplay(),
     );
 }
@@ -187,4 +156,85 @@ export function buildErrorCard(
       new TextDisplayBuilder().setContent(message),
       footerDisplay(),
     );
+}
+
+/**
+ * Step 4: link succeeded, now waiting on the stats scrape. Replaces the
+ * confirm card after the engine has accepted the link but before the
+ * snapshot is ready. The handler then calls StatsService.FetchStats and
+ * either swaps in {@link buildReadyToPlayCard} or {@link buildErrorCard}
+ * depending on the result.
+ */
+export function buildFetchingStatsCard(catalog: ApplicationEmojiCatalog): ContainerBuilder {
+  const timerEmoji = emojiOrFallback(catalog, "timer", "⏳");
+
+  return new ContainerBuilder()
+    .setAccentColor(UI_INFO_COLOR)
+    .addComponents(
+      new TextDisplayBuilder().setContent(`${timerEmoji} **Fetching Your Stats**`),
+      separator(),
+      new TextDisplayBuilder().setContent(
+        "Your account is linked. We are now looking up your stats — this can take a while if the upstream provider is slow.",
+      ),
+      footerDisplay(),
+    );
+}
+
+/**
+ * Step 5: link + stats both succeeded. Shows the basic account info and
+ * the freshly-scraped level + rank so the user has visible confirmation
+ * that a snapshot now exists.
+ */
+export function buildReadyToPlayCard(
+  args: {
+    usernameNormalized: string;
+    playerId: number;
+    platform: Platform;
+    stats: FetchStatsResponse;
+  },
+  catalog: ApplicationEmojiCatalog,
+): ContainerBuilder {
+  const confirmEmoji = emojiOrFallback(catalog, "confirm", "✅");
+  const label = platformLabel(args.platform);
+  const stats = args.stats.stats;
+  const profile = stats?.profile;
+  const ranked = stats?.rankedStats;
+
+  return new ContainerBuilder()
+    .setAccentColor(UI_SUCCESS_COLOR)
+    .addComponents(
+      new TextDisplayBuilder().setContent(`${confirmEmoji} **You're Ready To Play**`),
+      separator(),
+      new TextDisplayBuilder().setContent(`### ${GAME_NAME}`),
+      new TextDisplayBuilder().setContent(`**Username**\n\`${args.usernameNormalized}\``),
+      new TextDisplayBuilder().setContent(`**Player ID**\n\`${args.playerId}\``),
+      new TextDisplayBuilder().setContent(`**Platform**\n${label}`),
+      separator(),
+      ...buildStatsLines(profile, ranked),
+      footerDisplay(),
+    );
+}
+
+function buildStatsLines(
+  profile: ScrapedStats["profile"],
+  ranked: ScrapedStats["rankedStats"],
+): TextDisplayBuilder[] {
+  const lines: TextDisplayBuilder[] = [];
+  if (profile) {
+    const level = profile.level > 0 ? `Level ${profile.level}` : "Level —";
+    lines.push(new TextDisplayBuilder().setContent(`**Profile**\n${level}`));
+  }
+  if (ranked) {
+    const rank = ranked.currentRank || "Unranked";
+    const points = ranked.rankPoints > 0 ? ` · ${ranked.rankPoints} RP` : "";
+    lines.push(new TextDisplayBuilder().setContent(`**Current Rank**\n${rank}${points}`));
+  }
+  if (lines.length === 0) {
+    lines.push(
+      new TextDisplayBuilder().setContent(
+        "_No stats available yet — try `/profile` in a few minutes._",
+      ),
+    );
+  }
+  return lines;
 }

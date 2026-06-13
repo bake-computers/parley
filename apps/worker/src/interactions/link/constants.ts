@@ -1,3 +1,5 @@
+import { ButtonStyle, TextInputStyle } from "discord-api-types/v10";
+
 export const PLATFORMS = ["pc", "xbox", "playstation"] as const;
 
 export type Platform = (typeof PLATFORMS)[number];
@@ -21,6 +23,34 @@ export const UI_WARNING_COLOR = 0xf59e0b;
 
 export const GAME_NAME = "Rainbow Six Siege";
 
+/** Discord Components v2 (32768) + Ephemeral (64). */
+export const COMPONENTS_V2_EPHEMERAL = 64 | 32768;
+
+// ---- Custom IDs -------------------------------------------------------------
+
+/** Hand-rolled cancel/back from any wizard step. */
+export const CANCEL_CUSTOM_ID = "link/cancel";
+
+/** Modal customId prefix for the username collection step. */
+export const USERNAME_MODAL_PREFIX = "link-username-modal";
+
+/** TextInput customId inside the username modal. */
+export const USERNAME_INPUT_ID = "link/username-input";
+
+// ---- Helpers ----------------------------------------------------------------
+
+export function platformCustomId(platform: Platform): string {
+  return `link/platform/${platform}`;
+}
+
+export function confirmCustomId(platform: Platform, username: string): string {
+  return `link/confirm/${platform}?username=${encodeURIComponent(username)}`;
+}
+
+export function usernameModalCustomId(platform: Platform): string {
+  return `${USERNAME_MODAL_PREFIX}/${platform}`;
+}
+
 export function isPlatform(value: string): value is Platform {
   return (PLATFORMS as readonly string[]).includes(value);
 }
@@ -29,11 +59,9 @@ export function platformLabel(platform: Platform): string {
   return PLATFORM_LABELS[platform];
 }
 
-export function confirmCustomId(platform: Platform, username: string): string {
-  const encoded = encodeURIComponent(username);
-  const id = `link/confirm/${platform}?username=${encoded}`;
-  if (id.length > 100) {
-    throw new Error("Username too long for confirmation");
-  }
-  return id;
-}
+// ---- Style re-exports -------------------------------------------------------
+// Republishing the enums here keeps every link file from importing
+// `discord-api-types` directly. The slash command's "Confirm" button uses
+// Success; the cancel button uses Secondary; the platform rows use Primary.
+
+export { ButtonStyle, TextInputStyle };

@@ -1,20 +1,18 @@
-import { SlashCommand } from "@parley/runtime";
-import { editReplyV2 } from "../../ui/discord.js";
+import { SlashCommand, logger } from "@parley/runtime";
+import { replyV2 } from "../../ui/discord.js";
 import { resolveEmojis } from "../../ui/emojis.js";
-import { buildErrorCard, buildPlatformSelectCard } from "./ui.js";
+import { buildPlatformSelectCard } from "./ui.js";
 
 export const linkSlashCommand = new SlashCommand()
   .setName("link")
-  .setDescription("Link your Discord account to your game account")
+  .setDescription("Link your Discord to your in-game account")
   .addHandler(async (interaction) => {
-    if (!interaction.user) {
-      await interaction.deferReply(true);
-      const emojis = await resolveEmojis(interaction);
-      await editReplyV2(interaction, buildErrorCard("Could not identify Discord user.", emojis));
-      return;
-    }
-
-    await interaction.deferReply(true);
     const emojis = await resolveEmojis(interaction);
-    await editReplyV2(interaction, buildPlatformSelectCard(emojis));
+    const result = await replyV2(interaction, buildPlatformSelectCard(emojis), true);
+    if (result.isErr()) {
+      logger.error("link.platform_select_failed", "Failed to send platform select", {
+        error: result.error,
+        interactionId: interaction.id,
+      });
+    }
   });
