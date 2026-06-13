@@ -1,0 +1,25 @@
+tests/user_settings.rs
+  s_fda4ba2816fee6::t_23a1457ee69f5b 53-55
+src/handlers/user_settings.rs
+  s_fda4ba2816fee6::t_ef721001f19801 251-252
+  s_fda4ba2816fee6::t_b8cfa657667809 61-63
+  s_fda4ba2816fee6::t_acfc53e1470184 253-257
+  s_fda4ba2816fee6::t_575c0091e59519 496-515
+  s_fda4ba2816fee6::t_58f771498e2cfb 150-151
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "7ef827e9182e5d68d9c25a1612e64ad13f1a61b3",
+  "prompts": {},
+  "sessions": {
+    "s_fda4ba2816fee6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_13d10e592ffeAGeGQkHOEvx37z",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
