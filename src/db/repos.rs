@@ -720,6 +720,9 @@ impl UserSettingsRepo {
         let now = row.updated_at;
         let language = row.language;
         let matchmaking_enabled = row.matchmaking_enabled;
+        let terms_accepted_at_ms = row.terms_accepted_at_ms;
+        let profile_public = row.profile_public;
+        let timezone = row.timezone;
         diesel::insert_into(user_settings::table)
             .values(&row)
             .on_conflict(user_settings::discord_user_id)
@@ -728,6 +731,9 @@ impl UserSettingsRepo {
                 user_settings::language.eq(language),
                 user_settings::updated_at.eq(now),
                 user_settings::matchmaking_enabled.eq(matchmaking_enabled),
+                user_settings::terms_accepted_at_ms.eq(terms_accepted_at_ms),
+                user_settings::profile_public.eq(profile_public),
+                user_settings::timezone.eq(timezone),
             ))
             .returning(UserSettings::as_returning())
             .get_result(conn)
