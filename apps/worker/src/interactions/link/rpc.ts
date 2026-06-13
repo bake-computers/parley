@@ -1,9 +1,8 @@
 import type { LinkAccountResponse } from "@parley/proto/identity/v1/identity_pb.js";
-import type { FetchStatsResponse } from "@parley/proto/stats/v1/stats_pb.js";
-import { Game, StatsPlatform } from "@parley/proto";
+import { Game } from "@parley/proto";
 import { ConnectError } from "@connectrpc/connect";
 import { err, ok, type Result } from "neverthrow";
-import { getIdentityClient, getStatsClient, type EngineTransportEnv } from "../../transport.js";
+import { getIdentityClient, type EngineTransportEnv } from "../../transport.js";
 import type { Platform } from "./constants.js";
 
 type LinkInteractionContext = {
@@ -30,22 +29,6 @@ type LinkAccountArgs = {
 
 type IdentityClient = {
   linkAccount: (req: LinkAccountArgs) => Promise<LinkAccountResponse>;
-};
-
-export type ExecuteFetchStatsInput = {
-  context: LinkInteractionContext["context"];
-  username: string;
-  platform: Platform;
-};
-
-type FetchStatsArgs = {
-  username: string;
-  platform: StatsPlatform;
-  game: Game;
-};
-
-type StatsClient = {
-  fetchStats: (req: FetchStatsArgs) => Promise<FetchStatsResponse>;
 };
 
 /**
@@ -79,28 +62,6 @@ export function executeLinkAccount(
 }
 
 /**
- * Resolve the StatsService client and call FetchStats. This is what triggers
- * the engine to scrape stats.cc and persist a `player_stat_snapshots` row
- * for the linked account — without it, /profile and matchmaking have
- * nothing to balance on.
- *
- * @param {ExecuteFetchStatsInput} input - The username, platform, and request env.
- * @returns {Promise<Result<FetchStatsResponse, ConnectError>>} The scraped stats.
- */
-export function executeFetchStats(
-  input: ExecuteFetchStatsInput,
-): Promise<Result<FetchStatsResponse, ConnectError>> {
-  const env = input.context.env as EngineTransportEnv;
-  const client = getStatsClient(env) as unknown as StatsClient;
-  const args: FetchStatsArgs = {
-    username: input.username,
-    platform: platformToStatsPlatform(input.platform),
-    game: Game.R6,
-  };
-  return invokeFetchStats(client, args);
-}
-
-/**
  * Pure wrapper around an IdentityService client. Exported separately from
  * {@link executeLinkAccount} so tests can drive it with a fake client.
  */
@@ -115,32 +76,11 @@ export function invokeLinkAccount(
   );
 }
 
-/**
- * Pure wrapper around a StatsService client. Exported separately from
- * {@link executeFetchStats} so tests can drive it with a fake client.
- */
-export function invokeFetchStats(
-  client: StatsClient,
-  args: FetchStatsArgs,
-): Promise<Result<FetchStatsResponse, ConnectError>> {
-  return client.fetchStats(args).then(
-    (response) => ok(response),
-    (cause: unknown) =>
-      err(cause instanceof ConnectError ? cause : new ConnectError(String(cause), 13, {})),
-  );
-}
+export {
+  executeFetchStats,
+  invokeFetchStats,
+  platformToStatsPlatform,
+  type FetchStatsPlatform,
+  type ExecuteFetchStatsInput,
+} from "../_shared/stats.js";
 
-/**
- * Maps the link wizard's platform identifiers to the StatsService enum.
- * Falls back to PC — should be unreachable for valid wizard input.
- */
-export function platformToStatsPlatform(platform: Platform): StatsPlatform {
-  switch (platform) {
-    case "pc":
-      return StatsPlatform.PC;
-    case "xbox":
-      return StatsPlatform.XBOX;
-    case "playstation":
-      return StatsPlatform.PLAYSTATION;
-  }
-}
