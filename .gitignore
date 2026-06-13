@@ -57,3 +57,6 @@ Cargo.lock.bak
 
 # grapify
 graphify-out
+
+# superpowers brainstorm
+.superpowers/
