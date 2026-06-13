@@ -16,7 +16,6 @@ import {
   PLATFORM_HINTS,
   PLATFORMS,
   UI_ERROR_COLOR,
-  UI_INFO_COLOR,
   UI_SUCCESS_COLOR,
   UI_WARNING_COLOR,
   confirmCustomId,
@@ -27,16 +26,15 @@ import {
 
 const SEPARATOR_SPACING_SMALL = 1;
 
-function footerDisplay(): TextDisplayBuilder {
-  return new TextDisplayBuilder().setContent("-# Parley");
-}
-
 function emojiOrFallback(
   catalog: ApplicationEmojiCatalog,
   name: Parameters<typeof formatApplicationEmoji>[1],
-  fallback: string,
 ): string {
-  return formatApplicationEmoji(catalog, name) ?? fallback;
+  return formatApplicationEmoji(catalog, name) ?? "";
+}
+
+function titleWith(emoji: string, title: string): string {
+  return emoji ? `${emoji} **${title}**` : `**${title}**`;
 }
 
 function separator(): SeparatorBuilder {
@@ -47,30 +45,29 @@ function separator(): SeparatorBuilder {
 export function buildPlatformSelectCard(
   catalog: ApplicationEmojiCatalog,
 ): ContainerBuilder {
-  const linkEmoji = emojiOrFallback(catalog, "link", "🔗");
+  const linkEmoji = emojiOrFallback(catalog, "linked");
 
-  return new ContainerBuilder().setAccentColor(UI_INFO_COLOR).addComponents(
-    new TextDisplayBuilder().setContent(`${linkEmoji} **Link Your Account**`),
+  return new ContainerBuilder().setAccentColor(UI_SUCCESS_COLOR).addComponents(
+    new TextDisplayBuilder().setContent(titleWith(linkEmoji, "Link Your Account")),
     new TextDisplayBuilder().setContent(
       `Connect your Discord to **${GAME_NAME}**. Pick the platform you play on.`,
     ),
     separator(),
-    ...PLATFORMS.map((platform) =>
-      new SectionBuilder()
+    ...PLATFORMS.map((platform) => {
+      const accessory = new ButtonBuilder()
+        .setCustomId(platformCustomId(platform))
+        .setLabel(platformLabel(platform))
+        .setStyle(ButtonStyle.Primary);
+      const emoji = toComponentEmoji(catalog, "linked");
+      if (emoji) accessory.setEmoji(emoji);
+      return new SectionBuilder()
         .addText(
           new TextDisplayBuilder().setContent(
             `**${platformLabel(platform)}**\n${PLATFORM_HINTS[platform]}`,
           ),
         )
-        .setAccessory(
-          new ButtonBuilder()
-            .setCustomId(platformCustomId(platform))
-            .setLabel(platformLabel(platform))
-            .setStyle(ButtonStyle.Primary)
-            .setEmoji(toComponentEmoji(catalog, "link") ?? { name: "🔗" }),
-        ),
-    ),
-    footerDisplay(),
+        .setAccessory(accessory);
+    }),
   );
 }
 
@@ -85,11 +82,25 @@ export function buildConfirmCard(
   username: string,
   catalog: ApplicationEmojiCatalog,
 ): ContainerBuilder {
-  const warningEmoji = emojiOrFallback(catalog, "warning", "⚠️");
+  const warningEmoji = emojiOrFallback(catalog, "warning_orange");
   const label = platformLabel(platform);
 
+  const continueButton = new ButtonBuilder()
+    .setCustomId(confirmCustomId(platform, username))
+    .setLabel("Continue")
+    .setStyle(ButtonStyle.Success);
+  const continueEmoji = toComponentEmoji(catalog, "redirect");
+  if (continueEmoji) continueButton.setEmoji(continueEmoji);
+
+  const backButton = new ButtonBuilder()
+    .setCustomId(CANCEL_CUSTOM_ID)
+    .setLabel("Back")
+    .setStyle(ButtonStyle.Secondary);
+  const backEmoji = toComponentEmoji(catalog, "ban_hammer_red");
+  if (backEmoji) backButton.setEmoji(backEmoji);
+
   return new ContainerBuilder().setAccentColor(UI_WARNING_COLOR).addComponents(
-    new TextDisplayBuilder().setContent(`${warningEmoji} **Confirm Your Account**`),
+    new TextDisplayBuilder().setContent(titleWith(warningEmoji, "Confirm Your Account")),
     new TextDisplayBuilder().setContent(
       `The engine will look up your **${label}** account by your linked username. Continue?`,
     ),
@@ -100,23 +111,10 @@ export function buildConfirmCard(
     separator(),
     new SectionBuilder()
       .addText(new TextDisplayBuilder().setContent("Ready to link?"))
-      .setAccessory(
-        new ButtonBuilder()
-          .setCustomId(confirmCustomId(platform, username))
-          .setLabel("Continue")
-          .setStyle(ButtonStyle.Success)
-          .setEmoji(toComponentEmoji(catalog, "confirm") ?? { name: "✅" }),
-      ),
+      .setAccessory(continueButton),
     new SectionBuilder()
       .addText(new TextDisplayBuilder().setContent("Pick a different platform?"))
-      .setAccessory(
-        new ButtonBuilder()
-          .setCustomId(CANCEL_CUSTOM_ID)
-          .setLabel("Back")
-          .setStyle(ButtonStyle.Secondary)
-          .setEmoji(toComponentEmoji(catalog, "cancel") ?? { name: "✖️" }),
-      ),
-    footerDisplay(),
+      .setAccessory(backButton),
   );
 }
 
@@ -126,19 +124,18 @@ export function buildSuccessCard(
   platform: Platform,
   catalog: ApplicationEmojiCatalog,
 ): ContainerBuilder {
-  const confirmEmoji = emojiOrFallback(catalog, "confirm", "✅");
+  const confirmEmoji = emojiOrFallback(catalog, "redirect");
   const label = platformLabel(platform);
 
   return new ContainerBuilder()
     .setAccentColor(UI_SUCCESS_COLOR)
     .addComponents(
-      new TextDisplayBuilder().setContent(`${confirmEmoji} **Account Linked**`),
+      new TextDisplayBuilder().setContent(titleWith(confirmEmoji, "Account Linked")),
       separator(),
       new TextDisplayBuilder().setContent(`### ${GAME_NAME}`),
       new TextDisplayBuilder().setContent(`**Username**\n\`${usernameNormalized}\``),
       new TextDisplayBuilder().setContent(`**Player ID**\n\`${playerId}\``),
       new TextDisplayBuilder().setContent(`**Platform**\n${label}`),
-      footerDisplay(),
     );
 }
 
@@ -146,15 +143,14 @@ export function buildErrorCard(
   message: string,
   catalog: ApplicationEmojiCatalog,
 ): ContainerBuilder {
-  const cancelEmoji = emojiOrFallback(catalog, "cancel", "❌");
+  const cancelEmoji = emojiOrFallback(catalog, "ban_hammer_red");
 
   return new ContainerBuilder()
     .setAccentColor(UI_ERROR_COLOR)
     .addComponents(
-      new TextDisplayBuilder().setContent(`${cancelEmoji} **Link Failed**`),
+      new TextDisplayBuilder().setContent(titleWith(cancelEmoji, "Link Failed")),
       separator(),
       new TextDisplayBuilder().setContent(message),
-      footerDisplay(),
     );
 }
 
@@ -166,17 +162,16 @@ export function buildErrorCard(
  * depending on the result.
  */
 export function buildFetchingStatsCard(catalog: ApplicationEmojiCatalog): ContainerBuilder {
-  const timerEmoji = emojiOrFallback(catalog, "timer", "⏳");
+  const timerEmoji = emojiOrFallback(catalog, "timeout");
 
   return new ContainerBuilder()
-    .setAccentColor(UI_INFO_COLOR)
+    .setAccentColor(UI_SUCCESS_COLOR)
     .addComponents(
-      new TextDisplayBuilder().setContent(`${timerEmoji} **Fetching Your Stats**`),
+      new TextDisplayBuilder().setContent(titleWith(timerEmoji, "Fetching Your Stats")),
       separator(),
       new TextDisplayBuilder().setContent(
         "Your account is linked. We are now looking up your stats — this can take a while if the upstream provider is slow.",
       ),
-      footerDisplay(),
     );
 }
 
@@ -194,7 +189,7 @@ export function buildReadyToPlayCard(
   },
   catalog: ApplicationEmojiCatalog,
 ): ContainerBuilder {
-  const confirmEmoji = emojiOrFallback(catalog, "confirm", "✅");
+  const confirmEmoji = emojiOrFallback(catalog, "redirect");
   const label = platformLabel(args.platform);
   const stats = args.stats.stats;
   const profile = stats?.profile;
@@ -203,7 +198,7 @@ export function buildReadyToPlayCard(
   return new ContainerBuilder()
     .setAccentColor(UI_SUCCESS_COLOR)
     .addComponents(
-      new TextDisplayBuilder().setContent(`${confirmEmoji} **You're Ready To Play**`),
+      new TextDisplayBuilder().setContent(titleWith(confirmEmoji, "You're Ready To Play")),
       separator(),
       new TextDisplayBuilder().setContent(`### ${GAME_NAME}`),
       new TextDisplayBuilder().setContent(`**Username**\n\`${args.usernameNormalized}\``),
@@ -211,7 +206,6 @@ export function buildReadyToPlayCard(
       new TextDisplayBuilder().setContent(`**Platform**\n${label}`),
       separator(),
       ...buildStatsLines(profile, ranked),
-      footerDisplay(),
     );
 }
 

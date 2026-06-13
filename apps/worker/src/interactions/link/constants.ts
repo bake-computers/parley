@@ -18,7 +18,6 @@ export const PLATFORM_HINTS: Record<Platform, string> = {
 
 export const UI_SUCCESS_COLOR = 0x22c55e;
 export const UI_ERROR_COLOR = 0xef4444;
-export const UI_INFO_COLOR = 0xffffff;
 export const UI_WARNING_COLOR = 0xf59e0b;
 
 export const GAME_NAME = "Rainbow Six Siege";
