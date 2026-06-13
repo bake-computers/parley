@@ -125,6 +125,9 @@ diesel::table! {
         created_at -> Int8,
         updated_at -> Int8,
         matchmaking_enabled -> Bool,
+        terms_accepted_at_ms -> Int8,
+        profile_public -> Bool,
+        timezone -> Text,
     }
 }
 
