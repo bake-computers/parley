@@ -19,6 +19,7 @@
     "@parley/axiom": "workspace:*",
     "@parley/proto": "workspace:*",
     "@parley/runtime": "workspace:*",
+    "discord-api-types": "^0.38.47",
     "hono": "^4.7.0"
   },
   "devDependencies": {
