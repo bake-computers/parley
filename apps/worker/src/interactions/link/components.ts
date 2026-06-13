@@ -15,6 +15,8 @@ import {
   buildPlatformSelectCard,
   buildReadyToPlayCard,
 } from "./ui.js";
+import { assertAccepted } from "../_shared/acceptance.js";
+import type { EngineTransportEnv } from "../../transport.js";
 
 const COMPONENT_BUTTON = 2;
 
@@ -35,6 +37,10 @@ const COMPONENT_BUTTON = 2;
  */
 export const linkButtonHandler = new ComponentHandler("link", COMPONENT_BUTTON).addHandler(
   async (interaction: MessageComponentInteraction) => {
+    const env = interaction.context.env as EngineTransportEnv;
+    if (!(await assertAccepted(interaction, env as never))) {
+      return;
+    }
     const customId = interaction.customId;
 
     // Platform action: open the username modal. No defer — showModal IS the

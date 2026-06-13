@@ -8,6 +8,7 @@ import { helpCommand } from "./interactions/help.js";
 import { linkSlashCommand } from "./interactions/link/slash.js";
 import { pingCommand } from "./interactions/ping.js";
 import { profileCommand } from "./interactions/profile.js";
+import { userSlashCommand } from "./interactions/user/index.js";
 
 async function loadEnvFile(path: string): Promise<void> {
   const file = Bun.file(path);
@@ -59,7 +60,7 @@ if (!token || !applicationId) {
   process.exit(1);
 }
 
-const commands = [pingCommand, helpCommand, linkSlashCommand, profileCommand];
+const commands = [pingCommand, helpCommand, linkSlashCommand, profileCommand, userSlashCommand];
 
 console.log(`Registering commands for application ${applicationId}...`);
 const slashCommandCount = flattenHandlers(commands).filter(isSlashCommandHandler).length;
