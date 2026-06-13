@@ -28,7 +28,11 @@ function visibilityLabel(public_: boolean): string {
   return public_ ? "Public" : "Hidden";
 }
 
-function titleWith(catalog: ApplicationEmojiCatalog, emojiName: AppEmojiName, title: string): string {
+function titleWith(
+  catalog: ApplicationEmojiCatalog,
+  emojiName: AppEmojiName,
+  title: string,
+): string {
   const formatted = formatApplicationEmoji(catalog, emojiName);
   return formatted ? `${formatted} **${title}**` : `**${title}**`;
 }
@@ -38,9 +42,7 @@ export function buildSettingsCard(
   emojis: ApplicationEmojiCatalog,
 ): ContainerBuilder {
   const cooldownLine =
-    settings.termsAcceptedAtMs > 0
-      ? "Cooldown: none"
-      : "Cooldown: not yet accepted";
+    settings.termsAcceptedAtMs > 0 ? "Cooldown: none" : "Cooldown: not yet accepted";
 
   return new ContainerBuilder()
     .setAccentColor(COLORS.main)
@@ -50,24 +52,18 @@ export function buildSettingsCard(
         "Language · Matchmaking · Visibility · Timezone · Cooldown",
       ),
       separator(),
-      new TextDisplayBuilder().setContent(
-        `**Language**\n${languageLabel(settings.language)}`,
-      ),
+      new TextDisplayBuilder().setContent(`**Language**\n${languageLabel(settings.language)}`),
       new TextDisplayBuilder().setContent(
         `**Matchmaking**\n${settings.matchmakingEnabled ? "● Enabled" : "○ Disabled"}`,
       ),
       new TextDisplayBuilder().setContent(
         `**Visibility**\n${visibilityLabel(settings.profilePublic)}`,
       ),
-      new TextDisplayBuilder().setContent(
-        `**Timezone**\n${settings.timezone}`,
-      ),
+      new TextDisplayBuilder().setContent(`**Timezone**\n${settings.timezone}`),
       separator(),
       new TextDisplayBuilder().setContent(cooldownLine),
       separator(),
-      new TextDisplayBuilder().setContent(
-        "Use the buttons below to change a setting.",
-      ),
+      new TextDisplayBuilder().setContent("Use the buttons below to change a setting."),
     );
 }
 
@@ -77,10 +73,7 @@ export function buildInfoCard(message: string): ContainerBuilder {
     .addComponents(new TextDisplayBuilder().setContent(message));
 }
 
-export function buildErrorCard(
-  message: string,
-  emojis: ApplicationEmojiCatalog,
-): ContainerBuilder {
+export function buildErrorCard(message: string, emojis: ApplicationEmojiCatalog): ContainerBuilder {
   return new ContainerBuilder()
     .setAccentColor(COLORS.error)
     .addComponents(
@@ -97,7 +90,9 @@ export function buildRefreshErrorCard(
   return new ContainerBuilder()
     .setAccentColor(COLORS.warning)
     .addComponents(
-      new TextDisplayBuilder().setContent(titleWith(emojis, "warning_orange", "Stats Refresh Failed")),
+      new TextDisplayBuilder().setContent(
+        titleWith(emojis, "warning_orange", "Stats Refresh Failed"),
+      ),
       separator(),
       new TextDisplayBuilder().setContent(message),
     );
@@ -138,12 +133,8 @@ export function buildDeleteResultCard(
       new TextDisplayBuilder().setContent(
         `**Anonymized id**\n\`${response.anonymizedDiscordUserId}\``,
       ),
-      new TextDisplayBuilder().setContent(
-        `**Cooldown ends**\n${cooldownDiscordTs}`,
-      ),
-      new TextDisplayBuilder().setContent(
-        `**Tables affected**\n${lines.join("\n")}`,
-      ),
+      new TextDisplayBuilder().setContent(`**Cooldown ends**\n${cooldownDiscordTs}`),
+      new TextDisplayBuilder().setContent(`**Tables affected**\n${lines.join("\n")}`),
     );
 }
 

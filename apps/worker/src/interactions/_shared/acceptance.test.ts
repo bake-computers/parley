@@ -1,19 +1,15 @@
 import { describe, expect, test } from "bun:test";
 import { ok, type Result } from "neverthrow";
 import type { JsonValue, DiscordApiError } from "@parley/runtime";
-import type {
-  UserSettingsResponse,
-  UserSettings as ProtoUserSettings,
-} from "@parley/proto";
-import {
-  assertAccepted,
-  buildAcceptanceCard,
-  ACCEPT_BUTTON,
-} from "./acceptance.js";
+import type { UserSettingsResponse, UserSettings as ProtoUserSettings } from "@parley/proto";
+import { assertAccepted, buildAcceptanceCard, ACCEPT_BUTTON } from "./acceptance.js";
 
 const ENV = { ENGINE_SERVICE_URL: "http://localhost:50051" };
 
-type Reply = (options: { components?: unknown[]; flags?: number }) => Promise<Result<JsonValue, DiscordApiError>>;
+type Reply = (options: {
+  components?: unknown[];
+  flags?: number;
+}) => Promise<Result<JsonValue, DiscordApiError>>;
 
 function captureReply() {
   const calls: Parameters<Reply>[0][] = [];

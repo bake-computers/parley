@@ -11,10 +11,7 @@ import {
   type ModalInteraction,
 } from "@parley/runtime";
 import { UserSettingsService } from "@parley/proto";
-import type {
-  UserSettingsResponse,
-  UserSettings as ProtoUserSettings,
-} from "@parley/proto";
+import type { UserSettingsResponse, UserSettings as ProtoUserSettings } from "@parley/proto";
 import { createClient } from "@connectrpc/connect";
 import { createConnectTransport } from "@connectrpc/connect-web";
 import { resolveEngineTransport } from "../../engine-transport.js";
@@ -38,9 +35,7 @@ type GetUserSettingsClient = {
   getUserSettings: (req: { discordUserId: string }) => Promise<UserSettingsResponse>;
 };
 
-export function buildAcceptanceCard(
-  emojis: ApplicationEmojiCatalog,
-): ContainerBuilder {
+export function buildAcceptanceCard(emojis: ApplicationEmojiCatalog): ContainerBuilder {
   const pin = formatApplicationEmoji(emojis, "pin");
   const title = pin ? `${pin} **Before you start**` : "**Before you start**";
 
@@ -76,9 +71,7 @@ async function fetchSettings(
   if (cached && Date.now() - cached.at < SETTINGS_CACHE_TTL_MS) {
     return cached.value;
   }
-  const response = await client
-    .getUserSettings({ discordUserId } as never)
-    .catch(() => undefined);
+  const response = await client.getUserSettings({ discordUserId } as never).catch(() => undefined);
   const settings = response?.success ? response.settings : undefined;
   ctx.set(cacheKey, { at: Date.now(), value: settings });
   return settings;

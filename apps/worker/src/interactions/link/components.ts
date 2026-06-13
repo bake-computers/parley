@@ -87,11 +87,7 @@ export const linkButtonHandler = new ComponentHandler("link", COMPONENT_BUTTON).
     const emojis = await resolveEmojis(interaction);
 
     if (customId === CANCEL_CUSTOM_ID) {
-      await safeEditReplyV2(
-        interaction,
-        buildPlatformSelectCard(emojis),
-        "link.cancel_failed",
-      );
+      await safeEditReplyV2(interaction, buildPlatformSelectCard(emojis), "link.cancel_failed");
       return;
     }
 
@@ -150,19 +146,11 @@ export const linkButtonHandler = new ComponentHandler("link", COMPONENT_BUTTON).
     const response = rpcResult.value;
     if (!response.success) {
       const message = response.error?.message ?? "Could not link your account.";
-      await safeEditReplyV2(
-        interaction,
-        buildErrorCard(message, emojis),
-        "link.error_card_failed",
-      );
+      await safeEditReplyV2(interaction, buildErrorCard(message, emojis), "link.error_card_failed");
       return;
     }
 
-    await safeEditReplyV2(
-      interaction,
-      buildFetchingStatsCard(emojis),
-      "link.fetching_card_failed",
-    );
+    await safeEditReplyV2(interaction, buildFetchingStatsCard(emojis), "link.fetching_card_failed");
 
     const statsResult = await executeFetchStats({
       context: interaction.context,

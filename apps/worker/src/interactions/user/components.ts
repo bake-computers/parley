@@ -25,17 +25,8 @@ import {
   USER_ACCEPT_BUTTON,
 } from "./constants.js";
 import { buildDeleteConfirmModal } from "./modal.js";
-import {
-  buildDeleteResultCard,
-  buildErrorCard,
-  buildInfoCard,
-  buildSettingsCard,
-} from "./ui.js";
-import {
-  invokeDeleteUserData,
-  invokeGetUserSettings,
-  invokeUpsertUserSettings,
-} from "./rpc.js";
+import { buildDeleteResultCard, buildErrorCard, buildInfoCard, buildSettingsCard } from "./ui.js";
+import { invokeDeleteUserData, invokeGetUserSettings, invokeUpsertUserSettings } from "./rpc.js";
 import { Language } from "@parley/proto";
 
 const COMPONENT_BUTTON = 2;
@@ -95,7 +86,7 @@ export const userButtonHandler = new ComponentHandler("user", COMPONENT_BUTTON).
       const settingsResult = await invokeGetUserSettings(getClient(env) as never, discordUserId);
       const current =
         settingsResult.isOk() && settingsResult.value.success
-          ? settingsResult.value.settings ?? baseSettings(discordUserId)
+          ? (settingsResult.value.settings ?? baseSettings(discordUserId))
           : baseSettings(discordUserId);
       const updated: ProtoUserSettings = {
         ...current,
@@ -108,10 +99,7 @@ export const userButtonHandler = new ComponentHandler("user", COMPONENT_BUTTON).
         await updateV2(interaction, buildErrorCard(r.error.message, emojis));
         return;
       }
-      await updateV2(
-        interaction,
-        buildInfoCard("✅ Accepted. Please re-run your command."),
-      );
+      await updateV2(interaction, buildInfoCard("✅ Accepted. Please re-run your command."));
       return;
     }
 
@@ -166,7 +154,9 @@ export const userButtonHandler = new ComponentHandler("user", COMPONENT_BUTTON).
     }
     if (customId === USER_DELETE_OPEN) {
       const deferred = await interaction.deferUpdate();
-      if (deferred.isErr()) return;
+      if (deferred.isErr()) {
+        return;
+      }
       const modal = buildDeleteConfirmModal(interaction.user?.username ?? "");
       const r = await interaction.showModal(modal);
       if (r.isErr()) {
@@ -190,7 +180,9 @@ export const userModalHandler = new ModalHandler(USER_DELETE_MODAL).addHandler(
     const env = interaction.context.env;
     const discordUserId = interaction.user?.id ?? "";
     const deferred = await interaction.deferUpdate();
-    if (deferred.isErr()) return;
+    if (deferred.isErr()) {
+      return;
+    }
     const client = getClient(env) as never;
     const result = await invokeDeleteUserData(client, discordUserId);
     const emojis = await resolveEmojis(interaction);
@@ -201,10 +193,7 @@ export const userModalHandler = new ModalHandler(USER_DELETE_MODAL).addHandler(
     if (!result.value.success || !result.value.anonymizedDiscordUserId) {
       await editReplyV2(
         interaction,
-        buildErrorCard(
-          result.value.error?.message ?? "Could not delete your data.",
-          emojis,
-        ),
+        buildErrorCard(result.value.error?.message ?? "Could not delete your data.", emojis),
       );
       return;
     }

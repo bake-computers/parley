@@ -1,15 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import { ConnectError } from "@connectrpc/connect";
 import { Language } from "@parley/proto";
-import type {
-  DeleteUserDataResponse,
-  UserSettingsResponse,
-} from "@parley/proto";
-import {
-  invokeDeleteUserData,
-  invokeGetUserSettings,
-  invokeUpsertUserSettings,
-} from "./rpc.js";
+import type { DeleteUserDataResponse, UserSettingsResponse } from "@parley/proto";
+import { invokeDeleteUserData, invokeGetUserSettings, invokeUpsertUserSettings } from "./rpc.js";
 
 describe("invokeGetUserSettings", () => {
   test("wraps a successful response in Ok", async () => {
@@ -29,7 +22,9 @@ describe("invokeGetUserSettings", () => {
     const client = { getUserSettings: () => Promise.reject(err) };
     const r = await invokeGetUserSettings(client as never, "u1");
     expect(r.isErr()).toBe(true);
-    if (r.isErr()) expect(r.error).toBe(err);
+    if (r.isErr()) {
+      expect(r.error).toBe(err);
+    }
   });
 });
 
@@ -42,14 +37,17 @@ describe("invokeUpsertUserSettings", () => {
         return Promise.resolve({ success: true } as unknown as UserSettingsResponse);
       },
     };
-    await invokeUpsertUserSettings(client as never, {
-      discordUserId: "u1",
-      language: Language.DE,
-      matchmakingEnabled: false,
-      termsAcceptedAtMs: 100,
-      profilePublic: false,
-      timezone: "Europe/Berlin",
-    } as never);
+    await invokeUpsertUserSettings(
+      client as never,
+      {
+        discordUserId: "u1",
+        language: Language.DE,
+        matchmakingEnabled: false,
+        termsAcceptedAtMs: 100,
+        profilePublic: false,
+        timezone: "Europe/Berlin",
+      } as never,
+    );
     expect(calls).toHaveLength(1);
   });
 });
@@ -66,6 +64,8 @@ describe("invokeDeleteUserData", () => {
     };
     const r = await invokeDeleteUserData(client as never, "u1");
     expect(r.isOk()).toBe(true);
-    if (r.isOk()) expect(r.value.cooldownUntilMs).toBe(1234n);
+    if (r.isOk()) {
+      expect(r.value.cooldownUntilMs).toBe(1234n);
+    }
   });
 });

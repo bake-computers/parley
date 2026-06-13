@@ -79,9 +79,7 @@ export const profileCommand = new SlashCommand()
         .setAccentColor(UI_TOKENS.main)
         .addComponents(
           new TextDisplayBuilder().setContent("**No Linked Accounts**"),
-          new TextDisplayBuilder().setContent(
-            "No accounts linked. Use /link to get started!",
-          ),
+          new TextDisplayBuilder().setContent("No accounts linked. Use /link to get started!"),
         );
       await editReplyV2(interaction, container);
       return;

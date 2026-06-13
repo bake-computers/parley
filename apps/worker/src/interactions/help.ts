@@ -1,8 +1,4 @@
-import {
-  ContainerBuilder,
-  SlashCommand,
-  TextDisplayBuilder,
-} from "@parley/runtime";
+import { ContainerBuilder, SlashCommand, TextDisplayBuilder } from "@parley/runtime";
 import { replyV2 } from "../ui/discord.js";
 import { UI_TOKENS } from "../ui/tokens.js";
 
@@ -14,12 +10,8 @@ export const helpCommand = new SlashCommand()
       .setAccentColor(UI_TOKENS.main)
       .addComponents(
         new TextDisplayBuilder().setContent("**Parley Commands**"),
-        new TextDisplayBuilder().setContent(
-          "**/ping** — Check if the bot is responsive",
-        ),
-        new TextDisplayBuilder().setContent(
-          "**/help** — List all available commands",
-        ),
+        new TextDisplayBuilder().setContent("**/ping** — Check if the bot is responsive"),
+        new TextDisplayBuilder().setContent("**/help** — List all available commands"),
         new TextDisplayBuilder().setContent(
           "**/link** — Link your Discord account via an interactive wizard",
         ),

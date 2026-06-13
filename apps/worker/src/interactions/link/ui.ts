@@ -42,9 +42,7 @@ function separator(): SeparatorBuilder {
 }
 
 /** Step 1: platform picker. */
-export function buildPlatformSelectCard(
-  catalog: ApplicationEmojiCatalog,
-): ContainerBuilder {
+export function buildPlatformSelectCard(catalog: ApplicationEmojiCatalog): ContainerBuilder {
   const linkEmoji = emojiOrFallback(catalog, "linked");
 
   return new ContainerBuilder().setAccentColor(UI_SUCCESS_COLOR).addComponents(
@@ -59,7 +57,9 @@ export function buildPlatformSelectCard(
         .setLabel(platformLabel(platform))
         .setStyle(ButtonStyle.Primary);
       const emoji = toComponentEmoji(catalog, "linked");
-      if (emoji) accessory.setEmoji(emoji);
+      if (emoji) {
+        accessory.setEmoji(emoji);
+      }
       return new SectionBuilder()
         .addText(
           new TextDisplayBuilder().setContent(
@@ -90,32 +90,38 @@ export function buildConfirmCard(
     .setLabel("Continue")
     .setStyle(ButtonStyle.Success);
   const continueEmoji = toComponentEmoji(catalog, "redirect");
-  if (continueEmoji) continueButton.setEmoji(continueEmoji);
+  if (continueEmoji) {
+    continueButton.setEmoji(continueEmoji);
+  }
 
   const backButton = new ButtonBuilder()
     .setCustomId(CANCEL_CUSTOM_ID)
     .setLabel("Back")
     .setStyle(ButtonStyle.Secondary);
   const backEmoji = toComponentEmoji(catalog, "ban_hammer_red");
-  if (backEmoji) backButton.setEmoji(backEmoji);
+  if (backEmoji) {
+    backButton.setEmoji(backEmoji);
+  }
 
-  return new ContainerBuilder().setAccentColor(UI_WARNING_COLOR).addComponents(
-    new TextDisplayBuilder().setContent(titleWith(warningEmoji, "Confirm Your Account")),
-    new TextDisplayBuilder().setContent(
-      `The engine will look up your **${label}** account by your linked username. Continue?`,
-    ),
-    separator(),
-    new TextDisplayBuilder().setContent(`**Platform**\n${label}`),
-    new TextDisplayBuilder().setContent(`**Username**\n\`${username}\``),
-    new TextDisplayBuilder().setContent(`**Game**\n${GAME_NAME}`),
-    separator(),
-    new SectionBuilder()
-      .addText(new TextDisplayBuilder().setContent("Ready to link?"))
-      .setAccessory(continueButton),
-    new SectionBuilder()
-      .addText(new TextDisplayBuilder().setContent("Pick a different platform?"))
-      .setAccessory(backButton),
-  );
+  return new ContainerBuilder()
+    .setAccentColor(UI_WARNING_COLOR)
+    .addComponents(
+      new TextDisplayBuilder().setContent(titleWith(warningEmoji, "Confirm Your Account")),
+      new TextDisplayBuilder().setContent(
+        `The engine will look up your **${label}** account by your linked username. Continue?`,
+      ),
+      separator(),
+      new TextDisplayBuilder().setContent(`**Platform**\n${label}`),
+      new TextDisplayBuilder().setContent(`**Username**\n\`${username}\``),
+      new TextDisplayBuilder().setContent(`**Game**\n${GAME_NAME}`),
+      separator(),
+      new SectionBuilder()
+        .addText(new TextDisplayBuilder().setContent("Ready to link?"))
+        .setAccessory(continueButton),
+      new SectionBuilder()
+        .addText(new TextDisplayBuilder().setContent("Pick a different platform?"))
+        .setAccessory(backButton),
+    );
 }
 
 export function buildSuccessCard(
