@@ -172,6 +172,9 @@ pub struct UserSettings {
     pub created_at: i64,
     pub updated_at: i64,
     pub matchmaking_enabled: bool,
+    pub terms_accepted_at_ms: i64,
+    pub profile_public: bool,
+    pub timezone: String,
 }
 
 #[derive(Debug, Clone, diesel::Insertable)]
@@ -182,6 +185,9 @@ pub struct NewUserSettings<'a> {
     pub created_at: i64,
     pub updated_at: i64,
     pub matchmaking_enabled: bool,
+    pub terms_accepted_at_ms: i64,
+    pub profile_public: bool,
+    pub timezone: &'a str,
 }
 
 #[derive(Debug, Clone, diesel::Queryable, diesel::Selectable)]
