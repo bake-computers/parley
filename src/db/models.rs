@@ -463,6 +463,34 @@ pub struct NewMatchParticipant<'a> {
     pub updated_at: i64,
 }
 
+/// `match_participants` row joined with the matching `players.username`.
+///
+/// Returned by `MatchRepo::participants` after a `LEFT JOIN players`. The
+/// `username` field is `None` when the player row has been deleted or the
+/// FK is dangling.
+#[derive(Debug, Clone, diesel::Queryable)]
+pub struct MatchParticipantWithUsername {
+    pub id: i32,
+    pub game: Game,
+    pub match_id: i32,
+    pub discord_user_id: String,
+    pub player_id: i32,
+    pub team: String,
+    pub slot: i32,
+    pub seed_rank_points: i32,
+    pub seed_kd_ratio: f64,
+    pub seed_kost: f64,
+    pub seed_kpr: f64,
+    pub seed_headshot_percentage: f64,
+    pub seed_score: f64,
+    pub balance_rating: f64,
+    pub kills: Option<i32>,
+    pub deaths: Option<i32>,
+    pub created_at: i64,
+    pub updated_at: i64,
+    pub username: Option<String>,
+}
+
 #[derive(Debug, Clone, diesel::Insertable)]
 #[diesel(table_name = matchmaking_queue_participants)]
 pub struct NewMatchmakingQueueParticipant<'a> {
