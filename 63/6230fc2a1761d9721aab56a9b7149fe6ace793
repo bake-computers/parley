@@ -1,0 +1,21 @@
+src/handlers/match_queue.rs
+  s_a02766db40eb33::t_8f54761d451d13 8-10
+  s_a02766db40eb33::t_3c68904a6e32a8 19-22
+  s_a02766db40eb33::t_8698f962287aea 798-942
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "636230fc2a1761d9721aab56a9b7149fe6ace793",
+  "prompts": {},
+  "sessions": {
+    "s_a02766db40eb33": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_139e9b0f3ffeTXvs6m3x6G47NN",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
