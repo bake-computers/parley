@@ -30,6 +30,9 @@ jobs:
   bridge:
     name: Deploy bridge (parley-bridge)
     runs-on: blacksmith-2vcpu-ubuntu-2404
+    environment:
+      name: production-bridge
+      url: https://bridge.parley.bot
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -73,14 +76,21 @@ jobs:
     name: Deploy ${{ matrix.app.name }}
     needs: bridge
     runs-on: blacksmith-2vcpu-ubuntu-2404
+    environment:
+      name: ${{ matrix.app.env }}
+      url: ${{ matrix.app.url }}
     strategy:
       fail-fast: false
       matrix:
         app:
           - name: landing
             cwd: apps/landing
+            env: production-landing
+            url: https://parley.bot
           - name: worker
             cwd: apps/worker
+            env: production-worker
+            url: https://app.parley.bot
     steps:
       - name: Checkout
         uses: actions/checkout@v4
