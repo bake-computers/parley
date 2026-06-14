@@ -151,6 +151,7 @@ pub async fn try_form_match(
         balance_gap: partition.balance_gap,
         created_at: now,
         updated_at: now,
+        public_uuid: None,
     };
 
     let players_owned = players.clone();

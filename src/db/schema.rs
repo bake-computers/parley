@@ -272,6 +272,7 @@ diesel::table! {
         balance_gap -> Float8,
         created_at -> Int8,
         updated_at -> Int8,
+        public_uuid -> Uuid,
     }
 }
 

@@ -503,6 +503,7 @@ pub async fn create_custom_match_rpc(
         balance_gap: partition.balance_gap,
         created_at: now,
         updated_at: now,
+        public_uuid: None,
     };
 
     let mut parts = Vec::new();

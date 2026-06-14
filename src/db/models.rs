@@ -388,6 +388,7 @@ pub struct MatchRow {
     pub balance_gap: f64,
     pub created_at: i64,
     pub updated_at: i64,
+    pub public_uuid: uuid::Uuid,
 }
 
 #[derive(Debug, Clone, diesel::Insertable)]
@@ -414,6 +415,7 @@ pub struct NewMatch<'a> {
     pub balance_gap: f64,
     pub created_at: i64,
     pub updated_at: i64,
+    pub public_uuid: Option<&'a uuid::Uuid>,
 }
 
 #[derive(Debug, Clone, diesel::Queryable, diesel::Selectable, diesel::Identifiable)]

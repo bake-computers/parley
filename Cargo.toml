@@ -63,6 +63,7 @@ diesel = { version = "2.3.9", default-features = false, features = [
   "serde_json",
   "chrono",
   "numeric",
+  "uuid",
   "32-column-tables",
 ] }
 diesel-async = { version = "0.9", features = ["postgres", "bb8"] }

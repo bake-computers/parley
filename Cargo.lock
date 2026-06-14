@@ -629,6 +629,7 @@ dependencies = [
  "num-traits",
  "pq-sys",
  "serde_json",
+ "uuid",
 ]
 
 [[package]]
