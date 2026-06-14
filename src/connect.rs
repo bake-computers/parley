@@ -154,6 +154,14 @@ pub fn build_router_with_context(ctx: AppContext) -> Router {
             "/parley.matchmaking.v1.MatchmakingService/GetMatch",
             post(crate::handlers::match_queue::get_match_rpc),
         )
+        .route(
+            "/parley.matchmaking.v1.MatchmakingService/ListMatches",
+            post(crate::handlers::match_queue::list_matches_rpc),
+        )
+        .route(
+            "/parley.matchmaking.v1.MatchmakingService/GetMatchByUuid",
+            post(crate::handlers::match_queue::get_match_by_uuid_rpc),
+        )
         // Tournaments
         .route(
             "/parley.tournament.v1.TournamentService/CreateTournament",
