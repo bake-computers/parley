@@ -1,0 +1,21 @@
+apps/worker/src/app.ts
+  s_8a8321f634f82b::t_6196af115742d4 21
+apps/worker/src/register-commands.ts
+  s_8a8321f634f82b::t_539e53531131e9 64-71
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "aeaf10c7b52232daf6bd74d32fdcc0c97669a8ab",
+  "prompts": {},
+  "sessions": {
+    "s_8a8321f634f82b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_139d7d8a6ffeKteV0z2JsqezD8",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
