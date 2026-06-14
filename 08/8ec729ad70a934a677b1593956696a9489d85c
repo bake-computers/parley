@@ -1,0 +1,28 @@
+apps/landing/public/llms.txt
+  s_2b061f3caa01dd::t_a85a88e42e7174 1-35
+apps/landing/vite.config.ts
+  h_93d17961f46f35 15-22
+apps/landing/public/sitemap.xml
+  s_2b061f3caa01dd::t_cc513e51a6355b 1-36
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "088ec729ad70a934a677b1593956696a9489d85c",
+  "prompts": {},
+  "humans": {
+    "h_93d17961f46f35": {
+      "author": "ryzmae <hi@ryzm.cc>"
+    }
+  },
+  "sessions": {
+    "s_2b061f3caa01dd": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_13932a81affeHsCjUph6Xw5I7q",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
