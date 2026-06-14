@@ -1,0 +1,28 @@
+apps/bridge/tsconfig.json
+  s_829547fd02bb55::t_c69385a7219173 5
+apps/bridge/src/routes/match.test.ts
+  s_829547fd02bb55::t_b0639f2b56925f 79
+  s_829547fd02bb55::t_484163d25dfe03 17,20,23,25,27,29,31-39,60
+  s_829547fd02bb55::t_63f8d01bf7e7b9 1-16,18,26,28,30,40-59,67-78,80-94,96-113,115-145
+  s_829547fd02bb55::t_8bdf3aeae5b7f9 62-64
+  s_829547fd02bb55::t_12e9735b7b2b4e 19,21-22,24
+  s_829547fd02bb55::t_c5546956cec3f7 61,65-66
+  s_829547fd02bb55::t_0abc02d8269ef9 95
+  s_829547fd02bb55::t_5520c2fb6ff17b 114
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "49e5d9fb360d64ad039883319e54865a3d9079f7",
+  "prompts": {},
+  "sessions": {
+    "s_829547fd02bb55": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_139c67b89ffeAGqAQ4KubQtJlU",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
