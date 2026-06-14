@@ -1,0 +1,29 @@
+apps/bridge/wrangler.jsonc
+  s_b047a2156fd967::t_a6a4765c650f43 43-50
+apps/bridge/worker-configuration.d.ts
+  s_b047a2156fd967::t_773a58e107bf1b 2,5
+apps/bridge/src/index.ts
+  s_b047a2156fd967::t_0d1e4c53c5a3e9 4
+  s_b047a2156fd967::t_c90600f4395d77 22-23
+apps/bridge/src/routes/match.ts
+  s_b047a2156fd967::t_9a198b15360457 1-20,22-75
+  s_b047a2156fd967::t_fb74417a43fb15 21
+apps/bridge/src/types.ts
+  s_b047a2156fd967::t_72c878f2759f46 29
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "7501e712a75248ea50d83e44edb04e958d01e9b1",
+  "prompts": {},
+  "sessions": {
+    "s_b047a2156fd967": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_139cb8146ffeu4zlToimFR3B0O",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
