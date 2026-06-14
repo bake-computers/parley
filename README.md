@@ -72,7 +72,7 @@ Parley divides into four logical tiers:
              │
 ┌────────────▼──────────────────────────────────────────────────┐
 │  External providers                                           │
-│  stats.cc · Brawl Stars API · Discord API                     │
+│  stats.cc · Discord API                                       │
 └───────────────────────────────────────────────────────────────┘
 ```
 
