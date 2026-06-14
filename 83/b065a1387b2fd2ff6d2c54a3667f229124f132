@@ -1,0 +1,20 @@
+apps/landing/src/lib/match-cache.ts
+  s_b6b991941e7b11::t_b13d54d2caf1f0 1-45,49-51,58-69
+  s_b6b991941e7b11::t_75eafa5e0c0173 46-48,52-57
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "83b065a1387b2fd2ff6d2c54a3667f229124f132",
+  "prompts": {},
+  "sessions": {
+    "s_b6b991941e7b11": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_139c626a4ffekqzk4KkVbgaYeF",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
