@@ -1,0 +1,23 @@
+apps/landing/src/lib/match-cache.test.ts
+  s_73caa301ebeec6::t_448835c25102ff 18-23
+  s_73caa301ebeec6::t_1d1aa85ff91eaf 1-17,24-69
+apps/landing/src/components/MatchDetailPage.test.tsx
+  s_73caa301ebeec6::t_027b9805c922fa 1,4-5,10-114
+  s_73caa301ebeec6::t_bbb746577e748c 2-3,6-9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "54922fbede7ebc9a1f660fec2745986a10315932",
+  "prompts": {},
+  "sessions": {
+    "s_73caa301ebeec6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_139b2e9a5ffexNGawDmuWIoT3T",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
