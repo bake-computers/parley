@@ -1,17 +1,52 @@
 //! Repositories for matchmaking queues and scrim matches.
 
+use base64::Engine as _;
 use diesel::prelude::*;
 use diesel_async::{AsyncPgConnection, RunQueryDsl};
+use serde::{Deserialize, Serialize};
+use thiserror::Error;
 
 use crate::db::Game;
 use crate::db::models::{
-    MatchParticipant, MatchRow, MatchmakingQueue, MatchmakingQueueParticipant, NewMatch,
-    NewMatchParticipant, NewMatchmakingQueue, NewMatchmakingQueueParticipant,
+    MatchParticipant, MatchParticipantWithUsername, MatchRow, MatchmakingQueue,
+    MatchmakingQueueParticipant, NewMatch, NewMatchParticipant, NewMatchmakingQueue,
+    NewMatchmakingQueueParticipant,
 };
 use crate::db::repos::now_ms;
 use crate::db::schema::{
-    match_participants, matches, matchmaking_queue_participants, matchmaking_queues,
+    match_participants, matches, matchmaking_queue_participants, matchmaking_queues, players,
 };
+
+/// Errors produced when decoding an opaque pagination cursor.
+#[derive(Debug, Error)]
+pub enum CursorError {
+    #[error("cursor base64 decode failed: {0}")]
+    Base64(#[from] base64::DecodeError),
+    #[error("cursor JSON parse failed: {0}")]
+    Json(#[from] serde_json::Error),
+}
+
+/// Wire payload for a keyset-pagination cursor.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct CursorPayload {
+    created_at: i64,
+    id: i32,
+}
+
+pub fn encode_cursor(created_at: i64, id: i32) -> String {
+    let payload = CursorPayload { created_at, id };
+    let json = serde_json::to_vec(&payload).expect("CursorPayload serialization cannot fail");
+    base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(json)
+}
+
+pub fn decode_cursor(s: &str) -> Result<Option<(i64, i32)>, CursorError> {
+    if s.is_empty() {
+        return Ok(None);
+    }
+    let bytes = base64::engine::general_purpose::URL_SAFE_NO_PAD.decode(s)?;
+    let payload: CursorPayload = serde_json::from_slice(&bytes)?;
+    Ok(Some((payload.created_at, payload.id)))
+}
 
 pub const QUEUE_STATUS_WAITING: &str = "waiting";
 pub const QUEUE_STATUS_MATCHED: &str = "matched";
@@ -242,14 +277,35 @@ impl MatchRepo {
     pub async fn participants(
         conn: &mut AsyncPgConnection,
         match_id: i32,
-    ) -> QueryResult<Vec<MatchParticipant>> {
+    ) -> QueryResult<Vec<MatchParticipantWithUsername>> {
         match_participants::table
+            .left_join(players::table.on(match_participants::player_id.eq(players::id)))
             .filter(match_participants::match_id.eq(match_id))
             .order((
                 match_participants::team.asc(),
                 match_participants::slot.asc(),
             ))
-            .select(MatchParticipant::as_select())
+            .select((
+                match_participants::id,
+                match_participants::game,
+                match_participants::match_id,
+                match_participants::discord_user_id,
+                match_participants::player_id,
+                match_participants::team,
+                match_participants::slot,
+                match_participants::seed_rank_points,
+                match_participants::seed_kd_ratio,
+                match_participants::seed_kost,
+                match_participants::seed_kpr,
+                match_participants::seed_headshot_percentage,
+                match_participants::seed_score,
+                match_participants::balance_rating,
+                match_participants::kills,
+                match_participants::deaths,
+                match_participants::created_at,
+                match_participants::updated_at,
+                players::username.nullable(),
+            ))
             .load(conn)
             .await
     }
@@ -297,5 +353,82 @@ impl MatchRepo {
             .get_result(conn)
             .await?;
         Ok(count)
+    }
+
+    /// Keyset-paginated list of matches for a guild, newest first.
+    ///
+    /// `cursor` is the `(created_at, id)` of the last row from the previous
+    /// page (`None` for the first page). Rows are ordered
+    /// `(created_at DESC, id DESC)`; the next page starts strictly *after*
+    /// the cursor — `(created_at, id) < (cursor.0, cursor.1)`.
+    pub async fn list_for_guild(
+        conn: &mut AsyncPgConnection,
+        game: Game,
+        guild_id: &str,
+        limit: i64,
+        cursor: Option<(i64, i32)>,
+    ) -> QueryResult<Vec<MatchRow>> {
+        let mut q = matches::table
+            .filter(matches::game.eq(game))
+            .filter(matches::guild_id.eq(guild_id))
+            .order((matches::created_at.desc(), matches::id.desc()))
+            .limit(limit)
+            .into_boxed();
+        if let Some((c_ts, c_id)) = cursor {
+            q = q.filter(
+                matches::created_at
+                    .lt(c_ts)
+                    .or(matches::created_at.eq(c_ts).and(matches::id.lt(c_id))),
+            );
+        }
+        q.select(MatchRow::as_select()).load(conn).await
+    }
+
+    /// Keyset-paginated list of matches a user participated in, newest first.
+    ///
+    /// `cursor` follows the same `(created_at, id)` shape as
+    /// [`Self::list_for_guild`]. The `match_participants_match_user_unique`
+    /// index on `(match_id, discord_user_id)` guarantees at most one
+    /// participant row per `(match, user)`, so the inner join cannot
+    /// produce duplicate match rows and no `DISTINCT` is required.
+    pub async fn list_for_user(
+        conn: &mut AsyncPgConnection,
+        game: Game,
+        discord_user_id: &str,
+        limit: i64,
+        cursor: Option<(i64, i32)>,
+    ) -> QueryResult<Vec<MatchRow>> {
+        let mut q = matches::table
+            .inner_join(match_participants::table.on(match_participants::match_id.eq(matches::id)))
+            .filter(match_participants::game.eq(game))
+            .filter(match_participants::discord_user_id.eq(discord_user_id))
+            .order((matches::created_at.desc(), matches::id.desc()))
+            .limit(limit)
+            .into_boxed();
+        if let Some((c_ts, c_id)) = cursor {
+            q = q.filter(
+                matches::created_at
+                    .lt(c_ts)
+                    .or(matches::created_at.eq(c_ts).and(matches::id.lt(c_id))),
+            );
+        }
+        q.select(MatchRow::as_select()).load(conn).await
+    }
+
+    /// Look up a single match by its public UUID (used by the bridge KV
+    /// read-through). Returns `Ok(None)` if no row matches; the new unique
+    /// index on `public_uuid` keeps the lookup O(1).
+    pub async fn get_by_uuid(
+        conn: &mut AsyncPgConnection,
+        game: Game,
+        public_uuid: uuid::Uuid,
+    ) -> QueryResult<Option<MatchRow>> {
+        matches::table
+            .filter(matches::game.eq(game))
+            .filter(matches::public_uuid.eq(public_uuid))
+            .select(MatchRow::as_select())
+            .first(conn)
+            .await
+            .optional()
     }
 }

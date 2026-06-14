@@ -576,7 +576,7 @@ pub async fn create_custom_match_rpc(
 
 fn match_to_proto(
     m: &crate::db::models::MatchRow,
-    parts: &[crate::db::models::MatchParticipant],
+    parts: &[crate::db::models::MatchParticipantWithUsername],
 ) -> ProtoMatch {
     ProtoMatch {
         id: m.id,
@@ -594,7 +594,7 @@ fn match_to_proto(
                 player_id: p.player_id,
                 team: p.team.clone(),
                 slot: p.slot,
-                username: String::new(),
+                username: p.username.clone().unwrap_or_default(),
                 balance_rating: p.balance_rating,
             })
             .collect(),
