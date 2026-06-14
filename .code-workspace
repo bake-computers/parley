@@ -1,0 +1,25 @@
+{
+  "folders": [
+    {
+      "name": "Parley Core (Rust Source)",
+      "path": "src"
+    },
+    {
+      "name": "Integration Tests",
+      "path": "tests"
+    },
+    {
+      "name": "Full Monorepo (No Rust LSP)",
+      "path": "."
+    }
+  ],
+  "settings": {
+    // Disable rust-analyzer globally for the entire workspace by default
+    "rust-analyzer.rustc.source": null,
+    
+    // Target settings to keep it light when it does run
+    "rust-analyzer.checkOnSave": false,
+    "rust-analyzer.lru.capacity": 128,
+    "rust-analyzer.cargo.allTargets": false
+  }
+}
