@@ -6,7 +6,7 @@ use crate::connect::{decode_body, detect_encoding, encode_ok};
 use crate::context::AppContext;
 use crate::db::Game as DbGame;
 use crate::db::matchmaking_repos::{
-    MatchRepo, MatchmakingQueueRepo, decode_cursor, encode_cursor, QUEUE_STATUS_WAITING,
+    MatchRepo, MatchmakingQueueRepo, QUEUE_STATUS_WAITING, decode_cursor, encode_cursor,
 };
 use crate::db::models::{NewMatch, NewMatchParticipant};
 use crate::db::repos::{GuildMembershipRepo, GuildSettingsRepo, now_ms};
@@ -599,6 +599,10 @@ fn match_to_proto(
                 slot: p.slot,
                 username: p.username.clone().unwrap_or_default(),
                 balance_rating: p.balance_rating,
+                cpr: p.balance_rating,
+                mu: 0.0,
+                phi: 0.0,
+                platform: p.platform.clone().unwrap_or_default(),
             })
             .collect(),
         public_uuid: m.public_uuid.to_string(),
@@ -827,11 +831,7 @@ pub async fn list_matches_rpc(
         return fail("InvalidArgument", "guild_id is required".into());
     }
 
-    let limit = if req.limit > 0 {
-        req.limit as i64
-    } else {
-        5
-    };
+    let limit = if req.limit > 0 { req.limit as i64 } else { 5 };
 
     let decoded_cursor = match decode_cursor(&req.cursor) {
         Ok(c) => c,

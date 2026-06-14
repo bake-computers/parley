@@ -489,6 +489,7 @@ pub struct MatchParticipantWithUsername {
     pub created_at: i64,
     pub updated_at: i64,
     pub username: Option<String>,
+    pub platform: Option<String>,
 }
 
 #[derive(Debug, Clone, diesel::Insertable)]

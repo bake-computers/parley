@@ -12,14 +12,14 @@ numbered file directly in a browser.
 
 ## Contents
 
-| Category | Examples |
-|---|---|
-| Exploration | code approaches, visual designs |
-| Code | review, understanding, design systems, component variants |
-| Prototyping | animation, interaction |
-| Communication | slide deck, status report, incident report, PR write-up |
-| Diagrams & research | flowchart, feature/concept explainers |
-| Custom editing UIs | triage board, feature flags, prompt tuner |
+| Category            | Examples                                                  |
+| ------------------- | --------------------------------------------------------- |
+| Exploration         | code approaches, visual designs                           |
+| Code                | review, understanding, design systems, component variants |
+| Prototyping         | animation, interaction                                    |
+| Communication       | slide deck, status report, incident report, PR write-up   |
+| Diagrams & research | flowchart, feature/concept explainers                     |
+| Custom editing UIs  | triage board, feature flags, prompt tuner                 |
 
 ## Running
 
