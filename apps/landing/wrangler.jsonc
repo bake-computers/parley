@@ -19,5 +19,13 @@
     { "binding": "BRIDGE", "service": "parley-bridge" },
   ],
 
+  "kv_namespaces": [
+    {
+      "binding": "MATCH_KV",
+      "id": "d1811757b1204fd2ab1d0225c7bbb5e3",
+      "remote": true,
+    },
+  ],
+
   "routes": [{ "pattern": "parley.bot", "custom_domain": true }],
 }
