@@ -1,6 +1,7 @@
 import type { Context } from "hono";
 import type { AxiomVariables } from "@parley/axiom";
 import type { Env } from "../types.js";
+import { resolveEngineTransport } from "../engine-transport.js";
 
 const GAME_R6 = 1;
 const KV_TTL_SECONDS = 3600;
@@ -34,17 +35,14 @@ export async function matchHandler(c: AppContext): Promise<Response> {
     });
   }
 
-  const baseUrl = c.env.ENGINE_SERVICE_URL;
+  const { baseUrl, fetchImpl } = resolveEngineTransport(c.env);
   let res: Response;
   try {
-    res = await fetch(
-      `${baseUrl}/parley.matchmaking.v1.MatchmakingService/GetMatchByUuid`,
-      {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ publicUuid: uuid, game: GAME_R6 }),
-      },
-    );
+    res = await fetchImpl(`${baseUrl}/parley.matchmaking.v1.MatchmakingService/GetMatchByUuid`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ publicUuid: uuid, game: GAME_R6 }),
+    });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
     return c.json({ error: message }, 500);

@@ -1,6 +1,7 @@
 import { createAxiomLogger } from "@parley/axiom";
 import { DurableObject } from "cloudflare:workers";
 import { fetchLeaderboard } from "../engine.js";
+import { resolveEngineTransport } from "../engine-transport.js";
 import { hashEntries, shouldBroadcast } from "../hash.js";
 import type { Env, LeaderboardMetric, LeaderboardSnapshot, WireMessage } from "../types.js";
 import { emptySnapshot, parseMetric, toWireMessage } from "../types.js";
@@ -106,7 +107,10 @@ export class GlobalLeaderboard extends DurableObject<Env> {
     const start = Date.now();
 
     try {
-      const { entries, totalCount } = await fetchLeaderboard(this.env.ENGINE_SERVICE_URL, metric);
+      const { entries, totalCount } = await fetchLeaderboard(
+        resolveEngineTransport(this.env),
+        metric,
+      );
       const hash = await hashEntries(entries);
       const nextSnapshot: LeaderboardSnapshot = {
         metric,
