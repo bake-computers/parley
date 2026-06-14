@@ -18,11 +18,20 @@
   "vars": {
     "SERVICE_NAME": "bridge",
     "ENGINE_SERVICE_URL": "http://localhost:50051",
+    "ENGINE_INTERNAL_URL": "http://api.internal.parley.bot:50051",
     "ALLOWED_ORIGINS": "https://parley.bot,http://localhost:3000,http://127.0.0.1:3000",
     "POLL_INTERVAL_MS": "60000",
     "AXIOM_DATASET": "parley",
     "AXIOM_ENABLED": "true",
   },
+
+  "vpc_services": [
+    {
+      "binding": "VPC_SERVICE",
+      "service_id": "019e56b4-32d2-7843-bf2b-ec4b056d4400",
+      "remote": true,
+    },
+  ],
 
   "durable_objects": {
     "bindings": [

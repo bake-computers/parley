@@ -1,4 +1,5 @@
 import { LeaderboardType } from "@parley/proto/leaderboard/v1/leaderboard_pb.js";
+import type { EngineFetch } from "./engine-transport.js";
 import type { LeaderboardMetric, WireEntry } from "./types.js";
 
 const GAME_R6 = 1;
@@ -41,20 +42,24 @@ function toWireEntry(entry: EngineLeaderboardEntry, index: number): WireEntry {
 }
 
 export async function fetchLeaderboard(
-  baseUrl: string,
+  transport: { baseUrl: string; fetchImpl: EngineFetch },
   metric: LeaderboardMetric,
 ): Promise<{ entries: WireEntry[]; totalCount: number }> {
-  const res = await fetch(`${baseUrl}/parley.leaderboard.v1.LeaderboardService/GetLeaderboard`, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({
-      game: GAME_R6,
-      guildId: "",
-      type: metricToProtoType(metric),
-      limit: LEADERBOARD_LIMIT,
-      offset: 0,
-    }),
-  });
+  const { baseUrl, fetchImpl } = transport;
+  const res = await fetchImpl(
+    `${baseUrl}/parley.leaderboard.v1.LeaderboardService/GetLeaderboard`,
+    {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        game: GAME_R6,
+        guildId: "",
+        type: metricToProtoType(metric),
+        limit: LEADERBOARD_LIMIT,
+        offset: 0,
+      }),
+    },
+  );
 
   if (!res.ok) {
     const body = await res.text();

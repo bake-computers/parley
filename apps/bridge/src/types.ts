@@ -1,4 +1,5 @@
 import type { AxiomEnv } from "@parley/axiom";
+import type { Fetcher } from "@cloudflare/workers-types";
 
 export const METRICS = ["rank_points", "elo", "win_rate"] as const;
 
@@ -28,6 +29,9 @@ export interface Env extends AxiomEnv {
   GLOBAL_LEADERBOARD: DurableObjectNamespace;
   MATCH_KV: KVNamespace;
   ENGINE_SERVICE_URL: string;
+  ENGINE_INTERNAL_URL?: string;
+  VPC_SERVICE?: Fetcher;
+  USE_LOCAL_ENGINE?: string;
   ALLOWED_ORIGINS: string;
   POLL_INTERVAL_MS: string;
 }
