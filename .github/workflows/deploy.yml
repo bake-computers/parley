@@ -16,7 +16,10 @@ env:
 
 jobs:
   build-and-deploy:
+    name: Build and deploy engine-service
     runs-on: blacksmith-2vcpu-ubuntu-2404
+    environment:
+      name: production-engine
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
