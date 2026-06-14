@@ -1,0 +1,28 @@
+apps/landing/src/routeTree.gen.ts
+  s_e9d9e42d861a48::t_d1d22cce9f605d 17,46-50,70,80,91,103,113,123,134,174-180,206
+apps/landing/src/env.d.ts
+  s_e9d9e42d861a48::t_b4f04b2bb78359 5
+apps/landing/src/components/MatchDetailPage.tsx
+  s_e9d9e42d861a48::t_34b506283d8d3a 42-47
+  s_e9d9e42d861a48::t_eb2bd81e8a4283 1-8,12,16,20,24-41,48-237
+  s_e9d9e42d861a48::t_692a648c6d3565 9-11,13-15,17-19,21-23
+apps/landing/src/routes/match.$guildId.$uuid.tsx
+  s_e9d9e42d861a48::t_2a64a608b738c5 1-6,8-30
+  s_e9d9e42d861a48::t_b080e68911459c 7
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "df566f08db10b2840b109b531e9b7e3f9c4f2e3c",
+  "prompts": {},
+  "sessions": {
+    "s_e9d9e42d861a48": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_139c032d4ffe1bAsDdWBt4pgFO",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
