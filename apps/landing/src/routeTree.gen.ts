@@ -14,6 +14,7 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as LegalNoticeRouteImport } from './routes/legal-notice'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as MatchGuildIdUuidRouteImport } from './routes/match.$guildId.$uuid'
 import { Route as ApiBridgeWsRouteImport } from './routes/api.bridge.ws'
 import { Route as ApiBridgeSnapshotRouteImport } from './routes/api.bridge.snapshot'
 
@@ -42,6 +43,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MatchGuildIdUuidRoute = MatchGuildIdUuidRouteImport.update({
+  id: '/match/$guildId/$uuid',
+  path: '/match/$guildId/$uuid',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiBridgeWsRoute = ApiBridgeWsRouteImport.update({
   id: '/api/bridge/ws',
   path: '/api/bridge/ws',
@@ -61,6 +67,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/api/bridge/snapshot': typeof ApiBridgeSnapshotRoute
   '/api/bridge/ws': typeof ApiBridgeWsRoute
+  '/match/$guildId/$uuid': typeof MatchGuildIdUuidRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -70,6 +77,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/api/bridge/snapshot': typeof ApiBridgeSnapshotRoute
   '/api/bridge/ws': typeof ApiBridgeWsRoute
+  '/match/$guildId/$uuid': typeof MatchGuildIdUuidRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -80,6 +88,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/api/bridge/snapshot': typeof ApiBridgeSnapshotRoute
   '/api/bridge/ws': typeof ApiBridgeWsRoute
+  '/match/$guildId/$uuid': typeof MatchGuildIdUuidRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -91,6 +100,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/api/bridge/snapshot'
     | '/api/bridge/ws'
+    | '/match/$guildId/$uuid'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -100,6 +110,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/api/bridge/snapshot'
     | '/api/bridge/ws'
+    | '/match/$guildId/$uuid'
   id:
     | '__root__'
     | '/'
@@ -109,6 +120,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/api/bridge/snapshot'
     | '/api/bridge/ws'
+    | '/match/$guildId/$uuid'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -119,6 +131,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   ApiBridgeSnapshotRoute: typeof ApiBridgeSnapshotRoute
   ApiBridgeWsRoute: typeof ApiBridgeWsRoute
+  MatchGuildIdUuidRoute: typeof MatchGuildIdUuidRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -158,6 +171,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/match/$guildId/$uuid': {
+      id: '/match/$guildId/$uuid'
+      path: '/match/$guildId/$uuid'
+      fullPath: '/match/$guildId/$uuid'
+      preLoaderRoute: typeof MatchGuildIdUuidRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/bridge/ws': {
       id: '/api/bridge/ws'
       path: '/api/bridge/ws'
@@ -183,6 +203,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   ApiBridgeSnapshotRoute: ApiBridgeSnapshotRoute,
   ApiBridgeWsRoute: ApiBridgeWsRoute,
+  MatchGuildIdUuidRoute: MatchGuildIdUuidRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
