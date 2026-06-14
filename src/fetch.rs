@@ -5,7 +5,7 @@ use crate::scrape::{
     ScrapedStats, ScrapedStatsCollection, SeasonCatalogEntry, canonicalize_season_selector,
     scrape_html_stats_collection,
 };
-use once_cell::sync::Lazy;
+use std::sync::OnceLock;
 use regex::Regex;
 use reqwest::Client;
 use thiserror::Error;
@@ -23,12 +23,16 @@ const PLATFORM_SEARCH_ORDER: &[StatsPlatform] = &[
 const USER_AGENT: &str = "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_6) \
     AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
 
-static UUID_REGEX: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(
-        r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
-    )
-    .expect("UUID regex compiles")
-});
+static UUID_REGEX: OnceLock<Regex> = OnceLock::new();
+
+fn get_uuid_regex() -> &'static Regex {
+    UUID_REGEX.get_or_init(|| {
+        Regex::new(
+            r"^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+        )
+        .expect("UUID regex compiles")
+    })
+}
 
 /// Canonicalised platform values supported by stats.cc.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
@@ -129,7 +133,7 @@ fn parse_resolved_profile_url(url: &str) -> Option<(String, String)> {
     // UUIDs are ASCII hex; `to_ascii_lowercase` is allocation-light and
     // canonicalises the case for downstream use (URL building + cache keys).
     let uuid = parts[2].to_ascii_lowercase();
-    if username.is_empty() || !UUID_REGEX.is_match(&uuid) {
+    if username.is_empty() || !get_uuid_regex().is_match(&uuid) {
         return None;
     }
     Some((username, uuid))
@@ -705,12 +709,12 @@ mod tests {
 
     #[test]
     fn uuid_regex_accepts_valid() {
-        assert!(UUID_REGEX.is_match("aaaaaaaa-bbbb-4ccc-9ddd-eeeeeeeeeeee"));
+        assert!(get_uuid_regex().is_match("aaaaaaaa-bbbb-4ccc-9ddd-eeeeeeeeeeee"));
     }
 
     #[test]
     fn uuid_regex_rejects_invalid() {
-        assert!(!UUID_REGEX.is_match("not-a-uuid"));
+        assert!(!get_uuid_regex().is_match("not-a-uuid"));
     }
 
     #[test]
