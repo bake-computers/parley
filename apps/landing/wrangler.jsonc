@@ -15,9 +15,7 @@
     "AXIOM_ENABLED": "true",
   },
 
-  "services": [
-    { "binding": "BRIDGE", "service": "parley-bridge" },
-  ],
+  "services": [{ "binding": "BRIDGE", "service": "parley-bridge" }],
 
   "kv_namespaces": [
     {
