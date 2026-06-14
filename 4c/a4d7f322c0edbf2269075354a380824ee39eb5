@@ -1,0 +1,24 @@
+apps/worker/src/interactions/history/rpc.ts
+  s_d6ef7a40a358ff::t_9d18b564427a45 1-6,15-30,33,51
+  s_d6ef7a40a358ff::t_9ad45852e08a24 31
+  s_d6ef7a40a358ff::t_aad746c4f2c9dc 7-14,32,34-50
+apps/worker/src/interactions/history/slash.ts
+  s_d6ef7a40a358ff::t_6eecc7e01183e7 41-47
+  s_d6ef7a40a358ff::t_b6d47b451bdfb6 1-40,48-61
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "4ca4d7f322c0edbf2269075354a380824ee39eb5",
+  "prompts": {},
+  "sessions": {
+    "s_d6ef7a40a358ff": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_139e10827ffe2BsReLP8XmIH4C",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
