@@ -1,0 +1,25 @@
+packages/generated-ts/src/matchmaking/v1/matchmaking_pb.ts
+  s_55ad4a2554f1ef::t_1ec9274a44cad0 15,645-654,772-884,953-967
+src/handlers/match_queue.rs
+  s_55ad4a2554f1ef::t_c9078367cbdaf2 601-602
+proto/matchmaking/v1/matchmaking.proto
+  s_55ad4a2554f1ef::t_71f1abd9f64ced 157-158
+  s_55ad4a2554f1ef::t_a6f43017fe9b39 183-207
+  s_55ad4a2554f1ef::t_b1d1813e277de3 18-19
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "8ebb670b663445b49f489ff1c7b14122197e83f9",
+  "prompts": {},
+  "sessions": {
+    "s_55ad4a2554f1ef": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_139fbe752ffeZWwT4n3zW3wwl4",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
