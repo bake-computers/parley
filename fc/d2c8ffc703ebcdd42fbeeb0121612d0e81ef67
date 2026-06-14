@@ -1,0 +1,19 @@
+src/connect.rs
+  s_70d52d42949e4b::t_5aeea5f2220226 157-164
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "fcd2c8ffc703ebcdd42fbeeb0121612d0e81ef67",
+  "prompts": {},
+  "sessions": {
+    "s_70d52d42949e4b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_139e48827ffePLg7CvlqnywlaF",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
