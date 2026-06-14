@@ -15,6 +15,8 @@ service MatchmakingService {
   rpc CreateCustomMatch(CreateCustomMatchRequest) returns (CreateCustomMatchResponse);
   rpc ReportMatchResult(ReportMatchResultRequest) returns (ReportMatchResultResponse);
   rpc GetMatch(GetMatchRequest) returns (GetMatchResponse);
+  rpc ListMatches(ListMatchesRequest) returns (ListMatchesResponse);
+  rpc GetMatchByUuid(GetMatchByUuidRequest) returns (GetMatchByUuidResponse);
 }
 
 message BuildTeamsRequest {
@@ -152,6 +154,8 @@ message Match {
   double balance_gap = 7;
   int64  created_at_ms = 8;
   repeated MatchParticipant participants = 9;
+  string public_uuid = 11;
+  optional string mvp_user_id = 12;
 }
 
 message ReportMatchResultRequest {
@@ -173,6 +177,31 @@ message GetMatchRequest {
 }
 
 message GetMatchResponse {
+  bool success = 1;
+  Match match = 2;
+  parley.common.v1.Error error = 3;
+}
+
+message ListMatchesRequest {
+  string guild_id = 1;
+  parley.common.v1.Game game = 2;
+  optional string discord_user_id = 3;
+  int32 limit = 4;
+  string cursor = 5;
+}
+
+message ListMatchesResponse {
+  repeated Match matches = 1;
+  string next_cursor = 2;
+  parley.common.v1.Error error = 3;
+}
+
+message GetMatchByUuidRequest {
+  string public_uuid = 1;
+  parley.common.v1.Game game = 2;
+}
+
+message GetMatchByUuidResponse {
   bool success = 1;
   Match match = 2;
   parley.common.v1.Error error = 3;

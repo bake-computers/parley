@@ -598,6 +598,8 @@ fn match_to_proto(
                 balance_rating: p.balance_rating,
             })
             .collect(),
+        public_uuid: m.public_uuid.to_string(),
+        mvp_user_id: None,
     }
 }
 
