@@ -1,0 +1,32 @@
+src/db/schema.rs
+  s_94663eea6988c3::t_caa8f16c849151 275
+src/matchmaking/queue.rs
+  s_94663eea6988c3::t_8e888fdf5f4d18 154
+src/handlers/match_queue.rs
+  s_94663eea6988c3::t_e433fa76e1bc11 506
+migrations/2026-06-14-120000_add_public_uuid_to_matches/up.sql
+  s_94663eea6988c3::t_e558638dc85a55 1-2
+Cargo.toml
+  s_94663eea6988c3::t_d1f65abe929669 66
+src/db/models.rs
+  s_94663eea6988c3::t_31192a0b94aa30 391
+  s_94663eea6988c3::t_34187c4ae9e9c3 418
+migrations/2026-06-14-120000_add_public_uuid_to_matches/down.sql
+  s_94663eea6988c3::t_70e6f8a62cb6e0 1-2
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "f852eefa93c1f5c0e1e34eb3d8e3a81cb8129c6d",
+  "prompts": {},
+  "sessions": {
+    "s_94663eea6988c3": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_13a03ada7ffeOSd44kiVKEOG3e",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
