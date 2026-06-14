@@ -1,0 +1,19 @@
+Cargo.toml
+  s_88d07c206428e8::t_aa13a68e57482d 98
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "9331fc3f3ab7f4327e5070c50432e8ece2d477a2",
+  "prompts": {},
+  "sessions": {
+    "s_88d07c206428e8": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_139fb5e25ffdXrgduADEaubFWz",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
