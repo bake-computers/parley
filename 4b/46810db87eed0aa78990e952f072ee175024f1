@@ -1,0 +1,23 @@
+.github/workflows/deploy-workers.yml
+  s_2b061f3caa01dd::t_0e0d7c432f033f 33-35
+  s_2b061f3caa01dd::t_67c6dcb2fbb4ce 79-81
+  s_2b061f3caa01dd::t_c59aa9395d7fd4 88-89,92-93
+.github/workflows/deploy.yml
+  s_2b061f3caa01dd::t_5b49f55724d88c 19,21-22
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "4b46810db87eed0aa78990e952f072ee175024f1",
+  "prompts": {},
+  "sessions": {
+    "s_2b061f3caa01dd": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_13932a81affeHsCjUph6Xw5I7q",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
