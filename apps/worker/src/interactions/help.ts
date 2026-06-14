@@ -21,6 +21,9 @@ export const helpCommand = new SlashCommand()
         new TextDisplayBuilder().setContent(
           "**/user** — Manage your language, matchmaking opt-out, profile visibility, timezone, and data",
         ),
+        new TextDisplayBuilder().setContent(
+          "**/history** — View your match history for a linked account",
+        ),
       );
     await replyV2(interaction, container, true);
   });
