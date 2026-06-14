@@ -1,0 +1,20 @@
+src/db/models.rs
+  s_88d07c206428e8::t_a5447807816781 466-467,471-493
+  s_88d07c206428e8::t_f81dc8b453fd81 468-470
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "c0e1e324b5b02b284defb70f60b9128ceb8b6200",
+  "prompts": {},
+  "sessions": {
+    "s_88d07c206428e8": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_139fb5e25ffdXrgduADEaubFWz",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
