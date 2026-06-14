@@ -1,0 +1,23 @@
+apps/landing/wrangler.jsonc
+  s_e1ae0c28a422f6::t_ad332e877a2142 22-29
+apps/landing/src/env.d.ts
+  s_e1ae0c28a422f6::t_7c1e581a8555a3 4
+apps/landing/worker-configuration.d.ts
+  s_e1ae0c28a422f6::t_5f2b42cfc8af5a 2,5-9,15-20
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "bcff00082ddf4d554d27a3a5e0b289ebb14d0336",
+  "prompts": {},
+  "sessions": {
+    "s_e1ae0c28a422f6": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_139cb3aafffe19IbqUetTr1IWV",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
