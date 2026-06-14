@@ -1,5 +1,6 @@
 import { ParleyClient } from "@parley/runtime";
 import { helpCommand } from "./interactions/help.js";
+import { historyCommand } from "./interactions/history/slash.js";
 import {
   linkButtonHandler,
   linkSlashCommand,
@@ -17,6 +18,7 @@ export function createApp(): ParleyClient {
   const client = new ParleyClient();
   client.loadHandlers(
     helpCommand,
+    historyCommand,
     linkButtonHandler,
     linkSlashCommand,
     pingCommand,

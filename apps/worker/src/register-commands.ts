@@ -5,6 +5,7 @@ import {
   registerApplicationCommands,
 } from "@parley/runtime";
 import { helpCommand } from "./interactions/help.js";
+import { historyCommand } from "./interactions/history/slash.js";
 import { linkSlashCommand } from "./interactions/link/slash.js";
 import { pingCommand } from "./interactions/ping.js";
 import { profileCommand } from "./interactions/profile.js";
@@ -60,7 +61,14 @@ if (!token || !applicationId) {
   process.exit(1);
 }
 
-const commands = [pingCommand, helpCommand, linkSlashCommand, profileCommand, userSlashCommand];
+const commands = [
+  pingCommand,
+  helpCommand,
+  historyCommand,
+  linkSlashCommand,
+  profileCommand,
+  userSlashCommand,
+];
 
 console.log(`Registering commands for application ${applicationId}...`);
 const slashCommandCount = flattenHandlers(commands).filter(isSlashCommandHandler).length;
