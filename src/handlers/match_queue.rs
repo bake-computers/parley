@@ -5,7 +5,9 @@ use axum::{body::Bytes, extract::State, http::HeaderMap, response::Response};
 use crate::connect::{decode_body, detect_encoding, encode_ok};
 use crate::context::AppContext;
 use crate::db::Game as DbGame;
-use crate::db::matchmaking_repos::{MatchRepo, MatchmakingQueueRepo, QUEUE_STATUS_WAITING};
+use crate::db::matchmaking_repos::{
+    MatchRepo, MatchmakingQueueRepo, decode_cursor, encode_cursor, QUEUE_STATUS_WAITING,
+};
 use crate::db::models::{NewMatch, NewMatchParticipant};
 use crate::db::repos::{GuildMembershipRepo, GuildSettingsRepo, now_ms};
 use crate::matchmaking::eligibility::load_eligibility;
@@ -14,9 +16,10 @@ use crate::matchmaking::queue::{create_stack, try_form_match};
 use crate::matchmaking::{partition_teams, update_rating};
 use crate::proto::common::v1::{Error as ProtoError, Game as ProtoGame};
 use crate::proto::matchmaking::v1::{
-    CreateCustomMatchRequest, CreateCustomMatchResponse, GetMatchRequest, GetMatchResponse,
-    GetQueueStatusRequest, GetQueueStatusResponse, JoinQueueRequest, JoinQueueResponse,
-    LeaveQueueRequest, LeaveQueueResponse, Match as ProtoMatch,
+    CreateCustomMatchRequest, CreateCustomMatchResponse, GetMatchByUuidRequest,
+    GetMatchByUuidResponse, GetMatchRequest, GetMatchResponse, GetQueueStatusRequest,
+    GetQueueStatusResponse, JoinQueueRequest, JoinQueueResponse, LeaveQueueRequest,
+    LeaveQueueResponse, ListMatchesRequest, ListMatchesResponse, Match as ProtoMatch,
     MatchParticipant as ProtoMatchParticipant, ReportMatchResultRequest, ReportMatchResultResponse,
     TeamAssignment,
 };
@@ -785,6 +788,151 @@ pub async fn get_match_rpc(
 
     encode_ok(
         &GetMatchResponse {
+            success: true,
+            r#match: Some(match_to_proto(&m, &parts)),
+            error: None,
+        },
+        enc,
+    )
+}
+
+pub async fn list_matches_rpc(
+    State(ctx): State<AppContext>,
+    headers: HeaderMap,
+    body: Bytes,
+) -> Response {
+    let enc = detect_encoding(&headers);
+    let req: ListMatchesRequest = match decode_body(enc, &body) {
+        Ok(r) => r,
+        Err(r) => return r,
+    };
+
+    let fail = |code: &str, msg: String| {
+        encode_ok(
+            &ListMatchesResponse {
+                error: Some(err(code, msg)),
+                ..Default::default()
+            },
+            enc,
+        )
+    };
+
+    let Some(pool) = ctx.pool.clone() else {
+        return fail("FailedPrecondition", "DATABASE_URL not configured".into());
+    };
+    let Some(game) = proto_game_to_db(req.game) else {
+        return fail("InvalidArgument", "game must be R6".into());
+    };
+    if req.guild_id.trim().is_empty() {
+        return fail("InvalidArgument", "guild_id is required".into());
+    }
+
+    let limit = if req.limit > 0 {
+        req.limit as i64
+    } else {
+        5
+    };
+
+    let decoded_cursor = match decode_cursor(&req.cursor) {
+        Ok(c) => c,
+        Err(_) => return fail("InvalidArgument", "invalid cursor".into()),
+    };
+
+    let mut conn = match pool.get().await {
+        Ok(c) => c,
+        Err(e) => return fail("Internal", format!("pool checkout: {e}")),
+    };
+
+    let rows = if let Some(ref user_id) = req.discord_user_id {
+        MatchRepo::list_for_user(&mut conn, game, user_id, limit, decoded_cursor).await
+    } else {
+        MatchRepo::list_for_guild(&mut conn, game, &req.guild_id, limit, decoded_cursor).await
+    };
+
+    let rows = match rows {
+        Ok(r) => r,
+        Err(e) => return fail("Internal", format!("list matches: {e}")),
+    };
+
+    let mut matches = Vec::with_capacity(rows.len());
+    for row in &rows {
+        let parts = MatchRepo::participants(&mut conn, row.id)
+            .await
+            .unwrap_or_default();
+        matches.push(match_to_proto(row, &parts));
+    }
+
+    let next_cursor = if rows.len() as i64 == limit {
+        if let Some(last) = rows.last() {
+            encode_cursor(last.created_at, last.id)
+        } else {
+            String::new()
+        }
+    } else {
+        String::new()
+    };
+
+    encode_ok(
+        &ListMatchesResponse {
+            matches,
+            next_cursor,
+            error: None,
+        },
+        enc,
+    )
+}
+
+pub async fn get_match_by_uuid_rpc(
+    State(ctx): State<AppContext>,
+    headers: HeaderMap,
+    body: Bytes,
+) -> Response {
+    let enc = detect_encoding(&headers);
+    let req: GetMatchByUuidRequest = match decode_body(enc, &body) {
+        Ok(r) => r,
+        Err(r) => return r,
+    };
+
+    let fail = |code: &str, msg: String| {
+        encode_ok(
+            &GetMatchByUuidResponse {
+                success: false,
+                error: Some(err(code, msg)),
+                ..Default::default()
+            },
+            enc,
+        )
+    };
+
+    let Some(pool) = ctx.pool.clone() else {
+        return fail("FailedPrecondition", "DATABASE_URL not configured".into());
+    };
+    let Some(game) = proto_game_to_db(req.game) else {
+        return fail("InvalidArgument", "game must be R6".into());
+    };
+
+    let public_uuid = match uuid::Uuid::parse_str(&req.public_uuid) {
+        Ok(u) => u,
+        Err(_) => return fail("InvalidArgument", "invalid public_uuid".into()),
+    };
+
+    let mut conn = match pool.get().await {
+        Ok(c) => c,
+        Err(e) => return fail("Internal", format!("pool checkout: {e}")),
+    };
+
+    let m = match MatchRepo::get_by_uuid(&mut conn, game, public_uuid).await {
+        Ok(Some(row)) => row,
+        Ok(None) => return fail("NotFound", "match not found".into()),
+        Err(e) => return fail("Internal", format!("get by uuid: {e}")),
+    };
+
+    let parts = MatchRepo::participants(&mut conn, m.id)
+        .await
+        .unwrap_or_default();
+
+    encode_ok(
+        &GetMatchByUuidResponse {
             success: true,
             r#match: Some(match_to_proto(&m, &parts)),
             error: None,
