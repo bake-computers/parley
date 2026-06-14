@@ -1,0 +1,24 @@
+.github/workflows/deploy-workers.yml
+  s_2b061f3caa01dd::t_a9a2ba6a660233 1-111
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "9f68ba6b1b6211a8f7051fb1d32162c9d3828b9f",
+  "prompts": {},
+  "humans": {
+    "h_93d17961f46f35": {
+      "author": "ryzmae <hi@ryzm.cc>"
+    }
+  },
+  "sessions": {
+    "s_2b061f3caa01dd": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_13932a81affeHsCjUph6Xw5I7q",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
