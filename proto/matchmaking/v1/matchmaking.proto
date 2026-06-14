@@ -142,6 +142,10 @@ message MatchParticipant {
   int32  slot = 4;
   string username = 5;
   double balance_rating = 6;
+  double cpr = 7;
+  double mu = 8;
+  double phi = 9;
+  string platform = 10;
 }
 
 message Match {

@@ -305,6 +305,7 @@ impl MatchRepo {
                 match_participants::created_at,
                 match_participants::updated_at,
                 players::username.nullable(),
+                players::platform.nullable(),
             ))
             .load(conn)
             .await
