@@ -1,0 +1,14 @@
+src/fetch.rs
+  h_93d17961f46f35 8,26-35,136
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "65e48854cdd2bc30615de8a1bc57454b67179fcf",
+  "prompts": {},
+  "humans": {
+    "h_93d17961f46f35": {
+      "author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
