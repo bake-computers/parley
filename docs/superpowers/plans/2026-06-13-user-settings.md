@@ -14,49 +14,50 @@
 
 ## File Map
 
-| Path | Action | Responsibility |
-|---|---|---|
-| `packages/runtime/src/utils/emojis.ts` | edit | Replace `APP_EMOJI_NAMES` with 13 new names |
-| `apps/worker/src/ui/emojis.ts` | edit | Wire `resolveEmojis` to runtime KV-backed resolver |
-| `proto/user/v1/user.proto` | edit | Add 3 fields to `UserSettings` |
-| `packages/generated-ts/src/index.ts` | edit | Re-export `./user/v1/user_pb.js` |
-| `migrations/2026-06-13-120000_user_settings_extend/` | create | 3 new columns |
-| `src/db/schema.rs` | edit | Mirror the 3 new columns |
-| `src/db/models.rs` | edit | Add fields to `UserSettings` + `NewUserSettings` |
-| `src/db/repos.rs` | edit | Persist + read new columns in `UserSettingsRepo` |
-| `src/handlers/user_settings.rs` | edit | `row_to_proto` + `NewUserSettings` constructor + 2 new tests |
-| `apps/worker/src/ui/tokens.ts` | create | `UI_TOKENS` const |
-| `apps/worker/src/embeds.ts` | delete | — |
-| `apps/worker/src/interactions/link/constants.ts` | edit | Drop `UI_SUCCESS/INFO_COLOR`; re-export from `tokens.ts` |
-| `apps/worker/src/interactions/link/ui.ts` | edit | Drop `footerDisplay`; swap color tokens; remap to 13 app emojis |
-| `apps/worker/src/interactions/help.ts` | edit | Components v2 container, graphite accent |
-| `apps/worker/src/interactions/ping.ts` | edit | Components v2 one-liner, graphite accent |
-| `apps/worker/src/interactions/profile.ts` | edit | Add `assertAccepted` call, drop footer, swap color, use app emojis |
-| `apps/worker/src/interactions/link/slash.ts` | edit | Add `assertAccepted` call |
-| `apps/worker/src/interactions/link/components.ts` | edit | Add `assertAccepted` call |
-| `apps/worker/src/transport.ts` | edit | Add `getUserSettingsClient` |
-| `apps/worker/src/interactions/_shared/acceptance.ts` | create | `assertAccepted()` + acceptance card builder |
-| `apps/worker/src/interactions/_shared/acceptance.test.ts` | create | 3 unit tests |
-| `apps/worker/src/interactions/_shared/stats.ts` | create | Shared `executeFetchStats` |
-| `apps/worker/src/interactions/link/rpc.ts` | edit | Re-export `executeFetchStats` from `_shared/stats` |
-| `apps/worker/src/interactions/user/constants.ts` | create | UI tokens, custom IDs, label maps, app-emoji names |
-| `apps/worker/src/interactions/user/ui.ts` | create | Card builders using 13 app emojis |
-| `apps/worker/src/interactions/user/ui.test.ts` | create | Snapshot + no-footer tests |
-| `apps/worker/src/interactions/user/rpc.ts` | create | Engine client wrappers |
-| `apps/worker/src/interactions/user/rpc.test.ts` | create | Unit tests |
-| `apps/worker/src/interactions/user/modal.ts` | create | Delete confirm modal |
-| `apps/worker/src/interactions/user/components.ts` | create | Component handler for buttons + select menus + modal |
-| `apps/worker/src/interactions/user/components.test.ts` | create | Unit tests |
-| `apps/worker/src/interactions/user/slash.ts` | create | `/user` slash command |
-| `apps/worker/src/interactions/user/index.ts` | create | Re-exports |
-| `apps/worker/src/app.ts` | edit | Register user handlers + accept button |
-| `apps/worker/src/register-commands.ts` | edit | Add `userSlashCommand` to registration list |
+| Path                                                      | Action | Responsibility                                                     |
+| --------------------------------------------------------- | ------ | ------------------------------------------------------------------ |
+| `packages/runtime/src/utils/emojis.ts`                    | edit   | Replace `APP_EMOJI_NAMES` with 13 new names                        |
+| `apps/worker/src/ui/emojis.ts`                            | edit   | Wire `resolveEmojis` to runtime KV-backed resolver                 |
+| `proto/user/v1/user.proto`                                | edit   | Add 3 fields to `UserSettings`                                     |
+| `packages/generated-ts/src/index.ts`                      | edit   | Re-export `./user/v1/user_pb.js`                                   |
+| `migrations/2026-06-13-120000_user_settings_extend/`      | create | 3 new columns                                                      |
+| `src/db/schema.rs`                                        | edit   | Mirror the 3 new columns                                           |
+| `src/db/models.rs`                                        | edit   | Add fields to `UserSettings` + `NewUserSettings`                   |
+| `src/db/repos.rs`                                         | edit   | Persist + read new columns in `UserSettingsRepo`                   |
+| `src/handlers/user_settings.rs`                           | edit   | `row_to_proto` + `NewUserSettings` constructor + 2 new tests       |
+| `apps/worker/src/ui/tokens.ts`                            | create | `UI_TOKENS` const                                                  |
+| `apps/worker/src/embeds.ts`                               | delete | —                                                                  |
+| `apps/worker/src/interactions/link/constants.ts`          | edit   | Drop `UI_SUCCESS/INFO_COLOR`; re-export from `tokens.ts`           |
+| `apps/worker/src/interactions/link/ui.ts`                 | edit   | Drop `footerDisplay`; swap color tokens; remap to 13 app emojis    |
+| `apps/worker/src/interactions/help.ts`                    | edit   | Components v2 container, graphite accent                           |
+| `apps/worker/src/interactions/ping.ts`                    | edit   | Components v2 one-liner, graphite accent                           |
+| `apps/worker/src/interactions/profile.ts`                 | edit   | Add `assertAccepted` call, drop footer, swap color, use app emojis |
+| `apps/worker/src/interactions/link/slash.ts`              | edit   | Add `assertAccepted` call                                          |
+| `apps/worker/src/interactions/link/components.ts`         | edit   | Add `assertAccepted` call                                          |
+| `apps/worker/src/transport.ts`                            | edit   | Add `getUserSettingsClient`                                        |
+| `apps/worker/src/interactions/_shared/acceptance.ts`      | create | `assertAccepted()` + acceptance card builder                       |
+| `apps/worker/src/interactions/_shared/acceptance.test.ts` | create | 3 unit tests                                                       |
+| `apps/worker/src/interactions/_shared/stats.ts`           | create | Shared `executeFetchStats`                                         |
+| `apps/worker/src/interactions/link/rpc.ts`                | edit   | Re-export `executeFetchStats` from `_shared/stats`                 |
+| `apps/worker/src/interactions/user/constants.ts`          | create | UI tokens, custom IDs, label maps, app-emoji names                 |
+| `apps/worker/src/interactions/user/ui.ts`                 | create | Card builders using 13 app emojis                                  |
+| `apps/worker/src/interactions/user/ui.test.ts`            | create | Snapshot + no-footer tests                                         |
+| `apps/worker/src/interactions/user/rpc.ts`                | create | Engine client wrappers                                             |
+| `apps/worker/src/interactions/user/rpc.test.ts`           | create | Unit tests                                                         |
+| `apps/worker/src/interactions/user/modal.ts`              | create | Delete confirm modal                                               |
+| `apps/worker/src/interactions/user/components.ts`         | create | Component handler for buttons + select menus + modal               |
+| `apps/worker/src/interactions/user/components.test.ts`    | create | Unit tests                                                         |
+| `apps/worker/src/interactions/user/slash.ts`              | create | `/user` slash command                                              |
+| `apps/worker/src/interactions/user/index.ts`              | create | Re-exports                                                         |
+| `apps/worker/src/app.ts`                                  | edit   | Register user handlers + accept button                             |
+| `apps/worker/src/register-commands.ts`                    | edit   | Add `userSlashCommand` to registration list                        |
 
 ---
 
 ## Task 0: Replace app emoji catalog + wire resolver
 
 **Files:**
+
 - Edit: `packages/runtime/src/utils/emojis.ts:13-31` (`APP_EMOJI_NAMES` const)
 - Edit: `apps/worker/src/ui/emojis.ts:1-21` (`resolveEmojis` body)
 - Edit: `apps/worker/src/index.ts` (env type — may need to add DISCORD_BOT_TOKEN/KV types)
@@ -146,10 +147,11 @@ export async function resolveEmojis(
     return {};
   }
 
-  const catalog = (await resolveApplicationEmojiCatalog({
-    token,
-    kv,
-  })) ?? {};
+  const catalog =
+    (await resolveApplicationEmojiCatalog({
+      token,
+      kv,
+    })) ?? {};
   interaction.context.set(EMOJI_CONTEXT_KEY, catalog);
   return catalog;
 }
@@ -178,6 +180,7 @@ cd /Users/juwen/dev/commerce/parley && git add packages/runtime/src/utils/emojis
 ## Task 1: Add 3 fields to UserSettings proto + regen + barrel
 
 **Files:**
+
 - Edit: `proto/user/v1/user.proto:19-24`
 - Edit: `packages/generated-ts/src/index.ts:1-13`
 - Generated: `packages/generated-ts/src/user/v1/user_pb.ts` (regen)
@@ -261,6 +264,7 @@ cd /Users/juwen/dev/commerce/parley && git add proto/user/v1/user.proto packages
 ## Task 2: Add migration for 3 new user_settings columns
 
 **Files:**
+
 - Create: `migrations/2026-06-13-120000_user_settings_extend/up.sql`
 - Create: `migrations/2026-06-13-120000_user_settings_extend/down.sql`
 
@@ -297,6 +301,7 @@ cd /Users/juwen/dev/commerce/parley && git add migrations/2026-06-13-120000_user
 ## Task 3: Mirror 3 new columns in Diesel schema.rs
 
 **Files:**
+
 - Edit: `src/db/schema.rs:118-129` (the `user_settings` table block)
 
 - [ ] **Step 1: Edit the user_settings diesel table**
@@ -342,6 +347,7 @@ cd /Users/juwen/dev/commerce/parley && git add src/db/schema.rs && git commit -m
 ## Task 4: Extend models.rs with new fields
 
 **Files:**
+
 - Edit: `src/db/models.rs:167-185` (`UserSettings` + `NewUserSettings` structs)
 
 - [ ] **Step 1: Add fields to UserSettings + NewUserSettings**
@@ -395,6 +401,7 @@ cd /Users/juwen/dev/commerce/parley && git add src/db/models.rs && git commit -m
 ## Task 5: Extend UserSettingsRepo to read/write new columns
 
 **Files:**
+
 - Edit: `src/db/repos.rs:701-742` (`UserSettingsRepo` impl block)
 
 - [ ] **Step 1: Extend the upsert to persist the three new fields**
@@ -451,6 +458,7 @@ cd /Users/juwen/dev/commerce/parley && git add src/db/repos.rs && git commit -m 
 ## Task 6: Extend user_settings.rs handler + write tests for new field round-trip
 
 **Files:**
+
 - Edit: `src/handlers/user_settings.rs:55-62` (`row_to_proto`)
 - Edit: `src/handlers/user_settings.rs:238-245` (`new_row` constructor in `upsert_user_settings_rpc`)
 - Edit: `src/handlers/user_settings.rs:465-483` (test module)
@@ -608,6 +616,7 @@ cd /Users/juwen/dev/commerce/parley && git add src/handlers/user_settings.rs && 
 ## Task 7: Add UI tokens + delete legacy embeds.ts
 
 **Files:**
+
 - Create: `apps/worker/src/ui/tokens.ts`
 - Delete: `apps/worker/src/embeds.ts`
 
@@ -663,6 +672,7 @@ cd /Users/juwen/dev/commerce/parley && git add apps/worker/src/ui/tokens.ts && g
 ## Task 8: Drop footer + swap color tokens in link/, help, ping, profile
 
 **Files:**
+
 - Edit: `apps/worker/src/interactions/link/constants.ts:19-22,62-66`
 - Edit: `apps/worker/src/interactions/link/ui.ts:30-32, 51-52, 91, 133, 152, 172, 203-204`
 - Edit: `apps/worker/src/interactions/help.ts:1-18`
@@ -741,15 +751,15 @@ import {
 
 (d) Remap every emoji name reference to the 13 new app emojis:
 
-| Old reference | New name | Notes |
-|---|---|---|
-| `"link"` (line 50, 70) | `"linked"` | Link wizard header + platform button |
-| `"warning"` (line 88) | `"warning_orange"` | Confirm card header |
-| `"confirm"` (line 108) | `"redirect"` | Continue button accessory |
-| `"cancel"` (line 116) | `"ban_hammer_red"` | Back/cancel button accessory |
-| `"timer"` (line 169) | `"timeout"` | Fetching-stats card header |
-| `"confirm"` (line 129) | `"redirect"` | Account linked card |
-| `"cancel"` (line 149) | `"ban_hammer_red"` | Link-failed card header |
+| Old reference          | New name           | Notes                                |
+| ---------------------- | ------------------ | ------------------------------------ |
+| `"link"` (line 50, 70) | `"linked"`         | Link wizard header + platform button |
+| `"warning"` (line 88)  | `"warning_orange"` | Confirm card header                  |
+| `"confirm"` (line 108) | `"redirect"`       | Continue button accessory            |
+| `"cancel"` (line 116)  | `"ban_hammer_red"` | Back/cancel button accessory         |
+| `"timer"` (line 169)   | `"timeout"`        | Fetching-stats card header           |
+| `"confirm"` (line 129) | `"redirect"`       | Account linked card                  |
+| `"cancel"` (line 149)  | `"ban_hammer_red"` | Link-failed card header              |
 
 Drop the `?? { name: "🔗" }` style unicode fallbacks on `setEmoji()` — the runtime's `toComponentEmoji` returns `null` when the name isn't in the catalog, and `ButtonBuilder.setEmoji` requires a non-null value. Refactor each `setEmoji(...)` call site to:
 
@@ -769,11 +779,7 @@ In `emojiOrFallback` (currently a helper at lines 34-40 of `link/ui.ts`), return
 Replace the entire contents of `apps/worker/src/interactions/help.ts` with:
 
 ```ts
-import {
-  ContainerBuilder,
-  SlashCommand,
-  TextDisplayBuilder,
-} from "@parley/runtime";
+import { ContainerBuilder, SlashCommand, TextDisplayBuilder } from "@parley/runtime";
 import { replyV2 } from "../ui/discord.js";
 import { UI_TOKENS } from "../ui/tokens.js";
 
@@ -785,12 +791,8 @@ export const helpCommand = new SlashCommand()
       .setAccentColor(UI_TOKENS.main)
       .addComponents(
         new TextDisplayBuilder().setContent("**Parley Commands**"),
-        new TextDisplayBuilder().setContent(
-          "**/ping** — Check if the bot is responsive",
-        ),
-        new TextDisplayBuilder().setContent(
-          "**/help** — List all available commands",
-        ),
+        new TextDisplayBuilder().setContent("**/ping** — Check if the bot is responsive"),
+        new TextDisplayBuilder().setContent("**/help** — List all available commands"),
         new TextDisplayBuilder().setContent(
           "**/link** — Link your Discord account via an interactive wizard",
         ),
@@ -810,11 +812,7 @@ export const helpCommand = new SlashCommand()
 Replace the entire contents of `apps/worker/src/interactions/ping.ts` with:
 
 ```ts
-import {
-  ContainerBuilder,
-  SlashCommand,
-  TextDisplayBuilder,
-} from "@parley/runtime";
+import { ContainerBuilder, SlashCommand, TextDisplayBuilder } from "@parley/runtime";
 import { replyV2 } from "../ui/discord.js";
 import { UI_TOKENS } from "../ui/tokens.js";
 
@@ -915,9 +913,7 @@ export const profileCommand = new SlashCommand()
         .setAccentColor(UI_TOKENS.main)
         .addComponents(
           new TextDisplayBuilder().setContent("**No Linked Accounts**"),
-          new TextDisplayBuilder().setContent(
-            "No accounts linked. Use /link to get started!",
-          ),
+          new TextDisplayBuilder().setContent("No accounts linked. Use /link to get started!"),
         );
       await replyV2({ reply: interaction.editReply.bind(interaction) }, container, true);
       return;
@@ -966,6 +962,7 @@ cd /Users/juwen/dev/commerce/parley && git add apps/worker/src/interactions/ && 
 ## Task 9: Extract shared stats helper
 
 **Files:**
+
 - Create: `apps/worker/src/interactions/_shared/stats.ts`
 - Edit: `apps/worker/src/interactions/link/rpc.ts:90-101, 122-130, 137-146`
 
@@ -1071,6 +1068,7 @@ cd /Users/juwen/dev/commerce/parley && git add apps/worker/src/interactions/_sha
 ## Task 10: Acceptance gate helper + tests
 
 **Files:**
+
 - Create: `apps/worker/src/interactions/_shared/acceptance.ts`
 - Create: `apps/worker/src/interactions/_shared/acceptance.test.ts`
 
@@ -1082,19 +1080,15 @@ Write `apps/worker/src/interactions/_shared/acceptance.test.ts`:
 import { describe, expect, test } from "bun:test";
 import { ok, type Result } from "neverthrow";
 import type { JsonValue, DiscordApiError } from "@parley/runtime";
-import type {
-  GetUserSettingsResponse,
-  UserSettings as ProtoUserSettings,
-} from "@parley/proto";
-import {
-  assertAccepted,
-  buildAcceptanceCard,
-  ACCEPT_BUTTON,
-} from "./acceptance.js";
+import type { GetUserSettingsResponse, UserSettings as ProtoUserSettings } from "@parley/proto";
+import { assertAccepted, buildAcceptanceCard, ACCEPT_BUTTON } from "./acceptance.js";
 
 const ENV = { ENGINE_SERVICE_URL: "http://localhost:50051" };
 
-type Reply = (options: { components?: unknown[]; flags?: number }) => Promise<Result<JsonValue, DiscordApiError>>;
+type Reply = (options: {
+  components?: unknown[];
+  flags?: number;
+}) => Promise<Result<JsonValue, DiscordApiError>>;
 
 function captureReply() {
   const calls: Parameters<Reply>[0][] = [];
@@ -1214,12 +1208,15 @@ import { UI_TOKENS } from "../../ui/tokens.js";
 
 export const ACCEPT_BUTTON = "user/accept-terms";
 
-const SETTINGS_CACHE_KEY = (discordUserId: string) =>
-  `user-settings-cache:${discordUserId}`;
+const SETTINGS_CACHE_KEY = (discordUserId: string) => `user-settings-cache:${discordUserId}`;
 
 const SETTINGS_CACHE_TTL_MS = 30_000;
 
-type Ctx = { env: unknown; get<T>(key: string): T | undefined; set<T>(key: string, value: T): void };
+type Ctx = {
+  env: unknown;
+  get<T>(key: string): T | undefined;
+  set<T>(key: string, value: T): void;
+};
 
 type GatedInteraction =
   | ChatInputCommandInteraction
@@ -1228,7 +1225,10 @@ type GatedInteraction =
 
 type GatedReplyInteraction = {
   user?: { id?: string };
-  reply: (options: { components: unknown[]; flags?: number }, forceEphemeral?: boolean) => Promise<Result<JsonValue, DiscordApiError>>;
+  reply: (
+    options: { components: unknown[]; flags?: number },
+    forceEphemeral?: boolean,
+  ) => Promise<Result<JsonValue, DiscordApiError>>;
 };
 
 type GetUserSettingsClient = {
@@ -1252,10 +1252,7 @@ export function buildAcceptanceCard(emojis: ApplicationEmojiCatalog): ContainerB
         // Discord accessory button
         type: 1,
         components: [
-          new ButtonBuilder()
-            .setCustomId(ACCEPT_BUTTON)
-            .setLabel("Accept & Continue")
-            .setStyle(2),
+          new ButtonBuilder().setCustomId(ACCEPT_BUTTON).setLabel("Accept & Continue").setStyle(2),
         ],
       } as never,
     );
@@ -1272,9 +1269,7 @@ async function fetchSettings(
   if (cached && Date.now() - cached.at < SETTINGS_CACHE_TTL_MS) {
     return cached.value;
   }
-  const response = await client
-    .getUserSettings({ discordUserId })
-    .catch(() => undefined);
+  const response = await client.getUserSettings({ discordUserId }).catch(() => undefined);
   const settings = response?.success ? response.settings : undefined;
   ctx.set(cacheKey, { at: Date.now(), value: settings });
   return settings;
@@ -1378,6 +1373,7 @@ cd /Users/juwen/dev/commerce/parley && git add apps/worker/src/interactions/_sha
 ## Task 11: Build the /user interaction module
 
 **Files:**
+
 - Create: `apps/worker/src/interactions/user/constants.ts`
 - Create: `apps/worker/src/interactions/user/ui.ts`
 - Create: `apps/worker/src/interactions/user/ui.test.ts`
@@ -1578,9 +1574,7 @@ export function buildSettingsCard(
   emojis: ApplicationEmojiCatalog,
 ): ContainerBuilder {
   const cooldownLine =
-    settings.termsAcceptedAtMs > 0
-      ? "Cooldown: none"
-      : "Cooldown: not yet accepted";
+    settings.termsAcceptedAtMs > 0 ? "Cooldown: none" : "Cooldown: not yet accepted";
 
   return new ContainerBuilder()
     .setAccentColor(COLORS.main)
@@ -1590,24 +1584,18 @@ export function buildSettingsCard(
         "Language · Matchmaking · Visibility · Timezone · Cooldown",
       ),
       separator(),
-      new TextDisplayBuilder().setContent(
-        `**Language**\n${languageLabel(settings.language)}`,
-      ),
+      new TextDisplayBuilder().setContent(`**Language**\n${languageLabel(settings.language)}`),
       new TextDisplayBuilder().setContent(
         `**Matchmaking**\n${settings.matchmakingEnabled ? "● Enabled" : "○ Disabled"}`,
       ),
       new TextDisplayBuilder().setContent(
         `**Visibility**\n${visibilityLabel(settings.profilePublic)}`,
       ),
-      new TextDisplayBuilder().setContent(
-        `**Timezone**\n${settings.timezone}`,
-      ),
+      new TextDisplayBuilder().setContent(`**Timezone**\n${settings.timezone}`),
       separator(),
       new TextDisplayBuilder().setContent(cooldownLine),
       separator(),
-      new TextDisplayBuilder().setContent(
-        "Use the buttons below to change a setting.",
-      ),
+      new TextDisplayBuilder().setContent("Use the buttons below to change a setting."),
     );
 }
 
@@ -1617,10 +1605,7 @@ export function buildInfoCard(message: string): ContainerBuilder {
     .addComponents(new TextDisplayBuilder().setContent(message));
 }
 
-export function buildErrorCard(
-  message: string,
-  emojis: ApplicationEmojiCatalog,
-): ContainerBuilder {
+export function buildErrorCard(message: string, emojis: ApplicationEmojiCatalog): ContainerBuilder {
   return new ContainerBuilder()
     .setAccentColor(COLORS.error)
     .addComponents(
@@ -1637,7 +1622,9 @@ export function buildRefreshErrorCard(
   return new ContainerBuilder()
     .setAccentColor(COLORS.warning)
     .addComponents(
-      new TextDisplayBuilder().setContent(titleWith(emojis, "warning_orange", "Stats Refresh Failed")),
+      new TextDisplayBuilder().setContent(
+        titleWith(emojis, "warning_orange", "Stats Refresh Failed"),
+      ),
       separator(),
       new TextDisplayBuilder().setContent(message),
     );
@@ -1678,12 +1665,8 @@ export function buildDeleteResultCard(
       new TextDisplayBuilder().setContent(
         `**Anonymized id**\n\`${response.anonymizedDiscordUserId}\``,
       ),
-      new TextDisplayBuilder().setContent(
-        `**Cooldown ends**\n${cooldownDiscordTs}`,
-      ),
-      new TextDisplayBuilder().setContent(
-        `**Tables affected**\n${lines.join("\n")}`,
-      ),
+      new TextDisplayBuilder().setContent(`**Cooldown ends**\n${cooldownDiscordTs}`),
+      new TextDisplayBuilder().setContent(`**Tables affected**\n${lines.join("\n")}`),
     );
 }
 
@@ -1722,11 +1705,7 @@ import type {
   GetUserSettingsResponse,
   UpsertUserSettingsResponse,
 } from "@parley/proto";
-import {
-  invokeDeleteUserData,
-  invokeGetUserSettings,
-  invokeUpsertUserSettings,
-} from "./rpc.js";
+import { invokeDeleteUserData, invokeGetUserSettings, invokeUpsertUserSettings } from "./rpc.js";
 
 describe("invokeGetUserSettings", () => {
   test("wraps a successful response in Ok", async () => {
@@ -1815,14 +1794,14 @@ import type { UserSettings as ProtoUserSettings } from "@parley/proto";
 
 type AnyClient = Record<string, (req: unknown) => Promise<unknown>>;
 
-function wrap<TReq, TRes>(
-  fn: (req: TReq) => Promise<TRes>,
-): Promise<Result<TRes, ConnectError>> {
-  return fn.bind(fn)().then(
-    (response: TRes) => ok(response),
-    (cause: unknown) =>
-      err(cause instanceof ConnectError ? cause : new ConnectError(String(cause), 13, {})),
-  );
+function wrap<TReq, TRes>(fn: (req: TReq) => Promise<TRes>): Promise<Result<TRes, ConnectError>> {
+  return fn
+    .bind(fn)()
+    .then(
+      (response: TRes) => ok(response),
+      (cause: unknown) =>
+        err(cause instanceof ConnectError ? cause : new ConnectError(String(cause), 13, {})),
+    );
 }
 
 export function invokeGetUserSettings(
@@ -1877,9 +1856,7 @@ import { ModalBuilder, TextInputBuilder, TextDisplayBuilder } from "@parley/runt
 import { TextInputStyle } from "discord-api-types/v10";
 import { USER_DELETE_MODAL } from "./constants.js";
 
-export function buildDeleteConfirmModal(
-  expectedUsername: string,
-): ModalBuilder {
+export function buildDeleteConfirmModal(expectedUsername: string): ModalBuilder {
   return new ModalBuilder()
     .setCustomId(USER_DELETE_MODAL)
     .setTitle("Delete your data?")
@@ -2005,11 +1982,7 @@ import {
   buildRefreshErrorCard,
   buildSettingsCard,
 } from "./ui.js";
-import {
-  invokeDeleteUserData,
-  invokeGetUserSettings,
-  invokeUpsertUserSettings,
-} from "./rpc.js";
+import { invokeDeleteUserData, invokeGetUserSettings, invokeUpsertUserSettings } from "./rpc.js";
 import { executeFetchStats } from "../_shared/stats.js";
 
 const COMPONENT_BUTTON = 2;
@@ -2083,17 +2056,29 @@ export const userButtonHandler = new ComponentHandler("user", COMPONENT_BUTTON).
 
     if (customId.startsWith(USER_LANG_PREFIX)) {
       const v = customId.slice(USER_LANG_PREFIX.length);
-      await applyUpdate(interaction, { ...current, language: v === "de" ? Language.DE : Language.EN, updatedAtMs: nowMs() });
+      await applyUpdate(interaction, {
+        ...current,
+        language: v === "de" ? Language.DE : Language.EN,
+        updatedAtMs: nowMs(),
+      });
       return;
     }
     if (customId.startsWith(USER_MATCHMAKING_PREFIX)) {
       const v = customId.slice(USER_MATCHMAKING_PREFIX.length);
-      await applyUpdate(interaction, { ...current, matchmakingEnabled: v === "on", updatedAtMs: nowMs() });
+      await applyUpdate(interaction, {
+        ...current,
+        matchmakingEnabled: v === "on",
+        updatedAtMs: nowMs(),
+      });
       return;
     }
     if (customId.startsWith(USER_VISIBILITY_PREFIX)) {
       const v = customId.slice(USER_VISIBILITY_PREFIX.length);
-      await applyUpdate(interaction, { ...current, profilePublic: v === "public", updatedAtMs: nowMs() });
+      await applyUpdate(interaction, {
+        ...current,
+        profilePublic: v === "public",
+        updatedAtMs: nowMs(),
+      });
       return;
     }
     if (customId.startsWith(USER_TIMEZONE_PREFIX)) {
@@ -2127,10 +2112,7 @@ export const userButtonHandler = new ComponentHandler("user", COMPONENT_BUTTON).
       return;
     }
     if (customId === USER_CANCEL) {
-      await editReplyV2(
-        interaction,
-        buildSettingsCard(current, {} as never),
-      );
+      await editReplyV2(interaction, buildSettingsCard(current, {} as never));
       return;
     }
   },
@@ -2151,10 +2133,7 @@ export const userModalHandler = new ModalHandler(USER_DELETE_MODAL, MODAL_SUBMIT
     if (!result.value.success || !result.value.anonymizedDiscordUserId) {
       await editReplyV2(
         interaction,
-        buildErrorCard(
-          result.value.error?.message ?? "Could not delete your data.",
-          {} as never,
-        ),
+        buildErrorCard(result.value.error?.message ?? "Could not delete your data.", {} as never),
       );
       return;
     }
@@ -2175,9 +2154,10 @@ export const acceptButtonHandler = new ComponentHandler("user", COMPONENT_BUTTON
     const env = interaction.context.env;
     const discordUserId = interaction.user?.id ?? "";
     const settingsResult = await getOrFetchSettings(env, discordUserId);
-    const current = settingsResult.isOk() && settingsResult.value.success
-      ? settingsResult.value.settings ?? baseSettings(discordUserId)
-      : baseSettings(discordUserId);
+    const current =
+      settingsResult.isOk() && settingsResult.value.success
+        ? (settingsResult.value.settings ?? baseSettings(discordUserId))
+        : baseSettings(discordUserId);
     const client = getClient(env) as never;
     const updated: ProtoUserSettings = {
       ...current,
@@ -2189,10 +2169,7 @@ export const acceptButtonHandler = new ComponentHandler("user", COMPONENT_BUTTON
       await updateV2(interaction, buildErrorCard(r.error.message, {} as never));
       return;
     }
-    await updateV2(
-      interaction,
-      buildInfoCard("✅ Accepted. Please re-run your command."),
-    );
+    await updateV2(interaction, buildInfoCard("✅ Accepted. Please re-run your command."));
   },
 );
 ```
@@ -2271,17 +2248,13 @@ export const userSlashCommand = new SlashCommand()
     if (r.isErr() || !r.value.success || !r.value.settings) {
       const message = r.isErr()
         ? r.error.message
-        : r.value.error?.message ?? "Could not load settings.";
+        : (r.value.error?.message ?? "Could not load settings.");
       await interaction.editReply({ embeds: [{ description: message, color: 0xef4444 }] });
       return;
     }
     const emojis = await resolveEmojis(interaction);
     const card = buildSettingsCard(r.value.settings, emojis);
-    await replyV2(
-      { reply: interaction.editReply.bind(interaction) } as never,
-      card,
-      true,
-    );
+    await replyV2({ reply: interaction.editReply.bind(interaction) } as never, card, true);
   });
 ```
 
@@ -2307,6 +2280,7 @@ cd /Users/juwen/dev/commerce/parley && git add apps/worker/src/interactions/user
 ## Task 12: Wire up app.ts + register-commands.ts + final verification
 
 **Files:**
+
 - Edit: `apps/worker/src/app.ts:1-18`
 - Edit: `apps/worker/src/register-commands.ts:62-69`
 
@@ -2401,10 +2375,10 @@ export const linkSlashCommand = new SlashCommand()
 In `apps/worker/src/interactions/link/components.ts`, add the same `assertAccepted` check at the top of the handler body. Find the line `async (interaction: MessageComponentInteraction) => {` and insert immediately after the opening brace:
 
 ```ts
-    const env = interaction.context.env as EngineTransportEnv;
-    if (!(await assertAccepted(interaction, env))) {
-      return;
-    }
+const env = interaction.context.env as EngineTransportEnv;
+if (!(await assertAccepted(interaction, env))) {
+  return;
+}
 ```
 
 Add the import at the top:
@@ -2453,11 +2427,13 @@ This is the final V3 verification gate. The plan does not produce working softwa
 - [ ] **Step 1: Start the engine and worker locally**
 
 Terminal A:
+
 ```bash
 cd /Users/juwen/dev/commerce/parley && RUN_MIGRATIONS=1 cargo run 2>&1 | tail -10
 ```
 
 Terminal B:
+
 ```bash
 cd /Users/juwen/dev/commerce/parley/apps/worker && bun run dev 2>&1 | tail -10
 ```
@@ -2491,6 +2467,7 @@ The user controls commits and pushes per `~/.claude/CLAUDE.md`. Do not push with
 ## Self-Review Notes (for the implementer)
 
 **Spec coverage:**
+
 - Proto + migration + Diesel mirror + models + repos + handler tests = Tasks 1-6 ✓
 - Color tokens + footer removal + help/ping rewrite + profile edit = Tasks 7-8 ✓
 - Shared stats helper = Task 9 ✓
@@ -2500,11 +2477,13 @@ The user controls commits and pushes per `~/.claude/CLAUDE.md`. Do not push with
 - End-to-end smoke = Task 13 ✓
 
 **Known compromises:**
+
 - Refresh-stats button currently shows a hint rather than auto-fetching the user's linked identity. Full auto-refresh needs `IdentityService.LookupByDiscord` first to find the linked player + platform, then a stats fetch. Out of scope for cycle A; addressed in a follow-up.
 - The error paths in `profile.ts` still use the legacy `embeds` shape after `editReply` because the runtime's `editReply` doesn't yet support Components v2 containers. A runtime fix is a follow-up.
 - The acceptance card uses a raw container+flag dispatch rather than a Section+accessory because `ButtonBuilder` standalone needs a Section wrapper. The simpler path is documented in Task 10; if Discord rejects, fall back to building via `replyV2` and check the runtime's `ButtonBuilder` API for standalone support.
 
 **Risks to monitor during execution:**
+
 - Proto field renumbering would break wire compatibility. The plan only adds new field numbers (5/6/7), which is backward-compatible per protobuf semantics.
 - The `assertAccepted` fail-open behavior could mask a real engine outage from operators. Counter: every fail-open path logs at WARN.
 - The acceptance card is dispatched in a way that may not match the runtime's `replyV2` expectations. If tests show a runtime-side error, refactor to use `replyV2` directly.

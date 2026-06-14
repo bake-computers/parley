@@ -39,29 +39,29 @@ interaction until accepted. Roll out a unified three-color design system
 
 ## Component map
 
-| Component | Path | Purpose |
-|---|---|---|
-| `apps/worker/src/ui/tokens.ts` | new | Single source of `UI_TOKENS = { main, warning, error }`. |
-| `apps/worker/src/interactions/_shared/acceptance.ts` | new | `assertAccepted()` middleware helper. |
-| `apps/worker/src/interactions/_shared/stats.ts` | new | Shared `executeFetchStats` (extracted from `link/rpc.ts`). |
-| `apps/worker/src/interactions/user/` | new | Slash + components + modal + rpc + ui + constants. |
-| `apps/worker/src/interactions/help.ts` | edit | Convert to Components v2 container with graphite accent. |
-| `apps/worker/src/interactions/ping.ts` | edit | Return a one-line graphite container. |
-| `apps/worker/src/interactions/profile.ts` | edit | Drop footer; swap to graphite; call `assertAccepted` first. |
-| `apps/worker/src/interactions/link/{constants,ui,slash,components}.ts` | edit | Drop footer; swap color tokens; call `assertAccepted` first. |
-| `apps/worker/src/embeds.ts` | delete | Legacy `create*Embed` helpers. Replaced by `ui/tokens.ts` + Components v2. |
-| `apps/worker/src/app.ts` | edit | Register `userSlashCommand`, `userButtonHandler`, `userModalHandler`, `acceptButtonHandler`. |
-| `apps/worker/src/register-commands.ts` | edit | Include `userSlashCommand` in command list. |
-| `apps/worker/src/transport.ts` | edit | Add `getUserSettingsClient` factory for `UserSettingsService`. |
-| `proto/user/v1/user.proto` | edit | Add fields 5/6/7 to `UserSettings`. |
-| `migrations/2026-06-13-XXXXXX_user_settings_extend/` | new | Adds 3 columns to `user_settings`. |
-| `src/db/schema.rs` | edit | Mirror the 3 new columns in the Diesel table. |
-| `src/db/models.rs` | edit | Add fields to `UserSettings`/`NewUserSettings`. |
-| `src/db/repos.rs` | edit | Read/write new columns in `UserSettingsRepo`. |
-| `src/handlers/user_settings.rs` | edit | `row_to_proto` + `NewUserSettings` constructor. |
-| `packages/generated-ts/src/index.ts` | edit | Re-export `./user/v1/user_pb.js`. |
-| `apps/worker/src/transport.ts` | edit | Resolve `UserSettingsService` client. |
-| `.gitignore` | edit | Add `.superpowers/`. |
+| Component                                                              | Path   | Purpose                                                                                      |
+| ---------------------------------------------------------------------- | ------ | -------------------------------------------------------------------------------------------- |
+| `apps/worker/src/ui/tokens.ts`                                         | new    | Single source of `UI_TOKENS = { main, warning, error }`.                                     |
+| `apps/worker/src/interactions/_shared/acceptance.ts`                   | new    | `assertAccepted()` middleware helper.                                                        |
+| `apps/worker/src/interactions/_shared/stats.ts`                        | new    | Shared `executeFetchStats` (extracted from `link/rpc.ts`).                                   |
+| `apps/worker/src/interactions/user/`                                   | new    | Slash + components + modal + rpc + ui + constants.                                           |
+| `apps/worker/src/interactions/help.ts`                                 | edit   | Convert to Components v2 container with graphite accent.                                     |
+| `apps/worker/src/interactions/ping.ts`                                 | edit   | Return a one-line graphite container.                                                        |
+| `apps/worker/src/interactions/profile.ts`                              | edit   | Drop footer; swap to graphite; call `assertAccepted` first.                                  |
+| `apps/worker/src/interactions/link/{constants,ui,slash,components}.ts` | edit   | Drop footer; swap color tokens; call `assertAccepted` first.                                 |
+| `apps/worker/src/embeds.ts`                                            | delete | Legacy `create*Embed` helpers. Replaced by `ui/tokens.ts` + Components v2.                   |
+| `apps/worker/src/app.ts`                                               | edit   | Register `userSlashCommand`, `userButtonHandler`, `userModalHandler`, `acceptButtonHandler`. |
+| `apps/worker/src/register-commands.ts`                                 | edit   | Include `userSlashCommand` in command list.                                                  |
+| `apps/worker/src/transport.ts`                                         | edit   | Add `getUserSettingsClient` factory for `UserSettingsService`.                               |
+| `proto/user/v1/user.proto`                                             | edit   | Add fields 5/6/7 to `UserSettings`.                                                          |
+| `migrations/2026-06-13-XXXXXX_user_settings_extend/`                   | new    | Adds 3 columns to `user_settings`.                                                           |
+| `src/db/schema.rs`                                                     | edit   | Mirror the 3 new columns in the Diesel table.                                                |
+| `src/db/models.rs`                                                     | edit   | Add fields to `UserSettings`/`NewUserSettings`.                                              |
+| `src/db/repos.rs`                                                      | edit   | Read/write new columns in `UserSettingsRepo`.                                                |
+| `src/handlers/user_settings.rs`                                        | edit   | `row_to_proto` + `NewUserSettings` constructor.                                              |
+| `packages/generated-ts/src/index.ts`                                   | edit   | Re-export `./user/v1/user_pb.js`.                                                            |
+| `apps/worker/src/transport.ts`                                         | edit   | Resolve `UserSettingsService` client.                                                        |
+| `.gitignore`                                                           | edit   | Add `.superpowers/`.                                                                         |
 
 ## Data model
 
@@ -137,19 +137,19 @@ No footer.
 
 ### Custom IDs
 
-| Custom ID | Action |
-|---|---|
-| `user/lang/en` | Set language to English |
-| `user/lang/de` | Set language to Deutsch |
-| `user/matchmaking/on` | Enable matchmaking |
-| `user/matchmaking/off` | Disable matchmaking |
-| `user/visibility/public` | Public profile |
-| `user/visibility/hidden` | Hidden profile |
-| `user/timezone/{iana}` | Set timezone |
-| `user/refresh-stats` | Trigger stats fetch |
-| `user/delete/open` | Open delete-confirm modal |
-| `user-delete-modal` | Modal `custom_id` |
-| `user/accept-terms` | Acceptance button |
+| Custom ID                | Action                    |
+| ------------------------ | ------------------------- |
+| `user/lang/en`           | Set language to English   |
+| `user/lang/de`           | Set language to Deutsch   |
+| `user/matchmaking/on`    | Enable matchmaking        |
+| `user/matchmaking/off`   | Disable matchmaking       |
+| `user/visibility/public` | Public profile            |
+| `user/visibility/hidden` | Hidden profile            |
+| `user/timezone/{iana}`   | Set timezone              |
+| `user/refresh-stats`     | Trigger stats fetch       |
+| `user/delete/open`       | Open delete-confirm modal |
+| `user-delete-modal`      | Modal `custom_id`         |
+| `user/accept-terms`      | Acceptance button         |
 
 ### Timezone list (curated, 12 options)
 
@@ -258,20 +258,20 @@ RPC.
 
 ## Testing
 
-| Test | Layer | Type |
-|---|---|---|
-| `language_mapping_round_trip` extended with new fields | `src/handlers/user_settings.rs` | unit |
-| `terms_accepted_default_zero` | `src/handlers/user_settings.rs` | unit |
-| `upsert_persists_new_columns` | `src/db/repos.rs` | integration (needs DB) |
-| `get_returns_defaults_for_new_columns` | `src/db/repos.rs` | integration |
-| `migration_roundtrip` | existing | integration (auto) |
-| `invokeUpsertSettings` ok/err | `apps/worker/src/interactions/user/rpc.ts` | unit |
-| `invokeDeleteData` cooldown present | `apps/worker/src/interactions/user/rpc.ts` | unit |
-| `acceptButton_click_upserts_and_swaps_card` | `apps/worker/src/interactions/user/components.ts` | unit |
-| `deleteButton_opens_modal` | `apps/worker/src/interactions/user/components.ts` | unit |
-| `assertAccepted_blocks_when_unaccepted` | `apps/worker/src/interactions/_shared/acceptance.ts` | unit |
-| `assertAccepted_fails_open_on_rpc_error` | `apps/worker/src/interactions/_shared/acceptance.ts` | unit |
-| `buildSettingsCard_has_no_footer` | `apps/worker/src/interactions/user/ui.ts` | unit |
+| Test                                                   | Layer                                                | Type                   |
+| ------------------------------------------------------ | ---------------------------------------------------- | ---------------------- |
+| `language_mapping_round_trip` extended with new fields | `src/handlers/user_settings.rs`                      | unit                   |
+| `terms_accepted_default_zero`                          | `src/handlers/user_settings.rs`                      | unit                   |
+| `upsert_persists_new_columns`                          | `src/db/repos.rs`                                    | integration (needs DB) |
+| `get_returns_defaults_for_new_columns`                 | `src/db/repos.rs`                                    | integration            |
+| `migration_roundtrip`                                  | existing                                             | integration (auto)     |
+| `invokeUpsertSettings` ok/err                          | `apps/worker/src/interactions/user/rpc.ts`           | unit                   |
+| `invokeDeleteData` cooldown present                    | `apps/worker/src/interactions/user/rpc.ts`           | unit                   |
+| `acceptButton_click_upserts_and_swaps_card`            | `apps/worker/src/interactions/user/components.ts`    | unit                   |
+| `deleteButton_opens_modal`                             | `apps/worker/src/interactions/user/components.ts`    | unit                   |
+| `assertAccepted_blocks_when_unaccepted`                | `apps/worker/src/interactions/_shared/acceptance.ts` | unit                   |
+| `assertAccepted_fails_open_on_rpc_error`               | `apps/worker/src/interactions/_shared/acceptance.ts` | unit                   |
+| `buildSettingsCard_has_no_footer`                      | `apps/worker/src/interactions/user/ui.ts`            | unit                   |
 
 TDD: red test first, then impl, then green, then refactor.
 
@@ -319,21 +319,21 @@ The Discord application has exactly 13 registered emojis (replacing the
 previous 18). All UI must use only these — no unicode fallbacks in
 shipped code:
 
-| Name | Replaces | Used for |
-|---|---|---|
-| `warning_orange` | ⚠️ | Warning cards, refresh errors |
-| `trash` | 🗑️ (default) | Non-destructive trash affordances |
-| `trash_red` | 🗑️ (destructive) | Delete-data button + result card |
-| `timeout` | ⏳ ⏱️ | "Wait" cards (stats fetching) |
-| `time` | 🕐 | Timezone, time-of-day |
-| `reload` | 🔄 | Refresh / re-fetch |
-| `redirect` | ↪️ ✅ | Continue / next step / confirm |
-| `pin` | 📌 🛡️ ⚙️ | Personal/pinned/your-settings; acceptance card |
-| `linked` | 🔗 | Linked account, link success |
-| `global` | 🌐 | Global / worldwide |
-| `calendar` | 📅 | Dates, schedule |
-| `ban_hammer` | 🚫 | Blocked / denied / error |
-| `ban_hammer_red` | 🚫 (destructive) | Destructive error / fatal error |
+| Name             | Replaces         | Used for                                       |
+| ---------------- | ---------------- | ---------------------------------------------- |
+| `warning_orange` | ⚠️               | Warning cards, refresh errors                  |
+| `trash`          | 🗑️ (default)     | Non-destructive trash affordances              |
+| `trash_red`      | 🗑️ (destructive) | Delete-data button + result card               |
+| `timeout`        | ⏳ ⏱️            | "Wait" cards (stats fetching)                  |
+| `time`           | 🕐               | Timezone, time-of-day                          |
+| `reload`         | 🔄               | Refresh / re-fetch                             |
+| `redirect`       | ↪️ ✅            | Continue / next step / confirm                 |
+| `pin`            | 📌 🛡️ ⚙️         | Personal/pinned/your-settings; acceptance card |
+| `linked`         | 🔗               | Linked account, link success                   |
+| `global`         | 🌐               | Global / worldwide                             |
+| `calendar`       | 📅               | Dates, schedule                                |
+| `ban_hammer`     | 🚫               | Blocked / denied / error                       |
+| `ban_hammer_red` | 🚫 (destructive) | Destructive error / fatal error                |
 
 UI titles that previously had a unicode emoji (⚙️ settings, 🛡️
 acceptance, ❌ error) now use `pin` (for personal/yours) and
