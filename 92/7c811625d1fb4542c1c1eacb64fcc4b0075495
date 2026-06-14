@@ -1,0 +1,36 @@
+apps/bridge/src/types.ts
+  s_95552700fca083::t_5121d4e19263d0 32-34
+  s_95552700fca083::t_20c21d8f4bea66 2
+apps/bridge/src/routes/match.ts
+  s_95552700fca083::t_0be2eb1989d670 41-45
+  s_95552700fca083::t_0d098854cd8852 4
+  s_95552700fca083::t_490c3fe07c9f7e 38
+apps/bridge/src/engine-transport.ts
+  s_95552700fca083::t_c865b2c92ef02a 1-54
+apps/bridge/src/engine.ts
+  s_95552700fca083::t_fd2f5a8c343601 45,48
+  s_95552700fca083::t_0be2eb1989d670 49-62
+  s_95552700fca083::t_e0f50faa3ddac7 2
+apps/bridge/worker-configuration.d.ts
+  s_95552700fca083::t_d3f7fd0a4b441f 2,6,8,31
+apps/bridge/src/do/global-leaderboard.ts
+  s_95552700fca083::t_0be2eb1989d670 110-113
+apps/bridge/wrangler.jsonc
+  s_95552700fca083::t_0eb0bd4af9452a 21,28-34
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "927c811625d1fb4542c1c1eacb64fcc4b0075495",
+  "prompts": {},
+  "sessions": {
+    "s_95552700fca083": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_13995a59cffeFUSwgNPYUftvfw",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
