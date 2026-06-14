@@ -1,6 +1,7 @@
 import { axiomMiddleware, type AxiomVariables } from "@parley/axiom";
 import { Hono } from "hono";
 import { GlobalLeaderboard } from "./do/global-leaderboard.js";
+import { matchHandler } from "./routes/match.js";
 import {
   checkConnectionRateLimit,
   corsHeaders,
@@ -17,6 +18,8 @@ const app = new Hono<{ Bindings: Env; Variables: AxiomVariables }>();
 app.use("*", axiomMiddleware("bridge"));
 
 app.get("/health", (c) => c.json({ ok: true }));
+
+app.get("/match/:guild_id/:uuid", matchHandler);
 
 app.options("/snapshot", (c) => {
   const allowed = parseAllowedOrigins(c.env.ALLOWED_ORIGINS);

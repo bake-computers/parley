@@ -26,6 +26,7 @@ export interface WireMessage extends LeaderboardSnapshot {
 
 export interface Env extends AxiomEnv {
   GLOBAL_LEADERBOARD: DurableObjectNamespace;
+  MATCH_KV: KVNamespace;
   ENGINE_SERVICE_URL: string;
   ALLOWED_ORIGINS: string;
   POLL_INTERVAL_MS: string;
