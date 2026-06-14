@@ -1891,6 +1891,7 @@ dependencies = [
  "async-trait",
  "axiom-rs",
  "axum",
+ "base64",
  "bb8",
  "bytes",
  "chrono",
