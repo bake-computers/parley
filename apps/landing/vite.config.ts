@@ -8,7 +8,19 @@ import tailwindcss from "@tailwindcss/vite";
 
 const config = defineConfig({
   resolve: { tsconfigPaths: true },
-  plugins: [devtools(), cloudflare({ viteEnvironment: { name: "ssr" } }), tailwindcss(), tanstackStart(), viteReact()],
+  plugins: [
+    devtools(),
+    cloudflare({ viteEnvironment: { name: "ssr" } }),
+    tailwindcss(),
+    tanstackStart({
+      sitemap: {
+        enabled: true,
+        host: "https://parley.bot",
+        outputPath: "sitemap.xml",
+      },
+    }),
+    viteReact(),
+  ],
 });
 
 export default config;
