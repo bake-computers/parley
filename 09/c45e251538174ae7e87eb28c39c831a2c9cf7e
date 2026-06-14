@@ -1,0 +1,19 @@
+apps/worker/src/interactions/help.ts
+  s_0af905b96a252f::t_1fac66c40bfb87 24-26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "09c45e251538174ae7e87eb28c39c831a2c9cf7e",
+  "prompts": {},
+  "sessions": {
+    "s_0af905b96a252f": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_139a4c3a2ffe9azG3ODyaGQ1s4",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
