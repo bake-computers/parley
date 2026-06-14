@@ -1,0 +1,19 @@
+packages/generated-ts/src/matchmaking/v1/matchmaking_pb.ts
+  s_10640864588d69::t_6f5a1be6e621c8 14-15,46-47,98-99,145-146,182-183,214,241,283-284,340-341,362-363,384-385,416,463,505,511-546,552,614-615,681-682,713,719-723,725-728,730-734,740,762-763,789-790,826-827,853-854,875,902,916,924,932,940,948,956,964,972,980,988-990
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "e31e8c5ed0acad77198f40a4fc611275f62d67ed",
+  "prompts": {},
+  "sessions": {
+    "s_10640864588d69": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_139626cf3ffeUCBQGEbkv67xd0",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
