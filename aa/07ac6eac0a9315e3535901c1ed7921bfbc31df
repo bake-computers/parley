@@ -1,0 +1,21 @@
+apps/worker/src/interactions/history/slash.test.ts
+  s_ce229599eda744::t_206f0ebd4c1392 1-138
+apps/worker/src/interactions/history/ui.test.ts
+  s_ce229599eda744::t_2b605f226edf04 1-131
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "aa07ac6eac0a9315e3535901c1ed7921bfbc31df",
+  "prompts": {},
+  "sessions": {
+    "s_ce229599eda744": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_139d70317ffeB0OGTcLPrb4RdA",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
