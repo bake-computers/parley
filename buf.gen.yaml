@@ -9,3 +9,11 @@ plugins:
     opt:
       - target=ts
       - import_extension=js
+  - remote: buf.build/protocolbuffers/go
+    out: gen/parley
+    opt:
+      - paths=source_relative
+  - remote: buf.build/connectrpc/go
+    out: gen/parley
+    opt:
+      - paths=source_relative
