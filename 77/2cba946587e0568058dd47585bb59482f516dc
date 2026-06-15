@@ -1,0 +1,66 @@
+go.mod
+  s_d90d08263ac9fc::t_6be8b1a5373347 19,27,43-44,50,53-54,63,71-72,76-77,87-90
+  s_d90d08263ac9fc::t_e12e58493a0633 10
+  s_155b512d34aa51::t_5285f76aeae93d 4-6,20,92
+  s_a53c1a505d6a8a::t_db7ad899cfb65a 3
+  s_69375697c198c4::t_793590d4c492ea 29,80,86
+  s_cc7891afc18787::t_032232ebd550d8 8,12,15-18,21-26,28,30-42,45-49,51-52,55-62,64-70,73-75,78-79,81-85,91
+  s_155b512d34aa51::t_15eeb1b82c1c9a 1-2
+  s_8fe0f748c61d0a::t_ef227a286d7a9c 7,9,11,14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "772cba946587e0568058dd47585bb59482f516dc",
+  "prompts": {},
+  "sessions": {
+    "s_155b512d34aa51": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_133b80df2ffeii0Huq0rHYTLxj",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    },
+    "s_69375697c198c4": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_133499ba8ffeUbYCcG35A5tY9b",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    },
+    "s_8fe0f748c61d0a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_1333e9cc9ffeUVVkVrwmIawtOH",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    },
+    "s_a53c1a505d6a8a": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_133d2933fffegwgwAodBcgInsm",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    },
+    "s_cc7891afc18787": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_133b6c5b6ffe9sG8INQA7mOSJJ",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    },
+    "s_d90d08263ac9fc": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_13331d267ffeaczn7kLBXzMCCw",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
