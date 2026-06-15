@@ -63,3 +63,8 @@ graphify-out
 
 # .omo 
 .omo/
+
+# Go engine binary and test artifacts
+/parley
+coverage.out
+*.test
