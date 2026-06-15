@@ -1,0 +1,19 @@
+tests/integration_helpers_test.go
+  s_adcd09550dac07::t_f60ded7988ec65 1-250
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "7f54688c47dc4ca25dbd741545371d908e4a0359",
+  "prompts": {},
+  "sessions": {
+    "s_adcd09550dac07": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_132f8d452ffe0deH9WqJd7PsBO",
+        "model": "mimo-v2.5-pro"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
