@@ -1,0 +1,23 @@
+version: "2"
+run:
+  modules-download-mode: readonly
+linters:
+  enable:
+    - govet
+    - staticcheck
+    - unused
+    - errcheck
+    - gocritic
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
