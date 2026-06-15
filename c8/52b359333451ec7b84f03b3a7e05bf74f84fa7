@@ -1,0 +1,25 @@
+apps/worker/src/interactions/_shared/acceptance.ts
+  s_3f30ebd4a62943::t_80fa2de4e5865b 78
+apps/worker/src/transport.ts
+  s_3f30ebd4a62943::t_9d2d8a12162f0f 68-71
+apps/worker/src/interactions/user/components.ts
+  s_3f30ebd4a62943::t_cb818d255e247b 32
+apps/worker/src/interactions/user/slash.ts
+  s_3f30ebd4a62943::t_85e574f40c0f39 19
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.6",
+  "base_commit_sha": "c852b359333451ec7b84f03b3a7e05bf74f84fa7",
+  "prompts": {},
+  "sessions": {
+    "s_3f30ebd4a62943": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_133f777d2ffeK3ECqdAvfoLjJo",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
