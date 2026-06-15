@@ -2,7 +2,7 @@
 
 ## Abstract
 
-Parley is a competitive matchmaking and tournament platform for Discord communities. It links Discord identities to in-game player profiles, ingests performance telemetry from external stat providers, and uses a skill-rating engine to assemble balanced teams, run ranked queues, and operate bracket tournaments. The system is implemented as a polyglot monorepo: a Rust engine-service owns domain logic and persistence, while TypeScript applications on Cloudflare Workers provide the Discord bot, public web presence, and real-time leaderboard delivery. A shared Protocol Buffers contract defines the service boundary between the edge and the engine, enabling independent deployment, strict typing, and consistent evolution across languages.
+Parley is a competitive matchmaking and tournament platform for Discord communities. It links Discord identities to in-game player profiles, ingests performance telemetry from external stat providers, and uses a skill-rating engine to assemble balanced teams, run ranked queues, and operate bracket tournaments. The system is implemented as a polyglot monorepo: a Go engine-service owns domain logic and persistence, while TypeScript applications on Cloudflare Workers provide the Discord bot, public web presence, and real-time leaderboard delivery. A shared Protocol Buffers contract defines the service boundary between the edge and the engine, enabling independent deployment, strict typing, and consistent evolution across languages.
 
 ---
 
@@ -37,7 +37,7 @@ The platform is **Discord-first**: the primary interaction surface is a Cloudfla
 
 | Principle                                | Rationale                                                                                                                                                                                       |
 | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Single source of truth for contracts** | All RPC messages and service definitions live in `proto/`. Rust embeds them via `protox`; TypeScript generates clients via `buf`.                                                               |
+| **Single source of truth for contracts** | All RPC messages and service definitions live in `proto/`. Go and TypeScript clients are generated via `buf`; the engine consumes `gen/parley`.                                                 |
 | **Engine owns state**                    | Postgres is the system of record. Redis accelerates stats caching and leaderboard reads when present. Edge workers remain stateless except for the leaderboard Durable Object.                  |
 | **Game-scoped multi-tenancy**            | Every domain table carries a `game` discriminator (`r6`, `brawl_stars`). Composite unique indexes always include `game`, allowing one schema to serve multiple titles.                          |
 | **Graceful degradation**                 | Without `DATABASE_URL`, the engine runs in memory-only mode. Without `REDIS_URL`, caching falls back to direct backend calls. The service remains operable for development and partial outages. |
@@ -61,7 +61,7 @@ Parley divides into four logical tiers:
 └────────────────────────────┬────────────────────────────────────┘
                              │ ConnectRPC / HTTP
 ┌────────────────────────────▼────────────────────────────────────┐
-│  Engine (Rust / Axum)                                           │
+│  Engine (Go / Fiber + connect-go)                               │
 │  ConnectRPC handlers · Matchmaking engine · Stats backends      │
 └────────────┬───────────────────────────────┬────────────────────┘
              │                               │
@@ -96,15 +96,15 @@ Protobuf definitions are the canonical API surface. Seven services are defined:
 
 Shared types (`Game`, `Rank`, `PlayerStats`, `Badge`, `Region`, `Language`) reside in `common/v1/types.proto`.
 
-### 5.2 Engine Service (`src/`)
+### 5.2 Engine Service (`cmd/parley`, `internal/`)
 
-The `parley` binary is an Axum HTTP server exposing ConnectRPC endpoints. Internal modules include:
+The `parley` binary is a Go HTTP server (Fiber + connect-go) exposing ConnectRPC endpoints. Internal packages include:
 
-- **Handlers** — One module per protobuf service; deserialize Connect envelopes, invoke repositories, serialize responses.
+- **Handlers** — One module per protobuf service; Connect-RPC handlers invoke services and repositories.
 - **Matchmaking engine** — Pure-logic CPR and Glicko-2 team balancer with queue management and a background sweeper for stale entries.
 - **Tournament engine** — Bracket generation, seeding, and progression logic.
-- **Stats pipeline** — `StatsBackendRegistry` dispatches per-game backends; `R6Backend` scrapes stats.cc HTML via a Nuxt payload parser. Results pass through a tiered cache (`RedisStatsCacheStore` or `DirectStatsCacheStore`) with optional Postgres persistence.
-- **Database layer** — Diesel-async schema, connection pool, and repository modules for players, identities, matches, tournaments, and guild configuration.
+- **Stats pipeline** — Backend registry dispatches per-game backends; R6 scrapes stats.cc HTML via a Nuxt payload parser. Results pass through a tiered cache (Redis or direct) with optional Postgres persistence.
+- **Database layer** — Bun ORM over pgxpool, embedded SQL migrations, and repository modules for players, identities, matches, tournaments, and guild configuration.
 
 ### 5.3 Edge Applications
 
@@ -130,7 +130,7 @@ The Bridge Worker polls `LeaderboardService` on a configurable interval, stores 
 
 ### 5.5 Data Stores
 
-**Postgres** holds all durable domain state: players, discord identities, guild memberships, match and queue records, tournament brackets, stat snapshots, and configuration rows. Migrations live in `/migrations`; the hand-maintained Diesel bindings in `src/db/schema.rs` are authoritative.
+**Postgres** holds all durable domain state: players, discord identities, guild memberships, match and queue records, tournament brackets, stat snapshots, and configuration rows. Migrations live in `/migrations` and are applied via Bun migrate when `RUN_MIGRATIONS=1`.
 
 **Redis** (optional) backs the stats cache and in-memory leaderboard store. When absent, the engine serves stats directly from upstream backends with Postgres write-through persistence.
 
@@ -140,7 +140,7 @@ The Bridge Worker polls `LeaderboardService` on a configurable interval, stores 
 
 ## 6. Matchmaking Engine
 
-The matchmaking subsystem is implemented as pure Rust with no I/O dependencies, making it fully unit-testable.
+The matchmaking subsystem is implemented as pure Go with no I/O dependencies in the core algorithms, making it fully unit-testable.
 
 1. **Eligibility** — Players must be linked, meet guild-configured rank gates, and satisfy quota limits before entering a queue.
 2. **Signal extraction** — Raw stats (K/D, win rate, KPR, KOST, headshot percentage, survival rate, MMR) are z-score normalized against population samples drawn from the guild roster.
@@ -157,7 +157,7 @@ A typical Discord slash command (e.g., `/link`) follows this path:
 1. Discord delivers an interaction payload to the Worker.
 2. The Worker verifies the Ed25519 signature, dispatches to the registered command handler.
 3. The handler constructs a ConnectRPC request and POSTs it to the engine's `IdentityService`.
-4. The engine handler validates input, writes to Postgres via Diesel repositories, and returns a typed response.
+4. The engine handler validates input, writes to Postgres via Bun repositories, and returns a typed response.
 5. The Worker renders the result as a Discord embed via `@parley/runtime` builders and responds to the interaction.
 
 Leaderboard page loads follow a parallel path through the Landing App to the Bridge Worker, which serves cached snapshots or live WebSocket streams without routing through the Discord Worker.
@@ -386,29 +386,42 @@ bun install
 # Copy environment template
 cp .env.example .env
 
-# Build Rust engine (includes proto codegen)
-cargo build
+# Generate protobuf (Go + TypeScript) and build engine
+make proto
+make build
 
 # Run engine-service (requires DATABASE_URL for full functionality)
-cargo run
+make run
 
 # Start all Cloudflare Workers and landing dev servers
 bun run dev
 ```
 
-| Command                       | Scope                         |
-| ----------------------------- | ----------------------------- |
-| `cargo test --lib`            | Rust unit tests (no database) |
-| `cargo test`                  | Full Rust test suite          |
-| `bun run typecheck`           | TypeScript strict checking    |
-| `bun run lint`                | Oxlint across workspaces      |
-| `cargo fmt && bun run format` | Format Rust and TypeScript    |
+| Command                 | Scope                                      |
+| ----------------------- | ------------------------------------------ |
+| `make test`             | Go unit tests (`go test ./...`)            |
+| `make test-integration` | Go integration tests (Docker/testcontainers) |
+| `make fmt` / `make vet` | Go format and vet                          |
+| `make lint`             | golangci-lint (when installed)             |
+| `bun run typecheck`     | TypeScript strict checking                 |
+| `bun run lint`          | Oxlint across workspaces                   |
+| `make fmt && bun run format` | Format Go and TypeScript              |
 
-Generate TypeScript proto clients after modifying `.proto` files:
+Generate protobuf after modifying `.proto` files:
 
 ```bash
-cd packages/generated-ts && bun run generate
+make proto
+# TypeScript clients also land in packages/generated-ts via the same buf.gen.yaml
+cd packages/generated-ts && bun run generate   # if you only need TS refresh
 ```
+
+Production engine binary (Linux amd64, static):
+
+```bash
+CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o parley ./cmd/parley
+```
+
+Deploy uses the same bare-metal flow: GitHub Actions builds the Go binary, `scp` to the host, and `deploy.sh` activates the release. See `deploy/systemd/parley.service` for the systemd unit template.
 
 ---
 
@@ -417,7 +430,9 @@ cd packages/generated-ts && bun run generate
 ```
 parley/
 ├── proto/                  Protocol Buffer definitions (source of truth)
-├── src/                    Rust engine-service
+├── cmd/parley/             Go engine entrypoint
+├── internal/               Go domain logic, handlers, repos
+├── gen/parley/             buf-generated Go protobuf + connect
 ├── migrations/             Postgres SQL migrations
 ├── apps/
 │   ├── worker/             Discord bot Worker
@@ -437,4 +452,4 @@ parley/
 
 ## 14. License
 
-The engine-service is dual-licensed under MIT OR Apache-2.0. See `Cargo.toml` for details.
+The engine-service is dual-licensed under MIT OR Apache-2.0. See repository license files for details.
