@@ -1,0 +1,19 @@
+internal/apperr/apperr.go
+  s_adcd09550dac07::t_95a00882fcbe36 1-105
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "99ceff9888fe89a3ebbfe6b9487cc865823ac715",
+  "prompts": {},
+  "sessions": {
+    "s_adcd09550dac07": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_132f8d452ffe0deH9WqJd7PsBO",
+        "model": "mimo-v2.5-pro"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
