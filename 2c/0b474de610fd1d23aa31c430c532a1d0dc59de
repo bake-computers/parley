@@ -1,0 +1,19 @@
+proto/common/v1/types.proto
+  s_adcd09550dac07::t_37d7e83242c578 6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "2c0b474de610fd1d23aa31c430c532a1d0dc59de",
+  "prompts": {},
+  "sessions": {
+    "s_adcd09550dac07": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_132f8d452ffe0deH9WqJd7PsBO",
+        "model": "mimo-v2.5-pro"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
