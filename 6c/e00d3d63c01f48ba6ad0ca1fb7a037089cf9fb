@@ -1,0 +1,19 @@
+internal/services/helpers.go
+  s_adcd09550dac07::t_dc21319e6c8719 1-83
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "6ce00d3d63c01f48ba6ad0ca1fb7a037089cf9fb",
+  "prompts": {},
+  "sessions": {
+    "s_adcd09550dac07": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_132f8d452ffe0deH9WqJd7PsBO",
+        "model": "mimo-v2.5-pro"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
