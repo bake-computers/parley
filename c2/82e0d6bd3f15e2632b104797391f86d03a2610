@@ -1,0 +1,29 @@
+.golangci.yml
+  s_155b512d34aa51::t_d5b18f575fa4d3 2-5,10
+  s_2961c71ad83b78::t_2f00a22736c82e 6-9
+  s_2961c71ad83b78::t_23ff06b67153f1 1,11-23
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "c282e0d6bd3f15e2632b104797391f86d03a2610",
+  "prompts": {},
+  "sessions": {
+    "s_155b512d34aa51": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_133b80df2ffeii0Huq0rHYTLxj",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    },
+    "s_2961c71ad83b78": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_13307fdc4ffe30r9yW59e63ego",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
