@@ -1,0 +1,19 @@
+deploy/systemd/parley.service
+  s_adcd09550dac07::t_edcab9f4c77b10 1-23
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "ebed61935556227490e3ced4999e2e3972d81d5e",
+  "prompts": {},
+  "sessions": {
+    "s_adcd09550dac07": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_132f8d452ffe0deH9WqJd7PsBO",
+        "model": "mimo-v2.5-pro"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
