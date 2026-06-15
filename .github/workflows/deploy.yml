@@ -5,14 +5,14 @@ on:
     branches:
       - main
     paths:
-      - "src/**"
+      - "go.mod"
+      - "go.sum"
+      - "cmd/**"
+      - "internal/**"
+      - "gen/**"
+      - "migrations/**"
       - "proto/**"
-      - "Cargo.toml"
-      - "Cargo.lock"
-
-env:
-  CARGO_TERM_COLOR: always
-  CARGO_INCREMENTAL: 0
+      - ".github/workflows/deploy.yml"
 
 jobs:
   build-and-deploy:
@@ -24,44 +24,26 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Cache Protobuf Compiler
-        id: cache-protoc
-        uses: actions/cache@v5
+      - name: Setup Go
+        uses: actions/setup-go@v5
         with:
-          path: ~/.local/bin/protoc
-          key: ${{ runner.os }}-protoc-v25.1
+          go-version-file: go.mod
+          cache-dependency-path: go.sum
 
-      - name: Install Protobuf Compiler (Fallback)
-        if: steps.cache-protoc.outputs.cache-hit != 'true'
+      - name: Setup Buf
+        uses: bufbuild/buf-setup-action@v1
+
+      - name: Generate protobuf (Go)
+        run: buf generate
+
+      - name: Verify and test
         run: |
-          mkdir -p ~/.local/bin
-          curl -sSL https://github.com/protocolbuffers/protobuf/releases/download/v25.1/protoc-25.1-linux-x86_64.zip -o protoc.zip
-          unzip -q protoc.zip -d protoc_dist
-          mv protoc_dist/bin/protoc ~/.local/bin/
-          rm -rf protoc.zip protoc_dist
+          go vet ./...
+          go test ./...
 
-      - name: Add local bin to PATH
-        run: echo "$HOME/.local/bin" >> $GITHUB_PATH
-
-      - name: Install Rust Toolchain
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Cache Cargo Dependencies
-        uses: actions/cache@v5
-        with:
-          path: |
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/release/deps/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock', 'proto/**/*.proto') }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-
-
-      - name: Compile Release Binary
-        run: cargo build --release --locked --jobs 2
-        env:
-          RUSTFLAGS: "-C codegen-units=1"
+      - name: Build release binary
+        run: |
+          CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o parley ./cmd/parley
 
       - name: Setup SSH Key
         run: |
@@ -75,5 +57,5 @@ jobs:
           TARGET_DIR: "/home/deployer/apps/parley"
           VERSION: "${{ github.sha }}"
         run: |
-          scp -P 2222 -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 target/release/parley deployer@${{ secrets.SERVER_HOST }}:$TARGET_DIR/releases/parley_$VERSION
+          scp -P 2222 -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 parley deployer@${{ secrets.SERVER_HOST }}:$TARGET_DIR/releases/parley_$VERSION
           ssh -p 2222 -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 deployer@${{ secrets.SERVER_HOST }} "export VERSION=$VERSION; bash $TARGET_DIR/deploy.sh"
