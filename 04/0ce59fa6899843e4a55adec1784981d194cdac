@@ -1,0 +1,21 @@
+internal/logging/logger.go
+  s_adcd09550dac07::t_f33679c66a8aa9 1-110
+internal/logging/logger_test.go
+  s_adcd09550dac07::t_f33679c66a8aa9 1-233
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "040ce59fa6899843e4a55adec1784981d194cdac",
+  "prompts": {},
+  "sessions": {
+    "s_adcd09550dac07": {
+      "agent_id": {
+        "tool": "opencode",
+        "id": "ses_132f8d452ffe0deH9WqJd7PsBO",
+        "model": "mimo-v2.5-pro"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
