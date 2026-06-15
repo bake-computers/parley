@@ -1,0 +1,28 @@
+Makefile
+  s_5259af176e2f37::t_ffe23473fbb55c 25
+  s_155b512d34aa51::t_492c72e0016c1c 1-24,26-31
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.7",
+  "base_commit_sha": "67c0d726aec1548e83e9ea2bba52c3256e13c1ca",
+  "prompts": {},
+  "sessions": {
+    "s_155b512d34aa51": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_133b80df2ffeii0Huq0rHYTLxj",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    },
+    "s_5259af176e2f37": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_1332c51aeffeNpBxdARKyP1ASj",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
