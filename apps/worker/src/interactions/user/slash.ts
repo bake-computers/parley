@@ -1,14 +1,10 @@
 import { SlashCommand, type ChatInputCommandInteraction } from "@parley/runtime";
 import { assertAccepted } from "../_shared/acceptance.js";
-import { createClient } from "@connectrpc/connect";
-import { createConnectTransport } from "@connectrpc/connect-web";
-import { UserSettingsService } from "@parley/proto";
-import { resolveEngineTransport } from "../../engine-transport.js";
 import { editReplyV2 } from "../../ui/discord.js";
 import { resolveEmojis } from "../../ui/emojis.js";
+import { getUserSettingsClient, type EngineTransportEnv } from "../../transport.js";
 import { invokeGetUserSettings } from "./rpc.js";
 import { buildErrorCard, buildSettingsCard } from "./ui.js";
-import type { EngineTransportEnv } from "../../transport.js";
 
 export const userSlashCommand = new SlashCommand()
   .setName("user")
@@ -20,13 +16,7 @@ export const userSlashCommand = new SlashCommand()
     }
     await interaction.deferReply(true);
 
-    const config = resolveEngineTransport(env);
-    const transport = createConnectTransport({
-      baseUrl: config.baseUrl,
-      fetch: config.fetchImpl as typeof fetch,
-      jsonOptions: { enumAsInteger: true },
-    });
-    const client = createClient(UserSettingsService, transport);
+    const client = getUserSettingsClient(env);
     const discordUserId = interaction.user?.id ?? "";
     const r = await invokeGetUserSettings(client as never, discordUserId);
     if (r.isErr() || !r.value.success || !r.value.settings) {

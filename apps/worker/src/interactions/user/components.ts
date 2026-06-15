@@ -5,11 +5,8 @@ import {
   type ModalInteraction,
   logger,
 } from "@parley/runtime";
-import { UserSettingsService } from "@parley/proto";
 import type { UserSettings as ProtoUserSettings } from "@parley/proto";
-import { createClient } from "@connectrpc/connect";
-import { createConnectTransport } from "@connectrpc/connect-web";
-import { resolveEngineTransport } from "../../engine-transport.js";
+import { getUserSettingsClient } from "../../transport.js";
 import { editReplyV2, updateV2 } from "../../ui/discord.js";
 import { resolveEmojis } from "../../ui/emojis.js";
 import { nowMs } from "./helpers.js";
@@ -32,13 +29,7 @@ import { Language } from "@parley/proto";
 const COMPONENT_BUTTON = 2;
 
 function getClient(env: unknown) {
-  const config = resolveEngineTransport(env as never);
-  const transport = createConnectTransport({
-    baseUrl: config.baseUrl,
-    fetch: config.fetchImpl as typeof fetch,
-    jsonOptions: { enumAsInteger: true },
-  });
-  return createClient(UserSettingsService, transport);
+  return getUserSettingsClient(env as never);
 }
 
 function baseSettings(discordUserId: string): ProtoUserSettings {

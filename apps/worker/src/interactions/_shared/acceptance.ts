@@ -10,11 +10,8 @@ import {
   type MessageComponentInteraction,
   type ModalInteraction,
 } from "@parley/runtime";
-import { UserSettingsService } from "@parley/proto";
 import type { UserSettingsResponse, UserSettings as ProtoUserSettings } from "@parley/proto";
-import { createClient } from "@connectrpc/connect";
-import { createConnectTransport } from "@connectrpc/connect-web";
-import { resolveEngineTransport } from "../../engine-transport.js";
+import { getUserSettingsClient } from "../../transport.js";
 import { UI_TOKENS } from "../../ui/tokens.js";
 
 export const ACCEPT_BUTTON = "user/accept-terms";
@@ -78,13 +75,7 @@ async function fetchSettings(
 }
 
 function defaultClient(env: unknown): GetUserSettingsClient {
-  const config = resolveEngineTransport(env as never);
-  const transport = createConnectTransport({
-    baseUrl: config.baseUrl,
-    fetch: config.fetchImpl as typeof fetch,
-    jsonOptions: { enumAsInteger: true },
-  });
-  return createClient(UserSettingsService, transport) as unknown as GetUserSettingsClient;
+  return getUserSettingsClient(env as never) as unknown as GetUserSettingsClient;
 }
 
 export async function assertAccepted(
