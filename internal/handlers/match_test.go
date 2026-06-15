@@ -1,0 +1,146 @@
+package handlers_test
+
+import (
+	"context"
+	"testing"
+
+	"connectrpc.com/connect"
+	commonv1 "github.com/parley-bot/parley/gen/parley/common/v1"
+	matchv1 "github.com/parley-bot/parley/gen/parley/matchmaking/v1"
+	"github.com/parley-bot/parley/internal/handlers"
+	"github.com/parley-bot/parley/internal/services"
+)
+
+func newTestMatchHandler(t *testing.T) *handlers.MatchHandler {
+	t.Helper()
+	svc := services.NewMatchService(nil, nil, nil, nil)
+	return handlers.NewMatchHandler(svc)
+}
+
+// --- BuildTeams ---
+
+func TestMatchHandlerBuildTeams_UnspecifiedGame(t *testing.T) {
+	h := newTestMatchHandler(t)
+	_, err := h.BuildTeams(context.Background(), connect.NewRequest(&matchv1.BuildTeamsRequest{
+		GuildId:        "guild-1",
+		Game:           commonv1.Game_GAME_UNSPECIFIED,
+		DiscordUserIds: []string{"u1", "u2"},
+	}))
+	assertConnectCode(t, err, connect.CodeInvalidArgument)
+}
+
+func TestMatchHandlerBuildTeams_EmptyGuildID(t *testing.T) {
+	h := newTestMatchHandler(t)
+	_, err := h.BuildTeams(context.Background(), connect.NewRequest(&matchv1.BuildTeamsRequest{
+		GuildId:        "",
+		Game:           commonv1.Game_GAME_R6,
+		DiscordUserIds: []string{"u1", "u2"},
+	}))
+	assertConnectCode(t, err, connect.CodeInvalidArgument)
+}
+
+// --- ListGuildMembers ---
+
+func TestMatchHandlerListGuildMembers_UnspecifiedGame(t *testing.T) {
+	h := newTestMatchHandler(t)
+	_, err := h.ListGuildMembers(context.Background(), connect.NewRequest(&matchv1.ListGuildMembersRequest{
+		GuildId: "guild-1",
+		Game:    commonv1.Game_GAME_UNSPECIFIED,
+	}))
+	assertConnectCode(t, err, connect.CodeInvalidArgument)
+}
+
+// --- JoinQueue ---
+
+func TestMatchHandlerJoinQueue_EmptyCaptain(t *testing.T) {
+	h := newTestMatchHandler(t)
+	_, err := h.JoinQueue(context.Background(), connect.NewRequest(&matchv1.JoinQueueRequest{
+		GuildId:              "guild-1",
+		ChannelId:            "ch-1",
+		CaptainDiscordUserId: "",
+		Game:                 commonv1.Game_GAME_R6,
+	}))
+	assertConnectCode(t, err, connect.CodeInvalidArgument)
+}
+
+// --- LeaveQueue ---
+
+func TestMatchHandlerLeaveQueue_EmptyCaptain(t *testing.T) {
+	h := newTestMatchHandler(t)
+	_, err := h.LeaveQueue(context.Background(), connect.NewRequest(&matchv1.LeaveQueueRequest{
+		CaptainDiscordUserId: "  ",
+		Game:                 commonv1.Game_GAME_R6,
+	}))
+	assertConnectCode(t, err, connect.CodeInvalidArgument)
+}
+
+// --- GetQueueStatus ---
+
+func TestMatchHandlerGetQueueStatus_EmptyGuildID(t *testing.T) {
+	h := newTestMatchHandler(t)
+	_, err := h.GetQueueStatus(context.Background(), connect.NewRequest(&matchv1.GetQueueStatusRequest{
+		DiscordUserId: "u1",
+		GuildId:       "",
+		Game:          commonv1.Game_GAME_R6,
+	}))
+	assertConnectCode(t, err, connect.CodeInvalidArgument)
+}
+
+// --- CreateCustomMatch ---
+
+func TestMatchHandlerCreateCustomMatch_EmptyChannelID(t *testing.T) {
+	h := newTestMatchHandler(t)
+	_, err := h.CreateCustomMatch(context.Background(), connect.NewRequest(&matchv1.CreateCustomMatchRequest{
+		GuildId:                "guild-1",
+		ChannelId:              "",
+		CreatedByDiscordUserId: "u1",
+		Game:                   commonv1.Game_GAME_R6,
+	}))
+	assertConnectCode(t, err, connect.CodeInvalidArgument)
+}
+
+// --- ReportMatchResult ---
+
+func TestMatchHandlerReportMatchResult_InvalidWinningTeam(t *testing.T) {
+	h := newTestMatchHandler(t)
+	_, err := h.ReportMatchResult(context.Background(), connect.NewRequest(&matchv1.ReportMatchResultRequest{
+		MatchId:     1,
+		Game:        commonv1.Game_GAME_R6,
+		WinningTeam: "c",
+	}))
+	assertConnectCode(t, err, connect.CodeInvalidArgument)
+}
+
+// --- GetMatch ---
+
+func TestMatchHandlerGetMatch_UnspecifiedGame(t *testing.T) {
+	h := newTestMatchHandler(t)
+	_, err := h.GetMatch(context.Background(), connect.NewRequest(&matchv1.GetMatchRequest{
+		MatchId: 1,
+		Game:    commonv1.Game_GAME_UNSPECIFIED,
+	}))
+	assertConnectCode(t, err, connect.CodeInvalidArgument)
+}
+
+// --- ListMatches ---
+
+func TestMatchHandlerListMatches_InvalidCursor(t *testing.T) {
+	h := newTestMatchHandler(t)
+	_, err := h.ListMatches(context.Background(), connect.NewRequest(&matchv1.ListMatchesRequest{
+		GuildId: "guild-1",
+		Game:    commonv1.Game_GAME_R6,
+		Cursor:  "not-base64!!!",
+	}))
+	assertConnectCode(t, err, connect.CodeInvalidArgument)
+}
+
+// --- GetMatchByUuid ---
+
+func TestMatchHandlerGetMatchByUuid_InvalidUUID(t *testing.T) {
+	h := newTestMatchHandler(t)
+	_, err := h.GetMatchByUuid(context.Background(), connect.NewRequest(&matchv1.GetMatchByUuidRequest{
+		PublicUuid: "not-a-uuid",
+		Game:       commonv1.Game_GAME_R6,
+	}))
+	assertConnectCode(t, err, connect.CodeInvalidArgument)
+}
