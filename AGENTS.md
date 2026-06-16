@@ -2,9 +2,9 @@
 
 ## Architecture
 
-Parley is a competitive matchmaking and tournament platform — a Rust backend
-(engine-service) with a TypeScript web dashboard and Discord bot, running on
-Cloudflare Workers and Bun.
+Parley is a competitive matchmaking and tournament platform — a **Go** engine-service
+with TypeScript edge apps (Discord bot, landing, leaderboard bridge) on Cloudflare
+Workers and Bun.
 
 **The core is a monorepo of two halves** that share protobuf definitions:
 
@@ -15,190 +15,142 @@ proto/                     ← single source of truth (protobuf)
   ├── identity/            → account linking RPCs
   └── stats/               → stats.cc scraper RPCs
 
-Rust (single crate)       ← embed proto via protox in build.rs (no protoc needed)
-  src/                     ← parley binary: Axum + ConnectRPC HTTP server
-  src/db/                  ← Diesel schema, pool, models, repos
+Go (cmd/parley + internal/) ← buf generate → gen/parley (pb + connect)
 
 TypeScript (Bun workspaces) ← buf generate → packages/generated-ts
-  apps/worker/             ← Cloudflare Worker: Hono REST API, @parley/proto clients
-  packages/runtime/        ← Custom Discord API wrapper (Embeds & Components v2)
+  apps/worker/             ← Cloudflare Worker: Hono, @parley/proto clients
+  packages/runtime/        ← Discord API wrapper (Embeds & Components v2)
   packages/generated-ts/   ← @parley/proto: buf-generated TS + ConnectRPC clients
   packages/db/             ← @parley/db: FROZEN legacy Drizzle schema (see below)
   packages/tsconfig-base/  ← Shared TS strict-mode base config
 ```
 
-**Request flow**: Discord/Web → Cloudflare Worker (Hono) → ConnectRPC over HTTP → Rust engine-service (Axum) → Postgres (Diesel-async) / external APIs.
+**Request flow**: Discord/Web → Cloudflare Worker (Hono) → ConnectRPC over HTTP → Go engine-service (Fiber v3) → Postgres (Bun/pgx) / Redis (optional) / external APIs.
 
-**Internal engine wiring** (Rust binary `parley`, `src/main.rs`):
+**Internal engine wiring** (`cmd/parley/main.go`):
 
-- `src/main.rs` — entry; loads `.env`, inits tracing, builds `AppContext`, spawns queue sweeper, calls `connect::build_router_with_context`, serves Axum on `:50051`.
-- `src/context.rs` — `AppContext::from_env()` wires DB pool (Diesel-async + bb8), stats backend registry, Redis cache, leaderboard store, guild cache. Optional subsystems gracefully degrade to in-memory when `DATABASE_URL` / `REDIS_URL` are unset.
-- `src/connect.rs` — builds the Axum router. Routes are **manually registered** as `POST /parley.{package}.{Service}/{Method}` (no macros or `nest_service`). Plus `GET /health` and `GET /ready`.
-- **No `lib.rs`** — all 20+ modules are declared in `main.rs` (`mod handlers; mod db; mod matchmaking; …`). The crate has a single `[[bin]]` target; there is no shared library crate.
+- Loads config from env (optional `.env` via godotenv), structured logging (slog + optional Axiom).
+- `internal/db` — pgx pool, embedded SQL migrations (`migrations/`), Bun ORM models/repos.
+- `internal/server` — Fiber v3 + connect-go handlers for all protobuf services; `GET /health`, `GET /ready`, `GET /stats/:username`.
+- `internal/matchmaking` — Glicko-2, CPR, queue + background sweeper.
+- `internal/stats` — backends, Redis/direct cache, scrape/fetch, Postgres persistence.
+- Graceful degradation without `DATABASE_URL` (in-memory / limited RPCs) and without `REDIS_URL` (direct stats, no Redis leaderboard).
 
-Subdirectory guides: [`src/AGENTS.md`](src/AGENTS.md), [`proto/AGENTS.md`](proto/AGENTS.md), [`migrations/AGENTS.md`](migrations/AGENTS.md), [`apps/worker/AGENTS.md`](apps/worker/AGENTS.md), [`apps/landing/AGENTS.md`](apps/landing/AGENTS.md), [`apps/bridge/AGENTS.md`](apps/bridge/AGENTS.md), [`packages/runtime/AGENTS.md`](packages/runtime/AGENTS.md), [`packages/runtime/src/builders/AGENTS.md`](packages/runtime/src/builders/AGENTS.md).
+Subdirectory guides: [`proto/AGENTS.md`](proto/AGENTS.md) if present, [`apps/worker/AGENTS.md`](apps/worker/AGENTS.md), [`apps/landing/AGENTS.md`](apps/landing/AGENTS.md), [`apps/bridge/AGENTS.md`](apps/bridge/AGENTS.md), [`packages/runtime/AGENTS.md`](packages/runtime/AGENTS.md).
 
 ## Build & Run
 
-### Rust (engine-service)
+### Go (engine-service)
 
-| Command                                 | What it does                                                         |
-| --------------------------------------- | -------------------------------------------------------------------- |
-| `cargo build`                           | Builds all crates + proto codegen via `build.rs` (protox, no protoc) |
-| `cargo test`                            | Runs all unit + integration tests (some skip without `DATABASE_URL`) |
-| `cargo test --lib`                      | Unit tests only (no DB needed)                                       |
-| `cargo test --test migration_roundtrip` | Single integration test (needs `DATABASE_URL`)                       |
-| `cargo run`                             | Starts the engine-service (needs `DATABASE_URL` or runs degraded)    |
-| `cargo fmt`                             | Rust formatting                                                      |
-| `cargo clippy -- -D warnings`           | Rust linting (warnings are errors)                                   |
+| Command | What it does |
+| ------- | ------------ |
+| `make build` / `go build -o parley ./cmd/parley` | Build engine binary |
+| `make test` / `go test ./...` | Unit tests |
+| `make test-integration` | Integration tests (`-tags=integration`, Docker/testcontainers) |
+| `make fmt` / `go fmt ./...` | Format Go |
+| `make vet` / `go vet ./...` | Vet |
+| `make lint` | golangci-lint (when installed) |
+| `make proto` / `buf generate` | Regenerate `gen/parley` and TS clients |
+| `make run` | Build and run locally |
 
 ### TypeScript (Turborepo, managed via `bun`)
 
-| Command                         | What it does                                       |
-| ------------------------------- | -------------------------------------------------- |
-| `bun install`                   | Install all workspace dependencies                 |
-| `bun run build`                 | `turbo run build` — builds all TS packages (tsc)   |
-| `bun run typecheck`             | `turbo run typecheck` — type-checks all packages   |
-| `bun run lint`                  | `turbo run lint` — oxlint across all packages      |
-| `bun run lint:root`             | oxlint on root-level files only                    |
-| `bun run format`                | `oxfmt --write .`                                  |
-| `bun run format:check`          | `oxfmt --check .`                                  |
-| `bun run test`                  | `turbo run test` — runs `bun test` in each package |
-| `bun run dev`                   | `turbo run dev` — starts dev servers               |
-| `cd apps/worker && bun run dev` | Start Cloudflare Worker locally (`wrangler dev`)   |
+| Command | What it does |
+| ------- | ------------ |
+| `bun install` | Install workspace dependencies |
+| `bun run build` | `turbo run build` |
+| `bun run typecheck` | Strict typecheck |
+| `bun run lint` | oxlint |
+| `bun run format` | oxfmt |
+| `bun run test` | Per-package tests |
+| `bun run dev` | Dev servers |
+| `cd apps/worker && bun run dev` | Wrangler dev for Discord worker |
 
-### Proto generation (TypeScript side)
+### Proto generation
 
 ```bash
-cd packages/generated-ts && bun run generate   # runs `buf generate` from repo root
+make proto
+# TypeScript only:
+cd packages/generated-ts && bun run generate
 ```
 
-Output: `packages/generated-ts/src/{package}/{version}/*_pb.ts` (messages) and `*_connect.ts` (service descriptors). The Rust side compiles protos automatically via `build.rs` during `cargo build`.
-
-Note: `engine/v1/` and `ocr/v1/` generated TS files exist in `packages/generated-ts/src/` but have no corresponding `.proto` source files in `proto/`. They are pre-generated artifacts — do not edit them directly.
+Output: `gen/parley/**` (Go), `packages/generated-ts/src/**` (TS). Do not hand-edit generated files.
 
 ### Database
 
-The canonical schema is the hand-maintained Diesel bindings in `/src/db/schema.rs` (mirrors the SQL migrations exactly). The Diesel CLI output at `/src/schema.rs` is also present but the hand-maintained version is authoritative.
+Canonical schema is defined by SQL migrations in `/migrations` and mirrored in Bun models under `internal/db/models` and repos under `internal/repos`.
 
 ```bash
-# Apply migrations locally
-diesel setup --database-url postgres://localhost/parley_dev
-diesel migration run
-
-# Or set RUN_MIGRATIONS=1 and the service applies them at boot
+# Apply migrations at boot
+RUN_MIGRATIONS=1 make run
 ```
 
-**The `@parley/db` Drizzle package is FROZEN.** It is the legacy Parley v1 schema, retained only for remaining in-flight TypeScript consumers. Do not add tables, columns, or migrations there — edit the Diesel migrations instead. See `/docs/db.md` for the full schema, rename map (Drizzle→Diesel), and game discriminator convention.
+**The `@parley/db` Drizzle package is FROZEN.** Do not extend it — add SQL migrations and Go repos instead.
 
 ### Environment setup
 
-Copy `.env.example` to `.env`. The service runs in degraded (in-memory) mode without `DATABASE_URL`. For full functionality, set `DATABASE_URL` and optionally:
+Copy `.env.example` to `.env`. Without `DATABASE_URL`, the engine runs in degraded mode. For production:
 
-- `RUN_MIGRATIONS=1` — auto-apply migrations at boot
-- `BRAWL_STARS_API_KEY` — enables Brawl Stars backend
-- `ENGINE_SERVICE_ADDR` — listen address (default `0.0.0.0:50051`)
-
-`DB_TLS=system` is the secure default for managed Postgres providers. Use `DB_TLS=accept-invalid` only for local dev with self-signed certs.
+- `DATABASE_URL`, optional `REDIS_URL` (use full `redis://` URLs; bare `host:port` also works)
+- `RUN_MIGRATIONS=1` when you want boot-time migrate
+- `ENGINE_SERVICE_ADDR` (default `0.0.0.0:50051`)
+- `DB_TLS=system` for managed Postgres; `accept-invalid` only for local self-signed certs
 
 ### Deploy
 
-Cloudflare Worker deploys use Wrangler: `bun run deploy` (runs each app's `wrangler deploy` via Turbo).
+- **Engine**: `.github/workflows/deploy.yml` builds Go (`go test`, `go build`), SCP to bare metal. See `deploy/systemd/parley.service`.
+- **Workers**: `bun run deploy` (Wrangler per app).
 
 ## Linting & Formatting
 
-All code must pass formatting and linting before a task is considered complete.
-
-### Rust
-
-- Format: `cargo fmt`
-- Lint: `cargo clippy -- -D warnings` (warnings are hard errors)
-
-### TypeScript
-
-- Format: `oxfmt .`
-- Lint: `oxlint`
-
-**Oxlint config** (`oxlint.config.ts`): `correctness` → error, `suspicious`/`pedantic`/`perf` → warn, `style`/`restriction`/`nursery` → off. Notable enforced rules: `eqeqeq`, `curly`, `no-var`, `prefer-const`, `typescript/no-explicit-any` (warn), `unicorn/prefer-node-protocol`, `import/no-cycle`.
-
-**Oxfmt config** (`oxfmt.config.ts`): 100 char width, 2-space indent, double quotes, trailing commas, no tabs.
+- **Go**: `make fmt`, `make vet`, `make lint`
+- **TypeScript**: `oxfmt .`, `oxlint`
 
 ## Code Style & Conventions
 
 ### Commenting
 
-- Never use visual divider comments or ASCII art lines (`// ====`, `// ----`, `// ****`).
-- Document public APIs with `///` (Rustdoc) or `/** ... */` (TSDoc).
-- Inline comments (`//`) must explain _why_, not _what_.
+- No visual divider comments (`// ====`, etc.).
+- Go: doc comments on exported symbols; explain _why_ in inline comments.
+- TypeScript: TSDoc on public APIs where helpful.
 
-### Rust
+### Go
 
-- No `.unwrap()` or `.expect()` except in test files. Handle `Result` and `Option` explicitly.
-- The `parley` binary enables `mimalloc` by default (`default = ["mimalloc"]`).
-- Release build: LTO thin, single codegen unit, stripped, panic=abort.
-- Protobuf codegen uses `protox` (pure Rust) — no `protoc` required. If you add a `.proto` file, add it to `build.rs`.
+- Avoid `panic` in library code; return errors. `cmd/parley` may `os.Exit(1)` only from `main` on fatal startup.
+- Match existing patterns in `internal/handlers`, `internal/services`, `internal/repos`.
 
 ### TypeScript
 
-- Strict mode is enforced. Avoid `any`. Prefer functional, immutable patterns.
-- All `tsconfig.json` files extend `@parley/tsconfig-base`. The base enables `verbatimModuleSyntax`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, and `noUnusedLocals`/`noUnusedParameters`.
-- `@total-typescript/ts-reset` is applied globally via `reset.d.ts`.
+- Strict mode, avoid `any`. Extend `@parley/tsconfig-base`.
 
-### Discord Integrations
+### Discord
 
-- Never hardcode raw Discord emoji ID strings.
-- UI construction must use the custom type-safe API wrapper in `@parley/runtime` for Embeds and Components v2.
-- See `DESIGN.md` for the Discord embed design system and visual conventions.
+- Use `@parley/runtime` for embeds/components; see `DESIGN.md`.
 
-### Database conventions
+### Database
 
-Every game-scoped table carries a `game games NOT NULL DEFAULT 'r6'` column (Postgres enum: `'r6'`, `'brawl_stars'`). Auth tables (`user`, `session`, `account`, `verification`) are game-agnostic. Composite unique indexes always include `game`. Adding a new game is a migration: `ALTER TYPE games ADD VALUE 'new_game'`.
-
-Domain table timestamps use `bigint` epoch milliseconds (application-set). Better-auth tables use `timestamptz` (library convention).
+Game-scoped tables use Postgres `games` enum (`r6`, `brawl_stars`). Domain timestamps: `bigint` epoch ms.
 
 ## Testing
 
-### Rust
-
-- `cargo test` runs everything. Some integration tests skip if `DATABASE_URL` is unset (they print `[skip]`).
-- `cargo test --lib` runs unit tests only — no DB needed, fast for local iteration.
-- The `tests/` directory contains integration tests that mount the full router. The `perf_smoke.rs` test uses `wiremock` to simulate upstream services.
-- The `migration_roundtrip` test applies and reverts all migrations against a real Postgres — set `DATABASE_URL` to a disposable database.
-
-### TypeScript
-
-- Run via `bun test` per package or `bun run test` (Turborepo) at root.
-- Many packages currently have no tests (`echo 'No tests yet'`).
-- **Two test frameworks in use**: `bun:test` everywhere by default; **`apps/landing` uses `vitest`** for React hooks (jsdom + `@testing-library/react`) via `apps/landing/vitest.config.ts`. Plain unit tests in `apps/landing/src/lib/*.test.ts` still use `bun:test`.
-- **No external fixture files**. All test data is constructed inline in test code (e.g. Rust `stats_integration.rs::nuxt_html()` builds a Nuxt HTML string in code).
+- **Go**: `go test ./...`; integration `go test -tags=integration ./...` (Docker).
+- **TypeScript**: `bun run test`; landing may use vitest for hooks.
 
 ## Companion Documents
 
-- `DESIGN.md` — Visual design system (colors, typography, Discord embed conventions, web platform layout).
-- `SPEC.md` — Product specification (features, data model, architecture decisions).
-- `docs/db.md` — Database schema documentation, rename map, indexes, stats cache strategy.
+- `DESIGN.md`, `SPEC.md`, migration SQL under `migrations/`
 
 ## CI
 
-`.github/workflows/deploy.yml` is the only workflow. It runs on `blacksmith-2vcpu-ubuntu-2404` and is **Rust-only**: install protoc (vestigial — `build.rs` uses `protox`), build with `RUSTFLAGS="-C codegen-units=1"`, then SCP+SSH the binary to a bare-metal server. **No tests run in CI.** **No TS lint/typecheck/test** — TS deploys are manual via `wrangler deploy`. Triggered by `src/**`, `proto/**`, `Cargo.toml`, `Cargo.lock` path filters.
+`.github/workflows/deploy.yml` — Go build, `go vet`, `go test`, release binary deploy on changes under `cmd/`, `internal/`, `gen/`, `migrations/`, `proto/`. TS deploy remains manual via Wrangler.
 
 ## Workflow & PR Checklist
 
-1. Run `cargo fmt && oxfmt .` after modifying files.
-2. Run `cargo clippy -- -D warnings && oxlint` — fix all errors.
-3. Run `cargo test && bun run test` — all tests must pass.
-4. Add or update tests for any new logic.
+1. `make fmt && bun run format`
+2. `make vet && make lint && bun run lint`
+3. `make test && bun run test`
+4. Add/update tests for new logic
 
 ## graphify
 
-This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
-
-When the user types `/graphify`, invoke the `skill` tool with `skill: "graphify"` before doing anything else.
-
-Rules:
-
-- For codebase questions, first run `graphify query "<question>"` when graphify-out/graph.json exists. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
-- Dirty graphify-out/ files are expected after hooks or incremental updates; dirty graph files are not a reason to skip graphify. Only skip graphify if the task is about stale or incorrect graph output, or the user explicitly says not to use it.
-- If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
-- Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
-- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
+Knowledge graph at `graphify-out/`. Use `graphify query` for focused questions; run `graphify update .` after substantive code changes.

@@ -101,6 +101,5 @@ func New(deps Deps) *fiber.App {
 // The generated handler dispatches by r.URL.Path internally.
 func mountConnect(app *fiber.App, path string, handler http.Handler) {
 	h := adaptor.HTTPHandler(handler)
-	app.Post(path, h)
 	app.Post(path+"*", h)
 }

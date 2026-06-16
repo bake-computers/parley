@@ -51,9 +51,8 @@ tmp
 .wrangler
 .alchemy
 
-# Rust
-target
-Cargo.lock.bak
+# Legacy Rust build artifacts (if present locally)
+target/
 
 # grapify
 graphify-out

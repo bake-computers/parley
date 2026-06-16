@@ -99,7 +99,11 @@ func run() error {
 
 	var rdb *redis.Client
 	if cfg.RedisURL != "" {
-		rdb = redis.NewClient(&redis.Options{Addr: cfg.RedisURL})
+		redisOpts, err := config.RedisOptions(cfg.RedisURL)
+		if err != nil {
+			return fmt.Errorf("redis config: %w", err)
+		}
+		rdb = redis.NewClient(redisOpts)
 	}
 
 	var cacheStore cache.CacheStore
@@ -185,17 +189,21 @@ func run() error {
 	// Async warmup: pre-establish TCP+TLS to stats.cc.
 	go statsClient.Warmup(context.Background())
 
-	// 11. Start Fiber server.
+	// 11. Start Fiber server (Listen blocks until shutdown).
+	serverErr := make(chan error, 1)
 	go func() {
 		slog.Info("engine-service listening", "addr", cfg.EngineServiceAddr)
 		if err := app.Listen(cfg.EngineServiceAddr); err != nil {
-			slog.Error("server error", "error", err)
-			os.Exit(1)
+			serverErr <- err
 		}
 	}()
 
-	// 12. Wait for shutdown signal.
-	<-ctx.Done()
+	// 12. Wait for shutdown signal or unexpected server exit.
+	select {
+	case <-ctx.Done():
+	case err := <-serverErr:
+		return fmt.Errorf("server listen: %w", err)
+	}
 	slog.Info("shutdown signal received, draining...")
 
 	// Give in-flight requests 10s to complete.

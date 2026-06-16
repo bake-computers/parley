@@ -67,7 +67,7 @@ Parley divides into four logical tiers:
              │                               │
 ┌────────────▼──────────┐       ┌────────────▼──────────────────┐
 │  Postgres             │       │  Redis (optional)             │
-│  Diesel-async + bb8   │       │  Stats cache · Leaderboard    │
+│  pgx + Bun ORM        │       │  Stats cache · Leaderboard    │
 └───────────────────────┘       └───────────────────────────────┘
              │
 ┌────────────▼──────────────────────────────────────────────────┐
@@ -227,9 +227,9 @@ flowchart TB
         axiom_pkg["@parley/axiom"]
     end
 
-    subgraph engine["Engine Layer — Rust parley Binary"]
-        axum_server["Axum HTTP Server"]
-        connect_rpc["ConnectRPC Envelope Layer"]
+    subgraph engine["Engine Layer — Go parley Binary"]
+        fiber_server["Fiber v3 HTTP Server"]
+        connect_rpc["ConnectRPC (connect-go)"]
 
         subgraph rpc_services["RPC Service Handlers"]
             identity_svc["IdentityService"]
@@ -254,11 +254,11 @@ flowchart TB
         end
 
         subgraph data_access["Data Access Layer"]
-            diesel_repos["Diesel Repositories"]
-            diesel_pool["Connection Pool bb8"]
+            bun_repos["Bun Repositories"]
+            pgx_pool["pgx Pool"]
         end
 
-        axiom_engine["Axiom Logger"]
+        axiom_engine["slog + Axiom"]
     end
 
     subgraph persistence["Persistence Layer"]
@@ -306,7 +306,7 @@ flowchart TB
     bridge_hono -->|"ConnectRPC"| connect_rpc
     poll_scheduler -->|"ConnectRPC"| connect_rpc
 
-    axum_server --> connect_rpc
+    fiber_server --> connect_rpc
     connect_rpc --> identity_svc
     connect_rpc --> stats_svc
     connect_rpc --> guild_svc
@@ -315,40 +315,40 @@ flowchart TB
     connect_rpc --> tournament_svc
     connect_rpc --> leaderboard_svc
 
-    identity_svc --> diesel_repos
-    guild_svc --> diesel_repos
-    user_svc --> diesel_repos
+    identity_svc --> bun_repos
+    guild_svc --> bun_repos
+    user_svc --> bun_repos
     match_svc --> matchmaking_engine
     match_svc --> queue_manager
-    match_svc --> diesel_repos
+    match_svc --> bun_repos
     tournament_svc --> tournament_engine
-    tournament_svc --> diesel_repos
-    leaderboard_svc --> diesel_repos
+    tournament_svc --> bun_repos
+    leaderboard_svc --> bun_repos
     stats_svc --> stats_registry
 
     matchmaking_engine --> queue_manager
     queue_manager --> queue_sweeper
-    queue_sweeper --> diesel_repos
-    tournament_engine --> diesel_repos
+    queue_sweeper --> bun_repos
+    tournament_engine --> bun_repos
 
     stats_registry --> r6_backend
     r6_backend --> nuxt_parser
     r6_backend --> stats_cc
     stats_registry --> stats_persister
-    stats_persister --> diesel_repos
+    stats_persister --> bun_repos
     stats_persister --> guild_cache
     guild_cache --> redis
 
-    diesel_repos --> diesel_pool
-    diesel_pool --> postgres
+    bun_repos --> pgx_pool
+    pgx_pool --> postgres
     stats_registry --> redis
     leaderboard_svc --> redis
 
     proto_defs --> buf_gen
     buf_gen --> proto_ts
-    proto_defs -->|"protox build.rs"| connect_rpc
+    proto_defs -->|"buf generate"| connect_rpc
 
-    axum_server --> axiom_engine
+    fiber_server --> axiom_engine
 ```
 
 ---
