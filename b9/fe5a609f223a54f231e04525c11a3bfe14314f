@@ -1,0 +1,60 @@
+migrations/2026-06-16-120000_remove_brawl_stars_game/up.sql
+  s_5c291cabe5782d::t_ee93e034762055 17
+  s_5c291cabe5782d::t_b9ebaf15edf99d 1-16,18-20
+proto/common/v1/types.proto
+  s_5c291cabe5782d::t_e72cedc35086c3 74-75
+proto/identity/v1/identity.proto
+  s_5c291cabe5782d::t_844f6244d49218 12
+docs/superpowers/plans/2026-06-15-leaderboard-service-go.md
+  s_5c291cabe5782d::t_7c4c590a041f6a 549
+  s_5c291cabe5782d::t_a5b5f75c57e169 88
+migrations/2026-06-16-120000_remove_brawl_stars_game/down.sql
+  s_5c291cabe5782d::t_6c306d4a4dafa6 1
+internal/models/models.go
+  s_5c291cabe5782d::t_ae2d8dccc2e04c 34
+  s_5c291cabe5782d::t_e18c6357cc444d 41
+proto/stats/v1/stats.proto
+  s_5c291cabe5782d::t_91f775e65c0e05 11
+internal/models/models_test.go
+  s_5c291cabe5782d::t_d509fed743fe97 48
+README.md
+  s_5c291cabe5782d::t_d04b3cb9aa8bf2 26
+  s_5c291cabe5782d::t_288343bd8d26a7 42
+packages/generated-ts/src/common/v1/types_pb.ts
+  s_5c291cabe5782d::t_1fb2b29a9f8851 13
+packages/generated-ts/src/identity/v1/identity_pb.ts
+  s_5c291cabe5782d::t_1fb2b29a9f8851 321
+packages/generated-ts/src/stats/v1/stats_pb.ts
+  s_5c291cabe5782d::t_1fb2b29a9f8851 525
+scripts/engine-client.ts
+  s_5c291cabe5782d::t_d29da2af8c1257 19
+internal/repos/identity_test.go
+  s_5c291cabe5782d::t_a7610bab65bb05 141-147,150,157-158
+AGENTS.md
+  s_5c291cabe5782d::t_5cc6b94e850cdd 132
+apps/landing/public/llms.txt
+  s_5c291cabe5782d::t_1a906ce5021278 3
+  s_5c291cabe5782d::t_7735815f69bf9c 29
+docs/superpowers/plans/2026-06-13-user-settings.md
+  s_5c291cabe5782d::t_50f8fd041adac8 853
+internal/db/db_test.go
+  s_5c291cabe5782d::t_7c2642164f0fb5 28-29
+internal/handlers/leaderboard.go
+  s_5c291cabe5782d::t_374083a910bb9c 43
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.8",
+  "base_commit_sha": "b9fe5a609f223a54f231e04525c11a3bfe14314f",
+  "prompts": {},
+  "sessions": {
+    "s_5c291cabe5782d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_12dd59703ffeU5rQwLD8mmI673",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
