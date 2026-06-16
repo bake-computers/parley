@@ -3,6 +3,7 @@ syntax = "proto3";
 package parley.common.v1;
 
 option java_package = "bot.parley.common.v1";
+option go_package = "github.com/parley-bot/parley/gen/parley/common/v1;commonv1";
 
 enum RankTier {
     RANK_TIER_UNSPECIFIED = 0;
@@ -70,7 +71,8 @@ enum Region {
 enum Game {
   GAME_UNSPECIFIED = 0;
   GAME_R6          = 1;
-  GAME_BRAWL_STARS = 2;
+  reserved 2;
+  reserved "GAME_BRAWL_STARS";
 }
 
 enum Language {

@@ -1,0 +1,1 @@
+ALTER TYPE games RENAME VALUE 'cs2' TO 'brawl_stars';

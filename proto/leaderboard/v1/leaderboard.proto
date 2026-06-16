@@ -4,6 +4,8 @@ package parley.leaderboard.v1;
 
 import "common/v1/types.proto";
 
+option go_package = "github.com/parley-bot/parley/gen/parley/leaderboard/v1;leaderboardv1";
+
 service LeaderboardService {
   rpc GetLeaderboard(GetLeaderboardRequest) returns (GetLeaderboardResponse);
   rpc GetPlayerRank(GetPlayerRankRequest) returns (GetPlayerRankResponse);

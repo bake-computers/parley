@@ -5,6 +5,7 @@ package parley.matchmaking.v1;
 import "common/v1/types.proto";
 
 option java_package = "bot.parley.matchmaking.v1";
+option go_package = "github.com/parley-bot/parley/gen/parley/matchmaking/v1;matchmakingv1";
 
 service MatchmakingService {
   rpc BuildTeams(BuildTeamsRequest) returns (BuildTeamsResponse);

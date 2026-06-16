@@ -12,7 +12,7 @@
 -- --------------------------------------------------------------------------
 -- tournaments
 -- --------------------------------------------------------------------------
-CREATE TABLE tournaments (
+CREATE TABLE IF NOT EXISTS tournaments (
     id                          serial  PRIMARY KEY,
     game                        games   NOT NULL DEFAULT 'r6',
     name                        text    NOT NULL,
@@ -34,17 +34,17 @@ CREATE TABLE tournaments (
     created_at                  bigint  NOT NULL,
     updated_at                  bigint  NOT NULL
 );
-CREATE INDEX tournaments_game_name_lookup_idx
+CREATE INDEX IF NOT EXISTS tournaments_game_name_lookup_idx
     ON tournaments (game, name_normalized);
-CREATE INDEX tournaments_game_visibility_status_idx
+CREATE INDEX IF NOT EXISTS tournaments_game_visibility_status_idx
     ON tournaments (game, visibility, status);
-CREATE INDEX tournaments_game_auto_start_idx
+CREATE INDEX IF NOT EXISTS tournaments_game_auto_start_idx
     ON tournaments (game, status, auto_start_at);
 
 -- --------------------------------------------------------------------------
 -- tournament_teams  (was tournament_entries)
 -- --------------------------------------------------------------------------
-CREATE TABLE tournament_teams (
+CREATE TABLE IF NOT EXISTS tournament_teams (
     id                         serial  PRIMARY KEY,
     game                       games   NOT NULL DEFAULT 'r6',
     tournament_id              integer NOT NULL REFERENCES tournaments(id) ON DELETE CASCADE,
@@ -62,25 +62,34 @@ CREATE TABLE tournament_teams (
     created_at                 bigint  NOT NULL,
     updated_at                 bigint  NOT NULL
 );
-CREATE UNIQUE INDEX tournament_teams_game_tournament_captain_unique
+CREATE UNIQUE INDEX IF NOT EXISTS tournament_teams_game_tournament_captain_unique
     ON tournament_teams (game, tournament_id, captain_discord_user_id);
-CREATE UNIQUE INDEX tournament_teams_game_tournament_team_name_unique
+CREATE UNIQUE INDEX IF NOT EXISTS tournament_teams_game_tournament_team_name_unique
     ON tournament_teams (game, tournament_id, team_name_normalized);
-CREATE INDEX tournament_teams_tournament_status_idx
+CREATE INDEX        IF NOT EXISTS tournament_teams_tournament_status_idx
     ON tournament_teams (tournament_id, status);
-CREATE INDEX tournament_teams_guild_idx
+CREATE INDEX        IF NOT EXISTS tournament_teams_guild_idx
     ON tournament_teams (guild_id);
 
 -- Now we can install the deferred FK on tournaments.winner_entry_id.
-ALTER TABLE tournaments
-    ADD CONSTRAINT tournaments_winner_entry_fk
-    FOREIGN KEY (winner_entry_id)
-    REFERENCES tournament_teams(id) ON DELETE SET NULL;
+-- Guarded so a replay against an already-applied schema is a no-op.
+DO $$ BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint
+        WHERE conrelid = 'tournaments'::regclass
+          AND conname  = 'tournaments_winner_entry_fk'
+    ) THEN
+        ALTER TABLE tournaments
+            ADD CONSTRAINT tournaments_winner_entry_fk
+            FOREIGN KEY (winner_entry_id)
+            REFERENCES tournament_teams(id) ON DELETE SET NULL;
+    END IF;
+END $$;
 
 -- --------------------------------------------------------------------------
 -- tournament_team_rosters  (was tournament_entry_players)
 -- --------------------------------------------------------------------------
-CREATE TABLE tournament_team_rosters (
+CREATE TABLE IF NOT EXISTS tournament_team_rosters (
     id                         serial  PRIMARY KEY,
     game                       games   NOT NULL DEFAULT 'r6',
     tournament_id              integer NOT NULL REFERENCES tournaments(id) ON DELETE CASCADE,
@@ -100,21 +109,21 @@ CREATE TABLE tournament_team_rosters (
     created_at                 bigint  NOT NULL,
     updated_at                 bigint  NOT NULL
 );
-CREATE UNIQUE INDEX tournament_team_rosters_team_slot_unique
+CREATE UNIQUE INDEX IF NOT EXISTS tournament_team_rosters_team_slot_unique
     ON tournament_team_rosters (team_id, slot);
-CREATE UNIQUE INDEX tournament_team_rosters_team_user_unique
+CREATE UNIQUE INDEX IF NOT EXISTS tournament_team_rosters_team_user_unique
     ON tournament_team_rosters (team_id, discord_user_id);
-CREATE UNIQUE INDEX tournament_team_rosters_game_tournament_user_unique
+CREATE UNIQUE INDEX IF NOT EXISTS tournament_team_rosters_game_tournament_user_unique
     ON tournament_team_rosters (game, tournament_id, discord_user_id);
-CREATE UNIQUE INDEX tournament_team_rosters_game_tournament_player_unique
+CREATE UNIQUE INDEX IF NOT EXISTS tournament_team_rosters_game_tournament_player_unique
     ON tournament_team_rosters (game, tournament_id, player_id);
-CREATE INDEX tournament_team_rosters_player_idx
+CREATE INDEX        IF NOT EXISTS tournament_team_rosters_player_idx
     ON tournament_team_rosters (player_id);
 
 -- --------------------------------------------------------------------------
 -- bracket_matches  (was tournament_bracket_matches)
 -- --------------------------------------------------------------------------
-CREATE TABLE bracket_matches (
+CREATE TABLE IF NOT EXISTS bracket_matches (
     id                   serial  PRIMARY KEY,
     game                 games   NOT NULL DEFAULT 'r6',
     tournament_id        integer NOT NULL REFERENCES tournaments(id) ON DELETE CASCADE,
@@ -135,9 +144,9 @@ CREATE TABLE bracket_matches (
     created_at           bigint  NOT NULL,
     updated_at           bigint  NOT NULL
 );
-CREATE UNIQUE INDEX bracket_matches_game_tournament_round_match_unique
+CREATE UNIQUE INDEX IF NOT EXISTS bracket_matches_game_tournament_round_match_unique
     ON bracket_matches (game, tournament_id, bracket, round_number, match_number);
-CREATE INDEX bracket_matches_tournament_status_idx
+CREATE INDEX        IF NOT EXISTS bracket_matches_tournament_status_idx
     ON bracket_matches (tournament_id, status);
-CREATE INDEX bracket_matches_custom_match_idx
+CREATE INDEX        IF NOT EXISTS bracket_matches_custom_match_idx
     ON bracket_matches (custom_match_id);

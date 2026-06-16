@@ -1,7 +1,7 @@
 -- Vessel session tracking for the Vessel Rust engine.
 -- Each row represents a single matchmaking/purge session run.
 
-CREATE TABLE vessel_sessions (
+CREATE TABLE IF NOT EXISTS vessel_sessions (
     id                  serial PRIMARY KEY,
     session_id          uuid   NOT NULL UNIQUE,
     started_at          timestamptz NOT NULL DEFAULT NOW(),

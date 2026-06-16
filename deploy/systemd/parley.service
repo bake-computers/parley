@@ -1,0 +1,23 @@
+[Unit]
+Description=Parley engine-service (ConnectRPC)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=parley
+Group=parley
+WorkingDirectory=/opt/parley
+EnvironmentFile=/etc/parley/parley.env
+ExecStart=/usr/local/bin/parley
+Restart=always
+RestartSec=5
+
+# Hardening (optional; adjust if binary needs write access elsewhere)
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/parley
+
+[Install]
+WantedBy=multi-user.target

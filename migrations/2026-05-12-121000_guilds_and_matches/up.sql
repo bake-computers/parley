@@ -14,7 +14,7 @@
 -- --------------------------------------------------------------------------
 -- guild_memberships  (was guild_players)
 -- --------------------------------------------------------------------------
-CREATE TABLE guild_memberships (
+CREATE TABLE IF NOT EXISTS guild_memberships (
     id                   serial PRIMARY KEY,
     game                 games  NOT NULL DEFAULT 'r6',
     guild_id             text   NOT NULL,
@@ -28,22 +28,22 @@ CREATE TABLE guild_memberships (
     created_at           bigint NOT NULL,
     updated_at           bigint NOT NULL
 );
-CREATE UNIQUE INDEX guild_memberships_game_guild_user_unique
+CREATE UNIQUE INDEX IF NOT EXISTS guild_memberships_game_guild_user_unique
     ON guild_memberships (game, guild_id, discord_user_id);
-CREATE UNIQUE INDEX guild_memberships_game_guild_player_unique
+CREATE UNIQUE INDEX IF NOT EXISTS guild_memberships_game_guild_player_unique
     ON guild_memberships (game, guild_id, player_id);
-CREATE INDEX guild_memberships_player_idx
+CREATE INDEX        IF NOT EXISTS guild_memberships_player_idx
     ON guild_memberships (player_id);
-CREATE INDEX guild_memberships_discord_user_idx
+CREATE INDEX        IF NOT EXISTS guild_memberships_discord_user_idx
     ON guild_memberships (discord_user_id);
 -- Performance index for leaderboards: top-N by internal_elo within a guild+game.
-CREATE INDEX guild_memberships_game_guild_elo_idx
+CREATE INDEX        IF NOT EXISTS guild_memberships_game_guild_elo_idx
     ON guild_memberships (game, guild_id, internal_elo DESC);
 
 -- --------------------------------------------------------------------------
 -- guild_match_quotas  (was guild_limits)
 -- --------------------------------------------------------------------------
-CREATE TABLE guild_match_quotas (
+CREATE TABLE IF NOT EXISTS guild_match_quotas (
     id                          serial PRIMARY KEY,
     game                        games  NOT NULL DEFAULT 'r6',
     guild_id                    text   NOT NULL,
@@ -52,7 +52,7 @@ CREATE TABLE guild_match_quotas (
     created_at                  bigint NOT NULL,
     updated_at                  bigint NOT NULL
 );
-CREATE UNIQUE INDEX guild_match_quotas_game_guild_unique
+CREATE UNIQUE INDEX IF NOT EXISTS guild_match_quotas_game_guild_unique
     ON guild_match_quotas (game, guild_id);
 
 -- --------------------------------------------------------------------------
@@ -60,7 +60,7 @@ CREATE UNIQUE INDEX guild_match_quotas_game_guild_unique
 -- PK is compound (guild_id, game) so a single guild has distinct settings
 -- per game (R6 vs CS2 defaults).
 -- --------------------------------------------------------------------------
-CREATE TABLE guild_settings (
+CREATE TABLE IF NOT EXISTS guild_settings (
     guild_id                    text  NOT NULL,
     game                        games NOT NULL DEFAULT 'r6',
     default_team_format         text,
@@ -74,7 +74,7 @@ CREATE TABLE guild_settings (
 -- --------------------------------------------------------------------------
 -- guild_matchmaking_rules  (was guild_match_rules)
 -- --------------------------------------------------------------------------
-CREATE TABLE guild_matchmaking_rules (
+CREATE TABLE IF NOT EXISTS guild_matchmaking_rules (
     guild_id          text    NOT NULL,
     game              games   NOT NULL DEFAULT 'r6',
     min_elo           integer,
@@ -89,7 +89,7 @@ CREATE TABLE guild_matchmaking_rules (
 -- --------------------------------------------------------------------------
 -- guild_notification_settings
 -- --------------------------------------------------------------------------
-CREATE TABLE guild_notification_settings (
+CREATE TABLE IF NOT EXISTS guild_notification_settings (
     guild_id                           text    NOT NULL,
     game                               games   NOT NULL DEFAULT 'r6',
     match_results_channel              text,
@@ -102,7 +102,7 @@ CREATE TABLE guild_notification_settings (
 -- --------------------------------------------------------------------------
 -- tournament_schedules  (was auto_tournament_schedules)
 -- --------------------------------------------------------------------------
-CREATE TABLE tournament_schedules (
+CREATE TABLE IF NOT EXISTS tournament_schedules (
     id                serial PRIMARY KEY,
     game              games  NOT NULL DEFAULT 'r6',
     guild_id          text   NOT NULL,
@@ -116,13 +116,13 @@ CREATE TABLE tournament_schedules (
     created_at        bigint NOT NULL,
     updated_at        bigint NOT NULL
 );
-CREATE INDEX tournament_schedules_game_guild_enabled_idx
+CREATE INDEX IF NOT EXISTS tournament_schedules_game_guild_enabled_idx
     ON tournament_schedules (game, guild_id, enabled);
 
 -- --------------------------------------------------------------------------
 -- matches  (was custom_matches)
 -- --------------------------------------------------------------------------
-CREATE TABLE matches (
+CREATE TABLE IF NOT EXISTS matches (
     id                              serial PRIMARY KEY,
     game                            games  NOT NULL DEFAULT 'r6',
     guild_id                        text   NOT NULL,
@@ -146,19 +146,19 @@ CREATE TABLE matches (
     created_at                      bigint NOT NULL,
     updated_at                      bigint NOT NULL
 );
-CREATE INDEX matches_game_guild_created_idx
+CREATE INDEX IF NOT EXISTS matches_game_guild_created_idx
     ON matches (game, guild_id, created_at);
-CREATE INDEX matches_game_opponent_guild_created_idx
+CREATE INDEX IF NOT EXISTS matches_game_opponent_guild_created_idx
     ON matches (game, opponent_guild_id, created_at);
-CREATE INDEX matches_game_guild_status_idx
+CREATE INDEX IF NOT EXISTS matches_game_guild_status_idx
     ON matches (game, guild_id, status);
-CREATE INDEX matches_game_match_type_status_idx
+CREATE INDEX IF NOT EXISTS matches_game_match_type_status_idx
     ON matches (game, match_type, status);
 
 -- --------------------------------------------------------------------------
 -- match_participants  (was custom_match_players)
 -- --------------------------------------------------------------------------
-CREATE TABLE match_participants (
+CREATE TABLE IF NOT EXISTS match_participants (
     id                         serial PRIMARY KEY,
     game                       games   NOT NULL DEFAULT 'r6',
     match_id                   integer NOT NULL REFERENCES matches(id) ON DELETE CASCADE,
@@ -178,15 +178,15 @@ CREATE TABLE match_participants (
     created_at                 bigint  NOT NULL,
     updated_at                 bigint  NOT NULL
 );
-CREATE UNIQUE INDEX match_participants_match_user_unique
+CREATE UNIQUE INDEX IF NOT EXISTS match_participants_match_user_unique
     ON match_participants (match_id, discord_user_id);
-CREATE UNIQUE INDEX match_participants_match_team_slot_unique
+CREATE UNIQUE INDEX IF NOT EXISTS match_participants_match_team_slot_unique
     ON match_participants (match_id, team, slot);
 
 -- --------------------------------------------------------------------------
 -- matchmaking_queues
 -- --------------------------------------------------------------------------
-CREATE TABLE matchmaking_queues (
+CREATE TABLE IF NOT EXISTS matchmaking_queues (
     id                         serial PRIMARY KEY,
     game                       games  NOT NULL DEFAULT 'r6',
     guild_id                   text   NOT NULL,
@@ -201,19 +201,19 @@ CREATE TABLE matchmaking_queues (
     created_at                 bigint NOT NULL,
     updated_at                 bigint NOT NULL
 );
-CREATE INDEX matchmaking_queues_game_guild_status_idx
+CREATE INDEX IF NOT EXISTS matchmaking_queues_game_guild_status_idx
     ON matchmaking_queues (game, guild_id, status);
-CREATE INDEX matchmaking_queues_game_captain_status_idx
+CREATE INDEX IF NOT EXISTS matchmaking_queues_game_captain_status_idx
     ON matchmaking_queues (game, captain_discord_user_id, status);
-CREATE INDEX matchmaking_queues_game_status_created_idx
+CREATE INDEX IF NOT EXISTS matchmaking_queues_game_status_created_idx
     ON matchmaking_queues (game, status, created_at);
-CREATE INDEX matchmaking_queues_expires_at_idx
+CREATE INDEX IF NOT EXISTS matchmaking_queues_expires_at_idx
     ON matchmaking_queues (expires_at);
 
 -- --------------------------------------------------------------------------
 -- matchmaking_queue_participants  (was matchmaking_queue_players)
 -- --------------------------------------------------------------------------
-CREATE TABLE matchmaking_queue_participants (
+CREATE TABLE IF NOT EXISTS matchmaking_queue_participants (
     id                         serial PRIMARY KEY,
     game                       games   NOT NULL DEFAULT 'r6',
     queue_id                   integer NOT NULL REFERENCES matchmaking_queues(id) ON DELETE CASCADE,
@@ -232,9 +232,9 @@ CREATE TABLE matchmaking_queue_participants (
     created_at                 bigint  NOT NULL,
     updated_at                 bigint  NOT NULL
 );
-CREATE UNIQUE INDEX matchmaking_queue_participants_queue_user_unique
+CREATE UNIQUE INDEX IF NOT EXISTS matchmaking_queue_participants_queue_user_unique
     ON matchmaking_queue_participants (queue_id, discord_user_id);
-CREATE UNIQUE INDEX matchmaking_queue_participants_queue_slot_unique
+CREATE UNIQUE INDEX IF NOT EXISTS matchmaking_queue_participants_queue_slot_unique
     ON matchmaking_queue_participants (queue_id, slot);
-CREATE INDEX matchmaking_queue_participants_player_idx
+CREATE INDEX        IF NOT EXISTS matchmaking_queue_participants_player_idx
     ON matchmaking_queue_participants (player_id);

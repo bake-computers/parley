@@ -6,6 +6,7 @@ import "common/v1/types.proto";
 import "matchmaking/v1/matchmaking.proto";
 
 option java_package = "bot.parley.tournament.v1";
+option go_package = "github.com/parley-bot/parley/gen/parley/tournament/v1;tournamentv1";
 
 service TournamentService {
   rpc CreateTournament(CreateTournamentRequest) returns (TournamentResponse);
