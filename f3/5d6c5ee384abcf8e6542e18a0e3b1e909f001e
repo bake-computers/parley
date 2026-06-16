@@ -1,0 +1,14 @@
+deploy/systemd/parley.service
+  h_93d17961f46f35 7-10,14,18
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.8",
+  "base_commit_sha": "f35d6c5ee384abcf8e6542e18a0e3b1e909f001e",
+  "prompts": {},
+  "humans": {
+    "h_93d17961f46f35": {
+      "author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
