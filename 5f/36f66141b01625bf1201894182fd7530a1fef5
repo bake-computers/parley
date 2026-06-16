@@ -1,0 +1,34 @@
+internal/config/redis.go
+  s_5c291cabe5782d::t_83ef1fecea13e6 1-28
+internal/config/redis_test.go
+  s_5c291cabe5782d::t_f26fd807c405e5 1-39
+cmd/parley/main.go
+  s_5c291cabe5782d::t_a3afb27f246356 192-193,197,201-206
+AGENTS.md
+  s_5c291cabe5782d::t_6f94d03c651392 5-7,18,21-22,28,30,32-37,39,43,45-54,58-69,72-74,77,81,84-85,88,92,94-97,101-102,106-107,113-115,117,119-120,124,126,128,130,132,136-137,141,145,149-152,156
+README.md
+  s_5c291cabe5782d::t_3903f2e4c202ba 318-320,323,325-326,331-332,338,342-343
+  s_5c291cabe5782d::t_903e232b4fdf09 70
+  s_5c291cabe5782d::t_e127a3976c865c 230-232
+  s_5c291cabe5782d::t_1f9e47c91ff94e 309
+  s_5c291cabe5782d::t_b532359d8ac5be 257-258,261
+  s_5c291cabe5782d::t_4a8f34983cd849 349,351
+.gitignore
+  s_5c291cabe5782d::t_df1ec45caf0b89 54-55
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.8",
+  "base_commit_sha": "5f36f66141b01625bf1201894182fd7530a1fef5",
+  "prompts": {},
+  "sessions": {
+    "s_5c291cabe5782d": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_12dd59703ffeU5rQwLD8mmI673",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
