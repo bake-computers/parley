@@ -11,7 +11,7 @@
 -- --------------------------------------------------------------------------
 -- players
 -- --------------------------------------------------------------------------
-CREATE TABLE players (
+CREATE TABLE IF NOT EXISTS players (
     id                   serial PRIMARY KEY,
     game                 games            NOT NULL DEFAULT 'r6',
     profile_id           text,
@@ -29,18 +29,18 @@ CREATE TABLE players (
     updated_at           bigint           NOT NULL
 );
 -- profile_id is unique per-game when present.
-CREATE UNIQUE INDEX players_game_profile_id_unique
+CREATE UNIQUE INDEX IF NOT EXISTS players_game_profile_id_unique
     ON players (game, profile_id)
     WHERE profile_id IS NOT NULL;
-CREATE UNIQUE INDEX players_game_username_platform_unique
+CREATE UNIQUE INDEX IF NOT EXISTS players_game_username_platform_unique
     ON players (game, username_normalized, platform);
-CREATE INDEX players_game_internal_elo_idx
+CREATE INDEX        IF NOT EXISTS players_game_internal_elo_idx
     ON players (game, internal_elo DESC);
 
 -- --------------------------------------------------------------------------
 -- discord_identities  (was discord_accounts)
 -- --------------------------------------------------------------------------
-CREATE TABLE discord_identities (
+CREATE TABLE IF NOT EXISTS discord_identities (
     id               serial PRIMARY KEY,
     game             games  NOT NULL DEFAULT 'r6',
     discord_user_id  text   NOT NULL,
@@ -48,15 +48,15 @@ CREATE TABLE discord_identities (
     created_at       bigint NOT NULL,
     updated_at       bigint NOT NULL
 );
-CREATE UNIQUE INDEX discord_identities_game_discord_user_unique
+CREATE UNIQUE INDEX IF NOT EXISTS discord_identities_game_discord_user_unique
     ON discord_identities (game, discord_user_id);
-CREATE UNIQUE INDEX discord_identities_game_player_unique
+CREATE UNIQUE INDEX IF NOT EXISTS discord_identities_game_player_unique
     ON discord_identities (game, player_id);
 
 -- --------------------------------------------------------------------------
 -- player_stat_snapshots  (was stat_snapshots)
 -- --------------------------------------------------------------------------
-CREATE TABLE player_stat_snapshots (
+CREATE TABLE IF NOT EXISTS player_stat_snapshots (
     id                    serial PRIMARY KEY,
     player_id             integer NOT NULL REFERENCES players(id) ON DELETE CASCADE,
     game                  games   NOT NULL DEFAULT 'r6',
@@ -81,13 +81,13 @@ CREATE TABLE player_stat_snapshots (
     created_at            bigint  NOT NULL
 );
 -- Stats-cache hot-path index: "latest snapshot for (game, player_id)".
-CREATE INDEX player_stat_snapshots_game_player_fetched_idx
+CREATE INDEX IF NOT EXISTS player_stat_snapshots_game_player_fetched_idx
     ON player_stat_snapshots (game, player_id, fetched_at DESC);
 
 -- --------------------------------------------------------------------------
 -- external_match_history (CS2 recent games; future-proof for any game upstream)
 -- --------------------------------------------------------------------------
-CREATE TABLE external_match_history (
+CREATE TABLE IF NOT EXISTS external_match_history (
     id                 serial  PRIMARY KEY,
     player_id          integer NOT NULL REFERENCES players(id) ON DELETE CASCADE,
     game               games   NOT NULL,
@@ -97,7 +97,7 @@ CREATE TABLE external_match_history (
     metadata           jsonb,
     created_at         bigint  NOT NULL
 );
-CREATE UNIQUE INDEX external_match_history_game_player_match_unique
+CREATE UNIQUE INDEX IF NOT EXISTS external_match_history_game_player_match_unique
     ON external_match_history (game, player_id, external_match_id);
-CREATE INDEX external_match_history_game_player_played_idx
+CREATE INDEX        IF NOT EXISTS external_match_history_game_player_played_idx
     ON external_match_history (game, player_id, played_at DESC);

@@ -4,13 +4,18 @@
 
 -- --------------------------------------------------------------------------
 -- games enum — extensible; adding a game later is a pure ALTER TYPE migration.
+-- Idempotent so a stale or wiped bun_migrations table can re-run safely.
 -- --------------------------------------------------------------------------
-CREATE TYPE games AS ENUM ('r6', 'cs2');
+DO $$ BEGIN
+    CREATE TYPE games AS ENUM ('r6', 'cs2');
+EXCEPTION
+    WHEN duplicate_object THEN NULL;
+END $$;
 
 -- --------------------------------------------------------------------------
 -- better-auth: user
 -- --------------------------------------------------------------------------
-CREATE TABLE "user" (
+CREATE TABLE IF NOT EXISTS "user" (
     id                text        PRIMARY KEY,
     name              text        NOT NULL,
     email             text        NOT NULL,
@@ -25,13 +30,13 @@ CREATE TABLE "user" (
     created_at        timestamptz NOT NULL,
     updated_at        timestamptz NOT NULL
 );
-CREATE UNIQUE INDEX user_email_unique    ON "user"(email);
-CREATE UNIQUE INDEX user_username_unique ON "user"(username);
+CREATE UNIQUE INDEX IF NOT EXISTS user_email_unique    ON "user"(email);
+CREATE UNIQUE INDEX IF NOT EXISTS user_username_unique ON "user"(username);
 
 -- --------------------------------------------------------------------------
 -- better-auth: session
 -- --------------------------------------------------------------------------
-CREATE TABLE "session" (
+CREATE TABLE IF NOT EXISTS "session" (
     id         text        PRIMARY KEY,
     expires_at timestamptz NOT NULL,
     token      text        NOT NULL,
@@ -41,13 +46,13 @@ CREATE TABLE "session" (
     created_at timestamptz NOT NULL,
     updated_at timestamptz NOT NULL
 );
-CREATE UNIQUE INDEX session_token_unique ON "session"(token);
-CREATE INDEX        session_user_id_idx  ON "session"(user_id);
+CREATE UNIQUE INDEX IF NOT EXISTS session_token_unique ON "session"(token);
+CREATE INDEX        IF NOT EXISTS session_user_id_idx  ON "session"(user_id);
 
 -- --------------------------------------------------------------------------
 -- better-auth: account
 -- --------------------------------------------------------------------------
-CREATE TABLE "account" (
+CREATE TABLE IF NOT EXISTS "account" (
     id                        text        PRIMARY KEY,
     account_id                text        NOT NULL,
     provider_id               text        NOT NULL,
@@ -62,15 +67,15 @@ CREATE TABLE "account" (
     created_at                timestamptz NOT NULL,
     updated_at                timestamptz NOT NULL
 );
-CREATE UNIQUE INDEX account_provider_account_unique
+CREATE UNIQUE INDEX IF NOT EXISTS account_provider_account_unique
     ON "account"(provider_id, account_id);
-CREATE INDEX        account_user_id_idx
+CREATE INDEX        IF NOT EXISTS account_user_id_idx
     ON "account"(user_id);
 
 -- --------------------------------------------------------------------------
 -- better-auth: verification
 -- --------------------------------------------------------------------------
-CREATE TABLE "verification" (
+CREATE TABLE IF NOT EXISTS "verification" (
     id         text        PRIMARY KEY,
     identifier text        NOT NULL,
     value      text        NOT NULL,
@@ -78,5 +83,5 @@ CREATE TABLE "verification" (
     created_at timestamptz,
     updated_at timestamptz
 );
-CREATE UNIQUE INDEX verification_identifier_value_unique
+CREATE UNIQUE INDEX IF NOT EXISTS verification_identifier_value_unique
     ON "verification"(identifier, value);
