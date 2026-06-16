@@ -1,0 +1,79 @@
+migrations/2026-05-14-200000_vessel_sessions/up.sql
+  s_6297a6ded64619::t_a84277d5492e61 4
+migrations/2026-05-12-121000_guilds_and_matches/up.sql
+  s_6297a6ded64619::t_0083e2552aff3a 204,206,208,210
+  s_6297a6ded64619::t_21026e08429e7c 105
+  s_6297a6ded64619::t_45b1310e63b78d 125
+  s_6297a6ded64619::t_a4e487f70a830a 31,33,35,37,40
+  s_6297a6ded64619::t_d22231bead4ade 189
+  s_6297a6ded64619::t_755a7848d14954 63
+  s_6297a6ded64619::t_34b6d3b94594d2 77
+  s_6297a6ded64619::t_d835e19e5ea84f 17
+  s_6297a6ded64619::t_be1c0ba93b33f4 55
+  s_6297a6ded64619::t_ef9903932d5edf 216
+  s_6297a6ded64619::t_6c619519d4ff7f 235,237,239
+  s_6297a6ded64619::t_0725b11be43a6a 119
+  s_6297a6ded64619::t_2885197833aa72 181,183
+  s_6297a6ded64619::t_2cd1c2f1f3515f 92
+  s_6297a6ded64619::t_829475d5b2619e 161
+  s_6297a6ded64619::t_4dfb3aefc98bc9 46
+  s_6297a6ded64619::t_b3ef6f25a3019f 149,151,153,155
+migrations/2026-06-14-120000_add_public_uuid_to_matches/up.sql
+  s_6297a6ded64619::t_7ce789056c5ea8 1-2
+migrations/2026-06-13-120000_user_settings_extend/up.sql
+  s_6297a6ded64619::t_03b7b2ba64284d 2-4
+migrations/2026-05-14-130000_rename_cs2_to_brawl_stars/up.sql
+  s_6297a6ded64619::t_6fab0a61001082 1-12
+migrations/2026-05-12-120500_players_and_stats/up.sql
+  s_6297a6ded64619::t_8c8d8dd9a4df66 51,53
+  s_6297a6ded64619::t_fd35a527ed1cf9 90
+  s_6297a6ded64619::t_f21c09881dc3e3 32,35,37
+  s_6297a6ded64619::t_cd4ae55510d750 100,102
+  s_6297a6ded64619::t_c38157751611d4 84
+  s_6297a6ded64619::t_bf1d5a18995405 43
+  s_6297a6ded64619::t_fa452b07dfe65e 59
+  s_6297a6ded64619::t_b7f7b34b51645a 14
+migrations/2026-05-12-121500_tournaments/up.sql
+  s_6297a6ded64619::t_ce2ca6671db1a8 112,114,116,118,120
+  s_6297a6ded64619::t_22e4f4d93e7316 147,149,151
+  s_6297a6ded64619::t_7131d4db3cc4b7 15
+  s_6297a6ded64619::t_052a3a231fb85d 47
+  s_6297a6ded64619::t_4e6e21b14b81f1 37,39,41
+  s_6297a6ded64619::t_b6d7ee01b07fff 126
+  s_6297a6ded64619::t_03d162c994aa8c 65,67,69,71,75-87
+  s_6297a6ded64619::t_84c1d83d53a2e6 92
+migrations/2026-05-12-120000_init_games_and_auth/up.sql
+  s_6297a6ded64619::t_f7b1fb92754147 33-34
+  s_6297a6ded64619::t_1c84275c47bab2 78
+  s_6297a6ded64619::t_21ffc52e054ff8 86
+  s_6297a6ded64619::t_21bbbf2541716a 39
+  s_6297a6ded64619::t_f164f4f7f09ac5 49-50
+  s_6297a6ded64619::t_6ef09b50d2cba6 70,72
+  s_6297a6ded64619::t_41cb982100dbd6 18
+  s_6297a6ded64619::t_b20116ee64b716 55
+  s_6297a6ded64619::t_90b4c2f7dff9fb 7,9-13
+migrations/2026-06-16-120000_remove_brawl_stars_game/up.sql
+  s_6297a6ded64619::t_7c2fb71701b7fa 2-25,27,29-31
+migrations/2026-06-08-000000_user_settings_and_deletion/up.sql
+  s_6297a6ded64619::t_6810d2e7e0681a 3-7,9,17,19,23
+migrations/2026-06-08-120000_guild_rating_deviation/up.sql
+  s_6297a6ded64619::t_dcc45d23d31e8d 2
+migrations/2026-06-08-140000_matchmaking_toggles_and_queue_team_size/up.sql
+  s_6297a6ded64619::t_96b6e8ca3a080b 2,5,8,10
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.8",
+  "base_commit_sha": "8e1dd942e26a30a91b38b591ac9c5ddff0054e25",
+  "prompts": {},
+  "sessions": {
+    "s_6297a6ded64619": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "ses_12dc3dd10ffevXkr12UPLpvQ3j",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
