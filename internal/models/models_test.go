@@ -45,7 +45,7 @@ func TestStructTypesCompile(t *testing.T) {
 	t.Parallel()
 
 	_ = models.Player{Game: models.GameR6}
-	_ = models.NewPlayer{Game: models.GameBrawlStars}
+	_ = models.NewPlayer{Game: models.GameR6}
 	_ = models.PlayerStatSnapshot{Metadata: json.RawMessage(`{"k":1}`)}
 	_ = models.GuildMatchmakingRules{Platforms: []string{"pc"}}
 	_ = models.MatchRow{PublicUUID: uuid.New()}

@@ -8,7 +8,7 @@ option java_package = "bot.parley.stats.v1";
 option go_package = "github.com/parley-bot/parley/gen/parley/stats/v1;statsv1";
 
 
-// StatsService fetches player stats for supported games (R6 Siege, Brawl Stars).
+// StatsService fetches Rainbow Six Siege player stats from upstream providers.
 // Callers choose between a single-season fetch (FetchStats) and a full
 // seasons-collection fetch (FetchStatsCollection).
 service StatsService {

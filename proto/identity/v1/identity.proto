@@ -9,8 +9,7 @@ option go_package = "github.com/parley-bot/parley/gen/parley/identity/v1;identit
 
 // Identity & account-linking service.
 //
-// A Discord user can be linked to exactly one in-game player per game
-// (e.g. one R6 account + one Brawl Stars account simultaneously).
+// A Discord user can be linked to exactly one Rainbow Six Siege player profile.
 service IdentityService {
   rpc LinkAccount(LinkAccountRequest)         returns (LinkAccountResponse);
   rpc UnlinkAccount(UnlinkAccountRequest)     returns (UnlinkAccountResponse);

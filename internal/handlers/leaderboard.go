@@ -40,7 +40,7 @@ func mapLeaderboardType(t leaderboardv1.LeaderboardType) services.Kind {
 
 func mapLeaderboardProtoGame(g commonv1.Game) backends.Game {
 	switch g {
-	case commonv1.Game_GAME_R6, commonv1.Game_GAME_BRAWL_STARS:
+	case commonv1.Game_GAME_R6:
 		return backends.GameR6
 	default:
 		return backends.GameR6

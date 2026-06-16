@@ -16,8 +16,7 @@ import (
 type Game string
 
 const (
-	GameR6         Game = "r6"
-	GameBrawlStars Game = "brawl_stars"
+	GameR6 Game = "r6"
 )
 
 func (g *Game) Scan(src any) error {
@@ -32,14 +31,14 @@ func (g *Game) Scan(src any) error {
 	default:
 		return fmt.Errorf("models: scan Game: unsupported type %T", src)
 	}
-	if *g != GameR6 && *g != GameBrawlStars {
+	if *g != GameR6 {
 		return fmt.Errorf("models: unknown game %q", *g)
 	}
 	return nil
 }
 
 func (g Game) Value() (driver.Value, error) {
-	if g != GameR6 && g != GameBrawlStars {
+	if g != GameR6 {
 		return nil, fmt.Errorf("models: invalid game %q", g)
 	}
 	return string(g), nil

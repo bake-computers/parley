@@ -157,7 +157,6 @@ func TestProtoGameToModel(t *testing.T) {
 		wantErr bool
 	}{
 		{commonv1.Game_GAME_R6, models.GameR6, false},
-		{commonv1.Game_GAME_BRAWL_STARS, models.GameBrawlStars, false},
 		{commonv1.Game_GAME_UNSPECIFIED, "", true},
 	}
 	for _, tt := range tests {

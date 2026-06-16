@@ -85,7 +85,7 @@ Match `src/handlers/leaderboard.rs` lines 20–30:
 
 - `limit`: clamp to `[1, 500]` (Rust `req.limit.clamp(1, 500)`).
 - `offset`: `max(0, req.offset)` as `int64` slice start for `ZREVRANGE`.
-- `game`: `GAME_R6` and `GAME_BRAWL_STARS` both map to `backends.GameR6` until a Brawl backend exists (same as Rust handler today).
+- `game`: `GAME_R6` maps to `backends.GameR6` (R6-only product scope).
 
 ### Degraded mode
 
@@ -546,7 +546,7 @@ func mapLeaderboardType(t leaderboardv1.LeaderboardType) services.Kind {
 
 func mapProtoGame(g commonv1.Game) backends.Game {
 	switch g {
-	case commonv1.Game_GAME_R6, commonv1.Game_GAME_BRAWL_STARS:
+	case commonv1.Game_GAME_R6:
 		return backends.GameR6
 	default:
 		return backends.GameR6

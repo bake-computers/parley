@@ -16,7 +16,6 @@ import type { ConnectError } from "@connectrpc/connect";
 
 const GAME_NAMES: Record<number, string> = {
   [Game.R6]: "Rainbow Six Siege",
-  [Game.BRAWL_STARS]: "Brawl Stars",
 };
 
 function gameName(game: number): string {

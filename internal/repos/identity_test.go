@@ -138,42 +138,24 @@ func TestListDiscordIdentitiesCursor(t *testing.T) {
 	ctx := context.Background()
 	const discord = "888777666555444333"
 
-	type linkSpec struct {
-		game     models.Game
-		username string
-		platform string
+	p, err := repo.UpsertPlayerByIdentity(ctx, models.GameR6, "R6User", "uplay", nil, nil)
+	if err != nil {
+		t.Fatalf("upsert: %v", err)
 	}
-	for i, spec := range []linkSpec{
-		{models.GameR6, "R6User", "uplay"},
-		{models.GameBrawlStars, "BSUser", "supercell"},
-	} {
-		p, err := repo.UpsertPlayerByIdentity(ctx, spec.game, spec.username, spec.platform, nil, nil)
-		if err != nil {
-			t.Fatalf("upsert %d: %v", i, err)
-		}
-		_, err = repo.LinkDiscordIdentity(ctx, spec.game, discord, p.ID)
-		if err != nil {
-			t.Fatalf("link %d: %v", i, err)
-		}
+	_, err = repo.LinkDiscordIdentity(ctx, models.GameR6, discord, p.ID)
+	if err != nil {
+		t.Fatalf("link: %v", err)
 	}
 
-	page1, err := repo.ListDiscordIdentitiesByDiscord(ctx, discord, nil, "", 1)
+	page1, err := repo.ListDiscordIdentitiesByDiscord(ctx, discord, nil, "", 10)
 	if err != nil {
 		t.Fatalf("page1: %v", err)
 	}
 	if len(page1.Rows) != 1 {
 		t.Fatalf("page1 len = %d, want 1", len(page1.Rows))
 	}
-	if page1.NextCursor == "" {
-		t.Fatal("expected next cursor")
-	}
-
-	page2, err := repo.ListDiscordIdentitiesByDiscord(ctx, discord, nil, page1.NextCursor, 1)
-	if err != nil {
-		t.Fatalf("page2: %v", err)
-	}
-	if len(page2.Rows) != 1 {
-		t.Fatalf("page2 len = %d, want 1", len(page2.Rows))
+	if page1.Rows[0].PlayerID != p.ID {
+		t.Fatalf("player id = %d, want %d", page1.Rows[0].PlayerID, p.ID)
 	}
 }
 

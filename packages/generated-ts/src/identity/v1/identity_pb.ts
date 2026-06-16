@@ -318,8 +318,7 @@ export const LinkedIdentitySchema: GenMessage<LinkedIdentity> = /*@__PURE__*/
 /**
  * Identity & account-linking service.
  *
- * A Discord user can be linked to exactly one in-game player per game
- * (e.g. one R6 account + one Brawl Stars account simultaneously).
+ * A Discord user can be linked to exactly one Rainbow Six Siege player profile.
  *
  * @generated from service parley.identity.v1.IdentityService
  */

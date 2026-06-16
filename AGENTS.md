@@ -129,7 +129,7 @@ Copy `.env.example` to `.env`. Without `DATABASE_URL`, the engine runs in degrad
 
 ### Database
 
-Game-scoped tables use Postgres `games` enum (`r6`, `brawl_stars`). Domain timestamps: `bigint` epoch ms.
+Game-scoped tables use Postgres `games` enum (`r6` only in product scope). Domain timestamps: `bigint` epoch ms.
 
 ## Testing
 

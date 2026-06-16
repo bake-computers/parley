@@ -23,7 +23,7 @@ Parley addresses these failures by centralizing identity resolution, telemetry i
 
 Parley delivers three primary capabilities:
 
-1. **Account linking** — A Discord user may link exactly one in-game profile per supported game (e.g., Rainbow Six Siege and Brawl Stars). Links are authoritative for all downstream matchmaking and stats lookups.
+1. **Account linking** — A Discord user may link exactly one Rainbow Six Siege profile. Links are authoritative for all downstream matchmaking and stats lookups.
 
 2. **Telemetry-driven matchmaking** — The engine fetches ranked-season statistics from upstream providers, normalizes them into a Composite Performance Rating (CPR), and applies Glicko-2 team-balancing heuristics to minimize expected skill gaps across both sides of a lobby.
 
@@ -39,7 +39,7 @@ The platform is **Discord-first**: the primary interaction surface is a Cloudfla
 | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Single source of truth for contracts** | All RPC messages and service definitions live in `proto/`. Go and TypeScript clients are generated via `buf`; the engine consumes `gen/parley`.                                                 |
 | **Engine owns state**                    | Postgres is the system of record. Redis accelerates stats caching and leaderboard reads when present. Edge workers remain stateless except for the leaderboard Durable Object.                  |
-| **Game-scoped multi-tenancy**            | Every domain table carries a `game` discriminator (`r6`, `brawl_stars`). Composite unique indexes always include `game`, allowing one schema to serve multiple titles.                          |
+| **Game-scoped multi-tenancy**            | Every domain table carries a `game` discriminator (`r6`). Composite unique indexes include `game` for forward-compatible schema evolution.                          |
 | **Graceful degradation**                 | Without `DATABASE_URL`, the engine runs in memory-only mode. Without `REDIS_URL`, caching falls back to direct backend calls. The service remains operable for development and partial outages. |
 | **Edge locality**                        | Discord interactions and web traffic terminate at Cloudflare Workers globally. Only RPC calls to the engine cross into the origin network.                                                      |
 
@@ -269,7 +269,6 @@ flowchart TB
 
     subgraph external["External Providers"]
         stats_cc["stats.cc"]
-        brawl_api["Brawl Stars API"]
     end
 
     subgraph contract["Contract Layer"]

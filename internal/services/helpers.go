@@ -17,8 +17,6 @@ func protoGameToDB(g commonv1.Game) (models.Game, bool) {
 	switch g {
 	case commonv1.Game_GAME_R6:
 		return models.GameR6, true
-	case commonv1.Game_GAME_BRAWL_STARS:
-		return models.GameBrawlStars, true
 	default:
 		return "", false
 	}
@@ -36,8 +34,6 @@ func dbGameToProto(g models.Game) commonv1.Game {
 	switch g {
 	case models.GameR6:
 		return commonv1.Game_GAME_R6
-	case models.GameBrawlStars:
-		return commonv1.Game_GAME_BRAWL_STARS
 	default:
 		return commonv1.Game_GAME_UNSPECIFIED
 	}

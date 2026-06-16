@@ -15,9 +15,8 @@
  */
 
 const GAME_R6 = 1;
-const GAME_BRAWL_STARS = 2;
 
-type Game = typeof GAME_R6 | typeof GAME_BRAWL_STARS;
+type Game = typeof GAME_R6;
 
 interface ErrorResponse {
   code: string;

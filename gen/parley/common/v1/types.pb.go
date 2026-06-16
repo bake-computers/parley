@@ -218,7 +218,6 @@ type Game int32
 const (
 	Game_GAME_UNSPECIFIED Game = 0
 	Game_GAME_R6          Game = 1
-	Game_GAME_BRAWL_STARS Game = 2
 )
 
 // Enum value maps for Game.
@@ -226,12 +225,10 @@ var (
 	Game_name = map[int32]string{
 		0: "GAME_UNSPECIFIED",
 		1: "GAME_R6",
-		2: "GAME_BRAWL_STARS",
 	}
 	Game_value = map[string]int32{
 		"GAME_UNSPECIFIED": 0,
 		"GAME_R6":          1,
-		"GAME_BRAWL_STARS": 2,
 	}
 )
 
@@ -682,11 +679,10 @@ const file_common_v1_types_proto_rawDesc = "" +
 	"\tREGION_EU\x10\x01\x12\r\n" +
 	"\tREGION_NA\x10\x02\x12\x0f\n" +
 	"\vREGION_APAC\x10\x03\x12\r\n" +
-	"\tREGION_SA\x10\x04*?\n" +
+	"\tREGION_SA\x10\x04*A\n" +
 	"\x04Game\x12\x14\n" +
 	"\x10GAME_UNSPECIFIED\x10\x00\x12\v\n" +
-	"\aGAME_R6\x10\x01\x12\x14\n" +
-	"\x10GAME_BRAWL_STARS\x10\x02*F\n" +
+	"\aGAME_R6\x10\x01\"\x04\b\x02\x10\x02*\x10GAME_BRAWL_STARS*F\n" +
 	"\bLanguage\x12\x18\n" +
 	"\x14LANGUAGE_UNSPECIFIED\x10\x00\x12\x0f\n" +
 	"\vLANGUAGE_EN\x10\x01\x12\x0f\n" +

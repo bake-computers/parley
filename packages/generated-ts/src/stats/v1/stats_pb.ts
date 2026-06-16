@@ -522,7 +522,7 @@ export const StatsPlatformSchema: GenEnum<StatsPlatform> = /*@__PURE__*/
   enumDesc(file_stats_v1_stats, 0);
 
 /**
- * StatsService fetches player stats for supported games (R6 Siege, Brawl Stars).
+ * StatsService fetches Rainbow Six Siege player stats from upstream providers.
  * Callers choose between a single-season fetch (FetchStats) and a full
  * seasons-collection fetch (FetchStatsCollection).
  *
