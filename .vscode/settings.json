@@ -1,7 +1,0 @@
-{
-  "rust-analyzer.check.command": "clippy",
-  "rust-analyzer.checkOnSave": false,
-  "rust-analyzer.lru.capacity": 44,
-  "rust-analyzer.cargo.sysroot": "discover",
-  "rust-analyzer.cachePriming.enable": false
-}
