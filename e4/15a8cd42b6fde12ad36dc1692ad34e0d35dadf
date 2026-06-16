@@ -1,0 +1,12 @@
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.8",
+  "base_commit_sha": "e415a8cd42b6fde12ad36dc1692ad34e0d35dadf",
+  "prompts": {},
+  "humans": {
+    "h_93d17961f46f35": {
+      "author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
