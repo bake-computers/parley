@@ -1,23 +1,18 @@
 [Unit]
 Description=Parley engine-service (ConnectRPC)
 After=network-online.target
-Wants=network-online.target
 
 [Service]
 Type=simple
-User=parley
-Group=parley
-WorkingDirectory=/opt/parley
-EnvironmentFile=/etc/parley/parley.env
-ExecStart=/usr/local/bin/parley
+# Remove User=parley and Group=parley so it runs as deployer natively
+WorkingDirectory=/home/deployer/apps/parley
+EnvironmentFile=/home/deployer/apps/parley/production.env
+ExecStart=/home/deployer/apps/parley/current
 Restart=always
 RestartSec=5
 
-# Hardening (optional; adjust if binary needs write access elsewhere)
+# Remove ProtectSystem=strict since an unprivileged user cannot namespace paths
 NoNewPrivileges=true
-ProtectSystem=strict
-ProtectHome=true
-ReadWritePaths=/opt/parley
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=default.target
