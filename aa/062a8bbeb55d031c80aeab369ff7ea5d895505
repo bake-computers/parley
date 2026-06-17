@@ -1,0 +1,19 @@
+apps/worker/src/notifications/dispatch.ts
+  s_6b6351a806ca32::t_b4799292fbd74c 10,65-70,134-166
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.8",
+  "base_commit_sha": "aa062a8bbeb55d031c80aeab369ff7ea5d895505",
+  "prompts": {},
+  "sessions": {
+    "s_6b6351a806ca32": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f4d544f6-160a-4e4e-b454-c963bac03186",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
