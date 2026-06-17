@@ -48,6 +48,9 @@ export class SlashCommand extends SlashCommandOptionContainer {
   /** The function invoked for autocomplete events on this command's options. */
   private autocompleteFn?: AutocompleteHandlerFunction<AutocompleteInteraction>;
 
+  /** Permission bitfield string enforced client-side by Discord. */
+  private defaultMemberPermissions?: string;
+
   /**
    * Sets the command name.
    *
@@ -119,6 +122,11 @@ export class SlashCommand extends SlashCommandOptionContainer {
     return this;
   }
 
+  setDefaultMemberPermissions(bitfield: string): this {
+    this.defaultMemberPermissions = bitfield;
+    return this;
+  }
+
   /**
    * Registers the function to invoke when this command is executed.
    *
@@ -178,6 +186,9 @@ export class SlashCommand extends SlashCommandOptionContainer {
       description: this.description,
       type: ApplicationCommandType.ChatInput,
       ...(this.getOptionsJson().length > 0 ? { options: this.getOptionsJson() } : {}),
+      ...(this.defaultMemberPermissions !== undefined
+        ? { default_member_permissions: this.defaultMemberPermissions }
+        : {}),
     };
   }
 }
