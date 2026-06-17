@@ -7,6 +7,7 @@ import { resolveTargets } from "./resolveTargets.js";
 import { buildMessage } from "./buildMessage.js";
 import { postChannelMessage } from "./postChannelMessage.js";
 import type { NotifyPayload, NotificationSettings } from "./types.js";
+import type { Not } from "bun-types/vendor/expect-type/utils.js";
 
 export interface DispatchEnv extends EngineTransportEnv {
   readonly KV: KVNamespace;
@@ -61,9 +62,12 @@ async function defaultClientFactory(token: string): Promise<DiscordRestClient> {
   return new DiscordRestClient(token);
 }
 
-const getSettings = (_guildId: string): NotificationSettings | undefined => {
-  return undefined;
-};
+const getSettingsFromMap = (
+  map: ReadonlyMap<string, NotificationSettings>,
+): ((guildId: string) => NotificationSettings | undefined) =>
+  (guildId: string) =>
+    map.get(guildId);
+
 
 export function createDispatchHandler(clientFactory: DiscordClientFactory = defaultClientFactory) {
   return async function handleDispatch(c: Context<{ Bindings: DispatchEnv }>): Promise<Response> {
@@ -127,7 +131,40 @@ export function createDispatchHandler(clientFactory: DiscordClientFactory = defa
       return c.json({ status: "error", reason: "settings_fetch_failed" });
     }
 
-    const targets = resolveTargets(payload, hostSettings, getSettings);
+    const participantSettings = new Map<string, NotificationSettings>()
+
+    if (hostSettings.crossGuildAnnouncementsEnabled) {
+      await Promise.all(
+        payload.participant_guild_ids
+          .filter((guildId) => guildId !== payload.host_guild_id)
+          .map(async (guildId) => {
+            try {
+              const response = await guildClient.getNotificationSettings({
+                guildId,
+                game: payload.game,
+              });
+              participantSettings.set(guildId, {
+                guildId: response.guildId,
+                game: response.game,
+                matchResultsChannel: response.matchResultsChannel,
+                tournamentAnnouncementsChannel: response.tournamentAnnouncementsChannel,
+                crossGuildAnnouncementsEnabled: response.crossGuildAnnouncementsEnabled,
+                announceMatchReadyEnabled: response.announceMatchReadyEnabled,
+                announceMatchResultsEnabled: response.announceMatchResultsEnabled,
+              });
+            } catch {
+              // ignore missing or unreachable guild settings
+            }
+          }),
+      );
+    }
+
+    const targets = resolveTargets(
+      payload,
+      hostSettings,
+      getSettingsFromMap(participantSettings)
+    )
+
     if (targets.length === 0) {
       return c.json({ status: "skipped", reason: "no_targets" });
     }
