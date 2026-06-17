@@ -7,7 +7,6 @@ import { resolveTargets } from "./resolveTargets.js";
 import { buildMessage } from "./buildMessage.js";
 import { postChannelMessage } from "./postChannelMessage.js";
 import type { NotifyPayload, NotificationSettings } from "./types.js";
-import type { Not } from "bun-types/vendor/expect-type/utils.js";
 
 export interface DispatchEnv extends EngineTransportEnv {
   readonly KV: KVNamespace;
