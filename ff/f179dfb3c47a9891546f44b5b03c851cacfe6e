@@ -1,0 +1,19 @@
+cmd/parley/main.go
+  s_6b6351a806ca32::t_9a8e38b27c3d6f 130-138
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.8",
+  "base_commit_sha": "fff179dfb3c47a9891546f44b5b03c851cacfe6e",
+  "prompts": {},
+  "sessions": {
+    "s_6b6351a806ca32": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f4d544f6-160a-4e4e-b454-c963bac03186",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
