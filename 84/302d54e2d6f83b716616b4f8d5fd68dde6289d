@@ -1,0 +1,37 @@
+apps/worker/src/register-commands.ts
+  s_6b6351a806ca32::t_d2b9269bddda8f 12,71
+apps/worker/src/interactions/settings/components.ts
+  s_6b6351a806ca32::t_d2b9269bddda8f 1-188
+apps/worker/src/interactions/settings/slash.ts
+  s_6b6351a806ca32::t_d2b9269bddda8f 1-39
+apps/worker/src/interactions/settings/rpc.test.ts
+  s_6b6351a806ca32::t_d2b9269bddda8f 1-82
+apps/worker/src/app.ts
+  s_6b6351a806ca32::t_d2b9269bddda8f 12-15,31-33
+apps/worker/src/interactions/settings/index.ts
+  s_6b6351a806ca32::t_d2b9269bddda8f 1-2
+packages/runtime/src/utils/handlers/slash-command.ts
+  s_6b6351a806ca32::t_d2b9269bddda8f 51-53,125-129,189-191
+apps/worker/src/interactions/settings/ui.ts
+  s_6b6351a806ca32::t_d2b9269bddda8f 1-84
+apps/worker/src/interactions/settings/constants.ts
+  s_6b6351a806ca32::t_d2b9269bddda8f 1-10
+apps/worker/src/interactions/settings/rpc.ts
+  s_6b6351a806ca32::t_d2b9269bddda8f 1-35
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.8",
+  "base_commit_sha": "84302d54e2d6f83b716616b4f8d5fd68dde6289d",
+  "prompts": {},
+  "sessions": {
+    "s_6b6351a806ca32": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f4d544f6-160a-4e4e-b454-c963bac03186",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
