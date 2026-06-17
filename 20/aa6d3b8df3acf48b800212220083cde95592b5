@@ -1,0 +1,49 @@
+internal/matchmaking/queue.go
+  s_6b6351a806ca32::t_0e4397092ace9f 9,16-18,26-27,240-241,308-309,318-353
+internal/config/redis_test.go
+  s_6b6351a806ca32::t_0e4397092ace9f 39
+internal/notify/notify_test.go
+  s_6b6351a806ca32::t_0e4397092ace9f 1-293
+internal/handlers/match_test.go
+  s_6b6351a806ca32::t_0e4397092ace9f 16
+internal/services/notify.go
+  s_6b6351a806ca32::t_0e4397092ace9f 1-133
+internal/matchmaking/eligibility.go
+  s_6b6351a806ca32::t_0e4397092ace9f 9,24,29-30,37,45
+internal/config/redis.go
+  s_6b6351a806ca32::t_0e4397092ace9f 28
+internal/services/match_test.go
+  s_6b6351a806ca32::t_0e4397092ace9f 14
+internal/services/tournament.go
+  s_6b6351a806ca32::t_0e4397092ace9f 24,40,45,53,62,347,760,897-901
+internal/config/config.go
+  s_6b6351a806ca32::t_0e4397092ace9f 35-37,74-75
+internal/notify/notify.go
+  s_6b6351a806ca32::t_0e4397092ace9f 1-248
+internal/repos/tournament.go
+  s_6b6351a806ca32::t_0e4397092ace9f 113-130
+internal/services/tournament_test.go
+  s_6b6351a806ca32::t_0e4397092ace9f 18
+cmd/parley/main.go
+  s_6b6351a806ca32::t_0e4397092ace9f 17,131-143,146,149,152,164,248
+internal/services/match.go
+  s_6b6351a806ca32::t_0e4397092ace9f 23,33,36-39,45,52,446,706,827
+internal/repos/match.go
+  s_6b6351a806ca32::t_0e4397092ace9f 399-418
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.8",
+  "base_commit_sha": "20aa6d3b8df3acf48b800212220083cde95592b5",
+  "prompts": {},
+  "sessions": {
+    "s_6b6351a806ca32": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f4d544f6-160a-4e4e-b454-c963bac03186",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
