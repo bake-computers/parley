@@ -21,6 +21,7 @@ import (
 	"github.com/parley-bot/parley/internal/apperr"
 	"github.com/parley-bot/parley/internal/matchmaking"
 	"github.com/parley-bot/parley/internal/models"
+	"github.com/parley-bot/parley/internal/notify"
 	"github.com/parley-bot/parley/internal/repos"
 	"github.com/parley-bot/parley/internal/tourney"
 	"github.com/uptrace/bun"
@@ -36,11 +37,12 @@ type TournamentService struct {
 	rosters  *repos.TournamentRosterRepo
 	brackets *repos.BracketMatchRepo
 	match    *matchmaking.Service
+	notifier *notify.Client
 }
 
 // NewTournamentService returns a service backed by the given handles.
 // The db handle is the bun connection used to drive bracket persistence
-// in a single transaction.
+// in a single transaction. notifier may be nil or a no-op client.
 func NewTournamentService(
 	db *bun.DB,
 	tourn *repos.TournamentRepo,
@@ -48,6 +50,7 @@ func NewTournamentService(
 	rosters *repos.TournamentRosterRepo,
 	brackets *repos.BracketMatchRepo,
 	match *matchmaking.Service,
+	notifier *notify.Client,
 ) *TournamentService {
 	return &TournamentService{
 		db:       db,
@@ -56,6 +59,7 @@ func NewTournamentService(
 		rosters:  rosters,
 		brackets: brackets,
 		match:    match,
+		notifier: notifier,
 	}
 }
 
@@ -340,6 +344,7 @@ func (s *TournamentService) CreateTournament(
 		return nil, apperr.Internal(fmt.Sprintf("create: %v", err))
 	}
 
+	s.dispatchTournamentEvent(ctx, game, saved, notify.EventTournamentRegistration)
 	proto, err := s.buildTournamentProto(ctx, game, *saved)
 	if err != nil {
 		return nil, apperr.Internal(err.Error())
@@ -752,6 +757,7 @@ func (s *TournamentService) StartTournament(
 		return nil, apperr.NotFound("tournament not found")
 	}
 
+	s.dispatchTournamentEvent(ctx, game, updated, notify.EventTournamentStarted)
 	proto, err := s.buildTournamentProto(ctx, game, *updated)
 	if err != nil {
 		return nil, apperr.Internal(err.Error())
@@ -888,6 +894,11 @@ func (s *TournamentService) ReportBracketResult(
 	if err != nil || refreshed == nil {
 		return nil, apperr.Internal("tournament reload failed")
 	}
+	event := notify.EventTournamentRound
+	if refreshed.Status == repos.TournamentStatusCompleted {
+		event = notify.EventTournamentChampion
+	}
+	s.dispatchBracketResult(ctx, game, refreshed, event)
 	protoTournament, err := s.buildTournamentProto(ctx, game, *refreshed)
 	if err != nil {
 		return nil, apperr.Internal(err.Error())

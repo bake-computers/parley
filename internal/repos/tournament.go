@@ -110,6 +110,24 @@ func (r *TournamentRepo) ListForGuild(
 	return rows, err
 }
 
+// ParticipantGuildIDs returns the distinct set of guild IDs that
+// have teams registered in the tournament, plus the host guild.
+// Used by the notifier to build the participant_guild_ids payload
+// for cross-guild announcements.
+func (r *TournamentRepo) ParticipantGuildIDs(
+	ctx context.Context,
+	tournamentID int32,
+) ([]string, error) {
+	var ids []string
+	err := r.db.NewSelect().
+		ColumnExpr("DISTINCT guild_id").
+		TableExpr("tournament_teams").
+		Where("tournament_id = ?", tournamentID).
+		OrderExpr("guild_id ASC").
+		Scan(ctx, &ids)
+	return ids, err
+}
+
 // UpdateStatus updates tournament lifecycle fields and returns the row, or nil if missing.
 func (r *TournamentRepo) UpdateStatus(
 	ctx context.Context,

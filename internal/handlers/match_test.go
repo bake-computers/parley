@@ -13,7 +13,7 @@ import (
 
 func newTestMatchHandler(t *testing.T) *handlers.MatchHandler {
 	t.Helper()
-	svc := services.NewMatchService(nil, nil, nil, nil)
+	svc := services.NewMatchService(nil, nil, nil, nil, nil)
 	return handlers.NewMatchHandler(svc)
 }
 

@@ -15,7 +15,7 @@ import (
 // without a real database; every other RPC will surface a nil-pointer
 // panic if invoked.
 func newNilDBTournamentService() *services.TournamentService {
-	return services.NewTournamentService(nil, nil, nil, nil, nil, nil)
+	return services.NewTournamentService(nil, nil, nil, nil, nil, nil, nil)
 }
 
 func TestCreateTournament_UnspecifiedGame(t *testing.T) {

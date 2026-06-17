@@ -88,6 +88,9 @@ message GuildNotificationSettings {
   string tournament_announcements_channel    = 4;
   bool   leaderboard_updates_enabled         = 5;
   int64  updated_at_ms                       = 6;
+  bool   cross_guild_announcements_enabled   = 7;
+  bool   announce_match_ready_enabled        = 8;
+  bool   announce_match_results_enabled      = 9;
 }
 
 message GetNotificationSettingsRequest {

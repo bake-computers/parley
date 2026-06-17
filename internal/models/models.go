@@ -417,6 +417,9 @@ type GuildNotificationSettings struct {
 	TournamentAnnouncementsChannel *string `bun:"tournament_announcements_channel"`
 	LeaderboardUpdatesEnabled      bool    `bun:"leaderboard_updates_enabled,notnull"`
 	UpdatedAt                      int64   `bun:"updated_at,notnull"`
+	CrossGuildAnnouncementsEnabled bool    `bun:"cross_guild_announcements_enabled,notnull"`
+	AnnounceMatchReadyEnabled      bool    `bun:"announce_match_ready_enabled,notnull"`
+	AnnounceMatchResultsEnabled    bool    `bun:"announce_match_results_enabled,notnull"`
 }
 
 // NewGuildNotificationSettings is the insert shape for guild_notification_settings.
@@ -429,6 +432,9 @@ type NewGuildNotificationSettings struct {
 	TournamentAnnouncementsChannel *string `bun:"tournament_announcements_channel"`
 	LeaderboardUpdatesEnabled      bool    `bun:"leaderboard_updates_enabled,notnull"`
 	UpdatedAt                      int64   `bun:"updated_at,notnull"`
+	CrossGuildAnnouncementsEnabled bool    `bun:"cross_guild_announcements_enabled,notnull"`
+	AnnounceMatchReadyEnabled      bool    `bun:"announce_match_ready_enabled,notnull"`
+	AnnounceMatchResultsEnabled    bool    `bun:"announce_match_results_enabled,notnull"`
 }
 
 // TournamentSchedule maps to table tournament_schedules.

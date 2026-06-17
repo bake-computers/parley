@@ -335,6 +335,9 @@ func (r *GuildRepo) UpsertNotificationSettings(
 		Set("match_results_channel = EXCLUDED.match_results_channel").
 		Set("tournament_announcements_channel = EXCLUDED.tournament_announcements_channel").
 		Set("leaderboard_updates_enabled = EXCLUDED.leaderboard_updates_enabled").
+		Set("cross_guild_announcements_enabled = EXCLUDED.cross_guild_announcements_enabled").
+		Set("announce_match_ready_enabled = EXCLUDED.announce_match_ready_enabled").
+		Set("announce_match_results_enabled = EXCLUDED.announce_match_results_enabled").
 		Set("updated_at = EXCLUDED.updated_at").
 		Returning("*").
 		Exec(ctx, &out)

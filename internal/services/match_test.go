@@ -11,7 +11,7 @@ import (
 )
 
 func newNilDBMatchService() *services.MatchService {
-	return services.NewMatchService(nil, nil, nil, nil)
+	return services.NewMatchService(nil, nil, nil, nil, nil)
 }
 
 // --- BuildTeams ---

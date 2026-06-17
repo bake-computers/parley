@@ -6,13 +6,16 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/parley-bot/parley/internal/models"
+	"github.com/parley-bot/parley/internal/notify"
 	"github.com/parley-bot/parley/internal/repos"
 )
 
 // FormedMatch is the result of a successful match formation: the
 // persisted match id, the team partition that produced it, the
 // player list in their original order, the queue ids that were
-// consumed, and the lobby's mean CPR. Mirrors FormedMatch in
+// consumed, the lobby's mean CPR, the public UUID used for the
+// landing-page link, and the host guild id (set so the notifier
+// can build the dispatch payload). Mirrors FormedMatch in
 // src/matchmaking/queue.rs.
 type FormedMatch struct {
 	MatchID          int32
@@ -20,6 +23,8 @@ type FormedMatch struct {
 	Players          []LoadedPlayer
 	StackIDs         []int32
 	ExpectedLobbyCPR float64
+	PublicUUID       uuid.UUID
+	HostGuildID      string
 }
 
 // FindMatchingStackIndices searches the given stacks for a subset whose
@@ -232,6 +237,8 @@ func (s *Service) TryFormMatch(
 		Players:          players,
 		StackIDs:         selectedIDs,
 		ExpectedLobbyCPR: lobbyCPR,
+		PublicUUID:       saved.PublicUUID,
+		HostGuildID:      guildID,
 	}, nil
 }
 
@@ -298,7 +305,8 @@ func (s *Service) CreateStack(
 // SweepPool is the one-shot entry point the background sweeper calls
 // per (game, guild, team_size) tuple. It is a thin wrapper around
 // TryFormMatch and exists for naming parity with the Rust
-// sweep_pool in src/matchmaking/queue.rs.
+// sweep_pool in src/matchmaking/queue.rs. When a match is formed
+// the notifier is fired with the match.ready event.
 func (s *Service) SweepPool(
 	ctx context.Context,
 	game models.Game,
@@ -307,7 +315,42 @@ func (s *Service) SweepPool(
 	channelID, createdBy string,
 	elig *EligibilityContext,
 ) (*FormedMatch, error) {
-	return s.TryFormMatch(ctx, game, guildID, channelID, createdBy, teamSize, elig)
+	formed, err := s.TryFormMatch(ctx, game, guildID, channelID, createdBy, teamSize, elig)
+	if err != nil || formed == nil {
+		return formed, err
+	}
+	s.dispatchMatchReady(ctx, game, formed)
+	return formed, nil
+}
+
+// dispatchMatchReady fans out a match.ready event. It is the single
+// emit point for the sweeper path; the request-driven path in
+// services.MatchService.JoinQueue mirrors it. Errors are logged by
+// the notifier and never propagated to the caller.
+func (s *Service) dispatchMatchReady(
+	ctx context.Context,
+	game models.Game,
+	formed *FormedMatch,
+) {
+	if s.notifier == nil || !s.notifier.Enabled() {
+		return
+	}
+	hostGuilds, _ := s.match.ParticipantGuildIDsForMatch(ctx, formed.MatchID)
+	if len(hostGuilds) == 0 {
+		hostGuilds = []string{formed.HostGuildID}
+	}
+	s.notifier.Dispatch(ctx, notify.Event{
+		Event:             notify.EventMatchReady,
+		Game:              string(game),
+		MatchID:           formatMatchID(formed.MatchID),
+		HostGuildID:       formed.HostGuildID,
+		PublicUUID:        formed.PublicUUID.String(),
+		ParticipantGuilds: hostGuilds,
+	})
+}
+
+func formatMatchID(v int32) string {
+	return fmt.Sprintf("%d", v)
 }
 
 // nowMS is a tiny indirection so tests can stub the clock later if
