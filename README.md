@@ -178,6 +178,12 @@ Local secrets live in each app's `.dev.vars` (gitignored); production secrets ar
 
 The engine-service runs as a standalone process (default listen address `0.0.0.0:50051`) on origin infrastructure with `DATABASE_URL` and optionally `REDIS_URL`. Workers receive `ENGINE_SERVICE_URL` as a binding.
 
+**Guild Discord notifications** — When `NOTIFY_WEBHOOK_URL` and `NOTIFY_WEBHOOK_SECRET` are set on the engine, match and tournament events trigger signed HTTP POSTs to the Discord worker dispatch route. Production endpoint:
+
+`https://app.parley.bot/internal/notifications/dispatch`
+
+Use the same shared secret on both sides: engine env `NOTIFY_WEBHOOK_SECRET` and worker secret `NOTIFY_WEBHOOK_SECRET` via `cd apps/worker && wrangler secret put NOTIFY_WEBHOOK_SECRET` (or `apps/worker/.dev.vars` locally). See `.env.example` and `deploy/systemd/parley.service` for engine variables.
+
 Observability is unified through Axiom: engine-service, Worker, and Bridge all emit structured logs to a shared dataset when `AXIOM_TOKEN` is configured.
 
 ---
