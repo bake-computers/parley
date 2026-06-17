@@ -1,0 +1,33 @@
+packages/generated-ts/src/leaderboard/v1/leaderboard_pb.ts
+  s_6b6351a806ca32::t_c5bec7cafefeef 15
+packages/generated-ts/src/guild/v1/guild_pb.ts
+  s_6b6351a806ca32::t_c5bec7cafefeef 15
+packages/generated-ts/src/stats/v1/stats_pb.ts
+  s_6b6351a806ca32::t_c5bec7cafefeef 15
+packages/generated-ts/src/user/v1/user_pb.ts
+  s_6b6351a806ca32::t_c5bec7cafefeef 15
+packages/generated-ts/src/common/v1/types_pb.ts
+  s_6b6351a806ca32::t_c5bec7cafefeef 13
+packages/generated-ts/src/tournament/v1/tournament_pb.ts
+  s_6b6351a806ca32::t_c5bec7cafefeef 17
+packages/generated-ts/src/identity/v1/identity_pb.ts
+  s_6b6351a806ca32::t_c5bec7cafefeef 15
+packages/generated-ts/src/matchmaking/v1/matchmaking_pb.ts
+  s_6b6351a806ca32::t_c5bec7cafefeef 15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.8",
+  "base_commit_sha": "051898536f122748901eda8eaecd1056eafaa1c1",
+  "prompts": {},
+  "sessions": {
+    "s_6b6351a806ca32": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f4d544f6-160a-4e4e-b454-c963bac03186",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
