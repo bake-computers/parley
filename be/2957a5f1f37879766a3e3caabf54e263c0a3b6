@@ -1,0 +1,37 @@
+internal/repos/guild.go
+  s_6b6351a806ca32::t_1d955d627f36c7 338-340
+migrations/2026-06-17-120000_guild_notification_flags/down.sql
+  s_6b6351a806ca32::t_1d955d627f36c7 1-4
+migrations/2026-06-17-120000_guild_notification_flags/up.sql
+  s_6b6351a806ca32::t_1d955d627f36c7 1-4
+internal/db/models/guild.go
+  s_6b6351a806ca32::t_1d955d627f36c7 63-65
+internal/models/models.go
+  s_6b6351a806ca32::t_1d955d627f36c7 420-422,435-437
+internal/services/guild.go
+  s_6b6351a806ca32::t_1d955d627f36c7 183-186,223-225,349-351
+packages/generated-ts/src/guild/v1/guild_pb.ts
+  s_6b6351a806ca32::t_1d955d627f36c7 15,295-309
+proto/guild/v1/guild.proto
+  s_6b6351a806ca32::t_1d955d627f36c7 91-93
+internal/db/db_test.go
+  s_6b6351a806ca32::t_1d955d627f36c7 28-29
+gen/parley/guild/v1/guild.pb.go
+  s_6b6351a806ca32::t_1d955d627f36c7 553-555,632-652,1082,1089-1092
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.8",
+  "base_commit_sha": "be2957a5f1f37879766a3e3caabf54e263c0a3b6",
+  "prompts": {},
+  "sessions": {
+    "s_6b6351a806ca32": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f4d544f6-160a-4e4e-b454-c963bac03186",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
