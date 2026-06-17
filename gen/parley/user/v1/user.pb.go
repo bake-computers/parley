@@ -756,8 +756,8 @@ const file_user_v1_user_proto_rawDesc = "" +
 	"\x0fGetUserSettings\x12&.parley.user.v1.GetUserSettingsRequest\x1a$.parley.user.v1.UserSettingsResponse\x12e\n" +
 	"\x12UpsertUserSettings\x12).parley.user.v1.UpsertUserSettingsRequest\x1a$.parley.user.v1.UserSettingsResponse\x12b\n" +
 	"\x0fResolveLanguage\x12&.parley.user.v1.ResolveLanguageRequest\x1a'.parley.user.v1.ResolveLanguageResponse\x12_\n" +
-	"\x0eDeleteUserData\x12%.parley.user.v1.DeleteUserDataRequest\x1a&.parley.user.v1.DeleteUserDataResponseBL\n" +
-	"\x12bot.parley.user.v1Z6github.com/pactum-computers/parley/gen/parley/user/v1;userv1b\x06proto3"
+	"\x0eDeleteUserData\x12%.parley.user.v1.DeleteUserDataRequest\x1a&.parley.user.v1.DeleteUserDataResponseBR\n" +
+	"\x12bot.parley.user.v1Z<github.com/pactum-computers/parley/gen/parley/user/v1;userv1b\x06proto3"
 
 var (
 	file_user_v1_user_proto_rawDescOnce sync.Once

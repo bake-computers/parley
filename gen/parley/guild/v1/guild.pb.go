@@ -1122,8 +1122,8 @@ const file_guild_v1_guild_proto_rawDesc = "" +
 	"\x17GetNotificationSettings\x12/.parley.guild.v1.GetNotificationSettingsRequest\x1a2.parley.guild.v1.GuildNotificationSettingsResponse\x12\x84\x01\n" +
 	"\x1aUpsertNotificationSettings\x122.parley.guild.v1.UpsertNotificationSettingsRequest\x1a2.parley.guild.v1.GuildNotificationSettingsResponse\x12c\n" +
 	"\x0eGetMatchQuotas\x12&.parley.guild.v1.GetMatchQuotasRequest\x1a).parley.guild.v1.GuildMatchQuotasResponse\x12i\n" +
-	"\x11UpsertMatchQuotas\x12).parley.guild.v1.UpsertMatchQuotasRequest\x1a).parley.guild.v1.GuildMatchQuotasResponseBO\n" +
-	"\x13bot.parley.guild.v1Z8github.com/pactum-computers/parley/gen/parley/guild/v1;guildv1b\x06proto3"
+	"\x11UpsertMatchQuotas\x12).parley.guild.v1.UpsertMatchQuotasRequest\x1a).parley.guild.v1.GuildMatchQuotasResponseBU\n" +
+	"\x13bot.parley.guild.v1Z>github.com/pactum-computers/parley/gen/parley/guild/v1;guildv1b\x06proto3"
 
 var (
 	file_guild_v1_guild_proto_rawDescOnce sync.Once

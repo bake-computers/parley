@@ -2020,8 +2020,8 @@ const file_matchmaking_v1_matchmaking_proto_rawDesc = "" +
 	"\x11ReportMatchResult\x12/.parley.matchmaking.v1.ReportMatchResultRequest\x1a0.parley.matchmaking.v1.ReportMatchResultResponse\x12[\n" +
 	"\bGetMatch\x12&.parley.matchmaking.v1.GetMatchRequest\x1a'.parley.matchmaking.v1.GetMatchResponse\x12d\n" +
 	"\vListMatches\x12).parley.matchmaking.v1.ListMatchesRequest\x1a*.parley.matchmaking.v1.ListMatchesResponse\x12m\n" +
-	"\x0eGetMatchByUuid\x12,.parley.matchmaking.v1.GetMatchByUuidRequest\x1a-.parley.matchmaking.v1.GetMatchByUuidResponseBa\n" +
-	"\x19bot.parley.matchmaking.v1ZDgithub.com/pactum-computers/parley/gen/parley/matchmaking/v1;matchmakingv1b\x06proto3"
+	"\x0eGetMatchByUuid\x12,.parley.matchmaking.v1.GetMatchByUuidRequest\x1a-.parley.matchmaking.v1.GetMatchByUuidResponseBg\n" +
+	"\x19bot.parley.matchmaking.v1ZJgithub.com/pactum-computers/parley/gen/parley/matchmaking/v1;matchmakingv1b\x06proto3"
 
 var (
 	file_matchmaking_v1_matchmaking_proto_rawDescOnce sync.Once
