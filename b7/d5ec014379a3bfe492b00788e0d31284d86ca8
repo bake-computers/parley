@@ -1,0 +1,25 @@
+README.md
+  s_6b6351a806ca32::t_f6ac51705de14a 181-186
+AGENTS.md
+  s_6b6351a806ca32::t_f6ac51705de14a 37
+.env.example
+  s_6b6351a806ca32::t_f6ac51705de14a 40-48,81,84-85
+deploy/systemd/parley.service
+  s_6b6351a806ca32::t_f6ac51705de14a 10-12
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.8",
+  "base_commit_sha": "b7d5ec014379a3bfe492b00788e0d31284d86ca8",
+  "prompts": {},
+  "sessions": {
+    "s_6b6351a806ca32": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f4d544f6-160a-4e4e-b454-c963bac03186",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
