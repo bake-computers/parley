@@ -550,6 +550,9 @@ type GuildNotificationSettings struct {
 	TournamentAnnouncementsChannel string                 `protobuf:"bytes,4,opt,name=tournament_announcements_channel,json=tournamentAnnouncementsChannel,proto3" json:"tournament_announcements_channel,omitempty"`
 	LeaderboardUpdatesEnabled      bool                   `protobuf:"varint,5,opt,name=leaderboard_updates_enabled,json=leaderboardUpdatesEnabled,proto3" json:"leaderboard_updates_enabled,omitempty"`
 	UpdatedAtMs                    int64                  `protobuf:"varint,6,opt,name=updated_at_ms,json=updatedAtMs,proto3" json:"updated_at_ms,omitempty"`
+	CrossGuildAnnouncementsEnabled bool                   `protobuf:"varint,7,opt,name=cross_guild_announcements_enabled,json=crossGuildAnnouncementsEnabled,proto3" json:"cross_guild_announcements_enabled,omitempty"`
+	AnnounceMatchReadyEnabled      bool                   `protobuf:"varint,8,opt,name=announce_match_ready_enabled,json=announceMatchReadyEnabled,proto3" json:"announce_match_ready_enabled,omitempty"`
+	AnnounceMatchResultsEnabled    bool                   `protobuf:"varint,9,opt,name=announce_match_results_enabled,json=announceMatchResultsEnabled,proto3" json:"announce_match_results_enabled,omitempty"`
 	unknownFields                  protoimpl.UnknownFields
 	sizeCache                      protoimpl.SizeCache
 }
@@ -624,6 +627,27 @@ func (x *GuildNotificationSettings) GetUpdatedAtMs() int64 {
 		return x.UpdatedAtMs
 	}
 	return 0
+}
+
+func (x *GuildNotificationSettings) GetCrossGuildAnnouncementsEnabled() bool {
+	if x != nil {
+		return x.CrossGuildAnnouncementsEnabled
+	}
+	return false
+}
+
+func (x *GuildNotificationSettings) GetAnnounceMatchReadyEnabled() bool {
+	if x != nil {
+		return x.AnnounceMatchReadyEnabled
+	}
+	return false
+}
+
+func (x *GuildNotificationSettings) GetAnnounceMatchResultsEnabled() bool {
+	if x != nil {
+		return x.AnnounceMatchResultsEnabled
+	}
+	return false
 }
 
 type GetNotificationSettingsRequest struct {
@@ -1055,14 +1079,17 @@ const file_guild_v1_guild_proto_rawDesc = "" +
 	"\x1dGuildMatchmakingRulesResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12<\n" +
 	"\x05rules\x18\x02 \x01(\v2&.parley.guild.v1.GuildMatchmakingRulesR\x05rules\x12-\n" +
-	"\x05error\x18\x03 \x01(\v2\x17.parley.common.v1.ErrorR\x05error\"\xc4\x02\n" +
+	"\x05error\x18\x03 \x01(\v2\x17.parley.common.v1.ErrorR\x05error\"\x95\x04\n" +
 	"\x19GuildNotificationSettings\x12\x19\n" +
 	"\bguild_id\x18\x01 \x01(\tR\aguildId\x12*\n" +
 	"\x04game\x18\x02 \x01(\x0e2\x16.parley.common.v1.GameR\x04game\x122\n" +
 	"\x15match_results_channel\x18\x03 \x01(\tR\x13matchResultsChannel\x12H\n" +
 	" tournament_announcements_channel\x18\x04 \x01(\tR\x1etournamentAnnouncementsChannel\x12>\n" +
 	"\x1bleaderboard_updates_enabled\x18\x05 \x01(\bR\x19leaderboardUpdatesEnabled\x12\"\n" +
-	"\rupdated_at_ms\x18\x06 \x01(\x03R\vupdatedAtMs\"g\n" +
+	"\rupdated_at_ms\x18\x06 \x01(\x03R\vupdatedAtMs\x12I\n" +
+	"!cross_guild_announcements_enabled\x18\a \x01(\bR\x1ecrossGuildAnnouncementsEnabled\x12?\n" +
+	"\x1cannounce_match_ready_enabled\x18\b \x01(\bR\x19announceMatchReadyEnabled\x12C\n" +
+	"\x1eannounce_match_results_enabled\x18\t \x01(\bR\x1bannounceMatchResultsEnabled\"g\n" +
 	"\x1eGetNotificationSettingsRequest\x12\x19\n" +
 	"\bguild_id\x18\x01 \x01(\tR\aguildId\x12*\n" +
 	"\x04game\x18\x02 \x01(\x0e2\x16.parley.common.v1.GameR\x04game\"k\n" +

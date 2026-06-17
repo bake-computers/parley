@@ -180,8 +180,10 @@ func (s *GuildService) GetNotificationSettings(
 
 	if row == nil {
 		return &guildv1.GuildNotificationSettings{
-			GuildId: guildID,
-			Game:    game,
+			GuildId:                     guildID,
+			Game:                        game,
+			AnnounceMatchReadyEnabled:   true,
+			AnnounceMatchResultsEnabled: true,
 		}, nil
 	}
 
@@ -218,6 +220,9 @@ func (s *GuildService) UpsertNotificationSettings(
 		TournamentAnnouncementsChannel: tourCh,
 		LeaderboardUpdatesEnabled:      settings.LeaderboardUpdatesEnabled,
 		UpdatedAt:                      now,
+		CrossGuildAnnouncementsEnabled: settings.CrossGuildAnnouncementsEnabled,
+		AnnounceMatchReadyEnabled:      settings.AnnounceMatchReadyEnabled,
+		AnnounceMatchResultsEnabled:    settings.AnnounceMatchResultsEnabled,
 	}
 
 	saved, err := s.repo.UpsertNotificationSettings(ctx, row)
@@ -341,6 +346,9 @@ func notifToProto(row *models.GuildNotificationSettings) *guildv1.GuildNotificat
 		TournamentAnnouncementsChannel: tourCh,
 		LeaderboardUpdatesEnabled:      row.LeaderboardUpdatesEnabled,
 		UpdatedAtMs:                    row.UpdatedAt,
+		CrossGuildAnnouncementsEnabled: row.CrossGuildAnnouncementsEnabled,
+		AnnounceMatchReadyEnabled:      row.AnnounceMatchReadyEnabled,
+		AnnounceMatchResultsEnabled:    row.AnnounceMatchResultsEnabled,
 	}
 }
 

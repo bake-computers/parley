@@ -60,6 +60,9 @@ type GuildNotificationSettings struct {
 	TournamentAnnouncementsChannel *string `bun:"tournament_announcements_channel"`
 	LeaderboardUpdatesEnabled      bool    `bun:"leaderboard_updates_enabled,notnull"`
 	UpdatedAt                      int64   `bun:"updated_at,notnull"`
+	CrossGuildAnnouncementsEnabled bool    `bun:"cross_guild_announcements_enabled,notnull"`
+	AnnounceMatchReadyEnabled      bool    `bun:"announce_match_ready_enabled,notnull"`
+	AnnounceMatchResultsEnabled    bool    `bun:"announce_match_results_enabled,notnull"`
 }
 
 // GuildMatchQuota is a row in `guild_match_quotas`.
