@@ -1,0 +1,245 @@
+proto/leaderboard/v1/leaderboard.proto
+  s_6b6351a806ca32::t_adca84714af91f 7
+tests/user_settings_integration_test.go
+  s_6b6351a806ca32::t_adca84714af91f 31-32
+docs/superpowers/plans/2026-06-15-fiber-v3-server.md
+  s_6b6351a806ca32::t_adca84714af91f 68-76,191-192
+internal/logging/logger_test.go
+  s_6b6351a806ca32::t_adca84714af91f 15
+internal/matchmaking/cpr_test.go
+  s_6b6351a806ca32::t_adca84714af91f 7
+internal/db/tls.go
+  s_6b6351a806ca32::t_adca84714af91f 12
+internal/stats/cache/redis.go
+  s_6b6351a806ca32::t_adca84714af91f 10-12
+internal/handlers/leaderboard_test.go
+  s_6b6351a806ca32::t_adca84714af91f 9-14
+docs/superpowers/plans/2026-06-15-internal-logging-axiom.md
+  s_6b6351a806ca32::t_adca84714af91f 11,72
+internal/matchmaking/sweeper.go
+  s_6b6351a806ca32::t_adca84714af91f 9
+internal/matchmaking/players.go
+  s_6b6351a806ca32::t_adca84714af91f 9-10
+gen/parley/tournament/v1/tournament.pb.go
+  s_6b6351a806ca32::t_adca84714af91f 10-11,1523
+internal/services/notify.go
+  s_6b6351a806ca32::t_adca84714af91f 12-14
+internal/services/tournament_test.go
+  s_6b6351a806ca32::t_adca84714af91f 8-10
+internal/services/leaderboard_test.go
+  s_6b6351a806ca32::t_adca84714af91f 9-11
+internal/stats/persist/persisting.go
+  s_6b6351a806ca32::t_adca84714af91f 6-9
+internal/repos/guild_test.go
+  s_6b6351a806ca32::t_adca84714af91f 6
+gen/parley/identity/v1/identityv1connect/identity.connect.go
+  s_6b6351a806ca32::t_adca84714af91f 11
+gen/parley/leaderboard/v1/leaderboardv1connect/leaderboard.connect.go
+  s_6b6351a806ca32::t_adca84714af91f 11
+gen/parley/tournament/v1/tournamentv1connect/tournament.connect.go
+  s_6b6351a806ca32::t_adca84714af91f 11
+tests/migration_roundtrip_test.go
+  s_6b6351a806ca32::t_adca84714af91f 19-20
+internal/services/match.go
+  s_6b6351a806ca32::t_adca84714af91f 18-24
+tests/identity_link_test.go
+  s_6b6351a806ca32::t_adca84714af91f 20-22
+internal/repos/identity_test.go
+  s_6b6351a806ca32::t_adca84714af91f 8-12
+internal/stats/backends/r6.go
+  s_6b6351a806ca32::t_adca84714af91f 6-7
+cmd/parley/main.go
+  s_6b6351a806ca32::t_adca84714af91f 13-25
+internal/services/leaderboard.go
+  s_6b6351a806ca32::t_adca84714af91f 10-11
+proto/guild/v1/guild.proto
+  s_6b6351a806ca32::t_adca84714af91f 8
+gen/parley/user/v1/user.pb.go
+  s_6b6351a806ca32::t_adca84714af91f 10,760
+tests/tournament_integration_test.go
+  s_6b6351a806ca32::t_adca84714af91f 21-22
+proto/common/v1/types.proto
+  s_6b6351a806ca32::t_adca84714af91f 6
+internal/handlers/identity.go
+  s_6b6351a806ca32::t_adca84714af91f 7-9
+gen/parley/matchmaking/v1/matchmaking.pb.go
+  s_6b6351a806ca32::t_adca84714af91f 10,2024
+internal/handlers/guild_test.go
+  s_6b6351a806ca32::t_adca84714af91f 8-11
+internal/handlers/match.go
+  s_6b6351a806ca32::t_adca84714af91f 7-9
+internal/server/server_test.go
+  s_6b6351a806ca32::t_adca84714af91f 12-13
+internal/matchmaking/queue.go
+  s_6b6351a806ca32::t_adca84714af91f 8-10
+internal/db/migrations_register.go
+  s_6b6351a806ca32::t_adca84714af91f 13
+internal/services/identity.go
+  s_6b6351a806ca32::t_adca84714af91f 12-15
+internal/matchmaking/eligibility.go
+  s_6b6351a806ca32::t_adca84714af91f 8-10
+internal/config/redis_test.go
+  s_6b6351a806ca32::t_adca84714af91f 6
+internal/handlers/tournament.go
+  s_6b6351a806ca32::t_adca84714af91f 7-9
+internal/services/helpers.go
+  s_6b6351a806ca32::t_adca84714af91f 7-9
+proto/identity/v1/identity.proto
+  s_6b6351a806ca32::t_adca84714af91f 8
+internal/stats/persist/persister.go
+  s_6b6351a806ca32::t_adca84714af91f 9-12
+gen/parley/leaderboard/v1/leaderboard.pb.go
+  s_6b6351a806ca32::t_adca84714af91f 10,455
+internal/stats/backends/backend.go
+  s_6b6351a806ca32::t_adca84714af91f 6-7
+internal/models/models_test.go
+  s_6b6351a806ca32::t_adca84714af91f 9
+internal/stats/cache/direct_test.go
+  s_6b6351a806ca32::t_adca84714af91f 7-9
+internal/repos/tournament_test.go
+  s_6b6351a806ca32::t_adca84714af91f 6
+internal/stats/fetch/errors.go
+  s_6b6351a806ca32::t_adca84714af91f 9
+internal/handlers/stats.go
+  s_6b6351a806ca32::t_adca84714af91f 11-15
+internal/stats/backends/r6_test.go
+  s_6b6351a806ca32::t_adca84714af91f 7-9
+gen/parley/identity/v1/identity.pb.go
+  s_6b6351a806ca32::t_adca84714af91f 10,708
+gen/parley/matchmaking/v1/matchmakingv1connect/matchmaking.connect.go
+  s_6b6351a806ca32::t_adca84714af91f 11
+gen/parley/common/v1/types.pb.go
+  s_6b6351a806ca32::t_adca84714af91f 690
+internal/services/user_test.go
+  s_6b6351a806ca32::t_adca84714af91f 6-8
+internal/db/db_test.go
+  s_6b6351a806ca32::t_adca84714af91f 7-8
+gen/parley/guild/v1/guild.pb.go
+  s_6b6351a806ca32::t_adca84714af91f 10,1126
+internal/matchmaking/queue_test.go
+  s_6b6351a806ca32::t_adca84714af91f 6-7
+internal/services/match_test.go
+  s_6b6351a806ca32::t_adca84714af91f 8-10
+internal/stats/cache/cache.go
+  s_6b6351a806ca32::t_adca84714af91f 6-8
+internal/repos/tournament.go
+  s_6b6351a806ca32::t_adca84714af91f 10
+gen/parley/stats/v1/stats.pb.go
+  s_6b6351a806ca32::t_adca84714af91f 10,1078
+internal/repos/user_settings.go
+  s_6b6351a806ca32::t_adca84714af91f 9
+internal/repos/identity.go
+  s_6b6351a806ca32::t_adca84714af91f 9
+internal/services/identity_test.go
+  s_6b6351a806ca32::t_adca84714af91f 8-10
+internal/stats/fetch/types.go
+  s_6b6351a806ca32::t_adca84714af91f 3
+internal/stats/cache/direct.go
+  s_6b6351a806ca32::t_adca84714af91f 6-8
+internal/stats/persist/persisting_test.go
+  s_6b6351a806ca32::t_adca84714af91f 9-12
+internal/handlers/user.go
+  s_6b6351a806ca32::t_adca84714af91f 9-12
+internal/db/migrate_test.go
+  s_6b6351a806ca32::t_adca84714af91f 8-10
+internal/repos/match_test.go
+  s_6b6351a806ca32::t_adca84714af91f 6
+internal/services/user.go
+  s_6b6351a806ca32::t_adca84714af91f 7-11
+internal/config/config_test.go
+  s_6b6351a806ca32::t_adca84714af91f 6
+internal/server/server.go
+  s_6b6351a806ca32::t_adca84714af91f 15-23
+internal/tourney/bracket_persist.go
+  s_6b6351a806ca32::t_adca84714af91f 7
+proto/user/v1/user.proto
+  s_6b6351a806ca32::t_adca84714af91f 8
+gen/parley/user/v1/userv1connect/user.connect.go
+  s_6b6351a806ca32::t_adca84714af91f 11
+internal/repos/stats_snapshot.go
+  s_6b6351a806ca32::t_adca84714af91f 8
+internal/tourney/tourney_test.go
+  s_6b6351a806ca32::t_adca84714af91f 6
+proto/stats/v1/stats.proto
+  s_6b6351a806ca32::t_adca84714af91f 8
+internal/handlers/match_test.go
+  s_6b6351a806ca32::t_adca84714af91f 8-11
+internal/stats/cache/config.go
+  s_6b6351a806ca32::t_adca84714af91f 8-10
+internal/handlers/leaderboard.go
+  s_6b6351a806ca32::t_adca84714af91f 7-12
+tests/integration_helpers_test.go
+  s_6b6351a806ca32::t_adca84714af91f 24-32
+internal/db/db.go
+  s_6b6351a806ca32::t_adca84714af91f 14
+gen/parley/guild/v1/guildv1connect/guild.connect.go
+  s_6b6351a806ca32::t_adca84714af91f 11
+internal/handlers/guild.go
+  s_6b6351a806ca32::t_adca84714af91f 8-11
+internal/matchmaking/sweeper_test.go
+  s_6b6351a806ca32::t_adca84714af91f 9
+internal/services/stats_test.go
+  s_6b6351a806ca32::t_adca84714af91f 7-11
+proto/tournament/v1/tournament.proto
+  s_6b6351a806ca32::t_adca84714af91f 9
+internal/handlers/identity_test.go
+  s_6b6351a806ca32::t_adca84714af91f 8-11
+go.mod
+  s_6b6351a806ca32::t_adca84714af91f 1
+docs/superpowers/plans/2026-06-15-leaderboard-service-go.md
+  s_6b6351a806ca32::t_adca84714af91f 131-133,207-208,480-483,520-523
+internal/apperr/apperr.go
+  s_6b6351a806ca32::t_adca84714af91f 7
+internal/services/stats.go
+  s_6b6351a806ca32::t_adca84714af91f 7-12
+internal/services/guild_test.go
+  s_6b6351a806ca32::t_adca84714af91f 8-10
+proto/matchmaking/v1/matchmaking.proto
+  s_6b6351a806ca32::t_adca84714af91f 8
+internal/stats/cache/cache_test.go
+  s_6b6351a806ca32::t_adca84714af91f 7-8
+internal/notify/notify_test.go
+  s_6b6351a806ca32::t_adca84714af91f 17
+tests/matchmaking_integration_test.go
+  s_6b6351a806ca32::t_adca84714af91f 28-29
+internal/services/guild.go
+  s_6b6351a806ca32::t_adca84714af91f 7-11
+gen/parley/stats/v1/statsv1connect/stats.connect.go
+  s_6b6351a806ca32::t_adca84714af91f 11
+internal/stats/backends/registry_test.go
+  s_6b6351a806ca32::t_adca84714af91f 8-10
+internal/repos/guild.go
+  s_6b6351a806ca32::t_adca84714af91f 12
+internal/services/tournament.go
+  s_6b6351a806ca32::t_adca84714af91f 18-26
+internal/stats/fetch/fetch.go
+  s_6b6351a806ca32::t_adca84714af91f 14
+docs/superpowers/plans/2026-06-15-stats-cache-go.md
+  s_6b6351a806ca32::t_adca84714af91f 65-66,142-143,192-194,454-456,566-568,626-628,932-934
+.agents/skills/parley-proto-contracts/SKILL.md
+  s_6b6351a806ca32::t_adca84714af91f 33
+internal/repos/match.go
+  s_6b6351a806ca32::t_adca84714af91f 11
+internal/stats/cache/redis_test.go
+  s_6b6351a806ca32::t_adca84714af91f 14-16
+internal/stats/fetch/fetch_test.go
+  s_6b6351a806ca32::t_adca84714af91f 12
+internal/handlers/helpers.go
+  s_6b6351a806ca32::t_adca84714af91f 5-6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.8",
+  "base_commit_sha": "a4d1014fdd4501c38e7b43a6500d9751c2bc9be5",
+  "prompts": {},
+  "sessions": {
+    "s_6b6351a806ca32": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f4d544f6-160a-4e4e-b454-c963bac03186",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
