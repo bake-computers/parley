@@ -34,13 +34,11 @@ func main() {
 }
 
 func run() error {
-	// 1. Load config (godotenv.Load happens inside config.Load).
 	cfg, err := config.Load()
 	if err != nil {
 		return fmt.Errorf("load config: %w", err)
 	}
 
-	// 2. Build logger with Axiom sink.
 	axiomOpts := logging.AxiomOptions{
 		Token:   cfg.AxiomToken,
 		Dataset: cfg.AxiomDataset,
@@ -56,17 +54,14 @@ func run() error {
 		slog.Warn("axiom handler init failed", "error", err)
 	}
 
-	// 3. Signal-aware context for graceful shutdown.
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
-	// 4. Database pool.
 	bunDB, err := db.New(ctx, cfg)
 	if err != nil {
 		return fmt.Errorf("database init: %w", err)
 	}
 
-	// 5. Repositories (nil-safe: all repos accept nil bun.DB for DB-less mode).
 	var (
 		identityRepo *repos.IdentityRepo
 		guildRepo    *repos.GuildRepo
@@ -92,7 +87,6 @@ func run() error {
 		bracketRepo = repos.NewBracketMatchRepo(bunDB)
 	}
 
-	// 6. Stats pipeline: fetch client → backends → cache → persister.
 	statsClient := fetch.NewStatsClient("https://stats.cc", scrape.ScrapeHTMLStatsCollection)
 
 	registry := backends.NewStatsBackendRegistry()
@@ -128,12 +122,20 @@ func run() error {
 		}
 	}
 
-	// 7. Notifier (no-op when NOTIFY_WEBHOOK_URL is unset).
 	notifier := notify.New(notify.Config{
 		URL:    cfg.NotifyWebhookURL,
 		Secret: cfg.NotifyWebhookSecret,
 		Logger: logger,
 	})
+
+	defer func() {
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancel()
+		if err := notifier.Shutdown(shutdownCtx); err != nil {
+			slog.Warn("notify shutdown error", "error", err)
+		}
+	}()
+
 	if notifier.Enabled() {
 		slog.Info("notify webhook configured", "url", cfg.NotifyWebhookURL)
 	} else {
