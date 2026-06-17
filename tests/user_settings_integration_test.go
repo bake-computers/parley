@@ -28,8 +28,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/parley-bot/parley/internal/models"
-	"github.com/parley-bot/parley/internal/repos"
+	"github.com/pactum-computers/parley/internal/models"
+	"github.com/pactum-computers/parley/internal/repos"
 )
 
 // TestUserSettings_LanguageOverride mirrors the Rust

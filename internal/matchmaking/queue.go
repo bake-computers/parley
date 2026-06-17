@@ -5,9 +5,9 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/parley-bot/parley/internal/models"
-	"github.com/parley-bot/parley/internal/notify"
-	"github.com/parley-bot/parley/internal/repos"
+	"github.com/pactum-computers/parley/internal/models"
+	"github.com/pactum-computers/parley/internal/notify"
+	"github.com/pactum-computers/parley/internal/repos"
 )
 
 // FormedMatch is the result of a successful match formation: the

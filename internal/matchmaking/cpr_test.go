@@ -4,7 +4,7 @@ import (
 	"math"
 	"testing"
 
-	"github.com/parley-bot/parley/internal/matchmaking"
+	"github.com/pactum-computers/parley/internal/matchmaking"
 )
 
 // TestNormalizeStatClampsOutliers mirrors the Rust test

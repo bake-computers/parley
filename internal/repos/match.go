@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/parley-bot/parley/internal/models"
+	"github.com/pactum-computers/parley/internal/models"
 	"github.com/uptrace/bun"
 )
 

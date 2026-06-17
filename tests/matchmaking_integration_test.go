@@ -25,8 +25,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/parley-bot/parley/internal/models"
-	"github.com/parley-bot/parley/internal/repos"
+	"github.com/pactum-computers/parley/internal/models"
+	"github.com/pactum-computers/parley/internal/repos"
 )
 
 // TestMatchmaking_ListGuildMembersReturnsRegisteredRoster mirrors the

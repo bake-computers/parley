@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"connectrpc.com/connect"
-	matchv1 "github.com/parley-bot/parley/gen/parley/matchmaking/v1"
-	"github.com/parley-bot/parley/gen/parley/matchmaking/v1/matchmakingv1connect"
-	"github.com/parley-bot/parley/internal/services"
+	matchv1 "github.com/pactum-computers/parley/gen/parley/matchmaking/v1"
+	"github.com/pactum-computers/parley/gen/parley/matchmaking/v1/matchmakingv1connect"
+	"github.com/pactum-computers/parley/internal/services"
 )
 
 type MatchHandler struct {

@@ -7,7 +7,7 @@
 package identityv1
 
 import (
-	v1 "github.com/parley-bot/parley/gen/parley/common/v1"
+	v1 "github.com/pactum-computers/parley/gen/parley/common/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -705,7 +705,7 @@ const file_identity_v1_identity_proto_rawDesc = "" +
 	"\rUnlinkAccount\x12(.parley.identity.v1.UnlinkAccountRequest\x1a).parley.identity.v1.UnlinkAccountResponse\x12j\n" +
 	"\x0fLookupByDiscord\x12*.parley.identity.v1.LookupByDiscordRequest\x1a+.parley.identity.v1.LookupByDiscordResponse\x12m\n" +
 	"\x10LookupByUsername\x12+.parley.identity.v1.LookupByUsernameRequest\x1a,.parley.identity.v1.LookupByUsernameResponseBX\n" +
-	"\x16bot.parley.identity.v1Z>github.com/parley-bot/parley/gen/parley/identity/v1;identityv1b\x06proto3"
+	"\x16bot.parley.identity.v1Z>github.com/pactum-computers/parley/gen/parley/identity/v1;identityv1b\x06proto3"
 
 var (
 	file_identity_v1_identity_proto_rawDescOnce sync.Once

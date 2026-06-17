@@ -3,8 +3,8 @@ package backends
 import (
 	"context"
 
-	"github.com/parley-bot/parley/internal/stats/fetch"
-	"github.com/parley-bot/parley/internal/stats/scrape"
+	"github.com/pactum-computers/parley/internal/stats/fetch"
+	"github.com/pactum-computers/parley/internal/stats/scrape"
 )
 
 // R6Backend scrapes Rainbow Six Siege stats via stats.cc (shared fetch.Client).

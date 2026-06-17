@@ -6,10 +6,10 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/parley-bot/parley/internal/models"
-	"github.com/parley-bot/parley/internal/repos"
-	"github.com/parley-bot/parley/internal/stats/backends"
-	"github.com/parley-bot/parley/internal/stats/scrape"
+	"github.com/pactum-computers/parley/internal/models"
+	"github.com/pactum-computers/parley/internal/repos"
+	"github.com/pactum-computers/parley/internal/stats/backends"
+	"github.com/pactum-computers/parley/internal/stats/scrape"
 )
 
 const cacheVersion = 1

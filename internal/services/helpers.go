@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	commonv1 "github.com/parley-bot/parley/gen/parley/common/v1"
-	"github.com/parley-bot/parley/internal/apperr"
-	"github.com/parley-bot/parley/internal/models"
+	commonv1 "github.com/pactum-computers/parley/gen/parley/common/v1"
+	"github.com/pactum-computers/parley/internal/apperr"
+	"github.com/pactum-computers/parley/internal/models"
 )
 
 func NowMS() int64 {

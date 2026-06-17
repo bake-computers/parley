@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/parley-bot/parley/internal/config"
-	"github.com/parley-bot/parley/internal/db"
-	"github.com/parley-bot/parley/internal/testutil"
+	"github.com/pactum-computers/parley/internal/config"
+	"github.com/pactum-computers/parley/internal/db"
+	"github.com/pactum-computers/parley/internal/testutil"
 	"github.com/testcontainers/testcontainers-go"
 	"github.com/testcontainers/testcontainers-go/modules/postgres"
 	"github.com/testcontainers/testcontainers-go/wait"

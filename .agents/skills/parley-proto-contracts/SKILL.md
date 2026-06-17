@@ -30,7 +30,7 @@ Protobuf definitions in `proto/` are the single source of truth. `buf generate` 
 ## Critical patterns
 
 **Go import alias comes from `go_package` suffix.** Every proto declares
-`option go_package = "github.com/parley-bot/parley/gen/parley/<svc>/v1;<alias>v1";`
+`option go_package = "github.com/pactum-computers/parley/gen/parley/<svc>/v1;<alias>v1";`
 The `<alias>v1` is the import alias used in Go (`identityv1`, `statsv1`, `matchmakingv1`).
 Connect handlers are a separate import without an alias: `import ".../identity/v1/identityv1connect"`.
 

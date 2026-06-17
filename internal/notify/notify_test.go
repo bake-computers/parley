@@ -14,7 +14,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/parley-bot/parley/internal/notify"
+	"github.com/pactum-computers/parley/internal/notify"
 )
 
 func newTestServer(t *testing.T, handler http.HandlerFunc) *httptest.Server {

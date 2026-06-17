@@ -3,7 +3,7 @@ package repos_test
 import (
 	"testing"
 
-	"github.com/parley-bot/parley/internal/repos"
+	"github.com/pactum-computers/parley/internal/repos"
 )
 
 func TestDiscordUserIDHashDeterministic(t *testing.T) {

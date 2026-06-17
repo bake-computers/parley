@@ -687,7 +687,7 @@ const file_common_v1_types_proto_rawDesc = "" +
 	"\x14LANGUAGE_UNSPECIFIED\x10\x00\x12\x0f\n" +
 	"\vLANGUAGE_EN\x10\x01\x12\x0f\n" +
 	"\vLANGUAGE_DE\x10\x02BR\n" +
-	"\x14bot.parley.common.v1Z:github.com/parley-bot/parley/gen/parley/common/v1;commonv1b\x06proto3"
+	"\x14bot.parley.common.v1Z:github.com/pactum-computers/parley/gen/parley/common/v1;commonv1b\x06proto3"
 
 var (
 	file_common_v1_types_proto_rawDescOnce sync.Once

@@ -9,10 +9,10 @@ import (
 	"strings"
 
 	"connectrpc.com/connect"
-	commonv1 "github.com/parley-bot/parley/gen/parley/common/v1"
-	identityv1 "github.com/parley-bot/parley/gen/parley/identity/v1"
-	"github.com/parley-bot/parley/internal/models"
-	"github.com/parley-bot/parley/internal/repos"
+	commonv1 "github.com/pactum-computers/parley/gen/parley/common/v1"
+	identityv1 "github.com/pactum-computers/parley/gen/parley/identity/v1"
+	"github.com/pactum-computers/parley/internal/models"
+	"github.com/pactum-computers/parley/internal/repos"
 )
 
 // IdentityService implements the parley.identity.v1.IdentityService business logic.

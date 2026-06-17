@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"connectrpc.com/connect"
-	identityv1 "github.com/parley-bot/parley/gen/parley/identity/v1"
-	"github.com/parley-bot/parley/gen/parley/identity/v1/identityv1connect"
-	"github.com/parley-bot/parley/internal/services"
+	identityv1 "github.com/pactum-computers/parley/gen/parley/identity/v1"
+	"github.com/pactum-computers/parley/gen/parley/identity/v1/identityv1connect"
+	"github.com/pactum-computers/parley/internal/services"
 )
 
 type IdentityHandler struct {

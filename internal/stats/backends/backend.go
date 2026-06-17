@@ -3,8 +3,8 @@ package backends
 import (
 	"context"
 
-	"github.com/parley-bot/parley/internal/stats/fetch"
-	"github.com/parley-bot/parley/internal/stats/scrape"
+	"github.com/pactum-computers/parley/internal/stats/fetch"
+	"github.com/pactum-computers/parley/internal/stats/scrape"
 )
 
 // StatsBackend is one upstream provider of stats for a specific game.

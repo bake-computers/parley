@@ -7,7 +7,7 @@
 package leaderboardv1
 
 import (
-	v1 "github.com/parley-bot/parley/gen/parley/common/v1"
+	v1 "github.com/pactum-computers/parley/gen/parley/common/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -452,7 +452,7 @@ const file_leaderboard_v1_leaderboard_proto_rawDesc = "" +
 	"\x1cLEADERBOARD_TYPE_RANK_POINTS\x10\x032\xef\x01\n" +
 	"\x12LeaderboardService\x12m\n" +
 	"\x0eGetLeaderboard\x12,.parley.leaderboard.v1.GetLeaderboardRequest\x1a-.parley.leaderboard.v1.GetLeaderboardResponse\x12j\n" +
-	"\rGetPlayerRank\x12+.parley.leaderboard.v1.GetPlayerRankRequest\x1a,.parley.leaderboard.v1.GetPlayerRankResponseBFZDgithub.com/parley-bot/parley/gen/parley/leaderboard/v1;leaderboardv1b\x06proto3"
+	"\rGetPlayerRank\x12+.parley.leaderboard.v1.GetPlayerRankRequest\x1a,.parley.leaderboard.v1.GetPlayerRankResponseBFZDgithub.com/pactum-computers/parley/gen/parley/leaderboard/v1;leaderboardv1b\x06proto3"
 
 var (
 	file_leaderboard_v1_leaderboard_proto_rawDescOnce sync.Once
