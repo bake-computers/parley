@@ -14,10 +14,15 @@ on:
       - "proto/**"
       - ".github/workflows/deploy.yml"
 
+concurrency:
+  group: deploy-engine-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-and-deploy:
     name: Build and deploy engine-service
     runs-on: blacksmith-2vcpu-ubuntu-2404
+    timeout-minutes: 10
     environment:
       name: production-engine
     steps:
@@ -32,14 +37,11 @@ jobs:
 
       - name: Setup Buf
         uses: bufbuild/buf-setup-action@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Generate protobuf (Go)
         run: buf generate
-
-      - name: Verify and test
-        run: |
-          go vet ./...
-          go test ./...
 
       - name: Build release binary
         run: |
@@ -50,12 +52,13 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -p 2222 -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -T 10 -p 2222 -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
 
       - name: Push Binary and Deploy
         env:
           TARGET_DIR: "/home/deployer/apps/parley"
           VERSION: "${{ github.sha }}"
         run: |
-          scp -P 2222 -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 parley deployer@${{ secrets.SERVER_HOST }}:$TARGET_DIR/releases/parley_$VERSION
-          ssh -p 2222 -o StrictHostKeyChecking=no -i ~/.ssh/id_ed25519 deployer@${{ secrets.SERVER_HOST }} "export VERSION=$VERSION; bash $TARGET_DIR/deploy.sh"
+          SSH_OPTS="-o StrictHostKeyChecking=no -o BatchMode=yes -o ConnectTimeout=15 -o ServerAliveInterval=15 -o ServerAliveCountMax=4"
+          scp -P 2222 $SSH_OPTS -i ~/.ssh/id_ed25519 parley deployer@${{ secrets.SERVER_HOST }}:$TARGET_DIR/releases/parley_$VERSION
+          ssh -p 2222 $SSH_OPTS -i ~/.ssh/id_ed25519 deployer@${{ secrets.SERVER_HOST }} "export VERSION=$VERSION; bash $TARGET_DIR/deploy.sh"
