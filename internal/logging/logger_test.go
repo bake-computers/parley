@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/parley-bot/parley/internal/logging"
+	"github.com/pactum-computers/parley/internal/logging"
 )
 
 func TestResolveIngestURL_DefaultUS(t *testing.T) {

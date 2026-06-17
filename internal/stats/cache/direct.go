@@ -3,9 +3,9 @@ package cache
 import (
 	"context"
 
-	"github.com/parley-bot/parley/internal/stats/backends"
-	"github.com/parley-bot/parley/internal/stats/fetch"
-	"github.com/parley-bot/parley/internal/stats/scrape"
+	"github.com/pactum-computers/parley/internal/stats/backends"
+	"github.com/pactum-computers/parley/internal/stats/fetch"
+	"github.com/pactum-computers/parley/internal/stats/scrape"
 )
 
 // DirectCacheStore is a passthrough that always calls the backend registry.

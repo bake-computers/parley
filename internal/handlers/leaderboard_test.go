@@ -6,12 +6,12 @@ import (
 	"testing"
 
 	"connectrpc.com/connect"
-	commonv1 "github.com/parley-bot/parley/gen/parley/common/v1"
-	leaderboardv1 "github.com/parley-bot/parley/gen/parley/leaderboard/v1"
-	"github.com/parley-bot/parley/internal/handlers"
-	"github.com/parley-bot/parley/internal/services"
-	"github.com/parley-bot/parley/internal/stats/backends"
-	"github.com/parley-bot/parley/internal/stats/scrape"
+	commonv1 "github.com/pactum-computers/parley/gen/parley/common/v1"
+	leaderboardv1 "github.com/pactum-computers/parley/gen/parley/leaderboard/v1"
+	"github.com/pactum-computers/parley/internal/handlers"
+	"github.com/pactum-computers/parley/internal/services"
+	"github.com/pactum-computers/parley/internal/stats/backends"
+	"github.com/pactum-computers/parley/internal/stats/scrape"
 )
 
 func TestGetLeaderboard_NotConfigured(t *testing.T) {

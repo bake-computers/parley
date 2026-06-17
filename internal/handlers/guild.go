@@ -5,10 +5,10 @@ import (
 	"strings"
 
 	"connectrpc.com/connect"
-	guildv1 "github.com/parley-bot/parley/gen/parley/guild/v1"
-	"github.com/parley-bot/parley/gen/parley/guild/v1/guildv1connect"
-	"github.com/parley-bot/parley/internal/apperr"
-	"github.com/parley-bot/parley/internal/services"
+	guildv1 "github.com/pactum-computers/parley/gen/parley/guild/v1"
+	"github.com/pactum-computers/parley/gen/parley/guild/v1/guildv1connect"
+	"github.com/pactum-computers/parley/internal/apperr"
+	"github.com/pactum-computers/parley/internal/services"
 )
 
 type GuildHandler struct {

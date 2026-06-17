@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 
-	commonv1 "github.com/parley-bot/parley/gen/parley/common/v1"
-	guildv1 "github.com/parley-bot/parley/gen/parley/guild/v1"
-	"github.com/parley-bot/parley/internal/apperr"
-	"github.com/parley-bot/parley/internal/models"
-	"github.com/parley-bot/parley/internal/repos"
+	commonv1 "github.com/pactum-computers/parley/gen/parley/common/v1"
+	guildv1 "github.com/pactum-computers/parley/gen/parley/guild/v1"
+	"github.com/pactum-computers/parley/internal/apperr"
+	"github.com/pactum-computers/parley/internal/models"
+	"github.com/pactum-computers/parley/internal/repos"
 )
 
 type GuildService struct {

@@ -11,9 +11,9 @@ import (
 	"github.com/alicebob/miniredis/v2"
 	"github.com/redis/go-redis/v9"
 
-	"github.com/parley-bot/parley/internal/stats/backends"
-	"github.com/parley-bot/parley/internal/stats/fetch"
-	"github.com/parley-bot/parley/internal/stats/scrape"
+	"github.com/pactum-computers/parley/internal/stats/backends"
+	"github.com/pactum-computers/parley/internal/stats/fetch"
+	"github.com/pactum-computers/parley/internal/stats/scrape"
 )
 
 func newTestRedis(t *testing.T) (*miniredis.Miniredis, redis.Cmdable) {

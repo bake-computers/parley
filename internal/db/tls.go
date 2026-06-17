@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/breml/rootcerts/embedded"
-	"github.com/parley-bot/parley/internal/config"
+	"github.com/pactum-computers/parley/internal/config"
 )
 
 func applyTLS(cfg *config.Config, tlsCfg *tls.Config) error {

@@ -9,9 +9,9 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/parley-bot/parley/internal/matchmaking"
-	"github.com/parley-bot/parley/internal/models"
-	"github.com/parley-bot/parley/internal/notify"
+	"github.com/pactum-computers/parley/internal/matchmaking"
+	"github.com/pactum-computers/parley/internal/models"
+	"github.com/pactum-computers/parley/internal/notify"
 )
 
 func (s *MatchService) dispatchMatchReady(

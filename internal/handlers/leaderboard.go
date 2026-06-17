@@ -4,12 +4,12 @@ import (
 	"context"
 
 	"connectrpc.com/connect"
-	commonv1 "github.com/parley-bot/parley/gen/parley/common/v1"
-	leaderboardv1 "github.com/parley-bot/parley/gen/parley/leaderboard/v1"
-	"github.com/parley-bot/parley/gen/parley/leaderboard/v1/leaderboardv1connect"
-	"github.com/parley-bot/parley/internal/apperr"
-	"github.com/parley-bot/parley/internal/services"
-	"github.com/parley-bot/parley/internal/stats/backends"
+	commonv1 "github.com/pactum-computers/parley/gen/parley/common/v1"
+	leaderboardv1 "github.com/pactum-computers/parley/gen/parley/leaderboard/v1"
+	"github.com/pactum-computers/parley/gen/parley/leaderboard/v1/leaderboardv1connect"
+	"github.com/pactum-computers/parley/internal/apperr"
+	"github.com/pactum-computers/parley/internal/services"
+	"github.com/pactum-computers/parley/internal/stats/backends"
 )
 
 // LeaderboardHandler serves parley.leaderboard.v1.LeaderboardService.

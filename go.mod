@@ -1,4 +1,4 @@
-module github.com/parley-bot/parley
+module github.com/pactum-computers/parley
 
 go 1.25.0
 

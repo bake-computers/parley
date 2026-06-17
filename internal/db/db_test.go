@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/parley-bot/parley/internal/config"
-	"github.com/parley-bot/parley/internal/db"
+	"github.com/pactum-computers/parley/internal/config"
+	"github.com/pactum-computers/parley/internal/db"
 )
 
 func TestNoDB(t *testing.T) {

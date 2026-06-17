@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"connectrpc.com/connect"
-	tournamentv1 "github.com/parley-bot/parley/gen/parley/tournament/v1"
-	"github.com/parley-bot/parley/gen/parley/tournament/v1/tournamentv1connect"
-	"github.com/parley-bot/parley/internal/services"
+	tournamentv1 "github.com/pactum-computers/parley/gen/parley/tournament/v1"
+	"github.com/pactum-computers/parley/gen/parley/tournament/v1/tournamentv1connect"
+	"github.com/pactum-computers/parley/internal/services"
 )
 
 // TournamentHandler is a thin delegate over TournamentService. Every

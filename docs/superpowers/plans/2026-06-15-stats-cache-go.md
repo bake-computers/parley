@@ -62,8 +62,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/parley-bot/parley/internal/stats/backends"
-	"github.com/parley-bot/parley/internal/stats/fetch"
+	"github.com/pactum-computers/parley/internal/stats/backends"
+	"github.com/pactum-computers/parley/internal/stats/fetch"
 )
 
 func TestCacheConfig_DefaultTTL(t *testing.T) {
@@ -139,8 +139,8 @@ package cache
 import (
 	"time"
 
-	"github.com/parley-bot/parley/internal/config"
-	"github.com/parley-bot/parley/internal/stats/backends"
+	"github.com/pactum-computers/parley/internal/config"
+	"github.com/pactum-computers/parley/internal/stats/backends"
 )
 
 // CacheConfig holds per-game TTLs and the stale-grace window.
@@ -189,9 +189,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/parley-bot/parley/internal/stats/backends"
-	"github.com/parley-bot/parley/internal/stats/fetch"
-	"github.com/parley-bot/parley/internal/stats/scrape"
+	"github.com/pactum-computers/parley/internal/stats/backends"
+	"github.com/pactum-computers/parley/internal/stats/fetch"
+	"github.com/pactum-computers/parley/internal/stats/scrape"
 )
 
 // CachedStats wraps a single-season stats result with a degraded flag.
@@ -451,9 +451,9 @@ import (
 	"context"
 	"testing"
 
-	"github.com/parley-bot/parley/internal/stats/backends"
-	"github.com/parley-bot/parley/internal/stats/fetch"
-	"github.com/parley-bot/parley/internal/stats/scrape"
+	"github.com/pactum-computers/parley/internal/stats/backends"
+	"github.com/pactum-computers/parley/internal/stats/fetch"
+	"github.com/pactum-computers/parley/internal/stats/scrape"
 )
 
 // fakeBackend implements backends.StatsBackend for testing.
@@ -563,9 +563,9 @@ package cache
 import (
 	"context"
 
-	"github.com/parley-bot/parley/internal/stats/backends"
-	"github.com/parley-bot/parley/internal/stats/fetch"
-	"github.com/parley-bot/parley/internal/stats/scrape"
+	"github.com/pactum-computers/parley/internal/stats/backends"
+	"github.com/pactum-computers/parley/internal/stats/fetch"
+	"github.com/pactum-computers/parley/internal/stats/scrape"
 )
 
 // DirectCacheStore is a passthrough that always calls the backend registry.
@@ -623,9 +623,9 @@ import (
 	"github.com/alicebob/miniredis/v2"
 	"github.com/redis/go-redis/v9"
 
-	"github.com/parley-bot/parley/internal/stats/backends"
-	"github.com/parley-bot/parley/internal/stats/fetch"
-	"github.com/parley-bot/parley/internal/stats/scrape"
+	"github.com/pactum-computers/parley/internal/stats/backends"
+	"github.com/pactum-computers/parley/internal/stats/fetch"
+	"github.com/pactum-computers/parley/internal/stats/scrape"
 )
 
 func newTestRedis(t *testing.T) (*miniredis.Miniredis, redis.Cmdable) {
@@ -929,9 +929,9 @@ import (
 
 	"github.com/redis/go-redis/v9"
 
-	"github.com/parley-bot/parley/internal/stats/backends"
-	"github.com/parley-bot/parley/internal/stats/fetch"
-	"github.com/parley-bot/parley/internal/stats/scrape"
+	"github.com/pactum-computers/parley/internal/stats/backends"
+	"github.com/pactum-computers/parley/internal/stats/fetch"
+	"github.com/pactum-computers/parley/internal/stats/scrape"
 )
 
 const (

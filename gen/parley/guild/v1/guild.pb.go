@@ -7,7 +7,7 @@
 package guildv1
 
 import (
-	v1 "github.com/parley-bot/parley/gen/parley/common/v1"
+	v1 "github.com/pactum-computers/parley/gen/parley/common/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -1123,7 +1123,7 @@ const file_guild_v1_guild_proto_rawDesc = "" +
 	"\x1aUpsertNotificationSettings\x122.parley.guild.v1.UpsertNotificationSettingsRequest\x1a2.parley.guild.v1.GuildNotificationSettingsResponse\x12c\n" +
 	"\x0eGetMatchQuotas\x12&.parley.guild.v1.GetMatchQuotasRequest\x1a).parley.guild.v1.GuildMatchQuotasResponse\x12i\n" +
 	"\x11UpsertMatchQuotas\x12).parley.guild.v1.UpsertMatchQuotasRequest\x1a).parley.guild.v1.GuildMatchQuotasResponseBO\n" +
-	"\x13bot.parley.guild.v1Z8github.com/parley-bot/parley/gen/parley/guild/v1;guildv1b\x06proto3"
+	"\x13bot.parley.guild.v1Z8github.com/pactum-computers/parley/gen/parley/guild/v1;guildv1b\x06proto3"
 
 var (
 	file_guild_v1_guild_proto_rawDescOnce sync.Once

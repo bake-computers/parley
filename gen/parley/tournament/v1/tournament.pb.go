@@ -7,8 +7,8 @@
 package tournamentv1
 
 import (
-	v1 "github.com/parley-bot/parley/gen/parley/common/v1"
-	v11 "github.com/parley-bot/parley/gen/parley/matchmaking/v1"
+	v1 "github.com/pactum-computers/parley/gen/parley/common/v1"
+	v11 "github.com/pactum-computers/parley/gen/parley/matchmaking/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -1520,7 +1520,7 @@ const file_tournament_v1_tournament_proto_rawDesc = "" +
 	"\x0fStartTournament\x12,.parley.tournament.v1.StartTournamentRequest\x1a(.parley.tournament.v1.TournamentResponse\x12s\n" +
 	"\x13ReportBracketResult\x120.parley.tournament.v1.ReportBracketResultRequest\x1a*.parley.tournament.v1.BracketMatchResponse\x12k\n" +
 	"\x10CancelTournament\x12-.parley.tournament.v1.CancelTournamentRequest\x1a(.parley.tournament.v1.TournamentResponseB^\n" +
-	"\x18bot.parley.tournament.v1ZBgithub.com/parley-bot/parley/gen/parley/tournament/v1;tournamentv1b\x06proto3"
+	"\x18bot.parley.tournament.v1ZBgithub.com/pactum-computers/parley/gen/parley/tournament/v1;tournamentv1b\x06proto3"
 
 var (
 	file_tournament_v1_tournament_proto_rawDescOnce sync.Once

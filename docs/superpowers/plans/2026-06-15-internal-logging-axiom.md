@@ -8,7 +8,7 @@
 
 **Architecture:** Split stdout logging (`New`) from Axiom shipping (`AxiomHandler` + background worker). Hot path only enqueues `[]byte` or `map[string]any` on a buffered channel; a goroutine batches by size and time, POSTs JSON arrays to the resolved ingest URL. Typed helpers (`LogHTTP`, `LogDB`, `LogCache`, `LogError`) enqueue the same tagged JSON shapes as Rust `AxiomEvent`. Ingest URL resolution mirrors `packages/axiom/src/config.ts` (`AXIOM_EDGE`, optional full edge URL env at call site). Wire Axiom credentials via constructor options populated from `internal/config.Config` at the binary layer—do not import `internal/config` inside `internal/logging` unless you only need shared string constants (prefer zero import).
 
-**Tech Stack:** Go 1.25 (`github.com/parley-bot/parley`), `log/slog`, `net/http`, `encoding/json`, `context`, `sync`, `testing/httptest`.
+**Tech Stack:** Go 1.25 (`github.com/pactum-computers/parley`), `log/slog`, `net/http`, `encoding/json`, `context`, `sync`, `testing/httptest`.
 
 **Reference implementations:**
 
@@ -69,7 +69,7 @@ package logging_test
 import (
 	"testing"
 
-	"github.com/parley-bot/parley/internal/logging"
+	"github.com/pactum-computers/parley/internal/logging"
 )
 
 func TestResolveIngestURL_DefaultUS(t *testing.T) {

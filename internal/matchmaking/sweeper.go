@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/parley-bot/parley/internal/repos"
+	"github.com/pactum-computers/parley/internal/repos"
 )
 
 // Run drives the background sweeper loop on a fixed interval. The loop

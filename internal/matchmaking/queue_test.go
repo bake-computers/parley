@@ -3,8 +3,8 @@ package matchmaking_test
 import (
 	"testing"
 
-	"github.com/parley-bot/parley/internal/matchmaking"
-	"github.com/parley-bot/parley/internal/models"
+	"github.com/pactum-computers/parley/internal/matchmaking"
+	"github.com/pactum-computers/parley/internal/models"
 )
 
 // TestFindMatchingStackIndicesSolo1v1 mirrors the Rust

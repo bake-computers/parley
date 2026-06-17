@@ -9,8 +9,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/parley-bot/parley/internal/server"
-	"github.com/parley-bot/parley/internal/services"
+	"github.com/pactum-computers/parley/internal/server"
+	"github.com/pactum-computers/parley/internal/services"
 )
 
 func newTestApp(t *testing.T) *server.Deps {

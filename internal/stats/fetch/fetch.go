@@ -11,7 +11,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/parley-bot/parley/internal/stats/scrape"
+	"github.com/pactum-computers/parley/internal/stats/scrape"
 )
 
 // attachResolvedTarget sets profile_id, platform, and profile_url on the collection.

@@ -1,6 +1,6 @@
 package fetch
 
-import "github.com/parley-bot/parley/internal/stats/scrape"
+import "github.com/pactum-computers/parley/internal/stats/scrape"
 
 // RetryPolicy configures retry behaviour for retryable upstream errors (429, 5xx, network).
 type RetryPolicy struct {
