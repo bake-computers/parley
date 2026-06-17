@@ -1,0 +1,29 @@
+apps/worker/src/notifications/buildMessage.ts
+  s_6b6351a806ca32::t_17606d8f114898 1-110
+apps/worker/src/notifications/postChannelMessage.ts
+  s_6b6351a806ca32::t_17606d8f114898 1-61
+apps/worker/src/notifications/index.ts
+  s_6b6351a806ca32::t_17606d8f114898 1-10
+apps/worker/src/notifications/resolveTargets.ts
+  s_6b6351a806ca32::t_17606d8f114898 1-100
+apps/worker/src/notifications/types.ts
+  s_6b6351a806ca32::t_17606d8f114898 1-52
+apps/worker/src/notifications/notifications.test.ts
+  s_6b6351a806ca32::t_17606d8f114898 1-334
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.8",
+  "base_commit_sha": "2fcb0e6505d385b1c8a38e410ff65d5a37fc9170",
+  "prompts": {},
+  "sessions": {
+    "s_6b6351a806ca32": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f4d544f6-160a-4e4e-b454-c963bac03186",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
