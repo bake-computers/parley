@@ -1,0 +1,33 @@
+gen/parley/identity/v1/identity.pb.go
+  s_6b6351a806ca32::t_3a0458e3ef8575 707-708
+gen/parley/stats/v1/stats.pb.go
+  s_6b6351a806ca32::t_3a0458e3ef8575 1077-1078
+gen/parley/guild/v1/guild.pb.go
+  s_6b6351a806ca32::t_3a0458e3ef8575 1125-1126
+gen/parley/common/v1/types.pb.go
+  s_6b6351a806ca32::t_3a0458e3ef8575 689-690
+gen/parley/tournament/v1/tournament.pb.go
+  s_6b6351a806ca32::t_3a0458e3ef8575 1522-1523
+gen/parley/matchmaking/v1/matchmaking.pb.go
+  s_6b6351a806ca32::t_3a0458e3ef8575 2023-2024
+gen/parley/user/v1/user.pb.go
+  s_6b6351a806ca32::t_3a0458e3ef8575 759-760
+gen/parley/leaderboard/v1/leaderboard.pb.go
+  s_6b6351a806ca32::t_3a0458e3ef8575 455
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.5.8",
+  "base_commit_sha": "21c2530c4ccd69c015a70208a4dff94806955b53",
+  "prompts": {},
+  "sessions": {
+    "s_6b6351a806ca32": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "f4d544f6-160a-4e4e-b454-c963bac03186",
+        "model": "unknown"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
