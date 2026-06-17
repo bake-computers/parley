@@ -14,6 +14,7 @@ import (
 	"github.com/parley-bot/parley/internal/db"
 	"github.com/parley-bot/parley/internal/logging"
 	"github.com/parley-bot/parley/internal/matchmaking"
+	"github.com/parley-bot/parley/internal/notify"
 	"github.com/parley-bot/parley/internal/repos"
 	"github.com/parley-bot/parley/internal/server"
 	"github.com/parley-bot/parley/internal/services"
@@ -127,16 +128,28 @@ func run() error {
 		}
 	}
 
-	// 7. Matchmaking service.
-	var mmService *matchmaking.Service
-	if bunDB != nil {
-		mmService = matchmaking.NewService(guildRepo, matchRepo, queueRepo, snapshotRepo, userRepo)
+	// 7. Notifier (no-op when NOTIFY_WEBHOOK_URL is unset).
+	notifier := notify.New(notify.Config{
+		URL:    cfg.NotifyWebhookURL,
+		Secret: cfg.NotifyWebhookSecret,
+		Logger: logger,
+	})
+	if notifier.Enabled() {
+		slog.Info("notify webhook configured", "url", cfg.NotifyWebhookURL)
+	} else {
+		slog.Info("notify webhook disabled (NOTIFY_WEBHOOK_URL unset)")
 	}
 
-	// 8. Domain services.
+	// 8. Matchmaking service.
+	var mmService *matchmaking.Service
+	if bunDB != nil {
+		mmService = matchmaking.NewService(guildRepo, matchRepo, queueRepo, snapshotRepo, userRepo, notifier)
+	}
+
+	// 9. Domain services.
 	identitySvc := services.NewIdentityService(identityRepo, guildRepo)
 	guildSvc := services.NewGuildService(guildRepo)
-	matchSvc := services.NewMatchService(matchRepo, queueRepo, guildRepo, mmService)
+	matchSvc := services.NewMatchService(matchRepo, queueRepo, guildRepo, mmService, notifier)
 	statsSvc := services.NewStatsService(cacheStore, registry)
 	userSvc := services.NewUserSettingsService(userRepo, guildRepo, identityRepo)
 
@@ -148,7 +161,7 @@ func run() error {
 
 	var tournSvc *services.TournamentService
 	if bunDB != nil {
-		tournSvc = services.NewTournamentService(bunDB, tournRepo, teamRepo, rosterRepo, bracketRepo, mmService)
+		tournSvc = services.NewTournamentService(bunDB, tournRepo, teamRepo, rosterRepo, bracketRepo, mmService, notifier)
 	}
 
 	// 9. Build Fiber app via server package.

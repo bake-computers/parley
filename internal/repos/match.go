@@ -396,6 +396,26 @@ func (r *MatchRepo) Participants(
 	return rows, err
 }
 
+// ParticipantGuildIDsForMatch returns the distinct set of guild IDs
+// (across all games) that have memberships for any participant in the
+// match. Used by the notifier to build the participant_guild_ids
+// payload field for cross-guild announcements.
+func (r *MatchRepo) ParticipantGuildIDsForMatch(
+	ctx context.Context,
+	matchID int32,
+) ([]string, error) {
+	var ids []string
+	err := r.db.NewSelect().
+		ColumnExpr("DISTINCT gm.guild_id").
+		TableExpr("match_participants AS mp").
+		Join("INNER JOIN guild_memberships AS gm").
+		JoinOn("gm.game = mp.game AND gm.player_id = mp.player_id").
+		Where("mp.match_id = ?", matchID).
+		OrderExpr("gm.guild_id ASC").
+		Scan(ctx, &ids)
+	return ids, err
+}
+
 // Complete marks a match completed with the winning team.
 func (r *MatchRepo) Complete(
 	ctx context.Context,
