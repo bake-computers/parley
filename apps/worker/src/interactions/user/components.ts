@@ -24,6 +24,8 @@ import {
   USER_TZ_PAGE_PREFIX,
 } from "./constants.js";
 import { buildDeleteConfirmModal } from "./modal.js";
+import { parseAcceptSource, refreshSettingsCache } from "../_shared/acceptance.js";
+import { resumeAfterAccept } from "../_shared/resume-after-accept.js";
 import { buildDeleteResultCard, buildErrorCard, buildInfoCard, buildSettingsCard } from "./ui.js";
 import { invokeDeleteUserData, invokeGetUserSettings, invokeUpsertUserSettings } from "./rpc.js";
 import { Language } from "@parley/proto";
@@ -138,7 +140,8 @@ export const userButtonHandler = new ComponentHandler("user", COMPONENT_BUTTON).
     const env = interaction.context.env;
     const discordUserId = interaction.user?.id ?? "";
 
-    if (customId === USER_ACCEPT_BUTTON) {
+    if (customId === USER_ACCEPT_BUTTON || customId.startsWith(`${USER_ACCEPT_BUTTON}/`)) {
+      const source = parseAcceptSource(customId);
       const settingsResult = await invokeGetUserSettings(getClient(env) as never, discordUserId);
       const current =
         settingsResult.isOk() && settingsResult.value.success
@@ -155,7 +158,9 @@ export const userButtonHandler = new ComponentHandler("user", COMPONENT_BUTTON).
         await updateV2(interaction, buildErrorCard(r.error.message, emojis));
         return;
       }
-      await updateV2(interaction, buildInfoCard("✅ Accepted. Please re-run your command."));
+      const settings = r.value.settings ?? updated;
+      refreshSettingsCache(interaction, settings);
+      await resumeAfterAccept(interaction, source, settings);
       return;
     }
 

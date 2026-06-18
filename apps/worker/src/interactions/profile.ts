@@ -12,7 +12,10 @@ import { err, ok, type Result } from "neverthrow";
 import { assertAccepted } from "./_shared/acceptance.js";
 import { getIdentityClient, type EngineTransportEnv } from "../transport.js";
 import { editReplyV2 } from "../ui/discord.js";
+import { resolveEmojis } from "../ui/emojis.js";
+import { formatParleyRankLine } from "../ui/parley-rank.js";
 import { UI_TOKENS } from "../ui/tokens.js";
+import type { ApplicationEmojiCatalog } from "@parley/runtime";
 
 const GAME_NAMES: Record<number, string> = {
   [Game.R6]: "Rainbow Six Siege",
@@ -20,6 +23,16 @@ const GAME_NAMES: Record<number, string> = {
 
 function gameName(game: number): string {
   return GAME_NAMES[game] ?? `Game ${game}`;
+}
+
+function formatLinkedIdentityLines(
+  catalog: ApplicationEmojiCatalog,
+  identities: LinkedIdentity[],
+): string[] {
+  return identities.map((id) => {
+    const rank = formatParleyRankLine(catalog, id.internalElo);
+    return `**${gameName(id.game)}** — ${id.username} (${id.platform}) — ${rank}`;
+  });
 }
 
 interface IdentityClient {
@@ -48,8 +61,6 @@ export const profileCommand = new SlashCommand()
     if (!(await assertAccepted(interaction, env as never))) {
       return;
     }
-
-    await interaction.deferReply(true);
 
     if (!env.ENGINE_SERVICE_URL && !env.VPC_SERVICE) {
       await interaction.editReply({
@@ -95,10 +106,8 @@ export const profileCommand = new SlashCommand()
       return;
     }
 
-    const lines = identities.map(
-      (id: LinkedIdentity) =>
-        `**${gameName(id.game)}** — ${id.username} (${id.platform}) — ELO: ${Math.round(id.internalElo)}`,
-    );
+    const emojis = await resolveEmojis(interaction);
+    const lines = formatLinkedIdentityLines(emojis, identities);
     const container = new ContainerBuilder()
       .setAccentColor(UI_TOKENS.main)
       .addComponents(

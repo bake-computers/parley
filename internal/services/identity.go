@@ -99,8 +99,17 @@ func (s *IdentityService) LinkAccount(
 			_ = err
 		} else if until != nil {
 			return nil, connect.NewError(connect.CodeFailedPrecondition,
-				fmt.Errorf("account deletion cooldown active until %d ms since epoch", *until))
+				fmt.Errorf("re-link cooldown active until %d ms since epoch", *until))
 		}
+	}
+
+	idents, err := s.identityRepo.FindDiscordIdentities(ctx, &game, discordUserID)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("lookup identity: %w", err))
+	}
+	if len(idents) > 0 {
+		return nil, connect.NewError(connect.CodeFailedPrecondition,
+			fmt.Errorf("account already linked; delink first via /link"))
 	}
 
 	player, err := s.identityRepo.UpsertPlayerByIdentity(ctx, game, username, platform, nil, nil)
@@ -149,9 +158,18 @@ func (s *IdentityService) UnlinkAccount(
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("unlink: %w", err))
 	}
 
+	var cooldownUntil int64
+	if secret := os.Getenv("ACCOUNT_DELETION_HMAC_SECRET"); secret != "" && removed > 0 {
+		since := repos.NowMS()
+		if until, recErr := s.guildRepo.RecordRelinkCooldown(ctx, discordUserID, secret, since, repos.UnlinkCooldownMS); recErr == nil {
+			cooldownUntil = until
+		}
+	}
+
 	return connect.NewResponse(&identityv1.UnlinkAccountResponse{
-		Success: true,
-		Removed: int32(removed),
+		Success:         true,
+		Removed:         int32(removed),
+		CooldownUntilMs: cooldownUntil,
 	}), nil
 }
 

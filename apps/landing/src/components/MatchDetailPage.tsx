@@ -49,8 +49,9 @@ function statusLabel(winningTeam: string): string {
 }
 
 export function MatchDetailPage({ match }: { match: MatchData }) {
-  const teamA = teamName(match.participants, "team_a");
-  const teamB = teamName(match.participants, "team_b");
+  const participants = match.participants ?? [];
+  const teamA = teamName(participants, "team_a");
+  const teamB = teamName(participants, "team_b");
   const teamAWins = match.winningTeam === "team_a";
   const teamBWins = match.winningTeam === "team_b";
   const mvpId = match.mvpUserId;
@@ -95,7 +96,7 @@ export function MatchDetailPage({ match }: { match: MatchData }) {
                     <div>
                       <p className="text-sm font-medium text-foreground">Team rosters</p>
                       <p className="text-xs text-muted-foreground">
-                        {match.participants.length} players
+                        {participants.length} players
                       </p>
                     </div>
                   </div>
@@ -104,7 +105,7 @@ export function MatchDetailPage({ match }: { match: MatchData }) {
                     <div className="bg-background p-5">
                       <TeamRoster
                         label="Team A"
-                        players={teamPlayers(match.participants, "team_a")}
+                        players={teamPlayers(participants, "team_a")}
                         isWinner={teamAWins}
                         mvpId={mvpId}
                       />
@@ -112,7 +113,7 @@ export function MatchDetailPage({ match }: { match: MatchData }) {
                     <div className="bg-background p-5">
                       <TeamRoster
                         label="Team B"
-                        players={teamPlayers(match.participants, "team_b")}
+                        players={teamPlayers(participants, "team_b")}
                         isWinner={teamBWins}
                         mvpId={mvpId}
                       />

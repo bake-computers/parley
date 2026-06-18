@@ -142,6 +142,40 @@ func (r *IdentityRepo) FindPlayerByUsernameNormalized(
 	return &row, nil
 }
 
+// SeedEloIfUnrated sets internal_elo from rank_points when the player has no Parley matches.
+func (r *IdentityRepo) SeedEloIfUnrated(ctx context.Context, playerID int32, rankPoints int32) error {
+	if rankPoints <= 0 {
+		return nil
+	}
+	elo := float64(rankPoints)
+	now := NowMS()
+
+	res, err := r.db.NewUpdate().
+		Model((*models.Player)(nil)).
+		Set("internal_elo = ?", elo).
+		Set("updated_at = ?", now).
+		Where("id = ?", playerID).
+		Where("internal_matches = 0").
+		Exec(ctx)
+	if err != nil {
+		return err
+	}
+	if n, err := res.RowsAffected(); err != nil {
+		return err
+	} else if n == 0 {
+		return nil
+	}
+
+	_, err = r.db.NewUpdate().
+		Model((*models.GuildMembership)(nil)).
+		Set("internal_elo = ?", elo).
+		Set("updated_at = ?", now).
+		Where("player_id = ?", playerID).
+		Where("internal_matches = 0").
+		Exec(ctx)
+	return err
+}
+
 // TouchPlayerInternalUpdatedAt sets internal_updated_at and updated_at on a player row.
 func (r *IdentityRepo) TouchPlayerInternalUpdatedAt(ctx context.Context, id int32) error {
 	now := NowMS()

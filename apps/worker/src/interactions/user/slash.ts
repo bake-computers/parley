@@ -14,7 +14,6 @@ export const userSlashCommand = new SlashCommand()
     if (!(await assertAccepted(interaction, env as never))) {
       return;
     }
-    await interaction.deferReply(true);
 
     const client = getUserSettingsClient(env);
     const discordUserId = interaction.user?.id ?? "";

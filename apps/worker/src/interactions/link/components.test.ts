@@ -13,7 +13,11 @@ import {
   buildFetchingStatsCard,
   buildReadyToPlayCard,
   buildSuccessCard,
+  buildAlreadyLinkedCard,
+  buildUnlinkCooldownCard,
+  buildUnlinkedCard,
 } from "./ui.js";
+import { UNLINK_CUSTOM_ID } from "./constants.js";
 import { buildUsernameModal } from "./modal.js";
 import { confirmCustomId, platformCustomId, usernameModalCustomId } from "./constants.js";
 
@@ -131,6 +135,47 @@ describe("link/ui — success and error cards", () => {
   test("error card surfaces the provided message", () => {
     const card = buildErrorCard("Username not found", EMPTY_EMOJIS).toJSON();
     expect(JSON.stringify(card)).toContain("Username not found");
+  });
+
+  test("already-linked card shows delink button and parley rank", () => {
+    const card = buildAlreadyLinkedCard(
+      {
+        $typeName: "parley.identity.v1.LinkedIdentity",
+        game: 1,
+        discordUserId: "u1",
+        playerId: 9,
+        username: "Player",
+        usernameNormalized: "player",
+        platform: "pc",
+        profileId: "",
+        profileUrl: "",
+        internalElo: 2563,
+        internalMatches: 0,
+        internalWins: 0,
+        internalLosses: 0,
+      } as never,
+      EMPTY_EMOJIS,
+    ).toJSON();
+    const text = JSON.stringify(card);
+    expect(text).toContain(UNLINK_CUSTOM_ID);
+    expect(text).toContain("Gold");
+    expect(text).toContain("2,563");
+  });
+
+  test("cooldown card renders a discord timestamp", () => {
+    const until = Date.UTC(2024, 5, 1);
+    const card = buildUnlinkCooldownCard(until, EMPTY_EMOJIS).toJSON();
+    const text = JSON.stringify(card);
+    expect(text).toContain("Re-link Cooldown");
+    expect(text).toContain(`<t:${Math.floor(until / 1000)}:R>`);
+  });
+
+  test("unlinked card shows re-link timestamp when cooldown is set", () => {
+    const until = Date.UTC(2024, 5, 1);
+    const card = buildUnlinkedCard(until, EMPTY_EMOJIS).toJSON();
+    const text = JSON.stringify(card);
+    expect(text).toContain("Account Delinked");
+    expect(text).toContain(`<t:${Math.floor(until / 1000)}:F>`);
   });
 
   test("fetching stats card explains the wait and points at /profile for retry", () => {

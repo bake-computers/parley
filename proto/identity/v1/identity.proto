@@ -42,6 +42,8 @@ message UnlinkAccountResponse {
   bool   success               = 1;
   int32  removed               = 2; // # of discord_identities rows dropped
   parley.common.v1.Error error = 3;
+  // Epoch ms when the user may link again (0 when no cooldown was recorded).
+  int64  cooldown_until_ms      = 4;
 }
 
 message LookupByDiscordRequest {

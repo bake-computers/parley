@@ -64,6 +64,19 @@ describe("buildHistoryCard", () => {
     const card = buildHistoryCard([], "guild-123");
     const json = JSON.stringify(card.toJSON());
     expect(json).toContain("No matches played yet");
+    expect(card.toJSON()["accent_color"]).toBe(0x8a8a8e);
+  });
+
+  test("uses graphite accent and separators", () => {
+    const card = buildHistoryCard([makeMatch()], "guild-123").toJSON();
+    expect(card["accent_color"]).toBe(0x8a8a8e);
+    expect(JSON.stringify(card)).toContain("\"type\":14");
+  });
+
+  test("handles missing participants without crashing", () => {
+    const card = buildHistoryCard([makeMatch({ participants: undefined })], "guild-123");
+    const json = JSON.stringify(card.toJSON());
+    expect(json).toContain("vs —");
   });
 
   test("respects character budget", () => {

@@ -14,9 +14,9 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as LegalNoticeRouteImport } from './routes/legal-notice'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as MatchGuildIdUuidRouteImport } from './routes/match.$guildId.$uuid'
-import { Route as ApiBridgeWsRouteImport } from './routes/api.bridge.ws'
-import { Route as ApiBridgeSnapshotRouteImport } from './routes/api.bridge.snapshot'
+import { Route as MatchGuildIdUuidRouteImport } from './routes/match/$guildId/$uuid'
+import { Route as ApiBridgeWsRouteImport } from './routes/api/bridge/ws'
+import { Route as ApiBridgeSnapshotRouteImport } from './routes/api/bridge/snapshot'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
