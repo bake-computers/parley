@@ -1,12 +1,30 @@
+import { ButtonStyle } from "discord-api-types/v10";
 import {
+  ButtonBuilder,
   ContainerBuilder,
-  TextDisplayBuilder,
+  SectionBuilder,
   SeparatorBuilder,
+  TextDisplayBuilder,
   formatApplicationEmoji,
+  toComponentEmoji,
   type ApplicationEmojiCatalog,
   type AppEmojiName,
 } from "@parley/runtime";
-import { COLORS } from "./constants.js";
+import {
+  COLORS,
+  LANGUAGES,
+  TIMEZONES,
+  USER_DELETE_OPEN,
+  USER_LANG_PREFIX,
+  USER_MATCHMAKING_PREFIX,
+  USER_PAGE_PREFIX,
+  USER_REFRESH_STATS,
+  USER_SETTINGS_PAGE_COUNT,
+  USER_TIMEZONE_PREFIX,
+  USER_TIMEZONES_PER_PAGE,
+  USER_TZ_PAGE_PREFIX,
+  USER_VISIBILITY_PREFIX,
+} from "./constants.js";
 import type { UserSettings as ProtoUserSettings, AnonymizationCounts } from "@parley/proto";
 import { Language } from "@parley/proto";
 
@@ -37,34 +55,287 @@ function titleWith(
   return formatted ? `${formatted} **${title}**` : `**${title}**`;
 }
 
-export function buildSettingsCard(
+function emojiOr(catalog: ApplicationEmojiCatalog, name: AppEmojiName): string {
+  return formatApplicationEmoji(catalog, name) ?? "";
+}
+
+function choiceButton(
+  catalog: ApplicationEmojiCatalog,
+  args: {
+    customId: string;
+    label: string;
+    active: boolean;
+    emojiName?: AppEmojiName;
+  },
+): ButtonBuilder {
+  const button = new ButtonBuilder()
+    .setCustomId(args.customId)
+    .setLabel(args.label)
+    .setStyle(args.active ? ButtonStyle.Success : ButtonStyle.Secondary)
+    .setDisabled(args.active);
+  if (args.emojiName) {
+    const emoji = toComponentEmoji(catalog, args.emojiName);
+    if (emoji) {
+      button.setEmoji(emoji);
+    }
+  }
+  return button;
+}
+
+function pageNav(
+  catalog: ApplicationEmojiCatalog,
+  page: number,
+  timezonePage: number,
+): SectionBuilder[] {
+  const tzPageCount = Math.max(1, Math.ceil(TIMEZONES.length / USER_TIMEZONES_PER_PAGE));
+  const prevMain = new ButtonBuilder()
+    .setCustomId(`${USER_PAGE_PREFIX}${Math.max(0, page - 1)}:${timezonePage}`)
+    .setLabel("Back")
+    .setStyle(ButtonStyle.Secondary)
+    .setDisabled(page <= 0);
+  const nextMain = new ButtonBuilder()
+    .setCustomId(`${USER_PAGE_PREFIX}${Math.min(USER_SETTINGS_PAGE_COUNT - 1, page + 1)}:${timezonePage}`)
+    .setLabel("Privacy")
+    .setStyle(ButtonStyle.Primary)
+    .setDisabled(page >= USER_SETTINGS_PAGE_COUNT - 1);
+  const prevTz = new ButtonBuilder()
+    .setCustomId(`${USER_TZ_PAGE_PREFIX}${Math.max(0, timezonePage - 1)}:${page}`)
+    .setLabel("Earlier TZ")
+    .setStyle(ButtonStyle.Secondary)
+    .setDisabled(timezonePage <= 0);
+  const nextTz = new ButtonBuilder()
+    .setCustomId(`${USER_TZ_PAGE_PREFIX}${Math.min(tzPageCount - 1, timezonePage + 1)}:${page}`)
+    .setLabel("More TZ")
+    .setStyle(ButtonStyle.Secondary)
+    .setDisabled(timezonePage >= tzPageCount - 1);
+  for (const btn of [prevMain, nextMain, prevTz, nextTz]) {
+    const pin = toComponentEmoji(catalog, "redirect");
+    if (pin) {
+      btn.setEmoji(pin);
+    }
+  }
+  return [
+    new SectionBuilder()
+      .addText(new TextDisplayBuilder().setContent("Wizard"))
+      .setAccessory(prevMain),
+    new SectionBuilder()
+      .addText(new TextDisplayBuilder().setContent("Next section"))
+      .setAccessory(nextMain),
+    new SectionBuilder()
+      .addText(new TextDisplayBuilder().setContent("Timezones"))
+      .setAccessory(prevTz),
+    new SectionBuilder()
+      .addText(new TextDisplayBuilder().setContent("More timezones"))
+      .setAccessory(nextTz),
+  ];
+}
+
+function buildPreferencesPage(
   settings: ProtoUserSettings,
   emojis: ApplicationEmojiCatalog,
+  page: number,
+  timezonePage: number,
 ): ContainerBuilder {
-  const cooldownLine =
-    settings.termsAcceptedAtMs > 0 ? "Cooldown: none" : "Cooldown: not yet accepted";
-
-  return new ContainerBuilder()
+  const container = new ContainerBuilder()
     .setAccentColor(COLORS.main)
     .addComponents(
       new TextDisplayBuilder().setContent(titleWith(emojis, "pin", "Your Settings")),
       new TextDisplayBuilder().setContent(
-        "Language · Matchmaking · Visibility · Timezone · Cooldown",
+        `Page **${page + 1}** / **${USER_SETTINGS_PAGE_COUNT}** · ${emojiOr(emojis, "global")} Preferences`,
       ),
       separator(),
-      new TextDisplayBuilder().setContent(`**Language**\n${languageLabel(settings.language)}`),
       new TextDisplayBuilder().setContent(
-        `**Matchmaking**\n${settings.matchmakingEnabled ? "● Enabled" : "○ Disabled"}`,
+        `**Language** · ${languageLabel(settings.language)}`,
       ),
+    );
+
+  for (const lang of LANGUAGES) {
+    const active = languageValue(settings.language) === lang.value;
+    container.addComponents(
+      new SectionBuilder()
+        .addText(
+          new TextDisplayBuilder().setContent(
+            `${lang.emoji} **${lang.label}**${active ? "\n-# Selected" : ""}`,
+          ),
+        )
+        .setAccessory(
+          choiceButton(emojis, {
+            customId: `${USER_LANG_PREFIX}${lang.value}`,
+            label: lang.label,
+            active,
+            emojiName: "global",
+          }),
+        ),
+    );
+  }
+
+  container.addComponents(
+    separator(),
+    new TextDisplayBuilder().setContent(
+      `${emojiOr(emojis, "linked")} **Matchmaking** · ${settings.matchmakingEnabled ? "Enabled" : "Disabled"}`,
+    ),
+    new SectionBuilder()
+      .addText(new TextDisplayBuilder().setContent("Join ranked queues when eligible."))
+      .setAccessory(
+        choiceButton(emojis, {
+          customId: `${USER_MATCHMAKING_PREFIX}on`,
+          label: "Enabled",
+          active: settings.matchmakingEnabled,
+          emojiName: "linked",
+        }),
+      ),
+    new SectionBuilder()
+      .addText(new TextDisplayBuilder().setContent("Opt out of automatic matchmaking."))
+      .setAccessory(
+        choiceButton(emojis, {
+          customId: `${USER_MATCHMAKING_PREFIX}off`,
+          label: "Disabled",
+          active: !settings.matchmakingEnabled,
+          emojiName: "ban_hammer",
+        }),
+      ),
+    separator(),
+    new TextDisplayBuilder().setContent(
+      `**Visibility** · ${visibilityLabel(settings.profilePublic)}`,
+    ),
+    new SectionBuilder()
+      .addText(new TextDisplayBuilder().setContent("Show your profile on guild leaderboards."))
+      .setAccessory(
+        choiceButton(emojis, {
+          customId: `${USER_VISIBILITY_PREFIX}public`,
+          label: "Public",
+          active: settings.profilePublic,
+          emojiName: "global",
+        }),
+      ),
+    new SectionBuilder()
+      .addText(new TextDisplayBuilder().setContent("Hide your stats from public views."))
+      .setAccessory(
+        choiceButton(emojis, {
+          customId: `${USER_VISIBILITY_PREFIX}hidden`,
+          label: "Hidden",
+          active: !settings.profilePublic,
+          emojiName: "ban_hammer_red",
+        }),
+      ),
+    separator(),
+    new TextDisplayBuilder().setContent(`**Timezone** · \`${settings.timezone}\``),
+  );
+
+  const tzStart = timezonePage * USER_TIMEZONES_PER_PAGE;
+  const tzSlice = TIMEZONES.slice(tzStart, tzStart + USER_TIMEZONES_PER_PAGE);
+  for (const tz of tzSlice) {
+    const active = settings.timezone === tz.value;
+    container.addComponents(
+      new SectionBuilder()
+        .addText(
+          new TextDisplayBuilder().setContent(
+            `**${tz.label}**${active ? "\n-# Current" : ""}`,
+          ),
+        )
+        .setAccessory(
+          choiceButton(emojis, {
+            customId: `${USER_TIMEZONE_PREFIX}${encodeURIComponent(tz.value)}`,
+            label: active ? "Selected" : "Use",
+            active,
+            emojiName: "time",
+          }),
+        ),
+    );
+  }
+
+  container.addComponents(separator(), ...pageNav(emojis, page, timezonePage));
+  return container;
+}
+
+function buildPrivacyPage(
+  settings: ProtoUserSettings,
+  emojis: ApplicationEmojiCatalog,
+  page: number,
+  timezonePage: number,
+): ContainerBuilder {
+  const cooldownLine =
+    settings.termsAcceptedAtMs > 0
+      ? `${emojiOr(emojis, "calendar")} Re-link cooldown · none`
+      : `${emojiOr(emojis, "warning_orange")} Accept terms before linking`;
+
+  const refreshBtn = new ButtonBuilder()
+    .setCustomId(USER_REFRESH_STATS)
+    .setLabel("Refresh stats")
+    .setStyle(ButtonStyle.Primary);
+  const reloadEmoji = toComponentEmoji(emojis, "reload");
+  if (reloadEmoji) {
+    refreshBtn.setEmoji(reloadEmoji);
+  }
+
+  const deleteBtn = new ButtonBuilder()
+    .setCustomId(USER_DELETE_OPEN)
+    .setLabel("Delete my data")
+    .setStyle(ButtonStyle.Danger);
+  const trashEmoji = toComponentEmoji(emojis, "trash_red");
+  if (trashEmoji) {
+    deleteBtn.setEmoji(trashEmoji);
+  }
+
+  const backBtn = new ButtonBuilder()
+    .setCustomId(`${USER_PAGE_PREFIX}0:${timezonePage}`)
+    .setLabel("Preferences")
+    .setStyle(ButtonStyle.Secondary);
+  const redirectEmoji = toComponentEmoji(emojis, "redirect");
+  if (redirectEmoji) {
+    backBtn.setEmoji(redirectEmoji);
+  }
+
+  return new ContainerBuilder()
+    .setAccentColor(COLORS.main)
+    .addComponents(
+      new TextDisplayBuilder().setContent(titleWith(emojis, "pin", "Privacy & Data")),
       new TextDisplayBuilder().setContent(
-        `**Visibility**\n${visibilityLabel(settings.profilePublic)}`,
+        `Page **${page + 1}** / **${USER_SETTINGS_PAGE_COUNT}** · Stats · Account data`,
       ),
-      new TextDisplayBuilder().setContent(`**Timezone**\n${settings.timezone}`),
       separator(),
       new TextDisplayBuilder().setContent(cooldownLine),
       separator(),
-      new TextDisplayBuilder().setContent("Use the buttons below to change a setting."),
+      new SectionBuilder()
+        .addText(
+          new TextDisplayBuilder().setContent(
+            "Pull the latest snapshot from the stats provider after linking.",
+          ),
+        )
+        .setAccessory(refreshBtn),
+      new SectionBuilder()
+        .addText(
+          new TextDisplayBuilder().setContent(
+            "Permanently anonymize your Parley records. **30-day** re-link cooldown applies.",
+          ),
+        )
+        .setAccessory(deleteBtn),
+      separator(),
+      new SectionBuilder()
+        .addText(new TextDisplayBuilder().setContent("Return to language & matchmaking."))
+        .setAccessory(backBtn),
     );
+}
+
+export type UserSettingsView = {
+  page?: number;
+  timezonePage?: number;
+};
+
+export function buildSettingsCard(
+  settings: ProtoUserSettings,
+  emojis: ApplicationEmojiCatalog,
+  view: UserSettingsView = {},
+): ContainerBuilder {
+  const page = Math.min(
+    USER_SETTINGS_PAGE_COUNT - 1,
+    Math.max(0, view.page ?? 0),
+  );
+  const timezonePage = Math.max(0, view.timezonePage ?? 0);
+  if (page === 0) {
+    return buildPreferencesPage(settings, emojis, page, timezonePage);
+  }
+  return buildPrivacyPage(settings, emojis, page, timezonePage);
 }
 
 export function buildInfoCard(message: string): ContainerBuilder {

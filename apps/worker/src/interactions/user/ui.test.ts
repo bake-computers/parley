@@ -37,6 +37,15 @@ describe("user/ui — settings card", () => {
     const card = buildSettingsCard(SETTINGS, {} as never).toJSON();
     expect(card["accent_color"]).toBe(0x8a8a8e);
   });
+
+  test("includes page navigation and choice buttons in JSON", () => {
+    const card = buildSettingsCard(SETTINGS, {} as never).toJSON();
+    const text = JSON.stringify(card);
+    expect(text).toContain("user/page/");
+    expect(text).toContain("user/lang/");
+    expect(text).toContain("user/matchmaking/");
+    expect(text).toContain("\"type\":2");
+  });
 });
 
 describe("user/ui — result cards", () => {

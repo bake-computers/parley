@@ -20,6 +20,8 @@ import {
   USER_TIMEZONE_PREFIX,
   USER_VISIBILITY_PREFIX,
   USER_ACCEPT_BUTTON,
+  USER_PAGE_PREFIX,
+  USER_TZ_PAGE_PREFIX,
 } from "./constants.js";
 import { buildDeleteConfirmModal } from "./modal.js";
 import { buildDeleteResultCard, buildErrorCard, buildInfoCard, buildSettingsCard } from "./ui.js";
@@ -63,8 +65,35 @@ async function applyUpdate(
     );
     return;
   }
-  const card = buildSettingsCard(result.value.settings ?? newSettings, emojis);
+  const card = buildSettingsCard(result.value.settings ?? newSettings, emojis, {
+    page: 0,
+    timezonePage: 0,
+  });
   await editReplyV2(interaction, card);
+}
+
+function parseUserPageCustomId(
+  customId: string,
+): { page: number; timezonePage: number } | undefined {
+  if (customId.startsWith(USER_PAGE_PREFIX)) {
+    const rest = customId.slice(USER_PAGE_PREFIX.length);
+    const [pageStr, tzStr] = rest.split(":");
+    const page = Number(pageStr);
+    const timezonePage = Number(tzStr);
+    if (Number.isFinite(page) && Number.isFinite(timezonePage)) {
+      return { page, timezonePage };
+    }
+  }
+  if (customId.startsWith(USER_TZ_PAGE_PREFIX)) {
+    const rest = customId.slice(USER_TZ_PAGE_PREFIX.length);
+    const [tzStr, pageStr] = rest.split(":");
+    const timezonePage = Number(tzStr);
+    const page = Number(pageStr);
+    if (Number.isFinite(page) && Number.isFinite(timezonePage)) {
+      return { page, timezonePage };
+    }
+  }
+  return undefined;
 }
 
 export const userButtonHandler = new ComponentHandler("user", COMPONENT_BUTTON).addHandler(
@@ -101,6 +130,13 @@ export const userButtonHandler = new ComponentHandler("user", COMPONENT_BUTTON).
       return;
     }
     const current = settingsResult.value.settings;
+
+    const pageView = parseUserPageCustomId(customId);
+    if (pageView) {
+      const emojis = await resolveEmojis(interaction);
+      await editReplyV2(interaction, buildSettingsCard(current, emojis, pageView));
+      return;
+    }
 
     if (customId.startsWith(USER_LANG_PREFIX)) {
       const v = customId.slice(USER_LANG_PREFIX.length);
@@ -160,7 +196,10 @@ export const userButtonHandler = new ComponentHandler("user", COMPONENT_BUTTON).
     }
     if (customId === USER_CANCEL) {
       const emojis = await resolveEmojis(interaction);
-      await editReplyV2(interaction, buildSettingsCard(current, emojis));
+      await editReplyV2(
+        interaction,
+        buildSettingsCard(current, emojis, { page: 0, timezonePage: 0 }),
+      );
       return;
     }
   },
