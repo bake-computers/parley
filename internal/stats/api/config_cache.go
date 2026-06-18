@@ -94,10 +94,12 @@ func (c *ConfigCache) refresh(ctx context.Context, fn fetchConfigFn) (*Config, e
 
 	cfg, err := fn(ctx)
 
+
 	c.flight.Lock()
 	c.loading = false
 	waiters := c.waiters
 	c.waiters = nil
+	c.store(ctx, cfg)
 	c.flight.Unlock()
 	for _, ch := range waiters {
 		close(ch)
@@ -106,7 +108,6 @@ func (c *ConfigCache) refresh(ctx context.Context, fn fetchConfigFn) (*Config, e
 	if err != nil {
 		return nil, err
 	}
-	c.store(ctx, cfg)
 	return cfg, nil
 }
 
