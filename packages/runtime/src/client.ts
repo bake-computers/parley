@@ -213,49 +213,61 @@ export class ParleyClient {
     return `${prefix}:${componentType}`;
   }
 
+  private assertNoHandlerConflict<T>(
+    map: Map<string | number, T>,
+    key: string | number,
+    handler: T,
+    label: string,
+    fields: Record<string, string | number>,
+  ): void {
+    const existing = map.get(key);
+    if (existing === undefined) {
+      return;
+    }
+    if (existing === handler) {
+      return;
+    }
+    logger.error("discord.handler.duplicate", `Duplicate ${label} handler registration`, fields);
+    throw new Error(`Duplicate ${label} handler registration for key "${key}"`);
+  }
+
   private registerSingleHandler(handler: AnyHandler): void {
     if (isSlashCommandHandler(handler) || isContextCommandHandler(handler)) {
       if (handler.isGuildCommand()) {
         for (const guildId of handler.guildIds) {
           const key = `${guildId}:${handler.name}`;
-          if (this.guildCommandHandlers.has(key)) {
-            logger.warn("discord.handler.duplicate", "Overwriting guild command handler", {
-              guildId,
-              commandName: handler.name,
-            });
-          }
+          this.assertNoHandlerConflict(this.guildCommandHandlers, key, handler, "guild command", {
+            guildId,
+            commandName: handler.name,
+          });
           this.guildCommandHandlers.set(key, handler);
         }
       } else {
-        if (this.globalCommandHandlers.has(handler.name)) {
-          logger.warn("discord.handler.duplicate", "Overwriting global command handler", {
-            commandName: handler.name,
-          });
-        }
+        this.assertNoHandlerConflict(
+          this.globalCommandHandlers,
+          handler.name,
+          handler,
+          "global command",
+          { commandName: handler.name },
+        );
         this.globalCommandHandlers.set(handler.name, handler);
       }
     } else if (isComponentHandler(handler)) {
       const key = this.componentHandlerKey(handler.prefix, handler.componentType);
-      if (this.componentHandlers.has(key)) {
-        logger.warn("discord.handler.duplicate", "Overwriting component handler", {
-          prefix: handler.prefix,
-          componentType: handler.componentType,
-        });
-      }
+      this.assertNoHandlerConflict(this.componentHandlers, key, handler, "component", {
+        prefix: handler.prefix,
+        componentType: handler.componentType,
+      });
       this.componentHandlers.set(key, handler);
     } else if (isModalHandler(handler)) {
-      if (this.modalHandlers.has(handler.prefix)) {
-        logger.warn("discord.handler.duplicate", "Overwriting modal handler", {
-          prefix: handler.prefix,
-        });
-      }
+      this.assertNoHandlerConflict(this.modalHandlers, handler.prefix, handler, "modal", {
+        prefix: handler.prefix,
+      });
       this.modalHandlers.set(handler.prefix, handler);
     } else if (isWebhookHandler(handler)) {
-      if (this.webhookHandlers.has(handler.eventType)) {
-        logger.warn("discord.handler.duplicate", "Overwriting webhook handler", {
-          eventType: handler.eventType,
-        });
-      }
+      this.assertNoHandlerConflict(this.webhookHandlers, handler.eventType, handler, "webhook", {
+        eventType: handler.eventType,
+      });
       this.webhookHandlers.set(handler.eventType, handler);
     }
   }

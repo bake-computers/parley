@@ -1,6 +1,6 @@
 import { UI_TOKENS } from "../../ui/tokens.js";
 
-export const USER_ACCEPT_BUTTON = "user/accept-terms";
+export { ACCEPT_BUTTON as USER_ACCEPT_BUTTON } from "../_shared/acceptance.js";
 export const USER_LANG_PREFIX = "user/lang/";
 export const USER_MATCHMAKING_PREFIX = "user/matchmaking/";
 export const USER_VISIBILITY_PREFIX = "user/visibility/";
