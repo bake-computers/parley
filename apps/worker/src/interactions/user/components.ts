@@ -46,9 +46,26 @@ function baseSettings(discordUserId: string): ProtoUserSettings {
   } as unknown as ProtoUserSettings;
 }
 
+type UserSettingsView = { page: number; timezonePage: number };
+
+const DEFAULT_VIEW: UserSettingsView = { page: 0, timezonePage: 0 };
+
+async function deferComponent(interaction: MessageComponentInteraction): Promise<boolean> {
+  const deferred = await interaction.deferUpdate();
+  if (deferred.isErr()) {
+    logger.error("user.defer_failed", "Failed to defer component interaction", {
+      interactionId: interaction.id,
+      error: deferred.error,
+    });
+    return false;
+  }
+  return true;
+}
+
 async function applyUpdate(
   interaction: MessageComponentInteraction,
   newSettings: ProtoUserSettings,
+  view: UserSettingsView = DEFAULT_VIEW,
 ) {
   const env = interaction.context.env;
   const client = getClient(env) as never;
@@ -65,16 +82,13 @@ async function applyUpdate(
     );
     return;
   }
-  const card = buildSettingsCard(result.value.settings ?? newSettings, emojis, {
-    page: 0,
-    timezonePage: 0,
-  });
+  const card = buildSettingsCard(result.value.settings ?? newSettings, emojis, view);
   await editReplyV2(interaction, card);
 }
 
 function parseUserPageCustomId(
   customId: string,
-): { page: number; timezonePage: number } | undefined {
+): UserSettingsView | undefined {
   if (customId.startsWith(USER_PAGE_PREFIX)) {
     const rest = customId.slice(USER_PAGE_PREFIX.length);
     const [pageStr, tzStr] = rest.split(":");
@@ -94,6 +108,28 @@ function parseUserPageCustomId(
     }
   }
   return undefined;
+}
+
+function parseTimezoneCustomId(
+  customId: string,
+): { timezone: string; view: UserSettingsView } | undefined {
+  if (!customId.startsWith(USER_TIMEZONE_PREFIX)) {
+    return undefined;
+  }
+  const rest = customId.slice(USER_TIMEZONE_PREFIX.length);
+  const slash = rest.indexOf("/");
+  if (slash <= 0) {
+    return undefined;
+  }
+  const meta = rest.slice(0, slash);
+  const timezone = decodeURIComponent(rest.slice(slash + 1));
+  const [pageStr, timezonePageStr] = meta.split(":");
+  const page = Number(pageStr);
+  const timezonePage = Number(timezonePageStr);
+  if (!timezone || !Number.isFinite(page) || !Number.isFinite(timezonePage)) {
+    return undefined;
+  }
+  return { timezone, view: { page, timezonePage } };
 }
 
 export const userButtonHandler = new ComponentHandler("user", COMPONENT_BUTTON).addHandler(
@@ -123,6 +159,22 @@ export const userButtonHandler = new ComponentHandler("user", COMPONENT_BUTTON).
       return;
     }
 
+    if (customId === USER_DELETE_OPEN) {
+      const modal = buildDeleteConfirmModal(interaction.user?.username ?? "");
+      const r = await interaction.showModal(modal);
+      if (r.isErr()) {
+        logger.error("user.modal_open_failed", "Failed to open delete modal", {
+          interactionId: interaction.id,
+          error: r.error,
+        });
+      }
+      return;
+    }
+
+    if (!(await deferComponent(interaction))) {
+      return;
+    }
+
     const settingsResult = await invokeGetUserSettings(getClient(env) as never, discordUserId);
     if (settingsResult.isErr() || !settingsResult.value.success || !settingsResult.value.settings) {
       const emojis = await resolveEmojis(interaction);
@@ -140,34 +192,50 @@ export const userButtonHandler = new ComponentHandler("user", COMPONENT_BUTTON).
 
     if (customId.startsWith(USER_LANG_PREFIX)) {
       const v = customId.slice(USER_LANG_PREFIX.length);
-      await applyUpdate(interaction, {
-        ...current,
-        language: v === "de" ? Language.DE : Language.EN,
-        updatedAtMs: nowMs(),
-      });
+      await applyUpdate(
+        interaction,
+        {
+          ...current,
+          language: v === "de" ? Language.DE : Language.EN,
+          updatedAtMs: nowMs(),
+        },
+        DEFAULT_VIEW,
+      );
       return;
     }
     if (customId.startsWith(USER_MATCHMAKING_PREFIX)) {
       const v = customId.slice(USER_MATCHMAKING_PREFIX.length);
-      await applyUpdate(interaction, {
-        ...current,
-        matchmakingEnabled: v === "on",
-        updatedAtMs: nowMs(),
-      });
+      await applyUpdate(
+        interaction,
+        {
+          ...current,
+          matchmakingEnabled: v === "on",
+          updatedAtMs: nowMs(),
+        },
+        DEFAULT_VIEW,
+      );
       return;
     }
     if (customId.startsWith(USER_VISIBILITY_PREFIX)) {
       const v = customId.slice(USER_VISIBILITY_PREFIX.length);
-      await applyUpdate(interaction, {
-        ...current,
-        profilePublic: v === "public",
-        updatedAtMs: nowMs(),
-      });
+      await applyUpdate(
+        interaction,
+        {
+          ...current,
+          profilePublic: v === "public",
+          updatedAtMs: nowMs(),
+        },
+        DEFAULT_VIEW,
+      );
       return;
     }
-    if (customId.startsWith(USER_TIMEZONE_PREFIX)) {
-      const tz = decodeURIComponent(customId.slice(USER_TIMEZONE_PREFIX.length));
-      await applyUpdate(interaction, { ...current, timezone: tz, updatedAtMs: nowMs() });
+    const timezoneSelection = parseTimezoneCustomId(customId);
+    if (timezoneSelection) {
+      await applyUpdate(
+        interaction,
+        { ...current, timezone: timezoneSelection.timezone, updatedAtMs: nowMs() },
+        timezoneSelection.view,
+      );
       return;
     }
     if (customId === USER_REFRESH_STATS) {
@@ -179,26 +247,11 @@ export const userButtonHandler = new ComponentHandler("user", COMPONENT_BUTTON).
       );
       return;
     }
-    if (customId === USER_DELETE_OPEN) {
-      const deferred = await interaction.deferUpdate();
-      if (deferred.isErr()) {
-        return;
-      }
-      const modal = buildDeleteConfirmModal(interaction.user?.username ?? "");
-      const r = await interaction.showModal(modal);
-      if (r.isErr()) {
-        logger.error("user.modal_open_failed", "Failed to open delete modal", {
-          interactionId: interaction.id,
-          error: r.error,
-        });
-      }
-      return;
-    }
     if (customId === USER_CANCEL) {
       const emojis = await resolveEmojis(interaction);
       await editReplyV2(
         interaction,
-        buildSettingsCard(current, emojis, { page: 0, timezonePage: 0 }),
+        buildSettingsCard(current, emojis, DEFAULT_VIEW),
       );
       return;
     }
