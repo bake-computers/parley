@@ -4,11 +4,13 @@ import type { GuildNotificationSettings as ProtoNotificationSettings } from "@pa
 import { Game } from "@parley/proto";
 import { getGuildSettingsClient } from "../../transport.js";
 import { editReplyV2 } from "../../ui/discord.js";
+import { fetchGuildTextChannels } from "../../ui/guild-channels.js";
 import { resolveEmojis } from "../../ui/emojis.js";
 import {
   SETTINGS_MATCH_RESULTS_PREFIX,
   SETTINGS_TOURNAMENT_PREFIX,
   SETTINGS_TOGGLE_PREFIX,
+  SETTINGS_PAGE_PREFIX,
   SETTINGS_CANCEL,
 } from "./constants.js";
 import { buildNotificationSettingsCard, buildSettingsErrorCard } from "./ui.js";
@@ -22,6 +24,23 @@ const COMPONENT_STRING_SELECT = 3;
 
 function getClient(env: unknown) {
   return getGuildSettingsClient(env as never);
+}
+
+function botToken(env: Record<string, unknown>): string | undefined {
+  const token = env["DISCORD_BOT_TOKEN"] ?? env["DISCORD_TOKEN"];
+  return typeof token === "string" && token.length > 0 ? token : undefined;
+}
+
+async function loadGuildChannels(
+  interaction: MessageComponentInteraction,
+  guildId: string,
+) {
+  const env = interaction.context.env as Record<string, unknown>;
+  const token = botToken(env);
+  if (!token) {
+    return [];
+  }
+  return fetchGuildTextChannels(guildId, token);
 }
 
 function baseSettings(guildId: string): ProtoNotificationSettings {
@@ -38,7 +57,11 @@ function baseSettings(guildId: string): ProtoNotificationSettings {
   } as unknown as ProtoNotificationSettings;
 }
 
-async function fetchAndRender(interaction: MessageComponentInteraction, guildId: string) {
+async function fetchAndRender(
+  interaction: MessageComponentInteraction,
+  guildId: string,
+  view: { page?: number } = { page: 0 },
+) {
   const env = interaction.context.env;
   const client = getClient(env) as never;
   const r = await invokeGetNotificationSettings(client, guildId);
@@ -54,12 +77,17 @@ async function fetchAndRender(interaction: MessageComponentInteraction, guildId:
     );
     return;
   }
-  await editReplyV2(interaction, buildNotificationSettingsCard(r.value.settings, emojis));
+  const channels = await loadGuildChannels(interaction, guildId);
+  await editReplyV2(
+    interaction,
+    buildNotificationSettingsCard(r.value.settings, emojis, channels, view),
+  );
 }
 
 async function applyUpdate(
   interaction: MessageComponentInteraction,
   newSettings: ProtoNotificationSettings,
+  view: { page?: number } = { page: 0 },
 ) {
   const env = interaction.context.env;
   const client = getClient(env) as never;
@@ -79,9 +107,12 @@ async function applyUpdate(
     );
     return;
   }
+  const channels = await loadGuildChannels(interaction, newSettings.guildId);
   const card = buildNotificationSettingsCard(
     result.value.settings ?? newSettings,
     emojis,
+    channels,
+    view,
   );
   await editReplyV2(interaction, card);
 }
@@ -97,6 +128,16 @@ export const settingsButtonHandler = new ComponentHandler(
   if (!guildId) {
     const emojis = await resolveEmojis(interaction);
     await editReplyV2(interaction, buildSettingsErrorCard("No guild context.", emojis));
+    return;
+  }
+
+  if (customId.startsWith(SETTINGS_PAGE_PREFIX)) {
+    const pageStr = customId.slice(SETTINGS_PAGE_PREFIX.length);
+    const page = Number.parseInt(pageStr, 10);
+    if (!Number.isFinite(page)) {
+      return;
+    }
+    await fetchAndRender(interaction, guildId, { page });
     return;
   }
 
@@ -138,7 +179,7 @@ export const settingsButtonHandler = new ComponentHandler(
         return;
     }
 
-    await applyUpdate(interaction, updated);
+    await applyUpdate(interaction, updated, { page: 1 });
     return;
   }
 
@@ -184,5 +225,5 @@ export const settingsSelectHandler = new ComponentHandler(
       selectedChannel;
   }
 
-  await applyUpdate(interaction, updated);
+  await applyUpdate(interaction, updated, { page: 0 });
 });

@@ -1,6 +1,7 @@
 import { SlashCommand, type ChatInputCommandInteraction } from "@parley/runtime";
 import { getGuildSettingsClient, type EngineTransportEnv } from "../../transport.js";
 import { editReplyV2 } from "../../ui/discord.js";
+import { fetchGuildTextChannels } from "../../ui/guild-channels.js";
 import { resolveEmojis } from "../../ui/emojis.js";
 import { MANAGE_GUILD_BITFIELD } from "./constants.js";
 import { invokeGetNotificationSettings } from "./rpc.js";
@@ -11,7 +12,10 @@ export const settingsSlashCommand = new SlashCommand()
   .setDescription("Configure guild notification settings")
   .setDefaultMemberPermissions(MANAGE_GUILD_BITFIELD)
   .addHandler(async (interaction: ChatInputCommandInteraction) => {
-    const env = interaction.context.env as EngineTransportEnv;
+    const env = interaction.context.env as EngineTransportEnv & {
+      DISCORD_BOT_TOKEN?: string;
+      DISCORD_TOKEN?: string;
+    };
     const guildId = interaction.guildId;
     if (!guildId) {
       await editReplyV2(
@@ -34,6 +38,11 @@ export const settingsSlashCommand = new SlashCommand()
       return;
     }
     const emojis = await resolveEmojis(interaction);
-    const card = buildNotificationSettingsCard(r.value.settings, emojis);
+    const token = env.DISCORD_BOT_TOKEN ?? env.DISCORD_TOKEN;
+    const channels =
+      typeof token === "string" && token.length > 0
+        ? await fetchGuildTextChannels(guildId, token)
+        : [];
+    const card = buildNotificationSettingsCard(r.value.settings, emojis, channels, { page: 0 });
     await editReplyV2(interaction, card);
   });
