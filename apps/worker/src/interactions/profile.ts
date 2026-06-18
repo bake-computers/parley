@@ -7,12 +7,12 @@ import {
 import { Game } from "@parley/proto";
 import type { LinkedIdentity } from "@parley/proto";
 import type { LookupByDiscordResponse } from "@parley/proto";
+import { ConnectError } from "@connectrpc/connect";
+import { err, ok, type Result } from "neverthrow";
 import { assertAccepted } from "./_shared/acceptance.js";
 import { getIdentityClient, type EngineTransportEnv } from "../transport.js";
 import { editReplyV2 } from "../ui/discord.js";
 import { UI_TOKENS } from "../ui/tokens.js";
-import type { Result } from "neverthrow";
-import type { ConnectError } from "@connectrpc/connect";
 
 const GAME_NAMES: Record<number, string> = {
   [Game.R6]: "Rainbow Six Siege",
@@ -26,7 +26,18 @@ interface IdentityClient {
   lookupByDiscord: (req: {
     discordUserId: string;
     game: number;
-  }) => Promise<Result<LookupByDiscordResponse, ConnectError>>;
+  }) => Promise<LookupByDiscordResponse>;
+}
+
+export function invokeLookupByDiscord(
+  client: IdentityClient,
+  req: { discordUserId: string; game: number },
+): Promise<Result<LookupByDiscordResponse, ConnectError>> {
+  return client.lookupByDiscord(req).then(
+    (response) => ok(response),
+    (cause: unknown) =>
+      err(cause instanceof ConnectError ? cause : new ConnectError(String(cause), 13, {})),
+  );
 }
 
 export const profileCommand = new SlashCommand()
@@ -54,7 +65,7 @@ export const profileCommand = new SlashCommand()
     }
 
     const client = getIdentityClient(env) as unknown as IdentityClient;
-    const result = await client.lookupByDiscord({
+    const result = await invokeLookupByDiscord(client, {
       discordUserId: interaction.user?.id ?? "",
       game: Game.UNSPECIFIED,
     });
