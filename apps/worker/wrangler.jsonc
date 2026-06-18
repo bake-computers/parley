@@ -23,7 +23,7 @@
     "AXIOM_ORG_ID": "parley-sf7e",
     "ENGINE_SERVICE_URL": "http://localhost:50051",
     "ENGINE_INTERNAL_URL": "http://localhost:50051",
-    "USE_LOCAL_ENGINE": "0",
+    "USE_LOCAL_ENGINE": "1",
   },
 
   "kv_namespaces": [

@@ -7,7 +7,7 @@ import (
 	"github.com/pactum-computers/parley/internal/stats/scrape"
 )
 
-// R6Backend scrapes Rainbow Six Siege stats via stats.cc (shared fetch.Client).
+// R6Backend fetches Rainbow Six Siege stats via stats.cc API with scraper fallback.
 type R6Backend struct {
 	client fetch.Client
 }

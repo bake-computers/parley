@@ -18,6 +18,7 @@ import (
 	"github.com/pactum-computers/parley/internal/repos"
 	"github.com/pactum-computers/parley/internal/server"
 	"github.com/pactum-computers/parley/internal/services"
+	"github.com/pactum-computers/parley/internal/stats/api"
 	"github.com/pactum-computers/parley/internal/stats/backends"
 	"github.com/pactum-computers/parley/internal/stats/cache"
 	"github.com/pactum-computers/parley/internal/stats/fetch"
@@ -87,11 +88,6 @@ func run() error {
 		bracketRepo = repos.NewBracketMatchRepo(bunDB)
 	}
 
-	statsClient := fetch.NewStatsClient("https://stats.cc", scrape.ScrapeHTMLStatsCollection)
-
-	registry := backends.NewStatsBackendRegistry()
-	registry.Register(backends.NewR6Backend(statsClient))
-
 	var rdb *redis.Client
 	if cfg.RedisURL != "" {
 		redisOpts, err := config.RedisOptions(cfg.RedisURL)
@@ -100,6 +96,26 @@ func run() error {
 		}
 		rdb = redis.NewClient(redisOpts)
 	}
+
+	var statsConfigCache *api.ConfigCache
+	if cfg.StatsCCAPIKey != "" {
+		configTTL := time.Duration(cfg.StatsCCConfigCacheTTLMS) * time.Millisecond
+		statsConfigCache = api.NewConfigCache(rdb, configTTL)
+		slog.Info("stats.cc api enabled", "base", cfg.StatsCCAPIBaseURL)
+	} else {
+		slog.Info("stats.cc api disabled (STATS_CC_API_KEY unset); using HTML scraper only")
+	}
+
+	statsClient := fetch.NewStatsClientFromOptions(fetch.ClientOptions{
+		APIKey:         cfg.StatsCCAPIKey,
+		APIBaseURL:     cfg.StatsCCAPIBaseURL,
+		ScraperBaseURL: "https://stats.cc",
+		ScrapeFn:       scrape.ScrapeHTMLStatsCollection,
+		ConfigCache:    statsConfigCache,
+	})
+
+	registry := backends.NewStatsBackendRegistry()
+	registry.Register(backends.NewR6Backend(statsClient))
 
 	var cacheStore cache.CacheStore
 	var statsPersister *persist.StatsPersister

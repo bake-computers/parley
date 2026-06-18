@@ -19,6 +19,20 @@ const (
 	StatsPlatformPlaystation
 )
 
+// AsAPISlug returns the stats.cc API platform slug (psn for PlayStation).
+func (p StatsPlatform) AsAPISlug() string {
+	switch p {
+	case StatsPlatformPC:
+		return "pc"
+	case StatsPlatformXbox:
+		return "xbox"
+	case StatsPlatformPlaystation:
+		return "psn"
+	default:
+		return ""
+	}
+}
+
 // AsQuery returns the query parameter value for the platform, or empty string for Auto.
 func (p StatsPlatform) AsQuery() string {
 	switch p {

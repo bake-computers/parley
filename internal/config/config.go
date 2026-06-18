@@ -24,6 +24,10 @@ type Config struct {
 	StatsTTLR6MS      uint64
 	StatsStaleGraceMS uint64
 
+	StatsCCAPIKey           string
+	StatsCCAPIBaseURL       string
+	StatsCCConfigCacheTTLMS uint64
+
 	AxiomToken   string
 	AxiomDataset string
 	AxiomOrgID   string
@@ -62,6 +66,10 @@ func Load() (*Config, error) {
 
 		StatsTTLR6MS:      readUint64("STATS_TTL_R6_MS", 60_000),
 		StatsStaleGraceMS: readUint64("STATS_STALE_GRACE_MS", 86_400_000),
+
+		StatsCCAPIKey:           os.Getenv("STATS_CC_API_KEY"),
+		StatsCCAPIBaseURL:       getenv("STATS_CC_API_BASE_URL", "https://r6.stats.cc"),
+		StatsCCConfigCacheTTLMS: readUint64("STATS_CC_CONFIG_CACHE_TTL_MS", 420_000),
 
 		AxiomToken:   os.Getenv("AXIOM_TOKEN"),
 		AxiomDataset: getenv("AXIOM_DATASET", "parley"),

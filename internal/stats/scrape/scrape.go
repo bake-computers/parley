@@ -245,41 +245,26 @@ func extractMatchesByPlaylist(resolver *NuxtResolver, playlist string) []any {
 	return nil
 }
 
-type matchRoundTotals struct {
-	roundsPlayed      int32
-	survivalRounds    int32
-	tradedRounds      int32
-	openingKillRounds int32
-	killRounds        int32
-}
-
-func summarizeMatchRounds(resolver *NuxtResolver, matches []any) matchRoundTotals {
-	var t matchRoundTotals
+func summarizeMatchRounds(resolver *NuxtResolver, matches []any) MatchRoundTotals {
+	summaries := make([]PlayerSummary, 0, len(matches))
 	for _, m := range matches {
 		s := resolver.Field(m, "player_summary")
 		if s == nil {
 			continue
 		}
-		rounds := numInt32(resolver.Field(s, "rounds"))
-		t.roundsPlayed += rounds
-		t.survivalRounds += numInt32(resolver.Field(s, "round_survivals"))
-		t.tradedRounds += numInt32(resolver.Field(s, "trades"))
-		t.openingKillRounds += numInt32(resolver.Field(s, "opening_kills"))
-		kills := numInt32(resolver.Field(s, "kills"))
-		kills2k := numInt32(resolver.Field(s, "kills_2k"))
-		kills3k := numInt32(resolver.Field(s, "kills_3k"))
-		kills4k := numInt32(resolver.Field(s, "kills_4k"))
-		kills5k := numInt32(resolver.Field(s, "kills_5k"))
-		roundsWithKill := kills - kills2k - 2*kills3k - 3*kills4k - 4*kills5k
-		if roundsWithKill < 0 {
-			roundsWithKill = 0
-		}
-		if roundsWithKill > rounds {
-			roundsWithKill = rounds
-		}
-		t.killRounds += roundsWithKill
+		summaries = append(summaries, PlayerSummary{
+			Rounds:         numInt32(resolver.Field(s, "rounds")),
+			RoundSurvivals: numInt32(resolver.Field(s, "round_survivals")),
+			Trades:         numInt32(resolver.Field(s, "trades")),
+			OpeningKills:   numInt32(resolver.Field(s, "opening_kills")),
+			Kills:          numInt32(resolver.Field(s, "kills")),
+			Kills2K:        numInt32(resolver.Field(s, "kills_2k")),
+			Kills3K:        numInt32(resolver.Field(s, "kills_3k")),
+			Kills4K:        numInt32(resolver.Field(s, "kills_4k")),
+			Kills5K:        numInt32(resolver.Field(s, "kills_5k")),
+		})
 	}
-	return t
+	return SummarizePlayerSummaries(summaries)
 }
 
 func baseProfile(profile any, resolver *NuxtResolver) StatsProfile {
@@ -399,11 +384,11 @@ func buildRankedForSeason(
 		AllTimePeakRankTier:   allTimePeakRankTier,
 		AllTimePeakRankPoints: max(allTimePeakPoints, 0),
 		AllTimePeakRankSeason: allTimePeakSeason,
-		RoundsPlayed:          rounds.roundsPlayed,
-		KillRounds:            rounds.killRounds,
-		SurvivalRounds:        rounds.survivalRounds,
-		TradedRounds:          rounds.tradedRounds,
-		OpeningKillRounds:     rounds.openingKillRounds,
+		RoundsPlayed:          rounds.RoundsPlayed,
+		KillRounds:            rounds.KillRounds,
+		SurvivalRounds:        rounds.SurvivalRounds,
+		TradedRounds:          rounds.TradedRounds,
+		OpeningKillRounds:     rounds.OpeningKillRounds,
 		MatchesInCache:        int32(len(seasonMatches)),
 	}
 }
@@ -565,11 +550,11 @@ func buildFallbackRankedModeStats(
 		PeakRankTier:        "Unranked",
 		AllTimePeakRank:     "Unranked",
 		AllTimePeakRankTier: "Unranked",
-		RoundsPlayed:        rounds.roundsPlayed,
-		KillRounds:          rounds.killRounds,
-		SurvivalRounds:      rounds.survivalRounds,
-		TradedRounds:        rounds.tradedRounds,
-		OpeningKillRounds:   rounds.openingKillRounds,
+		RoundsPlayed:        rounds.RoundsPlayed,
+		KillRounds:          rounds.KillRounds,
+		SurvivalRounds:      rounds.SurvivalRounds,
+		TradedRounds:        rounds.TradedRounds,
+		OpeningKillRounds:   rounds.OpeningKillRounds,
 		MatchesInCache:      int32(len(seasonMatches)),
 	}
 }
@@ -657,11 +642,11 @@ func buildFallbackPastMatches(resolver *NuxtResolver) *RankedStats {
 		PeakRankTier:        "Unranked",
 		AllTimePeakRank:     "Unranked",
 		AllTimePeakRankTier: "Unranked",
-		RoundsPlayed:        rounds.roundsPlayed,
-		KillRounds:          rounds.killRounds,
-		SurvivalRounds:      rounds.survivalRounds,
-		TradedRounds:        rounds.tradedRounds,
-		OpeningKillRounds:   rounds.openingKillRounds,
+		RoundsPlayed:        rounds.RoundsPlayed,
+		KillRounds:          rounds.KillRounds,
+		SurvivalRounds:      rounds.SurvivalRounds,
+		TradedRounds:        rounds.TradedRounds,
+		OpeningKillRounds:   rounds.OpeningKillRounds,
 		MatchesInCache:      matches,
 	}
 }

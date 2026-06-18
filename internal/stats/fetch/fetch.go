@@ -108,7 +108,7 @@ func (c *StatsClient) resolveProfileTargetParallel(ctx context.Context, order []
 // tryResolveOne tries to resolve a profile for a single platform.
 // Returns (nil, "", nil) if the platform didn't match (not an error).
 func (c *StatsClient) tryResolveOne(ctx context.Context, username string, current StatsPlatform, expected string, strictNameMatch bool) (*resolvedProfileTarget, string, error) {
-	base, err := url.Parse(c.baseURL + "/siege")
+	base, err := url.Parse(c.scraperBaseURL + "/siege")
 	if err != nil {
 		return nil, "", NewStatsFetchError(StatsFetchErrorNetwork, err.Error(), false)
 	}
@@ -123,7 +123,7 @@ func (c *StatsClient) tryResolveOne(ctx context.Context, username string, curren
 	if err != nil {
 		return nil, "", NewStatsFetchError(StatsFetchErrorNetwork, err.Error(), false)
 	}
-	req.Header.Set("User-Agent", userAgent)
+	req.Header.Set("User-Agent", scraperUserAgent)
 
 	resp, err := c.http.Do(req)
 	if err != nil {
@@ -160,7 +160,7 @@ func (c *StatsClient) tryResolveOne(ctx context.Context, username string, curren
 		}
 	}
 
-	profileURL := fmt.Sprintf("%s/siege/%s/%s", c.baseURL, urlencodingEncode(resolvedUser), uuid)
+	profileURL := fmt.Sprintf("%s/siege/%s/%s", c.scraperBaseURL, urlencodingEncode(resolvedUser), uuid)
 	return &resolvedProfileTarget{
 		username:   resolvedUser,
 		uuid:       uuid,
@@ -204,7 +204,7 @@ func (c *StatsClient) fetchStatsPageInner(ctx context.Context, username string, 
 	if err != nil {
 		return nil, "", NewStatsFetchError(StatsFetchErrorNetwork, err.Error(), false)
 	}
-	req.Header.Set("User-Agent", userAgent)
+	req.Header.Set("User-Agent", scraperUserAgent)
 
 	resp, err := c.http.Do(req)
 	if err != nil {
@@ -245,6 +245,18 @@ func (c *StatsClient) FetchStatsCollection(ctx context.Context, username string,
 }
 
 func (c *StatsClient) fetchStatsCollectionOnce(ctx context.Context, username string, platform StatsPlatform) (scrape.ScrapedStatsCollection, error) {
+	if c.api != nil {
+		collection, err := c.fetchStatsCollectionViaAPI(ctx, username, platform)
+		if err == nil {
+			return collection, nil
+		}
+		if shouldFallbackToScraper(err) {
+			slog.Warn("stats api failed; falling back to scraper", "username", username, "error", err)
+		} else {
+			return scrape.ScrapedStatsCollection{}, err
+		}
+	}
+
 	target, html, err := c.fetchStatsPageInner(ctx, username, platform)
 	if err != nil {
 		return scrape.ScrapedStatsCollection{}, err
