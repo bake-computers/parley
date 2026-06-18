@@ -12,6 +12,7 @@ import {
   SETTINGS_TOGGLE_PREFIX,
   SETTINGS_PAGE_PREFIX,
   SETTINGS_CANCEL,
+  channelIdFromSelectValue,
 } from "./constants.js";
 import { buildNotificationSettingsCard, buildSettingsErrorCard } from "./ui.js";
 import {
@@ -21,6 +22,18 @@ import {
 
 const COMPONENT_BUTTON = 2;
 const COMPONENT_STRING_SELECT = 3;
+
+async function deferComponent(interaction: MessageComponentInteraction): Promise<boolean> {
+  const deferred = await interaction.deferUpdate();
+  if (deferred.isErr()) {
+    logger.error("settings.defer_failed", "Failed to defer component interaction", {
+      interactionId: interaction.id,
+      error: deferred.error,
+    });
+    return false;
+  }
+  return true;
+}
 
 function getClient(env: unknown) {
   return getGuildSettingsClient(env as never);
@@ -131,6 +144,10 @@ export const settingsButtonHandler = new ComponentHandler(
     return;
   }
 
+  if (!(await deferComponent(interaction))) {
+    return;
+  }
+
   if (customId.startsWith(SETTINGS_PAGE_PREFIX)) {
     const pageStr = customId.slice(SETTINGS_PAGE_PREFIX.length);
     const page = Number.parseInt(pageStr, 10);
@@ -202,8 +219,12 @@ export const settingsSelectHandler = new ComponentHandler(
     return;
   }
 
+  if (!(await deferComponent(interaction))) {
+    return;
+  }
+
   const selectedValues = (interaction as { values?: string[] }).values;
-  const selectedChannel = selectedValues?.[0] ?? "";
+  const selectedChannel = channelIdFromSelectValue(selectedValues?.[0] ?? "");
 
   const env = interaction.context.env;
   const client = getClient(env) as never;
