@@ -209,6 +209,10 @@ export class ParleyClient {
     return this;
   }
 
+  private componentHandlerKey(prefix: string, componentType: number): string {
+    return `${prefix}:${componentType}`;
+  }
+
   private registerSingleHandler(handler: AnyHandler): void {
     if (isSlashCommandHandler(handler) || isContextCommandHandler(handler)) {
       if (handler.isGuildCommand()) {
@@ -231,12 +235,14 @@ export class ParleyClient {
         this.globalCommandHandlers.set(handler.name, handler);
       }
     } else if (isComponentHandler(handler)) {
-      if (this.componentHandlers.has(handler.prefix)) {
+      const key = this.componentHandlerKey(handler.prefix, handler.componentType);
+      if (this.componentHandlers.has(key)) {
         logger.warn("discord.handler.duplicate", "Overwriting component handler", {
           prefix: handler.prefix,
+          componentType: handler.componentType,
         });
       }
-      this.componentHandlers.set(handler.prefix, handler);
+      this.componentHandlers.set(key, handler);
     } else if (isModalHandler(handler)) {
       if (this.modalHandlers.has(handler.prefix)) {
         logger.warn("discord.handler.duplicate", "Overwriting modal handler", {
@@ -588,9 +594,14 @@ export class ParleyClient {
       name: typeof prefix === "string" ? prefix : "unknown",
       interaction,
     });
-    const handler = typeof prefix === "string" ? this.componentHandlers.get(prefix) : undefined;
+    const handler =
+      typeof prefix === "string"
+        ? this.componentHandlers.get(
+            this.componentHandlerKey(prefix, interaction.data.component_type),
+          )
+        : undefined;
 
-    if (!handler || handler.componentType !== interaction.data.component_type) {
+    if (!handler) {
       context.set("analytics.outcome", "missing_handler");
       logger.warn("discord.component.missing_handler", "No component handler registered", {
         requestId: context.requestId,
