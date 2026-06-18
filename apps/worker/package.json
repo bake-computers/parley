@@ -25,6 +25,7 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260506.1",
     "@parley/tsconfig-base": "workspace:*",
+    "@types/node": "^25.9.3",
     "neverthrow": "^8.2.0",
     "typescript": "^6.0.3",
     "wrangler": "^4.98.0"
