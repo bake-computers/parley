@@ -1,5 +1,6 @@
 import { ButtonStyle } from "discord-api-types/v10";
 import {
+  ActionRowBuilder,
   ButtonBuilder,
   ContainerBuilder,
   SectionBuilder,
@@ -86,7 +87,7 @@ function pageNav(
   catalog: ApplicationEmojiCatalog,
   page: number,
   timezonePage: number,
-): SectionBuilder[] {
+): ActionRowBuilder[] {
   const tzPageCount = Math.max(1, Math.ceil(TIMEZONES.length / USER_TIMEZONES_PER_PAGE));
   const prevMain = new ButtonBuilder()
     .setCustomId(`${USER_PAGE_PREFIX}${Math.max(0, page - 1)}:${timezonePage}`)
@@ -115,18 +116,8 @@ function pageNav(
     }
   }
   return [
-    new SectionBuilder()
-      .addText(new TextDisplayBuilder().setContent("Wizard"))
-      .setAccessory(prevMain),
-    new SectionBuilder()
-      .addText(new TextDisplayBuilder().setContent("Next section"))
-      .setAccessory(nextMain),
-    new SectionBuilder()
-      .addText(new TextDisplayBuilder().setContent("Timezones"))
-      .setAccessory(prevTz),
-    new SectionBuilder()
-      .addText(new TextDisplayBuilder().setContent("More timezones"))
-      .setAccessory(nextTz),
+    new ActionRowBuilder().addComponents(prevMain, nextMain),
+    new ActionRowBuilder().addComponents(prevTz, nextTz),
   ];
 }
 
@@ -149,99 +140,71 @@ function buildPreferencesPage(
       ),
     );
 
-  for (const lang of LANGUAGES) {
+  const languageButtons = LANGUAGES.map((lang) => {
     const active = languageValue(settings.language) === lang.value;
-    container.addComponents(
-      new SectionBuilder()
-        .addText(
-          new TextDisplayBuilder().setContent(
-            `${lang.emoji} **${lang.label}**${active ? "\n-# Selected" : ""}`,
-          ),
-        )
-        .setAccessory(
-          choiceButton(emojis, {
-            customId: `${USER_LANG_PREFIX}${lang.value}`,
-            label: lang.label,
-            active,
-            emojiName: "global",
-          }),
-        ),
-    );
-  }
+    return choiceButton(emojis, {
+      customId: `${USER_LANG_PREFIX}${lang.value}`,
+      label: `${lang.emoji} ${lang.label}`,
+      active,
+      emojiName: "global",
+    });
+  });
 
   container.addComponents(
+    new ActionRowBuilder().addComponents(...languageButtons),
     separator(),
     new TextDisplayBuilder().setContent(
       `${emojiOr(emojis, "linked")} **Matchmaking** · ${settings.matchmakingEnabled ? "Enabled" : "Disabled"}`,
     ),
-    new SectionBuilder()
-      .addText(new TextDisplayBuilder().setContent("Join ranked queues when eligible."))
-      .setAccessory(
-        choiceButton(emojis, {
-          customId: `${USER_MATCHMAKING_PREFIX}on`,
-          label: "Enabled",
-          active: settings.matchmakingEnabled,
-          emojiName: "linked",
-        }),
-      ),
-    new SectionBuilder()
-      .addText(new TextDisplayBuilder().setContent("Opt out of automatic matchmaking."))
-      .setAccessory(
-        choiceButton(emojis, {
-          customId: `${USER_MATCHMAKING_PREFIX}off`,
-          label: "Disabled",
-          active: !settings.matchmakingEnabled,
-          emojiName: "ban_hammer",
-        }),
-      ),
+    new ActionRowBuilder().addComponents(
+      choiceButton(emojis, {
+        customId: `${USER_MATCHMAKING_PREFIX}on`,
+        label: "Enabled",
+        active: settings.matchmakingEnabled,
+        emojiName: "linked",
+      }),
+      choiceButton(emojis, {
+        customId: `${USER_MATCHMAKING_PREFIX}off`,
+        label: "Disabled",
+        active: !settings.matchmakingEnabled,
+        emojiName: "ban_hammer",
+      }),
+    ),
     separator(),
     new TextDisplayBuilder().setContent(
       `**Visibility** · ${visibilityLabel(settings.profilePublic)}`,
     ),
-    new SectionBuilder()
-      .addText(new TextDisplayBuilder().setContent("Show your profile on guild leaderboards."))
-      .setAccessory(
-        choiceButton(emojis, {
-          customId: `${USER_VISIBILITY_PREFIX}public`,
-          label: "Public",
-          active: settings.profilePublic,
-          emojiName: "global",
-        }),
-      ),
-    new SectionBuilder()
-      .addText(new TextDisplayBuilder().setContent("Hide your stats from public views."))
-      .setAccessory(
-        choiceButton(emojis, {
-          customId: `${USER_VISIBILITY_PREFIX}hidden`,
-          label: "Hidden",
-          active: !settings.profilePublic,
-          emojiName: "ban_hammer_red",
-        }),
-      ),
+    new ActionRowBuilder().addComponents(
+      choiceButton(emojis, {
+        customId: `${USER_VISIBILITY_PREFIX}public`,
+        label: "Public",
+        active: settings.profilePublic,
+        emojiName: "global",
+      }),
+      choiceButton(emojis, {
+        customId: `${USER_VISIBILITY_PREFIX}hidden`,
+        label: "Hidden",
+        active: !settings.profilePublic,
+        emojiName: "ban_hammer_red",
+      }),
+    ),
     separator(),
     new TextDisplayBuilder().setContent(`**Timezone** · \`${settings.timezone}\``),
   );
 
   const tzStart = timezonePage * USER_TIMEZONES_PER_PAGE;
   const tzSlice = TIMEZONES.slice(tzStart, tzStart + USER_TIMEZONES_PER_PAGE);
-  for (const tz of tzSlice) {
+  const timezoneButtons = tzSlice.map((tz) => {
     const active = settings.timezone === tz.value;
-    container.addComponents(
-      new SectionBuilder()
-        .addText(
-          new TextDisplayBuilder().setContent(
-            `**${tz.label}**${active ? "\n-# Current" : ""}`,
-          ),
-        )
-        .setAccessory(
-          choiceButton(emojis, {
-            customId: `${USER_TIMEZONE_PREFIX}${encodeURIComponent(tz.value)}`,
-            label: active ? "Selected" : "Use",
-            active,
-            emojiName: "time",
-          }),
-        ),
-    );
+    return choiceButton(emojis, {
+      customId: `${USER_TIMEZONE_PREFIX}${page}:${timezonePage}/${encodeURIComponent(tz.value)}`,
+      label: tz.label,
+      active,
+      emojiName: "time",
+    });
+  });
+  if (timezoneButtons.length > 0) {
+    container.addComponents(new ActionRowBuilder().addComponents(...timezoneButtons));
   }
 
   container.addComponents(separator(), ...pageNav(emojis, page, timezonePage));

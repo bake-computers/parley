@@ -46,6 +46,31 @@ describe("user/ui — settings card", () => {
     expect(text).toContain("user/matchmaking/");
     expect(text).toContain("\"type\":2");
   });
+
+  test("stays within the Discord Components v2 limit of 40 total components", () => {
+    function countComponents(node: unknown): number {
+      if (!node || typeof node !== "object") {
+        return 0;
+      }
+      const record = node as {
+        components?: unknown[];
+        accessory?: unknown;
+      };
+      let total = 1;
+      if (Array.isArray(record.components)) {
+        for (const child of record.components) {
+          total += countComponents(child);
+        }
+      }
+      if (record.accessory) {
+        total += countComponents(record.accessory);
+      }
+      return total;
+    }
+
+    const card = buildSettingsCard(SETTINGS, {} as never).toJSON();
+    expect(countComponents(card)).toBeLessThanOrEqual(40);
+  });
 });
 
 describe("user/ui — result cards", () => {
