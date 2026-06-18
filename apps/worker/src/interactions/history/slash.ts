@@ -1,13 +1,8 @@
-import {
-  ContainerBuilder,
-  SlashCommand,
-  TextDisplayBuilder,
-  type ChatInputCommandInteraction,
-} from "@parley/runtime";
+import { SlashCommand, type ChatInputCommandInteraction } from "@parley/runtime";
 import { assertAccepted } from "../_shared/acceptance.js";
 import { editReplyV2 } from "../../ui/discord.js";
 import { invokeListMatches } from "./rpc.js";
-import { buildHistoryCard } from "./ui.js";
+import { buildHistoryCard, buildHistoryErrorCard } from "./ui.js";
 import {
   HISTORY_COMMAND_NAME,
   HISTORY_COMMAND_DESCRIPTION,
@@ -23,17 +18,12 @@ export const historyCommand = new SlashCommand()
     if (!(await assertAccepted(interaction, env as never))) {
       return;
     }
-    await interaction.deferReply(true);
 
     const guildId = interaction.guildId;
     if (!guildId) {
       await editReplyV2(
         interaction,
-        new ContainerBuilder().addComponents(
-          new TextDisplayBuilder().setContent(
-            "This command can only be used in a server.",
-          ),
-        ),
+        buildHistoryErrorCard("This command can only be used in a server."),
       );
       return;
     }
@@ -51,11 +41,7 @@ export const historyCommand = new SlashCommand()
     } else {
       await editReplyV2(
         interaction,
-        new ContainerBuilder().addComponents(
-          new TextDisplayBuilder().setContent(
-            `Could not load match history: ${result.error.message}`,
-          ),
-        ),
+        buildHistoryErrorCard(`Could not load match history: ${result.error.message}`),
       );
     }
   });

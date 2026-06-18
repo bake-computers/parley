@@ -1,5 +1,9 @@
 import { describe, expect, test, vi } from "vitest";
-import { cacheMatchHtml, fetchMatchFromCacheOrBridge } from "#/lib/match-cache";
+import {
+  cacheMatchHtml,
+  fetchMatchFromCacheOrBridge,
+  normalizeMatchData,
+} from "#/lib/match-cache";
 
 function createMockEnv(options: { cachedValue?: unknown; bridgeResponse?: Response } = {}) {
   const kvStore = new Map<string, unknown>();
@@ -30,7 +34,7 @@ describe("fetchMatchFromCacheOrBridge", () => {
 
     const result = await fetchMatchFromCacheOrBridge(env, "test-guild", "test-uuid");
 
-    expect(result).toEqual(cachedData);
+    expect(result).toEqual(normalizeMatchData(cachedData));
     expect(kvGet).toHaveBeenCalledWith("match:html:test-uuid", "json");
     expect(bridgeFetch).not.toHaveBeenCalled();
   });
@@ -42,7 +46,7 @@ describe("fetchMatchFromCacheOrBridge", () => {
 
     const result = await fetchMatchFromCacheOrBridge(env, "test-guild", "test-uuid");
 
-    expect(result).toEqual(bridgeData);
+    expect(result).toEqual(normalizeMatchData(bridgeData));
     expect(bridgeFetch).toHaveBeenCalledWith("https://internal/match/test-guild/test-uuid");
   });
 
@@ -53,6 +57,43 @@ describe("fetchMatchFromCacheOrBridge", () => {
     const result = await fetchMatchFromCacheOrBridge(env, "test-guild", "test-uuid");
 
     expect(result).toBeNull();
+  });
+});
+
+describe("normalizeMatchData", () => {
+  test("defaults missing participants to an empty array", () => {
+    const result = normalizeMatchData({ id: 1, guildId: "g1", publicUuid: "u1" });
+    expect(result?.participants).toEqual([]);
+  });
+
+  test("reads snake_case bridge fields", () => {
+    const result = normalizeMatchData({
+      id: 2,
+      guild_id: "g2",
+      public_uuid: "u2",
+      created_at_ms: 1700000000000,
+      participants: [
+        {
+          discord_user_id: "d1",
+          player_id: 9,
+          username: "Ace",
+          team: "team_a",
+          cpr: 1200,
+        },
+      ],
+    });
+    expect(result).toMatchObject({
+      guildId: "g2",
+      publicUuid: "u2",
+      createdAtMs: 1700000000000,
+      participants: [
+        expect.objectContaining({
+          discordUserId: "d1",
+          username: "Ace",
+          team: "team_a",
+        }),
+      ],
+    });
   });
 });
 

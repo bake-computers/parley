@@ -1,4 +1,6 @@
+import type { LinkedIdentity } from "@parley/proto";
 import type { FetchStatsResponse, ScrapedStats } from "@parley/proto/stats/v1/stats_pb.js";
+import { formatParleyRankLine } from "../../ui/parley-rank.js";
 import {
   ButtonBuilder,
   ContainerBuilder,
@@ -12,6 +14,7 @@ import {
 import {
   ButtonStyle,
   CANCEL_CUSTOM_ID,
+  UNLINK_CUSTOM_ID,
   GAME_NAME,
   PLATFORM_HINTS,
   PLATFORMS,
@@ -145,6 +148,77 @@ export function buildSuccessCard(
     );
 }
 
+export function buildAlreadyLinkedCard(
+  identity: LinkedIdentity,
+  catalog: ApplicationEmojiCatalog,
+): ContainerBuilder {
+  const linkEmoji = emojiOrFallback(catalog, "linked");
+  const rankLine = formatParleyRankLine(catalog, identity.internalElo);
+
+  const delinkButton = new ButtonBuilder()
+    .setCustomId(UNLINK_CUSTOM_ID)
+    .setLabel("Delink")
+    .setStyle(ButtonStyle.Danger);
+  const delinkEmoji = toComponentEmoji(catalog, "trash_red");
+  if (delinkEmoji) {
+    delinkButton.setEmoji(delinkEmoji);
+  }
+
+  return new ContainerBuilder()
+    .setAccentColor(UI_WARNING_COLOR)
+    .addComponents(
+      new TextDisplayBuilder().setContent(titleWith(linkEmoji, "Account Already Linked")),
+      new TextDisplayBuilder().setContent(
+        "You already have a linked account. Delink it first if you want to connect a different profile.",
+      ),
+      separator(),
+      new TextDisplayBuilder().setContent(`**Username**\n\`${identity.username}\``),
+      new TextDisplayBuilder().setContent(`**Platform**\n${identity.platform}`),
+      new TextDisplayBuilder().setContent(`**Parley Rank**\n${rankLine}`),
+      separator(),
+      new SectionBuilder()
+        .addText(new TextDisplayBuilder().setContent("Remove this link?"))
+        .setAccessory(delinkButton),
+    );
+}
+
+export function buildUnlinkCooldownCard(
+  cooldownUntilMs: number,
+  catalog: ApplicationEmojiCatalog,
+): ContainerBuilder {
+  const timerEmoji = emojiOrFallback(catalog, "timeout");
+  const discordTs = `<t:${Math.floor(cooldownUntilMs / 1000)}:R>`;
+
+  return new ContainerBuilder()
+    .setAccentColor(UI_WARNING_COLOR)
+    .addComponents(
+      new TextDisplayBuilder().setContent(titleWith(timerEmoji, "Re-link Cooldown")),
+      separator(),
+      new TextDisplayBuilder().setContent(
+        `You recently delinked your account. You can link again ${discordTs}.`,
+      ),
+    );
+}
+
+export function buildUnlinkedCard(
+  cooldownUntilMs: number,
+  catalog: ApplicationEmojiCatalog,
+): ContainerBuilder {
+  const confirmEmoji = emojiOrFallback(catalog, "redirect");
+  const lines = [
+    new TextDisplayBuilder().setContent(titleWith(confirmEmoji, "Account Delinked")),
+    separator(),
+    new TextDisplayBuilder().setContent("Your Discord account is no longer linked to a game profile."),
+  ];
+  if (cooldownUntilMs > 0) {
+    const discordTs = `<t:${Math.floor(cooldownUntilMs / 1000)}:F>`;
+    lines.push(
+      new TextDisplayBuilder().setContent(`**Re-link available**\n${discordTs}`),
+    );
+  }
+  return new ContainerBuilder().setAccentColor(UI_SUCCESS_COLOR).addComponents(...lines);
+}
+
 export function buildErrorCard(
   message: string,
   catalog: ApplicationEmojiCatalog,
@@ -211,15 +285,24 @@ export function buildReadyToPlayCard(
       new TextDisplayBuilder().setContent(`**Player ID**\n\`${args.playerId}\``),
       new TextDisplayBuilder().setContent(`**Platform**\n${label}`),
       separator(),
-      ...buildStatsLines(profile, ranked),
+      ...buildStatsLines(catalog, profile, ranked),
     );
 }
 
 function buildStatsLines(
+  catalog: ApplicationEmojiCatalog,
   profile: ScrapedStats["profile"],
   ranked: ScrapedStats["rankedStats"],
 ): TextDisplayBuilder[] {
   const lines: TextDisplayBuilder[] = [];
+  const seededElo = ranked && ranked.rankPoints > 0 ? ranked.rankPoints : 0;
+  if (seededElo > 0) {
+    lines.push(
+      new TextDisplayBuilder().setContent(
+        `**Parley Rank**\n${formatParleyRankLine(catalog, seededElo)}`,
+      ),
+    );
+  }
   if (profile) {
     const level = profile.level > 0 ? `Level ${profile.level}` : "Level —";
     lines.push(new TextDisplayBuilder().setContent(`**Profile**\n${level}`));

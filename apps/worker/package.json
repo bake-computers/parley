@@ -7,7 +7,8 @@
   "scripts": {
     "build": "tsc",
     "deploy": "wrangler deploy",
-    "dev": "wrangler dev --port 8787",
+    "dev": "wrangler dev --port 8787 --tunnel --tunnel-name parley",
+    "dev:local": "wrangler dev --env local --port 8787 --tunnel --tunnel-name parley",
     "typecheck": "tsc --noEmit && wrangler types --check",
     "lint": "oxlint .",
     "test": "bun test src",

@@ -220,12 +220,14 @@ func (x *UnlinkAccountRequest) GetGame() v1.Game {
 }
 
 type UnlinkAccountResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
-	Removed       int32                  `protobuf:"varint,2,opt,name=removed,proto3" json:"removed,omitempty"` // # of discord_identities rows dropped
-	Error         *v1.Error              `protobuf:"bytes,3,opt,name=error,proto3" json:"error,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state   protoimpl.MessageState `protogen:"open.v1"`
+	Success bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	Removed int32                  `protobuf:"varint,2,opt,name=removed,proto3" json:"removed,omitempty"` // # of discord_identities rows dropped
+	Error   *v1.Error              `protobuf:"bytes,3,opt,name=error,proto3" json:"error,omitempty"`
+	// Epoch ms when the user may link again (0 when no cooldown was recorded).
+	CooldownUntilMs int64 `protobuf:"varint,4,opt,name=cooldown_until_ms,json=cooldownUntilMs,proto3" json:"cooldown_until_ms,omitempty"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
 }
 
 func (x *UnlinkAccountResponse) Reset() {
@@ -277,6 +279,13 @@ func (x *UnlinkAccountResponse) GetError() *v1.Error {
 		return x.Error
 	}
 	return nil
+}
+
+func (x *UnlinkAccountResponse) GetCooldownUntilMs() int64 {
+	if x != nil {
+		return x.CooldownUntilMs
+	}
+	return 0
 }
 
 type LookupByDiscordRequest struct {
@@ -662,11 +671,12 @@ const file_identity_v1_identity_proto_rawDesc = "" +
 	"\x05error\x18\x04 \x01(\v2\x17.parley.common.v1.ErrorR\x05error\"j\n" +
 	"\x14UnlinkAccountRequest\x12&\n" +
 	"\x0fdiscord_user_id\x18\x01 \x01(\tR\rdiscordUserId\x12*\n" +
-	"\x04game\x18\x02 \x01(\x0e2\x16.parley.common.v1.GameR\x04game\"z\n" +
+	"\x04game\x18\x02 \x01(\x0e2\x16.parley.common.v1.GameR\x04game\"\xa6\x01\n" +
 	"\x15UnlinkAccountResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
 	"\aremoved\x18\x02 \x01(\x05R\aremoved\x12-\n" +
-	"\x05error\x18\x03 \x01(\v2\x17.parley.common.v1.ErrorR\x05error\"l\n" +
+	"\x05error\x18\x03 \x01(\v2\x17.parley.common.v1.ErrorR\x05error\x12*\n" +
+	"\x11cooldown_until_ms\x18\x04 \x01(\x03R\x0fcooldownUntilMs\"l\n" +
 	"\x16LookupByDiscordRequest\x12&\n" +
 	"\x0fdiscord_user_id\x18\x01 \x01(\tR\rdiscordUserId\x12*\n" +
 	"\x04game\x18\x02 \x01(\x0e2\x16.parley.common.v1.GameR\x04game\"\xa6\x01\n" +

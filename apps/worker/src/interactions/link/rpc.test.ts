@@ -1,7 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import { ConnectError } from "@connectrpc/connect";
 import { Game, StatsPlatform } from "@parley/proto";
-import type { LinkAccountResponse } from "@parley/proto/identity/v1/identity_pb.js";
+import type {
+  LinkAccountResponse,
+  UnlinkAccountResponse,
+} from "@parley/proto/identity/v1/identity_pb.js";
 import type { FetchStatsResponse } from "@parley/proto/stats/v1/stats_pb.js";
 import { invokeFetchStats, invokeLinkAccount, platformToStatsPlatform } from "./rpc.js";
 
@@ -28,6 +31,12 @@ describe("invokeLinkAccount", () => {
         calls.push(req);
         return Promise.resolve(fakeResponse());
       },
+      unlinkAccount: () =>
+        Promise.resolve({
+          success: true,
+          removed: 0,
+          cooldownUntilMs: 0n,
+        } as unknown as UnlinkAccountResponse),
     };
 
     const result = await invokeLinkAccount(client, ARGS);
@@ -43,6 +52,12 @@ describe("invokeLinkAccount", () => {
     const original = new ConnectError("InvalidArgument: username is required", 3, {});
     const client = {
       linkAccount: () => Promise.reject(original),
+      unlinkAccount: () =>
+        Promise.resolve({
+          success: true,
+          removed: 0,
+          cooldownUntilMs: 0n,
+        } as unknown as UnlinkAccountResponse),
     };
 
     const result = await invokeLinkAccount(client, ARGS);
@@ -56,6 +71,12 @@ describe("invokeLinkAccount", () => {
   test("wraps a non-Connect throw as a ConnectError(Unknown)", async () => {
     const client = {
       linkAccount: () => Promise.reject(new Error("network blew up")),
+      unlinkAccount: () =>
+        Promise.resolve({
+          success: true,
+          removed: 0,
+          cooldownUntilMs: 0n,
+        } as unknown as UnlinkAccountResponse),
     };
 
     const result = await invokeLinkAccount(client, ARGS);
@@ -73,6 +94,12 @@ describe("invokeLinkAccount", () => {
         calls.push(req);
         return Promise.resolve(fakeResponse());
       },
+      unlinkAccount: () =>
+        Promise.resolve({
+          success: true,
+          removed: 0,
+          cooldownUntilMs: 0n,
+        } as unknown as UnlinkAccountResponse),
     };
 
     await invokeLinkAccount(client, { ...ARGS, guildId: "guild-1" });

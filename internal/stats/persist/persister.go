@@ -117,6 +117,10 @@ func (w *DBSnapshotWriter) PersistSnapshot(ctx context.Context, game backends.Ga
 		return err
 	}
 
+	if err := w.Identity.SeedEloIfUnrated(ctx, player.ID, ranked.RankPoints); err != nil {
+		return err
+	}
+
 	if w.Invalidate != nil && w.Guild != nil {
 		guildIDs, err := w.Guild.GuildIDsForPlayer(ctx, dbGame, player.ID)
 		if err != nil {

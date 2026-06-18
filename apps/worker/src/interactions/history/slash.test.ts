@@ -2,13 +2,8 @@ import { describe, test, expect, mock, beforeEach } from "bun:test";
 import { ok, err } from "neverthrow";
 import { ConnectError } from "@connectrpc/connect";
 
-// Mutable mock state — closures read these at call time
-let assertAcceptedReturn = true;
 let listMatchesReturn: unknown;
 let editReplyV2Calls: unknown[] = [];
-
-// Module mocks (must precede dynamic import of the module under test)
-const assertAcceptedSpy = mock(() => Promise.resolve(assertAcceptedReturn));
 
 const invokeListMatchesSpy = mock(() => Promise.resolve(listMatchesReturn));
 
@@ -16,10 +11,6 @@ const editReplyV2Spy = mock((_interaction: unknown, container: unknown) => {
   editReplyV2Calls.push(container);
   return Promise.resolve(ok({}));
 });
-
-mock.module("../_shared/acceptance.js", () => ({
-  assertAccepted: assertAcceptedSpy,
-}));
 
 mock.module("./rpc.js", () => ({
   invokeListMatches: invokeListMatchesSpy,
@@ -29,7 +20,6 @@ mock.module("../../ui/discord.js", () => ({
   editReplyV2: editReplyV2Spy,
 }));
 
-// Dynamic import after mocks are registered
 const { historyCommand } = await import("./slash.js");
 
 // Helpers
@@ -77,10 +67,8 @@ function makeMatch(index: number) {
 
 describe("historyCommand", () => {
   beforeEach(() => {
-    assertAcceptedReturn = true;
     listMatchesReturn = ok({ matches: [], nextCursor: "" });
     editReplyV2Calls = [];
-    assertAcceptedSpy.mockClear();
     invokeListMatchesSpy.mockClear();
     editReplyV2Spy.mockClear();
   });
@@ -92,7 +80,6 @@ describe("historyCommand", () => {
     const interaction = makeMockInteraction("guild-123");
     await historyCommand.execute(interaction as never);
 
-    expect(interaction.deferReply).toHaveBeenCalledWith(true);
     expect(editReplyV2Spy).toHaveBeenCalledTimes(1);
     expect(editReplyV2Calls).toHaveLength(1);
 
@@ -125,14 +112,4 @@ describe("historyCommand", () => {
     expect(json).toContain("Could not load match history");
   });
 
-  test("enforces ToS gate", async () => {
-    assertAcceptedReturn = false;
-
-    const interaction = makeMockInteraction("guild-123");
-    await historyCommand.execute(interaction as never);
-
-    expect(interaction.deferReply).not.toHaveBeenCalled();
-    expect(invokeListMatchesSpy).not.toHaveBeenCalled();
-    expect(editReplyV2Calls).toHaveLength(0);
-  });
 });

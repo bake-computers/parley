@@ -1,4 +1,7 @@
-import type { LinkAccountResponse } from "@parley/proto/identity/v1/identity_pb.js";
+import type {
+  LinkAccountResponse,
+  UnlinkAccountResponse,
+} from "@parley/proto/identity/v1/identity_pb.js";
 import { Game } from "@parley/proto";
 import { ConnectError } from "@connectrpc/connect";
 import { err, ok, type Result } from "neverthrow";
@@ -27,8 +30,14 @@ type LinkAccountArgs = {
   guildId?: string;
 };
 
+type UnlinkAccountArgs = {
+  discordUserId: string;
+  game: Game;
+};
+
 type IdentityClient = {
   linkAccount: (req: LinkAccountArgs) => Promise<LinkAccountResponse>;
+  unlinkAccount: (req: UnlinkAccountArgs) => Promise<UnlinkAccountResponse>;
 };
 
 /**
@@ -70,6 +79,29 @@ export function invokeLinkAccount(
   args: LinkAccountArgs,
 ): Promise<Result<LinkAccountResponse, ConnectError>> {
   return client.linkAccount(args).then(
+    (response) => ok(response),
+    (cause: unknown) =>
+      err(cause instanceof ConnectError ? cause : new ConnectError(String(cause), 13, {})),
+  );
+}
+
+export function executeUnlinkAccount(input: {
+  context: LinkInteractionContext["context"];
+  user: LinkInteractionContext["user"];
+}): Promise<Result<UnlinkAccountResponse, ConnectError>> {
+  const env = input.context.env as EngineTransportEnv;
+  const client = getIdentityClient(env) as unknown as IdentityClient;
+  return invokeUnlinkAccount(client, {
+    discordUserId: input.user?.id ?? "",
+    game: Game.R6,
+  });
+}
+
+export function invokeUnlinkAccount(
+  client: IdentityClient,
+  args: UnlinkAccountArgs,
+): Promise<Result<UnlinkAccountResponse, ConnectError>> {
+  return client.unlinkAccount(args).then(
     (response) => ok(response),
     (cause: unknown) =>
       err(cause instanceof ConnectError ? cause : new ConnectError(String(cause), 13, {})),

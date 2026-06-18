@@ -30,6 +30,9 @@ export const COMPONENTS_V2_EPHEMERAL = 64 | 32768;
 /** Hand-rolled cancel/back from any wizard step. */
 export const CANCEL_CUSTOM_ID = "link/cancel";
 
+/** Delink the current Discord↔game account binding. */
+export const UNLINK_CUSTOM_ID = "link/unlink";
+
 /** Modal customId prefix for the username collection step. */
 export const USERNAME_MODAL_PREFIX = "link-username-modal";
 

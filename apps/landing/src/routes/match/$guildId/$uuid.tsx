@@ -1,13 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { MatchDetailPage } from "#/components/MatchDetailPage";
 import { NotFound } from "#/components/NotFound";
+import { getMatchForRoute } from "#/lib/match-server";
 
 export const Route = createFileRoute("/match/$guildId/$uuid")({
   loader: async ({ params }) => {
-    // eslint-disable-next-line no-inline-comments
-    const env = (await import(/* @vite-ignore */ "cloudflare:workers")).env;
-    const { fetchMatchFromCacheOrBridge } = await import("#/lib/match-cache");
-    const match = await fetchMatchFromCacheOrBridge(env, params.guildId, params.uuid);
+    const match = await getMatchForRoute({
+      data: { guildId: params.guildId, uuid: params.uuid },
+    });
     return { match };
   },
   head: () => ({

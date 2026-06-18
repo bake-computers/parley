@@ -1,7 +1,7 @@
 import {
+  ActionRowBuilder,
   ButtonBuilder,
   ContainerBuilder,
-  SectionBuilder,
   TextDisplayBuilder,
   formatApplicationEmoji,
   type ApplicationEmojiCatalog,
@@ -13,8 +13,24 @@ import {
 import type { UserSettingsResponse, UserSettings as ProtoUserSettings } from "@parley/proto";
 import { getUserSettingsClient } from "../../transport.js";
 import { UI_TOKENS } from "../../ui/tokens.js";
+import { COMPONENTS_V2_EPHEMERAL } from "../../ui/discord.js";
 
 export const ACCEPT_BUTTON = "user/accept-terms";
+
+export function acceptCustomId(sourceCommand: string): string {
+  return `${ACCEPT_BUTTON}/${sourceCommand}`;
+}
+
+export function parseAcceptSource(customId: string): string {
+  if (customId === ACCEPT_BUTTON) {
+    return "user";
+  }
+  const prefix = `${ACCEPT_BUTTON}/`;
+  if (customId.startsWith(prefix)) {
+    return customId.slice(prefix.length) || "user";
+  }
+  return "user";
+}
 
 const SETTINGS_CACHE_KEY = (discordUserId: string): string =>
   `user-settings-cache:${discordUserId}`;
@@ -32,12 +48,25 @@ type GetUserSettingsClient = {
   getUserSettings: (req: { discordUserId: string }) => Promise<UserSettingsResponse>;
 };
 
-export function buildAcceptanceCard(emojis: ApplicationEmojiCatalog): ContainerBuilder {
+export function refreshSettingsCache(
+  interaction: GatedInteraction,
+  settings: ProtoUserSettings,
+): void {
+  const ctx = interaction.context as DiscordRequestContext;
+  const discordUserId = interaction.user?.id ?? "";
+  ctx.set(SETTINGS_CACHE_KEY(discordUserId), { at: Date.now(), value: settings });
+}
+
+export function buildAcceptanceCard(
+  emojis: ApplicationEmojiCatalog,
+  sourceCommand = "user",
+): ContainerBuilder {
   const pin = formatApplicationEmoji(emojis, "pin");
-  const title = pin ? `${pin} **Before you start**` : "**Before you start**";
+  const title_text = "**Welcome to Parley**"
+  const title = pin ? `${pin} ${title_text}` : `${title_text}`;
 
   const acceptButton = new ButtonBuilder()
-    .setCustomId(ACCEPT_BUTTON)
+    .setCustomId(acceptCustomId(sourceCommand))
     .setLabel("Accept & Continue")
     .setStyle(BUTTON_STYLE_SECONDARY);
 
@@ -46,14 +75,12 @@ export function buildAcceptanceCard(emojis: ApplicationEmojiCatalog): ContainerB
     .addComponents(
       new TextDisplayBuilder().setContent(title),
       new TextDisplayBuilder().setContent(
-        "Parley links your Discord to your in-game profile and stores match, stats, and tournament data so we can run ranked queues and tournaments.",
+        "To track your MMR, build your competitive stats, and power our ranked queues and tournaments, Parley needs to link your Discord to your Ubisoft account.",
       ),
       new TextDisplayBuilder().setContent(
-        "By continuing you accept our [Privacy Policy](https://parley.bot/privacy) and [Terms of Service](https://parley.bot/terms).",
+        "By clicking below, you agree to our [Terms of Service](https://parley.bot/terms) and [Privacy Policy](https://parley.bot/privacy).",
       ),
-      new SectionBuilder()
-        .addText(new TextDisplayBuilder().setContent("Ready to continue?"))
-        .setAccessory(acceptButton),
+      new ActionRowBuilder().addComponents(acceptButton),
     );
 }
 
@@ -68,8 +95,28 @@ async function fetchSettings(
   if (cached && Date.now() - cached.at < SETTINGS_CACHE_TTL_MS) {
     return cached.value;
   }
-  const response = await client.getUserSettings({ discordUserId } as never).catch(() => undefined);
-  const settings = response?.success ? response.settings : undefined;
+  let response: UserSettingsResponse | undefined;
+  try {
+    response = await client.getUserSettings({ discordUserId } as never);
+  } catch (cause: unknown) {
+    console.warn("user_settings.fetch_failed", cause);
+    return undefined;
+  }
+
+  if (!response.success) {
+    console.warn(
+      "user_settings.fetch_failed",
+      response.error?.message ?? "engine returned success=false",
+    );
+    return undefined;
+  }
+
+  const settings = response.settings;
+  if (!settings) {
+    console.warn("user_settings.fetch_failed: empty settings payload");
+    return undefined;
+  }
+
   ctx.set(cacheKey, { at: Date.now(), value: settings });
   return settings;
 }
@@ -78,14 +125,26 @@ function defaultClient(env: unknown): GetUserSettingsClient {
   return getUserSettingsClient(env as never) as unknown as GetUserSettingsClient;
 }
 
+function isSlashCommand(interaction: GatedInteraction): interaction is ChatInputCommandInteraction {
+  return "commandName" in interaction;
+}
+
 export async function assertAccepted(
   interaction: GatedInteraction,
   env: unknown,
   injectedClient?: GetUserSettingsClient,
+  sourceCommand?: string,
 ): Promise<boolean> {
   const discordUserId = interaction.user?.id;
   if (!discordUserId) {
     return true;
+  }
+
+  // Discord requires an initial response within 3s. Defer slash commands before
+  // the settings RPC so hot-reload / VPC latency doesn't trigger a timeout.
+  const slash = isSlashCommand(interaction);
+  if (slash && !interaction.deferred && !interaction.replied) {
+    await interaction.deferReply(true);
   }
 
   const client = injectedClient ?? defaultClient(env);
@@ -100,20 +159,26 @@ export async function assertAccepted(
   }
 
   if (settings === undefined) {
-    console.warn("user_settings.fetch_failed: empty response");
+    // Fail open when the engine is unreachable so dev without the Go binary still works.
     return true;
   }
 
-  if (settings.termsAcceptedAtMs > 0) {
+  if ((settings.termsAcceptedAtMs ?? 0) > 0) {
     return true;
   }
 
-  await interaction.reply(
-    {
-      components: [buildAcceptanceCard({}).toJSON()],
-      flags: 64 | 32768,
-    },
-    true,
-  );
+  const source =
+    sourceCommand ?? (isSlashCommand(interaction) ? interaction.commandName : "user");
+
+  const acceptancePayload = {
+    components: [buildAcceptanceCard({}, source).toJSON()],
+    flags: COMPONENTS_V2_EPHEMERAL,
+  };
+
+  if (slash && interaction.deferred) {
+    await interaction.editReply(acceptancePayload);
+  } else {
+    await interaction.reply(acceptancePayload, true);
+  }
   return false;
 }

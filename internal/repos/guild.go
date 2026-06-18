@@ -16,6 +16,9 @@ import (
 // DeletionCooldownMS is the thirty-day re-registration ban after GDPR deletion.
 const DeletionCooldownMS int64 = 30 * 24 * 60 * 60 * 1000
 
+// UnlinkCooldownMS is the wait before linking again after a voluntary delink.
+const UnlinkCooldownMS int64 = 24 * 60 * 60 * 1000
+
 // GuildMemberRow is a joined guild membership and player identity row.
 type GuildMemberRow struct {
 	DiscordUserID   string  `bun:"discord_user_id"`
@@ -427,17 +430,18 @@ func (r *GuildRepo) IsDeletionBlocked(
 	return nil, nil
 }
 
-// RecordDeletionCooldown records or refreshes the post-deletion cooldown window.
-func (r *GuildRepo) RecordDeletionCooldown(
+// RecordRelinkCooldown records or refreshes a re-link ban for the given duration.
+func (r *GuildRepo) RecordRelinkCooldown(
 	ctx context.Context,
 	discordUserID, secret string,
-	deletedAt int64,
-) error {
+	sinceMs, durationMS int64,
+) (int64, error) {
 	hash := DiscordUserIDHash(discordUserID, secret)
+	until := sinceMs + durationMS
 	row := models.AccountDeletionCooldown{
 		DiscordUserIDHash: hash,
-		DeletedAt:         deletedAt,
-		CooldownUntil:     deletedAt + DeletionCooldownMS,
+		DeletedAt:         sinceMs,
+		CooldownUntil:     until,
 	}
 	_, err := r.db.NewInsert().
 		Model(&row).
@@ -445,5 +449,18 @@ func (r *GuildRepo) RecordDeletionCooldown(
 		Set("deleted_at = EXCLUDED.deleted_at").
 		Set("cooldown_until = EXCLUDED.cooldown_until").
 		Exec(ctx)
+	if err != nil {
+		return 0, err
+	}
+	return until, nil
+}
+
+// RecordDeletionCooldown records or refreshes the post-deletion cooldown window.
+func (r *GuildRepo) RecordDeletionCooldown(
+	ctx context.Context,
+	discordUserID, secret string,
+	deletedAt int64,
+) error {
+	_, err := r.RecordRelinkCooldown(ctx, discordUserID, secret, deletedAt, DeletionCooldownMS)
 	return err
 }

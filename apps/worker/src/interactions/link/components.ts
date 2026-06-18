@@ -6,17 +6,23 @@ import {
 } from "@parley/runtime";
 import { resolveEmojis } from "../../ui/emojis.js";
 import { editReplyV2 } from "../../ui/discord.js";
-import { CANCEL_CUSTOM_ID, isPlatform } from "./constants.js";
+import { CANCEL_CUSTOM_ID, UNLINK_CUSTOM_ID, isPlatform } from "./constants.js";
 import { buildUsernameModal } from "./modal.js";
-import { executeFetchStats, executeLinkAccount } from "./rpc.js";
+import { executeFetchStats, executeLinkAccount, executeUnlinkAccount } from "./rpc.js";
 import {
+  buildAlreadyLinkedCard,
   buildErrorCard,
   buildFetchingStatsCard,
   buildPlatformSelectCard,
   buildReadyToPlayCard,
+  buildUnlinkCooldownCard,
+  buildUnlinkedCard,
 } from "./ui.js";
 import { assertAccepted } from "../_shared/acceptance.js";
-import type { EngineTransportEnv } from "../../transport.js";
+import { invokeLookupByDiscord } from "../profile.js";
+import { getIdentityClient, type EngineTransportEnv } from "../../transport.js";
+import { parseCooldownUntilMs } from "../../ui/parley-rank.js";
+import { Game } from "@parley/proto";
 
 const COMPONENT_BUTTON = 2;
 
@@ -38,7 +44,7 @@ const COMPONENT_BUTTON = 2;
 export const linkButtonHandler = new ComponentHandler("link", COMPONENT_BUTTON).addHandler(
   async (interaction: MessageComponentInteraction) => {
     const env = interaction.context.env as EngineTransportEnv;
-    if (!(await assertAccepted(interaction, env as never))) {
+    if (!(await assertAccepted(interaction, env as never, undefined, "link"))) {
       return;
     }
     const customId = interaction.customId;
@@ -86,6 +92,32 @@ export const linkButtonHandler = new ComponentHandler("link", COMPONENT_BUTTON).
 
     const emojis = await resolveEmojis(interaction);
 
+    if (customId === UNLINK_CUSTOM_ID) {
+      const unlinkResult = await executeUnlinkAccount({
+        context: interaction.context,
+        user: interaction.user,
+      });
+      if (unlinkResult.isErr()) {
+        logger.error("link.unlink_failed", "unlinkAccount RPC failed", {
+          interactionId: interaction.id,
+          error: unlinkResult.error,
+        });
+        await safeEditReplyV2(
+          interaction,
+          buildErrorCard(unlinkResult.error.message, emojis),
+          "link.unlink_card_failed",
+        );
+        return;
+      }
+      const cooldownUntilMs = Number(unlinkResult.value.cooldownUntilMs);
+      await safeEditReplyV2(
+        interaction,
+        buildUnlinkedCard(cooldownUntilMs, emojis),
+        "link.unlinked_card_failed",
+      );
+      return;
+    }
+
     if (customId === CANCEL_CUSTOM_ID) {
       await safeEditReplyV2(interaction, buildPlatformSelectCard(emojis), "link.cancel_failed");
       return;
@@ -131,15 +163,35 @@ export const linkButtonHandler = new ComponentHandler("link", COMPONENT_BUTTON).
     });
 
     if (rpcResult.isErr()) {
+      const message = rpcResult.error.message;
+      const cooldownUntilMs = parseCooldownUntilMs(message);
+      if (cooldownUntilMs !== null) {
+        await safeEditReplyV2(
+          interaction,
+          buildUnlinkCooldownCard(cooldownUntilMs, emojis),
+          "link.cooldown_card_failed",
+        );
+        return;
+      }
+      if (message.includes("already linked")) {
+        const lookup = await invokeLookupByDiscord(getIdentityClient(env) as never, {
+          discordUserId: interaction.user?.id ?? "",
+          game: Game.R6,
+        });
+        if (lookup.isOk() && lookup.value.identities.length > 0) {
+          await safeEditReplyV2(
+            interaction,
+            buildAlreadyLinkedCard(lookup.value.identities[0]!, emojis),
+            "link.already_linked_card_failed",
+          );
+          return;
+        }
+      }
       logger.error("link.rpc_failed", "linkAccount RPC failed", {
         interactionId: interaction.id,
         error: rpcResult.error,
       });
-      await safeEditReplyV2(
-        interaction,
-        buildErrorCard(rpcResult.error.message, emojis),
-        "link.error_card_failed",
-      );
+      await safeEditReplyV2(interaction, buildErrorCard(message, emojis), "link.error_card_failed");
       return;
     }
 

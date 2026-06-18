@@ -6,7 +6,7 @@ import type {
 import { logger } from "./logger.js";
 import { DiscordRestClient } from "../rest.js";
 
-const APPLICATION_EMOJI_CACHE_KEY = "discord:application-emojis:v1";
+const APPLICATION_EMOJI_CACHE_KEY = "discord:application-emojis:v2";
 const APPLICATION_EMOJI_CACHE_TTL_SECONDS = 21_600;
 const APPLICATION_EMOJI_CACHE_VERSION = 1;
 
@@ -24,6 +24,16 @@ export const APP_EMOJI_NAMES = [
   "calendar",
   "ban_hammer",
   "ban_hammer_red",
+  "rank_unspecified",
+  "rank_iron",
+  "rank_bronze",
+  "rank_silver",
+  "rank_gold",
+  "rank_platinum",
+  "rank_diamond",
+  "rank_master",
+  "rank_grandmaster",
+  "rank_challenger",
 ] as const;
 
 export type AppEmojiName = (typeof APP_EMOJI_NAMES)[number];
