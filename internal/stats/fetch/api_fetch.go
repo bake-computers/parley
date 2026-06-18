@@ -56,6 +56,15 @@ func (c *StatsClient) fetchStatsCollectionViaAPI(
 		Username: username,
 	})
 
+	// Canonicalize platform to match the scraper path
+	plat := target.platform.String()
+	collection.Latest.Profile.Platform = plat
+
+	for slug, s := range collection.BySeason {
+		s.Profile.Platform = plat
+		collection.BySeason[slug] = s
+	}
+
 	if looksEmptyCollection(collection) {
 		return scrape.ScrapedStatsCollection{}, NewStatsFetchError(StatsFetchErrorInvalidPayload, "API payload was empty", true)
 	}
