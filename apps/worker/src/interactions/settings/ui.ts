@@ -1,8 +1,8 @@
 import { ButtonStyle } from "discord-api-types/v10";
 import {
+  ActionRowBuilder,
   ButtonBuilder,
   ContainerBuilder,
-  SectionBuilder,
   SeparatorBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
@@ -16,6 +16,7 @@ import type { GuildNotificationSettings as ProtoNotificationSettings } from "@pa
 import type { GuildTextChannel } from "../../ui/guild-channels.js";
 import {
   COLORS,
+  SETTINGS_CHANNEL_NONE,
   SETTINGS_MATCH_RESULTS_PREFIX,
   SETTINGS_PAGE_COUNT,
   SETTINGS_PAGE_PREFIX,
@@ -116,7 +117,7 @@ function channelSelect(
   const options: StringSelectMenuOptionBuilder[] = [
     new StringSelectMenuOptionBuilder()
       .setLabel("None — disable channel")
-      .setValue("")
+      .setValue(SETTINGS_CHANNEL_NONE)
       .setDescription("Clear this notification channel")
       .setDefault(!selectedId),
   ];
@@ -134,7 +135,7 @@ function channelSelect(
   return select.addOptions(...options);
 }
 
-function pageNav(catalog: ApplicationEmojiCatalog, page: number): SectionBuilder[] {
+function pageNav(catalog: ApplicationEmojiCatalog, page: number): ActionRowBuilder[] {
   const prev = new ButtonBuilder()
     .setCustomId(`${SETTINGS_PAGE_PREFIX}${Math.max(0, page - 1)}`)
     .setLabel("Channels")
@@ -151,14 +152,7 @@ function pageNav(catalog: ApplicationEmojiCatalog, page: number): SectionBuilder
       btn.setEmoji(pin);
     }
   }
-  return [
-    new SectionBuilder()
-      .addText(new TextDisplayBuilder().setContent("Notification channels"))
-      .setAccessory(prev),
-    new SectionBuilder()
-      .addText(new TextDisplayBuilder().setContent("Enable / disable alerts"))
-      .setAccessory(next),
-  ];
+  return [new ActionRowBuilder().addComponents(prev, next)];
 }
 
 function buildChannelsPage(
@@ -188,13 +182,8 @@ function buildChannelsPage(
     "Select match results channel",
   );
   container.addComponents(
-    new SectionBuilder()
-      .addText(
-        new TextDisplayBuilder().setContent(
-          "Where finished match summaries are posted.",
-        ),
-      )
-      .setAccessory(matchSelect),
+    new TextDisplayBuilder().setContent("Where finished match summaries are posted."),
+    new ActionRowBuilder().addComponents(matchSelect),
     separator(),
     new TextDisplayBuilder().setContent(
       `**Tournament Announcements**\n${channelMention(settings.tournamentAnnouncementsChannel)}`,
@@ -209,13 +198,8 @@ function buildChannelsPage(
     "Select tournament channel",
   );
   container.addComponents(
-    new SectionBuilder()
-      .addText(
-        new TextDisplayBuilder().setContent(
-          "Bracket updates and tournament news.",
-        ),
-      )
-      .setAccessory(tournamentSelect),
+    new TextDisplayBuilder().setContent("Bracket updates and tournament news."),
+    new ActionRowBuilder().addComponents(tournamentSelect),
     separator(),
     ...pageNav(emojis, page),
   );
@@ -242,28 +226,22 @@ function buildTogglesPage(
     const enabled = settings[toggle.key];
     container.addComponents(
       new TextDisplayBuilder().setContent(
-        `**${toggle.label}** · ${enabled ? "Enabled" : "Disabled"}`,
+        `**${toggle.label}** · ${enabled ? "Enabled" : "Disabled"}\n-# ${toggle.description}`,
       ),
-      new SectionBuilder()
-        .addText(new TextDisplayBuilder().setContent(toggle.description))
-        .setAccessory(
-          toggleButton(emojis, {
-            customId: `${SETTINGS_TOGGLE_PREFIX}${toggle.field}/on`,
-            label: "Enabled",
-            active: enabled,
-            emojiName: toggle.emojiOn,
-          }),
-        ),
-      new SectionBuilder()
-        .addText(new TextDisplayBuilder().setContent("Turn this notification off."))
-        .setAccessory(
-          toggleButton(emojis, {
-            customId: `${SETTINGS_TOGGLE_PREFIX}${toggle.field}/off`,
-            label: "Disabled",
-            active: !enabled,
-            emojiName: toggle.emojiOff,
-          }),
-        ),
+      new ActionRowBuilder().addComponents(
+        toggleButton(emojis, {
+          customId: `${SETTINGS_TOGGLE_PREFIX}${toggle.field}/on`,
+          label: "Enabled",
+          active: enabled,
+          emojiName: toggle.emojiOn,
+        }),
+        toggleButton(emojis, {
+          customId: `${SETTINGS_TOGGLE_PREFIX}${toggle.field}/off`,
+          label: "Disabled",
+          active: !enabled,
+          emojiName: toggle.emojiOff,
+        }),
+      ),
       separator(),
     );
   }
