@@ -9,7 +9,8 @@ option go_package = "github.com/pactum-computers/parley/gen/parley/identity/v1;i
 
 // Identity & account-linking service.
 //
-// A Discord user can be linked to exactly one Rainbow Six Siege player profile.
+// A Discord user can link multiple Rainbow Six Siege player profiles (e.g. PC + console),
+// at most one per platform.
 service IdentityService {
   rpc LinkAccount(LinkAccountRequest)         returns (LinkAccountResponse);
   rpc UnlinkAccount(UnlinkAccountRequest)     returns (UnlinkAccountResponse);
@@ -36,6 +37,8 @@ message LinkAccountResponse {
 message UnlinkAccountRequest {
   string discord_user_id     = 1;
   parley.common.v1.Game game = 2;
+  // When set, removes only the link for this platform. Empty removes all links for the game.
+  string platform            = 3;
 }
 
 message UnlinkAccountResponse {

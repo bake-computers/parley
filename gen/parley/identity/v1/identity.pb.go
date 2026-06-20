@@ -171,6 +171,8 @@ type UnlinkAccountRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	DiscordUserId string                 `protobuf:"bytes,1,opt,name=discord_user_id,json=discordUserId,proto3" json:"discord_user_id,omitempty"`
 	Game          v1.Game                `protobuf:"varint,2,opt,name=game,proto3,enum=parley.common.v1.Game" json:"game,omitempty"`
+	// When set, removes only the link for this platform. Empty removes all links for the game.
+	Platform      string `protobuf:"bytes,3,opt,name=platform,proto3" json:"platform,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -217,6 +219,13 @@ func (x *UnlinkAccountRequest) GetGame() v1.Game {
 		return x.Game
 	}
 	return v1.Game(0)
+}
+
+func (x *UnlinkAccountRequest) GetPlatform() string {
+	if x != nil {
+		return x.Platform
+	}
+	return ""
 }
 
 type UnlinkAccountResponse struct {
@@ -668,10 +677,11 @@ const file_identity_v1_identity_proto_rawDesc = "" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x1b\n" +
 	"\tplayer_id\x18\x02 \x01(\x05R\bplayerId\x12/\n" +
 	"\x13username_normalized\x18\x03 \x01(\tR\x12usernameNormalized\x12-\n" +
-	"\x05error\x18\x04 \x01(\v2\x17.parley.common.v1.ErrorR\x05error\"j\n" +
+	"\x05error\x18\x04 \x01(\v2\x17.parley.common.v1.ErrorR\x05error\"\x86\x01\n" +
 	"\x14UnlinkAccountRequest\x12&\n" +
 	"\x0fdiscord_user_id\x18\x01 \x01(\tR\rdiscordUserId\x12*\n" +
-	"\x04game\x18\x02 \x01(\x0e2\x16.parley.common.v1.GameR\x04game\"\xa6\x01\n" +
+	"\x04game\x18\x02 \x01(\x0e2\x16.parley.common.v1.GameR\x04game\x12\x1a\n" +
+	"\bplatform\x18\x03 \x01(\tR\bplatform\"\xa6\x01\n" +
 	"\x15UnlinkAccountResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x18\n" +
 	"\aremoved\x18\x02 \x01(\x05R\aremoved\x12-\n" +
