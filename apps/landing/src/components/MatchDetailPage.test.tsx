@@ -108,7 +108,7 @@ describe("MatchDetailPage", () => {
   test("applies design system tokens in markup", () => {
     const { container } = render(<MatchDetailPage match={baseMatch} />);
 
-    expect(container.querySelector('[class*="border-border/60"]')).toBeTruthy();
-    expect(container.querySelector('[class*="bg-background"]')).toBeTruthy();
+    expect(container.querySelector(".glass-panel")).toBeTruthy();
+    expect(container.querySelector('[class*="text-accent-silver"]')).toBeTruthy();
   });
 });
