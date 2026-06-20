@@ -373,6 +373,11 @@
   .stack-section {
     position: sticky;
     top: 5.5rem;
+    isolation: isolate;
+  }
+
+  .stack-card {
+    transform-origin: center top;
   }
 
   .snap-x-cards {

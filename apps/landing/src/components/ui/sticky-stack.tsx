@@ -18,6 +18,22 @@ function handoffProgress(sectionTop: number) {
   return Math.min(1, Math.max(0, (window.innerHeight - sectionTop) / range));
 }
 
+function clearCard(card: HTMLElement) {
+  card.style.opacity = "";
+  card.style.visibility = "";
+  card.style.transform = "";
+  card.style.filter = "";
+  card.style.pointerEvents = "";
+}
+
+function hideCard(card: HTMLElement) {
+  card.style.opacity = "0";
+  card.style.visibility = "hidden";
+  card.style.transform = "translateY(-36px) scale(0.88)";
+  card.style.filter = "blur(6px)";
+  card.style.pointerEvents = "none";
+}
+
 export function StickyStack({ children, className }: { children: React.ReactNode; className?: string }) {
   const rootRef = useRef<HTMLDivElement>(null);
 
@@ -31,43 +47,61 @@ export function StickyStack({ children, className }: { children: React.ReactNode
     const sections = [...root.querySelectorAll<HTMLElement>(".stack-section")];
     let frame = 0;
 
-    const tick = () => {
+    const update = () => {
+      let topmostStuck = -1;
+      for (let i = 0; i < sections.length; i++) {
+        if (sections[i].getBoundingClientRect().top <= STICKY_TOP + 2) topmostStuck = i;
+      }
+
       for (let i = 0; i < sections.length; i++) {
         const card = sections[i].querySelector<HTMLElement>(".stack-card");
         if (!card) continue;
 
         const next = sections[i + 1];
-        const outProg = next ? handoffProgress(next.getBoundingClientRect().top) : 0;
-        const inProg = i > 0 ? handoffProgress(sections[i].getBoundingClientRect().top) : 1;
+        const top = sections[i].getBoundingClientRect().top;
 
-        if (outProg > 0) {
-          const fade = 1 - outProg;
-          card.style.opacity = String(fade);
-          card.style.transform = `translateY(${-outProg * 32}px) scale(${0.9 + fade * 0.1})`;
-          card.style.filter = outProg > 0.2 ? `blur(${outProg * 4}px)` : "none";
-          card.style.pointerEvents = fade < 0.35 ? "none" : "";
-        } else if (inProg < 1) {
-          card.style.opacity = "1";
-          card.style.transform = `translateY(${(1 - inProg) * 48}px)`;
-          card.style.filter = "none";
-          card.style.pointerEvents = "";
-        } else {
-          card.style.opacity = "";
-          card.style.transform = "";
-          card.style.filter = "";
-          card.style.pointerEvents = "";
+        if (i < topmostStuck) {
+          hideCard(card);
+          continue;
         }
+
+        if (next) {
+          const outProg = handoffProgress(next.getBoundingClientRect().top);
+          if (outProg > 0) {
+            const fade = Math.max(0, 1 - outProg * 1.6);
+            card.style.opacity = String(fade);
+            card.style.visibility = fade < 0.04 ? "hidden" : "visible";
+            card.style.transform = `translateY(${-outProg * 40}px) scale(${0.88 + fade * 0.12})`;
+            card.style.filter = outProg > 0.12 ? `blur(${outProg * 6}px)` : "none";
+            card.style.pointerEvents = fade < 0.2 ? "none" : "";
+            continue;
+          }
+        }
+
+        if (i > 0 && top > STICKY_TOP + 4) {
+          const inProg = handoffProgress(top);
+          if (inProg < 1) {
+            card.style.opacity = "1";
+            card.style.visibility = "visible";
+            card.style.transform = `translateY(${(1 - inProg) * 48}px)`;
+            card.style.filter = "none";
+            card.style.pointerEvents = "";
+            continue;
+          }
+        }
+
+        clearCard(card);
       }
     };
 
     const onScroll = () => {
       cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(tick);
+      frame = requestAnimationFrame(update);
     };
 
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll, { passive: true });
-    tick();
+    update();
 
     return () => {
       window.removeEventListener("scroll", onScroll);
@@ -75,11 +109,7 @@ export function StickyStack({ children, className }: { children: React.ReactNode
       cancelAnimationFrame(frame);
       for (const section of sections) {
         const card = section.querySelector<HTMLElement>(".stack-card");
-        if (!card) continue;
-        card.style.opacity = "";
-        card.style.transform = "";
-        card.style.filter = "";
-        card.style.pointerEvents = "";
+        if (card) clearCard(card);
       }
     };
   }, []);
@@ -100,7 +130,7 @@ export function StickyStackSection({
   return (
     <section
       id={id}
-      className="stack-section relative px-4 pb-6 md:px-6"
+      className="stack-section relative isolate px-4 pb-6 md:px-6"
       style={{ zIndex }}
     >
       <div
