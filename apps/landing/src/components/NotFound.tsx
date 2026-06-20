@@ -1,13 +1,14 @@
 import { SiteHeader } from "#/components/Header";
 import { SiteFooter } from "#/components/Footer";
-import { Button } from "@/components/ui/button";
+import { Button } from "#/components/ui/button";
+import { GlassPanel } from "#/components/ui/glass-panel";
 
 export function NotFound() {
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex min-h-screen flex-col">
       <SiteHeader />
-      <main className="flex flex-1 items-center justify-center border-b border-border/60">
-        <div className="mx-auto flex w-full max-w-3xl flex-col items-center px-6 py-20 text-center">
+      <main className="flex flex-1 items-center justify-center px-6 py-20">
+        <GlassPanel className="mx-auto flex w-full max-w-lg flex-col items-center p-10 text-center">
           <img
             src="/parley-logo.svg"
             alt="Parley logo"
@@ -16,9 +17,7 @@ export function NotFound() {
             className="mb-8 size-16 opacity-50"
           />
 
-          <span className="text-xs uppercase tracking-[0.25em] text-muted-foreground">
-            Error 404
-          </span>
+          <span className="text-sm font-medium text-muted-foreground">Error 404</span>
 
           <h1 className="mt-4 text-balance text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
             Page not found.
@@ -32,21 +31,21 @@ export function NotFound() {
           <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row">
             <Button
               size="lg"
-              className="bg-foreground text-background transition-transform hover:-translate-y-0.5 hover:bg-foreground/90"
+              className="rounded-full bg-foreground text-background transition-all hover:scale-[1.02] hover:bg-foreground/90 active:scale-[0.98]"
             >
               <a href="/">Back to home</a>
             </Button>
             <Button
               size="lg"
               variant="outline"
-              className="border-border/70 bg-transparent text-foreground transition-transform hover:-translate-y-0.5 hover:bg-secondary/50"
+              className="rounded-full border-border/70 bg-transparent text-foreground transition-all hover:scale-[1.02] hover:bg-secondary/50 active:scale-[0.98]"
             >
               <a href="https://discord.gg/parley" target="_blank" rel="noopener noreferrer">
                 Join Discord
               </a>
             </Button>
           </div>
-        </div>
+        </GlassPanel>
       </main>
       <SiteFooter />
     </div>

@@ -1,6 +1,8 @@
 import { SiteHeader } from "#/components/Header";
 import { SiteFooter } from "#/components/Footer";
+import { GlassPanel } from "#/components/ui/glass-panel";
 import { Reveal } from "#/components/ui/reveal";
+import { SectionBackdrop } from "#/components/ui/section-backdrop";
 import { cn } from "#/lib/utils";
 import type { MatchData, MatchParticipantData } from "#/lib/match-cache";
 
@@ -40,10 +42,10 @@ function teamPlayers(participants: MatchParticipantData[], team: string) {
 
 function statusLabel(winningTeam: string): string {
   if (winningTeam === "team_a") {
-    return "Team A Wins";
+    return "Team A wins";
   }
   if (winningTeam === "team_b") {
-    return "Team B Wins";
+    return "Team B wins";
   }
   return "Draw";
 }
@@ -57,39 +59,40 @@ export function MatchDetailPage({ match }: { match: MatchData }) {
   const mvpId = match.mvpUserId;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <SiteHeader />
       <main>
         <Reveal>
-          <section className="border-b border-border/60">
-            <div className="mx-auto w-full max-w-6xl px-6 py-16 md:py-24">
-              <span className="text-xs uppercase tracking-[0.25em] text-muted-foreground">
-                Match report
-              </span>
-              <h1 className="mt-4 text-balance text-3xl font-semibold tracking-tight text-foreground md:text-5xl">
-                <span className={cn(teamAWins && "text-[#c0c5ce]")}>{teamA}</span>
-                <span className="mx-3 text-muted-foreground">vs</span>
-                <span className={cn(teamBWins && "text-[#c0c5ce]")}>{teamB}</span>
-              </h1>
-              <p className="mt-4 text-sm text-muted-foreground">
-                Match #{match.id} · {relativeTime(match.createdAtMs)}
-              </p>
-              <div className="mt-6 inline-flex items-center gap-2 border border-border/60 bg-secondary/20 px-3 py-1.5 text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-                <span className="size-1.5 rounded-full bg-[#c0c5ce]" aria-hidden="true" />
-                {statusLabel(match.winningTeam)}
-              </div>
+          <section className="relative overflow-hidden py-16 md:py-24">
+            <SectionBackdrop glow="center" />
+            <div className="relative mx-auto w-full max-w-6xl px-6">
+              <GlassPanel className="p-8 md:p-10">
+                <span className="text-sm font-medium text-muted-foreground">Match report</span>
+                <h1 className="mt-4 text-balance text-3xl font-semibold tracking-tight text-foreground md:text-5xl">
+                  <span className={cn(teamAWins && "text-accent-silver")}>{teamA}</span>
+                  <span className="mx-3 text-muted-foreground">vs</span>
+                  <span className={cn(teamBWins && "text-accent-silver")}>{teamB}</span>
+                </h1>
+                <p className="mt-4 text-sm text-muted-foreground">
+                  Match #{match.id} · {relativeTime(match.createdAtMs)}
+                </p>
+                <div className="glass-chip mt-6 inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-muted-foreground">
+                  <span className="size-1.5 rounded-full bg-accent-silver" aria-hidden="true" />
+                  {statusLabel(match.winningTeam)}
+                </div>
+              </GlassPanel>
             </div>
           </section>
         </Reveal>
 
         <Reveal>
-          <section>
-            <div className="mx-auto w-full max-w-6xl px-6 py-12 md:py-16">
+          <section className="pb-16 md:pb-24">
+            <div className="mx-auto w-full max-w-6xl px-6">
               <div className="grid gap-8 md:grid-cols-[1fr_320px]">
                 <div className="space-y-6">
                   <div className="flex items-center gap-3">
-                    <div className="flex size-10 items-center justify-center border border-[#c0c5ce]/50 bg-[#c0c5ce]/10">
-                      <span className="text-sm font-semibold text-[#c0c5ce]" aria-hidden="true">
+                    <div className="flex size-10 items-center justify-center rounded-2xl bg-accent-silver/15">
+                      <span className="text-sm font-semibold text-accent-silver" aria-hidden="true">
                         R
                       </span>
                     </div>
@@ -101,30 +104,30 @@ export function MatchDetailPage({ match }: { match: MatchData }) {
                     </div>
                   </div>
 
-                  <div className="grid gap-px bg-border/60 md:grid-cols-2">
-                    <div className="bg-background p-5">
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <GlassPanel className="p-5">
                       <TeamRoster
                         label="Team A"
                         players={teamPlayers(participants, "team_a")}
                         isWinner={teamAWins}
                         mvpId={mvpId}
                       />
-                    </div>
-                    <div className="bg-background p-5">
+                    </GlassPanel>
+                    <GlassPanel className="p-5">
                       <TeamRoster
                         label="Team B"
                         players={teamPlayers(participants, "team_b")}
                         isWinner={teamBWins}
                         mvpId={mvpId}
                       />
-                    </div>
+                    </GlassPanel>
                   </div>
                 </div>
 
                 <div className="space-y-6">
                   <div className="flex items-center gap-3">
-                    <div className="flex size-10 items-center justify-center border border-[#c0c5ce]/50 bg-[#c0c5ce]/10">
-                      <span className="text-sm font-semibold text-[#c0c5ce]" aria-hidden="true">
+                    <div className="flex size-10 items-center justify-center rounded-2xl bg-accent-silver/15">
+                      <span className="text-sm font-semibold text-accent-silver" aria-hidden="true">
                         S
                       </span>
                     </div>
@@ -134,34 +137,34 @@ export function MatchDetailPage({ match }: { match: MatchData }) {
                     </div>
                   </div>
 
-                  <div className="border border-border/60 bg-secondary/20 p-5">
+                  <GlassPanel className="p-5">
                     <div className="space-y-4">
                       <div>
                         <div className="flex items-center justify-between text-xs">
-                          <span className="font-mono uppercase tracking-wider text-muted-foreground">
+                          <span className="font-mono font-medium text-muted-foreground">
                             Balance score
                           </span>
-                          <span className="font-mono text-sm tabular-nums text-[#c0c5ce]">
+                          <span className="font-mono text-sm tabular-nums text-accent-silver">
                             {Math.max(0, 100 - match.balanceGap)}
                             <span className="text-muted-foreground">/100</span>
                           </span>
                         </div>
-                        <div className="mt-2 h-1.5 w-full overflow-hidden bg-border/60">
+                        <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-border/60">
                           <div
-                            className="h-full origin-left bg-[#c0c5ce]"
+                            className="h-full origin-left rounded-full bg-accent-silver"
                             style={{ width: `${Math.max(0, 100 - match.balanceGap)}%` }}
                           />
                         </div>
                       </div>
 
-                      <div className="space-y-3 border-t border-border/60 pt-4">
+                      <div className="space-y-3 border-t border-border/40 pt-4">
                         <StatRow label="Match ID" value={`#${match.id}`} />
                         <StatRow label="Status" value={match.status} />
                         <StatRow label="Type" value={match.matchType} />
                         <StatRow label="Balance gap" value={String(match.balanceGap)} />
                       </div>
                     </div>
-                  </div>
+                  </GlassPanel>
                 </div>
               </div>
             </div>
@@ -189,14 +192,16 @@ function TeamRoster({
       <div className="mb-4 flex items-center justify-between">
         <span
           className={cn(
-            "font-mono text-[11px] uppercase tracking-widest",
-            isWinner ? "text-[#c0c5ce]" : "text-muted-foreground",
+            "font-mono text-xs font-medium",
+            isWinner ? "text-accent-silver" : "text-muted-foreground",
           )}
         >
           {label}
         </span>
         {isWinner && (
-          <span className="text-[10px] uppercase tracking-widest text-[#c0c5ce]">Winner</span>
+          <span className="glass-chip px-2 py-0.5 text-[10px] font-medium text-accent-silver">
+            Winner
+          </span>
         )}
       </div>
       <ul className="space-y-2.5" aria-label={`${label} players`}>
@@ -206,7 +211,7 @@ function TeamRoster({
               <div className="flex items-center gap-2">
                 <span className="font-mono text-muted-foreground">{player.username}</span>
                 {mvpId && mvpId === player.discordUserId && (
-                  <span className="border border-[#c0c5ce]/50 bg-[#c0c5ce]/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-[#c0c5ce]">
+                  <span className="glass-chip px-1.5 py-0.5 text-[9px] font-semibold text-accent-silver">
                     MVP
                   </span>
                 )}
@@ -215,9 +220,9 @@ function TeamRoster({
                 {Math.round(player.cpr)}
               </span>
             </div>
-            <div className="mt-1.5 h-1 w-full overflow-hidden bg-border/60">
+            <div className="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-border/60">
               <div
-                className="h-full origin-left bg-[#c0c5ce]"
+                className="h-full origin-left rounded-full bg-accent-silver"
                 style={{ width: `${Math.min(100, (player.cpr / 3000) * 100)}%` }}
               />
             </div>

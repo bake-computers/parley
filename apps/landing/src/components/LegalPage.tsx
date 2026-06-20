@@ -1,5 +1,6 @@
 import { SiteHeader } from "#/components/Header";
 import { SiteFooter } from "#/components/Footer";
+import { GlassPanel } from "#/components/ui/glass-panel";
 
 interface LegalPageProps {
   label: string;
@@ -10,15 +11,13 @@ interface LegalPageProps {
 
 export function LegalPage({ label, title, lastUpdated, children }: LegalPageProps) {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <SiteHeader />
-      <main>
-        <section className="border-b border-border/60">
-          <div className="mx-auto w-full max-w-3xl px-6 py-20 md:py-28">
+      <main className="py-20 md:py-28">
+        <div className="mx-auto w-full max-w-3xl px-6">
+          <GlassPanel className="p-8 md:p-12">
             <div className="text-center">
-              <span className="text-xs uppercase tracking-[0.25em] text-muted-foreground">
-                {label}
-              </span>
+              <span className="text-sm font-medium text-muted-foreground">{label}</span>
               <h1 className="mt-4 text-balance text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
                 {title}
               </h1>
@@ -30,8 +29,8 @@ export function LegalPage({ label, title, lastUpdated, children }: LegalPageProp
             <div className="mt-12 space-y-10 text-sm leading-relaxed text-muted-foreground">
               {children}
             </div>
-          </div>
-        </section>
+          </GlassPanel>
+        </div>
       </main>
       <SiteFooter />
     </div>

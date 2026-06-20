@@ -169,7 +169,7 @@ function PrivacyPage() {
           To exercise any of these rights, please contact us via the instructions in our{" "}
           <a
             href="/legal-notice"
-            className="underline underline-offset-4 transition-colors hover:text-[#c0c5ce]"
+            className="underline underline-offset-4 transition-colors hover:text-accent-silver"
           >
             Legal Notice
           </a>

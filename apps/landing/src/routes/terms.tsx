@@ -147,7 +147,7 @@ function TermsPage() {
           For legal inquiries regarding these Terms of Service, please refer to our{" "}
           <a
             href="/legal-notice"
-            className="underline underline-offset-4 transition-colors hover:text-[#c0c5ce]"
+            className="underline underline-offset-4 transition-colors hover:text-accent-silver"
           >
             Legal Notice (Impressum)
           </a>{" "}
