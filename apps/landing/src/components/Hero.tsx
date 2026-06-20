@@ -14,7 +14,8 @@ export function Hero() {
           alt=""
           width={1920}
           height={1080}
-          priority
+          loading="eager"
+          fetchPriority="high"
           className="hero-drift h-full w-full object-cover object-[62%_38%]"
         />
         <div className="absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-background/70 via-background/25 to-transparent" />
