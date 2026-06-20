@@ -418,6 +418,17 @@
     background-clip: text;
   }
 
+  .hero-fade-tail {
+    height: min(55vh, 28rem);
+    background: linear-gradient(
+      to top,
+      var(--background) 0%,
+      color-mix(in srgb, var(--background) 92%, transparent) 35%,
+      color-mix(in srgb, var(--background) 55%, transparent) 65%,
+      transparent 100%
+    );
+  }
+
   @keyframes hero-drift {
     from {
       transform: scale(1.04) translate3d(0, 0, 0);

@@ -27,11 +27,17 @@ export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { activeId } = useScrollSpy({ sectionIds: SECTION_IDS });
   const pathname = useRouterState({ select: (state) => state.location.pathname });
-  const discordHref = pathname === "/" ? "#discord" : DISCORD_URL;
+  const isHome = pathname === "/";
+  const discordHref = isHome ? "#discord" : DISCORD_URL;
   const discordExternal = discordHref.startsWith("http");
 
   return (
-    <header className="sticky top-4 z-50 px-4 md:px-6">
+    <header
+      className={cn(
+        "z-50 px-4 md:px-6",
+        isHome ? "fixed inset-x-0 top-4" : "sticky top-4",
+      )}
+    >
       <div className="mx-auto flex max-w-5xl flex-col items-center gap-2">
         <PreLaunchChip />
 

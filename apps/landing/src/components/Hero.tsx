@@ -7,10 +7,7 @@ import { smoothScrollTo } from "#/lib/smooth-scroll";
 
 export function Hero() {
   return (
-    <section
-      id="top"
-      className="relative min-h-[calc(100dvh-5rem)] overflow-hidden"
-    >
+    <section id="top" className="relative min-h-[100dvh] overflow-hidden">
       <div className="absolute inset-0" aria-hidden="true">
         <Image
           src="/assets/hero-cinematic.webp"
@@ -20,12 +17,13 @@ export function Hero() {
           priority
           className="hero-drift h-full w-full object-cover object-[62%_38%]"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/75 to-background/15" />
-        <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/55 to-transparent" />
+        <div className="absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-background/70 via-background/25 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/45 to-transparent" />
         <div className="hero-chrome absolute inset-0 opacity-70" />
+        <div className="hero-fade-tail absolute inset-x-0 bottom-0" />
       </div>
 
-      <div className="relative z-10 mx-auto flex min-h-[calc(100dvh-5rem)] w-full max-w-6xl flex-col justify-end px-6 pb-28 pt-20">
+      <div className="relative z-10 mx-auto flex min-h-[100dvh] w-full max-w-6xl flex-col justify-end px-6 pb-28 pt-24">
         <div className="max-w-2xl">
           <span className="glass-chip inline-flex animate-in fade-in slide-in-from-bottom-2 px-4 py-1.5 text-sm font-medium text-muted-foreground duration-700">
             Pre-launch, Discord app first
@@ -58,11 +56,6 @@ export function Hero() {
             </Button>
           </div>
         </div>
-
-        <div
-          className="pointer-events-none absolute -right-4 top-[38%] hidden h-56 w-56 rounded-full border border-accent-silver/20 bg-accent-silver/5 blur-3xl md:block lg:-right-8 lg:h-72 lg:w-72"
-          aria-hidden="true"
-        />
       </div>
 
       <button

@@ -25,7 +25,7 @@ export function StickyStackSection({
     >
       <div
         className={cn(
-          "stack-card glass-panel mx-auto flex min-h-[calc(100dvh-7.5rem)] w-full max-w-6xl flex-col justify-center overflow-hidden px-6 py-10 md:px-10 md:py-14",
+          "stack-card mx-auto flex min-h-[calc(100dvh-7.5rem)] w-full max-w-6xl flex-col justify-center px-6 py-10 md:px-10 md:py-14",
           className,
         )}
       >

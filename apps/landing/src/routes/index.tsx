@@ -18,7 +18,7 @@ function Home() {
       <SiteHeader />
       <main>
         <Hero />
-        <StickyStack>
+        <StickyStack className="-mt-40 md:-mt-48">
           <StickyStackSection id="problem" zIndex={1}>
             <Problem />
           </StickyStackSection>
