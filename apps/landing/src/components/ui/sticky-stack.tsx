@@ -11,6 +11,7 @@ type StickyStackSectionProps = {
 };
 
 const STICKY_TOP = 88; // 5.5rem
+const MOBILE_MAX = 767;
 
 function handoffProgress(sectionTop: number) {
   const range = window.innerHeight - STICKY_TOP;
@@ -18,20 +19,29 @@ function handoffProgress(sectionTop: number) {
   return Math.min(1, Math.max(0, (window.innerHeight - sectionTop) / range));
 }
 
-function clearCard(card: HTMLElement) {
-  card.style.opacity = "";
-  card.style.visibility = "";
-  card.style.transform = "";
-  card.style.filter = "";
-  card.style.pointerEvents = "";
+function clearLayer(el: HTMLElement) {
+  el.style.opacity = "";
+  el.style.visibility = "";
+  el.style.transform = "";
+  el.style.filter = "";
+  el.style.pointerEvents = "";
 }
 
-function hideCard(card: HTMLElement) {
-  card.style.opacity = "0";
-  card.style.visibility = "hidden";
-  card.style.transform = "translateY(-36px) scale(0.88)";
-  card.style.filter = "blur(6px)";
-  card.style.pointerEvents = "none";
+function hideLayer(el: HTMLElement) {
+  el.style.opacity = "0";
+  el.style.visibility = "hidden";
+  el.style.transform = "translateY(-36px) scale(0.88)";
+  el.style.filter = "blur(6px)";
+  el.style.pointerEvents = "none";
+}
+
+function setHandoff(el: HTMLElement, outProg: number) {
+  const fade = Math.max(0, 1 - outProg * 1.6);
+  el.style.opacity = String(fade);
+  el.style.visibility = fade < 0.04 ? "hidden" : "visible";
+  el.style.transform = `translateY(${-outProg * 40}px) scale(${0.88 + fade * 0.12})`;
+  el.style.filter = outProg > 0.12 ? `blur(${outProg * 6}px)` : "none";
+  el.style.pointerEvents = fade < 0.2 ? "none" : "";
 }
 
 export function StickyStack({ children, className }: { children: React.ReactNode; className?: string }) {
@@ -42,10 +52,17 @@ export function StickyStack({ children, className }: { children: React.ReactNode
     if (!root) return;
 
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce) return;
+    const mobile = window.matchMedia(`(max-width: ${MOBILE_MAX}px)`).matches;
+    if (reduce || mobile) return;
 
     const sections = [...root.querySelectorAll<HTMLElement>(".stack-section")];
     let frame = 0;
+
+    const layers = (section: HTMLElement) => {
+      const card = section.querySelector<HTMLElement>(".stack-card");
+      const surface = section.querySelector<HTMLElement>(".stack-surface");
+      return { card, surface };
+    };
 
     const update = () => {
       let topmostStuck = -1;
@@ -54,26 +71,23 @@ export function StickyStack({ children, className }: { children: React.ReactNode
       }
 
       for (let i = 0; i < sections.length; i++) {
-        const card = sections[i].querySelector<HTMLElement>(".stack-card");
+        const { card, surface } = layers(sections[i]);
         if (!card) continue;
 
         const next = sections[i + 1];
         const top = sections[i].getBoundingClientRect().top;
 
         if (i < topmostStuck) {
-          hideCard(card);
+          hideLayer(card);
+          if (surface) hideLayer(surface);
           continue;
         }
 
         if (next) {
           const outProg = handoffProgress(next.getBoundingClientRect().top);
           if (outProg > 0) {
-            const fade = Math.max(0, 1 - outProg * 1.6);
-            card.style.opacity = String(fade);
-            card.style.visibility = fade < 0.04 ? "hidden" : "visible";
-            card.style.transform = `translateY(${-outProg * 40}px) scale(${0.88 + fade * 0.12})`;
-            card.style.filter = outProg > 0.12 ? `blur(${outProg * 6}px)` : "none";
-            card.style.pointerEvents = fade < 0.2 ? "none" : "";
+            setHandoff(card, outProg);
+            if (surface) setHandoff(surface, outProg);
             continue;
           }
         }
@@ -86,11 +100,18 @@ export function StickyStack({ children, className }: { children: React.ReactNode
             card.style.transform = `translateY(${(1 - inProg) * 48}px)`;
             card.style.filter = "none";
             card.style.pointerEvents = "";
+            if (surface) {
+              surface.style.opacity = "1";
+              surface.style.visibility = "visible";
+              surface.style.transform = "";
+              surface.style.filter = "none";
+            }
             continue;
           }
         }
 
-        clearCard(card);
+        clearLayer(card);
+        if (surface) clearLayer(surface);
       }
     };
 
@@ -108,8 +129,9 @@ export function StickyStack({ children, className }: { children: React.ReactNode
       window.removeEventListener("resize", onScroll);
       cancelAnimationFrame(frame);
       for (const section of sections) {
-        const card = section.querySelector<HTMLElement>(".stack-card");
-        if (card) clearCard(card);
+        const { card, surface } = layers(section);
+        if (card) clearLayer(card);
+        if (surface) clearLayer(surface);
       }
     };
   }, []);
@@ -130,12 +152,13 @@ export function StickyStackSection({
   return (
     <section
       id={id}
-      className="stack-section relative isolate px-4 pb-6 md:px-6"
+      className="stack-section relative isolate px-4 pb-8 md:px-6 md:pb-6"
       style={{ zIndex }}
     >
+      <div className="stack-surface pointer-events-none absolute inset-0" aria-hidden="true" />
       <div
         className={cn(
-          "stack-card mx-auto flex min-h-[calc(100dvh-7.5rem)] w-full max-w-6xl flex-col justify-center px-6 py-10 will-change-[transform,opacity,filter] md:px-10 md:py-14",
+          "stack-card relative z-10 mx-auto flex w-full max-w-6xl flex-col justify-center px-4 py-10 will-change-[transform,opacity,filter] md:min-h-[calc(100dvh-7.5rem)] md:px-10 md:py-14",
           className,
         )}
       >
