@@ -188,8 +188,7 @@
 }
 
 @layer utilities {
-  .ambient-bg,
-  .stack-surface {
+  .ambient-bg {
     background:
       radial-gradient(ellipse 80% 60% at 10% 20%, rgba(192, 197, 206, 0.18), transparent 60%),
       radial-gradient(ellipse 70% 50% at 90% 10%, rgba(192, 197, 206, 0.12), transparent 55%),
@@ -197,8 +196,7 @@
       var(--background);
   }
 
-  .dark .ambient-bg,
-  .dark .stack-surface {
+  .dark .ambient-bg {
     background:
       radial-gradient(ellipse 80% 60% at 10% 20%, rgba(192, 197, 206, 0.1), transparent 60%),
       radial-gradient(ellipse 70% 50% at 90% 10%, rgba(192, 197, 206, 0.07), transparent 55%),
@@ -377,21 +375,6 @@
     top: 5.5rem;
   }
 
-  @supports (animation-timeline: view()) {
-    .stack-card {
-      animation: stack-shrink linear both;
-      animation-timeline: view();
-      animation-range: exit 0% exit 100%;
-    }
-
-    @keyframes stack-shrink {
-      to {
-        transform: scale(0.94) translateY(-1.5%);
-        filter: brightness(0.94);
-      }
-    }
-  }
-
   .snap-x-cards {
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
@@ -458,7 +441,6 @@
 
     .glass-panel,
     .stack-card,
-    .stack-surface,
     .hero-drift {
       transition: none;
       animation: none;
