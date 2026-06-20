@@ -6,7 +6,7 @@ import type {
 import { logger } from "./logger.js";
 import { DiscordRestClient } from "../rest.js";
 
-const APPLICATION_EMOJI_CACHE_KEY = "discord:application-emojis:v2";
+const APPLICATION_EMOJI_CACHE_KEY = "discord:application-emojis:v3";
 const APPLICATION_EMOJI_CACHE_TTL_SECONDS = 21_600;
 const APPLICATION_EMOJI_CACHE_VERSION = 1;
 
@@ -41,6 +41,8 @@ export type AppEmojiName = (typeof APP_EMOJI_NAMES)[number];
 export interface ApplicationEmojiEntry {
   id: string;
   name: AppEmojiName;
+  /** Discord-side emoji name (may differ from canonical `name` when aliased). */
+  discordName: string;
   animated: boolean;
 }
 
@@ -71,8 +73,23 @@ function isApplicationEmojiEntry(value: unknown): value is ApplicationEmojiEntry
     typeof value["id"] === "string" &&
     value["id"].length > 0 &&
     isAppEmojiName(value["name"]) &&
+    typeof value["discordName"] === "string" &&
+    value["discordName"].length > 0 &&
     typeof value["animated"] === "boolean"
   );
+}
+
+function canonicalAppEmojiName(discordName: string): AppEmojiName | null {
+  if (APP_EMOJI_NAME_SET.has(discordName)) {
+    return discordName as AppEmojiName;
+  }
+
+  const rankAlias = `rank_${discordName}`;
+  if (APP_EMOJI_NAME_SET.has(rankAlias)) {
+    return rankAlias as AppEmojiName;
+  }
+
+  return null;
 }
 
 function normalizeApplicationEmojiCatalog(value: unknown): ApplicationEmojiCatalog | null {
@@ -141,13 +158,15 @@ function normalizeFetchedEmojiCatalog(
       return null;
     }
 
-    if (!APP_EMOJI_NAME_SET.has(item.name)) {
+    const canonicalName = canonicalAppEmojiName(item.name);
+    if (!canonicalName) {
       continue;
     }
 
-    catalog[item.name as AppEmojiName] = {
+    catalog[canonicalName] = {
       id: item.id,
-      name: item.name as AppEmojiName,
+      name: canonicalName,
+      discordName: item.name,
       animated: Boolean(item.animated),
     };
   }
@@ -170,7 +189,7 @@ async function readCachedApplicationEmojiCatalog(
       key: APPLICATION_EMOJI_CACHE_KEY,
       error,
     });
-    return {};
+    return null;
   }
 
   if (!raw) {
@@ -183,7 +202,7 @@ async function readCachedApplicationEmojiCatalog(
       logger.warn("discord.emoji.cache_invalid", "Application emoji cache payload was invalid", {
         key: APPLICATION_EMOJI_CACHE_KEY,
       });
-      return {};
+      return null;
     }
 
     return payload.entries;
@@ -192,7 +211,7 @@ async function readCachedApplicationEmojiCatalog(
       key: APPLICATION_EMOJI_CACHE_KEY,
       error,
     });
-    return {};
+    return null;
   }
 }
 
@@ -238,7 +257,7 @@ export async function resolveApplicationEmojiCatalog(input: {
   }
 
   const cached = await readCachedApplicationEmojiCatalog(input.cache);
-  if (cached) {
+  if (cached !== null) {
     return cached;
   }
 
@@ -278,7 +297,8 @@ export function formatApplicationEmoji(
     return null;
   }
 
-  return entry.animated ? `<a:${entry.name}:${entry.id}>` : `<:${entry.name}:${entry.id}>`;
+  const renderName = entry.discordName ?? entry.name;
+  return entry.animated ? `<a:${renderName}:${entry.id}>` : `<:${renderName}:${entry.id}>`;
 }
 
 export function toComponentEmoji(
@@ -292,7 +312,7 @@ export function toComponentEmoji(
 
   return {
     id: entry.id,
-    name: entry.name,
+    name: entry.discordName ?? entry.name,
     animated: entry.animated,
   };
 }
