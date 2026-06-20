@@ -20,12 +20,13 @@ export function StickyStackSection({
   return (
     <section
       id={id}
-      className="stack-section px-4 pb-6 md:px-6"
+      className="stack-section relative px-4 pb-6 md:px-6"
       style={{ zIndex }}
     >
+      <div className="stack-surface pointer-events-none absolute inset-0" aria-hidden="true" />
       <div
         className={cn(
-          "stack-card mx-auto flex min-h-[calc(100dvh-7.5rem)] w-full max-w-6xl flex-col justify-center px-6 py-10 md:px-10 md:py-14",
+          "stack-card relative z-10 mx-auto flex min-h-[calc(100dvh-7.5rem)] w-full max-w-6xl flex-col justify-center px-6 py-10 md:px-10 md:py-14",
           className,
         )}
       >
