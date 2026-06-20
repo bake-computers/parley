@@ -1,4 +1,5 @@
 import { Image } from "@unpic/react";
+import { GlassPanel } from "#/components/ui/glass-panel";
 import { Reveal, RevealStagger } from "#/components/ui/reveal";
 import { SectionBackdrop } from "#/components/ui/section-backdrop";
 import { founders } from "#/lib/founders";
@@ -11,32 +12,32 @@ const paragraphs = [
 
 export function OurStory() {
   return (
-    <section id="story" className="relative overflow-hidden border-b border-border/60">
+    <section id="story" className="relative overflow-hidden py-20 md:py-28">
       <SectionBackdrop glow="right" />
 
-      <div className="relative mx-auto grid w-full max-w-6xl gap-12 px-6 py-20 md:grid-cols-[0.9fr_1.1fr] md:gap-16 md:py-28">
-        <Reveal direction="left" className="md:sticky md:top-24 md:self-start">
-          <span className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.25em] text-[#c0c5ce]">
+      <div className="relative mx-auto grid w-full max-w-6xl gap-12 px-6 md:grid-cols-[0.9fr_1.1fr] md:gap-16">
+        <Reveal direction="left" className="md:sticky md:top-28 md:self-start">
+          <span className="inline-flex items-center gap-2 text-sm font-medium text-accent-silver">
             <span
-              className="h-px w-6 origin-left bg-[#c0c5ce] parley-line-grow"
+              className="h-px w-6 origin-left rounded-full bg-accent-silver parley-line-grow"
               aria-hidden="true"
             />
-            Our Story
+            Our story
           </span>
           <h2 className="mt-5 text-balance text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
             Born from a friend server that{" "}
-            <span className="text-[#c0c5ce]">couldn&apos;t stop fighting over teams.</span>
+            <span className="text-accent-silver">couldn&apos;t stop fighting over teams.</span>
           </h2>
           <p className="mt-5 max-w-md text-pretty leading-relaxed text-muted-foreground">
             The ranked grind is broken for everyone — but Parley started with ten friends and one
             recurring problem.
           </p>
 
-          <blockquote className="mt-8 border-l-2 border-[#c0c5ce]/60 pl-5">
+          <GlassPanel className="mt-8 border-l-4 border-l-accent-silver/60 p-5">
             <p className="text-sm leading-relaxed text-foreground/90">
               Ten players. Two teams. Forty-five minutes of arguing — every Saturday.
             </p>
-          </blockquote>
+          </GlassPanel>
         </Reveal>
 
         <div className="flex flex-col gap-10">
@@ -49,31 +50,26 @@ export function OurStory() {
           </RevealStagger>
 
           <Reveal delay={200}>
-            <div className="border-t border-border/60 pt-8">
-              <span className="text-xs uppercase tracking-[0.25em] text-muted-foreground">
-                Built by
-              </span>
+            <div>
+              <span className="text-sm font-medium text-muted-foreground">Built by</span>
               <ul className="mt-5 flex flex-col gap-3 sm:flex-row sm:gap-4">
                 {founders.map((founder) => (
-                  <li
-                    key={founder.id}
-                    className="group flex flex-1 items-center gap-4 border border-border/60 bg-secondary/20 p-4 transition-colors hover:border-[#c0c5ce]/40 hover:bg-secondary/40"
-                  >
-                    <div className="parley-icon-pop flex size-16 shrink-0 items-center justify-center overflow-hidden border border-border/70 bg-secondary/40">
-                      <Image
-                        src={founder.avatarSrc}
-                        alt={`${founder.handle} avatar`}
-                        width={64}
-                        height={64}
-                        className="size-full object-cover"
-                      />
-                    </div>
-                    <div>
-                      <p className="font-medium text-foreground">{founder.handle}</p>
-                      <p className="mt-0.5 text-xs uppercase tracking-widest text-muted-foreground">
-                        {founder.role}
-                      </p>
-                    </div>
+                  <li key={founder.id} className="flex-1">
+                    <GlassPanel className="group flex items-center gap-4 p-4 transition-transform hover:scale-[1.01]">
+                      <div className="parley-icon-pop flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-muted/50">
+                        <Image
+                          src={founder.avatarSrc}
+                          alt={`${founder.handle} avatar`}
+                          width={64}
+                          height={64}
+                          className="size-full object-cover"
+                        />
+                      </div>
+                      <div>
+                        <p className="font-medium text-foreground">{founder.handle}</p>
+                        <p className="mt-0.5 text-xs text-muted-foreground">{founder.role}</p>
+                      </div>
+                    </GlassPanel>
                   </li>
                 ))}
               </ul>

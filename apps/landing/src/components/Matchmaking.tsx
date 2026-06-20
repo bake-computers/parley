@@ -3,28 +3,17 @@
 import type { RefObject } from "react";
 import { Activity, Crosshair, GitCompareArrows } from "lucide-react";
 import { useInView } from "#/hooks/useInView";
+import { GlassPanel } from "#/components/ui/glass-panel";
 import { Reveal } from "#/components/ui/reveal";
 import { SectionBackdrop } from "#/components/ui/section-backdrop";
 import { TelemetryBar } from "#/components/ui/telemetry-bar";
 import { cn } from "#/lib/utils";
 
 const signals = [
-  {
-    label: "Skill rating",
-    value: "Telemetry-weighted",
-  },
-  {
-    label: "Role tendencies",
-    value: "Entry · Support · Anchor",
-  },
-  {
-    label: "Recent form",
-    value: "Rolling performance",
-  },
-  {
-    label: "Consistency",
-    value: "Round-by-round",
-  },
+  { label: "Skill rating", value: "Telemetry-weighted" },
+  { label: "Role tendencies", value: "Entry · Support · Anchor" },
+  { label: "Recent form", value: "Rolling performance" },
+  { label: "Consistency", value: "Round-by-round" },
 ];
 
 const points = [
@@ -49,57 +38,53 @@ function TelemetryPanel() {
   const { ref, inView } = useInView();
 
   return (
-    <Reveal
-      direction="right"
-      delay={120}
-      className="border border-border/60 bg-secondary/20"
-      as="div"
-    >
-      <div ref={ref as RefObject<HTMLDivElement>}>
-        <div className="flex items-center justify-between border-b border-border/60 px-5 py-3">
-          <span className="text-xs uppercase tracking-widest text-muted-foreground">
-            Player Profile
-          </span>
-          <span className="flex items-center gap-2 text-xs text-muted-foreground">
-            <span
-              className={cn("size-1.5 rounded-full bg-[#c0c5ce]", inView && "parley-balance-pulse")}
-            />
-            Telemetry synced
-          </span>
+    <Reveal direction="right" delay={120} as="div">
+      <GlassPanel className="overflow-hidden">
+        <div ref={ref as RefObject<HTMLDivElement>}>
+          <div className="flex items-center justify-between border-b border-border/40 px-5 py-3">
+            <span className="text-sm font-medium text-muted-foreground">Player profile</span>
+            <span className="flex items-center gap-2 text-xs text-muted-foreground">
+              <span
+                className={cn("size-1.5 rounded-full bg-accent-silver", inView && "parley-balance-pulse")}
+              />
+              Telemetry synced
+            </span>
+          </div>
+          <div className="grid grid-cols-2 gap-3 p-4">
+            {signals.map((signal, index) => (
+              <Reveal
+                key={signal.label}
+                delay={index * 80}
+                as="div"
+                className="rounded-2xl bg-muted/30 p-4"
+              >
+                <p className="text-xs font-medium text-muted-foreground">{signal.label}</p>
+                <p className="mt-2 text-sm font-medium text-foreground">{signal.value}</p>
+              </Reveal>
+            ))}
+          </div>
+          <div className="space-y-4 border-t border-border/40 p-5">
+            <TelemetryBar label="Aim rating" value={82} pct={82} delay={0} />
+            <TelemetryBar label="Impact / round" value={74} pct={74} delay={100} />
+            <TelemetryBar label="Consistency" value={91} pct={91} delay={200} />
+            <p className="pt-2 text-xs leading-relaxed text-muted-foreground/70">
+              Illustrative preview. Live profiles populate once the Discord app launches.
+            </p>
+          </div>
         </div>
-        <div className="grid grid-cols-2 gap-px bg-border/60">
-          {signals.map((signal, index) => (
-            <Reveal key={signal.label} delay={index * 80} as="div" className="bg-background p-5">
-              <p className="text-[11px] uppercase tracking-widest text-muted-foreground">
-                {signal.label}
-              </p>
-              <p className="mt-2 text-sm font-medium text-foreground">{signal.value}</p>
-            </Reveal>
-          ))}
-        </div>
-        <div className="space-y-4 p-5">
-          <TelemetryBar label="Aim rating" value={82} pct={82} delay={0} />
-          <TelemetryBar label="Impact / round" value={74} pct={74} delay={100} />
-          <TelemetryBar label="Consistency" value={91} pct={91} delay={200} />
-          <p className="pt-2 text-[11px] leading-relaxed text-muted-foreground/70">
-            Illustrative preview. Live profiles populate once the Discord app launches.
-          </p>
-        </div>
-      </div>
+      </GlassPanel>
     </Reveal>
   );
 }
 
 export function Matchmaking() {
   return (
-    <section id="matchmaking" className="relative overflow-hidden border-b border-border/60">
+    <section id="matchmaking" className="relative overflow-hidden py-20 md:py-28">
       <SectionBackdrop glow="right" />
 
-      <div className="relative mx-auto grid w-full max-w-6xl gap-14 px-6 py-20 md:grid-cols-2 md:py-28">
+      <div className="relative mx-auto grid w-full max-w-6xl gap-14 px-6 md:grid-cols-2">
         <Reveal direction="left">
-          <span className="text-xs uppercase tracking-[0.25em] text-muted-foreground">
-            The Engine
-          </span>
+          <span className="text-sm font-medium text-muted-foreground">The engine</span>
           <h2 className="mt-4 text-balance text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
             Matchmaking driven by skill and telemetry.
           </h2>
@@ -108,12 +93,12 @@ export function Matchmaking() {
             perform and builds balanced, competitive teams that make every round count.
           </p>
 
-          <div className="mt-10 space-y-6">
+          <div className="mt-10 space-y-4">
             {points.map((point, index) => (
               <Reveal key={point.title} delay={index * 100}>
-                <div className="group flex gap-4 transition-transform duration-300 hover:translate-x-1">
-                  <div className="parley-icon-pop flex size-10 shrink-0 items-center justify-center border border-border/70 bg-secondary/40">
-                    <point.icon className="size-5 text-[#c0c5ce]" aria-hidden="true" />
+                <GlassPanel className="group flex gap-4 p-4 transition-transform hover:scale-[1.01]">
+                  <div className="parley-icon-pop flex size-10 shrink-0 items-center justify-center rounded-2xl bg-muted/50">
+                    <point.icon className="size-5 text-accent-silver" aria-hidden="true" />
                   </div>
                   <div>
                     <h3 className="text-base font-medium text-foreground">{point.title}</h3>
@@ -121,7 +106,7 @@ export function Matchmaking() {
                       {point.body}
                     </p>
                   </div>
-                </div>
+                </GlassPanel>
               </Reveal>
             ))}
           </div>

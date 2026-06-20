@@ -1,7 +1,8 @@
 "use client";
 
-import { Fragment, useState } from "react";
+import { useState } from "react";
 import { ChevronDown } from "lucide-react";
+import { GlassPanel } from "#/components/ui/glass-panel";
 import { Reveal } from "#/components/ui/reveal";
 import { cn } from "#/lib/utils";
 
@@ -36,63 +37,52 @@ export function Faq() {
   };
 
   return (
-    <section id="faq" className="border-b border-border/60">
-      <div className="mx-auto w-full max-w-3xl px-6 py-20 md:py-28">
+    <section id="faq" className="py-20 md:py-28">
+      <div className="mx-auto w-full max-w-3xl px-6">
         <Reveal className="text-center">
-          <span className="text-xs uppercase tracking-[0.25em] text-muted-foreground">FAQ</span>
+          <span className="text-sm font-medium text-muted-foreground">FAQ</span>
           <h2 className="mt-4 text-balance text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
             Questions, answered.
           </h2>
         </Reveal>
 
-        <dl className="mt-12 border-y border-border/60">
+        <dl className="mt-12 space-y-3">
           {faqs.map((item, index) => {
             const isOpen = openIndex === index;
             return (
-              <Fragment key={item.q}>
-                <dt className={cn(index > 0 && "border-t border-border/60")}>
-                  <Reveal delay={index * 80}>
+              <Reveal key={item.q} delay={index * 80}>
+                <GlassPanel className={cn("overflow-hidden", isOpen && "ring-1 ring-accent-silver/25")}>
+                  <dt>
                     <button
                       type="button"
                       onClick={() => toggle(index)}
                       aria-expanded={isOpen}
-                      className={cn(
-                        "flex w-full items-center justify-between gap-4 py-5 text-left transition-colors",
-                        isOpen
-                          ? "border-l-2 border-[#c0c5ce] pl-4 text-foreground"
-                          : "border-l-2 border-transparent pl-4 text-foreground hover:text-[#c0c5ce]",
-                      )}
+                      className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left transition-colors hover:bg-muted/20"
                     >
-                      <span className="text-base font-medium">{item.q}</span>
+                      <span className="text-base font-medium text-foreground">{item.q}</span>
                       <ChevronDown
                         className={cn(
                           "size-4 shrink-0 text-muted-foreground transition-transform duration-300",
-                          isOpen && "rotate-180 text-[#c0c5ce]",
+                          isOpen && "rotate-180 text-accent-silver",
                         )}
                         aria-hidden="true"
                       />
                     </button>
-                  </Reveal>
-                </dt>
-                <dd
-                  className={cn(
-                    "grid transition-all duration-300 ease-out",
-                    isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
-                  )}
-                >
-                  <div className="overflow-hidden">
-                    <p className="pb-5 pl-4 text-sm leading-relaxed text-muted-foreground">
-                      {item.a}
-                    </p>
-                    {isOpen && (
-                      <span
-                        className="mb-4 ml-4 block h-px w-full max-w-xs origin-left bg-[#c0c5ce] parley-line-grow"
-                        aria-hidden="true"
-                      />
+                  </dt>
+                  <dd
+                    className={cn(
+                      "grid transition-all duration-300 ease-out",
+                      isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0",
                     )}
-                  </div>
-                </dd>
-              </Fragment>
+                  >
+                    <div className="overflow-hidden">
+                      <p className="px-5 pb-5 text-sm leading-relaxed text-muted-foreground">
+                        {item.a}
+                      </p>
+                    </div>
+                  </dd>
+                </GlassPanel>
+              </Reveal>
             );
           })}
         </dl>
