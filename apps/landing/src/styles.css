@@ -399,6 +399,34 @@
     scroll-snap-align: start;
   }
 
+  .hero-drift {
+    animation: hero-drift 22s ease-in-out infinite alternate;
+    will-change: transform;
+  }
+
+  .hero-chrome {
+    background:
+      linear-gradient(125deg, transparent 40%, rgba(192, 197, 206, 0.08) 50%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 78% 42%, rgba(192, 197, 206, 0.14), transparent 70%);
+  }
+
+  .hero-text-fill {
+    background-image: url("/assets/hero-cinematic.webp");
+    background-size: cover;
+    background-position: 62% 38%;
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+
+  @keyframes hero-drift {
+    from {
+      transform: scale(1.04) translate3d(0, 0, 0);
+    }
+    to {
+      transform: scale(1.08) translate3d(-1.5%, -0.5%, 0);
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     html {
       scroll-behavior: auto;
@@ -416,7 +444,8 @@
     }
 
     .glass-panel,
-    .stack-card {
+    .stack-card,
+    .hero-drift {
       transition: none;
       animation: none;
     }
