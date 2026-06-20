@@ -182,8 +182,8 @@
   }
   html {
     @apply font-sans;
-    scroll-behavior: smooth;
-    scroll-padding-top: 6rem;
+    scroll-behavior: auto;
+    scroll-padding-top: 7rem;
   }
 }
 
@@ -370,6 +370,35 @@
     transform: scaleX(1);
   }
 
+  .stack-section {
+    position: sticky;
+    top: 5.5rem;
+  }
+
+  @supports (animation-timeline: view()) {
+    .stack-card {
+      animation: stack-shrink linear both;
+      animation-timeline: view();
+      animation-range: exit 0% exit 100%;
+    }
+
+    @keyframes stack-shrink {
+      to {
+        transform: scale(0.94) translateY(-1.5%);
+        filter: brightness(0.94);
+      }
+    }
+  }
+
+  .snap-x-cards {
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .snap-x-cards > * {
+    scroll-snap-align: start;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     html {
       scroll-behavior: auto;
@@ -386,8 +415,10 @@
       transform: none;
     }
 
-    .glass-panel {
+    .glass-panel,
+    .stack-card {
       transition: none;
+      animation: none;
     }
   }
 }
