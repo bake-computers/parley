@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouterState } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { Menu, X } from "lucide-react";
-import { PreLaunchChip } from "#/components/PreLaunchBanner";
 import { ThemeToggle } from "#/components/ui/theme-toggle";
 import { useScrollSpy } from "#/hooks/useScrollSpy";
 import { cn } from "#/lib/utils";
@@ -38,9 +37,7 @@ export function SiteHeader() {
         isHome ? "fixed inset-x-0 top-4" : "sticky top-4",
       )}
     >
-      <div className="mx-auto flex max-w-5xl flex-col items-center gap-2">
-        <PreLaunchChip />
-
+      <div className="mx-auto max-w-5xl">
         <div className="glass-pill flex w-full items-center gap-2 px-2 py-2 md:gap-3 md:px-3">
           <a
             href="/"
