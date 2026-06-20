@@ -188,8 +188,7 @@
 }
 
 @layer utilities {
-  .ambient-bg,
-  .stack-surface {
+  .ambient-bg {
     background:
       radial-gradient(ellipse 80% 60% at 10% 20%, rgba(192, 197, 206, 0.18), transparent 60%),
       radial-gradient(ellipse 70% 50% at 90% 10%, rgba(192, 197, 206, 0.12), transparent 55%),
@@ -197,8 +196,7 @@
       var(--background);
   }
 
-  .dark .ambient-bg,
-  .dark .stack-surface {
+  .dark .ambient-bg {
     background:
       radial-gradient(ellipse 80% 60% at 10% 20%, rgba(192, 197, 206, 0.1), transparent 60%),
       radial-gradient(ellipse 70% 50% at 90% 10%, rgba(192, 197, 206, 0.07), transparent 55%),
@@ -372,27 +370,6 @@
     transform: scaleX(1);
   }
 
-  .stack-section {
-    position: sticky;
-    top: 5.5rem;
-    isolation: isolate;
-  }
-
-  .stack-surface {
-    will-change: transform, opacity, filter;
-  }
-
-  .stack-card {
-    transform-origin: center top;
-  }
-
-  @media (max-width: 767px) {
-    .stack-section {
-      position: relative;
-      top: auto;
-    }
-  }
-
   .snap-x-cards {
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
@@ -411,14 +388,6 @@
     background:
       linear-gradient(125deg, transparent 40%, rgba(192, 197, 206, 0.08) 50%, transparent 60%),
       radial-gradient(ellipse 50% 40% at 78% 42%, rgba(192, 197, 206, 0.14), transparent 70%);
-  }
-
-  .hero-text-fill {
-    background-image: url("/assets/hero-cinematic.webp");
-    background-size: cover;
-    background-position: 62% 38%;
-    -webkit-background-clip: text;
-    background-clip: text;
   }
 
   .hero-fade-tail {
@@ -441,6 +410,13 @@
     }
   }
 
+  @media (max-width: 767px) {
+    .hero-drift {
+      animation: none;
+      transform: none;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     html {
       scroll-behavior: auto;
@@ -458,8 +434,6 @@
     }
 
     .glass-panel,
-    .stack-card,
-    .stack-surface,
     .hero-drift {
       transition: none;
       animation: none;

@@ -15,7 +15,7 @@ export function OurStory() {
         <Reveal direction="left">
           <h2 className="text-balance text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
             Born from a server that{" "}
-            <span className="italic text-accent-silver">could not stop arguing over teams.</span>
+            <span className="italic leading-[1.1] text-accent-silver">could not stop arguing over teams.</span>
           </h2>
         </Reveal>
 

@@ -1,16 +1,28 @@
+import { lazy, Suspense } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteHeader } from "#/components/Header";
 import { Hero } from "#/components/Hero";
 import { Problem } from "#/components/Problem";
 import { OurStory } from "#/components/OurStory";
-import { Matchmaking } from "#/components/Matchmaking";
-import { Experience } from "#/components/Experience";
-import { DiscordCta } from "#/components/CallToAction";
-import { Faq } from "#/components/Faq";
 import { SiteFooter } from "#/components/Footer";
-import { StickyStack, StickyStackSection } from "#/components/ui/sticky-stack";
+import { PageSection, PageSections } from "#/components/ui/page-section";
+
+const Matchmaking = lazy(() =>
+  import("#/components/Matchmaking").then((m) => ({ default: m.Matchmaking })),
+);
+const Experience = lazy(() =>
+  import("#/components/Experience").then((m) => ({ default: m.Experience })),
+);
+const DiscordCta = lazy(() =>
+  import("#/components/CallToAction").then((m) => ({ default: m.DiscordCta })),
+);
+const Faq = lazy(() => import("#/components/Faq").then((m) => ({ default: m.Faq })));
 
 export const Route = createFileRoute("/")({ component: Home });
+
+function SectionFallback() {
+  return <div className="min-h-[12rem] animate-pulse rounded-2xl bg-muted/20" aria-hidden="true" />;
+}
 
 function Home() {
   return (
@@ -18,26 +30,34 @@ function Home() {
       <SiteHeader />
       <main>
         <Hero />
-        <StickyStack>
-          <StickyStackSection id="problem" zIndex={1}>
+        <PageSections>
+          <PageSection id="problem" className="pt-12 md:pt-16">
             <Problem />
-          </StickyStackSection>
-          <StickyStackSection id="story" zIndex={2}>
+          </PageSection>
+          <PageSection id="story">
             <OurStory />
-          </StickyStackSection>
-          <StickyStackSection id="matchmaking" zIndex={3}>
-            <Matchmaking />
-          </StickyStackSection>
-          <StickyStackSection id="experience" zIndex={4}>
-            <Experience />
-          </StickyStackSection>
-          <StickyStackSection id="discord" zIndex={5}>
-            <DiscordCta />
-          </StickyStackSection>
-          <StickyStackSection id="faq" zIndex={6}>
-            <Faq />
-          </StickyStackSection>
-        </StickyStack>
+          </PageSection>
+          <PageSection id="matchmaking">
+            <Suspense fallback={<SectionFallback />}>
+              <Matchmaking />
+            </Suspense>
+          </PageSection>
+          <PageSection id="experience">
+            <Suspense fallback={<SectionFallback />}>
+              <Experience />
+            </Suspense>
+          </PageSection>
+          <PageSection id="discord">
+            <Suspense fallback={<SectionFallback />}>
+              <DiscordCta />
+            </Suspense>
+          </PageSection>
+          <PageSection id="faq">
+            <Suspense fallback={<SectionFallback />}>
+              <Faq />
+            </Suspense>
+          </PageSection>
+        </PageSections>
       </main>
       <SiteFooter />
     </div>

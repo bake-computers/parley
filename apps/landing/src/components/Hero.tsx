@@ -31,7 +31,7 @@ export function Hero() {
 
           <h1 className="mt-6 max-w-xl text-balance text-4xl font-semibold leading-[1.08] tracking-tight text-foreground animate-in fade-in slide-in-from-bottom-4 duration-1000 md:text-5xl lg:text-6xl">
             Fair,{" "}
-            <span className="hero-text-fill bg-clip-text text-transparent">skill-matched</span>{" "}
+            <span className="text-accent-silver">skill-matched</span>{" "}
             Rainbow Six Siege.
           </h1>
 
