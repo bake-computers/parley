@@ -8,6 +8,11 @@ const footerLinks = [
   { label: "Terms of service", href: "/terms" },
 ];
 
+const poweredBy = [
+  { name: "stats.cc", href: "https://stats.cc", icon: "https://stats.cc/favicon.ico" },
+  { name: "Ovi AI", href: "https://ovi.run", icon: "https://ovi.run/favicon.ico" },
+];
+
 export function SiteFooter() {
   return (
     <footer className="px-6 pb-12 pt-8">
@@ -41,6 +46,33 @@ export function SiteFooter() {
         <p className="text-xs text-muted-foreground/60">
           © {new Date().getFullYear()} Parley
         </p>
+      </Reveal>
+
+      <Reveal direction="up" delay={80} className="mx-auto mt-8 w-full max-w-6xl border-t border-border/20 pt-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-xs font-medium text-muted-foreground/70">Powered by</p>
+          <div className="flex flex-wrap items-center gap-2">
+            {poweredBy.map((partner) => (
+              <a
+                key={partner.href}
+                href={partner.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="glass-chip inline-flex items-center gap-2 px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                <img
+                  src={partner.icon}
+                  alt=""
+                  width={16}
+                  height={16}
+                  className="size-4 rounded-[4px]"
+                  loading="lazy"
+                />
+                {partner.name}
+              </a>
+            ))}
+          </div>
+        </div>
       </Reveal>
     </footer>
   );
