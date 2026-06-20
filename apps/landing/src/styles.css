@@ -26,6 +26,7 @@
     "Geist Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     sans-serif;
   --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, "Roboto Mono", Menlo, Monaco, monospace;
+  --color-accent-silver: var(--accent-silver);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -64,7 +65,6 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
-  /* computed shadow variables below - do not modify */
   --shadow-2xs: var(--shadow-x) var(--shadow-y)
     color-mix(in srgb, var(--shadow-color) calc(var(--shadow-opacity) * 100%), transparent);
   --shadow-xs: var(--shadow-x) var(--shadow-y) var(--shadow-blur) var(--shadow-spread)
@@ -77,12 +77,12 @@
   --shadow-lg: calc(var(--shadow-x) * 4) calc(var(--shadow-y) * 4) calc(var(--shadow-blur) * 5)
     calc(var(--shadow-spread) - 3px)
     color-mix(in srgb, var(--shadow-color) calc(var(--shadow-opacity) * 100%), transparent);
-  --shadow-xl: calc(var(--shadow-x) * 6) calc(var(--shadow-y) * 6) calc(var(--shadow-blur) * 7)
-    calc(var(--shadow-spread) - 5px)
+  --shadow-xl: calc(var(--shadow-x) * 4) calc(var(--shadow-y) * 8) calc(var(--shadow-blur) * 6)
+    calc(var(--shadow-spread) - 4px)
     color-mix(in srgb, var(--shadow-color) calc(var(--shadow-opacity) * 100%), transparent);
-  --shadow-2xl: calc(var(--shadow-x) * 8) calc(var(--shadow-y) * 8)
-    calc(max(0px, var(--shadow-blur) * 9 - 8px)) calc(var(--shadow-spread) - 12px)
-    color-mix(in srgb, var(--shadow-color) calc(var(--shadow-opacity) * 250%), transparent);
+  --shadow-2xl: calc(var(--shadow-x) * 4) calc(var(--shadow-y) * 12)
+    calc(max(0px, var(--shadow-blur) * 8))
+    color-mix(in srgb, var(--shadow-color) calc(var(--shadow-opacity) * 200%), transparent);
   --shadow: var(--shadow-md);
   --color-shadow-color: var(--shadow-color);
   --shadow-opacity: var(--shadow-opacity);
@@ -94,86 +94,83 @@
 }
 
 :root {
-  --background: #ffffff;
-  --foreground: #0a0a0a;
-  --card: #ffffff;
-  --card-foreground: #0a0a0a;
-  --popover: #ffffff;
-  --popover-foreground: #0a0a0a;
-  --primary: #737373;
-  --primary-foreground: #fafafa;
-  --secondary: #f5f5f5;
-  --secondary-foreground: #171717;
-  --muted: #f5f5f5;
-  --muted-foreground: #717171;
-  --accent: #f5f5f5;
-  --accent-foreground: #171717;
+  --accent-silver: #c0c5ce;
+  --background: #f5f5f7;
+  --foreground: #1d1d1f;
+  --card: rgba(255, 255, 255, 0.72);
+  --card-foreground: #1d1d1f;
+  --popover: rgba(255, 255, 255, 0.85);
+  --popover-foreground: #1d1d1f;
+  --primary: #1d1d1f;
+  --primary-foreground: #f5f5f7;
+  --secondary: rgba(255, 255, 255, 0.55);
+  --secondary-foreground: #1d1d1f;
+  --muted: rgba(0, 0, 0, 0.04);
+  --muted-foreground: #6e6e73;
+  --accent: rgba(192, 197, 206, 0.15);
+  --accent-foreground: #1d1d1f;
   --destructive: #e7000b;
-  --border: #e5e5e5;
-  --input: #e5e5e5;
-  --ring: #a1a1a1;
-  --chart-1: #737373;
-  --chart-2: #737373;
-  --chart-3: #737373;
-  --chart-4: #737373;
-  --chart-5: #737373;
-  --radius: 0rem;
+  --border: rgba(0, 0, 0, 0.08);
+  --input: rgba(0, 0, 0, 0.1);
+  --ring: #c0c5ce;
+  --chart-1: #c0c5ce;
+  --chart-2: #c0c5ce;
+  --chart-3: #c0c5ce;
+  --chart-4: #c0c5ce;
+  --chart-5: #c0c5ce;
+  --radius: 1rem;
   --sidebar: #fafafa;
-  --sidebar-foreground: #0a0a0a;
-  --sidebar-primary: #171717;
-  --sidebar-primary-foreground: #fafafa;
-  --sidebar-accent: #f5f5f5;
-  --sidebar-accent-foreground: #171717;
-  --sidebar-border: #e5e5e5;
-  --sidebar-ring: #a1a1a1;
-  --destructive-foreground: #f5f5f5;
+  --sidebar-foreground: #1d1d1f;
+  --sidebar-primary: #1d1d1f;
+  --sidebar-primary-foreground: #f5f5f7;
+  --sidebar-accent: rgba(0, 0, 0, 0.04);
+  --sidebar-accent-foreground: #1d1d1f;
+  --sidebar-border: rgba(0, 0, 0, 0.08);
+  --sidebar-ring: #c0c5ce;
+  --destructive-foreground: #f5f5f7;
   --shadow-x: 0px;
-  --shadow-y: 1px;
-  --shadow-blur: 2px;
-  --shadow-spread: 0px;
-  --shadow-opacity: 0.05;
-  --shadow-color: #000000;
+  --shadow-y: 4px;
+  --shadow-blur: 24px;
+  --shadow-spread: -4px;
+  --shadow-opacity: 0.08;
+  --shadow-color: #1d1d1f;
 }
 
 .dark {
-  --background: #0a0a0a;
-  --foreground: #fafafa;
-  --card: #191919;
-  --card-foreground: #fafafa;
-  --popover: #262626;
-  --popover-foreground: #fafafa;
-  --primary: #737373;
-  --primary-foreground: #fafafa;
-  --secondary: #262626;
-  --secondary-foreground: #fafafa;
-  --muted: #262626;
-  --muted-foreground: #a1a1a1;
-  --accent: #404040;
-  --accent-foreground: #fafafa;
+  --background: #0d0d0f;
+  --foreground: #f5f5f7;
+  --card: rgba(30, 30, 34, 0.72);
+  --card-foreground: #f5f5f7;
+  --popover: rgba(38, 38, 42, 0.85);
+  --popover-foreground: #f5f5f7;
+  --primary: #f5f5f7;
+  --primary-foreground: #0d0d0f;
+  --secondary: rgba(255, 255, 255, 0.06);
+  --secondary-foreground: #f5f5f7;
+  --muted: rgba(255, 255, 255, 0.06);
+  --muted-foreground: #a1a1a6;
+  --accent: rgba(192, 197, 206, 0.12);
+  --accent-foreground: #f5f5f7;
   --destructive: #ff6467;
-  --border: #383838;
-  --input: #525252;
-  --ring: #737373;
-  --chart-1: #737373;
-  --chart-2: #737373;
-  --chart-3: #737373;
-  --chart-4: #737373;
-  --chart-5: #737373;
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.12);
+  --ring: #c0c5ce;
+  --chart-1: #c0c5ce;
+  --chart-2: #c0c5ce;
+  --chart-3: #c0c5ce;
+  --chart-4: #c0c5ce;
+  --chart-5: #c0c5ce;
   --sidebar: #171717;
-  --sidebar-foreground: #fafafa;
-  --sidebar-primary: #fafafa;
-  --sidebar-primary-foreground: #171717;
-  --sidebar-accent: #262626;
-  --sidebar-accent-foreground: #fafafa;
-  --sidebar-border: #ffffff;
-  --sidebar-ring: #525252;
+  --sidebar-foreground: #f5f5f7;
+  --sidebar-primary: #f5f5f7;
+  --sidebar-primary-foreground: #0d0d0f;
+  --sidebar-accent: rgba(255, 255, 255, 0.06);
+  --sidebar-accent-foreground: #f5f5f7;
+  --sidebar-border: rgba(255, 255, 255, 0.1);
+  --sidebar-ring: #c0c5ce;
   --destructive-foreground: #262626;
-  --shadow-x: 0px;
-  --shadow-y: 1px;
-  --shadow-blur: 2px;
-  --shadow-spread: 0px;
-  --shadow-opacity: 0.05;
   --shadow-color: #000000;
+  --shadow-opacity: 0.35;
 }
 
 @layer base {
@@ -186,32 +183,74 @@
   html {
     @apply font-sans;
     scroll-behavior: smooth;
-    scroll-padding-top: 7rem;
+    scroll-padding-top: 6rem;
   }
 }
 
 @layer utilities {
-  /* Subtle silver shimmer for accent rules/dividers */
-  @keyframes parley-shimmer {
-    0% {
-      background-position: -200% 0;
-    }
-    100% {
-      background-position: 200% 0;
-    }
-  }
-  .parley-shimmer {
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      rgba(192, 197, 206, 0.55) 50%,
-      transparent 100%
-    );
-    background-size: 200% 100%;
-    animation: parley-shimmer 3.5s ease-in-out infinite;
+  .ambient-bg {
+    background:
+      radial-gradient(ellipse 80% 60% at 10% 20%, rgba(192, 197, 206, 0.18), transparent 60%),
+      radial-gradient(ellipse 70% 50% at 90% 10%, rgba(192, 197, 206, 0.12), transparent 55%),
+      radial-gradient(ellipse 60% 40% at 50% 90%, rgba(192, 197, 206, 0.08), transparent 50%),
+      var(--background);
   }
 
-  /* Grow a telemetry bar to its target width when revealed */
+  .dark .ambient-bg {
+    background:
+      radial-gradient(ellipse 80% 60% at 10% 20%, rgba(192, 197, 206, 0.1), transparent 60%),
+      radial-gradient(ellipse 70% 50% at 90% 10%, rgba(192, 197, 206, 0.07), transparent 55%),
+      radial-gradient(ellipse 60% 40% at 50% 90%, rgba(192, 197, 206, 0.05), transparent 50%),
+      var(--background);
+  }
+
+  .glass-panel {
+    border-radius: var(--radius-xl);
+    border: 1px solid color-mix(in srgb, var(--accent-silver) 18%, transparent);
+    background: color-mix(in srgb, var(--card) 90%, transparent);
+    backdrop-filter: blur(20px) saturate(1.8);
+    -webkit-backdrop-filter: blur(20px) saturate(1.8);
+    box-shadow:
+      inset 0 1px 0 color-mix(in srgb, white 25%, transparent),
+      0 8px 32px color-mix(in srgb, var(--shadow-color) calc(var(--shadow-opacity) * 100%), transparent);
+    transition:
+      transform 0.3s ease-out,
+      box-shadow 0.3s ease-out;
+  }
+
+  .dark .glass-panel {
+    border-color: color-mix(in srgb, var(--accent-silver) 22%, transparent);
+    box-shadow:
+      inset 0 1px 0 color-mix(in srgb, white 8%, transparent),
+      0 8px 32px color-mix(in srgb, black 40%, transparent);
+  }
+
+  .glass-pill {
+    border-radius: 9999px;
+    border: 1px solid color-mix(in srgb, var(--accent-silver) 20%, transparent);
+    background: color-mix(in srgb, var(--card) 88%, transparent);
+    backdrop-filter: blur(24px) saturate(1.8);
+    -webkit-backdrop-filter: blur(24px) saturate(1.8);
+    box-shadow:
+      inset 0 1px 0 color-mix(in srgb, white 20%, transparent),
+      0 4px 24px color-mix(in srgb, var(--shadow-color) calc(var(--shadow-opacity) * 100%), transparent);
+  }
+
+  .dark .glass-pill {
+    border-color: color-mix(in srgb, var(--accent-silver) 25%, transparent);
+    box-shadow:
+      inset 0 1px 0 color-mix(in srgb, white 6%, transparent),
+      0 4px 24px color-mix(in srgb, black 35%, transparent);
+  }
+
+  .glass-chip {
+    border-radius: 9999px;
+    border: 1px solid color-mix(in srgb, var(--accent-silver) 15%, transparent);
+    background: color-mix(in srgb, var(--secondary) 80%, transparent);
+    backdrop-filter: blur(12px) saturate(1.5);
+    -webkit-backdrop-filter: blur(12px) saturate(1.5);
+  }
+
   @keyframes parley-bar {
     from {
       transform: scaleX(0);
@@ -293,19 +332,20 @@
   .parley-nav-link::after {
     content: "";
     position: absolute;
-    left: 0;
-    bottom: -2px;
-    height: 1px;
-    width: 100%;
-    transform: scaleX(0);
-    transform-origin: left;
-    background-color: #c0c5ce;
+    left: 50%;
+    bottom: 2px;
+    height: 2px;
+    width: 60%;
+    transform: translateX(-50%) scaleX(0);
+    transform-origin: center;
+    border-radius: 9999px;
+    background-color: var(--accent-silver);
     transition: transform 0.25s ease-out;
   }
 
   .parley-nav-link:hover::after,
   .parley-nav-active::after {
-    transform: scaleX(1);
+    transform: translateX(-50%) scaleX(1);
   }
 
   .parley-footer-link {
@@ -321,7 +361,7 @@
     width: 100%;
     transform: scaleX(0);
     transform-origin: left;
-    background-color: #c0c5ce;
+    background-color: var(--accent-silver);
     transition: transform 0.25s ease-out;
   }
 
@@ -330,75 +370,11 @@
     transform: scaleX(1);
   }
 
-  .parley-rail-cell {
-    padding: 0.625rem 1rem;
-    backdrop-filter: blur(12px);
-    transition:
-      background-color 0.3s ease-out,
-      color 0.25s ease-out;
-  }
-
-  .parley-rail-cell-active {
-    background-color: color-mix(in srgb, #c0c5ce 10%, transparent);
-  }
-
-  .parley-bracket-corners-left,
-  .parley-bracket-corners-right {
-    position: relative;
-  }
-
-  .parley-bracket-corners-left::before,
-  .parley-bracket-corners-left::after,
-  .parley-bracket-corners-right::before,
-  .parley-bracket-corners-right::after {
-    content: "";
-    position: absolute;
-    width: 10px;
-    height: 10px;
-    pointer-events: none;
-    border-color: rgba(192, 197, 206, 0.45);
-    transition: border-color 0.3s ease-out;
-  }
-
-  .parley-bracket-corners-left::before {
-    top: 0;
-    left: 0;
-    border-top: 1px solid;
-    border-left: 1px solid;
-  }
-
-  .parley-bracket-corners-left::after {
-    bottom: 0;
-    left: 0;
-    border-bottom: 1px solid;
-    border-left: 1px solid;
-  }
-
-  .parley-bracket-corners-right::before {
-    top: 0;
-    right: 0;
-    border-top: 1px solid;
-    border-right: 1px solid;
-  }
-
-  .parley-bracket-corners-right::after {
-    bottom: 0;
-    right: 0;
-    border-bottom: 1px solid;
-    border-right: 1px solid;
-  }
-
-  .parley-bracket-corners-bright::before,
-  .parley-bracket-corners-bright::after {
-    border-color: rgba(192, 197, 206, 0.75);
-  }
-
   @media (prefers-reduced-motion: reduce) {
     html {
       scroll-behavior: auto;
     }
 
-    .parley-shimmer,
     .parley-balance-pulse,
     .parley-line-grow,
     .parley-bell-ring {
@@ -408,6 +384,10 @@
     .parley-icon-pop,
     .parley-icon-pop-active {
       transform: none;
+    }
+
+    .glass-panel {
+      transition: none;
     }
   }
 }
