@@ -9,7 +9,7 @@ import { resolveEmojis } from "../../ui/emojis.js";
 import { formatParleyRankLine } from "../../ui/parley-rank.js";
 import { UI_TOKENS } from "../../ui/tokens.js";
 import { getIdentityClient, type EngineTransportEnv } from "../../transport.js";
-import { buildPlatformSelectCard } from "../link/ui.js";
+import { buildLinkHubCard } from "../link/ui.js";
 import { invokeListMatches } from "../history/rpc.js";
 import { buildHistoryCard, buildHistoryErrorCard } from "../history/ui.js";
 import { invokeLookupByDiscord } from "../profile.js";
@@ -49,7 +49,17 @@ export async function resumeAfterAccept(
     }
     case "link": {
       const emojis = await resolveEmojis(interaction);
-      await updateV2(interaction, buildPlatformSelectCard(emojis));
+      let identities: LinkedIdentity[] = [];
+      if (env.ENGINE_SERVICE_URL || env.VPC_SERVICE) {
+        const lookup = await invokeLookupByDiscord(getIdentityClient(env) as never, {
+          discordUserId: interaction.user?.id ?? "",
+          game: Game.R6,
+        });
+        if (lookup.isOk()) {
+          identities = lookup.value.identities;
+        }
+      }
+      await updateV2(interaction, buildLinkHubCard(identities, emojis));
       return;
     }
     case "profile": {

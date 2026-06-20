@@ -1,11 +1,11 @@
 import { SlashCommand, logger } from "@parley/runtime";
-import { Game } from "@parley/proto";
+import { Game, type LinkedIdentity } from "@parley/proto";
 import { assertAccepted } from "../_shared/acceptance.js";
 import { editReplyV2 } from "../../ui/discord.js";
 import { resolveEmojis } from "../../ui/emojis.js";
 import { invokeLookupByDiscord } from "../profile.js";
 import { getIdentityClient, type EngineTransportEnv } from "../../transport.js";
-import { buildAlreadyLinkedCard, buildPlatformSelectCard } from "./ui.js";
+import { buildLinkHubCard } from "./ui.js";
 
 export const linkSlashCommand = new SlashCommand()
   .setName("link")
@@ -17,29 +17,20 @@ export const linkSlashCommand = new SlashCommand()
     }
     const emojis = await resolveEmojis(interaction);
 
+    let identities: LinkedIdentity[] = [];
     if (env.ENGINE_SERVICE_URL || env.VPC_SERVICE) {
       const lookup = await invokeLookupByDiscord(getIdentityClient(env) as never, {
         discordUserId: interaction.user?.id ?? "",
         game: Game.R6,
       });
-      if (lookup.isOk() && lookup.value.identities.length > 0) {
-        const result = await editReplyV2(
-          interaction,
-          buildAlreadyLinkedCard(lookup.value.identities[0]!, emojis),
-        );
-        if (result.isErr()) {
-          logger.error("link.already_linked_failed", "Failed to send already-linked card", {
-            error: result.error,
-            interactionId: interaction.id,
-          });
-        }
-        return;
+      if (lookup.isOk()) {
+        identities = lookup.value.identities;
       }
     }
 
-    const result = await editReplyV2(interaction, buildPlatformSelectCard(emojis));
+    const result = await editReplyV2(interaction, buildLinkHubCard(identities, emojis));
     if (result.isErr()) {
-      logger.error("link.platform_select_failed", "Failed to send platform select", {
+      logger.error("link.hub_failed", "Failed to send link hub", {
         error: result.error,
         interactionId: interaction.id,
       });

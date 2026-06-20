@@ -2,27 +2,30 @@ import type { LinkedIdentity } from "@parley/proto";
 import type { FetchStatsResponse, ScrapedStats } from "@parley/proto/stats/v1/stats_pb.js";
 import { formatParleyRankLine } from "../../ui/parley-rank.js";
 import {
-  ButtonBuilder,
+  ActionRowBuilder,
   ContainerBuilder,
   formatApplicationEmoji,
-  SectionBuilder,
   SeparatorBuilder,
+  StringSelectMenuBuilder,
+  StringSelectMenuOptionBuilder,
   TextDisplayBuilder,
-  toComponentEmoji,
   type ApplicationEmojiCatalog,
 } from "@parley/runtime";
 import {
-  ButtonStyle,
-  CANCEL_CUSTOM_ID,
-  UNLINK_CUSTOM_ID,
+  CONFIRM_ACTION_BACK,
+  CONFIRM_ACTION_CONTINUE,
+  CONFIRM_SELECT_PREFIX,
   GAME_NAME,
   PLATFORM_HINTS,
+  PLATFORM_SELECT_CUSTOM_ID,
   PLATFORMS,
   UI_ERROR_COLOR,
+  UI_MAIN_COLOR,
   UI_SUCCESS_COLOR,
   UI_WARNING_COLOR,
-  confirmCustomId,
-  platformCustomId,
+  UNLINK_SELECT_CUSTOM_ID,
+  confirmSelectCustomId,
+  normalizePlatform,
   platformLabel,
   type Platform,
 } from "./constants.js";
@@ -44,42 +47,135 @@ function separator(): SeparatorBuilder {
   return new SeparatorBuilder().setDivider(true).setSpacing(SEPARATOR_SPACING_SMALL);
 }
 
-/** Step 1: platform picker. */
-export function buildPlatformSelectCard(catalog: ApplicationEmojiCatalog): ContainerBuilder {
-  const linkEmoji = emojiOrFallback(catalog, "linked");
-
-  return new ContainerBuilder().setAccentColor(UI_SUCCESS_COLOR).addComponents(
-    new TextDisplayBuilder().setContent(titleWith(linkEmoji, "Link Your Account")),
-    new TextDisplayBuilder().setContent(
-      `Connect your Discord to **${GAME_NAME}**. Pick the platform you play on.`,
-    ),
-    separator(),
-    ...PLATFORMS.map((platform) => {
-      const accessory = new ButtonBuilder()
-        .setCustomId(platformCustomId(platform))
-        .setLabel(platformLabel(platform))
-        .setStyle(ButtonStyle.Primary);
-      const emoji = toComponentEmoji(catalog, "linked");
-      if (emoji) {
-        accessory.setEmoji(emoji);
-      }
-      return new SectionBuilder()
-        .addText(
-          new TextDisplayBuilder().setContent(
-            `**${platformLabel(platform)}**\n${PLATFORM_HINTS[platform]}`,
-          ),
-        )
-        .setAccessory(accessory);
-    }),
-  );
+function linkedPlatforms(identities: LinkedIdentity[]): Set<Platform> {
+  const linked = new Set<Platform>();
+  for (const identity of identities) {
+    const platform = normalizePlatform(identity.platform);
+    if (platform) {
+      linked.add(platform);
+    }
+  }
+  return linked;
 }
 
-/**
- * Step 3: confirm the platform + collected username before calling the engine.
- *
- * The username is encoded in the Continue button's customId so the handler can
- * avoid a second round-trip and so re-renders don't need to rebuild it.
- */
+function identityPlatformLabel(identity: LinkedIdentity): string {
+  const platform = normalizePlatform(identity.platform);
+  return platform ? platformLabel(platform) : identity.platform;
+}
+
+function buildPlatformSelectMenu(available: readonly Platform[]): StringSelectMenuBuilder {
+  const select = new StringSelectMenuBuilder()
+    .setCustomId(PLATFORM_SELECT_CUSTOM_ID)
+    .setPlaceholder("Choose a platform to link")
+    .setMinValues(1)
+    .setMaxValues(1);
+
+  const options = available.map((platform) =>
+    new StringSelectMenuOptionBuilder()
+      .setLabel(platformLabel(platform))
+      .setValue(platform)
+      .setDescription(PLATFORM_HINTS[platform]),
+  );
+
+  return select.addOptions(...options);
+}
+
+function buildUnlinkSelectMenu(identities: LinkedIdentity[]): StringSelectMenuBuilder {
+  const select = new StringSelectMenuBuilder()
+    .setCustomId(UNLINK_SELECT_CUSTOM_ID)
+    .setPlaceholder("Select an account to remove")
+    .setMinValues(1)
+    .setMaxValues(1);
+
+  const options = identities.flatMap((identity) => {
+    const platform = normalizePlatform(identity.platform);
+    if (!platform) {
+      return [];
+    }
+    return [
+      new StringSelectMenuOptionBuilder()
+        .setLabel(`${identityPlatformLabel(identity)} — ${identity.username}`)
+        .setValue(platform)
+        .setDescription("Remove this linked account"),
+    ];
+  });
+
+  return select.addOptions(...options);
+}
+
+/** Hub: linked accounts overview + platform / unlink select menus. */
+export function buildLinkHubCard(
+  identities: LinkedIdentity[],
+  catalog: ApplicationEmojiCatalog,
+  notice?: string,
+): ContainerBuilder {
+  const linkEmoji = emojiOrFallback(catalog, "linked");
+  const linked = linkedPlatforms(identities);
+  const available = PLATFORMS.filter((platform) => !linked.has(platform));
+
+  const container = new ContainerBuilder()
+    .setAccentColor(identities.length > 0 ? UI_MAIN_COLOR : UI_SUCCESS_COLOR)
+    .addComponents(
+      new TextDisplayBuilder().setContent(titleWith(linkEmoji, "Link Your Accounts")),
+      new TextDisplayBuilder().setContent(
+        `Connect Discord to **${GAME_NAME}**. You can link **PC** plus **console** accounts (Xbox and PlayStation) — one profile per platform.`,
+      ),
+      separator(),
+    );
+
+  if (notice) {
+    container.addComponents(new TextDisplayBuilder().setContent(notice));
+    container.addComponents(separator());
+  }
+
+  if (identities.length === 0) {
+    container.addComponents(new TextDisplayBuilder().setContent("_No accounts linked yet._"));
+  } else {
+    container.addComponents(new TextDisplayBuilder().setContent("**Linked accounts**"));
+    for (const identity of identities) {
+      const rank = formatParleyRankLine(catalog, identity.internalElo);
+      container.addComponents(
+        new TextDisplayBuilder().setContent(
+          `**${identityPlatformLabel(identity)}** · \`${identity.username}\`\n${rank}`,
+        ),
+      );
+    }
+  }
+
+  if (available.length > 0) {
+    container.addComponents(
+      separator(),
+      new TextDisplayBuilder().setContent("**Add a platform**"),
+      new TextDisplayBuilder().setContent(
+        "-# Select where you play, then enter your in-game username.",
+      ),
+      new ActionRowBuilder().addComponents(buildPlatformSelectMenu(available)),
+    );
+  } else {
+    container.addComponents(
+      separator(),
+      new TextDisplayBuilder().setContent(
+        "_All platforms are linked. Remove one below to connect a different profile._",
+      ),
+    );
+  }
+
+  if (identities.length > 0) {
+    container.addComponents(
+      separator(),
+      new TextDisplayBuilder().setContent("**Remove a link**"),
+      new ActionRowBuilder().addComponents(buildUnlinkSelectMenu(identities)),
+    );
+  }
+
+  return container;
+}
+
+/** @deprecated Use {@link buildLinkHubCard}. Kept for tests migrating off button picker. */
+export function buildPlatformSelectCard(catalog: ApplicationEmojiCatalog): ContainerBuilder {
+  return buildLinkHubCard([], catalog);
+}
+
 export function buildConfirmCard(
   platform: Platform,
   username: string,
@@ -88,42 +184,37 @@ export function buildConfirmCard(
   const warningEmoji = emojiOrFallback(catalog, "warning_orange");
   const label = platformLabel(platform);
 
-  const continueButton = new ButtonBuilder()
-    .setCustomId(confirmCustomId(platform, username))
-    .setLabel("Continue")
-    .setStyle(ButtonStyle.Success);
-  const continueEmoji = toComponentEmoji(catalog, "redirect");
-  if (continueEmoji) {
-    continueButton.setEmoji(continueEmoji);
-  }
-
-  const backButton = new ButtonBuilder()
-    .setCustomId(CANCEL_CUSTOM_ID)
-    .setLabel("Back")
-    .setStyle(ButtonStyle.Secondary);
-  const backEmoji = toComponentEmoji(catalog, "ban_hammer_red");
-  if (backEmoji) {
-    backButton.setEmoji(backEmoji);
-  }
+  const actionSelect = new StringSelectMenuBuilder()
+    .setCustomId(confirmSelectCustomId(platform, username))
+    .setPlaceholder("Confirm or go back")
+    .setMinValues(1)
+    .setMaxValues(1)
+    .addOptions(
+      new StringSelectMenuOptionBuilder()
+        .setLabel("Continue — link this account")
+        .setValue(CONFIRM_ACTION_CONTINUE)
+        .setDescription(`Link ${username} on ${label}`),
+      new StringSelectMenuOptionBuilder()
+        .setLabel("Go back")
+        .setValue(CONFIRM_ACTION_BACK)
+        .setDescription("Return to account overview"),
+    );
 
   return new ContainerBuilder()
     .setAccentColor(UI_WARNING_COLOR)
     .addComponents(
       new TextDisplayBuilder().setContent(titleWith(warningEmoji, "Confirm Your Account")),
       new TextDisplayBuilder().setContent(
-        `The engine will look up your **${label}** account by your linked username. Continue?`,
+        `We'll look up your **${label}** profile and link it to Discord.`,
       ),
       separator(),
       new TextDisplayBuilder().setContent(`**Platform**\n${label}`),
       new TextDisplayBuilder().setContent(`**Username**\n\`${username}\``),
       new TextDisplayBuilder().setContent(`**Game**\n${GAME_NAME}`),
       separator(),
-      new SectionBuilder()
-        .addText(new TextDisplayBuilder().setContent("Ready to link?"))
-        .setAccessory(continueButton),
-      new SectionBuilder()
-        .addText(new TextDisplayBuilder().setContent("Pick a different platform?"))
-        .setAccessory(backButton),
+      new TextDisplayBuilder().setContent("**Next step**"),
+      new TextDisplayBuilder().setContent("-# Choose **Continue** to link, or **Go back** to pick another platform."),
+      new ActionRowBuilder().addComponents(actionSelect),
     );
 }
 
@@ -152,34 +243,7 @@ export function buildAlreadyLinkedCard(
   identity: LinkedIdentity,
   catalog: ApplicationEmojiCatalog,
 ): ContainerBuilder {
-  const linkEmoji = emojiOrFallback(catalog, "linked");
-  const rankLine = formatParleyRankLine(catalog, identity.internalElo);
-
-  const delinkButton = new ButtonBuilder()
-    .setCustomId(UNLINK_CUSTOM_ID)
-    .setLabel("Delink")
-    .setStyle(ButtonStyle.Danger);
-  const delinkEmoji = toComponentEmoji(catalog, "trash_red");
-  if (delinkEmoji) {
-    delinkButton.setEmoji(delinkEmoji);
-  }
-
-  return new ContainerBuilder()
-    .setAccentColor(UI_WARNING_COLOR)
-    .addComponents(
-      new TextDisplayBuilder().setContent(titleWith(linkEmoji, "Account Already Linked")),
-      new TextDisplayBuilder().setContent(
-        "You already have a linked account. Delink it first if you want to connect a different profile.",
-      ),
-      separator(),
-      new TextDisplayBuilder().setContent(`**Username**\n\`${identity.username}\``),
-      new TextDisplayBuilder().setContent(`**Platform**\n${identity.platform}`),
-      new TextDisplayBuilder().setContent(`**Parley Rank**\n${rankLine}`),
-      separator(),
-      new SectionBuilder()
-        .addText(new TextDisplayBuilder().setContent("Remove this link?"))
-        .setAccessory(delinkButton),
-    );
+  return buildLinkHubCard([identity], catalog);
 }
 
 export function buildUnlinkCooldownCard(
@@ -195,7 +259,7 @@ export function buildUnlinkCooldownCard(
       new TextDisplayBuilder().setContent(titleWith(timerEmoji, "Re-link Cooldown")),
       separator(),
       new TextDisplayBuilder().setContent(
-        `You recently delinked your account. You can link again ${discordTs}.`,
+        `You recently removed a link. You can link again ${discordTs}.`,
       ),
     );
 }
@@ -206,16 +270,18 @@ export function buildUnlinkedCard(
 ): ContainerBuilder {
   const confirmEmoji = emojiOrFallback(catalog, "redirect");
   const lines = [
-    new TextDisplayBuilder().setContent(titleWith(confirmEmoji, "Account Delinked")),
+    new TextDisplayBuilder().setContent(titleWith(confirmEmoji, "Account Removed")),
     separator(),
-    new TextDisplayBuilder().setContent("Your Discord account is no longer linked to a game profile."),
+    new TextDisplayBuilder().setContent("That platform is no longer linked to your Discord."),
   ];
   if (cooldownUntilMs > 0) {
     const discordTs = `<t:${Math.floor(cooldownUntilMs / 1000)}:F>`;
-    lines.push(
-      new TextDisplayBuilder().setContent(`**Re-link available**\n${discordTs}`),
-    );
+    lines.push(new TextDisplayBuilder().setContent(`**Re-link available**\n${discordTs}`));
   }
+  lines.push(
+    separator(),
+    new TextDisplayBuilder().setContent("-# Use the menus below to link another platform."),
+  );
   return new ContainerBuilder().setAccentColor(UI_SUCCESS_COLOR).addComponents(...lines);
 }
 
@@ -234,13 +300,6 @@ export function buildErrorCard(
     );
 }
 
-/**
- * Step 4: link succeeded, now waiting on the stats scrape. Replaces the
- * confirm card after the engine has accepted the link but before the
- * snapshot is ready. The handler then calls StatsService.FetchStats and
- * either swaps in {@link buildReadyToPlayCard} or {@link buildErrorCard}
- * depending on the result.
- */
 export function buildFetchingStatsCard(catalog: ApplicationEmojiCatalog): ContainerBuilder {
   const timerEmoji = emojiOrFallback(catalog, "timeout");
 
@@ -250,16 +309,11 @@ export function buildFetchingStatsCard(catalog: ApplicationEmojiCatalog): Contai
       new TextDisplayBuilder().setContent(titleWith(timerEmoji, "Fetching Your Stats")),
       separator(),
       new TextDisplayBuilder().setContent(
-        "Your account is linked. We are now looking up your stats — this can take a while if the upstream provider is slow.",
+        "Account linked. Pulling your stats from stats.cc — this can take a moment.",
       ),
     );
 }
 
-/**
- * Step 5: link + stats both succeeded. Shows the basic account info and
- * the freshly-scraped level + rank so the user has visible confirmation
- * that a snapshot now exists.
- */
 export function buildReadyToPlayCard(
   args: {
     usernameNormalized: string;
@@ -280,12 +334,15 @@ export function buildReadyToPlayCard(
     .addComponents(
       new TextDisplayBuilder().setContent(titleWith(confirmEmoji, "You're Ready To Play")),
       separator(),
-      new TextDisplayBuilder().setContent(`### ${GAME_NAME}`),
+      new TextDisplayBuilder().setContent(`### ${GAME_NAME} · ${label}`),
       new TextDisplayBuilder().setContent(`**Username**\n\`${args.usernameNormalized}\``),
       new TextDisplayBuilder().setContent(`**Player ID**\n\`${args.playerId}\``),
-      new TextDisplayBuilder().setContent(`**Platform**\n${label}`),
       separator(),
       ...buildStatsLines(catalog, profile, ranked),
+      separator(),
+      new TextDisplayBuilder().setContent(
+        "-# Run `/link` again or use **Add a platform** to connect another profile.",
+      ),
     );
 }
 
@@ -320,4 +377,8 @@ function buildStatsLines(
     );
   }
   return lines;
+}
+
+export function isConfirmSelectCustomId(customId: string): boolean {
+  return customId.startsWith(`${CONFIRM_SELECT_PREFIX}/`);
 }

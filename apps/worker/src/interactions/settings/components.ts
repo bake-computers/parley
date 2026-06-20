@@ -1,4 +1,4 @@
-import { ComponentHandler, logger } from "@parley/runtime";
+import { ComponentHandler, logger, StringSelectInteraction } from "@parley/runtime";
 import type { MessageComponentInteraction } from "@parley/runtime";
 import type { GuildNotificationSettings as ProtoNotificationSettings } from "@parley/proto";
 import { Game } from "@parley/proto";
@@ -223,7 +223,10 @@ export const settingsSelectHandler = new ComponentHandler(
     return;
   }
 
-  const selectedValues = (interaction as { values?: string[] }).values;
+  const selectedValues =
+    interaction instanceof StringSelectInteraction
+      ? interaction.values
+      : (interaction.raw.data as { values?: string[] }).values;
   const selectedChannel = channelIdFromSelectValue(selectedValues?.[0] ?? "");
 
   const env = interaction.context.env;

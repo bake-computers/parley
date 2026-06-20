@@ -1,7 +1,7 @@
 import { helpCommand } from "./interactions/help.js";
 import { historyCommand } from "./interactions/history/slash.js";
 import {
-  linkButtonHandler,
+  linkSelectHandler,
   linkSlashCommand,
   usernameModalHandler,
 } from "./interactions/link/index.js";
@@ -21,7 +21,7 @@ import {
 export const workerHandlers = [
   helpCommand,
   historyCommand,
-  linkButtonHandler,
+  linkSelectHandler,
   linkSlashCommand,
   pingCommand,
   profileCommand,

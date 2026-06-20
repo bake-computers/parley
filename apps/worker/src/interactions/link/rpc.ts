@@ -33,6 +33,7 @@ type LinkAccountArgs = {
 type UnlinkAccountArgs = {
   discordUserId: string;
   game: Game;
+  platform?: string;
 };
 
 type IdentityClient = {
@@ -88,12 +89,14 @@ export function invokeLinkAccount(
 export function executeUnlinkAccount(input: {
   context: LinkInteractionContext["context"];
   user: LinkInteractionContext["user"];
+  platform?: Platform;
 }): Promise<Result<UnlinkAccountResponse, ConnectError>> {
   const env = input.context.env as EngineTransportEnv;
   const client = getIdentityClient(env) as unknown as IdentityClient;
   return invokeUnlinkAccount(client, {
     discordUserId: input.user?.id ?? "",
     game: Game.R6,
+    ...(input.platform != null && { platform: input.platform }),
   });
 }
 

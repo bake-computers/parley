@@ -1,4 +1,4 @@
-import { ButtonStyle, TextInputStyle } from "discord-api-types/v10";
+import { TextInputStyle } from "discord-api-types/v10";
 
 export const PLATFORMS = ["pc", "xbox", "playstation"] as const;
 
@@ -19,19 +19,19 @@ export const PLATFORM_HINTS: Record<Platform, string> = {
 export const UI_SUCCESS_COLOR = 0x22c55e;
 export const UI_ERROR_COLOR = 0xef4444;
 export const UI_WARNING_COLOR = 0xf59e0b;
+export const UI_MAIN_COLOR = 0x6366f1;
 
 export const GAME_NAME = "Rainbow Six Siege";
 
 /** Discord Components v2 (32768) + Ephemeral (64). */
 export const COMPONENTS_V2_EPHEMERAL = 64 | 32768;
 
-// ---- Custom IDs -------------------------------------------------------------
+export const PLATFORM_SELECT_CUSTOM_ID = "link/platform-select";
+export const UNLINK_SELECT_CUSTOM_ID = "link/unlink-select";
+export const CONFIRM_SELECT_PREFIX = "link/confirm-select";
 
-/** Hand-rolled cancel/back from any wizard step. */
-export const CANCEL_CUSTOM_ID = "link/cancel";
-
-/** Delink the current Discord↔game account binding. */
-export const UNLINK_CUSTOM_ID = "link/unlink";
+export const CONFIRM_ACTION_CONTINUE = "continue";
+export const CONFIRM_ACTION_BACK = "back";
 
 /** Modal customId prefix for the username collection step. */
 export const USERNAME_MODAL_PREFIX = "link-username-modal";
@@ -39,14 +39,8 @@ export const USERNAME_MODAL_PREFIX = "link-username-modal";
 /** TextInput customId inside the username modal. */
 export const USERNAME_INPUT_ID = "link/username-input";
 
-// ---- Helpers ----------------------------------------------------------------
-
-export function platformCustomId(platform: Platform): string {
-  return `link/platform/${platform}`;
-}
-
-export function confirmCustomId(platform: Platform, username: string): string {
-  return `link/confirm/${platform}?username=${encodeURIComponent(username)}`;
+export function confirmSelectCustomId(platform: Platform, username: string): string {
+  return `${CONFIRM_SELECT_PREFIX}/${platform}?username=${encodeURIComponent(username)}`;
 }
 
 export function usernameModalCustomId(platform: Platform): string {
@@ -61,9 +55,15 @@ export function platformLabel(platform: Platform): string {
   return PLATFORM_LABELS[platform];
 }
 
-// ---- Style re-exports -------------------------------------------------------
-// Republishing the enums here keeps every link file from importing
-// `discord-api-types` directly. The slash command's "Confirm" button uses
-// Success; the cancel button uses Secondary; the platform rows use Primary.
+export function normalizePlatform(value: string): Platform | null {
+  const lower = value.trim().toLowerCase();
+  if (isPlatform(lower)) {
+    return lower;
+  }
+  if (lower === "uplay") {
+    return "pc";
+  }
+  return null;
+}
 
-export { ButtonStyle, TextInputStyle };
+export { TextInputStyle };

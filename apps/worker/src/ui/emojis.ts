@@ -9,6 +9,7 @@ const EMOJI_CONTEXT_KEY = "application-emojis";
 
 type EmojiInteraction = {
   context: DiscordRequestContext;
+  applicationId?: string;
 };
 
 /** Resolves app emojis via the runtime: KV cache → Discord REST → normalized catalog. */
@@ -19,9 +20,11 @@ export async function resolveEmojis(interaction: EmojiInteraction): Promise<Appl
   }
 
   const env = interaction.context.env;
+  const applicationId = env.DISCORD_APPLICATION_ID ?? interaction.applicationId;
+  const botToken = env.DISCORD_BOT_TOKEN ?? env.DISCORD_TOKEN;
   const catalog = await resolveApplicationEmojiCatalog({
-    ...(env.DISCORD_APPLICATION_ID != null && { applicationId: env.DISCORD_APPLICATION_ID }),
-    ...(env.DISCORD_BOT_TOKEN != null && { botToken: env.DISCORD_BOT_TOKEN }),
+    ...(applicationId != null && { applicationId }),
+    ...(botToken != null && { botToken }),
     cache: (env as { KV?: KVNamespace }).KV ?? null,
     network: true,
   });

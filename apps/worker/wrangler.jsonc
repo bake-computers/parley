@@ -16,6 +16,7 @@
   "observability": { "enabled": true },
 
   "vars": {
+    "DISCORD_APPLICATION_ID": "1495122091165618358",
     "SERVICE_NAME": "worker",
     "AXIOM_DATASET": "parley",
     "AXIOM_ENABLED": "true",
