@@ -25,7 +25,7 @@ function Home() {
   return (
     <div className="min-h-screen">
       <SiteHeader />
-      <main className="relative z-[1]">
+      <main>
         <Hero />
         <PageSections>
           <PageSection id="problem" className="-mt-[min(22vh,12rem)] pt-[min(30vh,16rem)] md:pt-[min(34vh,18rem)]">

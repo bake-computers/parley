@@ -415,50 +415,6 @@
     }
   }
 
-  .hero-backdrop {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    height: 100dvh;
-    pointer-events: none;
-    overflow: hidden;
-    will-change: opacity;
-  }
-
-  .hero-backdrop-media {
-    -webkit-mask-image: linear-gradient(
-      to bottom,
-      #000 0%,
-      #000 42%,
-      rgb(0 0 0 / 0.72) 68%,
-      transparent 100%
-    );
-    mask-image: linear-gradient(
-      to bottom,
-      #000 0%,
-      #000 42%,
-      rgb(0 0 0 / 0.72) 68%,
-      transparent 100%
-    );
-  }
-
-  @supports (animation-timeline: scroll()) {
-    .hero-backdrop {
-      animation: hero-backdrop-fade linear both;
-      animation-timeline: scroll(root);
-      animation-range: 28vh 92vh;
-    }
-  }
-
-  @keyframes hero-backdrop-fade {
-    from {
-      opacity: 1;
-    }
-    to {
-      opacity: 0;
-    }
-  }
-
   .hero-fade-tail {
     height: min(72vh, 34rem);
     background: linear-gradient(
@@ -505,15 +461,9 @@
 
     .glass-panel,
     .hero-drift,
-    .hero-backdrop,
     .skeleton-block::after {
       transition: none;
       animation: none;
-    }
-
-    .hero-backdrop {
-      position: absolute;
-      height: 100%;
     }
   }
 }
