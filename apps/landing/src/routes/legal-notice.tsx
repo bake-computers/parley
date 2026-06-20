@@ -30,7 +30,7 @@ function LegalNoticePage() {
             <span className="font-medium text-foreground/80">Email: </span>
             <a
               href="mailto:contact@parley.bot"
-              className="underline underline-offset-4 transition-colors hover:text-[#c0c5ce]"
+              className="underline underline-offset-4 transition-colors hover:text-accent-silver"
             >
               contact@parley.bot
             </a>

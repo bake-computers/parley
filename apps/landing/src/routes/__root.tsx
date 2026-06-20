@@ -10,6 +10,8 @@ const SITE_DESCRIPTION =
 const SITE_URL = "https://parley.bot";
 const OG_IMAGE = "/assets/parley-banner.png";
 
+const THEME_SCRIPT = `(function(){try{var t=localStorage.getItem('parley-theme');var d=t==='dark'||(t!=='light'&&matchMedia('(prefers-color-scheme:dark)').matches);document.documentElement.classList.toggle('dark',d)}catch(e){}})()`;
+
 export const Route = createRootRoute({
   head: () => ({
     meta: [
@@ -31,6 +33,13 @@ export const Route = createRootRoute({
       { name: "twitter:image", content: OG_IMAGE },
     ],
     links: [
+      {
+        rel: "preload",
+        href: "/assets/hero-cinematic.webp",
+        as: "image",
+        type: "image/webp",
+        fetchPriority: "high",
+      },
       { rel: "stylesheet", href: appCss },
       { rel: "icon", href: "/favicon.ico", sizes: "48x48" },
       { rel: "icon", type: "image/png", sizes: "32x32", href: "/favicon-32x32.png" },
@@ -46,23 +55,27 @@ export const Route = createRootRoute({
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="dark bg-background">
+    <html lang="en" suppressHydrationWarning>
       <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
         <HeadContent />
       </head>
       <body className="font-sans antialiased">
+        <div aria-hidden="true" className="ambient-bg fixed inset-0 -z-10" />
         {children}
-        <TanStackDevtools
-          config={{
-            position: "bottom-right",
-          }}
-          plugins={[
-            {
-              name: "Tanstack Router",
-              render: <TanStackRouterDevtoolsPanel />,
-            },
-          ]}
-        />
+        {import.meta.env.DEV ? (
+          <TanStackDevtools
+            config={{
+              position: "bottom-right",
+            }}
+            plugins={[
+              {
+                name: "Tanstack Router",
+                render: <TanStackRouterDevtoolsPanel />,
+              },
+            ]}
+          />
+        ) : null}
         <Scripts />
       </body>
     </html>

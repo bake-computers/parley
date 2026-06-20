@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { RefreshCw } from "lucide-react";
 import { Button } from "#/components/ui/button";
+import { GlassPanel } from "#/components/ui/glass-panel";
 import { cn } from "#/lib/utils";
 
 type Player = {
@@ -58,9 +59,7 @@ function TeamColumn({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <span className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
-          {label}
-        </span>
+        <span className="font-mono text-xs font-medium text-muted-foreground">{label}</span>
         <span className="font-mono text-xs text-foreground">
           {avgRating(players, balanced).toLocaleString()}
         </span>
@@ -75,16 +74,16 @@ function TeamColumn({
                 <span
                   className={cn(
                     "font-mono tabular-nums transition-colors duration-500",
-                    balanced ? "text-[#c0c5ce]" : "text-foreground",
+                    balanced ? "text-accent-silver" : "text-foreground",
                   )}
                 >
                   {rating.toLocaleString()}
                 </span>
               </div>
-              <div className="mt-1.5 h-1 w-full overflow-hidden bg-border/60">
+              <div className="mt-1.5 h-1 w-full overflow-hidden rounded-full bg-border/60">
                 <div
                   className={cn(
-                    "h-full origin-left bg-[#c0c5ce] transition-transform duration-700 ease-out motion-reduce:transition-none",
+                    "h-full origin-left rounded-full bg-accent-silver transition-transform duration-700 ease-out motion-reduce:transition-none",
                     animating && balanced && "animate-[parley-bar_0.7s_ease-out_forwards]",
                   )}
                   style={{ width: `${ratingToPct(rating)}%` }}
@@ -173,26 +172,24 @@ export function HeroLobbyDemo() {
         : "Lobby unbalanced. High skill delta detected.";
 
   return (
-    <div className="border border-border/60 bg-secondary/20" aria-live="polite" aria-atomic="true">
+    <GlassPanel className="overflow-hidden" aria-live="polite" aria-atomic="true">
       <span className="sr-only">{liveMessage}</span>
 
-      <div className="flex items-center justify-between border-b border-border/60 px-5 py-3">
-        <span className="text-xs uppercase tracking-widest text-muted-foreground">
-          Lobby Status
-        </span>
+      <div className="flex items-center justify-between border-b border-border/40 px-5 py-3">
+        <span className="text-sm font-medium text-muted-foreground">Lobby status</span>
         <span className="flex items-center gap-2 font-mono text-xs">
           <span
             className={cn(
               "size-1.5 rounded-full transition-colors duration-500",
-              phase === "imbalanced" ? "bg-muted-foreground" : "bg-[#c0c5ce]",
+              phase === "imbalanced" ? "bg-muted-foreground" : "bg-accent-silver",
               phase === "balanced" && "parley-balance-pulse",
             )}
             aria-hidden="true"
           />
           <span
             className={cn(
-              "uppercase tracking-wider transition-colors duration-500",
-              isBalanced ? "text-[#c0c5ce]" : "text-muted-foreground",
+              "font-medium transition-colors duration-500",
+              isBalanced ? "text-accent-silver" : "text-muted-foreground",
             )}
           >
             {statusLabel}
@@ -200,8 +197,8 @@ export function HeroLobbyDemo() {
         </span>
       </div>
 
-      <div className="grid grid-cols-2 gap-px bg-border/60">
-        <div className="bg-background p-4 md:p-5">
+      <div className="grid grid-cols-2 gap-3 p-4 md:p-5">
+        <div className="rounded-2xl bg-muted/30 p-4">
           <TeamColumn
             label="Team α"
             players={PLAYERS_ALPHA}
@@ -209,7 +206,7 @@ export function HeroLobbyDemo() {
             animating={isAnimating}
           />
         </div>
-        <div className="bg-background p-4 md:p-5">
+        <div className="rounded-2xl bg-muted/30 p-4">
           <TeamColumn
             label="Team β"
             players={PLAYERS_BRAVO}
@@ -219,27 +216,25 @@ export function HeroLobbyDemo() {
         </div>
       </div>
 
-      <div className="space-y-4 border-t border-border/60 p-5">
+      <div className="space-y-4 border-t border-border/40 p-5">
         <div>
           <div className="flex items-center justify-between text-xs">
-            <span className="font-mono uppercase tracking-wider text-muted-foreground">
-              Balance score
-            </span>
+            <span className="font-mono font-medium text-muted-foreground">Balance score</span>
             <span
               className={cn(
                 "font-mono text-sm tabular-nums transition-colors duration-500",
-                isBalanced ? "text-[#c0c5ce]" : "text-foreground",
+                isBalanced ? "text-accent-silver" : "text-foreground",
               )}
             >
               <span className="parley-count-up">{displayScore}</span>
               <span className="text-muted-foreground">/100</span>
             </span>
           </div>
-          <div className="mt-2 h-1.5 w-full overflow-hidden bg-border/60">
+          <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-border/60">
             <div
               className={cn(
-                "h-full origin-left bg-[#c0c5ce] transition-[width] duration-700 ease-out motion-reduce:transition-none",
-                isBalanced && !reducedMotion && "parley-shimmer",
+                "h-full origin-left rounded-full bg-accent-silver transition-[width] duration-700 ease-out motion-reduce:transition-none",
+                isBalanced && !reducedMotion && "opacity-90",
               )}
               style={{ width: `${displayScore}%` }}
             />
@@ -252,7 +247,7 @@ export function HeroLobbyDemo() {
           size="sm"
           disabled={isAnimating}
           onClick={handleRebalance}
-          className="w-full border-border/70 bg-transparent text-foreground hover:bg-secondary/50"
+          className="w-full rounded-full border-border/70 bg-transparent text-foreground hover:bg-secondary/50"
         >
           <RefreshCw
             className={cn("size-3.5", isAnimating && "motion-safe:animate-spin")}
@@ -261,10 +256,10 @@ export function HeroLobbyDemo() {
           Rebalance lobby
         </Button>
 
-        <p className="text-[11px] leading-relaxed text-muted-foreground/70">
+        <p className="text-xs leading-relaxed text-muted-foreground/70">
           Illustrative preview. Live matchmaking runs inside the Discord app at launch.
         </p>
       </div>
-    </div>
+    </GlassPanel>
   );
 }
