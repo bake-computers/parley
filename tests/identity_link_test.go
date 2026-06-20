@@ -121,6 +121,88 @@ func TestIdentityLink_RoundTrip(t *testing.T) {
 	}
 }
 
+// TestIdentityLink_MultiPlatform allows PC and console profiles on one Discord user.
+func TestIdentityLink_MultiPlatform(t *testing.T) {
+	rig := newEngineWithDB(t)
+	ctx := context.Background()
+
+	discordID := "100200300400500601"
+	pcUser := "PcPlayer"
+	consoleUser := "ConsolePlayer"
+
+	pcReq := connect.NewRequest(&identityv1.LinkAccountRequest{
+		DiscordUserId: discordID,
+		Game:          commonv1.Game_GAME_R6,
+		Username:      pcUser,
+		Platform:      "pc",
+	})
+	if _, err := rig.IdentityClient.LinkAccount(ctx, pcReq); err != nil {
+		t.Fatalf("LinkAccount(pc): %v", err)
+	}
+
+	psReq := connect.NewRequest(&identityv1.LinkAccountRequest{
+		DiscordUserId: discordID,
+		Game:          commonv1.Game_GAME_R6,
+		Username:      consoleUser,
+		Platform:      "playstation",
+	})
+	if _, err := rig.IdentityClient.LinkAccount(ctx, psReq); err != nil {
+		t.Fatalf("LinkAccount(playstation): %v", err)
+	}
+
+	lookupReq := connect.NewRequest(&identityv1.LookupByDiscordRequest{
+		DiscordUserId: discordID,
+		Game:          commonv1.Game_GAME_R6,
+	})
+	lookupResp, err := rig.IdentityClient.LookupByDiscord(ctx, lookupReq)
+	if err != nil {
+		t.Fatalf("LookupByDiscord: %v", err)
+	}
+	if got := len(lookupResp.Msg.GetIdentities()); got != 2 {
+		t.Fatalf("identities len = %d, want 2", got)
+	}
+
+	dupReq := connect.NewRequest(&identityv1.LinkAccountRequest{
+		DiscordUserId: discordID,
+		Game:          commonv1.Game_GAME_R6,
+		Username:      "OtherPc",
+		Platform:      "pc",
+	})
+	if _, err := rig.IdentityClient.LinkAccount(ctx, dupReq); err == nil {
+		t.Fatal("expected duplicate pc link to fail")
+	} else if got := connectErrCode(err); got != connect.CodeFailedPrecondition {
+		t.Fatalf("duplicate pc link code = %v, want FailedPrecondition", got)
+	}
+
+	unlinkReq := connect.NewRequest(&identityv1.UnlinkAccountRequest{
+		DiscordUserId: discordID,
+		Game:          commonv1.Game_GAME_R6,
+		Platform:      "pc",
+	})
+	unlinkResp, err := rig.IdentityClient.UnlinkAccount(ctx, unlinkReq)
+	if err != nil {
+		t.Fatalf("UnlinkAccount(pc): %v", err)
+	}
+	if unlinkResp.Msg.GetRemoved() != 1 {
+		t.Fatalf("removed = %d, want 1", unlinkResp.Msg.GetRemoved())
+	}
+
+	lookupAfterReq := connect.NewRequest(&identityv1.LookupByDiscordRequest{
+		DiscordUserId: discordID,
+		Game:          commonv1.Game_GAME_R6,
+	})
+	lookupAfterResp, err := rig.IdentityClient.LookupByDiscord(ctx, lookupAfterReq)
+	if err != nil {
+		t.Fatalf("LookupByDiscord (after partial unlink): %v", err)
+	}
+	if got := len(lookupAfterResp.Msg.GetIdentities()); got != 1 {
+		t.Fatalf("identities len = %d, want 1", got)
+	}
+	if got := lookupAfterResp.Msg.GetIdentities()[0].GetPlatform(); got != "playstation" {
+		t.Errorf("platform = %q, want playstation", got)
+	}
+}
+
 // TestIdentityLink_LookupByUsername verifies the username-based lookup
 // path. After linking, calling LookupByUsername with the same
 // (game, username, platform) tuple should return the linked identity.

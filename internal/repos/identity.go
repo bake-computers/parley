@@ -206,8 +206,8 @@ func (r *IdentityRepo) LinkDiscordIdentity(
 	var out models.DiscordIdentity
 	_, err := r.db.NewInsert().
 		Model(&row).
-		On("CONFLICT (game, discord_user_id) DO UPDATE").
-		Set("player_id = EXCLUDED.player_id").
+		On("CONFLICT (game, player_id) DO UPDATE").
+		Set("discord_user_id = EXCLUDED.discord_user_id").
 		Set("updated_at = EXCLUDED.updated_at").
 		Returning("*").
 		Exec(ctx, &out)
@@ -217,17 +217,26 @@ func (r *IdentityRepo) LinkDiscordIdentity(
 	return &out, nil
 }
 
-// UnlinkDiscordIdentity removes the link for (game, discord_user_id).
+// UnlinkDiscordIdentity removes links for (game, discord_user_id).
+// When platform is non-empty, only the identity whose player uses that platform is removed.
 func (r *IdentityRepo) UnlinkDiscordIdentity(
 	ctx context.Context,
 	game models.Game,
 	discordUserID string,
+	platform string,
 ) (int64, error) {
-	res, err := r.db.NewDelete().
+	q := r.db.NewDelete().
 		Model((*models.DiscordIdentity)(nil)).
 		Where("game = ?", game).
-		Where("discord_user_id = ?", discordUserID).
-		Exec(ctx)
+		Where("discord_user_id = ?", discordUserID)
+	if platform != "" {
+		q = q.Where(
+			"player_id IN (SELECT id FROM players WHERE game = ? AND platform = ?)",
+			game,
+			platform,
+		)
+	}
+	res, err := q.Exec(ctx)
 	if err != nil {
 		return 0, err
 	}

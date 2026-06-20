@@ -122,7 +122,7 @@ func TestIdentityRepoUpsertAndLink(t *testing.T) {
 		t.Fatalf("FindPlayerByIdentity mismatch")
 	}
 
-	n, err := repo.UnlinkDiscordIdentity(ctx, models.GameR6, discord)
+	n, err := repo.UnlinkDiscordIdentity(ctx, models.GameR6, discord, "")
 	if err != nil {
 		t.Fatalf("UnlinkDiscordIdentity: %v", err)
 	}

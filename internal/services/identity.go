@@ -107,9 +107,15 @@ func (s *IdentityService) LinkAccount(
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("lookup identity: %w", err))
 	}
-	if len(idents) > 0 {
-		return nil, connect.NewError(connect.CodeFailedPrecondition,
-			fmt.Errorf("account already linked; delink first via /link"))
+	for _, id := range idents {
+		player, perr := s.identityRepo.FindPlayer(ctx, id.PlayerID)
+		if perr != nil {
+			return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("lookup player: %w", perr))
+		}
+		if player != nil && strings.EqualFold(player.Platform, platform) {
+			return nil, connect.NewError(connect.CodeFailedPrecondition,
+				fmt.Errorf("%s account already linked; delink it first via /link", platform))
+		}
 	}
 
 	player, err := s.identityRepo.UpsertPlayerByIdentity(ctx, game, username, platform, nil, nil)
@@ -153,7 +159,8 @@ func (s *IdentityService) UnlinkAccount(
 		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("discord_user_id is required"))
 	}
 
-	removed, err := s.identityRepo.UnlinkDiscordIdentity(ctx, game, discordUserID)
+	platform := strings.TrimSpace(msg.GetPlatform())
+	removed, err := s.identityRepo.UnlinkDiscordIdentity(ctx, game, discordUserID, platform)
 	if err != nil {
 		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("unlink: %w", err))
 	}
