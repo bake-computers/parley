@@ -19,6 +19,9 @@ function LegalNoticePage() {
           <p>47608 Geldern</p>
           <p>Deutschland</p>
         </div>
+        <p className="mt-3">
+          We do not accept packages or parcels at this address (Keine Paketannahme).
+        </p>
       </section>
 
       <section>
