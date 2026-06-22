@@ -1,0 +1,242 @@
+import type { Messages } from "#/lib/i18n-messages.types";
+
+export const messagesDe: Messages = {
+  htmlLang: "de",
+  nav: {
+    problem: "Das Problem",
+    story: "Unsere Geschichte",
+    matchmaking: "Matchmaking",
+    experience: "So funktioniert's",
+    leaderboard: "Rangliste",
+    faq: "FAQ",
+    joinDiscord: "Discord beitreten",
+    openMenu: "Navigation öffnen",
+    closeMenu: "Navigation schließen",
+    brand: "Parley",
+  },
+  footer: {
+    leaderboard: "Rangliste",
+    legalNotice: "Impressum",
+    privacy: "Datenschutz",
+    terms: "Nutzungsbedingungen",
+    poweredBy: "Powered by",
+    notUbisoft: "Keine Verbindung zu Ubisoft",
+    notDiscord: "Keine Verbindung zu Discord Inc.",
+  },
+  notFound: {
+    label: "Fehler 404",
+    title: "Seite nicht gefunden.",
+    body: "Die angeforderte Seite existiert nicht oder wurde verschoben. Wenn du glaubst, dass ein Fehler vorliegt, melde dich auf Discord.",
+    home: "Zur Startseite",
+    discord: "Discord beitreten",
+  },
+  legal: { lastUpdated: "Zuletzt aktualisiert:" },
+  localeSwitch: { label: "Sprache", en: "EN", de: "DE" },
+  home: {
+    hero: {
+      titleBefore: "Fair und ",
+      titleHighlight: "skillbasiert",
+      titleAfter: " in Rainbow Six Siege.",
+      subtitle:
+        "Eine Discord-App, die aus echtem Skill und Telemetrie ausgewogene Teams bildet und Scrims sowie Turniere automatisiert.",
+      ctaDiscord: "Discord beitreten",
+      ctaHow: "So funktioniert's",
+      explore: "Entdecken",
+    },
+    problem: {
+      titleBefore: "Der Ranked-Grind ist ",
+      titleHighlight: "systemisch kaputt.",
+      subtitle: "Wenn du Siege ernst nimmst, arbeitet öffentliches Matchmaking gegen dich – jede Runde.",
+      costLabel: "Was es dich kostet",
+      costSuffix: "wiederkehrende Probleme, die Parley vor dem Discord-Launch beseitigen soll.",
+      costFootnote: "Queue-Report / öffentliches Matchmaking",
+      symptoms: [
+        {
+          title: "Ungleiche Lobbys",
+          body: "Öffentliche Queues mischen Skill-Level willkürlich. Stomps statt der knappen Runden, die du willst.",
+        },
+        {
+          title: "Unzuverlässige Mitspieler",
+          body: "Leaver und Griefer zerstören Spiele, bevor sie beginnen. Keine Verantwortung, keine Struktur.",
+        },
+        {
+          title: "Keine echte Balance",
+          body: "Standard-Matchmaking ignoriert, wie du wirklich spielst. Ohne Telemetrie ist „fair“ nur ein Zufall.",
+        },
+      ],
+    },
+    story: {
+      titleBefore: "Entstanden auf einem Server, der ",
+      titleHighlight: "ständig über Teams gestritten hat.",
+      paragraphs: [
+        "Parley begann auf einem Freundes-Discord, wo wir zehn jedes Wochenende Custom-Siege gespielt haben.",
+        "Wir haben ewig Teams gebaut. Eine Seite fühlte sich immer benachteiligt. Jeden Samstag dasselbe.",
+        "Also bauten wir das Tool, das wir uns gewünscht hatten: automatische Balance vor der ersten Runde.",
+      ],
+      pullQuote: "Zehn Spieler. Zwei Teams. Fünfundvierzig Minuten Streit – jeden Samstag.",
+      founderRole: "Gründer",
+      coFounderRole: "Mitgründer",
+      avatarAlt: "Avatar",
+    },
+    matchmaking: {
+      title: "Matchmaking auf Basis von Skill und Telemetrie.",
+      subtitle:
+        "Parley modelliert deine echte Performance und stellt ausgewogene Teams zusammen, bei denen jede Runde zählt.",
+      points: [
+        {
+          title: "Echte Performance",
+          body: "Aim, Impact, Clutch-Rate und Rollen-Konsistenz fließen ein – nicht nur Win/Loss.",
+        },
+        {
+          title: "Beide Seiten ausgeglichen",
+          body: "Teams werden so gebildet, dass Skill-Lücken minimal bleiben und Runden knapp bleiben.",
+        },
+        {
+          title: "Passt sich an",
+          body: "Ratings aktualisieren sich mit jedem Spiel. Verbesserst du dich, steigen deine Matches mit.",
+        },
+      ],
+    },
+    lobby: {
+      statusHeader: "Lobby-Status",
+      statusUnbalanced: "Unausgeglichen",
+      statusBalancing: "Wird balanciert…",
+      statusBalanced: "Ausgeglichen",
+      liveBalanced: "Lobby ausgeglichen. Teams sind skillbasiert gematcht.",
+      liveBalancing: "Teams werden nach Skill-Rating balanciert.",
+      liveUnbalanced: "Lobby unausgeglichen. Hohe Skill-Differenz erkannt.",
+      teamAlpha: "Team α",
+      teamBeta: "Team β",
+      playersAria: "Spieler",
+      balanceScore: "Balance-Score",
+      rebalance: "Lobby neu balancieren",
+      footnote: "Illustrative Vorschau. Live-Matchmaking läuft zum Launch in der Discord-App.",
+    },
+    experience: {
+      title: "Von der Queue bis zum Pokal – für dich erledigt.",
+      previewNote: "Interaktive Vorschau. Die Discord-App ist noch nicht live.",
+      steps: [
+        {
+          title: "Automatische Team-Bildung",
+          body: "Queue solo oder mit Freunden. Parley stellt ausgewogene Rosters nach Skill und Rollen-Fit zusammen.",
+          detail: ["Skill- + Rollen-Balance", "Solo oder Stack", "Keine Captain-Picks"],
+        },
+        {
+          title: "Scrims on demand",
+          body: "Strukturierte Scrims gegen gleich starke Teams – ohne endlose DMs.",
+          detail: ["Gleichwertige Gegner", "Auto-Slots", "Keine DM-Koordination"],
+        },
+        {
+          title: "Turnier-Brackets",
+          body: "Seeding, Check-ins und Fortschritt laufen automatisch – fair und pünktlich.",
+          detail: ["Automatisches Seeding", "Check-ins laufen mit", "Live-Fortschritt"],
+        },
+      ],
+    },
+    discordCta: {
+      title: "Discord für Launch-Updates.",
+      body: "Parley startet zuerst als Discord-App. Tritt dem Server bei und erfahre sofort, wenn der Bot live geht.",
+      button: "Discord beitreten",
+      note: "Launch-Ankündigungen zuerst im Server. Kein Account nötig.",
+    },
+    faq: {
+      title: "Fragen, beantwortet.",
+      subtitle: "Alles Wichtige vor dem Discord-Launch.",
+      items: [
+        {
+          q: "Ist Parley schon live?",
+          a: "Noch nicht. Parley ist in der Pre-Launch-Phase. Tritt dem Discord bei, um benachrichtigt zu werden, sobald die App live ist.",
+        },
+        {
+          q: "Wie nutze ich Parley zum Launch?",
+          a: "Parley startet als Discord-App. Queue, Teams, Scrims und Turniere laufen direkt über Discord.",
+        },
+        {
+          q: "Gibt es eine Web-App?",
+          a: "Ja. Eine vollständige Web-Erfahrung ist nach dem Discord-Launch geplant – kompatibel mit deinem Discord-Setup.",
+        },
+        {
+          q: "Was ist am Matchmaking anders?",
+          a: "Parley nutzt echte Ingame-Telemetrie: Aim, Impact, Rollen-Konsistenz und aktuelle Form – nicht nur Win/Loss.",
+        },
+        {
+          q: "Kostet der Beitritt etwas?",
+          a: "Nein. Der Discord-Beitritt ist kostenlos und meldet dich nur für Launch-Updates an.",
+        },
+      ],
+    },
+  },
+  leaderboard: {
+    eyebrow: "Globale Platzierungen",
+    titleBefore: "Rainbow Six Siege ",
+    titleHighlight: "Top 100",
+    subtitle:
+      "Globale Rangliste aller Parley-Spieler. Aktualisiert sich minütlich, wenn sich Platzierungen ändern.",
+    statusLoading: "Lädt",
+    statusLive: "Live",
+    statusReconnecting: "Verbindet neu",
+    statusError: "Nicht verfügbar",
+    updatedPrefix: "Aktualisiert",
+    metricHeading: "Ranglisten-Metrik",
+    playersTracked: "gerankte Spieler erfasst",
+    metricsAria: "Ranglisten-Metriken",
+    metrics: { rank_points: "Rank Points", elo: "Elo", win_rate: "Winrate" },
+    tableRank: "Rang",
+    tablePlayer: "Spieler",
+    tableScore: "Wert",
+    empty: "Noch keine gerankten Spieler. Schau wieder vorbei, sobald Matches erfasst sind.",
+  },
+  match: {
+    reportLabel: "Match-Bericht",
+    vs: "vs",
+    matchIdPrefix: "Match",
+    teamAWins: "Team A gewinnt",
+    teamBWins: "Team B gewinnt",
+    draw: "Unentschieden",
+    rostersTitle: "Team-Roster",
+    playersCount: "Spieler",
+    teamA: "Team A",
+    teamB: "Team B",
+    winner: "Sieger",
+    mvp: "MVP",
+    playersAria: "Spieler",
+    statsTitle: "Match-Statistiken",
+    statsSubtitle: "Balance & Metadaten",
+    balanceScore: "Balance-Score",
+    statMatchId: "Match-ID",
+    statStatus: "Status",
+    statType: "Typ",
+    statBalanceGap: "Balance-Lücke",
+    relativeJustNow: "gerade eben",
+    relativeMinutes: " Min.",
+    relativeHours: " Std.",
+    relativeDays: " T.",
+    relativeMonths: " Mon.",
+  },
+  theme: {
+    light: "Hell",
+    system: "System",
+    dark: "Dunkel",
+    label: "Design",
+  },
+  legalPages: {
+    privacyLabel: "Datenschutz",
+    privacyTitle: "Datenschutzerklärung",
+    termsLabel: "Rechtliches",
+    termsTitle: "Nutzungsbedingungen",
+    legalNoticeLabel: "Rechtliches",
+    legalNoticeTitle: "Impressum",
+    privacyUpdated: "21. Juni 2026",
+    termsUpdated: "7. Juni 2026",
+    legalNoticeUpdated: "21. Juni 2026",
+    termsFooterEn:
+      "This document was last updated on June 7, 2026. By continuing to use the Service, you acknowledge that you have read, understood, and agree to be bound by these Terms.",
+    termsFooterDe:
+      "Stand: 7. Juni 2026. Mit der weiteren Nutzung des Dienstes bestätigst du, dass du diese Nutzungsbedingungen gelesen und verstanden hast und ihnen zustimmst.",
+    privacyFooterEn:
+      "This document was last updated on June 21, 2026. It is effective as of that date and supersedes all prior versions.",
+    privacyFooterDe:
+      "Stand: 21. Juni 2026. Diese Fassung tritt an diesem Datum in Kraft und ersetzt alle früheren Versionen.",
+  },
+};
+

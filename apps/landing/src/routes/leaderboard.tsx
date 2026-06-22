@@ -1,25 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { LeaderboardPage } from "#/components/LeaderboardPage";
-
-const PAGE_TITLE = "Global Leaderboard — Parley";
-const PAGE_DESCRIPTION =
-  "View the global Rainbow Six Siege top 100 leaderboard on Parley. Rank Points, Elo, and Win Rate standings updated every minute.";
+import { createFileRoute, redirect } from "@tanstack/react-router";
+import { DEFAULT_LOCALE } from "#/lib/i18n";
 
 export const Route = createFileRoute("/leaderboard")({
-  head: () => ({
-    meta: [
-      { title: PAGE_TITLE },
-      { name: "description", content: PAGE_DESCRIPTION },
-      { property: "og:title", content: PAGE_TITLE },
-      { property: "og:description", content: PAGE_DESCRIPTION },
-      { property: "og:type", content: "website" },
-      { name: "twitter:title", content: PAGE_TITLE },
-      { name: "twitter:description", content: PAGE_DESCRIPTION },
-    ],
-  }),
-  component: LeaderboardRoute,
+  beforeLoad: () => {
+    throw redirect({ href: `/${DEFAULT_LOCALE}/leaderboard`, replace: true });
+  },
 });
-
-function LeaderboardRoute() {
-  return <LeaderboardPage />;
-}

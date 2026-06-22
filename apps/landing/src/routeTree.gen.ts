@@ -13,7 +13,13 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as LegalNoticeRouteImport } from './routes/legal-notice'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
+import { Route as LocaleRouteImport } from './routes/$locale'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as LocaleIndexRouteImport } from './routes/$locale/index'
+import { Route as LocaleTermsRouteImport } from './routes/$locale/terms'
+import { Route as LocalePrivacyRouteImport } from './routes/$locale/privacy'
+import { Route as LocaleLegalNoticeRouteImport } from './routes/$locale/legal-notice'
+import { Route as LocaleLeaderboardRouteImport } from './routes/$locale/leaderboard'
 import { Route as MatchGuildIdUuidRouteImport } from './routes/match/$guildId/$uuid'
 import { Route as ApiBridgeWsRouteImport } from './routes/api/bridge/ws'
 import { Route as ApiBridgeSnapshotRouteImport } from './routes/api/bridge/snapshot'
@@ -38,10 +44,40 @@ const LeaderboardRoute = LeaderboardRouteImport.update({
   path: '/leaderboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LocaleRoute = LocaleRouteImport.update({
+  id: '/$locale',
+  path: '/$locale',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const LocaleIndexRoute = LocaleIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => LocaleRoute,
+} as any)
+const LocaleTermsRoute = LocaleTermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => LocaleRoute,
+} as any)
+const LocalePrivacyRoute = LocalePrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => LocaleRoute,
+} as any)
+const LocaleLegalNoticeRoute = LocaleLegalNoticeRouteImport.update({
+  id: '/legal-notice',
+  path: '/legal-notice',
+  getParentRoute: () => LocaleRoute,
+} as any)
+const LocaleLeaderboardRoute = LocaleLeaderboardRouteImport.update({
+  id: '/leaderboard',
+  path: '/leaderboard',
+  getParentRoute: () => LocaleRoute,
 } as any)
 const MatchGuildIdUuidRoute = MatchGuildIdUuidRouteImport.update({
   id: '/match/$guildId/$uuid',
@@ -61,10 +97,16 @@ const ApiBridgeSnapshotRoute = ApiBridgeSnapshotRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/$locale': typeof LocaleRouteWithChildren
   '/leaderboard': typeof LeaderboardRoute
   '/legal-notice': typeof LegalNoticeRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
+  '/$locale/leaderboard': typeof LocaleLeaderboardRoute
+  '/$locale/legal-notice': typeof LocaleLegalNoticeRoute
+  '/$locale/privacy': typeof LocalePrivacyRoute
+  '/$locale/terms': typeof LocaleTermsRoute
+  '/$locale/': typeof LocaleIndexRoute
   '/api/bridge/snapshot': typeof ApiBridgeSnapshotRoute
   '/api/bridge/ws': typeof ApiBridgeWsRoute
   '/match/$guildId/$uuid': typeof MatchGuildIdUuidRoute
@@ -75,6 +117,11 @@ export interface FileRoutesByTo {
   '/legal-notice': typeof LegalNoticeRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
+  '/$locale/leaderboard': typeof LocaleLeaderboardRoute
+  '/$locale/legal-notice': typeof LocaleLegalNoticeRoute
+  '/$locale/privacy': typeof LocalePrivacyRoute
+  '/$locale/terms': typeof LocaleTermsRoute
+  '/$locale': typeof LocaleIndexRoute
   '/api/bridge/snapshot': typeof ApiBridgeSnapshotRoute
   '/api/bridge/ws': typeof ApiBridgeWsRoute
   '/match/$guildId/$uuid': typeof MatchGuildIdUuidRoute
@@ -82,10 +129,16 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/$locale': typeof LocaleRouteWithChildren
   '/leaderboard': typeof LeaderboardRoute
   '/legal-notice': typeof LegalNoticeRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
+  '/$locale/leaderboard': typeof LocaleLeaderboardRoute
+  '/$locale/legal-notice': typeof LocaleLegalNoticeRoute
+  '/$locale/privacy': typeof LocalePrivacyRoute
+  '/$locale/terms': typeof LocaleTermsRoute
+  '/$locale/': typeof LocaleIndexRoute
   '/api/bridge/snapshot': typeof ApiBridgeSnapshotRoute
   '/api/bridge/ws': typeof ApiBridgeWsRoute
   '/match/$guildId/$uuid': typeof MatchGuildIdUuidRoute
@@ -94,10 +147,16 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/$locale'
     | '/leaderboard'
     | '/legal-notice'
     | '/privacy'
     | '/terms'
+    | '/$locale/leaderboard'
+    | '/$locale/legal-notice'
+    | '/$locale/privacy'
+    | '/$locale/terms'
+    | '/$locale/'
     | '/api/bridge/snapshot'
     | '/api/bridge/ws'
     | '/match/$guildId/$uuid'
@@ -108,16 +167,27 @@ export interface FileRouteTypes {
     | '/legal-notice'
     | '/privacy'
     | '/terms'
+    | '/$locale/leaderboard'
+    | '/$locale/legal-notice'
+    | '/$locale/privacy'
+    | '/$locale/terms'
+    | '/$locale'
     | '/api/bridge/snapshot'
     | '/api/bridge/ws'
     | '/match/$guildId/$uuid'
   id:
     | '__root__'
     | '/'
+    | '/$locale'
     | '/leaderboard'
     | '/legal-notice'
     | '/privacy'
     | '/terms'
+    | '/$locale/leaderboard'
+    | '/$locale/legal-notice'
+    | '/$locale/privacy'
+    | '/$locale/terms'
+    | '/$locale/'
     | '/api/bridge/snapshot'
     | '/api/bridge/ws'
     | '/match/$guildId/$uuid'
@@ -125,6 +195,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  LocaleRoute: typeof LocaleRouteWithChildren
   LeaderboardRoute: typeof LeaderboardRoute
   LegalNoticeRoute: typeof LegalNoticeRoute
   PrivacyRoute: typeof PrivacyRoute
@@ -164,12 +235,54 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LeaderboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/$locale': {
+      id: '/$locale'
+      path: '/$locale'
+      fullPath: '/$locale'
+      preLoaderRoute: typeof LocaleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/$locale/': {
+      id: '/$locale/'
+      path: '/'
+      fullPath: '/$locale/'
+      preLoaderRoute: typeof LocaleIndexRouteImport
+      parentRoute: typeof LocaleRoute
+    }
+    '/$locale/terms': {
+      id: '/$locale/terms'
+      path: '/terms'
+      fullPath: '/$locale/terms'
+      preLoaderRoute: typeof LocaleTermsRouteImport
+      parentRoute: typeof LocaleRoute
+    }
+    '/$locale/privacy': {
+      id: '/$locale/privacy'
+      path: '/privacy'
+      fullPath: '/$locale/privacy'
+      preLoaderRoute: typeof LocalePrivacyRouteImport
+      parentRoute: typeof LocaleRoute
+    }
+    '/$locale/legal-notice': {
+      id: '/$locale/legal-notice'
+      path: '/legal-notice'
+      fullPath: '/$locale/legal-notice'
+      preLoaderRoute: typeof LocaleLegalNoticeRouteImport
+      parentRoute: typeof LocaleRoute
+    }
+    '/$locale/leaderboard': {
+      id: '/$locale/leaderboard'
+      path: '/leaderboard'
+      fullPath: '/$locale/leaderboard'
+      preLoaderRoute: typeof LocaleLeaderboardRouteImport
+      parentRoute: typeof LocaleRoute
     }
     '/match/$guildId/$uuid': {
       id: '/match/$guildId/$uuid'
@@ -195,8 +308,28 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface LocaleRouteChildren {
+  LocaleLeaderboardRoute: typeof LocaleLeaderboardRoute
+  LocaleLegalNoticeRoute: typeof LocaleLegalNoticeRoute
+  LocalePrivacyRoute: typeof LocalePrivacyRoute
+  LocaleTermsRoute: typeof LocaleTermsRoute
+  LocaleIndexRoute: typeof LocaleIndexRoute
+}
+
+const LocaleRouteChildren: LocaleRouteChildren = {
+  LocaleLeaderboardRoute: LocaleLeaderboardRoute,
+  LocaleLegalNoticeRoute: LocaleLegalNoticeRoute,
+  LocalePrivacyRoute: LocalePrivacyRoute,
+  LocaleTermsRoute: LocaleTermsRoute,
+  LocaleIndexRoute: LocaleIndexRoute,
+}
+
+const LocaleRouteWithChildren =
+  LocaleRoute._addFileChildren(LocaleRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  LocaleRoute: LocaleRouteWithChildren,
   LeaderboardRoute: LeaderboardRoute,
   LegalNoticeRoute: LegalNoticeRoute,
   PrivacyRoute: PrivacyRoute,
