@@ -8,6 +8,23 @@ import tailwindcss from "@tailwindcss/vite";
 
 const config = defineConfig(({ mode }) => ({
   resolve: { tsconfigPaths: true },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes("lucide-react")) {
+            return "icons";
+          }
+          if (id.includes("@tanstack/react-router")) {
+            return "router";
+          }
+          if (id.includes("HeroShaderOverlay") || id.includes("hero-shader")) {
+            return "hero-shader";
+          }
+        },
+      },
+    },
+  },
   plugins: [
     ...(mode === "development" ? [devtools()] : []),
     cloudflare({ viteEnvironment: { name: "ssr" } }),

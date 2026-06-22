@@ -6,15 +6,7 @@
 
 @font-face {
   font-family: "Geist Sans";
-  src: url("../node_modules/geist/dist/fonts/geist-sans/Geist-Variable.woff2") format("woff2");
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Geist Mono";
-  src: url("../node_modules/geist/dist/fonts/geist-mono/GeistMono-Variable.woff2") format("woff2");
+  src: url("/assets/fonts/Geist-Variable.woff2") format("woff2");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
@@ -241,6 +233,14 @@
     box-shadow:
       inset 0 1px 0 color-mix(in srgb, white 6%, transparent),
       0 4px 24px color-mix(in srgb, black 35%, transparent);
+  }
+
+  @media (max-width: 767px) {
+    .glass-pill,
+    .glass-panel {
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
   }
 
   .glass-chip {

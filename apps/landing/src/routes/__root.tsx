@@ -3,14 +3,19 @@ import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 
 import appCss from "../styles.css?url";
+import monoFontCss from "../mono-font.css?url";
+import criticalCss from "../critical.css?raw";
 
 const SITE_TITLE = "Parley — Competitive Matchmaking & Tournaments for Rainbow Six Siege";
 const SITE_DESCRIPTION =
   "Parley is a competitive matchmaking and tournament platform for Rainbow Six Siege. Skill-and-telemetry-based matchmaking, automated team formation, scrims, and brackets. Discord app first — join the waitlist.";
 const SITE_URL = "https://parley.bot";
 const OG_IMAGE = "/assets/parley-banner.png";
+const GEIST_SANS = "/assets/fonts/Geist-Variable.woff2";
+const HERO_PRELOAD = "/assets/hero/hero-cinematic-768.webp";
 
 const THEME_SCRIPT = `(function(){try{var t=localStorage.getItem('parley-theme');var d=t==='dark'||(t!=='light'&&matchMedia('(prefers-color-scheme:dark)').matches);document.documentElement.classList.toggle('dark',d)}catch(e){}})()`;
+const ASYNC_CSS_SCRIPT = `(function(){function a(){document.querySelectorAll('link[data-async]').forEach(function(l){l.media='all'})}a();addEventListener('load',a)})()`;
 
 export const Route = createRootRoute({
   head: () => ({
@@ -33,14 +38,6 @@ export const Route = createRootRoute({
       { name: "twitter:image", content: OG_IMAGE },
     ],
     links: [
-      {
-        rel: "preload",
-        href: "/assets/hero-cinematic.webp",
-        as: "image",
-        type: "image/webp",
-        fetchPriority: "high",
-      },
-      { rel: "stylesheet", href: appCss },
       { rel: "icon", href: "/favicon.ico", sizes: "48x48" },
       { rel: "icon", type: "image/png", sizes: "32x32", href: "/favicon-32x32.png" },
       { rel: "icon", type: "image/png", sizes: "16x16", href: "/favicon-16x16.png" },
@@ -58,6 +55,40 @@ function RootDocument({ children }: { children: React.ReactNode }) {
     <html lang="en" suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+        <style dangerouslySetInnerHTML={{ __html: criticalCss }} />
+        <link
+          rel="preload"
+          href={GEIST_SANS}
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
+        <link
+          rel="preload"
+          href={HERO_PRELOAD}
+          as="image"
+          type="image/webp"
+          fetchPriority="high"
+          media="(max-width: 767px)"
+        />
+        <link
+          rel="preload"
+          href="/assets/hero/hero-cinematic-1280.webp"
+          as="image"
+          type="image/webp"
+          fetchPriority="high"
+          media="(min-width: 768px)"
+        />
+        <link rel="preload" href={appCss} as="style" />
+        <link rel="stylesheet" href={appCss} media="print" data-async="true" />
+        <noscript>
+          <link rel="stylesheet" href={appCss} />
+        </noscript>
+        <link rel="stylesheet" href={monoFontCss} media="print" data-async="true" />
+        <noscript>
+          <link rel="stylesheet" href={monoFontCss} />
+        </noscript>
+        <script dangerouslySetInnerHTML={{ __html: ASYNC_CSS_SCRIPT }} />
         <HeadContent />
       </head>
       <body className="font-sans antialiased">

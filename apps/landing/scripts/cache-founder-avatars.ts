@@ -1,3 +1,4 @@
+import { spawn } from "node:child_process";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -39,6 +40,14 @@ async function fetchDiscordUser(token: string, userId: string): Promise<DiscordU
   return response.json() as Promise<DiscordUser>;
 }
 
+function cwebp(args: string[]): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const child = spawn("cwebp", args, { stdio: "inherit" });
+    child.on("error", reject);
+    child.on("close", (code) => (code === 0 ? resolve() : reject(new Error(`cwebp exit ${code}`))));
+  });
+}
+
 function avatarUrl(user: DiscordUser, size = 128): string {
   if (user.avatar) {
     const ext = user.avatar.startsWith("a_") ? "gif" : "png";
@@ -72,8 +81,12 @@ async function main() {
       throw new Error(`Failed to download avatar for ${entry.id}`);
     }
 
+    const rawPath = join(foundersDir, `${entry.slug}-raw.png`);
+    await writeFile(rawPath, Buffer.from(await avatarResponse.arrayBuffer()));
     const outPath = join(foundersDir, `${entry.slug}.webp`);
-    await writeFile(outPath, Buffer.from(await avatarResponse.arrayBuffer()));
+    await cwebp(["-q", "82", "-resize", "128", "128", rawPath, "-o", outPath]);
+    await cwebp(["-q", "80", "-resize", "64", "64", rawPath, "-o", join(foundersDir, `${entry.slug}-64.webp`)]);
+    await cwebp(["-q", "82", "-resize", "128", "128", rawPath, "-o", join(foundersDir, `${entry.slug}-128.webp`)]);
     resolved.push({
       id: entry.id,
       handle,

@@ -1,4 +1,3 @@
-import { Image } from "@unpic/react";
 import { Reveal, RevealStagger } from "#/components/ui/reveal";
 import { founders } from "#/lib/founders";
 
@@ -43,11 +42,14 @@ export function OurStory() {
             >
               <div className="flex items-center gap-4">
                 <div className="size-16 shrink-0 overflow-hidden rounded-2xl bg-muted/50">
-                  <Image
-                    src={founder.avatarSrc}
+                  <img
+                    src={founder.avatarSrc.replace(".webp", "-64.webp")}
+                    srcSet={`${founder.avatarSrc.replace(".webp", "-64.webp")} 1x, ${founder.avatarSrc.replace(".webp", "-128.webp")} 2x`}
                     alt={`${founder.handle} avatar`}
                     width={64}
                     height={64}
+                    loading="lazy"
+                    decoding="async"
                     className="size-full object-cover"
                   />
                 </div>

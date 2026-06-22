@@ -61,7 +61,7 @@ export function SiteHeader() {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "parley-nav-link rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
+                    "parley-nav-link rounded-full px-3 py-2.5 text-sm font-medium transition-colors",
                     isActive
                       ? "parley-nav-active text-foreground"
                       : "text-muted-foreground hover:text-foreground",
@@ -78,7 +78,7 @@ export function SiteHeader() {
 
             <button
               type="button"
-              className="flex size-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground md:hidden"
+              className="flex size-12 min-h-12 min-w-12 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground md:hidden"
               aria-expanded={menuOpen}
               aria-controls={MOBILE_MENU_ID}
               aria-label={menuOpen ? "Close navigation" : "Open navigation"}
@@ -94,7 +94,7 @@ export function SiteHeader() {
             <a
               href={discordHref}
               {...(discordExternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-              className="hidden shrink-0 rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background transition-all hover:scale-[1.02] active:scale-[0.98] sm:inline-flex"
+              className="hidden h-12 min-h-12 shrink-0 items-center rounded-full bg-foreground px-5 text-sm font-medium text-background transition-all hover:scale-[1.02] active:scale-[0.98] sm:inline-flex"
             >
               Join Discord
             </a>
@@ -117,7 +117,7 @@ export function SiteHeader() {
                   href={item.href}
                   onClick={() => setMenuOpen(false)}
                   className={cn(
-                    "rounded-xl px-4 py-2.5 text-sm font-medium transition-colors",
+                    "min-h-12 rounded-xl px-4 py-3 text-sm font-medium transition-colors",
                     isActive
                       ? "bg-accent-silver/10 text-foreground"
                       : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
@@ -134,7 +134,7 @@ export function SiteHeader() {
               href={discordHref}
               {...(discordExternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}
               onClick={() => setMenuOpen(false)}
-              className="mt-1 rounded-full bg-foreground px-4 py-2.5 text-center text-sm font-medium text-background"
+              className="mt-1 flex min-h-12 items-center justify-center rounded-full bg-foreground px-4 py-3 text-center text-sm font-medium text-background"
             >
               Join Discord
             </a>

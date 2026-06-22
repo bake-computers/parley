@@ -2,12 +2,16 @@ import { lazy, Suspense } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { SiteHeader } from "#/components/Header";
 import { Hero } from "#/components/Hero";
-import { Problem } from "#/components/Problem";
-import { OurStory } from "#/components/OurStory";
 import { SiteFooter } from "#/components/Footer";
 import { PageSection, PageSections } from "#/components/ui/page-section";
 import { SectionSkeleton } from "#/components/ui/skeleton";
 
+const Problem = lazy(() =>
+  import("#/components/Problem").then((m) => ({ default: m.Problem })),
+);
+const OurStory = lazy(() =>
+  import("#/components/OurStory").then((m) => ({ default: m.OurStory })),
+);
 const Matchmaking = lazy(() =>
   import("#/components/Matchmaking").then((m) => ({ default: m.Matchmaking })),
 );
@@ -29,10 +33,14 @@ function Home() {
         <Hero />
         <PageSections>
           <PageSection id="problem" className="-mt-[min(22vh,12rem)] pt-[min(30vh,16rem)] md:pt-[min(34vh,18rem)]">
-            <Problem />
+            <Suspense fallback={<SectionSkeleton />}>
+              <Problem />
+            </Suspense>
           </PageSection>
           <PageSection id="story">
-            <OurStory />
+            <Suspense fallback={<SectionSkeleton />}>
+              <OurStory />
+            </Suspense>
           </PageSection>
           <PageSection id="matchmaking">
             <Suspense fallback={<SectionSkeleton />}>
