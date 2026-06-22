@@ -3,7 +3,7 @@
   "name": "parley-website",
   "main": "@tanstack/react-start/server-entry",
   "compatibility_date": "2025-09-02",
-  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_flags": ["nodejs_compat", "nodejs_compat_populate_process_env"],
   "placement": { "mode": "smart" },
   "workers_dev": false,
   "logpush": true,
@@ -13,9 +13,21 @@
     "SERVICE_NAME": "landing",
     "AXIOM_DATASET": "parley",
     "AXIOM_ENABLED": "true",
+    "DISCORD_APPLICATION_ID": "1495122091165618358",
+    "ENGINE_SERVICE_URL": "http://localhost:50051",
+    "ENGINE_INTERNAL_URL": "http://localhost:50051",
+    "USE_LOCAL_ENGINE": "0",
   },
 
   "services": [{ "binding": "BRIDGE", "service": "parley-bridge" }],
+
+  "vpc_services": [
+    {
+      "binding": "VPC_SERVICE",
+      "service_id": "019e56b4-32d2-7843-bf2b-ec4b056d4400",
+      "remote": true,
+    },
+  ],
 
   "kv_namespaces": [
     {
@@ -26,4 +38,20 @@
   ],
 
   "routes": [{ "pattern": "parley.bot", "custom_domain": true }],
+
+  "env": {
+    "local": {
+      "vars": {
+        "USE_LOCAL_ENGINE": "1",
+        "ENGINE_SERVICE_URL": "http://127.0.0.1:50051",
+        "ENGINE_INTERNAL_URL": "http://127.0.0.1:50051",
+      },
+      "kv_namespaces": [
+        {
+          "binding": "MATCH_KV",
+          "id": "d1811757b1204fd2ab1d0225c7bbb5e3",
+        },
+      ],
+    },
+  },
 }
