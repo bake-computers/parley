@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { RefreshCw } from "lucide-react";
 import { Button } from "#/components/ui/button";
 import { GlassPanel } from "#/components/ui/glass-panel";
+import { useLocale } from "#/lib/locale-messages-context";
 import { cn } from "#/lib/utils";
 
 type Player = {
@@ -50,11 +51,13 @@ function TeamColumn({
   players,
   balanced,
   animating,
+  playersAria,
 }: {
   label: string;
   players: Player[];
   balanced: boolean;
   animating: boolean;
+  playersAria: string;
 }) {
   return (
     <div className="flex flex-col gap-3">
@@ -64,7 +67,7 @@ function TeamColumn({
           {avgRating(players, balanced).toLocaleString()}
         </span>
       </div>
-      <ul className="space-y-2.5" aria-label={`${label} players`}>
+      <ul className="space-y-2.5" aria-label={`${label} ${playersAria}`}>
         {players.map((player) => {
           const rating = balanced ? player.ratingBalanced : player.ratingImbalanced;
           return (
@@ -98,6 +101,8 @@ function TeamColumn({
 }
 
 export function HeroLobbyDemo() {
+  const { m } = useLocale();
+  const lb = m.home.lobby;
   const [phase, setPhase] = useState<Phase>("imbalanced");
   const [displayScore, setDisplayScore] = useState(SCORE_IMBALANCED);
   const [reducedMotion, setReducedMotion] = useState(false);
@@ -162,21 +167,25 @@ export function HeroLobbyDemo() {
   }, [clearTimers, runBalanceSequence]);
 
   const statusLabel =
-    phase === "imbalanced" ? "Unbalanced" : phase === "balancing" ? "Balancing…" : "Balanced";
+    phase === "imbalanced"
+      ? lb.statusUnbalanced
+      : phase === "balancing"
+        ? lb.statusBalancing
+        : lb.statusBalanced;
 
   const liveMessage =
     phase === "balanced"
-      ? "Lobby balanced. Teams are skill-matched."
+      ? lb.liveBalanced
       : phase === "balancing"
-        ? "Balancing teams by skill rating."
-        : "Lobby unbalanced. High skill delta detected.";
+        ? lb.liveBalancing
+        : lb.liveUnbalanced;
 
   return (
     <GlassPanel className="overflow-hidden" aria-live="polite" aria-atomic="true">
       <span className="sr-only">{liveMessage}</span>
 
       <div className="flex items-center justify-between border-b border-border/40 px-5 py-3">
-        <span className="text-sm font-medium text-muted-foreground">Lobby status</span>
+        <span className="text-sm font-medium text-muted-foreground">{lb.statusHeader}</span>
         <span className="flex items-center gap-2 font-mono text-xs">
           <span
             className={cn(
@@ -200,18 +209,20 @@ export function HeroLobbyDemo() {
       <div className="grid grid-cols-2 gap-3 p-4 md:p-5">
         <div className="rounded-2xl bg-muted/30 p-4">
           <TeamColumn
-            label="Team α"
+            label={lb.teamAlpha}
             players={PLAYERS_ALPHA}
             balanced={isBalanced}
             animating={isAnimating}
+            playersAria={lb.playersAria}
           />
         </div>
         <div className="rounded-2xl bg-muted/30 p-4">
           <TeamColumn
-            label="Team β"
+            label={lb.teamBeta}
             players={PLAYERS_BRAVO}
             balanced={isBalanced}
             animating={isAnimating}
+            playersAria={lb.playersAria}
           />
         </div>
       </div>
@@ -219,7 +230,7 @@ export function HeroLobbyDemo() {
       <div className="space-y-4 border-t border-border/40 p-5">
         <div>
           <div className="flex items-center justify-between text-xs">
-            <span className="font-mono font-medium text-muted-foreground">Balance score</span>
+            <span className="font-mono font-medium text-muted-foreground">{lb.balanceScore}</span>
             <span
               className={cn(
                 "font-mono text-sm tabular-nums transition-colors duration-500",
@@ -253,12 +264,10 @@ export function HeroLobbyDemo() {
             className={cn("size-3.5", isAnimating && "motion-safe:animate-spin")}
             aria-hidden="true"
           />
-          Rebalance lobby
+          {lb.rebalance}
         </Button>
 
-        <p className="text-xs leading-relaxed text-muted-foreground/70">
-          Illustrative preview. Live matchmaking runs inside the Discord app at launch.
-        </p>
+        <p className="text-xs leading-relaxed text-muted-foreground/70">{lb.footnote}</p>
       </div>
     </GlassPanel>
   );

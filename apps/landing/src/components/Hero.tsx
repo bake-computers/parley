@@ -3,6 +3,7 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import { ArrowDown } from "lucide-react";
 import { smoothScrollTo } from "#/lib/smooth-scroll";
+import { useLocale } from "#/lib/locale-messages-context";
 
 const HeroShaderOverlay = lazy(() =>
   import("#/components/HeroShaderOverlay").then((m) => ({ default: m.HeroShaderOverlay })),
@@ -32,8 +33,8 @@ function useDeferredShader() {
       const id = window.requestIdleCallback(start, { timeout: 2000 });
       return () => window.cancelIdleCallback(id);
     }
-    const timer = window.setTimeout(start, 1500);
-    return () => window.clearTimeout(timer);
+    const timer = globalThis.setTimeout(start, 1500);
+    return () => globalThis.clearTimeout(timer);
   }, []);
 
   return ready;
@@ -41,6 +42,8 @@ function useDeferredShader() {
 
 export function Hero() {
   const shaderReady = useDeferredShader();
+  const { m } = useLocale();
+  const h = m.home.hero;
 
   return (
     <section id="top" className="relative min-h-[100dvh] overflow-hidden">
@@ -51,12 +54,16 @@ export function Hero() {
             srcSet="/assets/hero/hero-cinematic-768.webp"
             type="image/webp"
           />
-          <source srcSet="/assets/hero/hero-cinematic-1280.webp" type="image/webp" />
+          <source
+            media="(min-width: 768px)"
+            srcSet="/assets/hero/hero-cinematic-1280.webp"
+            type="image/webp"
+          />
           <img
-            src="/assets/hero-cinematic.webp"
+            src="/assets/hero/hero-cinematic-768.webp"
             alt=""
-            width={1280}
-            height={720}
+            width={768}
+            height={432}
             loading="eager"
             fetchPriority="high"
             decoding="async"
@@ -77,22 +84,21 @@ export function Hero() {
       <div className="relative z-10 mx-auto flex min-h-[100dvh] w-full max-w-6xl flex-col justify-end px-6 pb-28 pt-24">
         <div className="max-w-2xl">
           <h1 className="max-w-xl text-balance text-4xl font-semibold leading-[1.08] tracking-tight text-foreground animate-in fade-in slide-in-from-bottom-4 duration-1000 md:text-5xl lg:text-6xl">
-            Fair,{" "}
-            <span className="text-accent-silver">skill-matched</span>{" "}
-            Rainbow Six Siege.
+            {h.titleBefore}
+            <span className="text-accent-silver">{h.titleHighlight}</span>
+            {h.titleAfter}
           </h1>
 
           <p className="mt-5 max-w-md text-pretty text-base leading-relaxed text-muted-foreground animate-in fade-in slide-in-from-bottom-4 duration-1000 md:text-lg">
-            A Discord app that builds balanced teams from real skill and telemetry, then automates
-            scrims and tournaments.
+            {h.subtitle}
           </p>
 
           <div className="mt-8 flex w-full flex-col gap-3 animate-in fade-in slide-in-from-bottom-4 duration-1000 sm:flex-row sm:w-auto">
             <a href="#discord" className={ctaPrimary}>
-              Join Discord
+              {h.ctaDiscord}
             </a>
             <a href="#experience" className={ctaOutline}>
-              See how it works
+              {h.ctaHow}
             </a>
           </div>
         </div>
@@ -104,7 +110,7 @@ export function Hero() {
         className="absolute bottom-8 left-1/2 z-10 flex min-h-12 -translate-x-1/2 items-center gap-2 rounded-full border border-border/50 bg-background/50 px-5 py-3 text-xs font-medium text-muted-foreground backdrop-blur-md transition-colors hover:bg-muted/50 hover:text-foreground focus-visible:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
       >
         <ArrowDown className="size-3.5" aria-hidden="true" />
-        Explore
+        {h.explore}
       </button>
     </section>
   );

@@ -1,25 +1,23 @@
 import { Reveal, RevealStagger } from "#/components/ui/reveal";
 import { founders } from "#/lib/founders";
-
-const paragraphs = [
-  "Parley started on a friend Discord where ten of us ran custom Siege every weekend.",
-  "We spent forever building teams. One side always felt picked on. Same fight, every Saturday.",
-  "So we built the tool we wished we had: automatic balance before the first round starts.",
-];
+import { useLocale } from "#/lib/locale-messages-context";
 
 export function OurStory() {
+  const { m } = useLocale();
+  const s = m.home.story;
+
   return (
     <div className="w-full">
       <div className="grid gap-10 lg:grid-cols-[1fr_1.2fr] lg:items-start">
         <Reveal direction="left">
           <h2 className="text-balance text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
-            Born from a server that{" "}
-            <span className="italic leading-[1.1] text-accent-silver">could not stop arguing over teams.</span>
+            {s.titleBefore}
+            <span className="italic leading-[1.1] text-accent-silver">{s.titleHighlight}</span>
           </h2>
         </Reveal>
 
         <RevealStagger as="div" className="space-y-5">
-          {paragraphs.map((text) => (
+          {s.paragraphs.map((text) => (
             <p key={text} className="text-pretty text-base leading-relaxed text-muted-foreground">
               {text}
             </p>
@@ -27,10 +25,11 @@ export function OurStory() {
         </RevealStagger>
       </div>
 
-      <Reveal delay={160} className="mt-10 rounded-2xl border-l-4 border-accent-silver/50 bg-muted/25 px-6 py-5 md:px-8">
-        <p className="text-lg leading-relaxed text-foreground/90">
-          Ten players. Two teams. Forty-five minutes of arguing, every Saturday.
-        </p>
+      <Reveal
+        delay={160}
+        className="mt-10 rounded-2xl border-l-4 border-accent-silver/50 bg-muted/25 px-6 py-5 md:px-8"
+      >
+        <p className="text-lg leading-relaxed text-foreground/90">{s.pullQuote}</p>
       </Reveal>
 
       <Reveal delay={240}>
@@ -45,7 +44,7 @@ export function OurStory() {
                   <img
                     src={founder.avatarSrc.replace(".webp", "-64.webp")}
                     srcSet={`${founder.avatarSrc.replace(".webp", "-64.webp")} 1x, ${founder.avatarSrc.replace(".webp", "-128.webp")} 2x`}
-                    alt={`${founder.handle} avatar`}
+                    alt={`${founder.handle} ${s.avatarAlt}`}
                     width={64}
                     height={64}
                     loading="lazy"
@@ -55,7 +54,9 @@ export function OurStory() {
                 </div>
                 <div>
                   <p className="font-medium text-foreground">{founder.handle}</p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">{founder.role}</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {founder.role === "Founder" ? s.founderRole : s.coFounderRole}
+                  </p>
                 </div>
               </div>
             </li>

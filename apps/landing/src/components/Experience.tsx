@@ -3,53 +3,35 @@
 import { useState } from "react";
 import { Users, Swords, Trophy } from "lucide-react";
 import { Reveal } from "#/components/ui/reveal";
+import { useLocale } from "#/lib/locale-messages-context";
 import { cn } from "#/lib/utils";
 
-const steps = [
-  {
-    id: "formation",
-    icon: Users,
-    title: "Automated team formation",
-    body: "Queue solo or with friends. Parley assembles balanced rosters around skill and role fit.",
-    detail: ["Skill + role-fit balancing", "Solo or stack friendly", "No captain picks"],
-  },
-  {
-    id: "scrims",
-    icon: Swords,
-    title: "Scrims on demand",
-    body: "Structured scrims against evenly-rated teams, scheduled without endless DMs.",
-    detail: ["Evenly-rated opponents", "Auto-scheduled slots", "Zero DM coordination"],
-  },
-  {
-    id: "brackets",
-    icon: Trophy,
-    title: "Tournament brackets",
-    body: "Seeding, check-ins, and progression run themselves so events stay fair and on time.",
-    detail: ["Automatic seeding", "Self-running check-ins", "Live progression"],
-  },
-];
+const stepIcons = [Users, Swords, Trophy] as const;
 
 export function Experience() {
   const [active, setActive] = useState(0);
-  const current = steps[active];
-  const Icon = current.icon;
+  const { m } = useLocale();
+  const ex = m.home.experience;
+  const steps = ex.steps;
+  const current = steps[active] ?? steps[0];
+  const Icon = stepIcons[active] ?? Users;
 
   return (
     <div className="w-full">
       <Reveal>
         <h2 className="max-w-xl text-balance text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
-          From queue to trophy, handled for you.
+          {ex.title}
         </h2>
       </Reveal>
 
       <div className="mt-10 grid gap-8 lg:grid-cols-[240px_1fr]">
         <div className="flex gap-2 overflow-x-auto pb-1 lg:flex-col lg:overflow-visible">
           {steps.map((item, index) => {
-            const StepIcon = item.icon;
+            const StepIcon = stepIcons[index] ?? Users;
             const isActive = index === active;
             return (
               <button
-                key={item.id}
+                key={item.title}
                 type="button"
                 onClick={() => setActive(index)}
                 aria-pressed={isActive}
@@ -81,16 +63,17 @@ export function Experience() {
               </p>
               <ul className="mt-5 flex flex-wrap gap-2">
                 {current.detail.map((d) => (
-                  <li key={d} className="glass-chip px-3 py-1 text-xs font-medium text-muted-foreground">
+                  <li
+                    key={d}
+                    className="glass-chip px-3 py-1 text-xs font-medium text-muted-foreground"
+                  >
                     {d}
                   </li>
                 ))}
               </ul>
             </div>
           </div>
-          <p className="mt-8 text-xs text-muted-foreground/70">
-            Interactive preview. The Discord app is not live yet.
-          </p>
+          <p className="mt-8 text-xs text-muted-foreground/70">{ex.previewNote}</p>
         </div>
       </div>
     </div>

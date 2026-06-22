@@ -3,27 +3,27 @@ import { Trophy } from "lucide-react";
 import { SiteHeader } from "#/components/Header";
 import { SiteFooter } from "#/components/Footer";
 import { LeaderboardTable } from "#/components/LeaderboardTable";
-import { GlassPanel } from "#/components/ui/glass-panel";
 import { SectionBackdrop } from "#/components/ui/section-backdrop";
 import { useLeaderboardStream } from "#/hooks/useLeaderboardStream";
+import { formatUpdatedAt } from "#/lib/format-relative-time";
+import { LEADERBOARD_METRICS, type LeaderboardMetric } from "#/lib/leaderboard";
+import { useLocale } from "#/lib/locale-messages-context";
 import { cn } from "#/lib/utils";
-import {
-  formatUpdatedAt,
-  LEADERBOARD_METRICS,
-  METRIC_LABELS,
-  type LeaderboardMetric,
-} from "#/lib/leaderboard";
-
-const statusCopy = {
-  loading: "Loading",
-  live: "Live",
-  reconnecting: "Reconnecting",
-  error: "Unavailable",
-} as const;
 
 export function LeaderboardPage() {
   const [metric, setMetric] = useState<LeaderboardMetric>("rank_points");
   const { snapshot, status } = useLeaderboardStream(metric);
+  const { locale, m } = useLocale();
+  const lb = m.leaderboard;
+
+  const statusLabel =
+    status === "loading"
+      ? lb.statusLoading
+      : status === "live"
+        ? lb.statusLive
+        : status === "reconnecting"
+          ? lb.statusReconnecting
+          : lb.statusError;
 
   return (
     <div className="min-h-screen">
@@ -35,13 +35,13 @@ export function LeaderboardPage() {
           <div className="relative mx-auto w-full max-w-6xl px-6">
             <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
               <div>
-                <span className="text-sm font-medium text-muted-foreground">Global standings</span>
+                <span className="text-sm font-medium text-muted-foreground">{lb.eyebrow}</span>
                 <h1 className="mt-4 text-balance text-3xl font-semibold tracking-tight text-foreground md:text-5xl">
-                  Rainbow Six Siege <span className="text-accent-silver">Top 100</span>
+                  {lb.titleBefore}
+                  <span className="text-accent-silver">{lb.titleHighlight}</span>
                 </h1>
                 <p className="mt-4 max-w-2xl text-pretty text-sm leading-relaxed text-muted-foreground md:text-base">
-                  Global leaderboard across all Parley players. Updates every minute when rankings
-                  change.
+                  {lb.subtitle}
                 </p>
               </div>
 
@@ -53,10 +53,10 @@ export function LeaderboardPage() {
                       status === "live" ? "bg-accent-silver" : "bg-muted-foreground/50",
                     )}
                   />
-                  {statusCopy[status]}
+                  {statusLabel}
                 </div>
                 <div className="text-xs text-muted-foreground/70">
-                  Updated {formatUpdatedAt(snapshot?.updatedAt ?? 0)}
+                  {formatUpdatedAt(snapshot?.updatedAt ?? 0, locale, lb.updatedPrefix)}
                 </div>
               </div>
             </div>
@@ -71,14 +71,14 @@ export function LeaderboardPage() {
                   <Trophy className="size-5 text-accent-silver" aria-hidden="true" />
                 </div>
                 <div>
-                  <p className="text-sm font-medium text-foreground">Leaderboard metric</p>
+                  <p className="text-sm font-medium text-foreground">{lb.metricHeading}</p>
                   <p className="text-xs text-muted-foreground">
-                    {snapshot?.totalCount ?? 0} ranked players tracked
+                    {snapshot?.totalCount ?? 0} {lb.playersTracked}
                   </p>
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-2" role="tablist" aria-label="Leaderboard metrics">
+              <div className="flex flex-wrap gap-2" role="tablist" aria-label={lb.metricsAria}>
                 {LEADERBOARD_METRICS.map((value) => {
                   const isActive = value === metric;
                   return (
@@ -95,7 +95,7 @@ export function LeaderboardPage() {
                           : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
                       )}
                     >
-                      {METRIC_LABELS[value]}
+                      {lb.metrics[value]}
                     </button>
                   );
                 })}

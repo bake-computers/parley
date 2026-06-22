@@ -2,17 +2,18 @@
 
 import { useEffect, useState } from "react";
 import { Monitor, Moon, Sun } from "lucide-react";
+import { useLocale } from "#/lib/locale-messages-context";
 import { cn } from "#/lib/utils";
 
 export type Theme = "light" | "dark" | "system";
 
 const STORAGE_KEY = "parley-theme";
 
-const options: { value: Theme; label: string; icon: typeof Sun }[] = [
-  { value: "light", label: "Light mode", icon: Sun },
-  { value: "system", label: "System theme", icon: Monitor },
-  { value: "dark", label: "Dark mode", icon: Moon },
-];
+const themeIcons: Record<Theme, typeof Sun> = {
+  light: Sun,
+  system: Monitor,
+  dark: Moon,
+};
 
 function getSystemTheme(): "light" | "dark" {
   return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
@@ -32,6 +33,12 @@ export function getStoredTheme(): Theme {
 }
 
 export function ThemeToggle({ className }: { className?: string }) {
+  const { m } = useLocale();
+  const themeLabels: Record<Theme, string> = {
+    light: m.theme.light,
+    system: m.theme.system,
+    dark: m.theme.dark,
+  };
   const [theme, setTheme] = useState<Theme>("system");
 
   useEffect(() => {
@@ -58,22 +65,23 @@ export function ThemeToggle({ className }: { className?: string }) {
   return (
     <div
       role="group"
-      aria-label="Theme"
+      aria-label={m.theme.label}
       className={cn("flex items-center rounded-full bg-muted/60 p-0.5", className)}
     >
-      {options.map((opt) => {
-        const Icon = opt.icon;
+      {(["light", "system", "dark"] as const).map((value) => {
+        const Icon = themeIcons[value];
+        const label = themeLabels[value];
         return (
           <button
-            key={opt.value}
+            key={value}
             type="button"
-            onClick={() => select(opt.value)}
-            aria-label={opt.label}
-            aria-pressed={theme === opt.value}
-            title={opt.label}
+            onClick={() => select(value)}
+            aria-label={label}
+            aria-pressed={theme === value}
+            title={label}
             className={cn(
               "flex size-7 items-center justify-center rounded-full transition-all duration-200",
-              theme === opt.value
+              theme === value
                 ? "bg-background text-foreground shadow-sm"
                 : "text-muted-foreground hover:text-foreground",
             )}

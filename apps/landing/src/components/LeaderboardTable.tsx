@@ -1,4 +1,5 @@
 import { GlassPanel } from "#/components/ui/glass-panel";
+import { useLocale } from "#/lib/locale-messages-context";
 import { cn } from "#/lib/utils";
 import { formatScore, type LeaderboardEntry, type LeaderboardMetric } from "#/lib/leaderboard";
 
@@ -21,12 +22,13 @@ function rankTone(rank: number): string {
 }
 
 export function LeaderboardTable({ metric, entries }: LeaderboardTableProps) {
+  const { m } = useLocale();
+  const lb = m.leaderboard;
+
   if (entries.length === 0) {
     return (
       <GlassPanel className="px-6 py-16 text-center">
-        <p className="text-sm text-muted-foreground">
-          No ranked players yet. Check back once matches are recorded.
-        </p>
+        <p className="text-sm text-muted-foreground">{lb.empty}</p>
       </GlassPanel>
     );
   }
@@ -34,9 +36,9 @@ export function LeaderboardTable({ metric, entries }: LeaderboardTableProps) {
   return (
     <GlassPanel className="overflow-hidden">
       <div className="grid grid-cols-[4.5rem_1fr_8rem] border-b border-border/40 bg-muted/30 px-4 py-3 text-xs font-medium text-muted-foreground md:grid-cols-[5rem_1fr_9rem] md:px-6">
-        <span>Rank</span>
-        <span>Player</span>
-        <span className="text-right">Score</span>
+        <span>{lb.tableRank}</span>
+        <span>{lb.tablePlayer}</span>
+        <span className="text-right">{lb.tableScore}</span>
       </div>
 
       <ol>

@@ -4,32 +4,82 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml"
   xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
-    <loc>https://parley.bot/</loc>
-    <lastmod>2026-06-14</lastmod>
+    <loc>https://parley.bot/en</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://parley.bot/en"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://parley.bot/de"/>
+    <lastmod>2026-06-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://parley.bot/leaderboard</loc>
-    <lastmod>2026-06-14</lastmod>
+    <loc>https://parley.bot/de</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://parley.bot/en"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://parley.bot/de"/>
+    <lastmod>2026-06-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://parley.bot/en/leaderboard</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://parley.bot/en/leaderboard"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://parley.bot/de/leaderboard"/>
+    <lastmod>2026-06-22</lastmod>
     <changefreq>hourly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://parley.bot/terms</loc>
-    <lastmod>2026-06-14</lastmod>
+    <loc>https://parley.bot/de/leaderboard</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://parley.bot/en/leaderboard"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://parley.bot/de/leaderboard"/>
+    <lastmod>2026-06-22</lastmod>
+    <changefreq>hourly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://parley.bot/en/terms</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://parley.bot/en/terms"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://parley.bot/de/terms"/>
+    <lastmod>2026-06-22</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://parley.bot/privacy</loc>
-    <lastmod>2026-06-14</lastmod>
+    <loc>https://parley.bot/de/terms</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://parley.bot/en/terms"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://parley.bot/de/terms"/>
+    <lastmod>2026-06-22</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://parley.bot/legal-notice</loc>
-    <lastmod>2026-06-14</lastmod>
+    <loc>https://parley.bot/en/privacy</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://parley.bot/en/privacy"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://parley.bot/de/privacy"/>
+    <lastmod>2026-06-22</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://parley.bot/de/privacy</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://parley.bot/en/privacy"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://parley.bot/de/privacy"/>
+    <lastmod>2026-06-22</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://parley.bot/en/legal-notice</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://parley.bot/en/legal-notice"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://parley.bot/de/legal-notice"/>
+    <lastmod>2026-06-22</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://parley.bot/de/legal-notice</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://parley.bot/en/legal-notice"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://parley.bot/de/legal-notice"/>
+    <lastmod>2026-06-22</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>

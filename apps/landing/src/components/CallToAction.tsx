@@ -4,24 +4,26 @@ import type { RefObject } from "react";
 import { MessageCircle, Bell } from "lucide-react";
 import { useInView } from "#/hooks/useInView";
 import { Reveal } from "#/components/ui/reveal";
+import { useLocale } from "#/lib/locale-messages-context";
 import { cn } from "#/lib/utils";
 
 const DISCORD_URL = "https://discord.gg/parley";
 
 export function DiscordCta() {
   const { ref, inView } = useInView();
+  const { m } = useLocale();
+  const c = m.home.discordCta;
 
   return (
     <div className="flex w-full flex-col items-center text-center">
       <Reveal>
         <h2 className="max-w-2xl text-balance text-3xl font-semibold tracking-tight text-foreground md:text-5xl">
-          Join the Discord for launch updates.
+          {c.title}
         </h2>
       </Reveal>
       <Reveal delay={100}>
         <p className="mx-auto mt-5 max-w-lg text-pretty leading-relaxed text-muted-foreground">
-          Parley launches as a Discord app first. Hop into the server to get notified the moment the
-          bot goes live.
+          {c.body}
         </p>
       </Reveal>
 
@@ -33,7 +35,7 @@ export function DiscordCta() {
           className="mt-10 inline-flex h-12 items-center justify-center gap-2 rounded-full bg-foreground px-8 text-sm font-medium text-background transition-all hover:scale-[1.02] active:scale-[0.98]"
         >
           <MessageCircle className="size-4" aria-hidden="true" />
-          Join the Discord
+          {c.button}
         </a>
       </Reveal>
 
@@ -46,9 +48,7 @@ export function DiscordCta() {
             className={cn("size-4 shrink-0 text-accent-silver", inView && "parley-bell-ring")}
             aria-hidden="true"
           />
-          <p className="text-left text-sm text-muted-foreground">
-            Launch announcements drop in the server first. No account required.
-          </p>
+          <p className="text-left text-sm text-muted-foreground">{c.note}</p>
         </div>
       </Reveal>
     </div>

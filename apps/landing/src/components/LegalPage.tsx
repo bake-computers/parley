@@ -1,5 +1,6 @@
 import { SiteHeader } from "#/components/Header";
 import { SiteFooter } from "#/components/Footer";
+import { useLocale } from "#/lib/locale-messages-context";
 
 interface LegalPageProps {
   label: string;
@@ -9,6 +10,8 @@ interface LegalPageProps {
 }
 
 export function LegalPage({ label, title, lastUpdated, children }: LegalPageProps) {
+  const { m } = useLocale();
+
   return (
     <div className="min-h-screen">
       <SiteHeader />
@@ -20,7 +23,9 @@ export function LegalPage({ label, title, lastUpdated, children }: LegalPageProp
               {title}
             </h1>
             {lastUpdated != null && (
-              <p className="mt-3 text-xs text-muted-foreground/60">Last updated: {lastUpdated}</p>
+              <p className="mt-3 text-xs text-muted-foreground/60">
+                {m.legal.lastUpdated} {lastUpdated}
+              </p>
             )}
           </header>
 

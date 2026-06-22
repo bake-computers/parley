@@ -4,20 +4,14 @@ import { useState } from "react";
 import { useRouterState } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { Menu, X } from "lucide-react";
+import { LocaleSwitch } from "#/components/LocaleSwitch";
 import { ThemeToggle } from "#/components/ui/theme-toggle";
 import { useScrollSpy } from "#/hooks/useScrollSpy";
+import { homeSectionHref, localizedHref } from "#/lib/i18n";
+import { useLocale } from "#/lib/locale-messages-context";
 import { cn } from "#/lib/utils";
 
 const DISCORD_URL = "https://discord.gg/parley";
-
-const navItems = [
-  { label: "The problem", href: "/#problem", sectionId: "problem" },
-  { label: "Our story", href: "/#story", sectionId: "story" },
-  { label: "Matchmaking", href: "/#matchmaking", sectionId: "matchmaking" },
-  { label: "How it works", href: "/#experience", sectionId: "experience" },
-  { label: "Leaderboard", href: "/leaderboard", sectionId: null },
-  { label: "FAQ", href: "/#faq", sectionId: "faq" },
-];
 
 const SECTION_IDS = ["problem", "story", "matchmaking", "experience", "discord", "faq"];
 const MOBILE_MENU_ID = "parley-mobile-nav";
@@ -25,10 +19,20 @@ const MOBILE_MENU_ID = "parley-mobile-nav";
 export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { activeId } = useScrollSpy({ sectionIds: SECTION_IDS });
+  const { locale, m } = useLocale();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
-  const isHome = pathname === "/";
+  const isHome = pathname === `/${locale}` || pathname === `/${locale}/`;
   const discordHref = isHome ? "#discord" : DISCORD_URL;
   const discordExternal = discordHref.startsWith("http");
+
+  const navItems = [
+    { label: m.nav.problem, href: homeSectionHref(locale, "problem"), sectionId: "problem" },
+    { label: m.nav.story, href: homeSectionHref(locale, "story"), sectionId: "story" },
+    { label: m.nav.matchmaking, href: homeSectionHref(locale, "matchmaking"), sectionId: "matchmaking" },
+    { label: m.nav.experience, href: homeSectionHref(locale, "experience"), sectionId: "experience" },
+    { label: m.nav.leaderboard, href: localizedHref(locale, "leaderboard"), sectionId: null },
+    { label: m.nav.faq, href: homeSectionHref(locale, "faq"), sectionId: "faq" },
+  ];
 
   return (
     <header
@@ -40,7 +44,7 @@ export function SiteHeader() {
       <div className="mx-auto max-w-5xl">
         <div className="glass-pill flex w-full items-center gap-2 px-2 py-2 md:gap-3 md:px-3">
           <a
-            href="/"
+            href={localizedHref(locale, "")}
             className="flex shrink-0 items-center gap-2 rounded-full px-2 py-1.5 transition-colors hover:bg-muted/50"
           >
             <Image
@@ -50,7 +54,7 @@ export function SiteHeader() {
               height={28}
               className="size-7"
             />
-            <span className="hidden text-sm font-semibold text-foreground sm:inline">Parley</span>
+            <span className="hidden text-sm font-semibold text-foreground sm:inline">{m.nav.brand}</span>
           </a>
 
           <nav className="hidden min-w-0 flex-1 items-center justify-center gap-1 md:flex" aria-label="Primary">
@@ -74,6 +78,7 @@ export function SiteHeader() {
           </nav>
 
           <div className="ml-auto flex items-center gap-2">
+            <LocaleSwitch className="hidden sm:flex" />
             <ThemeToggle className="hidden lg:flex" />
 
             <button
@@ -81,7 +86,7 @@ export function SiteHeader() {
               className="flex size-12 min-h-12 min-w-12 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground md:hidden"
               aria-expanded={menuOpen}
               aria-controls={MOBILE_MENU_ID}
-              aria-label={menuOpen ? "Close navigation" : "Open navigation"}
+              aria-label={menuOpen ? m.nav.closeMenu : m.nav.openMenu}
               onClick={() => setMenuOpen((open) => !open)}
             >
               {menuOpen ? (
@@ -96,7 +101,7 @@ export function SiteHeader() {
               {...(discordExternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}
               className="hidden h-12 min-h-12 shrink-0 items-center rounded-full bg-foreground px-5 text-sm font-medium text-background transition-all hover:scale-[1.02] active:scale-[0.98] sm:inline-flex"
             >
-              Join Discord
+              {m.nav.joinDiscord}
             </a>
           </div>
         </div>
@@ -109,6 +114,9 @@ export function SiteHeader() {
           )}
         >
           <nav className="glass-panel flex flex-col gap-1 p-2" aria-label="Mobile primary">
+            <div className="px-2 pb-2 sm:hidden">
+              <LocaleSwitch className="w-full justify-center" />
+            </div>
             {navItems.map((item) => {
               const isActive = item.sectionId !== null && activeId === item.sectionId;
               return (
@@ -136,7 +144,7 @@ export function SiteHeader() {
               onClick={() => setMenuOpen(false)}
               className="mt-1 flex min-h-12 items-center justify-center rounded-full bg-foreground px-4 py-3 text-center text-sm font-medium text-background"
             >
-              Join Discord
+              {m.nav.joinDiscord}
             </a>
           </nav>
         </div>

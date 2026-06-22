@@ -4,14 +4,14 @@
 
 ## Landing
 
-- [Parley — Competitive Matchmaking and Tournaments for Discord](https://parley.bot/): The home of Parley — R6 Discord bot, R6 Discord matchmaking, R6 Discord tournament hosting, and live global R6 leaderboards for Siege players and Discord communities.
-- [Live Global Leaderboard](https://parley.bot/leaderboard): Real-time R6 leaderboard, Rainbow Six Siege player rankings, and Discord community standings for Rainbow Six Siege competitive play.
+- [Parley — Competitive Matchmaking and Tournaments for Discord](https://parley.bot/en): The home of Parley — R6 Discord bot, R6 Discord matchmaking, R6 Discord tournament hosting, and live global R6 leaderboards for Siege players and Discord communities. German: https://parley.bot/de
+- [Live Global Leaderboard](https://parley.bot/en/leaderboard): Real-time R6 leaderboard, Rainbow Six Siege player rankings, and Discord community standings for Rainbow Six Siege competitive play. German: https://parley.bot/de/leaderboard
 
 ## Legal
 
-- [Terms of Service](https://parley.bot/terms)
-- [Privacy Policy](https://parley.bot/privacy)
-- [Legal Notice](https://parley.bot/legal-notice)
+- [Terms of Service](https://parley.bot/en/terms) (DE: https://parley.bot/de/terms)
+- [Privacy Policy](https://parley.bot/en/privacy) (DE: https://parley.bot/de/privacy)
+- [Legal Notice / Impressum](https://parley.bot/en/legal-notice) (DE: https://parley.bot/de/legal-notice)
 
 ## Key Features
 

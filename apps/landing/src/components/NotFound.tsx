@@ -2,8 +2,12 @@ import { SiteHeader } from "#/components/Header";
 import { SiteFooter } from "#/components/Footer";
 import { Button } from "#/components/ui/button";
 import { GlassPanel } from "#/components/ui/glass-panel";
+import { localizedHref } from "#/lib/i18n";
+import { useLocale } from "#/lib/locale-messages-context";
 
 export function NotFound() {
+  const { locale, m } = useLocale();
+
   return (
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
@@ -17,15 +21,14 @@ export function NotFound() {
             className="mb-8 size-16 opacity-50"
           />
 
-          <span className="text-sm font-medium text-muted-foreground">Error 404</span>
+          <span className="text-sm font-medium text-muted-foreground">{m.notFound.label}</span>
 
           <h1 className="mt-4 text-balance text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
-            Page not found.
+            {m.notFound.title}
           </h1>
 
           <p className="mt-4 max-w-md text-pretty leading-relaxed text-muted-foreground">
-            The page you&rsquo;re looking for doesn&rsquo;t exist or has been moved. If you believe
-            this is an error, reach out on Discord.
+            {m.notFound.body}
           </p>
 
           <div className="mt-10 flex flex-col items-center gap-3 sm:flex-row">
@@ -33,7 +36,7 @@ export function NotFound() {
               size="lg"
               className="rounded-full bg-foreground text-background transition-all hover:scale-[1.02] hover:bg-foreground/90 active:scale-[0.98]"
             >
-              <a href="/">Back to home</a>
+              <a href={localizedHref(locale, "")}>{m.notFound.home}</a>
             </Button>
             <Button
               size="lg"
@@ -41,7 +44,7 @@ export function NotFound() {
               className="rounded-full border-border/70 bg-transparent text-foreground transition-all hover:scale-[1.02] hover:bg-secondary/50 active:scale-[0.98]"
             >
               <a href="https://discord.gg/parley" target="_blank" rel="noopener noreferrer">
-                Join Discord
+                {m.notFound.discord}
               </a>
             </Button>
           </div>

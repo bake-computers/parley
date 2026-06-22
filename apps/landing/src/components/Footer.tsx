@@ -1,12 +1,7 @@
 import { Image } from "@unpic/react";
 import { Reveal } from "#/components/ui/reveal";
-
-const footerLinks = [
-  { label: "Leaderboard", href: "/leaderboard" },
-  { label: "Legal notice", href: "/legal-notice" },
-  { label: "Privacy policy", href: "/privacy" },
-  { label: "Terms of service", href: "/terms" },
-];
+import { localizedHref, type LocalizedPath } from "#/lib/i18n";
+import { useLocale } from "#/lib/locale-messages-context";
 
 const poweredBy = [
   { name: "stats.cc", href: "https://stats.cc", icon: "https://stats.cc/favicon.ico" },
@@ -14,6 +9,15 @@ const poweredBy = [
 ];
 
 export function SiteFooter() {
+  const { locale, m } = useLocale();
+
+  const footerLinks: { label: string; path: LocalizedPath }[] = [
+    { label: m.footer.leaderboard, path: "leaderboard" },
+    { label: m.footer.legalNotice, path: "legal-notice" },
+    { label: m.footer.privacy, path: "privacy" },
+    { label: m.footer.terms, path: "terms" },
+  ];
+
   return (
     <footer className="px-6 pb-12 pt-8">
       <Reveal direction="up" className="mx-auto w-full max-w-6xl border-t border-border/30 pt-8">
@@ -28,17 +32,17 @@ export function SiteFooter() {
                 className="size-7"
               />
               <div>
-                <p className="text-sm font-semibold text-foreground">Parley</p>
-                <p className="text-xs text-muted-foreground">Not affiliated with Ubisoft</p>
-                <p className="text-xs text-muted-foreground">Not affiliated with Discord Inc.</p>
+                <p className="text-sm font-semibold text-foreground">{m.nav.brand}</p>
+                <p className="text-xs text-muted-foreground">{m.footer.notUbisoft}</p>
+                <p className="text-xs text-muted-foreground">{m.footer.notDiscord}</p>
               </div>
             </div>
 
             <nav className="flex flex-wrap gap-x-5 gap-y-2">
               {footerLinks.map((link) => (
                 <a
-                  key={link.href}
-                  href={link.href}
+                  key={link.path}
+                  href={localizedHref(locale, link.path)}
                   className="parley-footer-link text-sm text-muted-foreground transition-colors hover:text-foreground"
                 >
                   {link.label}
@@ -48,7 +52,7 @@ export function SiteFooter() {
           </div>
 
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-border/20 pt-6">
-            <span className="text-xs font-medium text-muted-foreground/70">Powered by</span>
+            <span className="text-xs font-medium text-muted-foreground/70">{m.footer.poweredBy}</span>
             {poweredBy.map((partner) => (
               <a
                 key={partner.href}

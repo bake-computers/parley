@@ -3,29 +3,10 @@ import { SiteFooter } from "#/components/Footer";
 import { GlassPanel } from "#/components/ui/glass-panel";
 import { Reveal } from "#/components/ui/reveal";
 import { SectionBackdrop } from "#/components/ui/section-backdrop";
+import { formatRelativeTime } from "#/lib/format-relative-time";
+import { useLocale } from "#/lib/locale-messages-context";
 import { cn } from "#/lib/utils";
 import type { MatchData, MatchParticipantData } from "#/lib/match-cache";
-
-function relativeTime(epochMs: number): string {
-  const seconds = Math.floor((Date.now() - epochMs) / 1000);
-  if (seconds < 60) {
-    return "just now";
-  }
-  const minutes = Math.floor(seconds / 60);
-  if (minutes < 60) {
-    return `${minutes}m ago`;
-  }
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) {
-    return `${hours}h ago`;
-  }
-  const days = Math.floor(hours / 24);
-  if (days < 30) {
-    return `${days}d ago`;
-  }
-  const months = Math.floor(days / 30);
-  return `${months}mo ago`;
-}
 
 function teamName(participants: MatchParticipantData[], team: string): string {
   return (
@@ -40,23 +21,22 @@ function teamPlayers(participants: MatchParticipantData[], team: string) {
   return participants.filter((p) => p.team === team);
 }
 
-function statusLabel(winningTeam: string): string {
-  if (winningTeam === "team_a") {
-    return "Team A wins";
-  }
-  if (winningTeam === "team_b") {
-    return "Team B wins";
-  }
-  return "Draw";
-}
-
 export function MatchDetailPage({ match }: { match: MatchData }) {
+  const { m } = useLocale();
+  const mt = m.match;
   const participants = match.participants ?? [];
   const teamA = teamName(participants, "team_a");
   const teamB = teamName(participants, "team_b");
   const teamAWins = match.winningTeam === "team_a";
   const teamBWins = match.winningTeam === "team_b";
   const mvpId = match.mvpUserId;
+
+  const outcomeLabel =
+    match.winningTeam === "team_a"
+      ? mt.teamAWins
+      : match.winningTeam === "team_b"
+        ? mt.teamBWins
+        : mt.draw;
 
   return (
     <div className="min-h-screen">
@@ -67,18 +47,18 @@ export function MatchDetailPage({ match }: { match: MatchData }) {
             <SectionBackdrop glow="center" />
             <div className="relative mx-auto w-full max-w-6xl px-6">
               <GlassPanel className="p-8 md:p-10">
-                <span className="text-sm font-medium text-muted-foreground">Match report</span>
+                <span className="text-sm font-medium text-muted-foreground">{mt.reportLabel}</span>
                 <h1 className="mt-4 text-balance text-3xl font-semibold tracking-tight text-foreground md:text-5xl">
                   <span className={cn(teamAWins && "text-accent-silver")}>{teamA}</span>
-                  <span className="mx-3 text-muted-foreground">vs</span>
+                  <span className="mx-3 text-muted-foreground">{mt.vs}</span>
                   <span className={cn(teamBWins && "text-accent-silver")}>{teamB}</span>
                 </h1>
                 <p className="mt-4 text-sm text-muted-foreground">
-                  Match #{match.id} · {relativeTime(match.createdAtMs)}
+                  {mt.matchIdPrefix} #{match.id} · {formatRelativeTime(match.createdAtMs, mt)}
                 </p>
                 <div className="glass-chip mt-6 inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-muted-foreground">
                   <span className="size-1.5 rounded-full bg-accent-silver" aria-hidden="true" />
-                  {statusLabel(match.winningTeam)}
+                  {outcomeLabel}
                 </div>
               </GlassPanel>
             </div>
@@ -97,9 +77,9 @@ export function MatchDetailPage({ match }: { match: MatchData }) {
                       </span>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-foreground">Team rosters</p>
+                      <p className="text-sm font-medium text-foreground">{mt.rostersTitle}</p>
                       <p className="text-xs text-muted-foreground">
-                        {participants.length} players
+                        {participants.length} {mt.playersCount}
                       </p>
                     </div>
                   </div>
@@ -107,7 +87,7 @@ export function MatchDetailPage({ match }: { match: MatchData }) {
                   <div className="grid gap-4 md:grid-cols-2">
                     <GlassPanel className="p-5">
                       <TeamRoster
-                        label="Team A"
+                        label={mt.teamA}
                         players={teamPlayers(participants, "team_a")}
                         isWinner={teamAWins}
                         mvpId={mvpId}
@@ -115,7 +95,7 @@ export function MatchDetailPage({ match }: { match: MatchData }) {
                     </GlassPanel>
                     <GlassPanel className="p-5">
                       <TeamRoster
-                        label="Team B"
+                        label={mt.teamB}
                         players={teamPlayers(participants, "team_b")}
                         isWinner={teamBWins}
                         mvpId={mvpId}
@@ -132,8 +112,8 @@ export function MatchDetailPage({ match }: { match: MatchData }) {
                       </span>
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-foreground">Match stats</p>
-                      <p className="text-xs text-muted-foreground">Balance &amp; metadata</p>
+                      <p className="text-sm font-medium text-foreground">{mt.statsTitle}</p>
+                      <p className="text-xs text-muted-foreground">{mt.statsSubtitle}</p>
                     </div>
                   </div>
 
@@ -142,7 +122,7 @@ export function MatchDetailPage({ match }: { match: MatchData }) {
                       <div>
                         <div className="flex items-center justify-between text-xs">
                           <span className="font-mono font-medium text-muted-foreground">
-                            Balance score
+                            {mt.balanceScore}
                           </span>
                           <span className="font-mono text-sm tabular-nums text-accent-silver">
                             {Math.max(0, 100 - match.balanceGap)}
@@ -158,10 +138,10 @@ export function MatchDetailPage({ match }: { match: MatchData }) {
                       </div>
 
                       <div className="space-y-3 border-t border-border/40 pt-4">
-                        <StatRow label="Match ID" value={`#${match.id}`} />
-                        <StatRow label="Status" value={match.status} />
-                        <StatRow label="Type" value={match.matchType} />
-                        <StatRow label="Balance gap" value={String(match.balanceGap)} />
+                        <StatRow label={mt.statMatchId} value={`#${match.id}`} />
+                        <StatRow label={mt.statStatus} value={match.status} />
+                        <StatRow label={mt.statType} value={match.matchType} />
+                        <StatRow label={mt.statBalanceGap} value={String(match.balanceGap)} />
                       </div>
                     </div>
                   </GlassPanel>
@@ -187,6 +167,9 @@ function TeamRoster({
   isWinner: boolean;
   mvpId?: string;
 }) {
+  const { m } = useLocale();
+  const mt = m.match;
+
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
@@ -200,11 +183,11 @@ function TeamRoster({
         </span>
         {isWinner && (
           <span className="glass-chip px-2 py-0.5 text-[10px] font-medium text-accent-silver">
-            Winner
+            {mt.winner}
           </span>
         )}
       </div>
-      <ul className="space-y-2.5" aria-label={`${label} players`}>
+      <ul className="space-y-2.5" aria-label={`${label} ${mt.playersAria}`}>
         {players.map((player) => (
           <li key={player.discordUserId}>
             <div className="flex items-center justify-between gap-2 text-xs">
@@ -212,7 +195,7 @@ function TeamRoster({
                 <span className="font-mono text-muted-foreground">{player.username}</span>
                 {mvpId && mvpId === player.discordUserId && (
                   <span className="glass-chip px-1.5 py-0.5 text-[9px] font-semibold text-accent-silver">
-                    MVP
+                    {mt.mvp}
                   </span>
                 )}
               </div>
