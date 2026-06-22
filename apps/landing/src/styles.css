@@ -251,6 +251,20 @@
     }
   }
 
+  .auth-authorize-btn {
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--foreground) 88%, #5865f2),
+      color-mix(in srgb, var(--foreground) 72%, #4752c4)
+    );
+    box-shadow: 0 12px 32px color-mix(in srgb, var(--foreground) 18%, transparent);
+  }
+
+  .dark .auth-authorize-btn {
+    background: linear-gradient(135deg, #5865f2 0%, #4752c4 55%, color-mix(in srgb, #4752c4 70%, #1c1917) 100%);
+    box-shadow: 0 12px 32px color-mix(in srgb, #5865f2 28%, transparent);
+  }
+
   .glass-chip {
     border-radius: 9999px;
     border: 1px solid color-mix(in srgb, var(--accent-silver) 15%, transparent);
