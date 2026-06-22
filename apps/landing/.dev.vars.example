@@ -1,0 +1,3 @@
+# Copy to .dev.vars (gitignored) for local OAuth.
+DISCORD_CLIENT_SECRET=
+AUTH_SECRET=
