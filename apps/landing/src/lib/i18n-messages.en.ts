@@ -10,6 +10,8 @@ export const messagesEn: Messages = {
     leaderboard: "Leaderboard",
     faq: "FAQ",
     joinDiscord: "Join Discord",
+    resources: "Resources",
+    authorize: "Authorize",
     openMenu: "Open navigation",
     closeMenu: "Close navigation",
     brand: "Parley",

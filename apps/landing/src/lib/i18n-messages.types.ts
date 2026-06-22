@@ -8,6 +8,8 @@ export type Messages = {
     leaderboard: string;
     faq: string;
     joinDiscord: string;
+    resources: string;
+    authorize: string;
     openMenu: string;
     closeMenu: string;
     brand: string;

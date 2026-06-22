@@ -10,6 +10,8 @@ export const messagesDe: Messages = {
     leaderboard: "Rangliste",
     faq: "FAQ",
     joinDiscord: "Discord beitreten",
+    resources: "Ressourcen",
+    authorize: "Autorisieren",
     openMenu: "Navigation öffnen",
     closeMenu: "Navigation schließen",
     brand: "Parley",
