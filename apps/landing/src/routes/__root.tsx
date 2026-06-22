@@ -3,7 +3,7 @@ import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 
 import appCss from "../styles.css?url";
-import monoFontCss from "../mono-font.css?url";
+
 import criticalCss from "../critical.css?raw";
 
 const SITE_TITLE = "Parley — Competitive Matchmaking & Tournaments for Rainbow Six Siege";
@@ -15,7 +15,6 @@ const GEIST_SANS = "/assets/fonts/Geist-Variable.woff2";
 const HERO_PRELOAD = "/assets/hero/hero-cinematic-768.webp";
 
 const THEME_SCRIPT = `(function(){try{var t=localStorage.getItem('parley-theme');var d=t==='dark'||(t!=='light'&&matchMedia('(prefers-color-scheme:dark)').matches);document.documentElement.classList.toggle('dark',d)}catch(e){}})()`;
-const ASYNC_CSS_SCRIPT = `(function(){function a(){document.querySelectorAll('link[data-async]').forEach(function(l){l.media='all'})}a();addEventListener('load',a)})()`;
 
 export const Route = createRootRoute({
   head: () => ({
@@ -80,15 +79,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           media="(min-width: 768px)"
         />
         <link rel="preload" href={appCss} as="style" />
-        <link rel="stylesheet" href={appCss} media="print" data-async="true" />
-        <noscript>
-          <link rel="stylesheet" href={appCss} />
-        </noscript>
-        <link rel="stylesheet" href={monoFontCss} media="print" data-async="true" />
-        <noscript>
-          <link rel="stylesheet" href={monoFontCss} />
-        </noscript>
-        <script dangerouslySetInnerHTML={{ __html: ASYNC_CSS_SCRIPT }} />
+        <link rel="stylesheet" href={appCss} />
         <HeadContent />
       </head>
       <body className="font-sans antialiased">

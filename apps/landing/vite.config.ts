@@ -21,6 +21,15 @@ const config = defineConfig(({ mode }) => ({
           if (id.includes("HeroShaderOverlay") || id.includes("hero-shader")) {
             return "hero-shader";
           }
+          if (id.includes("i18n-messages.de")) {
+            return "i18n-de";
+          }
+          if (id.includes("i18n-messages.en")) {
+            return "i18n-en";
+          }
+          if (id.includes("@unpic/react")) {
+            return "unpic";
+          }
         },
       },
     },

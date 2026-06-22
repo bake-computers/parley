@@ -3,3 +3,15 @@
 
 /assets/fonts/*
   Cache-Control: public, max-age=31536000, immutable
+
+/*.woff2
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.css
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+/*.js
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+/parley-logo.svg
+  Cache-Control: public, max-age=604800, immutable
