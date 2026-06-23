@@ -44,39 +44,6 @@ func (g Game) Value() (driver.Value, error) {
 	return string(g), nil
 }
 
-// Language is the Postgres `languages` enum.
-type Language string
-
-const (
-	LanguageEn Language = "en"
-	LanguageDe Language = "de"
-)
-
-func (l *Language) Scan(src any) error {
-	if src == nil {
-		return errors.New("models: scan Language: nil")
-	}
-	switch v := src.(type) {
-	case string:
-		*l = Language(v)
-	case []byte:
-		*l = Language(string(v))
-	default:
-		return fmt.Errorf("models: scan Language: unsupported type %T", src)
-	}
-	if *l != LanguageEn && *l != LanguageDe {
-		return fmt.Errorf("models: unknown language %q", *l)
-	}
-	return nil
-}
-
-func (l Language) Value() (driver.Value, error) {
-	if l != LanguageEn && l != LanguageDe {
-		return nil, fmt.Errorf("models: invalid language %q", l)
-	}
-	return string(l), nil
-}
-
 // Player maps to table players.
 type Player struct {
 	bun.BaseModel `bun:"table:players,alias:player"`
@@ -245,28 +212,26 @@ type NewExternalMatchHistoryEntry struct {
 type UserSettings struct {
 	bun.BaseModel `bun:"table:user_settings,alias:us"`
 
-	DiscordUserID      string   `bun:"discord_user_id,pk,notnull"`
-	Language           Language `bun:",notnull"`
-	CreatedAt          int64    `bun:"created_at,notnull"`
-	UpdatedAt          int64    `bun:"updated_at,notnull"`
-	MatchmakingEnabled bool     `bun:"matchmaking_enabled,notnull"`
-	TermsAcceptedAtMs  int64    `bun:"terms_accepted_at_ms,notnull"`
-	ProfilePublic      bool     `bun:"profile_public,notnull"`
-	Timezone           string   `bun:",notnull"`
+	DiscordUserID      string `bun:"discord_user_id,pk,notnull"`
+	CreatedAt          int64  `bun:"created_at,notnull"`
+	UpdatedAt          int64  `bun:"updated_at,notnull"`
+	MatchmakingEnabled bool   `bun:"matchmaking_enabled,notnull"`
+	TermsAcceptedAtMs  int64  `bun:"terms_accepted_at_ms,notnull"`
+	ProfilePublic      bool   `bun:"profile_public,notnull"`
+	Timezone           string `bun:",notnull"`
 }
 
 // NewUserSettings is the insert shape for user_settings.
 type NewUserSettings struct {
 	bun.BaseModel `bun:"table:user_settings,alias:us"`
 
-	DiscordUserID      string   `bun:"discord_user_id,notnull"`
-	Language           Language `bun:",notnull"`
-	CreatedAt          int64    `bun:"created_at,notnull"`
-	UpdatedAt          int64    `bun:"updated_at,notnull"`
-	MatchmakingEnabled bool     `bun:"matchmaking_enabled,notnull"`
-	TermsAcceptedAtMs  int64    `bun:"terms_accepted_at_ms,notnull"`
-	ProfilePublic      bool     `bun:"profile_public,notnull"`
-	Timezone           string   `bun:",notnull"`
+	DiscordUserID      string `bun:"discord_user_id,notnull"`
+	CreatedAt          int64  `bun:"created_at,notnull"`
+	UpdatedAt          int64  `bun:"updated_at,notnull"`
+	MatchmakingEnabled bool   `bun:"matchmaking_enabled,notnull"`
+	TermsAcceptedAtMs  int64  `bun:"terms_accepted_at_ms,notnull"`
+	ProfilePublic      bool   `bun:"profile_public,notnull"`
+	Timezone           string `bun:",notnull"`
 }
 
 // AccountDeletionCooldown maps to table account_deletion_cooldowns.
@@ -353,30 +318,28 @@ type NewGuildMatchQuota struct {
 type GuildSettings struct {
 	bun.BaseModel `bun:"table:guild_settings,alias:gs"`
 
-	GuildID                string   `bun:"guild_id,pk,notnull"`
-	Game                   Game     `bun:",pk,notnull"`
-	DefaultTeamFormat      *string  `bun:"default_team_format"`
-	AutoBalance            bool     `bun:"auto_balance,notnull"`
-	CrossGuildMatchmaking  bool     `bun:"cross_guild_matchmaking,notnull"`
-	UpdatedAt              int64    `bun:"updated_at,notnull"`
-	UpdatedByDiscordUserID string   `bun:"updated_by_discord_user_id,notnull"`
-	DefaultLanguage        Language `bun:"default_language,notnull"`
-	MatchmakingEnabled     bool     `bun:"matchmaking_enabled,notnull"`
+	GuildID                string  `bun:"guild_id,pk,notnull"`
+	Game                   Game    `bun:",pk,notnull"`
+	DefaultTeamFormat      *string `bun:"default_team_format"`
+	AutoBalance            bool    `bun:"auto_balance,notnull"`
+	CrossGuildMatchmaking  bool    `bun:"cross_guild_matchmaking,notnull"`
+	UpdatedAt              int64   `bun:"updated_at,notnull"`
+	UpdatedByDiscordUserID string  `bun:"updated_by_discord_user_id,notnull"`
+	MatchmakingEnabled     bool    `bun:"matchmaking_enabled,notnull"`
 }
 
 // NewGuildSettings is the insert shape for guild_settings.
 type NewGuildSettings struct {
 	bun.BaseModel `bun:"table:guild_settings,alias:gs"`
 
-	GuildID                string   `bun:"guild_id,notnull"`
-	Game                   Game     `bun:",notnull"`
-	DefaultTeamFormat      *string  `bun:"default_team_format"`
-	AutoBalance            bool     `bun:"auto_balance,notnull"`
-	CrossGuildMatchmaking  bool     `bun:"cross_guild_matchmaking,notnull"`
-	UpdatedAt              int64    `bun:"updated_at,notnull"`
-	UpdatedByDiscordUserID string   `bun:"updated_by_discord_user_id,notnull"`
-	DefaultLanguage        Language `bun:"default_language,notnull"`
-	MatchmakingEnabled     bool     `bun:"matchmaking_enabled,notnull"`
+	GuildID                string  `bun:"guild_id,notnull"`
+	Game                   Game    `bun:",notnull"`
+	DefaultTeamFormat      *string `bun:"default_team_format"`
+	AutoBalance            bool    `bun:"auto_balance,notnull"`
+	CrossGuildMatchmaking  bool    `bun:"cross_guild_matchmaking,notnull"`
+	UpdatedAt              int64   `bun:"updated_at,notnull"`
+	UpdatedByDiscordUserID string  `bun:"updated_by_discord_user_id,notnull"`
+	MatchmakingEnabled     bool    `bun:"matchmaking_enabled,notnull"`
 }
 
 // GuildMatchmakingRules maps to table guild_matchmaking_rules.

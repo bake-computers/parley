@@ -25,22 +25,6 @@ func TestGameValueScan(t *testing.T) {
 	}
 }
 
-func TestLanguageValueScan(t *testing.T) {
-	t.Parallel()
-
-	var lang models.Language
-	if err := lang.Scan([]byte("de")); err != nil {
-		t.Fatalf("scan de: %v", err)
-	}
-	v, err := lang.Value()
-	if err != nil {
-		t.Fatalf("value: %v", err)
-	}
-	if v != driver.Value("de") {
-		t.Fatalf("got %#v want de", v)
-	}
-}
-
 func TestStructTypesCompile(t *testing.T) {
 	t.Parallel()
 
@@ -50,5 +34,5 @@ func TestStructTypesCompile(t *testing.T) {
 	_ = models.GuildMatchmakingRules{Platforms: []string{"pc"}}
 	_ = models.MatchRow{PublicUUID: uuid.New()}
 	_ = models.MatchParticipantWithUsername{Username: nil}
-	_ = models.UserSettings{Language: models.LanguageEn}
+	_ = models.UserSettings{DiscordUserID: "u1"}
 }
