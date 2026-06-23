@@ -5,6 +5,8 @@ declare namespace Cloudflare {
     MATCH_KV: KVNamespace;
     DISCORD_APPLICATION_ID: string;
     DISCORD_CLIENT_SECRET: string;
+    DISCORD_BOT_TOKEN?: string;
+    DISCORD_TOKEN?: string;
     AUTH_SECRET: string;
     DISCORD_OAUTH_REDIRECT_ORIGIN?: string;
     VPC_SERVICE?: Fetcher;
