@@ -14,16 +14,10 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as LegalNoticeRouteImport } from './routes/legal-notice'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as LegacyLocaleRouteImport } from './routes/$legacyLocale'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as LegacyLocaleIndexRouteImport } from './routes/$legacyLocale/index'
 import { Route as DashboardAccountRouteImport } from './routes/dashboard/account'
 import { Route as AuthLogoutRouteImport } from './routes/auth/logout'
 import { Route as AuthLoginRouteImport } from './routes/auth/login'
-import { Route as LegacyLocaleTermsRouteImport } from './routes/$legacyLocale/terms'
-import { Route as LegacyLocalePrivacyRouteImport } from './routes/$legacyLocale/privacy'
-import { Route as LegacyLocaleLegalNoticeRouteImport } from './routes/$legacyLocale/legal-notice'
-import { Route as LegacyLocaleLeaderboardRouteImport } from './routes/$legacyLocale/leaderboard'
 import { Route as AuthDiscordIndexRouteImport } from './routes/auth/discord/index'
 import { Route as MatchGuildIdUuidRouteImport } from './routes/match/$guildId/$uuid'
 import { Route as DashboardGuildsGuildIdRouteImport } from './routes/dashboard/guilds/$guildId'
@@ -64,20 +58,10 @@ const DashboardRoute = DashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
-const LegacyLocaleRoute = LegacyLocaleRouteImport.update({
-  id: '/$legacyLocale',
-  path: '/$legacyLocale',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
-} as any)
-const LegacyLocaleIndexRoute = LegacyLocaleIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => LegacyLocaleRoute,
 } as any)
 const DashboardAccountRoute = DashboardAccountRouteImport.update({
   id: '/account',
@@ -93,26 +77,6 @@ const AuthLoginRoute = AuthLoginRouteImport.update({
   id: '/auth/login',
   path: '/auth/login',
   getParentRoute: () => rootRouteImport,
-} as any)
-const LegacyLocaleTermsRoute = LegacyLocaleTermsRouteImport.update({
-  id: '/terms',
-  path: '/terms',
-  getParentRoute: () => LegacyLocaleRoute,
-} as any)
-const LegacyLocalePrivacyRoute = LegacyLocalePrivacyRouteImport.update({
-  id: '/privacy',
-  path: '/privacy',
-  getParentRoute: () => LegacyLocaleRoute,
-} as any)
-const LegacyLocaleLegalNoticeRoute = LegacyLocaleLegalNoticeRouteImport.update({
-  id: '/legal-notice',
-  path: '/legal-notice',
-  getParentRoute: () => LegacyLocaleRoute,
-} as any)
-const LegacyLocaleLeaderboardRoute = LegacyLocaleLeaderboardRouteImport.update({
-  id: '/leaderboard',
-  path: '/leaderboard',
-  getParentRoute: () => LegacyLocaleRoute,
 } as any)
 const AuthDiscordIndexRoute = AuthDiscordIndexRouteImport.update({
   id: '/auth/discord/',
@@ -194,20 +158,14 @@ const ApiDashboardGuildsGuildIdSettingsRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/$legacyLocale': typeof LegacyLocaleRouteWithChildren
   '/dashboard': typeof DashboardRouteWithChildren
   '/leaderboard': typeof LeaderboardRoute
   '/legal-notice': typeof LegalNoticeRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
-  '/$legacyLocale/leaderboard': typeof LegacyLocaleLeaderboardRoute
-  '/$legacyLocale/legal-notice': typeof LegacyLocaleLegalNoticeRoute
-  '/$legacyLocale/privacy': typeof LegacyLocalePrivacyRoute
-  '/$legacyLocale/terms': typeof LegacyLocaleTermsRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
   '/dashboard/account': typeof DashboardAccountRoute
-  '/$legacyLocale/': typeof LegacyLocaleIndexRoute
   '/api/auth/me': typeof ApiAuthMeRoute
   '/api/bridge/snapshot': typeof ApiBridgeSnapshotRoute
   '/api/bridge/ws': typeof ApiBridgeWsRoute
@@ -230,14 +188,9 @@ export interface FileRoutesByTo {
   '/legal-notice': typeof LegalNoticeRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
-  '/$legacyLocale/leaderboard': typeof LegacyLocaleLeaderboardRoute
-  '/$legacyLocale/legal-notice': typeof LegacyLocaleLegalNoticeRoute
-  '/$legacyLocale/privacy': typeof LegacyLocalePrivacyRoute
-  '/$legacyLocale/terms': typeof LegacyLocaleTermsRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
   '/dashboard/account': typeof DashboardAccountRoute
-  '/$legacyLocale': typeof LegacyLocaleIndexRoute
   '/api/auth/me': typeof ApiAuthMeRoute
   '/api/bridge/snapshot': typeof ApiBridgeSnapshotRoute
   '/api/bridge/ws': typeof ApiBridgeWsRoute
@@ -255,20 +208,14 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/$legacyLocale': typeof LegacyLocaleRouteWithChildren
   '/dashboard': typeof DashboardRouteWithChildren
   '/leaderboard': typeof LeaderboardRoute
   '/legal-notice': typeof LegalNoticeRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
-  '/$legacyLocale/leaderboard': typeof LegacyLocaleLeaderboardRoute
-  '/$legacyLocale/legal-notice': typeof LegacyLocaleLegalNoticeRoute
-  '/$legacyLocale/privacy': typeof LegacyLocalePrivacyRoute
-  '/$legacyLocale/terms': typeof LegacyLocaleTermsRoute
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
   '/dashboard/account': typeof DashboardAccountRoute
-  '/$legacyLocale/': typeof LegacyLocaleIndexRoute
   '/api/auth/me': typeof ApiAuthMeRoute
   '/api/bridge/snapshot': typeof ApiBridgeSnapshotRoute
   '/api/bridge/ws': typeof ApiBridgeWsRoute
@@ -288,20 +235,14 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/$legacyLocale'
     | '/dashboard'
     | '/leaderboard'
     | '/legal-notice'
     | '/privacy'
     | '/terms'
-    | '/$legacyLocale/leaderboard'
-    | '/$legacyLocale/legal-notice'
-    | '/$legacyLocale/privacy'
-    | '/$legacyLocale/terms'
     | '/auth/login'
     | '/auth/logout'
     | '/dashboard/account'
-    | '/$legacyLocale/'
     | '/api/auth/me'
     | '/api/bridge/snapshot'
     | '/api/bridge/ws'
@@ -324,14 +265,9 @@ export interface FileRouteTypes {
     | '/legal-notice'
     | '/privacy'
     | '/terms'
-    | '/$legacyLocale/leaderboard'
-    | '/$legacyLocale/legal-notice'
-    | '/$legacyLocale/privacy'
-    | '/$legacyLocale/terms'
     | '/auth/login'
     | '/auth/logout'
     | '/dashboard/account'
-    | '/$legacyLocale'
     | '/api/auth/me'
     | '/api/bridge/snapshot'
     | '/api/bridge/ws'
@@ -348,20 +284,14 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/$legacyLocale'
     | '/dashboard'
     | '/leaderboard'
     | '/legal-notice'
     | '/privacy'
     | '/terms'
-    | '/$legacyLocale/leaderboard'
-    | '/$legacyLocale/legal-notice'
-    | '/$legacyLocale/privacy'
-    | '/$legacyLocale/terms'
     | '/auth/login'
     | '/auth/logout'
     | '/dashboard/account'
-    | '/$legacyLocale/'
     | '/api/auth/me'
     | '/api/bridge/snapshot'
     | '/api/bridge/ws'
@@ -380,7 +310,6 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  LegacyLocaleRoute: typeof LegacyLocaleRouteWithChildren
   DashboardRoute: typeof DashboardRouteWithChildren
   LeaderboardRoute: typeof LeaderboardRoute
   LegalNoticeRoute: typeof LegalNoticeRoute
@@ -435,26 +364,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/$legacyLocale': {
-      id: '/$legacyLocale'
-      path: '/$legacyLocale'
-      fullPath: '/$legacyLocale'
-      preLoaderRoute: typeof LegacyLocaleRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/$legacyLocale/': {
-      id: '/$legacyLocale/'
-      path: '/'
-      fullPath: '/$legacyLocale/'
-      preLoaderRoute: typeof LegacyLocaleIndexRouteImport
-      parentRoute: typeof LegacyLocaleRoute
     }
     '/dashboard/account': {
       id: '/dashboard/account'
@@ -476,34 +391,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/auth/login'
       preLoaderRoute: typeof AuthLoginRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/$legacyLocale/terms': {
-      id: '/$legacyLocale/terms'
-      path: '/terms'
-      fullPath: '/$legacyLocale/terms'
-      preLoaderRoute: typeof LegacyLocaleTermsRouteImport
-      parentRoute: typeof LegacyLocaleRoute
-    }
-    '/$legacyLocale/privacy': {
-      id: '/$legacyLocale/privacy'
-      path: '/privacy'
-      fullPath: '/$legacyLocale/privacy'
-      preLoaderRoute: typeof LegacyLocalePrivacyRouteImport
-      parentRoute: typeof LegacyLocaleRoute
-    }
-    '/$legacyLocale/legal-notice': {
-      id: '/$legacyLocale/legal-notice'
-      path: '/legal-notice'
-      fullPath: '/$legacyLocale/legal-notice'
-      preLoaderRoute: typeof LegacyLocaleLegalNoticeRouteImport
-      parentRoute: typeof LegacyLocaleRoute
-    }
-    '/$legacyLocale/leaderboard': {
-      id: '/$legacyLocale/leaderboard'
-      path: '/leaderboard'
-      fullPath: '/$legacyLocale/leaderboard'
-      preLoaderRoute: typeof LegacyLocaleLeaderboardRouteImport
-      parentRoute: typeof LegacyLocaleRoute
     }
     '/auth/discord/': {
       id: '/auth/discord/'
@@ -606,26 +493,6 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface LegacyLocaleRouteChildren {
-  LegacyLocaleLeaderboardRoute: typeof LegacyLocaleLeaderboardRoute
-  LegacyLocaleLegalNoticeRoute: typeof LegacyLocaleLegalNoticeRoute
-  LegacyLocalePrivacyRoute: typeof LegacyLocalePrivacyRoute
-  LegacyLocaleTermsRoute: typeof LegacyLocaleTermsRoute
-  LegacyLocaleIndexRoute: typeof LegacyLocaleIndexRoute
-}
-
-const LegacyLocaleRouteChildren: LegacyLocaleRouteChildren = {
-  LegacyLocaleLeaderboardRoute: LegacyLocaleLeaderboardRoute,
-  LegacyLocaleLegalNoticeRoute: LegacyLocaleLegalNoticeRoute,
-  LegacyLocalePrivacyRoute: LegacyLocalePrivacyRoute,
-  LegacyLocaleTermsRoute: LegacyLocaleTermsRoute,
-  LegacyLocaleIndexRoute: LegacyLocaleIndexRoute,
-}
-
-const LegacyLocaleRouteWithChildren = LegacyLocaleRoute._addFileChildren(
-  LegacyLocaleRouteChildren,
-)
-
 interface DashboardGuildsGuildIdRouteChildren {
   DashboardGuildsGuildIdGeneralRoute: typeof DashboardGuildsGuildIdGeneralRoute
   DashboardGuildsGuildIdNotificationsRoute: typeof DashboardGuildsGuildIdNotificationsRoute
@@ -665,7 +532,6 @@ const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  LegacyLocaleRoute: LegacyLocaleRouteWithChildren,
   DashboardRoute: DashboardRouteWithChildren,
   LeaderboardRoute: LeaderboardRoute,
   LegalNoticeRoute: LegalNoticeRoute,
