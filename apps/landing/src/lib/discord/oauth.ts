@@ -32,11 +32,15 @@ export type CookieGuild = {
   name: string;
   icon: string | null;
   owner: boolean;
+  permissions: string;
 };
 
 export type CookieSession = {
   user: DiscordUser;
-  guilds: CookieGuild[];
+  /** Fresh guild list is fetched from Discord when present (keeps the session cookie small). */
+  accessToken?: string;
+  /** Legacy sessions stored guilds in the cookie before accessToken was added. */
+  guilds?: CookieGuild[];
   expiresAtMs: number;
 };
 
@@ -132,6 +136,14 @@ export async function fetchDiscordGuilds(accessToken: string): Promise<DiscordOA
     throw new Error(`Discord guilds failed (${res.status})`);
   }
   return (await res.json()) as DiscordOAuthGuild[];
+}
+
+async function fetchDiscordGuildsResilient(accessToken: string): Promise<DiscordOAuthGuild[]> {
+  try {
+    return await fetchDiscordGuilds(accessToken);
+  } catch {
+    return await fetchDiscordGuilds(accessToken);
+  }
 }
 
 function bytesToBase64Url(bytes: Uint8Array): string {
@@ -245,8 +257,12 @@ export async function unsealSession(token: string, secret: string): Promise<Cook
     if (Date.now() >= parsed.expiresAtMs) {
       return null;
     }
-    if (!Array.isArray(parsed.guilds)) {
-      parsed.guilds = [];
+    if (Array.isArray(parsed.guilds)) {
+      parsed.guilds = parsed.guilds.map((g) => ({
+        ...g,
+        permissions:
+          typeof g.permissions === "string" ? g.permissions : String(1n << 5n),
+      }));
     }
     return parsed;
   } catch {
@@ -292,7 +308,10 @@ export function clearStateCookieHeader(requestUrl: string): string {
   return parts.join("; ");
 }
 
-export function toPublicSession(session: CookieSession) {
+export function toPublicSession(
+  session: CookieSession,
+  guilds: PublicGuild[],
+) {
   return {
     user: {
       id: session.user.id,
@@ -300,19 +319,55 @@ export function toPublicSession(session: CookieSession) {
       globalName: session.user.global_name,
       avatar: session.user.avatar,
     },
-    guilds: session.guilds,
+    guilds,
     expiresAtMs: session.expiresAtMs,
   };
 }
 
-export function cookieGuildsFromOAuth(guilds: DiscordOAuthGuild[]): CookieGuild[] {
-  return guilds.map((g) => ({
-    id: g.id,
-    name: g.name,
-    icon: g.icon,
-    owner: g.owner,
+export async function resolveSessionGuilds(session: CookieSession): Promise<CookieGuild[]> {
+  if (session.accessToken) {
+    try {
+      const guilds = await fetchDiscordGuildsResilient(session.accessToken);
+      return cookieGuildsFromOAuth(guilds);
+    } catch {
+      if (session.guilds?.length) {
+        return session.guilds.map((g) => ({
+          ...g,
+          permissions:
+            typeof g.permissions === "string" ? g.permissions : String(1n << 5n),
+        }));
+      }
+      return [];
+    }
+  }
+  return (session.guilds ?? []).map((g) => ({
+    ...g,
+    permissions:
+      typeof g.permissions === "string" ? g.permissions : String(1n << 5n),
   }));
 }
+
+export function cookieGuildsFromOAuth(guilds: DiscordOAuthGuild[]): CookieGuild[] {
+  return guilds
+    .map((g) => ({
+      id: g.id,
+      name: g.name,
+      icon: g.icon,
+      owner: g.owner,
+      permissions: g.permissions,
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+export type PublicGuild = {
+  id: string;
+  name: string;
+  icon: string | null;
+  owner: boolean;
+  canManage: boolean;
+  parleyInstalled: boolean;
+  inviteUrl: string | null;
+};
 
 export function discordGuildIconUrl(guildId: string, icon: string | null): string | null {
   if (!icon) {
