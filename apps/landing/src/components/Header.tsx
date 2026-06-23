@@ -5,9 +5,11 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { ChevronDown, Menu, X } from "lucide-react";
 import { ThemeToggle } from "#/components/ui/theme-toggle";
+import { useAuthMe } from "#/hooks/useAuthMe";
 import { useScrollSpy } from "#/hooks/useScrollSpy";
 import { homeSectionHref, siteHref } from "#/lib/content/paths";
 import { useMessages } from "#/lib/content/messages/use-messages";
+import { discordAvatarUrl } from "#/lib/discord/oauth";
 import { cn } from "#/lib/shared/cn";
 
 const SECTION_IDS = ["matchmaking", "experience"];
@@ -86,6 +88,53 @@ function NavResourcesDropdown({
         </div>
       ) : null}
     </div>
+  );
+}
+
+function HeaderAuthButton({ className, onNavigate }: { className?: string; onNavigate?: () => void }) {
+  const { me } = useAuthMe();
+  const m = useMessages();
+
+  if (me === undefined) {
+    return null;
+  }
+
+  if (me) {
+    const displayName = me.user.globalName ?? me.user.username;
+    const avatar = discordAvatarUrl(me.user.id, me.user.avatar);
+    return (
+      <Link
+        to="/dashboard"
+        onClick={onNavigate}
+        className={cn(
+          "inline-flex h-12 min-h-12 shrink-0 items-center gap-2.5 rounded-full bg-muted/60 px-2.5 pr-4 text-sm font-medium text-foreground transition-all hover:bg-muted/80 active:scale-[0.98]",
+          className,
+        )}
+      >
+        <img
+          src={avatar}
+          alt=""
+          width={32}
+          height={32}
+          className="size-8 shrink-0 rounded-full ring-1 ring-border"
+        />
+        <span className="max-w-[9rem] truncate">{displayName}</span>
+      </Link>
+    );
+  }
+
+  return (
+    <Link
+      to="/auth/login"
+      search={{ redirect: "/dashboard" }}
+      onClick={onNavigate}
+      className={cn(
+        "inline-flex h-12 min-h-12 shrink-0 items-center rounded-full bg-foreground px-5 text-sm font-medium text-background transition-all hover:scale-[1.02] active:scale-[0.98]",
+        className,
+      )}
+    >
+      {m.nav.authorize}
+    </Link>
   );
 }
 
@@ -174,13 +223,7 @@ export function SiteHeader() {
               )}
             </button>
 
-            <Link
-              to="/auth/login"
-              search={{ redirect: "/dashboard" }}
-              className="hidden h-12 min-h-12 shrink-0 items-center rounded-full bg-foreground px-5 text-sm font-medium text-background transition-all hover:scale-[1.02] active:scale-[0.98] sm:inline-flex"
-            >
-              {m.nav.authorize}
-            </Link>
+            <HeaderAuthButton className="hidden sm:inline-flex" />
           </div>
         </div>
 
@@ -240,14 +283,10 @@ export function SiteHeader() {
             <div className="border-t border-border/60 px-2 pt-2">
               <ThemeToggle />
             </div>
-            <Link
-              to="/auth/login"
-              search={{ redirect: "/dashboard" }}
-              onClick={() => setMenuOpen(false)}
-              className="mt-1 flex min-h-12 items-center justify-center rounded-full bg-foreground px-4 py-3 text-center text-sm font-medium text-background"
-            >
-              {m.nav.authorize}
-            </Link>
+            <HeaderAuthButton
+              className="mt-1 w-full justify-center"
+              onNavigate={() => setMenuOpen(false)}
+            />
           </nav>
         </div>
       </div>
