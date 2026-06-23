@@ -11,21 +11,30 @@ const testUser: DiscordUser = {
 };
 
 describe("sessionCanManageGuild", () => {
-  test("returns true when guild is in session list", () => {
+  test("returns true when guild is in session list", async () => {
     const session = {
       user: testUser,
-      guilds: [{ id: "999", name: "G", icon: null, owner: true }],
+      guilds: [{ id: "999", name: "G", icon: null, owner: true, permissions: "8" }],
       expiresAtMs: Date.now() + 60_000,
     };
-    expect(sessionCanManageGuild(session, "999")).toBe(true);
+    await expect(sessionCanManageGuild(session, "999")).resolves.toBe(true);
   });
 
-  test("returns false for unknown guild", () => {
+  test("returns false for unknown guild", async () => {
     const session = {
       user: testUser,
-      guilds: [{ id: "999", name: "G", icon: null, owner: true }],
+      guilds: [{ id: "999", name: "G", icon: null, owner: true, permissions: "8" }],
       expiresAtMs: Date.now() + 60_000,
     };
-    expect(sessionCanManageGuild(session, "000")).toBe(false);
+    await expect(sessionCanManageGuild(session, "000")).resolves.toBe(false);
+  });
+
+  test("returns false when guild is listed but user lacks manage permission", async () => {
+    const session = {
+      user: testUser,
+      guilds: [{ id: "999", name: "G", icon: null, owner: false, permissions: "0" }],
+      expiresAtMs: Date.now() + 60_000,
+    };
+    await expect(sessionCanManageGuild(session, "999")).resolves.toBe(false);
   });
 });
