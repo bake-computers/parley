@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { fetchBridge } from "#/lib/bridge-proxy";
+import { fetchBridge } from "#/lib/bridge/proxy";
 
 export const Route = createFileRoute("/api/bridge/snapshot")({
   server: {

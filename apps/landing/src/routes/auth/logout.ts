@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { handleDiscordLogout } from "#/lib/discord-oauth-handlers";
+import { handleDiscordLogout } from "#/lib/discord/handlers";
 
 export const Route = createFileRoute("/auth/logout")({
   server: {
