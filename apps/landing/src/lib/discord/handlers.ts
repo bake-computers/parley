@@ -4,9 +4,8 @@ import {
   clearStateCookieHeader,
   discordRedirectUri,
   exchangeDiscordCode,
-  fetchDiscordGuilds,
   fetchDiscordUser,
-  cookieGuildsFromOAuth,
+  resolveSessionGuilds,
   sealOAuthState,
   sealSession,
   sessionCookieHeader,
@@ -17,11 +16,10 @@ import {
   SESSION_COOKIE,
   toPublicSession,
   type DiscordOAuthEnv,
-  type DiscordOAuthGuild,
   type DiscordUser,
 } from "./oauth.js";
-import { oauthEnvFromSource, type OAuthEnvSource } from "./env.js";
-import { filterManageableGuilds } from "./permissions.js";
+import { oauthEnvFromSource, resolveBotToken, type OAuthEnvSource } from "./env.js";
+import { publicGuildsForDashboard } from "./guild-dashboard.js";
 
 function readOAuthEnv(source: OAuthEnvSource | undefined): DiscordOAuthEnv | null {
   if (!source) {
@@ -145,21 +143,16 @@ async function handleDiscordCallbackImpl(
   }
 
   let user: DiscordUser;
-  let guilds: DiscordOAuthGuild[];
   try {
-    [user, guilds] = await Promise.all([
-      fetchDiscordUser(token.access_token),
-      fetchDiscordGuilds(token.access_token),
-    ]);
+    user = await fetchDiscordUser(token.access_token);
   } catch (e) {
     const message = e instanceof Error ? e.message : "Discord API failed";
     return new Response(message, { status: 502 });
   }
 
-  const manageable = filterManageableGuilds(guilds);
   const expiresAtMs = Date.now() + token.expires_in * 1000;
   const sessionToken = await sealSession(
-    { user, guilds: cookieGuildsFromOAuth(manageable), expiresAtMs },
+    { user, accessToken: token.access_token, expiresAtMs },
     cfg.AUTH_SECRET,
   );
 
@@ -197,5 +190,18 @@ export async function handleDiscordMe(
     return Response.json({ user: null }, { status: 401 });
   }
 
-  return Response.json(toPublicSession(session));
+  const cookieGuilds = await resolveSessionGuilds(session);
+  let guilds;
+  try {
+    guilds = await publicGuildsForDashboard(
+      cookieGuilds,
+      cfg.DISCORD_APPLICATION_ID,
+      resolveBotToken(envSource),
+    );
+  } catch {
+    guilds = await publicGuildsForDashboard(cookieGuilds, cfg.DISCORD_APPLICATION_ID);
+  }
+  return Response.json(toPublicSession(session, guilds), {
+    headers: { "Cache-Control": "private, no-store" },
+  });
 }
