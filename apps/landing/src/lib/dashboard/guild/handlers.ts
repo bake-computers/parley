@@ -152,7 +152,6 @@ function parseGeneral(
     crossGuildMatchmaking: Boolean(p.crossGuildMatchmaking),
     updatedAtMs: 0,
     updatedByDiscordUserId: userId,
-    defaultLanguage: Number(p.defaultLanguage ?? 1),
     matchmakingEnabled: Boolean(p.matchmakingEnabled),
   };
 }
@@ -161,7 +160,6 @@ function normalizeGeneral(settings: GuildSettingsJson): GuildSettingsJson {
   return {
     ...settings,
     defaultTeamFormat: settings.defaultTeamFormat || "5v5",
-    defaultLanguage: settings.defaultLanguage ?? 1,
     matchmakingEnabled: settings.matchmakingEnabled ?? false,
     autoBalance: settings.autoBalance ?? false,
     crossGuildMatchmaking: settings.crossGuildMatchmaking ?? false,

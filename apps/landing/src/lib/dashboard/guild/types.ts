@@ -9,7 +9,6 @@ export type GuildSettingsJson = {
   crossGuildMatchmaking: boolean;
   updatedAtMs: number;
   updatedByDiscordUserId: string;
-  defaultLanguage: number;
   matchmakingEnabled: boolean;
 };
 
