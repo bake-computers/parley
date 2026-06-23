@@ -1,8 +1,9 @@
-import { describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 import {
   buildDiscordAuthorizeUrl,
   cookieUsesSecure,
   DISCORD_OAUTH_SCOPES,
+  resolveSessionGuilds,
   sealOAuthState,
   sealSession,
   stateCookieHeader,
@@ -51,7 +52,7 @@ describe("discord oauth", () => {
         avatar: null,
         discriminator: "0",
       },
-      guilds: [{ id: "99", name: "Test", icon: null, owner: true }],
+      guilds: [{ id: "99", name: "Test", icon: null, owner: true, permissions: "8" }],
       expiresAtMs: Date.now() + 60_000,
     };
     const token = await sealSession(session, secret);
@@ -62,5 +63,36 @@ describe("discord oauth", () => {
 
     const expired = await sealSession({ ...session, expiresAtMs: Date.now() - 1 }, secret);
     expect(await unsealSession(expired, secret)).toBeNull();
+  });
+});
+
+describe("resolveSessionGuilds", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  test("falls back to legacy cookie guilds when Discord API fails", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("nope", { status: 503 })),
+    );
+
+    const session: CookieSession = {
+      user: {
+        id: "1",
+        username: "u",
+        global_name: null,
+        avatar: null,
+        discriminator: "0",
+      },
+      accessToken: "expired-token",
+      guilds: [{ id: "99", name: "Legacy", icon: null, owner: true, permissions: "8" }],
+      expiresAtMs: Date.now() + 60_000,
+    };
+
+    const guilds = await resolveSessionGuilds(session);
+    expect(guilds).toEqual([
+      { id: "99", name: "Legacy", icon: null, owner: true, permissions: "8" },
+    ]);
   });
 });
