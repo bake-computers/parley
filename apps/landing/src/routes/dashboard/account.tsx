@@ -1,50 +1,37 @@
 import { createFileRoute, Link, Navigate } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { useAuthMeContext } from "#/components/dashboard/AuthMeProvider";
+import { DashboardLoader } from "#/components/dashboard/DashboardLoader";
+import { DashboardSessionError } from "#/components/dashboard/DashboardSessionError";
 import { UserSettingsForm } from "#/components/dashboard/UserSettingsForm";
 import { GlassPanel } from "#/components/ui/glass-panel";
+import { Skeleton } from "#/components/ui/skeleton";
 import { discordAvatarUrl } from "#/lib/discord/oauth";
 import type { UserSettingsJson } from "#/lib/dashboard/user/types";
-
-type MeResponse = {
-  user: {
-    id: string;
-    username: string;
-    globalName: string | null;
-    avatar: string | null;
-  };
-};
 
 export const Route = createFileRoute("/dashboard/account")({
   component: AccountSettingsPage,
 });
 
+function AccountSettingsSkeleton() {
+  return (
+    <GlassPanel className="flex flex-col gap-5 p-6" role="status" aria-label="Loading settings">
+      <Skeleton className="h-6 w-40" />
+      <Skeleton className="h-10 w-full" />
+      <Skeleton className="h-10 w-full" />
+      <Skeleton className="h-10 w-[66%]" />
+    </GlassPanel>
+  );
+}
+
 function AccountSettingsPage() {
-  const [me, setMe] = useState<MeResponse | null | undefined>(undefined);
+  const { me, error, retry } = useAuthMeContext();
   const [settings, setSettings] = useState<UserSettingsJson | null | undefined>(undefined);
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const patchSettings = useCallback((next: UserSettingsJson) => {
     setSettings(next);
-  }, []);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetch("/api/auth/me", { credentials: "include" })
-      .then(async (res) => (res.ok ? ((await res.json()) as MeResponse) : null))
-      .then((data) => {
-        if (!cancelled) {
-          setMe(data?.user ? data : null);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setMe(null);
-        }
-      });
-    return () => {
-      cancelled = true;
-    };
   }, []);
 
   useEffect(() => {
@@ -78,12 +65,12 @@ function AccountSettingsPage() {
     };
   }, [me]);
 
-  if (me === undefined || (me && settings === undefined)) {
-    return (
-      <main className="mx-auto flex min-h-[50vh] max-w-3xl items-center justify-center px-6 py-16">
-        <p className="text-muted-foreground text-sm">Loading…</p>
-      </main>
-    );
+  if (error && (me === undefined || me === null)) {
+    return <DashboardSessionError onRetry={retry} />;
+  }
+
+  if (me === undefined) {
+    return <DashboardLoader />;
   }
 
   if (!me) {
@@ -93,23 +80,8 @@ function AccountSettingsPage() {
   const displayName = me.user.globalName ?? me.user.username;
   const avatar = discordAvatarUrl(me.user.id, me.user.avatar);
 
-  if (loadError || !settings) {
-    return (
-      <main className="mx-auto max-w-lg px-6 py-16 text-center">
-        <p className="text-destructive text-sm">{loadError ?? "Settings unavailable"}</p>
-        <p className="text-muted-foreground mt-2 text-xs">
-          Dev uses remote VPC to the Parley engine. Check Cloudflare login, remote bindings, and engine
-          availability.
-        </p>
-        <Link to="/dashboard" className="text-primary mt-6 inline-block text-sm underline-offset-4 hover:underline">
-          Back to dashboard
-        </Link>
-      </main>
-    );
-  }
-
   return (
-    <main className="mx-auto max-w-3xl px-6 py-12 pb-24">
+    <main className="dashboard-fade-in mx-auto max-w-3xl px-6 py-12 pb-24">
       <Link
         to="/dashboard"
         className="text-muted-foreground hover:text-foreground mb-8 inline-flex items-center gap-2 text-sm transition-colors"
@@ -129,7 +101,19 @@ function AccountSettingsPage() {
         </GlassPanel>
       </header>
 
-      <UserSettingsForm settings={settings} onSaved={patchSettings} />
+      {loadError ? (
+        <div className="text-center">
+          <p className="text-destructive text-sm">{loadError}</p>
+          <p className="text-muted-foreground mt-2 text-xs">
+            Dev uses remote VPC to the Parley engine. Check Cloudflare login, remote bindings, and engine
+            availability.
+          </p>
+        </div>
+      ) : settings ? (
+        <UserSettingsForm settings={settings} onSaved={patchSettings} />
+      ) : (
+        <AccountSettingsSkeleton />
+      )}
     </main>
   );
 }
