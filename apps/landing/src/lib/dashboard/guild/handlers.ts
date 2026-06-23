@@ -1,4 +1,6 @@
 import type { OAuthEnvSource } from "../../discord/env.js";
+import { resolveBotToken } from "../../discord/env.js";
+import { fetchGuildTextChannels } from "../../discord/guild-channels.js";
 import {
   requireDashboardSession,
   sessionCanManageGuild,
@@ -26,9 +28,9 @@ import type {
 } from "./types.js";
 import { GAME_R6 } from "./types.js";
 
-function guildIdFromUrl(request: Request): string | null {
+function guildIdFromUrl(request: Request, resource = "settings"): string | null {
   const pathname = new URL(request.url).pathname;
-  const match = pathname.match(/\/api\/dashboard\/guilds\/([^/]+)\/settings/);
+  const match = pathname.match(new RegExp(`/api/dashboard/guilds/([^/]+)/${resource}`));
   return match?.[1] ?? null;
 }
 
@@ -41,7 +43,7 @@ async function authorizeGuild(
   if (auth instanceof Response) {
     return auth;
   }
-  if (!sessionCanManageGuild(auth.session, guildId)) {
+  if (!(await sessionCanManageGuild(auth.session, guildId))) {
     return Response.json({ error: "forbidden" }, { status: 403 });
   }
   return auth;
@@ -324,4 +326,27 @@ export async function handlePatchGuildSettingsBundle(
   } catch (e) {
     return engineFailure(e);
   }
+}
+
+export async function handleGetGuildChannels(
+  request: Request,
+  oauthEnv: OAuthEnvSource,
+): Promise<Response> {
+  const guildId = guildIdFromUrl(request, "channels");
+  if (!guildId) {
+    return Response.json({ error: "invalid_guild" }, { status: 400 });
+  }
+
+  const auth = await authorizeGuild(request, oauthEnv, guildId);
+  if (auth instanceof Response) {
+    return auth;
+  }
+
+  const botToken = resolveBotToken(oauthEnv);
+  if (!botToken) {
+    return Response.json({ error: "bot_not_configured" }, { status: 503 });
+  }
+
+  const channels = await fetchGuildTextChannels(guildId, botToken);
+  return Response.json({ channels }, { headers: { "Cache-Control": "private, max-age=60" } });
 }
