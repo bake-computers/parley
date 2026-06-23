@@ -4,7 +4,9 @@ import type { GuildNotificationSettingsJson } from "#/lib/dashboard/guild/types"
 import { settingsBaselineKey } from "#/lib/shared/settings-baseline";
 import { validateDiscordSnowflake } from "#/lib/dashboard/guild/validation";
 import { useSettingsSection } from "#/hooks/useSettingsSection";
+import { useGuildTextChannels } from "#/hooks/useGuildTextChannels";
 import { useGuildDashboard } from "./GuildDashboardContext";
+import { ChannelAutocomplete } from "./ChannelAutocomplete";
 import { SettingsField, SettingsInput, SettingsToggle } from "./SettingsField";
 import { SettingsSaveBar } from "./SettingsSaveBar";
 import { SettingsToast } from "./SettingsToast";
@@ -18,6 +20,7 @@ function validateNotifications(draft: GuildNotificationSettingsJson): string | n
 
 export function NotificationsSettingsForm() {
   const { guildId, settings, patchSettings } = useGuildDashboard();
+  const { channels, loading, error: channelsError } = useGuildTextChannels(guildId);
   const [toast, setToast] = useState<string | null>(null);
   const validate = useCallback(
     (draft: GuildNotificationSettingsJson) => validateNotifications(draft),
@@ -46,34 +49,62 @@ export function NotificationsSettingsForm() {
     onSaved: (next) => patchSettings({ notifications: next }),
   });
 
+  const channelList = channels ?? [];
+  const useChannelPicker = !channelsError && channelList.length > 0;
+
   return (
     <>
       <GlassPanel as="section" className="flex flex-col gap-4 p-6">
         <div>
           <h2 className="text-lg font-semibold tracking-tight">Notifications</h2>
           <p className="text-muted-foreground text-sm">
-            Discord channel IDs for bot announcements (same as /settings in Discord).
+            Choose Discord text channels for bot announcements (same as /settings in Discord).
           </p>
+          {channelsError ? (
+            <p className="text-muted-foreground mt-2 text-xs">
+              Could not load channels — enter a channel ID manually or check the bot token.
+            </p>
+          ) : null}
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <SettingsField
-            label="Match results channel ID"
+            label="Match results channel"
             error={
               section.isDirty
                 ? validateDiscordSnowflake(section.draft.matchResultsChannel, "Match results channel")
                 : null
             }
           >
-            <SettingsInput
-              value={section.draft.matchResultsChannel}
-              onChange={(e) =>
-                section.setDraft((n) => ({ ...n, matchResultsChannel: e.target.value }))
-              }
-              placeholder="Channel snowflake or empty"
-            />
+            {useChannelPicker ? (
+              <ChannelAutocomplete
+                value={section.draft.matchResultsChannel}
+                onChange={(id) =>
+                  section.setDraft((n) => ({ ...n, matchResultsChannel: id }))
+                }
+                channels={channelList}
+                disabled={loading}
+                invalid={Boolean(
+                  section.isDirty &&
+                    validateDiscordSnowflake(
+                      section.draft.matchResultsChannel,
+                      "Match results channel",
+                    ),
+                )}
+                placeholder={loading ? "Loading channels…" : "Select a channel"}
+              />
+            ) : (
+              <SettingsInput
+                value={section.draft.matchResultsChannel}
+                onChange={(e) =>
+                  section.setDraft((n) => ({ ...n, matchResultsChannel: e.target.value }))
+                }
+                placeholder={loading ? "Loading channels…" : "Channel snowflake or empty"}
+                disabled={loading}
+              />
+            )}
           </SettingsField>
           <SettingsField
-            label="Tournament announcements channel ID"
+            label="Tournament announcements channel"
             error={
               section.isDirty
                 ? validateDiscordSnowflake(
@@ -83,15 +114,39 @@ export function NotificationsSettingsForm() {
                 : null
             }
           >
-            <SettingsInput
-              value={section.draft.tournamentAnnouncementsChannel}
-              onChange={(e) =>
-                section.setDraft((n) => ({
-                  ...n,
-                  tournamentAnnouncementsChannel: e.target.value,
-                }))
-              }
-            />
+            {useChannelPicker ? (
+              <ChannelAutocomplete
+                value={section.draft.tournamentAnnouncementsChannel}
+                onChange={(id) =>
+                  section.setDraft((n) => ({
+                    ...n,
+                    tournamentAnnouncementsChannel: id,
+                  }))
+                }
+                channels={channelList}
+                disabled={loading}
+                invalid={Boolean(
+                  section.isDirty &&
+                    validateDiscordSnowflake(
+                      section.draft.tournamentAnnouncementsChannel,
+                      "Tournament channel",
+                    ),
+                )}
+                placeholder={loading ? "Loading channels…" : "Select a channel"}
+              />
+            ) : (
+              <SettingsInput
+                value={section.draft.tournamentAnnouncementsChannel}
+                onChange={(e) =>
+                  section.setDraft((n) => ({
+                    ...n,
+                    tournamentAnnouncementsChannel: e.target.value,
+                  }))
+                }
+                placeholder={loading ? "Loading channels…" : "Channel snowflake or empty"}
+                disabled={loading}
+              />
+            )}
           </SettingsField>
         </div>
         <SettingsToggle
