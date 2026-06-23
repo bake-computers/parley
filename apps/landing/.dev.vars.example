@@ -1,3 +1,6 @@
 # Copy to .dev.vars (gitignored) for local OAuth.
 DISCORD_CLIENT_SECRET=
 AUTH_SECRET=
+
+# Engine/dashboard: `bun run dev` uses remote Cloudflare bindings (VPC_SERVICE, MATCH_KV).
+# Log in once: wrangler login

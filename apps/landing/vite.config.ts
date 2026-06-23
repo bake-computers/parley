@@ -8,13 +8,12 @@ export default defineConfig(async ({ mode }) => {
   const devOnly: PluginOption[] = [];
   if (mode === "development") {
     const { devtools } = await import("@tanstack/devtools-vite");
-    const { devDiscordAuthPlugin } = await import("./dev-discord-auth-plugin");
-    devOnly.push(devtools(), devDiscordAuthPlugin());
+    devOnly.push(devtools());
   }
 
   const plugins: PluginOption[] = [
     ...devOnly,
-    cloudflare({ viteEnvironment: { name: "ssr" } }),
+    cloudflare({ viteEnvironment: { name: "ssr" }, remoteBindings: true }),
     tailwindcss(),
     tanstackStart({
       sitemap: {
@@ -51,12 +50,7 @@ export default defineConfig(async ({ mode }) => {
             if (id.includes("HeroShaderOverlay") || id.includes("hero-shader")) {
               return "hero-shader";
             }
-            if (id.includes("i18n-messages.de")) {
-              return "i18n-de";
-            }
-            if (id.includes("i18n-messages.en")) {
-              return "i18n-en";
-            }
+
             if (id.includes("@unpic/react")) {
               return "unpic";
             }

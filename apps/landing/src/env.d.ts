@@ -9,8 +9,6 @@ declare namespace Cloudflare {
     DISCORD_OAUTH_REDIRECT_ORIGIN?: string;
     VPC_SERVICE?: Fetcher;
     ENGINE_INTERNAL_URL?: string;
-    ENGINE_SERVICE_URL?: string;
-    USE_LOCAL_ENGINE?: string;
   }
 }
 
