@@ -241,7 +241,6 @@ func (r *GuildRepo) UpsertSettings(ctx context.Context, row *models.GuildSetting
 		Set("cross_guild_matchmaking = EXCLUDED.cross_guild_matchmaking").
 		Set("updated_at = EXCLUDED.updated_at").
 		Set("updated_by_discord_user_id = EXCLUDED.updated_by_discord_user_id").
-		Set("default_language = EXCLUDED.default_language").
 		Set("matchmaking_enabled = EXCLUDED.matchmaking_enabled").
 		Returning("*").
 		Exec(ctx, &out)

@@ -52,7 +52,6 @@ func (r *UserSettingsRepo) Upsert(
 	_, err := r.db.NewInsert().
 		Model(row).
 		On("CONFLICT (discord_user_id) DO UPDATE").
-		Set("language = EXCLUDED.language").
 		Set("updated_at = EXCLUDED.updated_at").
 		Set("matchmaking_enabled = EXCLUDED.matchmaking_enabled").
 		Set("terms_accepted_at_ms = EXCLUDED.terms_accepted_at_ms").
