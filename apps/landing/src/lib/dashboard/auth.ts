@@ -1,7 +1,8 @@
 import type { CookieSession } from "../discord/oauth.js";
-import { SESSION_COOKIE, unsealSession } from "../discord/oauth.js";
+import { resolveSessionGuilds, SESSION_COOKIE, unsealSession } from "../discord/oauth.js";
 import type { OAuthEnvSource } from "../discord/env.js";
 import { oauthEnvFromSource } from "../discord/env.js";
+import { canManageCookieGuild } from "../discord/permissions.js";
 
 function cookieValue(request: Request, name: string): string | null {
   const raw = request.headers.get("Cookie");
@@ -17,11 +18,7 @@ function cookieValue(request: Request, name: string): string | null {
   return null;
 }
 
-export type DashboardSession = {
-  user: CookieSession["user"];
-  guilds: CookieSession["guilds"];
-  expiresAtMs: number;
-};
+export type DashboardSession = CookieSession;
 
 export async function requireDashboardSession(
   request: Request,
@@ -45,6 +42,11 @@ export async function requireDashboardSession(
   return { session };
 }
 
-export function sessionCanManageGuild(session: DashboardSession, guildId: string): boolean {
-  return session.guilds.some((g) => g.id === guildId);
+export async function sessionCanManageGuild(
+  session: DashboardSession,
+  guildId: string,
+): Promise<boolean> {
+  const guilds = await resolveSessionGuilds(session);
+  const guild = guilds.find((g) => g.id === guildId);
+  return guild ? canManageCookieGuild(guild) : false;
 }
