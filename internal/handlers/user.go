@@ -76,35 +76,6 @@ func (h *UserHandler) UpsertUserSettings(
 	}), nil
 }
 
-func (h *UserHandler) ResolveLanguage(
-	ctx context.Context,
-	req *connect.Request[userv1.ResolveLanguageRequest],
-) (*connect.Response[userv1.ResolveLanguageResponse], error) {
-	discordUserID := strings.TrimSpace(req.Msg.GetDiscordUserId())
-	if discordUserID == "" {
-		return connect.NewResponse(&userv1.ResolveLanguageResponse{
-			Success: false,
-			Error:   errProto(apperr.CodeInvalidArgument, "discord_user_id is required"),
-		}), nil
-	}
-
-	lang, source, err := h.svc.ResolveLanguage(
-		ctx,
-		discordUserID,
-		req.Msg.GetGuildId(),
-		req.Msg.GetGame(),
-	)
-	if err != nil {
-		return nil, apperr.Internal(err.Error())
-	}
-
-	return connect.NewResponse(&userv1.ResolveLanguageResponse{
-		Success:  true,
-		Language: lang,
-		Source:   source,
-	}), nil
-}
-
 func (h *UserHandler) DeleteUserData(
 	ctx context.Context,
 	req *connect.Request[userv1.DeleteUserDataRequest],
