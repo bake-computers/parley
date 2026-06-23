@@ -8,7 +8,7 @@ import { buildErrorCard, buildSettingsCard } from "./ui.js";
 
 export const userSlashCommand = new SlashCommand()
   .setName("user")
-  .setDescription("Manage your language, matchmaking, visibility, timezone, and data")
+  .setDescription("Manage your matchmaking, visibility, timezone, and data")
   .addHandler(async (interaction: ChatInputCommandInteraction) => {
     const env = interaction.context.env as EngineTransportEnv;
     if (!(await assertAccepted(interaction, env as never))) {

@@ -1,7 +1,6 @@
 import { UI_TOKENS } from "../../ui/tokens.js";
 
 export { ACCEPT_BUTTON as USER_ACCEPT_BUTTON } from "../_shared/acceptance.js";
-export const USER_LANG_PREFIX = "user/lang/";
 export const USER_MATCHMAKING_PREFIX = "user/matchmaking/";
 export const USER_VISIBILITY_PREFIX = "user/visibility/";
 export const USER_TIMEZONE_PREFIX = "user/timezone/";
@@ -14,11 +13,6 @@ export const USER_TZ_PAGE_PREFIX = "user/tz-page/";
 
 export const USER_SETTINGS_PAGE_COUNT = 2;
 export const USER_TIMEZONES_PER_PAGE = 4;
-
-export const LANGUAGES = [
-  { value: "en", label: "English", emoji: "🇬🇧" },
-  { value: "de", label: "Deutsch", emoji: "🇩🇪" },
-] as const;
 
 export const TIMEZONES = [
   { value: "UTC", label: "UTC" },

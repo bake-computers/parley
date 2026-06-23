@@ -13,10 +13,8 @@ import {
 } from "@parley/runtime";
 import {
   COLORS,
-  LANGUAGES,
   TIMEZONES,
   USER_DELETE_OPEN,
-  USER_LANG_PREFIX,
   USER_MATCHMAKING_PREFIX,
   USER_PAGE_PREFIX,
   USER_REFRESH_STATS,
@@ -27,20 +25,11 @@ import {
   USER_VISIBILITY_PREFIX,
 } from "./constants.js";
 import type { UserSettings as ProtoUserSettings, AnonymizationCounts } from "@parley/proto";
-import { Language } from "@parley/proto";
 
 const SEPARATOR_SPACING_SMALL = 1;
 
 function separator(): SeparatorBuilder {
   return new SeparatorBuilder().setDivider(true).setSpacing(SEPARATOR_SPACING_SMALL);
-}
-
-function languageLabel(lang: number): string {
-  return lang === Language.DE ? "Deutsch" : "English";
-}
-
-function languageValue(lang: number): string {
-  return lang === Language.DE ? "de" : "en";
 }
 
 function visibilityLabel(public_: boolean): string {
@@ -136,24 +125,6 @@ function buildPreferencesPage(
       ),
       separator(),
       new TextDisplayBuilder().setContent(
-        `**Language** · ${languageLabel(settings.language)}`,
-      ),
-    );
-
-  const languageButtons = LANGUAGES.map((lang) => {
-    const active = languageValue(settings.language) === lang.value;
-    return choiceButton(emojis, {
-      customId: `${USER_LANG_PREFIX}${lang.value}`,
-      label: `${lang.emoji} ${lang.label}`,
-      active,
-      emojiName: "global",
-    });
-  });
-
-  container.addComponents(
-    new ActionRowBuilder().addComponents(...languageButtons),
-    separator(),
-    new TextDisplayBuilder().setContent(
       `${emojiOr(emojis, "linked")} **Matchmaking** · ${settings.matchmakingEnabled ? "Enabled" : "Disabled"}`,
     ),
     new ActionRowBuilder().addComponents(
@@ -275,7 +246,7 @@ function buildPrivacyPage(
         .setAccessory(deleteBtn),
       separator(),
       new SectionBuilder()
-        .addText(new TextDisplayBuilder().setContent("Return to language & matchmaking."))
+        .addText(new TextDisplayBuilder().setContent("Return to matchmaking & timezone."))
         .setAccessory(backBtn),
     );
 }
@@ -372,4 +343,4 @@ export function buildDeleteResultCard(
     );
 }
 
-export { languageLabel, languageValue, visibilityLabel };
+export { visibilityLabel };

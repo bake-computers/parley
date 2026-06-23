@@ -14,7 +14,6 @@ import {
   USER_CANCEL,
   USER_DELETE_MODAL,
   USER_DELETE_OPEN,
-  USER_LANG_PREFIX,
   USER_MATCHMAKING_PREFIX,
   USER_REFRESH_STATS,
   USER_TIMEZONE_PREFIX,
@@ -28,8 +27,6 @@ import { parseAcceptSource, refreshSettingsCache } from "../_shared/acceptance.j
 import { resumeAfterAccept } from "../_shared/resume-after-accept.js";
 import { buildDeleteResultCard, buildErrorCard, buildInfoCard, buildSettingsCard } from "./ui.js";
 import { invokeDeleteUserData, invokeGetUserSettings, invokeUpsertUserSettings } from "./rpc.js";
-import { Language } from "@parley/proto";
-
 const COMPONENT_BUTTON = 2;
 
 function getClient(env: unknown) {
@@ -39,7 +36,6 @@ function getClient(env: unknown) {
 function baseSettings(discordUserId: string): ProtoUserSettings {
   return {
     discordUserId,
-    language: Language.EN,
     updatedAtMs: 0,
     matchmakingEnabled: true,
     termsAcceptedAtMs: 0,
@@ -195,19 +191,6 @@ export const userButtonHandler = new ComponentHandler("user", COMPONENT_BUTTON).
       return;
     }
 
-    if (customId.startsWith(USER_LANG_PREFIX)) {
-      const v = customId.slice(USER_LANG_PREFIX.length);
-      await applyUpdate(
-        interaction,
-        {
-          ...current,
-          language: v === "de" ? Language.DE : Language.EN,
-          updatedAtMs: nowMs(),
-        },
-        DEFAULT_VIEW,
-      );
-      return;
-    }
     if (customId.startsWith(USER_MATCHMAKING_PREFIX)) {
       const v = customId.slice(USER_MATCHMAKING_PREFIX.length);
       await applyUpdate(
