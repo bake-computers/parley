@@ -145,7 +145,6 @@ func TestMatchmaking_BuildTeamsDataLayerLoadsSnapshotsAndMemberships(t *testing.
 		CrossGuildMatchmaking:  false,
 		UpdatedAt:              now,
 		UpdatedByDiscordUserID: discordIDs[0],
-		DefaultLanguage:        models.LanguageEn,
 		MatchmakingEnabled:     true,
 	}); err != nil {
 		t.Fatalf("UpsertSettings: %v", err)
