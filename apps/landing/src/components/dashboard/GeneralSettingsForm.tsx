@@ -24,7 +24,6 @@ export function GeneralSettingsForm() {
     () => ({
       ...settings.general,
       defaultTeamFormat: settings.general.defaultTeamFormat || "5v5",
-      defaultLanguage: settings.general.defaultLanguage ?? 1,
       matchmakingEnabled: settings.general.matchmakingEnabled ?? false,
       autoBalance: settings.general.autoBalance ?? false,
       crossGuildMatchmaking: settings.general.crossGuildMatchmaking ?? false,
@@ -50,28 +49,14 @@ export function GeneralSettingsForm() {
           <h2 className="text-lg font-semibold tracking-tight">General</h2>
           <p className="text-muted-foreground text-sm">Core matchmaking behavior for this server.</p>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <SettingsField label="Default team format" error={section.isDirty ? formatError : null} hint="e.g. 5v5">
-            <AutocompleteInput
-              value={section.draft.defaultTeamFormat}
-              onChange={(v) => section.setDraft((g) => ({ ...g, defaultTeamFormat: v }))}
-              options={formatSuggestions}
-              invalid={Boolean(formatError)}
-            />
-          </SettingsField>
-          <SettingsField label="Default language">
-            <select
-              className="border-input bg-background focus-visible:ring-ring/50 h-9 w-full rounded-lg border px-3 text-sm outline-none focus-visible:ring-3"
-              value={section.draft.defaultLanguage}
-              onChange={(e) =>
-                section.setDraft((g) => ({ ...g, defaultLanguage: Number(e.target.value) }))
-              }
-            >
-              <option value={1}>English</option>
-              <option value={2}>German</option>
-            </select>
-          </SettingsField>
-        </div>
+        <SettingsField label="Default team format" error={section.isDirty ? formatError : null} hint="e.g. 5v5">
+          <AutocompleteInput
+            value={section.draft.defaultTeamFormat}
+            onChange={(v) => section.setDraft((g) => ({ ...g, defaultTeamFormat: v }))}
+            options={formatSuggestions}
+            invalid={Boolean(formatError)}
+          />
+        </SettingsField>
         <SettingsToggle
           label="Matchmaking enabled"
           description="Allow Parley queues in this guild."

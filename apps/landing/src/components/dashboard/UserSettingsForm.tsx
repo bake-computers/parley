@@ -27,7 +27,6 @@ export function UserSettingsForm({
   const initial = useMemo(
     () => ({
       ...settings,
-      language: settings.language === 2 ? 2 : 1,
       matchmakingEnabled: settings.matchmakingEnabled ?? true,
       profilePublic: settings.profilePublic ?? true,
       timezone: settings.timezone?.trim() || "UTC",
@@ -60,18 +59,6 @@ export function UserSettingsForm({
             Personal preferences across all Parley servers.
           </p>
         </div>
-        <SettingsField label="Language">
-          <select
-            className="border-input bg-background focus-visible:ring-ring/50 h-9 w-full rounded-lg border px-3 text-sm outline-none focus-visible:ring-3"
-            value={section.draft.language}
-            onChange={(e) =>
-              section.setDraft((s) => ({ ...s, language: Number(e.target.value) }))
-            }
-          >
-            <option value={1}>English</option>
-            <option value={2}>German</option>
-          </select>
-        </SettingsField>
         <SettingsField label="Timezone" hint="IANA name, e.g. Europe/Berlin">
           <SettingsInput
             value={section.draft.timezone}
