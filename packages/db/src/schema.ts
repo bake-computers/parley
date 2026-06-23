@@ -15,19 +15,13 @@ function timestampMs(name: string) {
   return bigint(name, { mode: "number" });
 }
 
-const Languages = pgEnum("languages", ["en", "de"]);
 const Games = pgEnum("games", ["r6"]);
 
-export const GuildSettings = pgTable(
-  "guild_settings",
-  {
-    guildId: text("guild_id").notNull().primaryKey().unique(),
-    createdAt: timestampMs("created_at").notNull(),
-    updatedAt: timestampMs("updated_at").notNull(),
-    language: Languages("language").notNull().default("en"),
-  },
-  (table) => [index("guild_settings_language_idx").on(table.language)],
-);
+export const GuildSettings = pgTable("guild_settings", {
+  guildId: text("guild_id").notNull().primaryKey().unique(),
+  createdAt: timestampMs("created_at").notNull(),
+  updatedAt: timestampMs("updated_at").notNull(),
+});
 
 /**
  * Discord user identity. One row per Discord user.
@@ -54,7 +48,6 @@ export const UserSettings = pgTable(
     userId: integer("user_id")
       .notNull()
       .references(() => Users.id, { onDelete: "cascade" }),
-    language: Languages("language").notNull().default("en"),
     createdAt: timestampMs("created_at").notNull(),
     updatedAt: timestampMs("updated_at").notNull(),
   },
