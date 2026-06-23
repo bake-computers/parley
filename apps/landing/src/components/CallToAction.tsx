@@ -4,14 +4,14 @@ import type { RefObject } from "react";
 import { MessageCircle, Bell } from "lucide-react";
 import { useInView } from "#/hooks/useInView";
 import { Reveal } from "#/components/ui/reveal";
-import { useLocale } from "#/lib/locale-messages-context";
-import { cn } from "#/lib/utils";
+import { useMessages } from "#/lib/content/messages/use-messages";
+import { cn } from "#/lib/shared/cn";
 
 const DISCORD_URL = "https://discord.gg/parley";
 
 export function DiscordCta() {
   const { ref, inView } = useInView();
-  const { m } = useLocale();
+  const m = useMessages();
   const c = m.home.discordCta;
 
   return (

@@ -1,4 +1,4 @@
-import { cn } from "#/lib/utils";
+import { cn } from "#/lib/shared/cn";
 
 type SectionBackdropProps = {
   glow?: "left" | "right" | "center";

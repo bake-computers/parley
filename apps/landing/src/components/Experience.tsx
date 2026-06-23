@@ -3,14 +3,14 @@
 import { useState } from "react";
 import { Users, Swords, Trophy } from "lucide-react";
 import { Reveal } from "#/components/ui/reveal";
-import { useLocale } from "#/lib/locale-messages-context";
-import { cn } from "#/lib/utils";
+import { useMessages } from "#/lib/content/messages/use-messages";
+import { cn } from "#/lib/shared/cn";
 
 const stepIcons = [Users, Swords, Trophy] as const;
 
 export function Experience() {
   const [active, setActive] = useState(0);
-  const { m } = useLocale();
+  const m = useMessages();
   const ex = m.home.experience;
   const steps = ex.steps;
   const current = steps[active] ?? steps[0];

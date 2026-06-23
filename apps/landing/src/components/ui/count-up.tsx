@@ -1,6 +1,6 @@
 import { useEffect, useState, type RefObject } from "react";
 import { useInView } from "#/hooks/useInView";
-import { cn } from "#/lib/utils";
+import { cn } from "#/lib/shared/cn";
 
 type CountUpProps = {
   target: number;

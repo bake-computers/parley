@@ -5,15 +5,15 @@ import { SiteFooter } from "#/components/Footer";
 import { LeaderboardTable } from "#/components/LeaderboardTable";
 import { SectionBackdrop } from "#/components/ui/section-backdrop";
 import { useLeaderboardStream } from "#/hooks/useLeaderboardStream";
-import { formatUpdatedAt } from "#/lib/format-relative-time";
+import { formatUpdatedAt } from "#/lib/shared/format-relative-time";
 import { LEADERBOARD_METRICS, type LeaderboardMetric } from "#/lib/leaderboard";
-import { useLocale } from "#/lib/locale-messages-context";
-import { cn } from "#/lib/utils";
+import { useMessages } from "#/lib/content/messages/use-messages";
+import { cn } from "#/lib/shared/cn";
 
 export function LeaderboardPage() {
   const [metric, setMetric] = useState<LeaderboardMetric>("rank_points");
   const { snapshot, status } = useLeaderboardStream(metric);
-  const { locale, m } = useLocale();
+  const m = useMessages();
   const lb = m.leaderboard;
 
   const statusLabel =
@@ -56,7 +56,7 @@ export function LeaderboardPage() {
                   {statusLabel}
                 </div>
                 <div className="text-xs text-muted-foreground/70">
-                  {formatUpdatedAt(snapshot?.updatedAt ?? 0, locale, lb.updatedPrefix)}
+                  {formatUpdatedAt(snapshot?.updatedAt ?? 0, lb.updatedPrefix)}
                 </div>
               </div>
             </div>

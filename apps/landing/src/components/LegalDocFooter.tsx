@@ -1,18 +1,11 @@
-import { useLocale } from "#/lib/locale-messages-context";
+import { useMessages } from "#/lib/content/messages/use-messages";
 
 type Doc = "privacy" | "terms";
 
 export function LegalDocFooter({ doc }: { doc: Doc }) {
-  const { locale, m } = useLocale();
+  const m = useMessages();
   const lp = m.legalPages;
-  const text =
-    doc === "privacy"
-      ? locale === "de"
-        ? lp.privacyFooterDe
-        : lp.privacyFooterEn
-      : locale === "de"
-        ? lp.termsFooterDe
-        : lp.termsFooterEn;
+  const text = doc === "privacy" ? lp.privacyFooter : lp.termsFooter;
 
   return (
     <div className="!mt-14 border-t border-border/60 pt-6">

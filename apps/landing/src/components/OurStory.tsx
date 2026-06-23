@@ -1,9 +1,9 @@
 import { Reveal, RevealStagger } from "#/components/ui/reveal";
-import { founders } from "#/lib/founders";
-import { useLocale } from "#/lib/locale-messages-context";
+import { founders } from "#/lib/shared/founders";
+import { useMessages } from "#/lib/content/messages/use-messages";
 
 export function OurStory() {
-  const { m } = useLocale();
+  const m = useMessages();
   const s = m.home.story;
 
   return (

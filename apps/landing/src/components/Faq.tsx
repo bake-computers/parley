@@ -3,12 +3,12 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { Reveal } from "#/components/ui/reveal";
-import { useLocale } from "#/lib/locale-messages-context";
-import { cn } from "#/lib/utils";
+import { useMessages } from "#/lib/content/messages/use-messages";
+import { cn } from "#/lib/shared/cn";
 
 export function Faq() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
-  const { m } = useLocale();
+  const m = useMessages();
   const f = m.home.faq;
 
   return (

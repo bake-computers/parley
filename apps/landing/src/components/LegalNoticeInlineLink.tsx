@@ -1,16 +1,12 @@
-import { localizedHref } from "#/lib/i18n";
-import { useLocale } from "#/lib/locale-messages-context";
+import { siteHref } from "#/lib/content/paths";
+import { useMessages } from "#/lib/content/messages/use-messages";
 
 export function LegalNoticeInlineLink({ children }: { children?: React.ReactNode }) {
-  const { locale, m } = useLocale();
-  const label =
-    children ??
-    (locale === "de"
-      ? m.legalPages.legalNoticeTitle
-      : `${m.legalPages.legalNoticeTitle} (Impressum)`);
+  const m = useMessages();
+  const label = children ?? `${m.legalPages.legalNoticeTitle} (Impressum)`;
   return (
     <a
-      href={localizedHref(locale, "legal-notice")}
+      href={siteHref("legal-notice")}
       className="underline underline-offset-4 transition-colors hover:text-accent-silver"
     >
       {label}

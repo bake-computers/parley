@@ -1,8 +1,21 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
-import { DEFAULT_LOCALE } from "#/lib/i18n";
+import { createFileRoute } from "@tanstack/react-router";
+import { LegalPage } from "#/components/LegalPage";
+import { LegalNoticeContentEn } from "#/content/legal-notice.en";
+import { useMessages } from "#/lib/content/messages/use-messages";
 
-export const Route = createFileRoute("/legal-notice")({
-  beforeLoad: () => {
-    throw redirect({ href: `/${DEFAULT_LOCALE}/legal-notice`, replace: true });
-  },
-});
+export const Route = createFileRoute("/legal-notice")({ component: LegalNoticePage });
+
+function LegalNoticePage() {
+  const m = useMessages();
+  const lp = m.legalPages;
+
+  return (
+    <LegalPage
+      label={lp.legalNoticeLabel}
+      title={lp.legalNoticeTitle}
+      lastUpdated={lp.legalNoticeUpdated}
+    >
+      <LegalNoticeContentEn />
+    </LegalPage>
+  );
+}

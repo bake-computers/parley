@@ -1,8 +1,17 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
-import { DEFAULT_LOCALE } from "#/lib/i18n";
+import { createFileRoute } from "@tanstack/react-router";
+import { LegalPage } from "#/components/LegalPage";
+import { PrivacyContentEn } from "#/content/privacy.en";
+import { useMessages } from "#/lib/content/messages/use-messages";
 
-export const Route = createFileRoute("/privacy")({
-  beforeLoad: () => {
-    throw redirect({ href: `/${DEFAULT_LOCALE}/privacy`, replace: true });
-  },
-});
+export const Route = createFileRoute("/privacy")({ component: PrivacyPage });
+
+function PrivacyPage() {
+  const m = useMessages();
+  const lp = m.legalPages;
+
+  return (
+    <LegalPage label={lp.privacyLabel} title={lp.privacyTitle} lastUpdated={lp.privacyUpdated}>
+      <PrivacyContentEn />
+    </LegalPage>
+  );
+}

@@ -3,12 +3,12 @@
 import { Activity, Crosshair, GitCompareArrows } from "lucide-react";
 import { HeroLobbyDemo } from "#/components/HeroLobbyDemo";
 import { Reveal } from "#/components/ui/reveal";
-import { useLocale } from "#/lib/locale-messages-context";
+import { useMessages } from "#/lib/content/messages/use-messages";
 
 const pointIcons = [Crosshair, GitCompareArrows, Activity] as const;
 
 export function Matchmaking() {
-  const { m } = useLocale();
+  const m = useMessages();
   const mm = m.home.matchmaking;
 
   return (

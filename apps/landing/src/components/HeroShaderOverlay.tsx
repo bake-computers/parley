@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { startHeroShader } from "#/lib/hero-shader";
+import { startHeroShader } from "#/lib/shared/hero-shader";
 
 export function HeroShaderOverlay() {
   const canvasRef = useRef<HTMLCanvasElement>(null);

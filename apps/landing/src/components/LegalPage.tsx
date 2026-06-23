@@ -1,6 +1,6 @@
 import { SiteHeader } from "#/components/Header";
 import { SiteFooter } from "#/components/Footer";
-import { useLocale } from "#/lib/locale-messages-context";
+import { useMessages } from "#/lib/content/messages/use-messages";
 
 interface LegalPageProps {
   label: string;
@@ -10,7 +10,7 @@ interface LegalPageProps {
 }
 
 export function LegalPage({ label, title, lastUpdated, children }: LegalPageProps) {
-  const { m } = useLocale();
+  const m = useMessages();
 
   return (
     <div className="min-h-screen">

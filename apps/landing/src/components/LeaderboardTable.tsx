@@ -1,6 +1,6 @@
 import { GlassPanel } from "#/components/ui/glass-panel";
-import { useLocale } from "#/lib/locale-messages-context";
-import { cn } from "#/lib/utils";
+import { useMessages } from "#/lib/content/messages/use-messages";
+import { cn } from "#/lib/shared/cn";
 import { formatScore, type LeaderboardEntry, type LeaderboardMetric } from "#/lib/leaderboard";
 
 interface LeaderboardTableProps {
@@ -22,7 +22,7 @@ function rankTone(rank: number): string {
 }
 
 export function LeaderboardTable({ metric, entries }: LeaderboardTableProps) {
-  const { m } = useLocale();
+  const m = useMessages();
   const lb = m.leaderboard;
 
   if (entries.length === 0) {

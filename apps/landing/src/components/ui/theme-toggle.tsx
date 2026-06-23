@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { Monitor, Moon, Sun } from "lucide-react";
-import { useLocale } from "#/lib/locale-messages-context";
-import { cn } from "#/lib/utils";
+import { useMessages } from "#/lib/content/messages/use-messages";
+import { cn } from "#/lib/shared/cn";
 
 export type Theme = "light" | "dark" | "system";
 
@@ -33,7 +33,7 @@ export function getStoredTheme(): Theme {
 }
 
 export function ThemeToggle({ className }: { className?: string }) {
-  const { m } = useLocale();
+  const m = useMessages();
   const themeLabels: Record<Theme, string> = {
     light: m.theme.light,
     system: m.theme.system,

@@ -1,7 +1,7 @@
 import { Image } from "@unpic/react";
 import { Reveal } from "#/components/ui/reveal";
-import { localizedHref, type LocalizedPath } from "#/lib/i18n";
-import { useLocale } from "#/lib/locale-messages-context";
+import { siteHref, type SitePath } from "#/lib/content/paths";
+import { useMessages } from "#/lib/content/messages/use-messages";
 
 const poweredBy = [
   { name: "stats.cc", href: "https://stats.cc", icon: "https://stats.cc/favicon.ico" },
@@ -9,9 +9,9 @@ const poweredBy = [
 ];
 
 export function SiteFooter() {
-  const { locale, m } = useLocale();
+  const m = useMessages();
 
-  const footerLinks: { label: string; path: LocalizedPath }[] = [
+  const footerLinks: { label: string; path: SitePath }[] = [
     { label: m.footer.leaderboard, path: "leaderboard" },
     { label: m.footer.legalNotice, path: "legal-notice" },
     { label: m.footer.privacy, path: "privacy" },
@@ -42,7 +42,7 @@ export function SiteFooter() {
               {footerLinks.map((link) => (
                 <a
                   key={link.path}
-                  href={localizedHref(locale, link.path)}
+                  href={siteHref(link.path)}
                   className="parley-footer-link text-sm text-muted-foreground transition-colors hover:text-foreground"
                 >
                   {link.label}

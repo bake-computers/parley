@@ -1,8 +1,8 @@
 import { ShieldOff, ScaleIcon, UserX } from "lucide-react";
 import { CountUp } from "#/components/ui/count-up";
 import { Reveal } from "#/components/ui/reveal";
-import { useLocale } from "#/lib/locale-messages-context";
-import { cn } from "#/lib/utils";
+import { useMessages } from "#/lib/content/messages/use-messages";
+import { cn } from "#/lib/shared/cn";
 
 const symptomIcons = [ShieldOff, UserX, ScaleIcon] as const;
 const symptomTints = [
@@ -12,7 +12,7 @@ const symptomTints = [
 ] as const;
 
 export function Problem() {
-  const { m } = useLocale();
+  const m = useMessages();
   const p = m.home.problem;
 
   return (

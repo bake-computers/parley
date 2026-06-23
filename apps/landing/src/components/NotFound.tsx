@@ -2,11 +2,11 @@ import { SiteHeader } from "#/components/Header";
 import { SiteFooter } from "#/components/Footer";
 import { Button } from "#/components/ui/button";
 import { GlassPanel } from "#/components/ui/glass-panel";
-import { localizedHref } from "#/lib/i18n";
-import { useLocale } from "#/lib/locale-messages-context";
+import { siteHref } from "#/lib/content/paths";
+import { useMessages } from "#/lib/content/messages/use-messages";
 
 export function NotFound() {
-  const { locale, m } = useLocale();
+  const m = useMessages();
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -36,7 +36,7 @@ export function NotFound() {
               size="lg"
               className="rounded-full bg-foreground text-background transition-all hover:scale-[1.02] hover:bg-foreground/90 active:scale-[0.98]"
             >
-              <a href={localizedHref(locale, "")}>{m.notFound.home}</a>
+              <a href={siteHref("")}>{m.notFound.home}</a>
             </Button>
             <Button
               size="lg"

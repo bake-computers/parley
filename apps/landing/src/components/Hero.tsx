@@ -2,8 +2,8 @@
 
 import { lazy, Suspense, useEffect, useState } from "react";
 import { ArrowDown } from "lucide-react";
-import { smoothScrollTo } from "#/lib/smooth-scroll";
-import { useLocale } from "#/lib/locale-messages-context";
+import { smoothScrollTo } from "#/lib/shared/smooth-scroll";
+import { useMessages } from "#/lib/content/messages/use-messages";
 
 const HeroShaderOverlay = lazy(() =>
   import("#/components/HeroShaderOverlay").then((m) => ({ default: m.HeroShaderOverlay })),
@@ -42,7 +42,7 @@ function useDeferredShader() {
 
 export function Hero() {
   const shaderReady = useDeferredShader();
-  const { m } = useLocale();
+  const m = useMessages();
   const h = m.home.hero;
 
   return (

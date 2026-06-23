@@ -2,8 +2,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { RefreshCw } from "lucide-react";
 import { Button } from "#/components/ui/button";
 import { GlassPanel } from "#/components/ui/glass-panel";
-import { useLocale } from "#/lib/locale-messages-context";
-import { cn } from "#/lib/utils";
+import { useMessages } from "#/lib/content/messages/use-messages";
+import { cn } from "#/lib/shared/cn";
 
 type Player = {
   callsign: string;
@@ -101,7 +101,7 @@ function TeamColumn({
 }
 
 export function HeroLobbyDemo() {
-  const { m } = useLocale();
+  const m = useMessages();
   const lb = m.home.lobby;
   const [phase, setPhase] = useState<Phase>("imbalanced");
   const [displayScore, setDisplayScore] = useState(SCORE_IMBALANCED);

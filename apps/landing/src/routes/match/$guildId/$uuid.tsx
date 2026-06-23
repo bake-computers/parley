@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { MatchDetailPage } from "#/components/MatchDetailPage";
 import { NotFound } from "#/components/NotFound";
-import { getMatchForRoute } from "#/lib/match-server";
+import { getMatchForRoute } from "#/lib/match/server";
 
 export const Route = createFileRoute("/match/$guildId/$uuid")({
   loader: async ({ params }) => {

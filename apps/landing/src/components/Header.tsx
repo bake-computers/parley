@@ -4,12 +4,11 @@ import { useEffect, useRef, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { ChevronDown, Menu, X } from "lucide-react";
-import { LocaleSwitch } from "#/components/LocaleSwitch";
 import { ThemeToggle } from "#/components/ui/theme-toggle";
 import { useScrollSpy } from "#/hooks/useScrollSpy";
-import { homeSectionHref, localizedHref } from "#/lib/i18n";
-import { useLocale } from "#/lib/locale-messages-context";
-import { cn } from "#/lib/utils";
+import { homeSectionHref, siteHref } from "#/lib/content/paths";
+import { useMessages } from "#/lib/content/messages/use-messages";
+import { cn } from "#/lib/shared/cn";
 
 const SECTION_IDS = ["matchmaking", "experience"];
 const MOBILE_MENU_ID = "parley-mobile-nav";
@@ -94,23 +93,23 @@ export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [resourcesOpen, setResourcesOpen] = useState(false);
   const { activeId } = useScrollSpy({ sectionIds: SECTION_IDS });
-  const { locale, m } = useLocale();
+  const m = useMessages();
   const pathname = useRouterState({ select: (state) => state.location.pathname });
-  const isHome = pathname === `/${locale}` || pathname === `/${locale}/`;
+  const isHome = pathname === "/" || pathname === "";
 
   const primaryNav: NavLink[] = [
-    { label: m.nav.matchmaking, href: homeSectionHref(locale, "matchmaking"), sectionId: "matchmaking" },
-    { label: m.nav.experience, href: homeSectionHref(locale, "experience"), sectionId: "experience" },
+    { label: m.nav.matchmaking, href: homeSectionHref("matchmaking"), sectionId: "matchmaking" },
+    { label: m.nav.experience, href: homeSectionHref("experience"), sectionId: "experience" },
   ];
 
   const resourceNav: NavLink[] = [
-    { label: m.nav.problem, href: homeSectionHref(locale, "problem"), sectionId: null },
-    { label: m.nav.story, href: homeSectionHref(locale, "story"), sectionId: null },
-    { label: m.nav.leaderboard, href: localizedHref(locale, "leaderboard"), sectionId: null },
-    { label: m.nav.faq, href: homeSectionHref(locale, "faq"), sectionId: null },
-    { label: m.footer.terms, href: localizedHref(locale, "terms"), sectionId: null },
-    { label: m.footer.privacy, href: localizedHref(locale, "privacy"), sectionId: null },
-    { label: m.footer.legalNotice, href: localizedHref(locale, "legal-notice"), sectionId: null },
+    { label: m.nav.problem, href: homeSectionHref("problem"), sectionId: null },
+    { label: m.nav.story, href: homeSectionHref("story"), sectionId: null },
+    { label: m.nav.leaderboard, href: siteHref("leaderboard"), sectionId: null },
+    { label: m.nav.faq, href: homeSectionHref("faq"), sectionId: null },
+    { label: m.footer.terms, href: siteHref("terms"), sectionId: null },
+    { label: m.footer.privacy, href: siteHref("privacy"), sectionId: null },
+    { label: m.footer.legalNotice, href: siteHref("legal-notice"), sectionId: null },
   ];
 
   return (
@@ -123,7 +122,7 @@ export function SiteHeader() {
       <div className="mx-auto max-w-5xl">
         <div className="glass-pill flex w-full items-center gap-2 px-2 py-2 md:gap-3 md:px-3">
           <a
-            href={localizedHref(locale, "")}
+            href={siteHref("")}
             className="flex shrink-0 items-center gap-2 rounded-full px-2 py-1.5 transition-colors hover:bg-muted/50"
           >
             <Image
@@ -158,7 +157,6 @@ export function SiteHeader() {
           </nav>
 
           <div className="ml-auto flex items-center gap-2">
-            <LocaleSwitch className="hidden sm:flex" />
             <ThemeToggle className="hidden lg:flex" />
 
             <button
@@ -194,9 +192,6 @@ export function SiteHeader() {
           )}
         >
           <nav className="glass-panel flex flex-col gap-1 p-2" aria-label="Mobile primary">
-            <div className="px-2 pb-2 sm:hidden">
-              <LocaleSwitch className="w-full justify-center" />
-            </div>
             {primaryNav.map((item) => {
               const isActive = item.sectionId !== null && activeId === item.sectionId;
               return (

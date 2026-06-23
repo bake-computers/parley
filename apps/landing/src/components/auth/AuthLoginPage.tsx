@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
-import { DEFAULT_LOCALE } from "#/lib/i18n";
+
 
 type AuthLoginPageProps = {
   redirectTo?: string;
@@ -19,8 +19,8 @@ function DiscordMark() {
 
 export function AuthLoginPage({ redirectTo = "/dashboard" }: AuthLoginPageProps) {
   const discordHref = `/auth/discord?redirect=${encodeURIComponent(redirectTo)}`;
-  const termsHref = `/${DEFAULT_LOCALE}/terms`;
-  const privacyHref = `/${DEFAULT_LOCALE}/privacy`;
+  const termsHref = "/terms";
+  const privacyHref = "/privacy";
   const year = new Date().getFullYear();
 
   return (
