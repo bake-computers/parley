@@ -30,6 +30,19 @@ describe("discord permissions", () => {
     expect(canManageGuild(guild({ id: "1", name: "A", permissions: "1048576" }))).toBe(false);
   });
 
+  test("canManageCookieGuild mirrors oauth guild checks", async () => {
+    const { canManageCookieGuild } = await import("./permissions.js");
+    expect(
+      canManageCookieGuild({
+        id: "1",
+        name: "A",
+        icon: null,
+        owner: false,
+        permissions: (1n << 5n).toString(),
+      }),
+    ).toBe(true);
+  });
+
   test("filter sorts by name", () => {
     const list = filterManageableGuilds([
       guild({ id: "2", name: "Zeta", owner: true }),
