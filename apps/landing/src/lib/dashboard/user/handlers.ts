@@ -13,7 +13,6 @@ function engineFailure(error: unknown): Response {
 export function normalizeUserSettings(settings: UserSettingsJson): UserSettingsJson {
   return {
     ...settings,
-    language: settings.language === 2 ? 2 : 1,
     matchmakingEnabled: settings.matchmakingEnabled ?? true,
     profilePublic: settings.profilePublic ?? true,
     timezone: settings.timezone?.trim() || "UTC",
@@ -27,10 +26,8 @@ function parseUserSettings(userId: string, payload: unknown): UserSettingsJson |
     return null;
   }
   const p = payload as Record<string, unknown>;
-  const lang = Number(p.language ?? 1);
   return {
     discordUserId: userId,
-    language: lang === 2 ? 2 : 1,
     updatedAtMs: 0,
     matchmakingEnabled: Boolean(p.matchmakingEnabled ?? true),
     termsAcceptedAtMs: Number(p.termsAcceptedAtMs ?? 0),
