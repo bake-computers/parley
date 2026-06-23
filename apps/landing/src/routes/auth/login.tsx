@@ -23,12 +23,18 @@ export const Route = createFileRoute("/auth/login")({
 function LoginRoute() {
   const { redirect } = Route.useSearch();
   const redirectTo = safeRedirect(redirect);
-  const me = useAuthMe();
+  const { me, error } = useAuthMe();
 
-  if (me === undefined) {
+  if (me === undefined && !error) {
     return (
       <main className="flex min-h-[50vh] items-center justify-center px-6">
-        <p className="text-muted-foreground text-sm">Loading session…</p>
+        <div role="status" className="flex flex-col items-center gap-4">
+          <div
+            className="dashboard-spinner size-9 rounded-full border-2 border-muted/60 border-t-primary"
+            aria-hidden
+          />
+          <p className="text-muted-foreground text-sm">Loading session…</p>
+        </div>
       </main>
     );
   }
