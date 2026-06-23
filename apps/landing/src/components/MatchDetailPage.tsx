@@ -3,10 +3,10 @@ import { SiteFooter } from "#/components/Footer";
 import { GlassPanel } from "#/components/ui/glass-panel";
 import { Reveal } from "#/components/ui/reveal";
 import { SectionBackdrop } from "#/components/ui/section-backdrop";
-import { formatRelativeTime } from "#/lib/format-relative-time";
-import { useLocale } from "#/lib/locale-messages-context";
-import { cn } from "#/lib/utils";
-import type { MatchData, MatchParticipantData } from "#/lib/match-cache";
+import { formatRelativeTime } from "#/lib/shared/format-relative-time";
+import { useMessages } from "#/lib/content/messages/use-messages";
+import { cn } from "#/lib/shared/cn";
+import type { MatchData, MatchParticipantData } from "#/lib/match/cache";
 
 function teamName(participants: MatchParticipantData[], team: string): string {
   return (
@@ -22,7 +22,7 @@ function teamPlayers(participants: MatchParticipantData[], team: string) {
 }
 
 export function MatchDetailPage({ match }: { match: MatchData }) {
-  const { m } = useLocale();
+  const m = useMessages();
   const mt = m.match;
   const participants = match.participants ?? [];
   const teamA = teamName(participants, "team_a");
@@ -167,7 +167,7 @@ function TeamRoster({
   isWinner: boolean;
   mvpId?: string;
 }) {
-  const { m } = useLocale();
+  const m = useMessages();
   const mt = m.match;
 
   return (

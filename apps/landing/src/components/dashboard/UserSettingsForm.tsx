@@ -1,8 +1,8 @@
 import { useCallback, useMemo, useState } from "react";
 import { GlassPanel } from "#/components/ui/glass-panel";
 import { useSettingsSection } from "#/hooks/useSettingsSection";
-import { settingsBaselineKey } from "#/lib/settings-baseline";
-import type { UserSettingsJson } from "#/lib/user-settings-types";
+import { settingsBaselineKey } from "#/lib/shared/settings-baseline";
+import type { UserSettingsJson } from "#/lib/dashboard/user/types";
 import { SettingsField, SettingsInput, SettingsToggle } from "./SettingsField";
 import { SettingsSaveBar } from "./SettingsSaveBar";
 import { SettingsToast } from "./SettingsToast";

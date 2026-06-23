@@ -2,7 +2,7 @@ import type React from "react";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { cleanup, render, screen } from "@testing-library/react";
 import { MatchDetailPage } from "#/components/MatchDetailPage";
-import type { MatchData } from "#/lib/match-cache";
+import type { MatchData } from "#/lib/match/cache";
 
 afterEach(() => {
   cleanup();

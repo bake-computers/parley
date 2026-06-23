@@ -1,4 +1,4 @@
-import { cn } from "#/lib/utils";
+import { cn } from "#/lib/shared/cn";
 
 const inputClass =
   "border-input bg-background focus-visible:ring-ring/50 h-9 w-full rounded-lg border px-3 text-sm outline-none focus-visible:ring-3";

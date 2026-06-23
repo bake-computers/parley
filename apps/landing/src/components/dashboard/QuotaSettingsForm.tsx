@@ -1,10 +1,10 @@
 import { useCallback, useMemo, useState } from "react";
 import { GlassPanel } from "#/components/ui/glass-panel";
-import type { GuildMatchQuotaJson } from "#/lib/guild-settings-types";
-import { settingsBaselineKey } from "#/lib/settings-baseline";
-import { validateDailyMatchLimit } from "#/lib/guild-settings-validation";
+import type { GuildMatchQuotaJson } from "#/lib/dashboard/guild/types";
+import { settingsBaselineKey } from "#/lib/shared/settings-baseline";
+import { validateDailyMatchLimit } from "#/lib/dashboard/guild/validation";
 import { useSettingsSection } from "#/hooks/useSettingsSection";
-import { cn } from "#/lib/utils";
+import { cn } from "#/lib/shared/cn";
 import { useGuildDashboard } from "./GuildDashboardContext";
 import { SettingsField, SettingsInput } from "./SettingsField";
 import { SettingsSaveBar } from "./SettingsSaveBar";

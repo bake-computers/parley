@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { GlassPanel } from "#/components/ui/glass-panel";
-import { discordAvatarUrl, discordGuildIconUrl } from "#/lib/discord-oauth";
+import { discordAvatarUrl, discordGuildIconUrl } from "#/lib/discord/oauth";
 import { useGuildDashboard } from "./GuildDashboardContext";
 import { GuildSettingsNav } from "./GuildSettingsNav";
 

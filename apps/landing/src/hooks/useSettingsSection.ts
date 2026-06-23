@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { SettingsSection } from "#/lib/dashboard-api-types";
+import type { SettingsSection } from "#/lib/dashboard/api-types";
 
 function stableEqual(a: unknown, b: unknown): boolean {
   return JSON.stringify(a) === JSON.stringify(b);

@@ -6,7 +6,7 @@ import {
   type GuildDashboardUser,
 } from "#/components/dashboard/GuildDashboardContext";
 import { GuildDashboardShell } from "#/components/dashboard/GuildDashboardShell";
-import type { GuildSettingsBundleJson } from "#/lib/dashboard-api-types";
+import type { GuildSettingsBundleJson } from "#/lib/dashboard/api-types";
 
 type MeGuild = GuildDashboardGuild;
 
@@ -137,7 +137,8 @@ function GuildDashboardLayout() {
       <main className="mx-auto max-w-lg px-6 py-16 text-center">
         <p className="text-destructive text-sm">{loadError ?? "Settings unavailable"}</p>
         <p className="text-muted-foreground mt-2 text-xs">
-          Ensure the Parley engine is running locally on port 50051, or VPC is configured in production.
+          Dev uses remote VPC to the Parley engine. Check Cloudflare login, remote bindings, and engine
+          availability.
         </p>
         <Link to="/dashboard" className="text-primary mt-6 inline-block text-sm underline-offset-4 hover:underline">
           Back to dashboard

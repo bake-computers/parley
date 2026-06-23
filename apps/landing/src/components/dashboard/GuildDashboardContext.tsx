@@ -1,5 +1,5 @@
 import { createContext, useContext } from "react";
-import type { GuildSettingsBundleJson } from "#/lib/dashboard-api-types";
+import type { GuildSettingsBundleJson } from "#/lib/dashboard/api-types";
 
 export type GuildDashboardGuild = {
   id: string;

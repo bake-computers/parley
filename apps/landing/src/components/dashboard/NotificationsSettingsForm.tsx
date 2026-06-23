@@ -1,8 +1,8 @@
 import { useCallback, useMemo, useState } from "react";
 import { GlassPanel } from "#/components/ui/glass-panel";
-import type { GuildNotificationSettingsJson } from "#/lib/guild-settings-types";
-import { settingsBaselineKey } from "#/lib/settings-baseline";
-import { validateDiscordSnowflake } from "#/lib/guild-settings-validation";
+import type { GuildNotificationSettingsJson } from "#/lib/dashboard/guild/types";
+import { settingsBaselineKey } from "#/lib/shared/settings-baseline";
+import { validateDiscordSnowflake } from "#/lib/dashboard/guild/validation";
 import { useSettingsSection } from "#/hooks/useSettingsSection";
 import { useGuildDashboard } from "./GuildDashboardContext";
 import { SettingsField, SettingsInput, SettingsToggle } from "./SettingsField";

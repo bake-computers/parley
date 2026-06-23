@@ -1,5 +1,5 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
-import { cn } from "#/lib/utils";
+import { cn } from "#/lib/shared/cn";
 import { SettingsInput } from "./SettingsField";
 
 type Props = {

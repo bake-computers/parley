@@ -2,7 +2,7 @@ import { createFileRoute, Link, Navigate, Outlet, useRouterState } from "@tansta
 import { useEffect, useState } from "react";
 import { GuildCard } from "#/components/dashboard/GuildCard";
 import { GlassPanel } from "#/components/ui/glass-panel";
-import { discordAvatarUrl } from "#/lib/discord-oauth";
+import { discordAvatarUrl } from "#/lib/discord/oauth";
 
 type MeGuild = {
   id: string;

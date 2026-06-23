@@ -1,11 +1,11 @@
 import { useCallback, useMemo, useState } from "react";
 import { GlassPanel } from "#/components/ui/glass-panel";
-import type { GuildSettingsJson } from "#/lib/guild-settings-types";
-import { settingsBaselineKey } from "#/lib/settings-baseline";
+import type { GuildSettingsJson } from "#/lib/dashboard/guild/types";
+import { settingsBaselineKey } from "#/lib/shared/settings-baseline";
 import {
   suggestTeamFormats,
   validateTeamFormat,
-} from "#/lib/guild-settings-validation";
+} from "#/lib/dashboard/guild/validation";
 import { useSettingsSection } from "#/hooks/useSettingsSection";
 import { useGuildDashboard } from "./GuildDashboardContext";
 import { AutocompleteInput } from "./AutocompleteInput";

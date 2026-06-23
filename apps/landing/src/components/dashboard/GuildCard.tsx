@@ -1,8 +1,8 @@
 import { Link } from "@tanstack/react-router";
 import { ChevronRight, Crown, Shield } from "lucide-react";
 import { GlassPanel } from "#/components/ui/glass-panel";
-import { discordGuildIconUrl } from "#/lib/discord-oauth";
-import { cn } from "#/lib/utils";
+import { discordGuildIconUrl } from "#/lib/discord/oauth";
+import { cn } from "#/lib/shared/cn";
 
 export type GuildCardProps = {
   id: string;

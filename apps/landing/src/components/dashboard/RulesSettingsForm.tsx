@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { GlassPanel } from "#/components/ui/glass-panel";
-import type { GuildMatchmakingRulesJson } from "#/lib/guild-settings-types";
+import type { GuildMatchmakingRulesJson } from "#/lib/dashboard/guild/types";
 import {
   PLATFORM_OPTIONS,
   parsePlatformsInput,
   validateEloRange,
   validateMaxEloGap,
   validatePlatforms,
-} from "#/lib/guild-settings-validation";
-import { settingsBaselineKey } from "#/lib/settings-baseline";
+} from "#/lib/dashboard/guild/validation";
+import { settingsBaselineKey } from "#/lib/shared/settings-baseline";
 import { useSettingsSection } from "#/hooks/useSettingsSection";
 import { useGuildDashboard } from "./GuildDashboardContext";
 import { AutocompleteInput } from "./AutocompleteInput";
