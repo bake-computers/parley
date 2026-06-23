@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	commonv1 "github.com/pactum-computers/parley/gen/parley/common/v1"
 	userv1 "github.com/pactum-computers/parley/gen/parley/user/v1"
 	"github.com/pactum-computers/parley/internal/apperr"
 	"github.com/pactum-computers/parley/internal/models"
@@ -43,11 +42,6 @@ func (s *UserSettingsService) UpsertUserSettings(
 	ctx context.Context,
 	settings *userv1.UserSettings,
 ) (*userv1.UserSettings, error) {
-	lang := protoLangToModel(settings.GetLanguage())
-	if lang == "" {
-		return nil, apperr.InvalidArgument("language must be EN or DE")
-	}
-
 	now := repos.NowMS()
 	tz := settings.GetTimezone()
 	if tz == "" {
@@ -56,7 +50,6 @@ func (s *UserSettingsService) UpsertUserSettings(
 
 	newRow := &models.NewUserSettings{
 		DiscordUserID:      settings.GetDiscordUserId(),
-		Language:           lang,
 		CreatedAt:          now,
 		UpdatedAt:          now,
 		MatchmakingEnabled: settings.GetMatchmakingEnabled(),
@@ -70,35 +63,6 @@ func (s *UserSettingsService) UpsertUserSettings(
 		return nil, err
 	}
 	return rowToProto(saved), nil
-}
-
-func (s *UserSettingsService) ResolveLanguage(
-	ctx context.Context,
-	discordUserID, guildID string,
-	game commonv1.Game,
-) (commonv1.Language, userv1.LanguageSource, error) {
-	row, err := s.users.Get(ctx, discordUserID)
-	if err != nil {
-		return 0, 0, err
-	}
-	if row != nil {
-		return modelLangToProto(row.Language), userv1.LanguageSource_LANGUAGE_SOURCE_USER, nil
-	}
-
-	if guildID != "" {
-		dbGame, err := protoGameToModel(game)
-		if err == nil {
-			gs, err := s.guilds.GetSettings(ctx, guildID, dbGame)
-			if err != nil {
-				return 0, 0, err
-			}
-			if gs != nil {
-				return modelLangToProto(gs.DefaultLanguage), userv1.LanguageSource_LANGUAGE_SOURCE_GUILD, nil
-			}
-		}
-	}
-
-	return commonv1.Language_LANGUAGE_EN, userv1.LanguageSource_LANGUAGE_SOURCE_DEFAULT, nil
 }
 
 func (s *UserSettingsService) DeleteUserData(
@@ -142,7 +106,6 @@ func (s *UserSettingsService) DeleteUserData(
 func defaultSettings(discordUserID string) *userv1.UserSettings {
 	return &userv1.UserSettings{
 		DiscordUserId:      discordUserID,
-		Language:           commonv1.Language_LANGUAGE_EN,
 		UpdatedAtMs:        0,
 		MatchmakingEnabled: true,
 		TermsAcceptedAtMs:  0,
@@ -154,7 +117,6 @@ func defaultSettings(discordUserID string) *userv1.UserSettings {
 func rowToProto(row *models.UserSettings) *userv1.UserSettings {
 	return &userv1.UserSettings{
 		DiscordUserId:      row.DiscordUserID,
-		Language:           modelLangToProto(row.Language),
 		UpdatedAtMs:        row.UpdatedAt,
 		MatchmakingEnabled: row.MatchmakingEnabled,
 		TermsAcceptedAtMs:  row.TermsAcceptedAtMs,

@@ -40,7 +40,6 @@ func (s *GuildService) GetGuildSettings(
 			Game:                  game,
 			AutoBalance:           true,
 			CrossGuildMatchmaking: true,
-			DefaultLanguage:       commonv1.Language_LANGUAGE_EN,
 			MatchmakingEnabled:    true,
 		}, nil
 	}
@@ -75,7 +74,6 @@ func (s *GuildService) UpsertGuildSettings(
 		CrossGuildMatchmaking:  settings.CrossGuildMatchmaking,
 		UpdatedAt:              now,
 		UpdatedByDiscordUserID: settings.UpdatedByDiscordUserId,
-		DefaultLanguage:        protoLangToDB(settings.DefaultLanguage),
 		MatchmakingEnabled:     settings.MatchmakingEnabled,
 	}
 
@@ -301,7 +299,6 @@ func settingsToProto(row *models.GuildSettings) *guildv1.GuildSettings {
 		CrossGuildMatchmaking:  row.CrossGuildMatchmaking,
 		UpdatedAtMs:            row.UpdatedAt,
 		UpdatedByDiscordUserId: row.UpdatedByDiscordUserID,
-		DefaultLanguage:        dbLangToProto(row.DefaultLanguage),
 		MatchmakingEnabled:     row.MatchmakingEnabled,
 	}
 }

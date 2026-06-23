@@ -8,40 +8,10 @@ import (
 	"github.com/pactum-computers/parley/internal/repos"
 )
 
-func TestLanguageMappingRoundTrip(t *testing.T) {
-	tests := []struct {
-		proto commonv1.Language
-		model models.Language
-	}{
-		{commonv1.Language_LANGUAGE_EN, models.LanguageEn},
-		{commonv1.Language_LANGUAGE_DE, models.LanguageDe},
-	}
-	for _, tt := range tests {
-		got := protoLangToModel(tt.proto)
-		if got != tt.model {
-			t.Errorf("protoLangToModel(%v) = %q, want %q", tt.proto, got, tt.model)
-		}
-		roundTrip := modelLangToProto(got)
-		if roundTrip != tt.proto {
-			t.Errorf("modelLangToProto(%q) = %v, want %v", got, roundTrip, tt.proto)
-		}
-	}
-}
-
-func TestProtoLangToModelUnspecified(t *testing.T) {
-	got := protoLangToModel(commonv1.Language_LANGUAGE_UNSPECIFIED)
-	if got != models.LanguageEn {
-		t.Errorf("protoLangToModel(UNSPECIFIED) = %q, want %q", got, models.LanguageEn)
-	}
-}
-
 func TestDefaultSettings(t *testing.T) {
 	s := defaultSettings("u1")
 	if s.DiscordUserId != "u1" {
 		t.Errorf("DiscordUserId = %q, want %q", s.DiscordUserId, "u1")
-	}
-	if s.Language != commonv1.Language_LANGUAGE_EN {
-		t.Errorf("Language = %v, want EN", s.Language)
 	}
 	if s.UpdatedAtMs != 0 {
 		t.Errorf("UpdatedAtMs = %d, want 0", s.UpdatedAtMs)
@@ -63,7 +33,6 @@ func TestDefaultSettings(t *testing.T) {
 func TestRowToProtoCarriesNewFields(t *testing.T) {
 	row := &models.UserSettings{
 		DiscordUserID:      "u1",
-		Language:           models.LanguageDe,
 		CreatedAt:          1000,
 		UpdatedAt:          2000,
 		MatchmakingEnabled: false,
@@ -80,9 +49,6 @@ func TestRowToProtoCarriesNewFields(t *testing.T) {
 	}
 	if p.DiscordUserId != "u1" {
 		t.Errorf("DiscordUserId = %q, want %q", p.DiscordUserId, "u1")
-	}
-	if p.Language != commonv1.Language_LANGUAGE_DE {
-		t.Errorf("Language = %v, want DE", p.Language)
 	}
 	if p.UpdatedAtMs != 2000 {
 		t.Errorf("UpdatedAtMs = %d, want 2000", p.UpdatedAtMs)

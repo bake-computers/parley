@@ -39,32 +39,6 @@ func dbGameToProto(g models.Game) commonv1.Game {
 	}
 }
 
-func protoLangToModel(l commonv1.Language) models.Language {
-	switch l {
-	case commonv1.Language_LANGUAGE_DE:
-		return models.LanguageDe
-	default:
-		return models.LanguageEn
-	}
-}
-
-func protoLangToDB(l commonv1.Language) models.Language {
-	return protoLangToModel(l)
-}
-
-func modelLangToProto(l models.Language) commonv1.Language {
-	switch l {
-	case models.LanguageDe:
-		return commonv1.Language_LANGUAGE_DE
-	default:
-		return commonv1.Language_LANGUAGE_EN
-	}
-}
-
-func dbLangToProto(l models.Language) commonv1.Language {
-	return modelLangToProto(l)
-}
-
 type ServiceError struct {
 	Code string
 	Msg  string
