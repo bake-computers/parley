@@ -94,7 +94,6 @@ func (c *ConfigCache) refresh(ctx context.Context, fn fetchConfigFn) (*Config, e
 
 	cfg, err := fn(ctx)
 
-
 	c.flight.Lock()
 	c.loading = false
 	waiters := c.waiters
