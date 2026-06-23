@@ -2,7 +2,6 @@ import { describe, expect, test } from "bun:test";
 import {
   USER_CANCEL,
   USER_DELETE_OPEN,
-  USER_LANG_PREFIX,
   USER_MATCHMAKING_PREFIX,
   USER_VISIBILITY_PREFIX,
   USER_REFRESH_STATS,
@@ -10,9 +9,6 @@ import {
 } from "./constants.js";
 
 describe("user/constants — customId prefixes", () => {
-  test("language prefix is user/lang/", () => {
-    expect(USER_LANG_PREFIX).toBe("user/lang/");
-  });
   test("matchmaking prefix is user/matchmaking/", () => {
     expect(USER_MATCHMAKING_PREFIX).toBe("user/matchmaking/");
   });

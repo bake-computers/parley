@@ -60,7 +60,6 @@ function userSettings(termsAcceptedAtMs: number): ProtoUserSettings {
   return {
     $typeName: "parley.user.v1.UserSettings",
     discordUserId: "u1",
-    language: 1,
     updatedAtMs: 0,
     matchmakingEnabled: true,
     termsAcceptedAtMs,

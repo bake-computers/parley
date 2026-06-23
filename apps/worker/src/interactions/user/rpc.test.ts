@@ -1,6 +1,5 @@
 import { describe, expect, test } from "bun:test";
 import { ConnectError } from "@connectrpc/connect";
-import { Language } from "@parley/proto";
 import type { DeleteUserDataResponse, UserSettingsResponse } from "@parley/proto";
 import { invokeDeleteUserData, invokeGetUserSettings, invokeUpsertUserSettings } from "./rpc.js";
 
@@ -41,7 +40,6 @@ describe("invokeUpsertUserSettings", () => {
       client as never,
       {
         discordUserId: "u1",
-        language: Language.DE,
         matchmakingEnabled: false,
         termsAcceptedAtMs: 100,
         profilePublic: false,

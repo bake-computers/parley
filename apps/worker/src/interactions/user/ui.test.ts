@@ -9,7 +9,6 @@ import {
 
 const SETTINGS = {
   discordUserId: "u1",
-  language: 1,
   matchmakingEnabled: true,
   termsAcceptedAtMs: Date.now(),
   profilePublic: true,
@@ -17,10 +16,9 @@ const SETTINGS = {
 } as never;
 
 describe("user/ui — settings card", () => {
-  test("renders the four setting rows", () => {
+  test("renders the setting rows", () => {
     const card = buildSettingsCard(SETTINGS, {} as never).toJSON();
     const text = JSON.stringify(card);
-    expect(text).toContain("Language");
     expect(text).toContain("Matchmaking");
     expect(text).toContain("Visibility");
     expect(text).toContain("Timezone");
@@ -42,7 +40,6 @@ describe("user/ui — settings card", () => {
     const card = buildSettingsCard(SETTINGS, {} as never).toJSON();
     const text = JSON.stringify(card);
     expect(text).toContain("user/page/");
-    expect(text).toContain("user/lang/");
     expect(text).toContain("user/matchmaking/");
     expect(text).toContain("\"type\":2");
   });
