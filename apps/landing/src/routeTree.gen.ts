@@ -32,6 +32,7 @@ import { Route as DashboardGuildsGuildIdNotificationsRouteImport } from './route
 import { Route as DashboardGuildsGuildIdGeneralRouteImport } from './routes/dashboard/guilds/$guildId/general'
 import { Route as ApiDashboardUserSettingsRouteImport } from './routes/api/dashboard/user/settings'
 import { Route as ApiDashboardGuildsGuildIdSettingsRouteImport } from './routes/api/dashboard/guilds/$guildId/settings'
+import { Route as ApiDashboardGuildsGuildIdChannelsRouteImport } from './routes/api/dashboard/guilds/$guildId/channels'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -155,6 +156,12 @@ const ApiDashboardGuildsGuildIdSettingsRoute =
     path: '/api/dashboard/guilds/$guildId/settings',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiDashboardGuildsGuildIdChannelsRoute =
+  ApiDashboardGuildsGuildIdChannelsRouteImport.update({
+    id: '/api/dashboard/guilds/$guildId/channels',
+    path: '/api/dashboard/guilds/$guildId/channels',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -179,6 +186,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/guilds/$guildId/quota': typeof DashboardGuildsGuildIdQuotaRoute
   '/dashboard/guilds/$guildId/rules': typeof DashboardGuildsGuildIdRulesRoute
   '/dashboard/guilds/$guildId/': typeof DashboardGuildsGuildIdIndexRoute
+  '/api/dashboard/guilds/$guildId/channels': typeof ApiDashboardGuildsGuildIdChannelsRoute
   '/api/dashboard/guilds/$guildId/settings': typeof ApiDashboardGuildsGuildIdSettingsRoute
 }
 export interface FileRoutesByTo {
@@ -203,6 +211,7 @@ export interface FileRoutesByTo {
   '/dashboard/guilds/$guildId/quota': typeof DashboardGuildsGuildIdQuotaRoute
   '/dashboard/guilds/$guildId/rules': typeof DashboardGuildsGuildIdRulesRoute
   '/dashboard/guilds/$guildId': typeof DashboardGuildsGuildIdIndexRoute
+  '/api/dashboard/guilds/$guildId/channels': typeof ApiDashboardGuildsGuildIdChannelsRoute
   '/api/dashboard/guilds/$guildId/settings': typeof ApiDashboardGuildsGuildIdSettingsRoute
 }
 export interface FileRoutesById {
@@ -229,6 +238,7 @@ export interface FileRoutesById {
   '/dashboard/guilds/$guildId/quota': typeof DashboardGuildsGuildIdQuotaRoute
   '/dashboard/guilds/$guildId/rules': typeof DashboardGuildsGuildIdRulesRoute
   '/dashboard/guilds/$guildId/': typeof DashboardGuildsGuildIdIndexRoute
+  '/api/dashboard/guilds/$guildId/channels': typeof ApiDashboardGuildsGuildIdChannelsRoute
   '/api/dashboard/guilds/$guildId/settings': typeof ApiDashboardGuildsGuildIdSettingsRoute
 }
 export interface FileRouteTypes {
@@ -256,6 +266,7 @@ export interface FileRouteTypes {
     | '/dashboard/guilds/$guildId/quota'
     | '/dashboard/guilds/$guildId/rules'
     | '/dashboard/guilds/$guildId/'
+    | '/api/dashboard/guilds/$guildId/channels'
     | '/api/dashboard/guilds/$guildId/settings'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -280,6 +291,7 @@ export interface FileRouteTypes {
     | '/dashboard/guilds/$guildId/quota'
     | '/dashboard/guilds/$guildId/rules'
     | '/dashboard/guilds/$guildId'
+    | '/api/dashboard/guilds/$guildId/channels'
     | '/api/dashboard/guilds/$guildId/settings'
   id:
     | '__root__'
@@ -305,6 +317,7 @@ export interface FileRouteTypes {
     | '/dashboard/guilds/$guildId/quota'
     | '/dashboard/guilds/$guildId/rules'
     | '/dashboard/guilds/$guildId/'
+    | '/api/dashboard/guilds/$guildId/channels'
     | '/api/dashboard/guilds/$guildId/settings'
   fileRoutesById: FileRoutesById
 }
@@ -324,6 +337,7 @@ export interface RootRouteChildren {
   MatchGuildIdUuidRoute: typeof MatchGuildIdUuidRoute
   AuthDiscordIndexRoute: typeof AuthDiscordIndexRoute
   ApiDashboardUserSettingsRoute: typeof ApiDashboardUserSettingsRoute
+  ApiDashboardGuildsGuildIdChannelsRoute: typeof ApiDashboardGuildsGuildIdChannelsRoute
   ApiDashboardGuildsGuildIdSettingsRoute: typeof ApiDashboardGuildsGuildIdSettingsRoute
 }
 
@@ -490,6 +504,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiDashboardGuildsGuildIdSettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/dashboard/guilds/$guildId/channels': {
+      id: '/api/dashboard/guilds/$guildId/channels'
+      path: '/api/dashboard/guilds/$guildId/channels'
+      fullPath: '/api/dashboard/guilds/$guildId/channels'
+      preLoaderRoute: typeof ApiDashboardGuildsGuildIdChannelsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -546,6 +567,8 @@ const rootRouteChildren: RootRouteChildren = {
   MatchGuildIdUuidRoute: MatchGuildIdUuidRoute,
   AuthDiscordIndexRoute: AuthDiscordIndexRoute,
   ApiDashboardUserSettingsRoute: ApiDashboardUserSettingsRoute,
+  ApiDashboardGuildsGuildIdChannelsRoute:
+    ApiDashboardGuildsGuildIdChannelsRoute,
   ApiDashboardGuildsGuildIdSettingsRoute:
     ApiDashboardGuildsGuildIdSettingsRoute,
 }
