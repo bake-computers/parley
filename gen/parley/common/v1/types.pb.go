@@ -259,55 +259,6 @@ func (Game) EnumDescriptor() ([]byte, []int) {
 	return file_common_v1_types_proto_rawDescGZIP(), []int{3}
 }
 
-type Language int32
-
-const (
-	Language_LANGUAGE_UNSPECIFIED Language = 0
-	Language_LANGUAGE_EN          Language = 1
-	Language_LANGUAGE_DE          Language = 2
-)
-
-// Enum value maps for Language.
-var (
-	Language_name = map[int32]string{
-		0: "LANGUAGE_UNSPECIFIED",
-		1: "LANGUAGE_EN",
-		2: "LANGUAGE_DE",
-	}
-	Language_value = map[string]int32{
-		"LANGUAGE_UNSPECIFIED": 0,
-		"LANGUAGE_EN":          1,
-		"LANGUAGE_DE":          2,
-	}
-)
-
-func (x Language) Enum() *Language {
-	p := new(Language)
-	*p = x
-	return p
-}
-
-func (x Language) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (Language) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_v1_types_proto_enumTypes[4].Descriptor()
-}
-
-func (Language) Type() protoreflect.EnumType {
-	return &file_common_v1_types_proto_enumTypes[4]
-}
-
-func (x Language) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use Language.Descriptor instead.
-func (Language) EnumDescriptor() ([]byte, []int) {
-	return file_common_v1_types_proto_rawDescGZIP(), []int{4}
-}
-
 type Rank struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Tier          RankTier               `protobuf:"varint,1,opt,name=tier,proto3,enum=parley.common.v1.RankTier" json:"tier,omitempty"`
@@ -682,11 +633,7 @@ const file_common_v1_types_proto_rawDesc = "" +
 	"\tREGION_SA\x10\x04*A\n" +
 	"\x04Game\x12\x14\n" +
 	"\x10GAME_UNSPECIFIED\x10\x00\x12\v\n" +
-	"\aGAME_R6\x10\x01\"\x04\b\x02\x10\x02*\x10GAME_BRAWL_STARS*F\n" +
-	"\bLanguage\x12\x18\n" +
-	"\x14LANGUAGE_UNSPECIFIED\x10\x00\x12\x0f\n" +
-	"\vLANGUAGE_EN\x10\x01\x12\x0f\n" +
-	"\vLANGUAGE_DE\x10\x02BX\n" +
+	"\aGAME_R6\x10\x01\"\x04\b\x02\x10\x02*\x10GAME_BRAWL_STARSBX\n" +
 	"\x14bot.parley.common.v1Z@github.com/pactum-computers/parley/gen/parley/common/v1;commonv1b\x06proto3"
 
 var (
@@ -701,18 +648,17 @@ func file_common_v1_types_proto_rawDescGZIP() []byte {
 	return file_common_v1_types_proto_rawDescData
 }
 
-var file_common_v1_types_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
+var file_common_v1_types_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
 var file_common_v1_types_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_common_v1_types_proto_goTypes = []any{
 	(RankTier)(0),       // 0: parley.common.v1.RankTier
 	(BadgeCategory)(0),  // 1: parley.common.v1.BadgeCategory
 	(Region)(0),         // 2: parley.common.v1.Region
 	(Game)(0),           // 3: parley.common.v1.Game
-	(Language)(0),       // 4: parley.common.v1.Language
-	(*Rank)(nil),        // 5: parley.common.v1.Rank
-	(*Badge)(nil),       // 6: parley.common.v1.Badge
-	(*PlayerStats)(nil), // 7: parley.common.v1.PlayerStats
-	(*Error)(nil),       // 8: parley.common.v1.Error
+	(*Rank)(nil),        // 4: parley.common.v1.Rank
+	(*Badge)(nil),       // 5: parley.common.v1.Badge
+	(*PlayerStats)(nil), // 6: parley.common.v1.PlayerStats
+	(*Error)(nil),       // 7: parley.common.v1.Error
 }
 var file_common_v1_types_proto_depIdxs = []int32{
 	0, // 0: parley.common.v1.Rank.tier:type_name -> parley.common.v1.RankTier
@@ -734,7 +680,7 @@ func file_common_v1_types_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_common_v1_types_proto_rawDesc), len(file_common_v1_types_proto_rawDesc)),
-			NumEnums:      5,
+			NumEnums:      4,
 			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,

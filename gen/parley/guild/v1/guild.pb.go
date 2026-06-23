@@ -31,7 +31,6 @@ type GuildSettings struct {
 	CrossGuildMatchmaking  bool                   `protobuf:"varint,5,opt,name=cross_guild_matchmaking,json=crossGuildMatchmaking,proto3" json:"cross_guild_matchmaking,omitempty"`
 	UpdatedAtMs            int64                  `protobuf:"varint,6,opt,name=updated_at_ms,json=updatedAtMs,proto3" json:"updated_at_ms,omitempty"`
 	UpdatedByDiscordUserId string                 `protobuf:"bytes,7,opt,name=updated_by_discord_user_id,json=updatedByDiscordUserId,proto3" json:"updated_by_discord_user_id,omitempty"`
-	DefaultLanguage        v1.Language            `protobuf:"varint,8,opt,name=default_language,json=defaultLanguage,proto3,enum=parley.common.v1.Language" json:"default_language,omitempty"`
 	MatchmakingEnabled     bool                   `protobuf:"varint,9,opt,name=matchmaking_enabled,json=matchmakingEnabled,proto3" json:"matchmaking_enabled,omitempty"`
 	unknownFields          protoimpl.UnknownFields
 	sizeCache              protoimpl.SizeCache
@@ -114,13 +113,6 @@ func (x *GuildSettings) GetUpdatedByDiscordUserId() string {
 		return x.UpdatedByDiscordUserId
 	}
 	return ""
-}
-
-func (x *GuildSettings) GetDefaultLanguage() v1.Language {
-	if x != nil {
-		return x.DefaultLanguage
-	}
-	return v1.Language(0)
 }
 
 func (x *GuildSettings) GetMatchmakingEnabled() bool {
@@ -1042,7 +1034,7 @@ var File_guild_v1_guild_proto protoreflect.FileDescriptor
 
 const file_guild_v1_guild_proto_rawDesc = "" +
 	"\n" +
-	"\x14guild/v1/guild.proto\x12\x0fparley.guild.v1\x1a\x15common/v1/types.proto\"\xb9\x03\n" +
+	"\x14guild/v1/guild.proto\x12\x0fparley.guild.v1\x1a\x15common/v1/types.proto\"\x8a\x03\n" +
 	"\rGuildSettings\x12\x19\n" +
 	"\bguild_id\x18\x01 \x01(\tR\aguildId\x12*\n" +
 	"\x04game\x18\x02 \x01(\x0e2\x16.parley.common.v1.GameR\x04game\x12.\n" +
@@ -1050,9 +1042,8 @@ const file_guild_v1_guild_proto_rawDesc = "" +
 	"\fauto_balance\x18\x04 \x01(\bR\vautoBalance\x126\n" +
 	"\x17cross_guild_matchmaking\x18\x05 \x01(\bR\x15crossGuildMatchmaking\x12\"\n" +
 	"\rupdated_at_ms\x18\x06 \x01(\x03R\vupdatedAtMs\x12:\n" +
-	"\x1aupdated_by_discord_user_id\x18\a \x01(\tR\x16updatedByDiscordUserId\x12E\n" +
-	"\x10default_language\x18\b \x01(\x0e2\x1a.parley.common.v1.LanguageR\x0fdefaultLanguage\x12/\n" +
-	"\x13matchmaking_enabled\x18\t \x01(\bR\x12matchmakingEnabled\"`\n" +
+	"\x1aupdated_by_discord_user_id\x18\a \x01(\tR\x16updatedByDiscordUserId\x12/\n" +
+	"\x13matchmaking_enabled\x18\t \x01(\bR\x12matchmakingEnabledJ\x04\b\b\x10\tR\x10default_language\"`\n" +
 	"\x17GetGuildSettingsRequest\x12\x19\n" +
 	"\bguild_id\x18\x01 \x01(\tR\aguildId\x12*\n" +
 	"\x04game\x18\x02 \x01(\x0e2\x16.parley.common.v1.GameR\x04game\"X\n" +
@@ -1156,52 +1147,50 @@ var file_guild_v1_guild_proto_goTypes = []any{
 	(*UpsertMatchQuotasRequest)(nil),          // 14: parley.guild.v1.UpsertMatchQuotasRequest
 	(*GuildMatchQuotasResponse)(nil),          // 15: parley.guild.v1.GuildMatchQuotasResponse
 	(v1.Game)(0),                              // 16: parley.common.v1.Game
-	(v1.Language)(0),                          // 17: parley.common.v1.Language
-	(*v1.Error)(nil),                          // 18: parley.common.v1.Error
+	(*v1.Error)(nil),                          // 17: parley.common.v1.Error
 }
 var file_guild_v1_guild_proto_depIdxs = []int32{
 	16, // 0: parley.guild.v1.GuildSettings.game:type_name -> parley.common.v1.Game
-	17, // 1: parley.guild.v1.GuildSettings.default_language:type_name -> parley.common.v1.Language
-	16, // 2: parley.guild.v1.GetGuildSettingsRequest.game:type_name -> parley.common.v1.Game
-	0,  // 3: parley.guild.v1.UpsertGuildSettingsRequest.settings:type_name -> parley.guild.v1.GuildSettings
-	0,  // 4: parley.guild.v1.GuildSettingsResponse.settings:type_name -> parley.guild.v1.GuildSettings
-	18, // 5: parley.guild.v1.GuildSettingsResponse.error:type_name -> parley.common.v1.Error
-	16, // 6: parley.guild.v1.GuildMatchmakingRules.game:type_name -> parley.common.v1.Game
-	16, // 7: parley.guild.v1.GetMatchmakingRulesRequest.game:type_name -> parley.common.v1.Game
-	4,  // 8: parley.guild.v1.UpsertMatchmakingRulesRequest.rules:type_name -> parley.guild.v1.GuildMatchmakingRules
-	4,  // 9: parley.guild.v1.GuildMatchmakingRulesResponse.rules:type_name -> parley.guild.v1.GuildMatchmakingRules
-	18, // 10: parley.guild.v1.GuildMatchmakingRulesResponse.error:type_name -> parley.common.v1.Error
-	16, // 11: parley.guild.v1.GuildNotificationSettings.game:type_name -> parley.common.v1.Game
-	16, // 12: parley.guild.v1.GetNotificationSettingsRequest.game:type_name -> parley.common.v1.Game
-	8,  // 13: parley.guild.v1.UpsertNotificationSettingsRequest.settings:type_name -> parley.guild.v1.GuildNotificationSettings
-	8,  // 14: parley.guild.v1.GuildNotificationSettingsResponse.settings:type_name -> parley.guild.v1.GuildNotificationSettings
-	18, // 15: parley.guild.v1.GuildNotificationSettingsResponse.error:type_name -> parley.common.v1.Error
-	16, // 16: parley.guild.v1.GuildMatchQuota.game:type_name -> parley.common.v1.Game
-	16, // 17: parley.guild.v1.GetMatchQuotasRequest.game:type_name -> parley.common.v1.Game
-	12, // 18: parley.guild.v1.UpsertMatchQuotasRequest.quota:type_name -> parley.guild.v1.GuildMatchQuota
-	12, // 19: parley.guild.v1.GuildMatchQuotasResponse.quota:type_name -> parley.guild.v1.GuildMatchQuota
-	18, // 20: parley.guild.v1.GuildMatchQuotasResponse.error:type_name -> parley.common.v1.Error
-	1,  // 21: parley.guild.v1.GuildSettingsService.GetGuildSettings:input_type -> parley.guild.v1.GetGuildSettingsRequest
-	2,  // 22: parley.guild.v1.GuildSettingsService.UpsertGuildSettings:input_type -> parley.guild.v1.UpsertGuildSettingsRequest
-	5,  // 23: parley.guild.v1.GuildSettingsService.GetMatchmakingRules:input_type -> parley.guild.v1.GetMatchmakingRulesRequest
-	6,  // 24: parley.guild.v1.GuildSettingsService.UpsertMatchmakingRules:input_type -> parley.guild.v1.UpsertMatchmakingRulesRequest
-	9,  // 25: parley.guild.v1.GuildSettingsService.GetNotificationSettings:input_type -> parley.guild.v1.GetNotificationSettingsRequest
-	10, // 26: parley.guild.v1.GuildSettingsService.UpsertNotificationSettings:input_type -> parley.guild.v1.UpsertNotificationSettingsRequest
-	13, // 27: parley.guild.v1.GuildSettingsService.GetMatchQuotas:input_type -> parley.guild.v1.GetMatchQuotasRequest
-	14, // 28: parley.guild.v1.GuildSettingsService.UpsertMatchQuotas:input_type -> parley.guild.v1.UpsertMatchQuotasRequest
-	3,  // 29: parley.guild.v1.GuildSettingsService.GetGuildSettings:output_type -> parley.guild.v1.GuildSettingsResponse
-	3,  // 30: parley.guild.v1.GuildSettingsService.UpsertGuildSettings:output_type -> parley.guild.v1.GuildSettingsResponse
-	7,  // 31: parley.guild.v1.GuildSettingsService.GetMatchmakingRules:output_type -> parley.guild.v1.GuildMatchmakingRulesResponse
-	7,  // 32: parley.guild.v1.GuildSettingsService.UpsertMatchmakingRules:output_type -> parley.guild.v1.GuildMatchmakingRulesResponse
-	11, // 33: parley.guild.v1.GuildSettingsService.GetNotificationSettings:output_type -> parley.guild.v1.GuildNotificationSettingsResponse
-	11, // 34: parley.guild.v1.GuildSettingsService.UpsertNotificationSettings:output_type -> parley.guild.v1.GuildNotificationSettingsResponse
-	15, // 35: parley.guild.v1.GuildSettingsService.GetMatchQuotas:output_type -> parley.guild.v1.GuildMatchQuotasResponse
-	15, // 36: parley.guild.v1.GuildSettingsService.UpsertMatchQuotas:output_type -> parley.guild.v1.GuildMatchQuotasResponse
-	29, // [29:37] is the sub-list for method output_type
-	21, // [21:29] is the sub-list for method input_type
-	21, // [21:21] is the sub-list for extension type_name
-	21, // [21:21] is the sub-list for extension extendee
-	0,  // [0:21] is the sub-list for field type_name
+	16, // 1: parley.guild.v1.GetGuildSettingsRequest.game:type_name -> parley.common.v1.Game
+	0,  // 2: parley.guild.v1.UpsertGuildSettingsRequest.settings:type_name -> parley.guild.v1.GuildSettings
+	0,  // 3: parley.guild.v1.GuildSettingsResponse.settings:type_name -> parley.guild.v1.GuildSettings
+	17, // 4: parley.guild.v1.GuildSettingsResponse.error:type_name -> parley.common.v1.Error
+	16, // 5: parley.guild.v1.GuildMatchmakingRules.game:type_name -> parley.common.v1.Game
+	16, // 6: parley.guild.v1.GetMatchmakingRulesRequest.game:type_name -> parley.common.v1.Game
+	4,  // 7: parley.guild.v1.UpsertMatchmakingRulesRequest.rules:type_name -> parley.guild.v1.GuildMatchmakingRules
+	4,  // 8: parley.guild.v1.GuildMatchmakingRulesResponse.rules:type_name -> parley.guild.v1.GuildMatchmakingRules
+	17, // 9: parley.guild.v1.GuildMatchmakingRulesResponse.error:type_name -> parley.common.v1.Error
+	16, // 10: parley.guild.v1.GuildNotificationSettings.game:type_name -> parley.common.v1.Game
+	16, // 11: parley.guild.v1.GetNotificationSettingsRequest.game:type_name -> parley.common.v1.Game
+	8,  // 12: parley.guild.v1.UpsertNotificationSettingsRequest.settings:type_name -> parley.guild.v1.GuildNotificationSettings
+	8,  // 13: parley.guild.v1.GuildNotificationSettingsResponse.settings:type_name -> parley.guild.v1.GuildNotificationSettings
+	17, // 14: parley.guild.v1.GuildNotificationSettingsResponse.error:type_name -> parley.common.v1.Error
+	16, // 15: parley.guild.v1.GuildMatchQuota.game:type_name -> parley.common.v1.Game
+	16, // 16: parley.guild.v1.GetMatchQuotasRequest.game:type_name -> parley.common.v1.Game
+	12, // 17: parley.guild.v1.UpsertMatchQuotasRequest.quota:type_name -> parley.guild.v1.GuildMatchQuota
+	12, // 18: parley.guild.v1.GuildMatchQuotasResponse.quota:type_name -> parley.guild.v1.GuildMatchQuota
+	17, // 19: parley.guild.v1.GuildMatchQuotasResponse.error:type_name -> parley.common.v1.Error
+	1,  // 20: parley.guild.v1.GuildSettingsService.GetGuildSettings:input_type -> parley.guild.v1.GetGuildSettingsRequest
+	2,  // 21: parley.guild.v1.GuildSettingsService.UpsertGuildSettings:input_type -> parley.guild.v1.UpsertGuildSettingsRequest
+	5,  // 22: parley.guild.v1.GuildSettingsService.GetMatchmakingRules:input_type -> parley.guild.v1.GetMatchmakingRulesRequest
+	6,  // 23: parley.guild.v1.GuildSettingsService.UpsertMatchmakingRules:input_type -> parley.guild.v1.UpsertMatchmakingRulesRequest
+	9,  // 24: parley.guild.v1.GuildSettingsService.GetNotificationSettings:input_type -> parley.guild.v1.GetNotificationSettingsRequest
+	10, // 25: parley.guild.v1.GuildSettingsService.UpsertNotificationSettings:input_type -> parley.guild.v1.UpsertNotificationSettingsRequest
+	13, // 26: parley.guild.v1.GuildSettingsService.GetMatchQuotas:input_type -> parley.guild.v1.GetMatchQuotasRequest
+	14, // 27: parley.guild.v1.GuildSettingsService.UpsertMatchQuotas:input_type -> parley.guild.v1.UpsertMatchQuotasRequest
+	3,  // 28: parley.guild.v1.GuildSettingsService.GetGuildSettings:output_type -> parley.guild.v1.GuildSettingsResponse
+	3,  // 29: parley.guild.v1.GuildSettingsService.UpsertGuildSettings:output_type -> parley.guild.v1.GuildSettingsResponse
+	7,  // 30: parley.guild.v1.GuildSettingsService.GetMatchmakingRules:output_type -> parley.guild.v1.GuildMatchmakingRulesResponse
+	7,  // 31: parley.guild.v1.GuildSettingsService.UpsertMatchmakingRules:output_type -> parley.guild.v1.GuildMatchmakingRulesResponse
+	11, // 32: parley.guild.v1.GuildSettingsService.GetNotificationSettings:output_type -> parley.guild.v1.GuildNotificationSettingsResponse
+	11, // 33: parley.guild.v1.GuildSettingsService.UpsertNotificationSettings:output_type -> parley.guild.v1.GuildNotificationSettingsResponse
+	15, // 34: parley.guild.v1.GuildSettingsService.GetMatchQuotas:output_type -> parley.guild.v1.GuildMatchQuotasResponse
+	15, // 35: parley.guild.v1.GuildSettingsService.UpsertMatchQuotas:output_type -> parley.guild.v1.GuildMatchQuotasResponse
+	28, // [28:36] is the sub-list for method output_type
+	20, // [20:28] is the sub-list for method input_type
+	20, // [20:20] is the sub-list for extension type_name
+	20, // [20:20] is the sub-list for extension extendee
+	0,  // [0:20] is the sub-list for field type_name
 }
 
 func init() { file_guild_v1_guild_proto_init() }

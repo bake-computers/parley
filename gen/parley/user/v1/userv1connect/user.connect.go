@@ -39,9 +39,6 @@ const (
 	// UserSettingsServiceUpsertUserSettingsProcedure is the fully-qualified name of the
 	// UserSettingsService's UpsertUserSettings RPC.
 	UserSettingsServiceUpsertUserSettingsProcedure = "/parley.user.v1.UserSettingsService/UpsertUserSettings"
-	// UserSettingsServiceResolveLanguageProcedure is the fully-qualified name of the
-	// UserSettingsService's ResolveLanguage RPC.
-	UserSettingsServiceResolveLanguageProcedure = "/parley.user.v1.UserSettingsService/ResolveLanguage"
 	// UserSettingsServiceDeleteUserDataProcedure is the fully-qualified name of the
 	// UserSettingsService's DeleteUserData RPC.
 	UserSettingsServiceDeleteUserDataProcedure = "/parley.user.v1.UserSettingsService/DeleteUserData"
@@ -51,7 +48,6 @@ const (
 type UserSettingsServiceClient interface {
 	GetUserSettings(context.Context, *connect.Request[v1.GetUserSettingsRequest]) (*connect.Response[v1.UserSettingsResponse], error)
 	UpsertUserSettings(context.Context, *connect.Request[v1.UpsertUserSettingsRequest]) (*connect.Response[v1.UserSettingsResponse], error)
-	ResolveLanguage(context.Context, *connect.Request[v1.ResolveLanguageRequest]) (*connect.Response[v1.ResolveLanguageResponse], error)
 	DeleteUserData(context.Context, *connect.Request[v1.DeleteUserDataRequest]) (*connect.Response[v1.DeleteUserDataResponse], error)
 }
 
@@ -78,12 +74,6 @@ func NewUserSettingsServiceClient(httpClient connect.HTTPClient, baseURL string,
 			connect.WithSchema(userSettingsServiceMethods.ByName("UpsertUserSettings")),
 			connect.WithClientOptions(opts...),
 		),
-		resolveLanguage: connect.NewClient[v1.ResolveLanguageRequest, v1.ResolveLanguageResponse](
-			httpClient,
-			baseURL+UserSettingsServiceResolveLanguageProcedure,
-			connect.WithSchema(userSettingsServiceMethods.ByName("ResolveLanguage")),
-			connect.WithClientOptions(opts...),
-		),
 		deleteUserData: connect.NewClient[v1.DeleteUserDataRequest, v1.DeleteUserDataResponse](
 			httpClient,
 			baseURL+UserSettingsServiceDeleteUserDataProcedure,
@@ -97,7 +87,6 @@ func NewUserSettingsServiceClient(httpClient connect.HTTPClient, baseURL string,
 type userSettingsServiceClient struct {
 	getUserSettings    *connect.Client[v1.GetUserSettingsRequest, v1.UserSettingsResponse]
 	upsertUserSettings *connect.Client[v1.UpsertUserSettingsRequest, v1.UserSettingsResponse]
-	resolveLanguage    *connect.Client[v1.ResolveLanguageRequest, v1.ResolveLanguageResponse]
 	deleteUserData     *connect.Client[v1.DeleteUserDataRequest, v1.DeleteUserDataResponse]
 }
 
@@ -111,11 +100,6 @@ func (c *userSettingsServiceClient) UpsertUserSettings(ctx context.Context, req 
 	return c.upsertUserSettings.CallUnary(ctx, req)
 }
 
-// ResolveLanguage calls parley.user.v1.UserSettingsService.ResolveLanguage.
-func (c *userSettingsServiceClient) ResolveLanguage(ctx context.Context, req *connect.Request[v1.ResolveLanguageRequest]) (*connect.Response[v1.ResolveLanguageResponse], error) {
-	return c.resolveLanguage.CallUnary(ctx, req)
-}
-
 // DeleteUserData calls parley.user.v1.UserSettingsService.DeleteUserData.
 func (c *userSettingsServiceClient) DeleteUserData(ctx context.Context, req *connect.Request[v1.DeleteUserDataRequest]) (*connect.Response[v1.DeleteUserDataResponse], error) {
 	return c.deleteUserData.CallUnary(ctx, req)
@@ -126,7 +110,6 @@ func (c *userSettingsServiceClient) DeleteUserData(ctx context.Context, req *con
 type UserSettingsServiceHandler interface {
 	GetUserSettings(context.Context, *connect.Request[v1.GetUserSettingsRequest]) (*connect.Response[v1.UserSettingsResponse], error)
 	UpsertUserSettings(context.Context, *connect.Request[v1.UpsertUserSettingsRequest]) (*connect.Response[v1.UserSettingsResponse], error)
-	ResolveLanguage(context.Context, *connect.Request[v1.ResolveLanguageRequest]) (*connect.Response[v1.ResolveLanguageResponse], error)
 	DeleteUserData(context.Context, *connect.Request[v1.DeleteUserDataRequest]) (*connect.Response[v1.DeleteUserDataResponse], error)
 }
 
@@ -149,12 +132,6 @@ func NewUserSettingsServiceHandler(svc UserSettingsServiceHandler, opts ...conne
 		connect.WithSchema(userSettingsServiceMethods.ByName("UpsertUserSettings")),
 		connect.WithHandlerOptions(opts...),
 	)
-	userSettingsServiceResolveLanguageHandler := connect.NewUnaryHandler(
-		UserSettingsServiceResolveLanguageProcedure,
-		svc.ResolveLanguage,
-		connect.WithSchema(userSettingsServiceMethods.ByName("ResolveLanguage")),
-		connect.WithHandlerOptions(opts...),
-	)
 	userSettingsServiceDeleteUserDataHandler := connect.NewUnaryHandler(
 		UserSettingsServiceDeleteUserDataProcedure,
 		svc.DeleteUserData,
@@ -167,8 +144,6 @@ func NewUserSettingsServiceHandler(svc UserSettingsServiceHandler, opts ...conne
 			userSettingsServiceGetUserSettingsHandler.ServeHTTP(w, r)
 		case UserSettingsServiceUpsertUserSettingsProcedure:
 			userSettingsServiceUpsertUserSettingsHandler.ServeHTTP(w, r)
-		case UserSettingsServiceResolveLanguageProcedure:
-			userSettingsServiceResolveLanguageHandler.ServeHTTP(w, r)
 		case UserSettingsServiceDeleteUserDataProcedure:
 			userSettingsServiceDeleteUserDataHandler.ServeHTTP(w, r)
 		default:
@@ -186,10 +161,6 @@ func (UnimplementedUserSettingsServiceHandler) GetUserSettings(context.Context, 
 
 func (UnimplementedUserSettingsServiceHandler) UpsertUserSettings(context.Context, *connect.Request[v1.UpsertUserSettingsRequest]) (*connect.Response[v1.UserSettingsResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("parley.user.v1.UserSettingsService.UpsertUserSettings is not implemented"))
-}
-
-func (UnimplementedUserSettingsServiceHandler) ResolveLanguage(context.Context, *connect.Request[v1.ResolveLanguageRequest]) (*connect.Response[v1.ResolveLanguageResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("parley.user.v1.UserSettingsService.ResolveLanguage is not implemented"))
 }
 
 func (UnimplementedUserSettingsServiceHandler) DeleteUserData(context.Context, *connect.Request[v1.DeleteUserDataRequest]) (*connect.Response[v1.DeleteUserDataResponse], error) {

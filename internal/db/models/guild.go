@@ -25,15 +25,14 @@ type GuildMembership struct {
 type GuildSettings struct {
 	bun.BaseModel `bun:"table:guild_settings,alias:gs"`
 
-	GuildID                string   `bun:"guild_id,pk,notnull"`
-	Game                   Game     `bun:"game,pk,notnull"`
-	DefaultTeamFormat      *string  `bun:"default_team_format"`
-	AutoBalance            bool     `bun:"auto_balance,notnull"`
-	CrossGuildMatchmaking  bool     `bun:"cross_guild_matchmaking,notnull"`
-	UpdatedAt              int64    `bun:"updated_at,notnull"`
-	UpdatedByDiscordUserID string   `bun:"updated_by_discord_user_id,notnull"`
-	DefaultLanguage        Language `bun:"default_language,notnull"`
-	MatchmakingEnabled     bool     `bun:"matchmaking_enabled,notnull"`
+	GuildID                string  `bun:"guild_id,pk,notnull"`
+	Game                   Game    `bun:"game,pk,notnull"`
+	DefaultTeamFormat      *string `bun:"default_team_format"`
+	AutoBalance            bool    `bun:"auto_balance,notnull"`
+	CrossGuildMatchmaking  bool    `bun:"cross_guild_matchmaking,notnull"`
+	UpdatedAt              int64   `bun:"updated_at,notnull"`
+	UpdatedByDiscordUserID string  `bun:"updated_by_discord_user_id,notnull"`
+	MatchmakingEnabled     bool    `bun:"matchmaking_enabled,notnull"`
 }
 
 // GuildMatchmakingRules is a row in `guild_matchmaking_rules`.

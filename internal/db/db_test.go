@@ -25,7 +25,7 @@ func TestEmbeddedMigrationCount(t *testing.T) {
 		t.Fatalf("EnsureMigrationsRegistered: %v", err)
 	}
 	n := len(db.Migrations.Sorted())
-	if n != 14 {
-		t.Fatalf("registered migrations = %d, want 14", n)
+	if n != 16 {
+		t.Fatalf("registered migrations = %d, want 16", n)
 	}
 }

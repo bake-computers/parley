@@ -22,62 +22,9 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type LanguageSource int32
-
-const (
-	LanguageSource_LANGUAGE_SOURCE_UNSPECIFIED LanguageSource = 0
-	LanguageSource_LANGUAGE_SOURCE_USER        LanguageSource = 1
-	LanguageSource_LANGUAGE_SOURCE_GUILD       LanguageSource = 2
-	LanguageSource_LANGUAGE_SOURCE_DEFAULT     LanguageSource = 3
-)
-
-// Enum value maps for LanguageSource.
-var (
-	LanguageSource_name = map[int32]string{
-		0: "LANGUAGE_SOURCE_UNSPECIFIED",
-		1: "LANGUAGE_SOURCE_USER",
-		2: "LANGUAGE_SOURCE_GUILD",
-		3: "LANGUAGE_SOURCE_DEFAULT",
-	}
-	LanguageSource_value = map[string]int32{
-		"LANGUAGE_SOURCE_UNSPECIFIED": 0,
-		"LANGUAGE_SOURCE_USER":        1,
-		"LANGUAGE_SOURCE_GUILD":       2,
-		"LANGUAGE_SOURCE_DEFAULT":     3,
-	}
-)
-
-func (x LanguageSource) Enum() *LanguageSource {
-	p := new(LanguageSource)
-	*p = x
-	return p
-}
-
-func (x LanguageSource) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (LanguageSource) Descriptor() protoreflect.EnumDescriptor {
-	return file_user_v1_user_proto_enumTypes[0].Descriptor()
-}
-
-func (LanguageSource) Type() protoreflect.EnumType {
-	return &file_user_v1_user_proto_enumTypes[0]
-}
-
-func (x LanguageSource) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use LanguageSource.Descriptor instead.
-func (LanguageSource) EnumDescriptor() ([]byte, []int) {
-	return file_user_v1_user_proto_rawDescGZIP(), []int{0}
-}
-
 type UserSettings struct {
 	state              protoimpl.MessageState `protogen:"open.v1"`
 	DiscordUserId      string                 `protobuf:"bytes,1,opt,name=discord_user_id,json=discordUserId,proto3" json:"discord_user_id,omitempty"`
-	Language           v1.Language            `protobuf:"varint,2,opt,name=language,proto3,enum=parley.common.v1.Language" json:"language,omitempty"`
 	UpdatedAtMs        int64                  `protobuf:"varint,3,opt,name=updated_at_ms,json=updatedAtMs,proto3" json:"updated_at_ms,omitempty"`
 	MatchmakingEnabled bool                   `protobuf:"varint,4,opt,name=matchmaking_enabled,json=matchmakingEnabled,proto3" json:"matchmaking_enabled,omitempty"`
 	TermsAcceptedAtMs  int64                  `protobuf:"varint,5,opt,name=terms_accepted_at_ms,json=termsAcceptedAtMs,proto3" json:"terms_accepted_at_ms,omitempty"`
@@ -122,13 +69,6 @@ func (x *UserSettings) GetDiscordUserId() string {
 		return x.DiscordUserId
 	}
 	return ""
-}
-
-func (x *UserSettings) GetLanguage() v1.Language {
-	if x != nil {
-		return x.Language
-	}
-	return v1.Language(0)
 }
 
 func (x *UserSettings) GetUpdatedAtMs() int64 {
@@ -314,135 +254,6 @@ func (x *UserSettingsResponse) GetError() *v1.Error {
 	return nil
 }
 
-type ResolveLanguageRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	DiscordUserId string                 `protobuf:"bytes,1,opt,name=discord_user_id,json=discordUserId,proto3" json:"discord_user_id,omitempty"`
-	// When set together with game, guild default_language is used as fallback.
-	GuildId       string  `protobuf:"bytes,2,opt,name=guild_id,json=guildId,proto3" json:"guild_id,omitempty"`
-	Game          v1.Game `protobuf:"varint,3,opt,name=game,proto3,enum=parley.common.v1.Game" json:"game,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ResolveLanguageRequest) Reset() {
-	*x = ResolveLanguageRequest{}
-	mi := &file_user_v1_user_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ResolveLanguageRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ResolveLanguageRequest) ProtoMessage() {}
-
-func (x *ResolveLanguageRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_v1_user_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ResolveLanguageRequest.ProtoReflect.Descriptor instead.
-func (*ResolveLanguageRequest) Descriptor() ([]byte, []int) {
-	return file_user_v1_user_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *ResolveLanguageRequest) GetDiscordUserId() string {
-	if x != nil {
-		return x.DiscordUserId
-	}
-	return ""
-}
-
-func (x *ResolveLanguageRequest) GetGuildId() string {
-	if x != nil {
-		return x.GuildId
-	}
-	return ""
-}
-
-func (x *ResolveLanguageRequest) GetGame() v1.Game {
-	if x != nil {
-		return x.Game
-	}
-	return v1.Game(0)
-}
-
-type ResolveLanguageResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
-	Language      v1.Language            `protobuf:"varint,2,opt,name=language,proto3,enum=parley.common.v1.Language" json:"language,omitempty"`
-	Source        LanguageSource         `protobuf:"varint,3,opt,name=source,proto3,enum=parley.user.v1.LanguageSource" json:"source,omitempty"`
-	Error         *v1.Error              `protobuf:"bytes,4,opt,name=error,proto3" json:"error,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ResolveLanguageResponse) Reset() {
-	*x = ResolveLanguageResponse{}
-	mi := &file_user_v1_user_proto_msgTypes[5]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ResolveLanguageResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ResolveLanguageResponse) ProtoMessage() {}
-
-func (x *ResolveLanguageResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_v1_user_proto_msgTypes[5]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ResolveLanguageResponse.ProtoReflect.Descriptor instead.
-func (*ResolveLanguageResponse) Descriptor() ([]byte, []int) {
-	return file_user_v1_user_proto_rawDescGZIP(), []int{5}
-}
-
-func (x *ResolveLanguageResponse) GetSuccess() bool {
-	if x != nil {
-		return x.Success
-	}
-	return false
-}
-
-func (x *ResolveLanguageResponse) GetLanguage() v1.Language {
-	if x != nil {
-		return x.Language
-	}
-	return v1.Language(0)
-}
-
-func (x *ResolveLanguageResponse) GetSource() LanguageSource {
-	if x != nil {
-		return x.Source
-	}
-	return LanguageSource_LANGUAGE_SOURCE_UNSPECIFIED
-}
-
-func (x *ResolveLanguageResponse) GetError() *v1.Error {
-	if x != nil {
-		return x.Error
-	}
-	return nil
-}
-
 type DeleteUserDataRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	DiscordUserId string                 `protobuf:"bytes,1,opt,name=discord_user_id,json=discordUserId,proto3" json:"discord_user_id,omitempty"`
@@ -452,7 +263,7 @@ type DeleteUserDataRequest struct {
 
 func (x *DeleteUserDataRequest) Reset() {
 	*x = DeleteUserDataRequest{}
-	mi := &file_user_v1_user_proto_msgTypes[6]
+	mi := &file_user_v1_user_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -464,7 +275,7 @@ func (x *DeleteUserDataRequest) String() string {
 func (*DeleteUserDataRequest) ProtoMessage() {}
 
 func (x *DeleteUserDataRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_v1_user_proto_msgTypes[6]
+	mi := &file_user_v1_user_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -477,7 +288,7 @@ func (x *DeleteUserDataRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteUserDataRequest.ProtoReflect.Descriptor instead.
 func (*DeleteUserDataRequest) Descriptor() ([]byte, []int) {
-	return file_user_v1_user_proto_rawDescGZIP(), []int{6}
+	return file_user_v1_user_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *DeleteUserDataRequest) GetDiscordUserId() string {
@@ -507,7 +318,7 @@ type AnonymizationCounts struct {
 
 func (x *AnonymizationCounts) Reset() {
 	*x = AnonymizationCounts{}
-	mi := &file_user_v1_user_proto_msgTypes[7]
+	mi := &file_user_v1_user_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -519,7 +330,7 @@ func (x *AnonymizationCounts) String() string {
 func (*AnonymizationCounts) ProtoMessage() {}
 
 func (x *AnonymizationCounts) ProtoReflect() protoreflect.Message {
-	mi := &file_user_v1_user_proto_msgTypes[7]
+	mi := &file_user_v1_user_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -532,7 +343,7 @@ func (x *AnonymizationCounts) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AnonymizationCounts.ProtoReflect.Descriptor instead.
 func (*AnonymizationCounts) Descriptor() ([]byte, []int) {
-	return file_user_v1_user_proto_rawDescGZIP(), []int{7}
+	return file_user_v1_user_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *AnonymizationCounts) GetPlayers() int32 {
@@ -632,7 +443,7 @@ type DeleteUserDataResponse struct {
 
 func (x *DeleteUserDataResponse) Reset() {
 	*x = DeleteUserDataResponse{}
-	mi := &file_user_v1_user_proto_msgTypes[8]
+	mi := &file_user_v1_user_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -644,7 +455,7 @@ func (x *DeleteUserDataResponse) String() string {
 func (*DeleteUserDataResponse) ProtoMessage() {}
 
 func (x *DeleteUserDataResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_v1_user_proto_msgTypes[8]
+	mi := &file_user_v1_user_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -657,7 +468,7 @@ func (x *DeleteUserDataResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteUserDataResponse.ProtoReflect.Descriptor instead.
 func (*DeleteUserDataResponse) Descriptor() ([]byte, []int) {
-	return file_user_v1_user_proto_rawDescGZIP(), []int{8}
+	return file_user_v1_user_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *DeleteUserDataResponse) GetSuccess() bool {
@@ -699,15 +510,14 @@ var File_user_v1_user_proto protoreflect.FileDescriptor
 
 const file_user_v1_user_proto_rawDesc = "" +
 	"\n" +
-	"\x12user/v1/user.proto\x12\x0eparley.user.v1\x1a\x15common/v1/types.proto\"\xb7\x02\n" +
+	"\x12user/v1/user.proto\x12\x0eparley.user.v1\x1a\x15common/v1/types.proto\"\x8f\x02\n" +
 	"\fUserSettings\x12&\n" +
-	"\x0fdiscord_user_id\x18\x01 \x01(\tR\rdiscordUserId\x126\n" +
-	"\blanguage\x18\x02 \x01(\x0e2\x1a.parley.common.v1.LanguageR\blanguage\x12\"\n" +
+	"\x0fdiscord_user_id\x18\x01 \x01(\tR\rdiscordUserId\x12\"\n" +
 	"\rupdated_at_ms\x18\x03 \x01(\x03R\vupdatedAtMs\x12/\n" +
 	"\x13matchmaking_enabled\x18\x04 \x01(\bR\x12matchmakingEnabled\x12/\n" +
 	"\x14terms_accepted_at_ms\x18\x05 \x01(\x03R\x11termsAcceptedAtMs\x12%\n" +
 	"\x0eprofile_public\x18\x06 \x01(\bR\rprofilePublic\x12\x1a\n" +
-	"\btimezone\x18\a \x01(\tR\btimezone\"@\n" +
+	"\btimezone\x18\a \x01(\tR\btimezoneJ\x04\b\x02\x10\x03R\blanguage\"@\n" +
 	"\x16GetUserSettingsRequest\x12&\n" +
 	"\x0fdiscord_user_id\x18\x01 \x01(\tR\rdiscordUserId\"U\n" +
 	"\x19UpsertUserSettingsRequest\x128\n" +
@@ -715,16 +525,7 @@ const file_user_v1_user_proto_rawDesc = "" +
 	"\x14UserSettingsResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x128\n" +
 	"\bsettings\x18\x02 \x01(\v2\x1c.parley.user.v1.UserSettingsR\bsettings\x12-\n" +
-	"\x05error\x18\x03 \x01(\v2\x17.parley.common.v1.ErrorR\x05error\"\x87\x01\n" +
-	"\x16ResolveLanguageRequest\x12&\n" +
-	"\x0fdiscord_user_id\x18\x01 \x01(\tR\rdiscordUserId\x12\x19\n" +
-	"\bguild_id\x18\x02 \x01(\tR\aguildId\x12*\n" +
-	"\x04game\x18\x03 \x01(\x0e2\x16.parley.common.v1.GameR\x04game\"\xd2\x01\n" +
-	"\x17ResolveLanguageResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess\x126\n" +
-	"\blanguage\x18\x02 \x01(\x0e2\x1a.parley.common.v1.LanguageR\blanguage\x126\n" +
-	"\x06source\x18\x03 \x01(\x0e2\x1e.parley.user.v1.LanguageSourceR\x06source\x12-\n" +
-	"\x05error\x18\x04 \x01(\v2\x17.parley.common.v1.ErrorR\x05error\"?\n" +
+	"\x05error\x18\x03 \x01(\v2\x17.parley.common.v1.ErrorR\x05error\"?\n" +
 	"\x15DeleteUserDataRequest\x12&\n" +
 	"\x0fdiscord_user_id\x18\x01 \x01(\tR\rdiscordUserId\"\xb9\x04\n" +
 	"\x13AnonymizationCounts\x12\x18\n" +
@@ -746,16 +547,10 @@ const file_user_v1_user_proto_rawDesc = "" +
 	"\x1aanonymized_discord_user_id\x18\x02 \x01(\tR\x17anonymizedDiscordUserId\x12*\n" +
 	"\x11cooldown_until_ms\x18\x03 \x01(\x03R\x0fcooldownUntilMs\x12L\n" +
 	"\x0ftables_affected\x18\x04 \x01(\v2#.parley.user.v1.AnonymizationCountsR\x0etablesAffected\x12-\n" +
-	"\x05error\x18\x05 \x01(\v2\x17.parley.common.v1.ErrorR\x05error*\x83\x01\n" +
-	"\x0eLanguageSource\x12\x1f\n" +
-	"\x1bLANGUAGE_SOURCE_UNSPECIFIED\x10\x00\x12\x18\n" +
-	"\x14LANGUAGE_SOURCE_USER\x10\x01\x12\x19\n" +
-	"\x15LANGUAGE_SOURCE_GUILD\x10\x02\x12\x1b\n" +
-	"\x17LANGUAGE_SOURCE_DEFAULT\x10\x032\xa2\x03\n" +
+	"\x05error\x18\x05 \x01(\v2\x17.parley.common.v1.ErrorR\x05error2\xbe\x02\n" +
 	"\x13UserSettingsService\x12_\n" +
 	"\x0fGetUserSettings\x12&.parley.user.v1.GetUserSettingsRequest\x1a$.parley.user.v1.UserSettingsResponse\x12e\n" +
-	"\x12UpsertUserSettings\x12).parley.user.v1.UpsertUserSettingsRequest\x1a$.parley.user.v1.UserSettingsResponse\x12b\n" +
-	"\x0fResolveLanguage\x12&.parley.user.v1.ResolveLanguageRequest\x1a'.parley.user.v1.ResolveLanguageResponse\x12_\n" +
+	"\x12UpsertUserSettings\x12).parley.user.v1.UpsertUserSettingsRequest\x1a$.parley.user.v1.UserSettingsResponse\x12_\n" +
 	"\x0eDeleteUserData\x12%.parley.user.v1.DeleteUserDataRequest\x1a&.parley.user.v1.DeleteUserDataResponseBR\n" +
 	"\x12bot.parley.user.v1Z<github.com/pactum-computers/parley/gen/parley/user/v1;userv1b\x06proto3"
 
@@ -771,47 +566,34 @@ func file_user_v1_user_proto_rawDescGZIP() []byte {
 	return file_user_v1_user_proto_rawDescData
 }
 
-var file_user_v1_user_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_user_v1_user_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
+var file_user_v1_user_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_user_v1_user_proto_goTypes = []any{
-	(LanguageSource)(0),               // 0: parley.user.v1.LanguageSource
-	(*UserSettings)(nil),              // 1: parley.user.v1.UserSettings
-	(*GetUserSettingsRequest)(nil),    // 2: parley.user.v1.GetUserSettingsRequest
-	(*UpsertUserSettingsRequest)(nil), // 3: parley.user.v1.UpsertUserSettingsRequest
-	(*UserSettingsResponse)(nil),      // 4: parley.user.v1.UserSettingsResponse
-	(*ResolveLanguageRequest)(nil),    // 5: parley.user.v1.ResolveLanguageRequest
-	(*ResolveLanguageResponse)(nil),   // 6: parley.user.v1.ResolveLanguageResponse
-	(*DeleteUserDataRequest)(nil),     // 7: parley.user.v1.DeleteUserDataRequest
-	(*AnonymizationCounts)(nil),       // 8: parley.user.v1.AnonymizationCounts
-	(*DeleteUserDataResponse)(nil),    // 9: parley.user.v1.DeleteUserDataResponse
-	(v1.Language)(0),                  // 10: parley.common.v1.Language
-	(*v1.Error)(nil),                  // 11: parley.common.v1.Error
-	(v1.Game)(0),                      // 12: parley.common.v1.Game
+	(*UserSettings)(nil),              // 0: parley.user.v1.UserSettings
+	(*GetUserSettingsRequest)(nil),    // 1: parley.user.v1.GetUserSettingsRequest
+	(*UpsertUserSettingsRequest)(nil), // 2: parley.user.v1.UpsertUserSettingsRequest
+	(*UserSettingsResponse)(nil),      // 3: parley.user.v1.UserSettingsResponse
+	(*DeleteUserDataRequest)(nil),     // 4: parley.user.v1.DeleteUserDataRequest
+	(*AnonymizationCounts)(nil),       // 5: parley.user.v1.AnonymizationCounts
+	(*DeleteUserDataResponse)(nil),    // 6: parley.user.v1.DeleteUserDataResponse
+	(*v1.Error)(nil),                  // 7: parley.common.v1.Error
 }
 var file_user_v1_user_proto_depIdxs = []int32{
-	10, // 0: parley.user.v1.UserSettings.language:type_name -> parley.common.v1.Language
-	1,  // 1: parley.user.v1.UpsertUserSettingsRequest.settings:type_name -> parley.user.v1.UserSettings
-	1,  // 2: parley.user.v1.UserSettingsResponse.settings:type_name -> parley.user.v1.UserSettings
-	11, // 3: parley.user.v1.UserSettingsResponse.error:type_name -> parley.common.v1.Error
-	12, // 4: parley.user.v1.ResolveLanguageRequest.game:type_name -> parley.common.v1.Game
-	10, // 5: parley.user.v1.ResolveLanguageResponse.language:type_name -> parley.common.v1.Language
-	0,  // 6: parley.user.v1.ResolveLanguageResponse.source:type_name -> parley.user.v1.LanguageSource
-	11, // 7: parley.user.v1.ResolveLanguageResponse.error:type_name -> parley.common.v1.Error
-	8,  // 8: parley.user.v1.DeleteUserDataResponse.tables_affected:type_name -> parley.user.v1.AnonymizationCounts
-	11, // 9: parley.user.v1.DeleteUserDataResponse.error:type_name -> parley.common.v1.Error
-	2,  // 10: parley.user.v1.UserSettingsService.GetUserSettings:input_type -> parley.user.v1.GetUserSettingsRequest
-	3,  // 11: parley.user.v1.UserSettingsService.UpsertUserSettings:input_type -> parley.user.v1.UpsertUserSettingsRequest
-	5,  // 12: parley.user.v1.UserSettingsService.ResolveLanguage:input_type -> parley.user.v1.ResolveLanguageRequest
-	7,  // 13: parley.user.v1.UserSettingsService.DeleteUserData:input_type -> parley.user.v1.DeleteUserDataRequest
-	4,  // 14: parley.user.v1.UserSettingsService.GetUserSettings:output_type -> parley.user.v1.UserSettingsResponse
-	4,  // 15: parley.user.v1.UserSettingsService.UpsertUserSettings:output_type -> parley.user.v1.UserSettingsResponse
-	6,  // 16: parley.user.v1.UserSettingsService.ResolveLanguage:output_type -> parley.user.v1.ResolveLanguageResponse
-	9,  // 17: parley.user.v1.UserSettingsService.DeleteUserData:output_type -> parley.user.v1.DeleteUserDataResponse
-	14, // [14:18] is the sub-list for method output_type
-	10, // [10:14] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	0, // 0: parley.user.v1.UpsertUserSettingsRequest.settings:type_name -> parley.user.v1.UserSettings
+	0, // 1: parley.user.v1.UserSettingsResponse.settings:type_name -> parley.user.v1.UserSettings
+	7, // 2: parley.user.v1.UserSettingsResponse.error:type_name -> parley.common.v1.Error
+	5, // 3: parley.user.v1.DeleteUserDataResponse.tables_affected:type_name -> parley.user.v1.AnonymizationCounts
+	7, // 4: parley.user.v1.DeleteUserDataResponse.error:type_name -> parley.common.v1.Error
+	1, // 5: parley.user.v1.UserSettingsService.GetUserSettings:input_type -> parley.user.v1.GetUserSettingsRequest
+	2, // 6: parley.user.v1.UserSettingsService.UpsertUserSettings:input_type -> parley.user.v1.UpsertUserSettingsRequest
+	4, // 7: parley.user.v1.UserSettingsService.DeleteUserData:input_type -> parley.user.v1.DeleteUserDataRequest
+	3, // 8: parley.user.v1.UserSettingsService.GetUserSettings:output_type -> parley.user.v1.UserSettingsResponse
+	3, // 9: parley.user.v1.UserSettingsService.UpsertUserSettings:output_type -> parley.user.v1.UserSettingsResponse
+	6, // 10: parley.user.v1.UserSettingsService.DeleteUserData:output_type -> parley.user.v1.DeleteUserDataResponse
+	8, // [8:11] is the sub-list for method output_type
+	5, // [5:8] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_user_v1_user_proto_init() }
@@ -824,14 +606,13 @@ func file_user_v1_user_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_user_v1_user_proto_rawDesc), len(file_user_v1_user_proto_rawDesc)),
-			NumEnums:      1,
-			NumMessages:   9,
+			NumEnums:      0,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_user_v1_user_proto_goTypes,
 		DependencyIndexes: file_user_v1_user_proto_depIdxs,
-		EnumInfos:         file_user_v1_user_proto_enumTypes,
 		MessageInfos:      file_user_v1_user_proto_msgTypes,
 	}.Build()
 	File_user_v1_user_proto = out.File
