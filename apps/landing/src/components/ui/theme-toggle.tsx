@@ -2,12 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { Monitor, Moon, Sun } from "lucide-react";
+import { allowsPreferences, THEME_STORAGE_KEY } from "#/lib/consent/cookies";
 import { useMessages } from "#/lib/content/messages/use-messages";
 import { cn } from "#/lib/shared/cn";
 
 export type Theme = "light" | "dark" | "system";
-
-const STORAGE_KEY = "parley-theme";
 
 const themeIcons: Record<Theme, typeof Sun> = {
   light: Sun,
@@ -25,7 +24,10 @@ function applyTheme(theme: Theme) {
 }
 
 export function getStoredTheme(): Theme {
-  const stored = localStorage.getItem(STORAGE_KEY);
+  if (!allowsPreferences()) {
+    return "system";
+  }
+  const stored = localStorage.getItem(THEME_STORAGE_KEY);
   if (stored === "light" || stored === "dark" || stored === "system") {
     return stored;
   }
@@ -57,7 +59,9 @@ export function ThemeToggle({ className }: { className?: string }) {
   }, []);
 
   const select = (next: Theme) => {
-    localStorage.setItem(STORAGE_KEY, next);
+    if (allowsPreferences()) {
+      localStorage.setItem(THEME_STORAGE_KEY, next);
+    }
     setTheme(next);
     applyTheme(next);
   };

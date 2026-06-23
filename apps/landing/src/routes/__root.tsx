@@ -2,6 +2,7 @@ import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { TanStackDevtools } from "@tanstack/react-devtools";
 
+import { CookieBanner } from "#/components/CookieBanner";
 import appCss from "../styles.css?url";
 
 import criticalCss from "../critical.css?raw";
@@ -14,7 +15,7 @@ const OG_IMAGE = "/assets/parley-banner.png";
 const GEIST_SANS = "/assets/fonts/Geist-Variable.woff2";
 const HERO_PRELOAD = "/assets/hero/hero-cinematic-768.webp";
 
-const THEME_SCRIPT = `(function(){try{var t=localStorage.getItem('parley-theme');var d=t==='dark'||(t!=='light'&&matchMedia('(prefers-color-scheme:dark)').matches);document.documentElement.classList.toggle('dark',d)}catch(e){}})()`;
+const THEME_SCRIPT = `(function(){try{var c=localStorage.getItem('parley_cookie_consent');var p=false;if(c){var j=JSON.parse(c);p=j&&j.version==='v1'&&j.preferences===true}var d;if(p){var t=localStorage.getItem('parley-theme');d=t==='dark'||(t!=='light'&&matchMedia('(prefers-color-scheme:dark)').matches)}else{d=matchMedia('(prefers-color-scheme:dark)').matches}document.documentElement.classList.toggle('dark',d)}catch(e){}})()`;
 
 export const Route = createRootRoute({
   head: () => ({
@@ -85,6 +86,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body className="font-sans antialiased">
         <div aria-hidden="true" className="ambient-bg fixed inset-0 -z-10" />
         {children}
+        <CookieBanner />
         {import.meta.env.DEV ? (
           <TanStackDevtools
             config={{

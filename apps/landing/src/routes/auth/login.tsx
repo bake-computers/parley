@@ -1,5 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { AuthLoginPage } from "#/components/auth/AuthLoginPage";
+import { useAuthMe } from "#/hooks/useAuthMe";
 
 type LoginSearch = {
   redirect?: string;
@@ -21,5 +22,20 @@ export const Route = createFileRoute("/auth/login")({
 
 function LoginRoute() {
   const { redirect } = Route.useSearch();
-  return <AuthLoginPage redirectTo={safeRedirect(redirect)} />;
+  const redirectTo = safeRedirect(redirect);
+  const me = useAuthMe();
+
+  if (me === undefined) {
+    return (
+      <main className="flex min-h-[50vh] items-center justify-center px-6">
+        <p className="text-muted-foreground text-sm">Loading session…</p>
+      </main>
+    );
+  }
+
+  if (me) {
+    return <Navigate to={redirectTo} replace />;
+  }
+
+  return <AuthLoginPage redirectTo={redirectTo} />;
 }

@@ -52,15 +52,42 @@ export function PrivacyContentEn() {
         </p>
 
         <h3 className="mt-4 mb-2 text-sm font-medium text-foreground/90">
-          2.3 Infrastructure and Edge Processing
+          2.3 Cookies, Local Storage, and Edge Processing
         </h3>
         <p>
           When you interact with our bot or companion dashboard, requests are processed through
           Cloudflare Workers. During this routing, standard network data such as IP addresses,
           browser types, and interaction timestamps are temporarily processed at edge nodes for
-          security, caching, and abuse prevention. We do not use tracking cookies or third-party
-          marketing analytics on our web properties.
+          security, caching, and abuse prevention.
         </p>
+        <p className="mt-2">
+          We use only the following cookies and browser storage on our website. We do not use
+          third-party marketing, advertising, or analytics cookies.
+        </p>
+        <ul className="mt-2 list-inside list-disc space-y-1.5 pl-1">
+          <li>
+            <strong>parley_discord_session</strong> (essential cookie): keeps you signed in to the
+            web dashboard after Discord OAuth. HttpOnly, SameSite=Lax, duration aligned with the
+            Discord access token (typically up to seven days). Legal basis: Art. 6(1)(b) GDPR
+            (performance of the service you request).
+          </li>
+          <li>
+            <strong>parley_discord_oauth_state</strong> (essential cookie): short-lived OAuth
+            security token during sign-in (about ten minutes). Legal basis: Art. 6(1)(b) GDPR and
+            legitimate interest in securing authentication (Art. 6(1)(f) GDPR).
+          </li>
+          <li>
+            <strong>parley-theme</strong> (local storage, optional): remembers your light/dark theme
+            preference if you choose &ldquo;Accept all&rdquo; on our cookie notice. Legal basis:
+            Art. 6(1)(a) GDPR (consent). If you choose &ldquo;Essential only,&rdquo; we do not
+            persist this preference.
+          </li>
+          <li>
+            <strong>parley_cookie_consent</strong> (local storage): records your cookie notice choice
+            so we do not ask again until our policy version changes. Legal basis: Art. 6(1)(f) GDPR
+            (demonstrating compliance).
+          </li>
+        </ul>
       </section>
 
       <section>
