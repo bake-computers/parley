@@ -9,6 +9,9 @@ export type Messages = {
     joinDiscord: string;
     resources: string;
     authorize: string;
+    dashboard: string;
+    account: string;
+    signOut: string;
     openMenu: string;
     closeMenu: string;
     brand: string;
