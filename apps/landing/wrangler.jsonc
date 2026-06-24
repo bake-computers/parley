@@ -15,7 +15,7 @@
     "AXIOM_ENABLED": "true",
     "DISCORD_APPLICATION_ID": "1495122091165618358",
     "ENGINE_INTERNAL_URL": "http://api.internal.parley.bot:50051",
-    "TURNSTILE_SITE_KEY": "1x00000000000000000000AA"
+    "TURNSTILE_SITE_KEY": "0x4AAAAAADp6daoSm0g2pBC_"
   },
 
   "services": [{ "binding": "BRIDGE", "service": "parley-bridge" }],
