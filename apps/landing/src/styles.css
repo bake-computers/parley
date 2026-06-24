@@ -266,6 +266,18 @@
     box-shadow: 0 12px 32px color-mix(in srgb, #5865f2 28%, transparent);
   }
 
+  .auth-turnstile {
+    display: flex;
+    justify-content: center;
+    height: 3.25rem;
+    overflow: hidden;
+  }
+
+  .auth-turnstile__frame {
+    transform: scale(0.76);
+    transform-origin: top center;
+  }
+
   .glass-chip {
     border-radius: 9999px;
     border: 1px solid color-mix(in srgb, var(--accent-silver) 15%, transparent);

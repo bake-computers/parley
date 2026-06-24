@@ -1,9 +1,38 @@
+"use client";
+
 import { Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
+const TURNSTILE_SCRIPT =
+  "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+
+type TurnstileApi = {
+  render: (
+    container: HTMLElement,
+    options: {
+      sitekey: string;
+      callback?: (token: string) => void;
+      "expired-callback"?: () => void;
+      "error-callback"?: () => void;
+      size?: "normal" | "compact";
+      theme?: "auto" | "light" | "dark";
+      action?: string;
+    },
+  ) => string;
+  remove: (widgetId: string) => void;
+};
+
+declare global {
+  interface Window {
+    turnstile?: TurnstileApi;
+  }
+}
 
 type AuthLoginPageProps = {
   redirectTo?: string;
+  turnstileSiteKey?: string;
+  error?: string;
 };
 
 function DiscordMark() {
@@ -17,11 +46,68 @@ function DiscordMark() {
   );
 }
 
-export function AuthLoginPage({ redirectTo = "/dashboard" }: AuthLoginPageProps) {
+export function AuthLoginPage({
+  redirectTo = "/dashboard",
+  turnstileSiteKey = "",
+  error,
+}: AuthLoginPageProps) {
   const discordHref = `/auth/discord?redirect=${encodeURIComponent(redirectTo)}`;
   const termsHref = "/terms";
   const privacyHref = "/privacy";
   const year = new Date().getFullYear();
+  const useTurnstile = turnstileSiteKey.length > 0;
+  const [turnstileReady, setTurnstileReady] = useState(false);
+  const widgetHostRef = useRef<HTMLDivElement>(null);
+  const widgetIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!useTurnstile || !widgetHostRef.current) {
+      return;
+    }
+
+    const mount = () => {
+      const host = widgetHostRef.current;
+      if (!host || !window.turnstile) {
+        return;
+      }
+      if (widgetIdRef.current) {
+        window.turnstile.remove(widgetIdRef.current);
+        widgetIdRef.current = null;
+      }
+      setTurnstileReady(false);
+      host.replaceChildren();
+      widgetIdRef.current = window.turnstile.render(host, {
+        sitekey: turnstileSiteKey,
+        size: "normal",
+        theme: "auto",
+        action: "turnstile-spin-v1",
+        callback: () => setTurnstileReady(true),
+        "expired-callback": () => setTurnstileReady(false),
+        "error-callback": () => setTurnstileReady(false),
+      });
+    };
+
+    const existing = document.querySelector(`script[src="${TURNSTILE_SCRIPT}"]`);
+    if (window.turnstile) {
+      mount();
+    } else if (existing) {
+      existing.addEventListener("load", mount, { once: true });
+    } else {
+      const script = document.createElement("script");
+      script.src = TURNSTILE_SCRIPT;
+      script.async = true;
+      script.defer = true;
+      script.addEventListener("load", mount, { once: true });
+      document.head.appendChild(script);
+    }
+
+    return () => {
+      if (widgetIdRef.current && window.turnstile) {
+        window.turnstile.remove(widgetIdRef.current);
+        widgetIdRef.current = null;
+      }
+    };
+  }, [useTurnstile, turnstileSiteKey]);
 
   return (
     <div className="grid min-h-[100dvh] lg:grid-cols-[1.05fr_minmax(0,1fr)]">
@@ -86,14 +172,48 @@ export function AuthLoginPage({ redirectTo = "/dashboard" }: AuthLoginPageProps)
               Authorize with Discord to access guild settings, matchmaking rules, and notifications.
             </p>
 
-            <a
-              href={discordHref}
-              className="auth-authorize-btn mt-10 inline-flex h-12 w-full items-center justify-center gap-2.5 rounded-full px-6 text-sm font-medium text-white transition-[transform,filter] hover:brightness-105 active:scale-[0.99] motion-reduce:active:scale-100"
-            >
-              <DiscordMark />
-              Authorize
-              <ArrowRight className="size-4" aria-hidden />
-            </a>
+            {error === "turnstile" ? (
+              <p className="mt-4 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                Security check failed. Complete the challenge and try again.
+              </p>
+            ) : null}
+
+            {useTurnstile ? (
+              <form
+                method="post"
+                action="/auth/discord"
+                className="mt-10 flex w-full flex-col gap-2"
+                onSubmit={(e) => {
+                  if (!turnstileReady) {
+                    e.preventDefault();
+                  }
+                }}
+              >
+                <input type="hidden" name="redirect" value={redirectTo} />
+                <button
+                  type="submit"
+                  disabled={!turnstileReady}
+                  aria-disabled={!turnstileReady}
+                  className="auth-authorize-btn inline-flex h-12 w-full items-center justify-center gap-2.5 rounded-full px-6 text-sm font-medium text-white transition-[transform,filter,opacity] hover:brightness-105 active:scale-[0.99] motion-reduce:active:scale-100 disabled:cursor-not-allowed disabled:opacity-40 disabled:grayscale disabled:hover:brightness-100 disabled:active:scale-100"
+                >
+                  <DiscordMark />
+                  Authorize
+                  <ArrowRight className="size-4" aria-hidden />
+                </button>
+                <div className="auth-turnstile">
+                  <div ref={widgetHostRef} className="auth-turnstile__frame" />
+                </div>
+              </form>
+            ) : (
+              <a
+                href={discordHref}
+                className="auth-authorize-btn mt-10 inline-flex h-12 w-full items-center justify-center gap-2.5 rounded-full px-6 text-sm font-medium text-white transition-[transform,filter] hover:brightness-105 active:scale-[0.99] motion-reduce:active:scale-100"
+              >
+                <DiscordMark />
+                Authorize
+                <ArrowRight className="size-4" aria-hidden />
+              </a>
+            )}
 
             <p className="text-muted-foreground mt-8 text-center text-xs leading-relaxed">
               By authorizing, you agree to our{" "}

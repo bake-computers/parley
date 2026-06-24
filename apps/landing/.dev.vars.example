@@ -1,6 +1,12 @@
 # Copy to .dev.vars (gitignored) for local OAuth.
 DISCORD_CLIENT_SECRET=
 AUTH_SECRET=
+
+# Cloudflare Turnstile — use official test keys locally (always pass on localhost).
+# https://developers.cloudflare.com/turnstile/troubleshooting/testing/
+TURNSTILE_SITE_KEY=1x00000000000000000000AA
+TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA
+# Production: real widget keys via wrangler vars + `wrangler secret put TURNSTILE_SECRET_KEY`
 # Same bot token as apps/worker — required for "Ready" vs "Add Parley" on /dashboard.
 DISCORD_BOT_TOKEN=
 

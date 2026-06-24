@@ -1,9 +1,11 @@
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { AuthLoginPage } from "#/components/auth/AuthLoginPage";
 import { useAuthMe } from "#/hooks/useAuthMe";
+import { getTurnstileSiteKey } from "#/lib/turnstile-server";
 
 type LoginSearch = {
   redirect?: string;
+  error?: string;
 };
 
 function safeRedirect(value: string | undefined): string {
@@ -16,12 +18,17 @@ function safeRedirect(value: string | undefined): string {
 export const Route = createFileRoute("/auth/login")({
   validateSearch: (search: Record<string, unknown>): LoginSearch => ({
     redirect: typeof search.redirect === "string" ? search.redirect : undefined,
+    error: typeof search.error === "string" ? search.error : undefined,
+  }),
+  loader: async () => ({
+    turnstileSiteKey: await getTurnstileSiteKey(),
   }),
   component: LoginRoute,
 });
 
 function LoginRoute() {
-  const { redirect } = Route.useSearch();
+  const { redirect, error: loginError } = Route.useSearch();
+  const { turnstileSiteKey } = Route.useLoaderData();
   const redirectTo = safeRedirect(redirect);
   const { me, error } = useAuthMe();
 
@@ -43,5 +50,11 @@ function LoginRoute() {
     return <Navigate to={redirectTo} replace />;
   }
 
-  return <AuthLoginPage redirectTo={redirectTo} />;
+  return (
+    <AuthLoginPage
+      redirectTo={redirectTo}
+      turnstileSiteKey={turnstileSiteKey}
+      error={loginError}
+    />
+  );
 }

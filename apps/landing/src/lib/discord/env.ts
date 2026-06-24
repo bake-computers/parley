@@ -7,6 +7,8 @@ export type OAuthEnvSource = {
   DISCORD_OAUTH_REDIRECT_ORIGIN?: string;
   DISCORD_BOT_TOKEN?: string;
   DISCORD_TOKEN?: string;
+  TURNSTILE_SITE_KEY?: string;
+  TURNSTILE_SECRET_KEY?: string;
 };
 
 export function resolveBotToken(source: OAuthEnvSource): string | undefined {

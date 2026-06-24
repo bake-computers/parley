@@ -9,6 +9,8 @@ declare namespace Cloudflare {
     DISCORD_TOKEN?: string;
     AUTH_SECRET: string;
     DISCORD_OAUTH_REDIRECT_ORIGIN?: string;
+    TURNSTILE_SITE_KEY?: string;
+    TURNSTILE_SECRET_KEY?: string;
     VPC_SERVICE?: Fetcher;
     ENGINE_INTERNAL_URL?: string;
   }

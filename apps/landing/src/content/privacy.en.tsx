@@ -28,6 +28,15 @@ export function PrivacyContentEn() {
           username, avatar, and server memberships. We do not request, collect, or store your email
           address or passwords.
         </p>
+        <p className="mt-2">
+          Before you are redirected to Discord, our sign-in page uses{" "}
+          <strong>Cloudflare Turnstile</strong> to distinguish legitimate users from automated abuse.
+          Turnstile may process technical interaction signals (such as your IP address, browser
+          characteristics, and challenge responses) and transmit a one-time verification token to
+          our servers. We validate that token with Cloudflare before starting OAuth. We do not use
+          Turnstile for advertising or cross-site tracking. Legal basis: Art. 6(1)(f) GDPR
+          (legitimate interest in securing authentication and preventing abuse).
+        </p>
 
         <h3 className="mt-4 mb-2 text-sm font-medium text-foreground/90">
           2.2 Telemetry, AI Matchmaking, and Third-Party Controllers
@@ -124,7 +133,17 @@ export function PrivacyContentEn() {
         <ul className="mt-2 list-inside list-disc space-y-1.5 pl-1">
           <li>
             <span className="font-medium text-foreground/80">Cloudflare:</span> For edge computing,
-            DNS routing, and DDoS protection (infrastructure).
+            DNS routing, DDoS protection, and Turnstile bot protection on our web sign-in page
+            (infrastructure and security). See{" "}
+            <a
+              href="https://www.cloudflare.com/privacypolicy/"
+              className="underline underline-offset-4 transition-colors hover:text-accent-silver"
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              Cloudflare&rsquo;s Privacy Policy
+            </a>
+            .
           </li>
           <li>
             <span className="font-medium text-foreground/80">24fire.de:</span> For primary database

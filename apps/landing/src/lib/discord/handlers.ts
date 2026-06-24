@@ -20,6 +20,7 @@ import {
 } from "./oauth.js";
 import { oauthEnvFromSource, resolveBotToken, type OAuthEnvSource } from "./env.js";
 import { publicGuildsForDashboard } from "./guild-dashboard.js";
+import { turnstileEnabled, verifyTurnstileToken } from "../turnstile.js";
 
 function readOAuthEnv(source: OAuthEnvSource | undefined): DiscordOAuthEnv | null {
   if (!source) {
@@ -51,6 +52,36 @@ function safeRedirectPath(request: Request): string {
   return "/dashboard";
 }
 
+function loginPageUrl(redirectTo: string, error?: string): string {
+  const params = new URLSearchParams({ redirect: redirectTo });
+  if (error) {
+    params.set("error", error);
+  }
+  return `/auth/login?${params}`;
+}
+
+async function parseDiscordLoginRequest(request: Request): Promise<{
+  redirectTo: string;
+  turnstileToken: string | null;
+}> {
+  let redirectTo = safeRedirectPath(request);
+  let turnstileToken: string | null = null;
+
+  if (request.method === "POST") {
+    const form = await request.formData();
+    const next = form.get("redirect");
+    if (typeof next === "string" && next.startsWith("/") && !next.startsWith("//")) {
+      redirectTo = next;
+    }
+    const token = form.get("cf-turnstile-response");
+    if (typeof token === "string" && token.length > 0) {
+      turnstileToken = token;
+    }
+  }
+
+  return { redirectTo, turnstileToken };
+}
+
 export async function handleDiscordLogin(
   request: Request,
   envSource: OAuthEnvSource,
@@ -60,7 +91,27 @@ export async function handleDiscordLogin(
     return new Response("Discord OAuth is not configured", { status: 503 });
   }
 
-  const redirectTo = safeRedirectPath(request);
+  const useTurnstile = turnstileEnabled(
+    envSource.TURNSTILE_SITE_KEY,
+    envSource.TURNSTILE_SECRET_KEY,
+  );
+  const { redirectTo, turnstileToken } = await parseDiscordLoginRequest(request);
+
+  if (useTurnstile) {
+    if (request.method !== "POST") {
+      return Response.redirect(loginPageUrl(redirectTo), 302);
+    }
+    if (
+      !turnstileToken ||
+      !(await verifyTurnstileToken(
+        envSource.TURNSTILE_SECRET_KEY!,
+        turnstileToken,
+        request.headers.get("CF-Connecting-IP") ?? undefined,
+      ))
+    ) {
+      return Response.redirect(loginPageUrl(redirectTo, "turnstile"), 302);
+    }
+  }
   const redirectUri = discordRedirectUri(request.url, cfg.DISCORD_OAUTH_REDIRECT_ORIGIN);
   const state = await sealOAuthState(
     { nonce: crypto.randomUUID(), redirectTo, redirectUri },

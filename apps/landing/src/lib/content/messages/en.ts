@@ -229,13 +229,13 @@ export const messagesEn: Messages = {
     termsTitle: "Terms of Service",
     legalNoticeLabel: "Legal",
     legalNoticeTitle: "Legal Notice",
-    privacyUpdated: "June 21, 2026",
+    privacyUpdated: "June 24, 2026",
     termsUpdated: "June 7, 2026",
     legalNoticeUpdated: "June 21, 2026",
     termsFooter:
       "This document was last updated on June 7, 2026. By continuing to use the Service, you acknowledge that you have read, understood, and agree to be bound by these Terms.",
     privacyFooter:
-      "This document was last updated on June 21, 2026. It is effective as of that date and supersedes all prior versions.",
+      "This document was last updated on June 24, 2026. It is effective as of that date and supersedes all prior versions.",
   },
 };
 

@@ -6,6 +6,7 @@ export const Route = createFileRoute("/auth/discord/")({
   server: {
     handlers: {
       GET: ({ request }) => handleDiscordLogin(request, cloudflareOAuthEnv()),
+      POST: ({ request }) => handleDiscordLogin(request, cloudflareOAuthEnv()),
     },
   },
 });
