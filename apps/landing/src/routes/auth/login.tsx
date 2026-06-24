@@ -30,7 +30,7 @@ function LoginRoute() {
       <main className="flex min-h-[50vh] items-center justify-center px-6">
         <div role="status" className="flex flex-col items-center gap-4">
           <div
-            className="dashboard-spinner size-9 rounded-full border-2 border-muted/60 border-t-primary"
+            className="size-9 animate-spin rounded-full border-2 border-muted/60 border-t-primary"
             aria-hidden
           />
           <p className="text-muted-foreground text-sm">Loading session…</p>

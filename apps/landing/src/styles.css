@@ -438,16 +438,6 @@
     }
   }
 
-  .dashboard-spinner {
-    animation: dashboard-spin 0.75s linear infinite;
-  }
-
-  @keyframes dashboard-spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-
   .dashboard-fade-in {
     animation: dashboard-fade-in 0.22s ease-out both;
   }
@@ -510,7 +500,6 @@
     .glass-panel,
     .hero-drift,
     .skeleton-block::after,
-    .dashboard-spinner,
     .dashboard-fade-in {
       transition: none;
       animation: none;
