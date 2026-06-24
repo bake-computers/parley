@@ -5,7 +5,7 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import { ChevronDown, Menu, X } from "lucide-react";
 import { ThemeToggle } from "#/components/ui/theme-toggle";
-import { useAuthMe } from "#/hooks/useAuthMe";
+import { clearAuthMeCache, useAuthMe } from "#/hooks/useAuthMe";
 import { useScrollSpy } from "#/hooks/useScrollSpy";
 import { homeSectionHref, siteHref } from "#/lib/content/paths";
 import { useMessages } from "#/lib/content/messages/use-messages";
@@ -91,7 +91,155 @@ function NavResourcesDropdown({
   );
 }
 
-function HeaderAuthButton({ className, onNavigate }: { className?: string; onNavigate?: () => void }) {
+const profileMenuItemClass =
+  "text-muted-foreground hover:text-foreground block rounded-xl px-3 py-2.5 text-sm font-medium transition-colors hover:bg-muted/50";
+
+function HeaderProfileMenu({
+  className,
+  onNavigate,
+  layout = "dropdown",
+}: {
+  className?: string;
+  onNavigate?: () => void;
+  layout?: "dropdown" | "stack";
+}) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const { me } = useAuthMe();
+  const m = useMessages();
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+    const onPointerDown = (e: PointerEvent) => {
+      if (!rootRef.current?.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open]);
+
+  if (!me) {
+    return null;
+  }
+
+  const displayName = me.user.globalName ?? me.user.username;
+  const avatar = discordAvatarUrl(me.user.id, me.user.avatar);
+
+  const close = () => {
+    setOpen(false);
+    onNavigate?.();
+  };
+
+  const signOut = () => {
+    clearAuthMeCache();
+    close();
+  };
+
+  if (layout === "stack") {
+    return (
+      <div className={cn("mt-1 flex flex-col gap-1", className)}>
+        <div className="flex items-center gap-2.5 px-4 py-2">
+          <img
+            src={avatar}
+            alt=""
+            width={32}
+            height={32}
+            className="size-8 shrink-0 rounded-full ring-1 ring-border"
+          />
+          <span className="truncate text-sm font-medium text-foreground">{displayName}</span>
+        </div>
+        <Link
+          to="/dashboard"
+          onClick={close}
+          className="text-muted-foreground min-h-11 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors hover:bg-muted/50 hover:text-foreground"
+        >
+          {m.nav.dashboard}
+        </Link>
+        <Link
+          to="/dashboard/account"
+          onClick={close}
+          className="text-muted-foreground min-h-11 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors hover:bg-muted/50 hover:text-foreground"
+        >
+          {m.nav.account}
+        </Link>
+        <a
+          href="/auth/logout"
+          onClick={signOut}
+          className="text-muted-foreground min-h-11 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors hover:bg-muted/50 hover:text-foreground"
+        >
+          {m.nav.signOut}
+        </a>
+      </div>
+    );
+  }
+
+  return (
+    <div ref={rootRef} className={cn("relative", className)}>
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-haspopup="menu"
+        aria-label={displayName}
+        onClick={() => setOpen((v) => !v)}
+        className={cn(
+          "group relative flex size-12 min-h-12 min-w-12 shrink-0 items-center justify-center rounded-full transition-colors",
+          open
+            ? "bg-muted/50 text-foreground"
+            : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
+        )}
+      >
+        <img
+          src={avatar}
+          alt=""
+          width={32}
+          height={32}
+          className={cn(
+            "size-8 rounded-full ring-2 ring-transparent transition-[box-shadow,ring-color] group-hover:ring-border/50",
+            open && "ring-border",
+          )}
+        />
+      </button>
+      {open ? (
+        <div
+          role="menu"
+          className="glass-panel absolute top-[calc(100%+0.35rem)] right-0 z-50 min-w-[11rem] rounded-2xl p-1.5 shadow-lg"
+        >
+          <Link to="/dashboard" role="menuitem" onClick={close} className={profileMenuItemClass}>
+            {m.nav.dashboard}
+          </Link>
+          <Link to="/dashboard/account" role="menuitem" onClick={close} className={profileMenuItemClass}>
+            {m.nav.account}
+          </Link>
+          <a href="/auth/logout" role="menuitem" onClick={signOut} className={profileMenuItemClass}>
+            {m.nav.signOut}
+          </a>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function HeaderAuthButton({
+  className,
+  onNavigate,
+  layout = "dropdown",
+}: {
+  className?: string;
+  onNavigate?: () => void;
+  layout?: "dropdown" | "stack";
+}) {
   const { me } = useAuthMe();
   const m = useMessages();
 
@@ -100,27 +248,7 @@ function HeaderAuthButton({ className, onNavigate }: { className?: string; onNav
   }
 
   if (me) {
-    const displayName = me.user.globalName ?? me.user.username;
-    const avatar = discordAvatarUrl(me.user.id, me.user.avatar);
-    return (
-      <Link
-        to="/dashboard"
-        onClick={onNavigate}
-        className={cn(
-          "inline-flex h-12 min-h-12 shrink-0 items-center gap-2.5 rounded-full bg-muted/60 px-2.5 pr-4 text-sm font-medium text-foreground transition-all hover:bg-muted/80 active:scale-[0.98]",
-          className,
-        )}
-      >
-        <img
-          src={avatar}
-          alt=""
-          width={32}
-          height={32}
-          className="size-8 shrink-0 rounded-full ring-1 ring-border"
-        />
-        <span className="max-w-[9rem] truncate">{displayName}</span>
-      </Link>
-    );
+    return <HeaderProfileMenu className={className} onNavigate={onNavigate} layout={layout} />;
   }
 
   return (
@@ -284,6 +412,7 @@ export function SiteHeader() {
               <ThemeToggle />
             </div>
             <HeaderAuthButton
+              layout="stack"
               className="mt-1 w-full justify-center"
               onNavigate={() => setMenuOpen(false)}
             />
