@@ -78,7 +78,7 @@ export function AuthLoginPage({
       host.replaceChildren();
       widgetIdRef.current = window.turnstile.render(host, {
         sitekey: turnstileSiteKey,
-        size: "normal",
+        size: "flexible",
         theme: "auto",
         action: "turnstile-spin-v1",
         callback: () => setTurnstileReady(true),
@@ -200,9 +200,7 @@ export function AuthLoginPage({
                   Authorize
                   <ArrowRight className="size-4" aria-hidden />
                 </button>
-                <div className="auth-turnstile">
-                  <div ref={widgetHostRef} className="auth-turnstile__frame" />
-                </div>
+                <div ref={widgetHostRef} className="auth-turnstile" />
               </form>
             ) : (
               <a
