@@ -51,6 +51,9 @@ func New(ctx context.Context, cfg *config.Config) (*bun.DB, error) {
 		if err := applyTLS(cfg, tlsCfg); err != nil {
 			return nil, err
 		}
+		if host := poolCfg.ConnConfig.Host; host != "" {
+			tlsCfg.ServerName = host
+		}
 		poolCfg.ConnConfig.TLSConfig = tlsCfg
 	}
 
