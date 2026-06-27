@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/pactum-computers/parley/internal/server"
@@ -58,6 +59,26 @@ func TestReadyEndpoint(t *testing.T) {
 
 	if resp.StatusCode != http.StatusOK {
 		t.Errorf("expected 200, got %d", resp.StatusCode)
+	}
+}
+
+func TestMetricsEndpoint(t *testing.T) {
+	deps := newTestApp(t)
+	app := server.New(*deps)
+
+	req := httptest.NewRequest(http.MethodGet, "/metrics", nil)
+	resp, err := app.Test(req)
+	if err != nil {
+		t.Fatalf("request failed: %v", err)
+	}
+	defer func() { _ = resp.Body.Close() }()
+
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("expected 200, got %d", resp.StatusCode)
+	}
+	body, _ := io.ReadAll(resp.Body)
+	if !strings.Contains(string(body), "go_goroutines") {
+		t.Errorf("expected prometheus go metrics, got: %s", body[:min(200, len(body))])
 	}
 }
 

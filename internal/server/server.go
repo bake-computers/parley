@@ -64,6 +64,7 @@ func New(deps Deps) *fiber.App {
 		}
 		return c.SendString("READY")
 	})
+	mountMetrics(app)
 
 	// Stats REST endpoint: GET /stats/:username
 	statsREST := adaptor.HTTPHandler(http.HandlerFunc(handlers.StatsRESTHandler(deps.Stats)))

@@ -27,5 +27,8 @@ proto:
 run: build
 	./$(BINARY)
 
+docker-build:
+	docker build -t parley-engine .
+
 clean:
 	rm -f $(BINARY) coverage.out *.test

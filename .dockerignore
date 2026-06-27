@@ -1,0 +1,12 @@
+.git
+.github
+apps
+packages
+deploy/terraform
+node_modules
+graphify-out
+docs
+*.md
+.env
+.env.*
+!.env.example
