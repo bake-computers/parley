@@ -40,9 +40,12 @@ func New(ctx context.Context, cfg *config.Config) (*bun.DB, error) {
 	if cfg.DBConnectionTimeoutMS > 0 {
 		poolCfg.ConnConfig.ConnectTimeout = time.Duration(cfg.DBConnectionTimeoutMS) * time.Millisecond
 	}
+	idle := 60 * time.Second
 	if cfg.DBIdleTimeoutS > 0 {
-		poolCfg.MaxConnIdleTime = time.Duration(cfg.DBIdleTimeoutS) * time.Second
+		idle = time.Duration(cfg.DBIdleTimeoutS) * time.Second
 	}
+	poolCfg.MaxConnIdleTime = idle
+	poolCfg.MaxConnLifetime = 30 * time.Minute
 
 	poolCfg.ConnConfig.DefaultQueryExecMode = pgx.QueryExecModeSimpleProtocol
 
@@ -68,6 +71,8 @@ func New(ctx context.Context, cfg *config.Config) (*bun.DB, error) {
 	}
 
 	sqldb := stdlib.OpenDBFromPool(pool)
+	sqldb.SetConnMaxIdleTime(idle)
+	sqldb.SetConnMaxLifetime(poolCfg.MaxConnLifetime)
 	db := bun.NewDB(sqldb, pgdialect.New())
 
 	if cfg.RunMigrations {

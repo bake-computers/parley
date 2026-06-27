@@ -58,9 +58,9 @@ func Load() (*Config, error) {
 		RunMigrations:     os.Getenv("RUN_MIGRATIONS") == "1",
 
 		DBPoolMax:             readUint32("DB_POOL_MAX", 32),
-		DBPoolMinIdle:         readUint32("DB_POOL_MIN_IDLE", 4),
+		DBPoolMinIdle:         readUint32("DB_POOL_MIN_IDLE", 0),
 		DBConnectionTimeoutMS: readUint64("DB_CONNECTION_TIMEOUT_MS", 3000),
-		DBIdleTimeoutS:        readUint64("DB_IDLE_TIMEOUT_S", 600),
+		DBIdleTimeoutS:        readUint64("DB_IDLE_TIMEOUT_S", 60),
 		DBTLS:                 getenv("DB_TLS", "system"),
 		DBTLSCAFile:           os.Getenv("DB_TLS_CA_FILE"),
 
