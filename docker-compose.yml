@@ -1,0 +1,47 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:18
+    container_name: parley_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-parley}
+      POSTGRES_DB: ${POSTGRES_DB:-parley}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-development_only_password}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"
+    networks:
+      - internal-net
+
+  redis:
+    image: redis:8.8-alpine
+    restart: always
+    command: redis-server ${REDIS_ARGS:- --appendonly yes}
+    ports:
+      - "127.0.0.1:6379:6379"
+    volumes:
+      - redisdata:/data
+    networks:
+      - internal-net
+
+  parley:
+    image: ghcr.io/pactum-computer/parley:latest
+    container_name: parley-backend
+    restart: always
+    ports:
+      - "127.0.0.1:50051:50051"
+    networks:
+      - internal-net
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+volumes:
+  pgdata:
+  redisdata:
+
+networks:
+  internal-net:
+    driver: bridge
