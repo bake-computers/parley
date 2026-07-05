@@ -1,0 +1,130 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TURBO_TELEMETRY_DISABLED: 1
+
+jobs:
+  changes:
+    name: Detect changed paths
+    runs-on: blacksmith-2vcpu-ubuntu-2404
+    outputs:
+      typescript: ${{ steps.filter.outputs.typescript }}
+      go: ${{ steps.filter.outputs.go }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Filter paths
+        uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            typescript:
+              - 'apps/**'
+              - 'packages/**'
+              - 'proto/**'
+              - 'package.json'
+              - 'bun.lock'
+              - 'bun.lockb'
+              - 'turbo.json'
+              - 'oxfmt.config.ts'
+              - 'oxlint.config.ts'
+              - 'tsconfig*.json'
+              - 'packages/tsconfig-base/**'
+              - '.github/workflows/ci.yml'
+            go:
+              - 'go.mod'
+              - 'go.sum'
+              - 'cmd/**'
+              - 'internal/**'
+              - 'gen/**'
+              - 'migrations/**'
+              - 'proto/**'
+              - 'Dockerfile'
+              - '.github/workflows/ci.yml'
+
+  typescript:
+    name: Lint and typecheck
+    needs: changes
+    if: needs.changes.outputs.typescript == 'true'
+    runs-on: blacksmith-2vcpu-ubuntu-2404
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.14
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Cache Bun Install
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.bun/install/cache
+            node_modules
+            apps/*/node_modules
+            packages/*/node_modules
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock', 'bun.lockb', 'package.json', 'apps/*/package.json', 'packages/*/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: Install Dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Setup Buf
+        uses: bufbuild/buf-setup-action@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate protobuf
+        run: buf generate
+
+      - name: Lint
+        run: bun run lint
+
+      - name: Typecheck
+        run: bun run typecheck
+
+  go:
+    name: Vet and test engine-service
+    needs: changes
+    if: needs.changes.outputs.go == 'true'
+    runs-on: blacksmith-2vcpu-ubuntu-2404
+    timeout-minutes: 10
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache-dependency-path: go.sum
+
+      - name: Setup Buf
+        uses: bufbuild/buf-setup-action@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate protobuf (Go)
+        run: buf generate
+
+      - name: Vet and test
+        run: |
+          go vet ./...
+          go test ./...
