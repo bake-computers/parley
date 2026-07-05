@@ -99,8 +99,8 @@ Copy `.env.example` to `.env`. Without `DATABASE_URL`, the engine runs in degrad
 
 ### Deploy
 
-- **Engine**: `.github/workflows/deploy.yml` builds Go (`go test`, `go build`), SCP to bare metal. See `deploy/systemd/parley.service`.
-- **Workers**: `bun run deploy` (Wrangler per app).
+- **Engine**: `.github/workflows/deploy-engine.yml` builds the [`Dockerfile`](Dockerfile) and pushes `ghcr.io/<owner>/parley-engine` on `main`. Runtime pull/restart is outside CI.
+- **Workers**: `.github/workflows/deploy-cloudflare-workers.yml` on `main`, or `bun run deploy` (Wrangler per app) locally.
 
 ## Linting & Formatting
 
@@ -143,7 +143,9 @@ Game-scoped tables use Postgres `games` enum (`r6` only in product scope). Domai
 
 ## CI
 
-`.github/workflows/deploy.yml` — Go build, `go vet`, `go test`, release binary deploy on changes under `cmd/`, `internal/`, `gen/`, `migrations/`, `proto/`. TS deploy remains manual via Wrangler.
+- `.github/workflows/ci.yml` — PRs to `main`: TypeScript lint/typecheck and Go `vet`/`test` (path-filtered jobs).
+- `.github/workflows/deploy-engine.yml` — `main`: Docker image to GHCR on engine path changes.
+- `.github/workflows/deploy-cloudflare-workers.yml` — `main`: Cloudflare Workers deploy on TS path changes.
 
 ## Workflow & PR Checklist
 
