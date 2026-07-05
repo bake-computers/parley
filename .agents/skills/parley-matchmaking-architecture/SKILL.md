@@ -6,18 +6,19 @@ description: Use when working on the Go matchmaking subsystem in the Parley engi
 # Parley Matchmaking Architecture
 
 ## Overview
+
 The matchmaking subsystem lives in `internal/matchmaking/`. Split cleanly into **pure-logic files** (no I/O, fully unit-testable) and **DB-aware files** (use `internal/repos` for Postgres). Mirrors the Rust `src/matchmaking/*` files 1:1.
 
 ## Quick reference
 
-| File | Layer | Role |
-| --- | --- | --- |
-| `cpr.go` | Pure | `StatNorm` (z-score normalization), `GlickoQ`/`beta` constants, CPR computation |
-| `glicko.go` | Pure | `TeamRoster`, `RosterMember` (mu/phi), Glicko-2 math, win-probability |
-| `eligibility.go` | DB | `Service` struct, `LoadEligibility`, rank/quota gates |
-| `players.go` | DB | `PlayerSeedData` (rank, KD, KOST, KPR, HSP, score), `LoadedPlayer` |
-| `queue.go` | DB | `FormedMatch`, `FindMatchingStackIndices` — team formation |
-| `sweeper.go` | DB | `Run(ctx, interval)` and `Tick(ctx)` — background loop |
+| File             | Layer | Role                                                                            |
+| ---------------- | ----- | ------------------------------------------------------------------------------- |
+| `cpr.go`         | Pure  | `StatNorm` (z-score normalization), `GlickoQ`/`beta` constants, CPR computation |
+| `glicko.go`      | Pure  | `TeamRoster`, `RosterMember` (mu/phi), Glicko-2 math, win-probability           |
+| `eligibility.go` | DB    | `Service` struct, `LoadEligibility`, rank/quota gates                           |
+| `players.go`     | DB    | `PlayerSeedData` (rank, KD, KOST, KPR, HSP, score), `LoadedPlayer`              |
+| `queue.go`       | DB    | `FormedMatch`, `FindMatchingStackIndices` — team formation                      |
+| `sweeper.go`     | DB    | `Run(ctx, interval)` and `Tick(ctx)` — background loop                          |
 
 ## Critical patterns
 
@@ -41,5 +42,6 @@ The matchmaking subsystem lives in `internal/matchmaking/`. Split cleanly into *
 - Treating `ExpectedLobbyCPR` as a measured outcome — it's a model output
 
 ## See also
+
 - `README.md` §6 — matchmaking engine overview
 - `parley-proto-contracts` skill — for the `MatchmakingService` RPC contract

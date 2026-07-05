@@ -1,9 +1,5 @@
 import { describe, expect, test, vi } from "vitest";
-import {
-  cacheMatchHtml,
-  fetchMatchFromCacheOrBridge,
-  normalizeMatchData,
-} from "./cache.js";
+import { cacheMatchHtml, fetchMatchFromCacheOrBridge, normalizeMatchData } from "./cache.js";
 
 function createMockEnv(options: { cachedValue?: unknown; bridgeResponse?: Response } = {}) {
   const kvStore = new Map<string, unknown>();

@@ -91,7 +91,13 @@ function AccountSettingsPage() {
       </Link>
 
       <header className="mb-8 flex flex-col gap-6 sm:flex-row sm:items-center">
-        <img src={avatar} alt="" width={64} height={64} className="size-16 rounded-full ring-1 ring-border" />
+        <img
+          src={avatar}
+          alt=""
+          width={64}
+          height={64}
+          className="size-16 rounded-full ring-1 ring-border"
+        />
         <div className="min-w-0 flex-1">
           <h1 className="truncate text-2xl font-semibold tracking-tight">{displayName}</h1>
           <p className="text-muted-foreground mt-1 text-sm">@{me.user.username}</p>
@@ -105,8 +111,8 @@ function AccountSettingsPage() {
         <div className="text-center">
           <p className="text-destructive text-sm">{loadError}</p>
           <p className="text-muted-foreground mt-2 text-xs">
-            Dev uses remote VPC to the Parley engine. Check Cloudflare login, remote bindings, and engine
-            availability.
+            Dev uses remote VPC to the Parley engine. Check Cloudflare login, remote bindings, and
+            engine availability.
           </p>
         </div>
       ) : settings ? (

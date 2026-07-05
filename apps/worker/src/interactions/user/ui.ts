@@ -84,7 +84,9 @@ function pageNav(
     .setStyle(ButtonStyle.Secondary)
     .setDisabled(page <= 0);
   const nextMain = new ButtonBuilder()
-    .setCustomId(`${USER_PAGE_PREFIX}${Math.min(USER_SETTINGS_PAGE_COUNT - 1, page + 1)}:${timezonePage}`)
+    .setCustomId(
+      `${USER_PAGE_PREFIX}${Math.min(USER_SETTINGS_PAGE_COUNT - 1, page + 1)}:${timezonePage}`,
+    )
     .setLabel("Privacy")
     .setStyle(ButtonStyle.Primary)
     .setDisabled(page >= USER_SETTINGS_PAGE_COUNT - 1);
@@ -116,15 +118,13 @@ function buildPreferencesPage(
   page: number,
   timezonePage: number,
 ): ContainerBuilder {
-  const container = new ContainerBuilder()
-    .setAccentColor(COLORS.main)
-    .addComponents(
-      new TextDisplayBuilder().setContent(titleWith(emojis, "pin", "Your Settings")),
-      new TextDisplayBuilder().setContent(
-        `Page **${page + 1}** / **${USER_SETTINGS_PAGE_COUNT}** · ${emojiOr(emojis, "global")} Preferences`,
-      ),
-      separator(),
-      new TextDisplayBuilder().setContent(
+  const container = new ContainerBuilder().setAccentColor(COLORS.main).addComponents(
+    new TextDisplayBuilder().setContent(titleWith(emojis, "pin", "Your Settings")),
+    new TextDisplayBuilder().setContent(
+      `Page **${page + 1}** / **${USER_SETTINGS_PAGE_COUNT}** · ${emojiOr(emojis, "global")} Preferences`,
+    ),
+    separator(),
+    new TextDisplayBuilder().setContent(
       `${emojiOr(emojis, "linked")} **Matchmaking** · ${settings.matchmakingEnabled ? "Enabled" : "Disabled"}`,
     ),
     new ActionRowBuilder().addComponents(
@@ -261,10 +261,7 @@ export function buildSettingsCard(
   emojis: ApplicationEmojiCatalog,
   view: UserSettingsView = {},
 ): ContainerBuilder {
-  const page = Math.min(
-    USER_SETTINGS_PAGE_COUNT - 1,
-    Math.max(0, view.page ?? 0),
-  );
+  const page = Math.min(USER_SETTINGS_PAGE_COUNT - 1, Math.max(0, view.page ?? 0));
   const timezonePage = Math.max(0, view.timezonePage ?? 0);
   if (page === 0) {
     return buildPreferencesPage(settings, emojis, page, timezonePage);

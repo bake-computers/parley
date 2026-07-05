@@ -15,7 +15,9 @@ export interface DispatchEnv extends EngineTransportEnv {
   readonly DISCORD_TOKEN?: string;
 }
 
-export type DiscordClientFactory = (token: string) => DiscordRestClient | Promise<DiscordRestClient>;
+export type DiscordClientFactory = (
+  token: string,
+) => DiscordRestClient | Promise<DiscordRestClient>;
 
 async function computeHmac(secret: string, body: string): Promise<string> {
   const encoder = new TextEncoder();
@@ -61,12 +63,12 @@ async function defaultClientFactory(token: string): Promise<DiscordRestClient> {
   return new DiscordRestClient(token);
 }
 
-const getSettingsFromMap = (
-  map: ReadonlyMap<string, NotificationSettings>,
-): ((guildId: string) => NotificationSettings | undefined) =>
+const getSettingsFromMap =
+  (
+    map: ReadonlyMap<string, NotificationSettings>,
+  ): ((guildId: string) => NotificationSettings | undefined) =>
   (guildId: string) =>
     map.get(guildId);
-
 
 export function createDispatchHandler(clientFactory: DiscordClientFactory = defaultClientFactory) {
   return async function handleDispatch(c: Context<{ Bindings: DispatchEnv }>): Promise<Response> {
@@ -126,11 +128,14 @@ export function createDispatchHandler(clientFactory: DiscordClientFactory = defa
         announceMatchResultsEnabled: response.announceMatchResultsEnabled,
       };
     } catch (err) {
-      console.error("failed to load host guild settings", { guildId: payload.host_guild_id, error: err });
+      console.error("failed to load host guild settings", {
+        guildId: payload.host_guild_id,
+        error: err,
+      });
       return c.json({ status: "error", reason: "settings_fetch_failed" });
     }
 
-    const participantSettings = new Map<string, NotificationSettings>()
+    const participantSettings = new Map<string, NotificationSettings>();
 
     if (hostSettings.crossGuildAnnouncementsEnabled) {
       await Promise.all(
@@ -158,11 +163,7 @@ export function createDispatchHandler(clientFactory: DiscordClientFactory = defa
       );
     }
 
-    const targets = resolveTargets(
-      payload,
-      hostSettings,
-      getSettingsFromMap(participantSettings)
-    )
+    const targets = resolveTargets(payload, hostSettings, getSettingsFromMap(participantSettings));
 
     if (targets.length === 0) {
       return c.json({ status: "skipped", reason: "no_targets" });
@@ -181,7 +182,12 @@ export function createDispatchHandler(clientFactory: DiscordClientFactory = defa
     const results = await Promise.all(
       targets.map(async (target) => {
         try {
-          const result = await postChannelMessage(discordClient, target.channelId, container, embed);
+          const result = await postChannelMessage(
+            discordClient,
+            target.channelId,
+            container,
+            embed,
+          );
           if (result.isErr()) {
             console.error("failed to post notification", {
               guildId: target.guildId,

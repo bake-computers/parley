@@ -44,8 +44,8 @@ export function prefetchGuildTextChannels(guildId: string): void {
 }
 
 export function useGuildTextChannels(guildId: string): State {
-  const [channels, setChannels] = useState<GuildTextChannel[] | null>(
-    () => (cacheGuildId === guildId ? cacheChannels : null),
+  const [channels, setChannels] = useState<GuildTextChannel[] | null>(() =>
+    cacheGuildId === guildId ? cacheChannels : null,
   );
   const [error, setError] = useState<string | null>(null);
 

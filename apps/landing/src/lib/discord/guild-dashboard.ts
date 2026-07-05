@@ -27,8 +27,7 @@ export async function publicGuildsForDashboard(
         owner: g.owner,
         canManage,
         parleyInstalled,
-        inviteUrl:
-          canManage && !parleyInstalled ? buildBotInviteUrl(clientId, g.id) : null,
+        inviteUrl: canManage && !parleyInstalled ? buildBotInviteUrl(clientId, g.id) : null,
       };
     }),
   );

@@ -22,7 +22,7 @@ function captureReply() {
   const editCalls: Parameters<Reply>[0][] = [];
   const ctxStore = new Map<string, unknown>();
   let deferred = false;
-    const interaction = {
+  const interaction = {
     user: { id: "u1" },
     commandName: "user",
     get deferred() {

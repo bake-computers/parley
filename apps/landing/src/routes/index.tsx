@@ -6,12 +6,8 @@ import { SiteFooter } from "#/components/Footer";
 import { PageSection, PageSections } from "#/components/ui/page-section";
 import { SectionSkeleton } from "#/components/ui/skeleton";
 
-const Problem = lazy(() =>
-  import("#/components/Problem").then((m) => ({ default: m.Problem })),
-);
-const OurStory = lazy(() =>
-  import("#/components/OurStory").then((m) => ({ default: m.OurStory })),
-);
+const Problem = lazy(() => import("#/components/Problem").then((m) => ({ default: m.Problem })));
+const OurStory = lazy(() => import("#/components/OurStory").then((m) => ({ default: m.OurStory })));
 const Matchmaking = lazy(() =>
   import("#/components/Matchmaking").then((m) => ({ default: m.Matchmaking })),
 );

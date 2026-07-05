@@ -52,7 +52,9 @@ export function SiteFooter() {
           </div>
 
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-border/20 pt-6">
-            <span className="text-xs font-medium text-muted-foreground/70">{m.footer.poweredBy}</span>
+            <span className="text-xs font-medium text-muted-foreground/70">
+              {m.footer.poweredBy}
+            </span>
             {poweredBy.map((partner) => (
               <a
                 key={partner.href}

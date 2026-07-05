@@ -11,8 +11,10 @@ import type { Message } from "@bufbuild/protobuf";
 /**
  * Describes the file identity/v1/identity.proto.
  */
-export const file_identity_v1_identity: GenFile = /*@__PURE__*/
-  fileDesc("ChppZGVudGl0eS92MS9pZGVudGl0eS5wcm90bxIScGFybGV5LmlkZW50aXR5LnYxIokBChJMaW5rQWNjb3VudFJlcXVlc3QSFwoPZGlzY29yZF91c2VyX2lkGAEgASgJEiQKBGdhbWUYAiABKA4yFi5wYXJsZXkuY29tbW9uLnYxLkdhbWUSEAoIdXNlcm5hbWUYAyABKAkSEAoIcGxhdGZvcm0YBCABKAkSEAoIZ3VpbGRfaWQYBSABKAkifgoTTGlua0FjY291bnRSZXNwb25zZRIPCgdzdWNjZXNzGAEgASgIEhEKCXBsYXllcl9pZBgCIAEoBRIbChN1c2VybmFtZV9ub3JtYWxpemVkGAMgASgJEiYKBWVycm9yGAQgASgLMhcucGFybGV5LmNvbW1vbi52MS5FcnJvciJnChRVbmxpbmtBY2NvdW50UmVxdWVzdBIXCg9kaXNjb3JkX3VzZXJfaWQYASABKAkSJAoEZ2FtZRgCIAEoDjIWLnBhcmxleS5jb21tb24udjEuR2FtZRIQCghwbGF0Zm9ybRgDIAEoCSJ8ChVVbmxpbmtBY2NvdW50UmVzcG9uc2USDwoHc3VjY2VzcxgBIAEoCBIPCgdyZW1vdmVkGAIgASgFEiYKBWVycm9yGAMgASgLMhcucGFybGV5LmNvbW1vbi52MS5FcnJvchIZChFjb29sZG93bl91bnRpbF9tcxgEIAEoAyJXChZMb29rdXBCeURpc2NvcmRSZXF1ZXN0EhcKD2Rpc2NvcmRfdXNlcl9pZBgBIAEoCRIkCgRnYW1lGAIgASgOMhYucGFybGV5LmNvbW1vbi52MS5HYW1lIooBChdMb29rdXBCeURpc2NvcmRSZXNwb25zZRIPCgdzdWNjZXNzGAEgASgIEjYKCmlkZW50aXRpZXMYAiADKAsyIi5wYXJsZXkuaWRlbnRpdHkudjEuTGlua2VkSWRlbnRpdHkSJgoFZXJyb3IYAyABKAsyFy5wYXJsZXkuY29tbW9uLnYxLkVycm9yImMKF0xvb2t1cEJ5VXNlcm5hbWVSZXF1ZXN0EiQKBGdhbWUYASABKA4yFi5wYXJsZXkuY29tbW9uLnYxLkdhbWUSEAoIdXNlcm5hbWUYAiABKAkSEAoIcGxhdGZvcm0YAyABKAkiiQEKGExvb2t1cEJ5VXNlcm5hbWVSZXNwb25zZRIPCgdzdWNjZXNzGAEgASgIEjQKCGlkZW50aXR5GAIgASgLMiIucGFybGV5LmlkZW50aXR5LnYxLkxpbmtlZElkZW50aXR5EiYKBWVycm9yGAMgASgLMhcucGFybGV5LmNvbW1vbi52MS5FcnJvciKsAgoOTGlua2VkSWRlbnRpdHkSJAoEZ2FtZRgBIAEoDjIWLnBhcmxleS5jb21tb24udjEuR2FtZRIXCg9kaXNjb3JkX3VzZXJfaWQYAiABKAkSEQoJcGxheWVyX2lkGAMgASgFEhAKCHVzZXJuYW1lGAQgASgJEhsKE3VzZXJuYW1lX25vcm1hbGl6ZWQYBSABKAkSEAoIcGxhdGZvcm0YBiABKAkSEgoKcHJvZmlsZV9pZBgHIAEoCRITCgtwcm9maWxlX3VybBgIIAEoCRIUCgxpbnRlcm5hbF9lbG8YCSABKAESGAoQaW50ZXJuYWxfbWF0Y2hlcxgKIAEoBRIVCg1pbnRlcm5hbF93aW5zGAsgASgFEhcKD2ludGVybmFsX2xvc3NlcxgMIAEoBTKyAwoPSWRlbnRpdHlTZXJ2aWNlEl4KC0xpbmtBY2NvdW50EiYucGFybGV5LmlkZW50aXR5LnYxLkxpbmtBY2NvdW50UmVxdWVzdBonLnBhcmxleS5pZGVudGl0eS52MS5MaW5rQWNjb3VudFJlc3BvbnNlEmQKDVVubGlua0FjY291bnQSKC5wYXJsZXkuaWRlbnRpdHkudjEuVW5saW5rQWNjb3VudFJlcXVlc3QaKS5wYXJsZXkuaWRlbnRpdHkudjEuVW5saW5rQWNjb3VudFJlc3BvbnNlEmoKD0xvb2t1cEJ5RGlzY29yZBIqLnBhcmxleS5pZGVudGl0eS52MS5Mb29rdXBCeURpc2NvcmRSZXF1ZXN0GisucGFybGV5LmlkZW50aXR5LnYxLkxvb2t1cEJ5RGlzY29yZFJlc3BvbnNlEm0KEExvb2t1cEJ5VXNlcm5hbWUSKy5wYXJsZXkuaWRlbnRpdHkudjEuTG9va3VwQnlVc2VybmFtZVJlcXVlc3QaLC5wYXJsZXkuaWRlbnRpdHkudjEuTG9va3VwQnlVc2VybmFtZVJlc3BvbnNlQl4KFmJvdC5wYXJsZXkuaWRlbnRpdHkudjFaRGdpdGh1Yi5jb20vcGFjdHVtLWNvbXB1dGVycy9wYXJsZXkvZ2VuL3BhcmxleS9pZGVudGl0eS92MTtpZGVudGl0eXYxYgZwcm90bzM", [file_common_v1_types]);
+export const file_identity_v1_identity: GenFile /*@__PURE__*/ = fileDesc(
+  "ChppZGVudGl0eS92MS9pZGVudGl0eS5wcm90bxIScGFybGV5LmlkZW50aXR5LnYxIokBChJMaW5rQWNjb3VudFJlcXVlc3QSFwoPZGlzY29yZF91c2VyX2lkGAEgASgJEiQKBGdhbWUYAiABKA4yFi5wYXJsZXkuY29tbW9uLnYxLkdhbWUSEAoIdXNlcm5hbWUYAyABKAkSEAoIcGxhdGZvcm0YBCABKAkSEAoIZ3VpbGRfaWQYBSABKAkifgoTTGlua0FjY291bnRSZXNwb25zZRIPCgdzdWNjZXNzGAEgASgIEhEKCXBsYXllcl9pZBgCIAEoBRIbChN1c2VybmFtZV9ub3JtYWxpemVkGAMgASgJEiYKBWVycm9yGAQgASgLMhcucGFybGV5LmNvbW1vbi52MS5FcnJvciJnChRVbmxpbmtBY2NvdW50UmVxdWVzdBIXCg9kaXNjb3JkX3VzZXJfaWQYASABKAkSJAoEZ2FtZRgCIAEoDjIWLnBhcmxleS5jb21tb24udjEuR2FtZRIQCghwbGF0Zm9ybRgDIAEoCSJ8ChVVbmxpbmtBY2NvdW50UmVzcG9uc2USDwoHc3VjY2VzcxgBIAEoCBIPCgdyZW1vdmVkGAIgASgFEiYKBWVycm9yGAMgASgLMhcucGFybGV5LmNvbW1vbi52MS5FcnJvchIZChFjb29sZG93bl91bnRpbF9tcxgEIAEoAyJXChZMb29rdXBCeURpc2NvcmRSZXF1ZXN0EhcKD2Rpc2NvcmRfdXNlcl9pZBgBIAEoCRIkCgRnYW1lGAIgASgOMhYucGFybGV5LmNvbW1vbi52MS5HYW1lIooBChdMb29rdXBCeURpc2NvcmRSZXNwb25zZRIPCgdzdWNjZXNzGAEgASgIEjYKCmlkZW50aXRpZXMYAiADKAsyIi5wYXJsZXkuaWRlbnRpdHkudjEuTGlua2VkSWRlbnRpdHkSJgoFZXJyb3IYAyABKAsyFy5wYXJsZXkuY29tbW9uLnYxLkVycm9yImMKF0xvb2t1cEJ5VXNlcm5hbWVSZXF1ZXN0EiQKBGdhbWUYASABKA4yFi5wYXJsZXkuY29tbW9uLnYxLkdhbWUSEAoIdXNlcm5hbWUYAiABKAkSEAoIcGxhdGZvcm0YAyABKAkiiQEKGExvb2t1cEJ5VXNlcm5hbWVSZXNwb25zZRIPCgdzdWNjZXNzGAEgASgIEjQKCGlkZW50aXR5GAIgASgLMiIucGFybGV5LmlkZW50aXR5LnYxLkxpbmtlZElkZW50aXR5EiYKBWVycm9yGAMgASgLMhcucGFybGV5LmNvbW1vbi52MS5FcnJvciKsAgoOTGlua2VkSWRlbnRpdHkSJAoEZ2FtZRgBIAEoDjIWLnBhcmxleS5jb21tb24udjEuR2FtZRIXCg9kaXNjb3JkX3VzZXJfaWQYAiABKAkSEQoJcGxheWVyX2lkGAMgASgFEhAKCHVzZXJuYW1lGAQgASgJEhsKE3VzZXJuYW1lX25vcm1hbGl6ZWQYBSABKAkSEAoIcGxhdGZvcm0YBiABKAkSEgoKcHJvZmlsZV9pZBgHIAEoCRITCgtwcm9maWxlX3VybBgIIAEoCRIUCgxpbnRlcm5hbF9lbG8YCSABKAESGAoQaW50ZXJuYWxfbWF0Y2hlcxgKIAEoBRIVCg1pbnRlcm5hbF93aW5zGAsgASgFEhcKD2ludGVybmFsX2xvc3NlcxgMIAEoBTKyAwoPSWRlbnRpdHlTZXJ2aWNlEl4KC0xpbmtBY2NvdW50EiYucGFybGV5LmlkZW50aXR5LnYxLkxpbmtBY2NvdW50UmVxdWVzdBonLnBhcmxleS5pZGVudGl0eS52MS5MaW5rQWNjb3VudFJlc3BvbnNlEmQKDVVubGlua0FjY291bnQSKC5wYXJsZXkuaWRlbnRpdHkudjEuVW5saW5rQWNjb3VudFJlcXVlc3QaKS5wYXJsZXkuaWRlbnRpdHkudjEuVW5saW5rQWNjb3VudFJlc3BvbnNlEmoKD0xvb2t1cEJ5RGlzY29yZBIqLnBhcmxleS5pZGVudGl0eS52MS5Mb29rdXBCeURpc2NvcmRSZXF1ZXN0GisucGFybGV5LmlkZW50aXR5LnYxLkxvb2t1cEJ5RGlzY29yZFJlc3BvbnNlEm0KEExvb2t1cEJ5VXNlcm5hbWUSKy5wYXJsZXkuaWRlbnRpdHkudjEuTG9va3VwQnlVc2VybmFtZVJlcXVlc3QaLC5wYXJsZXkuaWRlbnRpdHkudjEuTG9va3VwQnlVc2VybmFtZVJlc3BvbnNlQl4KFmJvdC5wYXJsZXkuaWRlbnRpdHkudjFaRGdpdGh1Yi5jb20vcGFjdHVtLWNvbXB1dGVycy9wYXJsZXkvZ2VuL3BhcmxleS9pZGVudGl0eS92MTtpZGVudGl0eXYxYgZwcm90bzM",
+  [file_common_v1_types],
+);
 
 /**
  * @generated from message parley.identity.v1.LinkAccountRequest
@@ -50,8 +52,10 @@ export type LinkAccountRequest = Message<"parley.identity.v1.LinkAccountRequest"
  * Describes the message parley.identity.v1.LinkAccountRequest.
  * Use `create(LinkAccountRequestSchema)` to create a new message.
  */
-export const LinkAccountRequestSchema: GenMessage<LinkAccountRequest> = /*@__PURE__*/
-  messageDesc(file_identity_v1_identity, 0);
+export const LinkAccountRequestSchema: GenMessage<LinkAccountRequest> /*@__PURE__*/ = messageDesc(
+  file_identity_v1_identity,
+  0,
+);
 
 /**
  * @generated from message parley.identity.v1.LinkAccountResponse
@@ -82,8 +86,10 @@ export type LinkAccountResponse = Message<"parley.identity.v1.LinkAccountRespons
  * Describes the message parley.identity.v1.LinkAccountResponse.
  * Use `create(LinkAccountResponseSchema)` to create a new message.
  */
-export const LinkAccountResponseSchema: GenMessage<LinkAccountResponse> = /*@__PURE__*/
-  messageDesc(file_identity_v1_identity, 1);
+export const LinkAccountResponseSchema: GenMessage<LinkAccountResponse> /*@__PURE__*/ = messageDesc(
+  file_identity_v1_identity,
+  1,
+);
 
 /**
  * @generated from message parley.identity.v1.UnlinkAccountRequest
@@ -111,7 +117,7 @@ export type UnlinkAccountRequest = Message<"parley.identity.v1.UnlinkAccountRequ
  * Describes the message parley.identity.v1.UnlinkAccountRequest.
  * Use `create(UnlinkAccountRequestSchema)` to create a new message.
  */
-export const UnlinkAccountRequestSchema: GenMessage<UnlinkAccountRequest> = /*@__PURE__*/
+export const UnlinkAccountRequestSchema: GenMessage<UnlinkAccountRequest> /*@__PURE__*/ =
   messageDesc(file_identity_v1_identity, 2);
 
 /**
@@ -147,7 +153,7 @@ export type UnlinkAccountResponse = Message<"parley.identity.v1.UnlinkAccountRes
  * Describes the message parley.identity.v1.UnlinkAccountResponse.
  * Use `create(UnlinkAccountResponseSchema)` to create a new message.
  */
-export const UnlinkAccountResponseSchema: GenMessage<UnlinkAccountResponse> = /*@__PURE__*/
+export const UnlinkAccountResponseSchema: GenMessage<UnlinkAccountResponse> /*@__PURE__*/ =
   messageDesc(file_identity_v1_identity, 3);
 
 /**
@@ -171,7 +177,7 @@ export type LookupByDiscordRequest = Message<"parley.identity.v1.LookupByDiscord
  * Describes the message parley.identity.v1.LookupByDiscordRequest.
  * Use `create(LookupByDiscordRequestSchema)` to create a new message.
  */
-export const LookupByDiscordRequestSchema: GenMessage<LookupByDiscordRequest> = /*@__PURE__*/
+export const LookupByDiscordRequestSchema: GenMessage<LookupByDiscordRequest> /*@__PURE__*/ =
   messageDesc(file_identity_v1_identity, 4);
 
 /**
@@ -198,7 +204,7 @@ export type LookupByDiscordResponse = Message<"parley.identity.v1.LookupByDiscor
  * Describes the message parley.identity.v1.LookupByDiscordResponse.
  * Use `create(LookupByDiscordResponseSchema)` to create a new message.
  */
-export const LookupByDiscordResponseSchema: GenMessage<LookupByDiscordResponse> = /*@__PURE__*/
+export const LookupByDiscordResponseSchema: GenMessage<LookupByDiscordResponse> /*@__PURE__*/ =
   messageDesc(file_identity_v1_identity, 5);
 
 /**
@@ -225,7 +231,7 @@ export type LookupByUsernameRequest = Message<"parley.identity.v1.LookupByUserna
  * Describes the message parley.identity.v1.LookupByUsernameRequest.
  * Use `create(LookupByUsernameRequestSchema)` to create a new message.
  */
-export const LookupByUsernameRequestSchema: GenMessage<LookupByUsernameRequest> = /*@__PURE__*/
+export const LookupByUsernameRequestSchema: GenMessage<LookupByUsernameRequest> /*@__PURE__*/ =
   messageDesc(file_identity_v1_identity, 6);
 
 /**
@@ -254,7 +260,7 @@ export type LookupByUsernameResponse = Message<"parley.identity.v1.LookupByUsern
  * Describes the message parley.identity.v1.LookupByUsernameResponse.
  * Use `create(LookupByUsernameResponseSchema)` to create a new message.
  */
-export const LookupByUsernameResponseSchema: GenMessage<LookupByUsernameResponse> = /*@__PURE__*/
+export const LookupByUsernameResponseSchema: GenMessage<LookupByUsernameResponse> /*@__PURE__*/ =
   messageDesc(file_identity_v1_identity, 7);
 
 /**
@@ -326,8 +332,10 @@ export type LinkedIdentity = Message<"parley.identity.v1.LinkedIdentity"> & {
  * Describes the message parley.identity.v1.LinkedIdentity.
  * Use `create(LinkedIdentitySchema)` to create a new message.
  */
-export const LinkedIdentitySchema: GenMessage<LinkedIdentity> = /*@__PURE__*/
-  messageDesc(file_identity_v1_identity, 8);
+export const LinkedIdentitySchema: GenMessage<LinkedIdentity> /*@__PURE__*/ = messageDesc(
+  file_identity_v1_identity,
+  8,
+);
 
 /**
  * Identity & account-linking service.
@@ -345,7 +353,7 @@ export const IdentityService: GenService<{
     methodKind: "unary";
     input: typeof LinkAccountRequestSchema;
     output: typeof LinkAccountResponseSchema;
-  },
+  };
   /**
    * @generated from rpc parley.identity.v1.IdentityService.UnlinkAccount
    */
@@ -353,7 +361,7 @@ export const IdentityService: GenService<{
     methodKind: "unary";
     input: typeof UnlinkAccountRequestSchema;
     output: typeof UnlinkAccountResponseSchema;
-  },
+  };
   /**
    * @generated from rpc parley.identity.v1.IdentityService.LookupByDiscord
    */
@@ -361,7 +369,7 @@ export const IdentityService: GenService<{
     methodKind: "unary";
     input: typeof LookupByDiscordRequestSchema;
     output: typeof LookupByDiscordResponseSchema;
-  },
+  };
   /**
    * @generated from rpc parley.identity.v1.IdentityService.LookupByUsername
    */
@@ -369,7 +377,5 @@ export const IdentityService: GenService<{
     methodKind: "unary";
     input: typeof LookupByUsernameRequestSchema;
     output: typeof LookupByUsernameResponseSchema;
-  },
-}> = /*@__PURE__*/
-  serviceDesc(file_identity_v1_identity, 0);
-
+  };
+}> /*@__PURE__*/ = serviceDesc(file_identity_v1_identity, 0);

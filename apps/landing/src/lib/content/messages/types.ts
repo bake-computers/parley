@@ -155,5 +155,3 @@ export type Messages = {
     privacyFooter: string;
   };
 };
-
-

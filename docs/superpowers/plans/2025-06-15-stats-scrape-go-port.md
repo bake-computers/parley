@@ -27,11 +27,13 @@ internal/stats/scrape/
 ### Task 1: Add `go-json` dependency
 
 **Files:**
+
 - Modify: `go.mod`, `go.sum`
 
 - [ ] **Step 1: Add the dependency**
 
 Run:
+
 ```bash
 cd /Users/juwen/dev/commerce/parley && go get github.com/goccy/go-json
 ```
@@ -45,6 +47,7 @@ Expected: `go.mod` updated with `github.com/goccy/go-json` in require block.
 Port of `src/stats_metrics.rs` (105 lines). Depends on `RankedStats` type defined in Task 4, but we can define it here as a forward reference or create the struct in this file first. Since `metrics.go` depends on `RankedStats` from `scrape.go`, we define `RankedStats` in `scrape.go` and import it within the same package.
 
 **Files:**
+
 - Create: `internal/stats/scrape/metrics.go`
 
 - [ ] **Step 1: Write the metrics implementation**
@@ -117,6 +120,7 @@ Skip — this file depends on `RankedStats` from Task 4. Implement Task 4 first,
 Port of the inline `#[cfg(test)] mod tests` in `stats_metrics.rs`.
 
 **Files:**
+
 - Create: `internal/stats/scrape/metrics_test.go`
 
 - [ ] **Step 1: Write the metrics tests**
@@ -185,11 +189,13 @@ func TestUpperIsClampedByTotalRounds(t *testing.T) {
 Port of `src/nuxt.rs` (382 lines). This is the core resolver that follows integer index references in the Nuxt `__NUXT_DATA__` flat array.
 
 Key differences from Rust:
+
 - No zero-copy borrowing — `go-json` unmarshals into `any` (which is `map[string]any`, `[]any`, `float64`, `string`, `bool`, `nil`)
 - `NuxtResolver` wraps `[]any` and resolves `any` values by following integer references
 - Integer detection: JSON numbers become `float64` in Go, so we check if a float64 is a whole number and treat it as an index
 
 **Files:**
+
 - Create: `internal/stats/scrape/nuxt.go`
 
 - [ ] **Step 1: Write the nuxt resolver implementation**
@@ -369,6 +375,7 @@ func AsBool(v any) bool {
 - [ ] **Step 2: Verify compilation**
 
 Run:
+
 ```bash
 cd /Users/juwen/dev/commerce/parley && go build ./internal/stats/scrape/
 ```
@@ -382,6 +389,7 @@ Expected: clean compile (note: depends on `RankedStats` from Task 5).
 Port of the 12 inline tests in `src/nuxt.rs`.
 
 **Files:**
+
 - Create: `internal/stats/scrape/nuxt_test.go`
 
 - [ ] **Step 1: Write the nuxt resolver tests**
@@ -590,6 +598,7 @@ func TestRealStatsCCPayloadSmokeTest(t *testing.T) {
 Port of `src/scrape.rs` (992 lines). This is the largest file — it defines all the public types and the HTML extraction + stats assembly logic.
 
 **Files:**
+
 - Create: `internal/stats/scrape/scrape.go`
 
 - [ ] **Step 1: Write the type definitions and extraction helpers**
@@ -1502,6 +1511,7 @@ func CanonicalizeSeasonSelector(selector string, catalog []SeasonCatalogEntry) s
 - [ ] **Step 7: Verify compilation**
 
 Run:
+
 ```bash
 cd /Users/juwen/dev/commerce/parley && go build ./internal/stats/scrape/
 ```
@@ -1515,6 +1525,7 @@ Expected: clean compile.
 Port of the inline tests in `src/scrape.rs`.
 
 **Files:**
+
 - Create: `internal/stats/scrape/scrape_test.go`
 
 - [ ] **Step 1: Write the scrape tests**
@@ -1597,6 +1608,7 @@ func TestSlugCanon(t *testing.T) {
 - [ ] **Step 2: Run all tests**
 
 Run:
+
 ```bash
 cd /Users/juwen/dev/commerce/parley && go test ./internal/stats/scrape/ -v
 ```

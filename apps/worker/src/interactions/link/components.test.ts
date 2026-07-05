@@ -133,7 +133,10 @@ describe("link/ui — hub card", () => {
       ],
       EMPTY_EMOJIS,
     ).toJSON();
-    const rows = card["components"] as { type: number; components?: { custom_id?: string; options?: { value: string }[] }[] }[];
+    const rows = card["components"] as {
+      type: number;
+      components?: { custom_id?: string; options?: { value: string }[] }[];
+    }[];
     const platformSelect = rows
       .flatMap((row) => row.components ?? [])
       .find((c) => c.custom_id === PLATFORM_SELECT_CUSTOM_ID);

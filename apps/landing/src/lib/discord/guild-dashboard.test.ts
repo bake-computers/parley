@@ -19,10 +19,7 @@ describe("publicGuildsForDashboard", () => {
   test("marks manageable guilds without bot as invite-ready", async () => {
     const manage = (1n << 5n).toString();
     const rows = await publicGuildsForDashboard(
-      [
-        guild({ id: "1", name: "Alpha", permissions: manage }),
-        guild({ id: "2", name: "Beta" }),
-      ],
+      [guild({ id: "1", name: "Alpha", permissions: manage }), guild({ id: "2", name: "Beta" })],
       "client-id",
     );
     expect(rows[0]).toMatchObject({

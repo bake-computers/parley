@@ -37,12 +37,11 @@ export function QuotaSettingsForm() {
       <GlassPanel as="section" className="flex flex-col gap-4 p-6">
         <div>
           <h2 className="text-lg font-semibold tracking-tight">Match quota</h2>
-          <p className="text-muted-foreground text-sm">Daily match limit for this guild (0 = unlimited).</p>
+          <p className="text-muted-foreground text-sm">
+            Daily match limit for this guild (0 = unlimited).
+          </p>
         </div>
-        <SettingsField
-          label="Daily match limit"
-          error={section.isDirty ? limitError : null}
-        >
+        <SettingsField label="Daily match limit" error={section.isDirty ? limitError : null}>
           <SettingsInput
             type="number"
             min={0}

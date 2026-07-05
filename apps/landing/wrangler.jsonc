@@ -15,7 +15,7 @@
     "AXIOM_ENABLED": "true",
     "DISCORD_APPLICATION_ID": "1495122091165618358",
     "ENGINE_INTERNAL_URL": "http://api.internal.parley.bot:50051",
-    "TURNSTILE_SITE_KEY": "0x4AAAAAADp6daoSm0g2pBC_"
+    "TURNSTILE_SITE_KEY": "0x4AAAAAADp6daoSm0g2pBC_",
   },
 
   "services": [{ "binding": "BRIDGE", "service": "parley-bridge" }],
@@ -24,17 +24,17 @@
     {
       "binding": "VPC_SERVICE",
       "service_id": "019e56b4-32d2-7843-bf2b-ec4b056d4400",
-      "remote": true
-    }
+      "remote": true,
+    },
   ],
 
   "kv_namespaces": [
     {
       "binding": "MATCH_KV",
       "id": "d1811757b1204fd2ab1d0225c7bbb5e3",
-      "remote": true
-    }
+      "remote": true,
+    },
   ],
 
-  "routes": [{ "pattern": "parley.bot", "custom_domain": true }]
+  "routes": [{ "pattern": "parley.bot", "custom_domain": true }],
 }

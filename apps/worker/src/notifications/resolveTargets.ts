@@ -1,4 +1,9 @@
-import type { NotifyPayload, NotifyTarget, NotificationEvent, NotificationSettings } from "./types.js";
+import type {
+  NotifyPayload,
+  NotifyTarget,
+  NotificationEvent,
+  NotificationSettings,
+} from "./types.js";
 
 /**
  * Match event types route to match_results_channel.

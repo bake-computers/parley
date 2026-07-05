@@ -21,18 +21,18 @@ describe("settings/ui — notification card", () => {
     const text = JSON.stringify(card);
     expect(text).toContain("settings/match-results/");
     expect(text).toContain("settings/page/");
-    expect(text).toContain("\"type\":1");
-    expect(text).toContain("\"type\":3");
-    expect(text).not.toContain("\"accessory\":{\"type\":3");
+    expect(text).toContain('"type":1');
+    expect(text).toContain('"type":3');
+    expect(text).not.toContain('"accessory":{"type":3');
     expect(text).toContain(SETTINGS_CHANNEL_NONE);
-    expect(text).not.toContain("\"value\":\"\"");
+    expect(text).not.toContain('"value":""');
   });
 
   test("page 1 includes toggle buttons", () => {
     const card = buildNotificationSettingsCard(SETTINGS, {} as never, [], { page: 1 }).toJSON();
     const text = JSON.stringify(card);
     expect(text).toContain("settings/toggle/");
-    expect(text).toContain("\"type\":2");
+    expect(text).toContain('"type":2');
   });
 
   test("error card uses error accent", () => {

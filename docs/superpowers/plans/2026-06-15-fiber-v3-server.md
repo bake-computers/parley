@@ -12,21 +12,23 @@
 
 ## File Structure
 
-| File | Responsibility |
-|------|----------------|
-| `internal/server/server.go` | `New(deps)` constructor, middleware, route registration |
-| `internal/server/server_test.go` | httptest for /health and one RPC smoke test |
+| File                             | Responsibility                                          |
+| -------------------------------- | ------------------------------------------------------- |
+| `internal/server/server.go`      | `New(deps)` constructor, middleware, route registration |
+| `internal/server/server_test.go` | httptest for /health and one RPC smoke test             |
 
 ---
 
 ## Task 1: Add fiber v3 dependency
 
 **Files:**
+
 - Modify: `go.mod`
 
 - [ ] **Step 1: Add fiber v3 to go.mod**
 
 Run:
+
 ```bash
 go get github.com/gofiber/fiber/v3@v3.3.0
 ```
@@ -36,6 +38,7 @@ Expected: `go.mod` updated with `github.com/gofiber/fiber/v3 v3.3.0`
 - [ ] **Step 2: Verify go.sum updated**
 
 Run:
+
 ```bash
 go mod tidy
 ```
@@ -47,6 +50,7 @@ Expected: clean output, no errors
 ## Task 2: Create `internal/server/server.go`
 
 **Files:**
+
 - Create: `internal/server/server.go`
 
 - [ ] **Step 1: Write the server package with deps struct and New()**
@@ -161,6 +165,7 @@ func mountConnectService(app *fiber.App, path string, handler http.Handler) {
 - [ ] **Step 2: Verify compilation**
 
 Run:
+
 ```bash
 go build ./internal/server/...
 ```
@@ -172,6 +177,7 @@ Expected: clean build, no errors
 ## Task 3: Create `internal/server/server_test.go`
 
 **Files:**
+
 - Create: `internal/server/server_test.go`
 
 - [ ] **Step 1: Write tests for /health and a connect RPC smoke test**
@@ -271,6 +277,7 @@ func TestIdentityServiceSmoke(t *testing.T) {
 - [ ] **Step 2: Run tests**
 
 Run:
+
 ```bash
 go test ./internal/server/... -v
 ```
@@ -282,11 +289,13 @@ Expected: all 3 tests pass
 ## Task 4: Verify full build
 
 **Files:**
+
 - (none)
 
 - [ ] **Step 1: Run full build**
 
 Run:
+
 ```bash
 go build ./...
 ```
@@ -296,6 +305,7 @@ Expected: clean build
 - [ ] **Step 2: Run linter**
 
 Run:
+
 ```bash
 golangci-lint run ./internal/server/...
 ```
@@ -308,15 +318,15 @@ Expected: no issues
 
 All 39 RPCs from Rust `src/connect.rs` are covered:
 
-| Service | RPCs | Handler Constructor |
-|---------|------|---------------------|
-| Identity | 4 (LinkAccount, UnlinkAccount, LookupByDiscord, LookupByUsername) | `identityv1connect.NewIdentityServiceHandler` |
-| Guild | 8 (GetGuildSettings, UpsertGuildSettings, GetMatchmakingRules, UpsertMatchmakingRules, GetNotificationSettings, UpsertNotificationSettings, GetMatchQuotas, UpsertMatchQuotas) | `guildv1connect.NewGuildSettingsServiceHandler` |
-| User | 4 (GetUserSettings, UpsertUserSettings, ResolveLanguage, DeleteUserData) | `userv1connect.NewUserSettingsServiceHandler` |
-| Leaderboard | 2 (GetLeaderboard, GetPlayerRank) | `leaderboardv1connect.NewLeaderboardServiceHandler` |
-| Matchmaking | 10 (BuildTeams, ListGuildMembers, JoinQueue, LeaveQueue, GetQueueStatus, CreateCustomMatch, ReportMatchResult, GetMatch, ListMatches, GetMatchByUuid) | `matchmakingv1connect.NewMatchmakingServiceHandler` |
-| Tournament | 9 (CreateTournament, GetTournament, ListTournaments, RegisterTeam, UpdateTeamRoster, UnregisterTeam, StartTournament, ReportBracketResult, CancelTournament) | `tournamentv1connect.NewTournamentServiceHandler` |
-| Stats | 2 (FetchStats, FetchStatsCollection) | `statsv1connect.NewStatsServiceHandler` |
+| Service     | RPCs                                                                                                                                                                           | Handler Constructor                                 |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------- |
+| Identity    | 4 (LinkAccount, UnlinkAccount, LookupByDiscord, LookupByUsername)                                                                                                              | `identityv1connect.NewIdentityServiceHandler`       |
+| Guild       | 8 (GetGuildSettings, UpsertGuildSettings, GetMatchmakingRules, UpsertMatchmakingRules, GetNotificationSettings, UpsertNotificationSettings, GetMatchQuotas, UpsertMatchQuotas) | `guildv1connect.NewGuildSettingsServiceHandler`     |
+| User        | 4 (GetUserSettings, UpsertUserSettings, ResolveLanguage, DeleteUserData)                                                                                                       | `userv1connect.NewUserSettingsServiceHandler`       |
+| Leaderboard | 2 (GetLeaderboard, GetPlayerRank)                                                                                                                                              | `leaderboardv1connect.NewLeaderboardServiceHandler` |
+| Matchmaking | 10 (BuildTeams, ListGuildMembers, JoinQueue, LeaveQueue, GetQueueStatus, CreateCustomMatch, ReportMatchResult, GetMatch, ListMatches, GetMatchByUuid)                          | `matchmakingv1connect.NewMatchmakingServiceHandler` |
+| Tournament  | 9 (CreateTournament, GetTournament, ListTournaments, RegisterTeam, UpdateTeamRoster, UnregisterTeam, StartTournament, ReportBracketResult, CancelTournament)                   | `tournamentv1connect.NewTournamentServiceHandler`   |
+| Stats       | 2 (FetchStats, FetchStatsCollection)                                                                                                                                           | `statsv1connect.NewStatsServiceHandler`             |
 
 **Total: 39 RPCs** ✓
 
@@ -325,6 +335,7 @@ All 39 RPCs from Rust `src/connect.rs` are covered:
 ## Path Pattern
 
 All routes follow the Rust pattern `POST /parley.{pkg}.v1.{Service}/{Method}`:
+
 - `/parley.identity.v1.IdentityService/LinkAccount`
 - `/parley.guild.v1.GuildSettingsService/GetGuildSettings`
 - `/parley.user.v1.UserSettingsService/GetUserSettings`

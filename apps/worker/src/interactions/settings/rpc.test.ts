@@ -2,10 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { ConnectError } from "@connectrpc/connect";
 import { Game } from "@parley/proto";
 import type { GuildNotificationSettingsResponse } from "@parley/proto";
-import {
-  invokeGetNotificationSettings,
-  invokeUpsertNotificationSettings,
-} from "./rpc.js";
+import { invokeGetNotificationSettings, invokeUpsertNotificationSettings } from "./rpc.js";
 
 describe("invokeGetNotificationSettings", () => {
   test("wraps a successful response in Ok", async () => {

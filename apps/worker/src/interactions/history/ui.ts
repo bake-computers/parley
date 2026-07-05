@@ -1,10 +1,7 @@
 import type { Match, MatchParticipant } from "@parley/proto/matchmaking/v1/matchmaking_pb.js";
 import { ContainerBuilder, SeparatorBuilder, TextDisplayBuilder } from "@parley/runtime";
 import { UI_TOKENS } from "../../ui/tokens.js";
-import {
-  HISTORY_DISCORD_CHARACTER_BUDGET,
-  MATCH_PORTAL_BASE_URL,
-} from "./constants.js";
+import { HISTORY_DISCORD_CHARACTER_BUDGET, MATCH_PORTAL_BASE_URL } from "./constants.js";
 
 const SEPARATOR_SPACING_SMALL = 1;
 
@@ -88,9 +85,7 @@ export function buildHistoryCard(matches: Match[], guildId: string): ContainerBu
       new TextDisplayBuilder().setContent("**Recent Matches**"),
       separator(),
       new TextDisplayBuilder().setContent("**No matches played yet**"),
-      new TextDisplayBuilder().setContent(
-        "-# Once your team plays matches, they'll show up here.",
-      ),
+      new TextDisplayBuilder().setContent("-# Once your team plays matches, they'll show up here."),
     );
     return container;
   }

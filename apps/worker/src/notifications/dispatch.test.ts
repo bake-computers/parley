@@ -80,10 +80,14 @@ mock.module("../transport.js", () => ({
 const { createDispatchHandler } = await import("./dispatch.js");
 
 const mockDiscordClient = {
-  request: mock(() => Promise.resolve({ isOk: () => true, isErr: () => false, value: { id: "msg-1" } })),
+  request: mock(() =>
+    Promise.resolve({ isOk: () => true, isErr: () => false, value: { id: "msg-1" } }),
+  ),
 };
 
-const handleDispatch = createDispatchHandler(() => mockDiscordClient as unknown as import("@parley/runtime").DiscordRestClient);
+const handleDispatch = createDispatchHandler(
+  () => mockDiscordClient as unknown as import("@parley/runtime").DiscordRestClient,
+);
 
 // ---------------------------------------------------------------------------
 // App setup

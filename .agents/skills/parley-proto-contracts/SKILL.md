@@ -6,9 +6,11 @@ description: Use when editing .proto files, regenerating Go/TypeScript clients, 
 # Parley Proto Contracts
 
 ## Overview
+
 Protobuf definitions in `proto/` are the single source of truth. `buf generate` produces both Go (`gen/parley/`) and TypeScript (`packages/generated-ts/src/`) clients in one pass. Both outputs are committed to git alongside the proto change.
 
 ## When to use
+
 - Adding or editing a service, RPC, message, or enum
 - Investigating "field not found" / "method does not exist" errors after a regen
 - Wiring a new ConnectRPC handler in Go or a new client in the Worker
@@ -16,16 +18,16 @@ Protobuf definitions in `proto/` are the single source of truth. `buf generate` 
 
 ## Quick reference
 
-| Action | Location / command |
-| --- | --- |
-| Edit contract | `proto/<svc>/v1/<svc>.proto` |
-| Regenerate Go + TS | `make proto` (root), or `cd packages/generated-ts && bun run generate` |
-| Go messages | `gen/parley/<svc>/v1/<svc>.pb.go` |
-| Go connect handlers/clients | `gen/parley/<svc>/v1/<svc>v1connect/<svc>.connect.go` |
-| Go import alias | derived from `go_package` suffix `<alias>v1` (e.g. `identityv1`, `statsv1`) |
-| TS output | `packages/generated-ts/src/<svc>/v1/<svc>_pb.ts` + `..._connect.ts` |
-| TS barrel | `import { ServiceName } from "@parley/proto"` |
-| Hand-written TS (keep) | `packages/generated-ts/src/index.ts` — re-exports per service |
+| Action                      | Location / command                                                          |
+| --------------------------- | --------------------------------------------------------------------------- |
+| Edit contract               | `proto/<svc>/v1/<svc>.proto`                                                |
+| Regenerate Go + TS          | `make proto` (root), or `cd packages/generated-ts && bun run generate`      |
+| Go messages                 | `gen/parley/<svc>/v1/<svc>.pb.go`                                           |
+| Go connect handlers/clients | `gen/parley/<svc>/v1/<svc>v1connect/<svc>.connect.go`                       |
+| Go import alias             | derived from `go_package` suffix `<alias>v1` (e.g. `identityv1`, `statsv1`) |
+| TS output                   | `packages/generated-ts/src/<svc>/v1/<svc>_pb.ts` + `..._connect.ts`         |
+| TS barrel                   | `import { ServiceName } from "@parley/proto"`                               |
+| Hand-written TS (keep)      | `packages/generated-ts/src/index.ts` — re-exports per service               |
 
 ## Critical patterns
 
@@ -62,5 +64,6 @@ not in a service-specific file.
 - Adding a widely-used type to a service proto instead of `common/v1/types.proto`
 
 ## See also
+
 - `README.md` §5.1 — service↔responsibility table
 - `buf.gen.yaml` — the actual generation config (3 plugins: protobuf-es, go, connect-go)

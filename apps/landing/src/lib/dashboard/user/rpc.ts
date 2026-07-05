@@ -4,11 +4,7 @@ import type { UserSettingsJson } from "./types.js";
 
 type RpcError = { code?: string; message?: string };
 
-async function engineCall<T>(
-  env: EngineTransportEnv,
-  path: string,
-  body: unknown,
-): Promise<T> {
+async function engineCall<T>(env: EngineTransportEnv, path: string, body: unknown): Promise<T> {
   const { baseUrl, fetchImpl } = resolveEngineTransport(env);
   const url = new URL(path, baseUrl).href;
   const res = await fetchImpl(url, {

@@ -117,7 +117,13 @@ function fakeStatsResponse(): FetchStatsResponse {
   return {
     success: true,
     stats: {
-      profile: { username: "TestUser", level: 200, profileId: "abc", platform: "pc", profileUrl: "" },
+      profile: {
+        username: "TestUser",
+        level: 200,
+        profileId: "abc",
+        platform: "pc",
+        profileUrl: "",
+      },
       rankedStats: { currentRank: "Diamond", rankPoints: 4200, season: "Y9S1" },
     },
   } as unknown as FetchStatsResponse;

@@ -208,7 +208,10 @@ describe("buildMessage", () => {
     const { embed: ready } = buildMessage("match.ready", matchReadyPayload());
     expect((ready.toJSON() as Record<string, unknown>)["title"]).toContain("Match Ready");
 
-    const { embed: result } = buildMessage("match.result", matchReadyPayload({ event: "match.result" }));
+    const { embed: result } = buildMessage(
+      "match.result",
+      matchReadyPayload({ event: "match.result" }),
+    );
     expect((result.toJSON() as Record<string, unknown>)["title"]).toContain("Match Result");
 
     const { embed: reg } = buildMessage(
@@ -236,7 +239,10 @@ describe("buildMessage", () => {
   });
 
   test("tournament.champion uses warning color", () => {
-    const { embed } = buildMessage("tournament.champion", tournamentPayload({ event: "tournament.champion" }));
+    const { embed } = buildMessage(
+      "tournament.champion",
+      tournamentPayload({ event: "tournament.champion" }),
+    );
     expect((embed.toJSON() as Record<string, unknown>)["color"]).toBe(0xf59e0b);
   });
 });
@@ -246,9 +252,7 @@ describe("buildMessage", () => {
 // ---------------------------------------------------------------------------
 
 describe("postChannelMessage", () => {
-  function mockClient(
-    handler: (method: string, path: string, body: unknown) => unknown,
-  ) {
+  function mockClient(handler: (method: string, path: string, body: unknown) => unknown) {
     return {
       request: (method: string, path: string, body?: unknown) =>
         Promise.resolve(handler(method, path, body)),

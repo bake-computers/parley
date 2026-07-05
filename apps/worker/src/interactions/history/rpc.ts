@@ -42,10 +42,6 @@ export function invokeListMatches(
     .then(
       (response) => ok(response),
       (cause: unknown) =>
-        err(
-          cause instanceof ConnectError
-            ? cause
-            : new ConnectError(String(cause), 13, {}),
-        ),
+        err(cause instanceof ConnectError ? cause : new ConnectError(String(cause), 13, {})),
     );
 }

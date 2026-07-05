@@ -213,7 +213,9 @@ export function buildConfirmCard(
       new TextDisplayBuilder().setContent(`**Game**\n${GAME_NAME}`),
       separator(),
       new TextDisplayBuilder().setContent("**Next step**"),
-      new TextDisplayBuilder().setContent("-# Choose **Continue** to link, or **Go back** to pick another platform."),
+      new TextDisplayBuilder().setContent(
+        "-# Choose **Continue** to link, or **Go back** to pick another platform.",
+      ),
       new ActionRowBuilder().addComponents(actionSelect),
     );
 }

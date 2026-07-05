@@ -47,10 +47,7 @@ function GuildDashboardLayout() {
     [guildId],
   );
 
-  const guild = useMemo(
-    () => me?.guilds.find((g) => g.id === guildId),
-    [me, guildId],
-  );
+  const guild = useMemo(() => me?.guilds.find((g) => g.id === guildId), [me, guildId]);
 
   const shellGuild: GuildDashboardGuild | null = useMemo(() => {
     if (!guild) {
@@ -137,7 +134,10 @@ function GuildDashboardLayout() {
     return (
       <main className="mx-auto flex min-h-screen max-w-lg flex-col items-center justify-center px-6 py-16 text-center">
         <p className="text-muted-foreground text-sm">You cannot manage this server.</p>
-        <Link to="/dashboard" className="text-primary mt-4 inline-block text-sm underline-offset-4 hover:underline">
+        <Link
+          to="/dashboard"
+          className="text-primary mt-4 inline-block text-sm underline-offset-4 hover:underline"
+        >
           Back to dashboard
         </Link>
       </main>
@@ -164,7 +164,10 @@ function GuildDashboardLayout() {
             </a>
           ) : null}
         </GlassPanel>
-        <Link to="/dashboard" className="text-primary mt-6 inline-block text-sm underline-offset-4 hover:underline">
+        <Link
+          to="/dashboard"
+          className="text-primary mt-6 inline-block text-sm underline-offset-4 hover:underline"
+        >
           Back to dashboard
         </Link>
       </main>
@@ -183,10 +186,13 @@ function GuildDashboardLayout() {
         <div className="text-center">
           <p className="text-destructive text-sm">{loadError}</p>
           <p className="text-muted-foreground mt-2 text-xs">
-            Dev uses remote VPC to the Parley engine. Check Cloudflare login, remote bindings, and engine
-            availability.
+            Dev uses remote VPC to the Parley engine. Check Cloudflare login, remote bindings, and
+            engine availability.
           </p>
-          <Link to="/dashboard" className="text-primary mt-6 inline-block text-sm underline-offset-4 hover:underline">
+          <Link
+            to="/dashboard"
+            className="text-primary mt-6 inline-block text-sm underline-offset-4 hover:underline"
+          >
             Back to dashboard
           </Link>
         </div>

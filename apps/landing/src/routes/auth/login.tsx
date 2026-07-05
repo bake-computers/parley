@@ -51,10 +51,6 @@ function LoginRoute() {
   }
 
   return (
-    <AuthLoginPage
-      redirectTo={redirectTo}
-      turnstileSiteKey={turnstileSiteKey}
-      error={loginError}
-    />
+    <AuthLoginPage redirectTo={redirectTo} turnstileSiteKey={turnstileSiteKey} error={loginError} />
   );
 }

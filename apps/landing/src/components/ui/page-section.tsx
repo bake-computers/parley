@@ -1,6 +1,12 @@
 import { cn } from "#/lib/shared/cn";
 
-export function PageSections({ children, className }: { children: React.ReactNode; className?: string }) {
+export function PageSections({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
   return <div className={cn("relative", className)}>{children}</div>;
 }
 

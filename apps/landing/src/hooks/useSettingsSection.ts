@@ -32,8 +32,7 @@ export function useSettingsSection<T>({
   onSaved?: (next: T) => void;
   persist?: Persist;
 }) {
-  const target: Persist =
-    persist ?? { mode: "guild", guildId: guildId!, section: section! };
+  const target: Persist = persist ?? { mode: "guild", guildId: guildId!, section: section! };
 
   const baselineKey = JSON.stringify(initial);
   const appliedBaselineKey = useRef(baselineKey);
@@ -90,9 +89,7 @@ export function useSettingsSection<T>({
             ? "/api/dashboard/user/settings"
             : `/api/dashboard/guilds/${target.guildId}/settings`;
         const body =
-          target.mode === "user"
-            ? { settings: payload }
-            : { section: target.section, payload };
+          target.mode === "user" ? { settings: payload } : { section: target.section, payload };
         const responseKey = target.mode === "user" ? "settings" : target.section;
 
         const res = await fetch(url, {

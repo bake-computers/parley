@@ -91,10 +91,17 @@ export function RulesSettingsForm() {
       <GlassPanel as="section" className="flex flex-col gap-4 p-6">
         <div>
           <h2 className="text-lg font-semibold tracking-tight">Matchmaking rules</h2>
-          <p className="text-muted-foreground text-sm">Elo gates and platform filters. 0 = unset.</p>
+          <p className="text-muted-foreground text-sm">
+            Elo gates and platform filters. 0 = unset.
+          </p>
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <SettingsField label="Min Elo" error={section.isDirty ? validateEloRange(section.draft.minElo, section.draft.maxElo) : null}>
+          <SettingsField
+            label="Min Elo"
+            error={
+              section.isDirty ? validateEloRange(section.draft.minElo, section.draft.maxElo) : null
+            }
+          >
             <SettingsInput
               type="number"
               min={0}
@@ -118,7 +125,9 @@ export function RulesSettingsForm() {
               type="number"
               min={0}
               value={section.draft.maxEloGap}
-              onChange={(e) => section.setDraft((r) => ({ ...r, maxEloGap: Number(e.target.value) }))}
+              onChange={(e) =>
+                section.setDraft((r) => ({ ...r, maxEloGap: Number(e.target.value) }))
+              }
             />
           </SettingsField>
           <SettingsField

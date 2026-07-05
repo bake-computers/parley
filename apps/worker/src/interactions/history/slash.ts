@@ -3,10 +3,7 @@ import { assertAccepted } from "../_shared/acceptance.js";
 import { editReplyV2 } from "../../ui/discord.js";
 import { invokeListMatches } from "./rpc.js";
 import { buildHistoryCard, buildHistoryErrorCard } from "./ui.js";
-import {
-  HISTORY_COMMAND_NAME,
-  HISTORY_COMMAND_DESCRIPTION,
-} from "./constants.js";
+import { HISTORY_COMMAND_NAME, HISTORY_COMMAND_DESCRIPTION } from "./constants.js";
 import { Game } from "@parley/proto";
 import type { EngineTransportEnv } from "../../transport.js";
 

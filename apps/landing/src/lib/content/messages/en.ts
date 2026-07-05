@@ -238,4 +238,3 @@ export const messagesEn: Messages = {
       "This document was last updated on June 24, 2026. It is effective as of that date and supersedes all prior versions.",
   },
 };
-

@@ -2,7 +2,9 @@ import { describe, expect, test } from "vitest";
 import { canManageGuild, filterManageableGuilds } from "./permissions.js";
 import type { DiscordOAuthGuild } from "./oauth.js";
 
-function guild(overrides: Partial<DiscordOAuthGuild> & Pick<DiscordOAuthGuild, "id" | "name">): DiscordOAuthGuild {
+function guild(
+  overrides: Partial<DiscordOAuthGuild> & Pick<DiscordOAuthGuild, "id" | "name">,
+): DiscordOAuthGuild {
   return {
     icon: null,
     owner: false,

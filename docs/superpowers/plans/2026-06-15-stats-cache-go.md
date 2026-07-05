@@ -14,33 +14,33 @@
 
 **Rust references:**
 
-| Rust | Go |
-|------|-----|
-| `src/cache_store.rs` — `StatsCacheStore` trait | `internal/stats/cache/cache.go` — `CacheStore` interface |
-| `src/cache_store.rs` — `DirectStatsCacheStore` | `internal/stats/cache/direct.go` — `DirectCacheStore` |
-| `src/cache_store.rs` — `SingleFlight<K,V>` | `internal/stats/cache/singleflight.go` — `SingleFlight[K,V]` |
-| `src/cache_redis.rs` — `RedisStatsCacheStore` | `internal/stats/cache/redis.go` — `RedisCacheStore` |
-| `src/cache_store.rs` — `StatsCacheConfigV2` | `internal/stats/cache/config.go` — `CacheConfig` |
-| `StatsCacheStore.fetch()` → `CachedStats{stats, degraded}` | `CacheStore.Fetch()` → `CachedStats{Stats, Degraded}` |
+| Rust                                                            | Go                                                               |
+| --------------------------------------------------------------- | ---------------------------------------------------------------- |
+| `src/cache_store.rs` — `StatsCacheStore` trait                  | `internal/stats/cache/cache.go` — `CacheStore` interface         |
+| `src/cache_store.rs` — `DirectStatsCacheStore`                  | `internal/stats/cache/direct.go` — `DirectCacheStore`            |
+| `src/cache_store.rs` — `SingleFlight<K,V>`                      | `internal/stats/cache/singleflight.go` — `SingleFlight[K,V]`     |
+| `src/cache_redis.rs` — `RedisStatsCacheStore`                   | `internal/stats/cache/redis.go` — `RedisCacheStore`              |
+| `src/cache_store.rs` — `StatsCacheConfigV2`                     | `internal/stats/cache/config.go` — `CacheConfig`                 |
+| `StatsCacheStore.fetch()` → `CachedStats{stats, degraded}`      | `CacheStore.Fetch()` → `CachedStats{Stats, Degraded}`            |
 | `StatsCacheStore.fetch_collection()` → `ScrapedStatsCollection` | `CacheStore.FetchCollection()` → `scrape.ScrapedStatsCollection` |
-| `LeaderboardStore.touch()` called from `RedisStatsCacheStore` | `OnFetch func(ctx, game, username, stats)` callback |
-| `src/guild_cache.rs` | Not in T23 scope — separate matchmaking concern |
+| `LeaderboardStore.touch()` called from `RedisStatsCacheStore`   | `OnFetch func(ctx, game, username, stats)` callback              |
+| `src/guild_cache.rs`                                            | Not in T23 scope — separate matchmaking concern                  |
 
 ---
 
 ## File map
 
-| Path | Action | Responsibility |
-|------|--------|----------------|
-| `internal/stats/cache/config.go` | create | `CacheConfig` struct, `TTLFor(game)`, `NewCacheConfigFromEnv()` |
-| `internal/stats/cache/cache.go` | create | `CachedStats`, `CacheStore` interface, key helpers |
-| `internal/stats/cache/direct.go` | create | `DirectCacheStore` — passthrough, always calls backend |
-| `internal/stats/cache/singleflight.go` | create | `SingleFlight[K comparable, V any]` — generic dedup |
-| `internal/stats/cache/singleflight_test.go` | create | Tests: coalesces concurrent, separate for different keys |
-| `internal/stats/cache/redis.go` | create | `RedisCacheStore` — Redis hash cache + stale-grace + singleflight |
-| `internal/stats/cache/redis_test.go` | create | Tests: hit, miss, stale fallback, collection, singleflight dedup |
-| `internal/stats/cache/direct_test.go` | create | Tests: passthrough behavior |
-| `internal/stats/cache/cache_test.go` | create | Tests: key generation, config defaults |
+| Path                                        | Action | Responsibility                                                    |
+| ------------------------------------------- | ------ | ----------------------------------------------------------------- |
+| `internal/stats/cache/config.go`            | create | `CacheConfig` struct, `TTLFor(game)`, `NewCacheConfigFromEnv()`   |
+| `internal/stats/cache/cache.go`             | create | `CachedStats`, `CacheStore` interface, key helpers                |
+| `internal/stats/cache/direct.go`            | create | `DirectCacheStore` — passthrough, always calls backend            |
+| `internal/stats/cache/singleflight.go`      | create | `SingleFlight[K comparable, V any]` — generic dedup               |
+| `internal/stats/cache/singleflight_test.go` | create | Tests: coalesces concurrent, separate for different keys          |
+| `internal/stats/cache/redis.go`             | create | `RedisCacheStore` — Redis hash cache + stale-grace + singleflight |
+| `internal/stats/cache/redis_test.go`        | create | Tests: hit, miss, stale fallback, collection, singleflight dedup  |
+| `internal/stats/cache/direct_test.go`       | create | Tests: passthrough behavior                                       |
+| `internal/stats/cache/cache_test.go`        | create | Tests: key generation, config defaults                            |
 
 ---
 
@@ -1251,21 +1251,21 @@ Expected: ALL PASS, no data races.
 
 ## Self-review (spec coverage)
 
-| Requirement | Task |
-|-------------|------|
-| `CacheStore` interface (Fetch + FetchCollection) | Task 1 |
-| `DirectCacheStore` passthrough | Task 3 |
-| `RedisCacheStore` with Redis hash caching | Task 4 |
-| `SingleFlight` generic dedup | Task 2 |
-| TTL from config (per-game) | Task 1 (CacheConfig) |
-| Stale-grace from config | Task 4 (RedisCacheStore.Fetch fallback) |
-| `golang.org/x/sync/singleflight` usage | Task 2 |
-| String keys `game:username:platform:season` | Task 1 (key helpers) |
-| Leaderboard integration via OnFetch callback | Task 4 |
-| No raw SQL in cache package | File map — all files are in `internal/stats/cache/` |
-| Miniredis tests for Redis paths | Tasks 4–5 |
-| Race detector clean | Task 5 |
-| Append notepad | Task 6 |
+| Requirement                                      | Task                                                |
+| ------------------------------------------------ | --------------------------------------------------- |
+| `CacheStore` interface (Fetch + FetchCollection) | Task 1                                              |
+| `DirectCacheStore` passthrough                   | Task 3                                              |
+| `RedisCacheStore` with Redis hash caching        | Task 4                                              |
+| `SingleFlight` generic dedup                     | Task 2                                              |
+| TTL from config (per-game)                       | Task 1 (CacheConfig)                                |
+| Stale-grace from config                          | Task 4 (RedisCacheStore.Fetch fallback)             |
+| `golang.org/x/sync/singleflight` usage           | Task 2                                              |
+| String keys `game:username:platform:season`      | Task 1 (key helpers)                                |
+| Leaderboard integration via OnFetch callback     | Task 4                                              |
+| No raw SQL in cache package                      | File map — all files are in `internal/stats/cache/` |
+| Miniredis tests for Redis paths                  | Tasks 4–5                                           |
+| Race detector clean                              | Task 5                                              |
+| Append notepad                                   | Task 6                                              |
 
 ---
 

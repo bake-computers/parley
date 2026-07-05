@@ -30,7 +30,11 @@ export function SettingsInput({
 }: React.ComponentProps<"input"> & { invalid?: boolean }) {
   return (
     <input
-      className={cn(inputClass, invalid && "border-destructive focus-visible:ring-destructive/30", className)}
+      className={cn(
+        inputClass,
+        invalid && "border-destructive focus-visible:ring-destructive/30",
+        className,
+      )}
       {...props}
     />
   );

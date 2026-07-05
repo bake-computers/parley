@@ -6,20 +6,21 @@ description: Use when working on the Go stats subsystem in the Parley engine —
 # Parley Stats Pipeline
 
 ## Overview
+
 Stats flow: `StatsService` → `CacheStore` (Redis or Direct) → `StatsBackendRegistry` → per-game `StatsBackend` (R6) → `fetch.Client` → `scrape` (pure parser) → optional async `persist` to Postgres. `proto/stats/v1/StatsService` sits on top.
 
 ## Quick reference
 
-| Layer | Location | Role |
-| --- | --- | --- |
-| Service entry | `internal/services/stats.go` | `FetchStats` / `FetchStatsCollection` |
-| Cache facade | `internal/stats/cache/cache.go` | `CacheStore` interface |
-| Cache impls | `internal/stats/cache/{direct,redis,singleflight}.go` | Direct passthrough, Redis with `singleflight` de-dup |
-| Backend registry | `internal/stats/backends/backend.go` | Dispatches by `Game` |
-| R6 backend | `internal/stats/backends/r6.go` | Only implemented game; uses `fetch.Client` |
-| HTTP client | `internal/stats/fetch/{client,errors}.go` | Network I/O only |
-| HTML scraper | `internal/stats/scrape/{scrape,nuxt,metrics}.go` | Pure parsers; `__NUXT_DATA__` index resolver, `maxHops=64` cap |
-| Persistence | `internal/stats/persist/persisting.go` | Async buffered channel → Postgres + guild invalidation |
+| Layer            | Location                                              | Role                                                           |
+| ---------------- | ----------------------------------------------------- | -------------------------------------------------------------- |
+| Service entry    | `internal/services/stats.go`                          | `FetchStats` / `FetchStatsCollection`                          |
+| Cache facade     | `internal/stats/cache/cache.go`                       | `CacheStore` interface                                         |
+| Cache impls      | `internal/stats/cache/{direct,redis,singleflight}.go` | Direct passthrough, Redis with `singleflight` de-dup           |
+| Backend registry | `internal/stats/backends/backend.go`                  | Dispatches by `Game`                                           |
+| R6 backend       | `internal/stats/backends/r6.go`                       | Only implemented game; uses `fetch.Client`                     |
+| HTTP client      | `internal/stats/fetch/{client,errors}.go`             | Network I/O only                                               |
+| HTML scraper     | `internal/stats/scrape/{scrape,nuxt,metrics}.go`      | Pure parsers; `__NUXT_DATA__` index resolver, `maxHops=64` cap |
+| Persistence      | `internal/stats/persist/persisting.go`                | Async buffered channel → Postgres + guild invalidation         |
 
 ## Critical patterns
 
@@ -43,5 +44,6 @@ Stats flow: `StatsService` → `CacheStore` (Redis or Direct) → `StatsBackendR
 - Editing `gen/parley/**` to add an enum value — auto-generated; edit the proto and regen
 
 ## See also
+
 - `README.md` §5.2, §11 — stats pipeline and supported games
 - `parley-proto-contracts` skill — for the RPC contract this package implements

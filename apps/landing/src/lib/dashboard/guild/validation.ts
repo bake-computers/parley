@@ -35,7 +35,10 @@ export function suggestTeamFormats(query: string | null | undefined): string[] {
   return TEAM_FORMATS.filter((f) => f.startsWith(q));
 }
 
-export function validateDiscordSnowflake(value: string | null | undefined, label: string): string | null {
+export function validateDiscordSnowflake(
+  value: string | null | undefined,
+  label: string,
+): string | null {
   const trimmed = (value ?? "").trim();
   if (!trimmed) {
     return null;

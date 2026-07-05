@@ -12,26 +12,26 @@
 
 **Reference implementations:**
 
-| Source | Use for |
-|--------|---------|
-| `src/logging.rs` | Event tags (`http`, `db`, `cache`, `error`), batch/flush/shutdown, backpressure (drop when full) |
-| `packages/axiom/src/config.ts` | `resolveAxiomIngestUrl` edge vs legacy API |
-| `packages/axiom/src/logger.ts` | POST headers (`Authorization`, `X-Axiom-Org-Id`) |
-| `internal/config/config.go` | Field names: `AxiomToken`, `AxiomDataset`, `AxiomOrgID`, `AxiomEdge`, `AxiomEnabled` |
+| Source                         | Use for                                                                                          |
+| ------------------------------ | ------------------------------------------------------------------------------------------------ |
+| `src/logging.rs`               | Event tags (`http`, `db`, `cache`, `error`), batch/flush/shutdown, backpressure (drop when full) |
+| `packages/axiom/src/config.ts` | `resolveAxiomIngestUrl` edge vs legacy API                                                       |
+| `packages/axiom/src/logger.ts` | POST headers (`Authorization`, `X-Axiom-Org-Id`)                                                 |
+| `internal/config/config.go`    | Field names: `AxiomToken`, `AxiomDataset`, `AxiomOrgID`, `AxiomEdge`, `AxiomEnabled`             |
 
 ---
 
 ## File map
 
-| Path | Action | Responsibility |
-|------|--------|----------------|
-| `internal/logging/ingest.go` | create | `ResolveIngestURL(dataset, edge, edgeURL string) string` |
-| `internal/logging/events.go` | create | Tagged event structs / `map` builders matching Rust serde `#[serde(tag = "event")]` |
-| `internal/logging/axiom.go` | create | `AxiomOptions`, `AxiomHandler`, `slog.Handler`, worker, `Shutdown` |
-| `internal/logging/logger.go` | create | `New(level string, axiom *AxiomHandler) *slog.Logger` |
-| `internal/logging/helpers.go` | create | `LogHTTP`, `LogDB`, `LogCache`, `LogError` |
-| `internal/logging/ingest_test.go` | create | Ingest URL parity with TS tests |
-| `internal/logging/logger_test.go` | create | `New` handler format + httptest batch POST |
+| Path                              | Action | Responsibility                                                                      |
+| --------------------------------- | ------ | ----------------------------------------------------------------------------------- |
+| `internal/logging/ingest.go`      | create | `ResolveIngestURL(dataset, edge, edgeURL string) string`                            |
+| `internal/logging/events.go`      | create | Tagged event structs / `map` builders matching Rust serde `#[serde(tag = "event")]` |
+| `internal/logging/axiom.go`       | create | `AxiomOptions`, `AxiomHandler`, `slog.Handler`, worker, `Shutdown`                  |
+| `internal/logging/logger.go`      | create | `New(level string, axiom *AxiomHandler) *slog.Logger`                               |
+| `internal/logging/helpers.go`     | create | `LogHTTP`, `LogDB`, `LogCache`, `LogError`                                          |
+| `internal/logging/ingest_test.go` | create | Ingest URL parity with TS tests                                                     |
+| `internal/logging/logger_test.go` | create | `New` handler format + httptest batch POST                                          |
 
 No new `go.mod` dependencies (stdlib only).
 
@@ -389,17 +389,17 @@ Pass `AXIOM_EDGE_URL` from env at call site if added to `config` later; until th
 
 ## Verification checklist
 
-| Requirement | Verification |
-|-------------|----------------|
-| `New(level)` JSON vs text | `TestNew_*` |
+| Requirement                              | Verification                                                                    |
+| ---------------------------------------- | ------------------------------------------------------------------------------- |
+| `New(level)` JSON vs text                | `TestNew_*`                                                                     |
 | `AxiomHandler` implements `slog.Handler` | compile + optional interface assert `var _ slog.Handler = (*AxiomHandler)(nil)` |
-| Batched POST | `TestAxiomHandler_FlushesBatchOnShutdown` |
-| `Shutdown` drains channel | same test + timeout on ctx |
-| Non-blocking hot path | stress test optional: flood `LogHTTP` without blocking (manual or `testing.B`) |
-| No panic in handlers | nil `*AxiomHandler` helpers; full channel drop |
-| No Axiom SDK | `go.mod` unchanged |
-| Mirrors Rust event shapes | JSON field assertions in test |
-| `go test ./internal/logging/...` | CI-local command |
+| Batched POST                             | `TestAxiomHandler_FlushesBatchOnShutdown`                                       |
+| `Shutdown` drains channel                | same test + timeout on ctx                                                      |
+| Non-blocking hot path                    | stress test optional: flood `LogHTTP` without blocking (manual or `testing.B`)  |
+| No panic in handlers                     | nil `*AxiomHandler` helpers; full channel drop                                  |
+| No Axiom SDK                             | `go.mod` unchanged                                                              |
+| Mirrors Rust event shapes                | JSON field assertions in test                                                   |
+| `go test ./internal/logging/...`         | CI-local command                                                                |
 
 ---
 
@@ -413,16 +413,16 @@ Pass `AXIOM_EDGE_URL` from env at call site if added to `config` later; until th
 
 ## Self-review (spec coverage)
 
-| Spec item | Task |
-|-----------|------|
-| `logger.go` `New` | Task 4 |
-| `axiom.go` handler + flusher | Task 3 |
-| `Shutdown(ctx)` | Task 3 |
-| Helpers | Task 2 |
-| `logger_test.go` + httptest | Tasks 1–4 |
-| No SDK | File map |
-| `internal/config` pattern only at wire-up | Task 5 |
-| Non-blocking, no panic | Task 3 design notes |
+| Spec item                                 | Task                |
+| ----------------------------------------- | ------------------- |
+| `logger.go` `New`                         | Task 4              |
+| `axiom.go` handler + flusher              | Task 3              |
+| `Shutdown(ctx)`                           | Task 3              |
+| Helpers                                   | Task 2              |
+| `logger_test.go` + httptest               | Tasks 1–4           |
+| No SDK                                    | File map            |
+| `internal/config` pattern only at wire-up | Task 5              |
+| Non-blocking, no panic                    | Task 3 design notes |
 
 ---
 

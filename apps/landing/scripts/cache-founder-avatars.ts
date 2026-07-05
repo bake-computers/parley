@@ -85,8 +85,26 @@ async function main() {
     await writeFile(rawPath, Buffer.from(await avatarResponse.arrayBuffer()));
     const outPath = join(foundersDir, `${entry.slug}.webp`);
     await cwebp(["-q", "82", "-resize", "128", "128", rawPath, "-o", outPath]);
-    await cwebp(["-q", "80", "-resize", "64", "64", rawPath, "-o", join(foundersDir, `${entry.slug}-64.webp`)]);
-    await cwebp(["-q", "82", "-resize", "128", "128", rawPath, "-o", join(foundersDir, `${entry.slug}-128.webp`)]);
+    await cwebp([
+      "-q",
+      "80",
+      "-resize",
+      "64",
+      "64",
+      rawPath,
+      "-o",
+      join(foundersDir, `${entry.slug}-64.webp`),
+    ]);
+    await cwebp([
+      "-q",
+      "82",
+      "-resize",
+      "128",
+      "128",
+      rawPath,
+      "-o",
+      join(foundersDir, `${entry.slug}-128.webp`),
+    ]);
     resolved.push({
       id: entry.id,
       handle,

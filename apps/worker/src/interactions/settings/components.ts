@@ -15,10 +15,7 @@ import {
   channelIdFromSelectValue,
 } from "./constants.js";
 import { buildNotificationSettingsCard, buildSettingsErrorCard } from "./ui.js";
-import {
-  invokeGetNotificationSettings,
-  invokeUpsertNotificationSettings,
-} from "./rpc.js";
+import { invokeGetNotificationSettings, invokeUpsertNotificationSettings } from "./rpc.js";
 
 const COMPONENT_BUTTON = 2;
 const COMPONENT_STRING_SELECT = 3;
@@ -44,10 +41,7 @@ function botToken(env: Record<string, unknown>): string | undefined {
   return typeof token === "string" && token.length > 0 ? token : undefined;
 }
 
-async function loadGuildChannels(
-  interaction: MessageComponentInteraction,
-  guildId: string,
-) {
+async function loadGuildChannels(interaction: MessageComponentInteraction, guildId: string) {
   const env = interaction.context.env as Record<string, unknown>;
   const token = botToken(env);
   if (!token) {
@@ -113,10 +107,7 @@ async function applyUpdate(
   if (!result.value.success) {
     await editReplyV2(
       interaction,
-      buildSettingsErrorCard(
-        result.value.error?.message ?? "Settings update failed",
-        emojis,
-      ),
+      buildSettingsErrorCard(result.value.error?.message ?? "Settings update failed", emojis),
     );
     return;
   }
@@ -130,81 +121,81 @@ async function applyUpdate(
   await editReplyV2(interaction, card);
 }
 
-export const settingsButtonHandler = new ComponentHandler(
-  "settings",
-  COMPONENT_BUTTON,
-).addHandler(async (interaction) => {
-  const customId = interaction.customId;
-  const env = interaction.context.env;
-  const guildId = interaction.guildId;
+export const settingsButtonHandler = new ComponentHandler("settings", COMPONENT_BUTTON).addHandler(
+  async (interaction) => {
+    const customId = interaction.customId;
+    const env = interaction.context.env;
+    const guildId = interaction.guildId;
 
-  if (!guildId) {
-    const emojis = await resolveEmojis(interaction);
-    await editReplyV2(interaction, buildSettingsErrorCard("No guild context.", emojis));
-    return;
-  }
-
-  if (!(await deferComponent(interaction))) {
-    return;
-  }
-
-  if (customId.startsWith(SETTINGS_PAGE_PREFIX)) {
-    const pageStr = customId.slice(SETTINGS_PAGE_PREFIX.length);
-    const page = Number.parseInt(pageStr, 10);
-    if (!Number.isFinite(page)) {
+    if (!guildId) {
+      const emojis = await resolveEmojis(interaction);
+      await editReplyV2(interaction, buildSettingsErrorCard("No guild context.", emojis));
       return;
     }
-    await fetchAndRender(interaction, guildId, { page });
-    return;
-  }
 
-  if (customId.startsWith(SETTINGS_TOGGLE_PREFIX)) {
-    const rest = customId.slice(SETTINGS_TOGGLE_PREFIX.length);
-    const sep = rest.lastIndexOf("/");
-    const field = rest.slice(0, sep);
-    const value = rest.slice(sep + 1);
-    const enabled = value === "on";
-
-    const client = getClient(env) as never;
-    const currentResult = await invokeGetNotificationSettings(client, guildId);
-    const current =
-      currentResult.isOk() && currentResult.value.success && currentResult.value.settings
-        ? currentResult.value.settings
-        : baseSettings(guildId);
-
-    const updated: ProtoNotificationSettings = {
-      ...current,
-      updatedAtMs: BigInt(Date.now()),
-    };
-
-    switch (field) {
-      case "leaderboard":
-        (updated as { leaderboardUpdatesEnabled: boolean }).leaderboardUpdatesEnabled = enabled;
-        break;
-      case "cross_guild":
-        (updated as { crossGuildAnnouncementsEnabled: boolean }).crossGuildAnnouncementsEnabled =
-          enabled;
-        break;
-      case "match_ready":
-        (updated as { announceMatchReadyEnabled: boolean }).announceMatchReadyEnabled = enabled;
-        break;
-      case "match_results":
-        (updated as { announceMatchResultsEnabled: boolean }).announceMatchResultsEnabled = enabled;
-        break;
-      default:
-        logger.warn("settings.toggle_unknown", `Unknown toggle field: ${field}`);
-        return;
+    if (!(await deferComponent(interaction))) {
+      return;
     }
 
-    await applyUpdate(interaction, updated, { page: 1 });
-    return;
-  }
+    if (customId.startsWith(SETTINGS_PAGE_PREFIX)) {
+      const pageStr = customId.slice(SETTINGS_PAGE_PREFIX.length);
+      const page = Number.parseInt(pageStr, 10);
+      if (!Number.isFinite(page)) {
+        return;
+      }
+      await fetchAndRender(interaction, guildId, { page });
+      return;
+    }
 
-  if (customId === SETTINGS_CANCEL) {
-    await fetchAndRender(interaction, guildId);
-    return;
-  }
-});
+    if (customId.startsWith(SETTINGS_TOGGLE_PREFIX)) {
+      const rest = customId.slice(SETTINGS_TOGGLE_PREFIX.length);
+      const sep = rest.lastIndexOf("/");
+      const field = rest.slice(0, sep);
+      const value = rest.slice(sep + 1);
+      const enabled = value === "on";
+
+      const client = getClient(env) as never;
+      const currentResult = await invokeGetNotificationSettings(client, guildId);
+      const current =
+        currentResult.isOk() && currentResult.value.success && currentResult.value.settings
+          ? currentResult.value.settings
+          : baseSettings(guildId);
+
+      const updated: ProtoNotificationSettings = {
+        ...current,
+        updatedAtMs: BigInt(Date.now()),
+      };
+
+      switch (field) {
+        case "leaderboard":
+          (updated as { leaderboardUpdatesEnabled: boolean }).leaderboardUpdatesEnabled = enabled;
+          break;
+        case "cross_guild":
+          (updated as { crossGuildAnnouncementsEnabled: boolean }).crossGuildAnnouncementsEnabled =
+            enabled;
+          break;
+        case "match_ready":
+          (updated as { announceMatchReadyEnabled: boolean }).announceMatchReadyEnabled = enabled;
+          break;
+        case "match_results":
+          (updated as { announceMatchResultsEnabled: boolean }).announceMatchResultsEnabled =
+            enabled;
+          break;
+        default:
+          logger.warn("settings.toggle_unknown", `Unknown toggle field: ${field}`);
+          return;
+      }
+
+      await applyUpdate(interaction, updated, { page: 1 });
+      return;
+    }
+
+    if (customId === SETTINGS_CANCEL) {
+      await fetchAndRender(interaction, guildId);
+      return;
+    }
+  },
+);
 
 export const settingsSelectHandler = new ComponentHandler(
   "settings",

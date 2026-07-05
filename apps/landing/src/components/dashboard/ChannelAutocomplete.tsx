@@ -20,9 +20,7 @@ function filterChannels(query: string, channels: readonly GuildTextChannel[]): G
   if (!q) {
     return [...channels];
   }
-  return channels.filter(
-    (ch) => ch.name.toLowerCase().includes(q) || ch.id.includes(q),
-  );
+  return channels.filter((ch) => ch.name.toLowerCase().includes(q) || ch.id.includes(q));
 }
 
 export function ChannelAutocomplete({
@@ -39,10 +37,7 @@ export function ChannelAutocomplete({
   const [activeIndex, setActiveIndex] = useState(0);
   const [query, setQuery] = useState("");
 
-  const selected = useMemo(
-    () => channels.find((ch) => ch.id === value) ?? null,
-    [channels, value],
-  );
+  const selected = useMemo(() => channels.find((ch) => ch.id === value) ?? null, [channels, value]);
 
   const displayValue = open ? query : selected ? formatChannelLabel(selected) : value;
 

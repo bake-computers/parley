@@ -43,28 +43,28 @@ Subdirectory guides: [`proto/AGENTS.md`](proto/AGENTS.md) if present, [`apps/wor
 
 ### Go (engine-service)
 
-| Command | What it does |
-| ------- | ------------ |
-| `make build` / `go build -o parley ./cmd/parley` | Build engine binary |
-| `make test` / `go test ./...` | Unit tests |
-| `make test-integration` | Integration tests (`-tags=integration`, Docker/testcontainers) |
-| `make fmt` / `go fmt ./...` | Format Go |
-| `make vet` / `go vet ./...` | Vet |
-| `make lint` | golangci-lint (when installed) |
-| `make proto` / `buf generate` | Regenerate `gen/parley` and TS clients |
-| `make run` | Build and run locally |
+| Command                                          | What it does                                                   |
+| ------------------------------------------------ | -------------------------------------------------------------- |
+| `make build` / `go build -o parley ./cmd/parley` | Build engine binary                                            |
+| `make test` / `go test ./...`                    | Unit tests                                                     |
+| `make test-integration`                          | Integration tests (`-tags=integration`, Docker/testcontainers) |
+| `make fmt` / `go fmt ./...`                      | Format Go                                                      |
+| `make vet` / `go vet ./...`                      | Vet                                                            |
+| `make lint`                                      | golangci-lint (when installed)                                 |
+| `make proto` / `buf generate`                    | Regenerate `gen/parley` and TS clients                         |
+| `make run`                                       | Build and run locally                                          |
 
 ### TypeScript (Turborepo, managed via `bun`)
 
-| Command | What it does |
-| ------- | ------------ |
-| `bun install` | Install workspace dependencies |
-| `bun run build` | `turbo run build` |
-| `bun run typecheck` | Strict typecheck |
-| `bun run lint` | oxlint |
-| `bun run format` | oxfmt |
-| `bun run test` | Per-package tests |
-| `bun run dev` | Dev servers |
+| Command                         | What it does                    |
+| ------------------------------- | ------------------------------- |
+| `bun install`                   | Install workspace dependencies  |
+| `bun run build`                 | `turbo run build`               |
+| `bun run typecheck`             | Strict typecheck                |
+| `bun run lint`                  | oxlint                          |
+| `bun run format`                | oxfmt                           |
+| `bun run test`                  | Per-package tests               |
+| `bun run dev`                   | Dev servers                     |
 | `cd apps/worker && bun run dev` | Wrangler dev for Discord worker |
 
 ### Proto generation

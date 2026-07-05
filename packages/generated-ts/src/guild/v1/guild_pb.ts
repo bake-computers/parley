@@ -11,8 +11,10 @@ import type { Message } from "@bufbuild/protobuf";
 /**
  * Describes the file guild/v1/guild.proto.
  */
-export const file_guild_v1_guild: GenFile = /*@__PURE__*/
-  fileDesc("ChRndWlsZC92MS9ndWlsZC5wcm90bxIPcGFybGV5Lmd1aWxkLnYxIosCCg1HdWlsZFNldHRpbmdzEhAKCGd1aWxkX2lkGAEgASgJEiQKBGdhbWUYAiABKA4yFi5wYXJsZXkuY29tbW9uLnYxLkdhbWUSGwoTZGVmYXVsdF90ZWFtX2Zvcm1hdBgDIAEoCRIUCgxhdXRvX2JhbGFuY2UYBCABKAgSHwoXY3Jvc3NfZ3VpbGRfbWF0Y2htYWtpbmcYBSABKAgSFQoNdXBkYXRlZF9hdF9tcxgGIAEoAxIiChp1cGRhdGVkX2J5X2Rpc2NvcmRfdXNlcl9pZBgHIAEoCRIbChNtYXRjaG1ha2luZ19lbmFibGVkGAkgASgISgQICBAJUhBkZWZhdWx0X2xhbmd1YWdlIlEKF0dldEd1aWxkU2V0dGluZ3NSZXF1ZXN0EhAKCGd1aWxkX2lkGAEgASgJEiQKBGdhbWUYAiABKA4yFi5wYXJsZXkuY29tbW9uLnYxLkdhbWUiTgoaVXBzZXJ0R3VpbGRTZXR0aW5nc1JlcXVlc3QSMAoIc2V0dGluZ3MYASABKAsyHi5wYXJsZXkuZ3VpbGQudjEuR3VpbGRTZXR0aW5ncyKCAQoVR3VpbGRTZXR0aW5nc1Jlc3BvbnNlEg8KB3N1Y2Nlc3MYASABKAgSMAoIc2V0dGluZ3MYAiABKAsyHi5wYXJsZXkuZ3VpbGQudjEuR3VpbGRTZXR0aW5ncxImCgVlcnJvchgDIAEoCzIXLnBhcmxleS5jb21tb24udjEuRXJyb3IiygEKFUd1aWxkTWF0Y2htYWtpbmdSdWxlcxIQCghndWlsZF9pZBgBIAEoCRIkCgRnYW1lGAIgASgOMhYucGFybGV5LmNvbW1vbi52MS5HYW1lEg8KB21pbl9lbG8YAyABKAUSDwoHbWF4X2VsbxgEIAEoBRIRCglwbGF0Zm9ybXMYBSADKAkSGAoQcmVxdWlyZV92ZXJpZmllZBgGIAEoCBITCgttYXhfZWxvX2dhcBgHIAEoBRIVCg11cGRhdGVkX2F0X21zGAggASgDIlQKGkdldE1hdGNobWFraW5nUnVsZXNSZXF1ZXN0EhAKCGd1aWxkX2lkGAEgASgJEiQKBGdhbWUYAiABKA4yFi5wYXJsZXkuY29tbW9uLnYxLkdhbWUiVgodVXBzZXJ0TWF0Y2htYWtpbmdSdWxlc1JlcXVlc3QSNQoFcnVsZXMYASABKAsyJi5wYXJsZXkuZ3VpbGQudjEuR3VpbGRNYXRjaG1ha2luZ1J1bGVzIo8BCh1HdWlsZE1hdGNobWFraW5nUnVsZXNSZXNwb25zZRIPCgdzdWNjZXNzGAEgASgIEjUKBXJ1bGVzGAIgASgLMiYucGFybGV5Lmd1aWxkLnYxLkd1aWxkTWF0Y2htYWtpbmdSdWxlcxImCgVlcnJvchgDIAEoCzIXLnBhcmxleS5jb21tb24udjEuRXJyb3Ii0QIKGUd1aWxkTm90aWZpY2F0aW9uU2V0dGluZ3MSEAoIZ3VpbGRfaWQYASABKAkSJAoEZ2FtZRgCIAEoDjIWLnBhcmxleS5jb21tb24udjEuR2FtZRIdChVtYXRjaF9yZXN1bHRzX2NoYW5uZWwYAyABKAkSKAogdG91cm5hbWVudF9hbm5vdW5jZW1lbnRzX2NoYW5uZWwYBCABKAkSIwobbGVhZGVyYm9hcmRfdXBkYXRlc19lbmFibGVkGAUgASgIEhUKDXVwZGF0ZWRfYXRfbXMYBiABKAMSKQohY3Jvc3NfZ3VpbGRfYW5ub3VuY2VtZW50c19lbmFibGVkGAcgASgIEiQKHGFubm91bmNlX21hdGNoX3JlYWR5X2VuYWJsZWQYCCABKAgSJgoeYW5ub3VuY2VfbWF0Y2hfcmVzdWx0c19lbmFibGVkGAkgASgIIlgKHkdldE5vdGlmaWNhdGlvblNldHRpbmdzUmVxdWVzdBIQCghndWlsZF9pZBgBIAEoCRIkCgRnYW1lGAIgASgOMhYucGFybGV5LmNvbW1vbi52MS5HYW1lImEKIVVwc2VydE5vdGlmaWNhdGlvblNldHRpbmdzUmVxdWVzdBI8CghzZXR0aW5ncxgBIAEoCzIqLnBhcmxleS5ndWlsZC52MS5HdWlsZE5vdGlmaWNhdGlvblNldHRpbmdzIpoBCiFHdWlsZE5vdGlmaWNhdGlvblNldHRpbmdzUmVzcG9uc2USDwoHc3VjY2VzcxgBIAEoCBI8CghzZXR0aW5ncxgCIAEoCzIqLnBhcmxleS5ndWlsZC52MS5HdWlsZE5vdGlmaWNhdGlvblNldHRpbmdzEiYKBWVycm9yGAMgASgLMhcucGFybGV5LmNvbW1vbi52MS5FcnJvciKfAQoPR3VpbGRNYXRjaFF1b3RhEhAKCGd1aWxkX2lkGAEgASgJEiQKBGdhbWUYAiABKA4yFi5wYXJsZXkuY29tbW9uLnYxLkdhbWUSGQoRZGFpbHlfbWF0Y2hfbGltaXQYAyABKAUSIgoadXBkYXRlZF9ieV9kaXNjb3JkX3VzZXJfaWQYBCABKAkSFQoNdXBkYXRlZF9hdF9tcxgFIAEoAyJPChVHZXRNYXRjaFF1b3Rhc1JlcXVlc3QSEAoIZ3VpbGRfaWQYASABKAkSJAoEZ2FtZRgCIAEoDjIWLnBhcmxleS5jb21tb24udjEuR2FtZSJLChhVcHNlcnRNYXRjaFF1b3Rhc1JlcXVlc3QSLwoFcXVvdGEYASABKAsyIC5wYXJsZXkuZ3VpbGQudjEuR3VpbGRNYXRjaFF1b3RhIoQBChhHdWlsZE1hdGNoUXVvdGFzUmVzcG9uc2USDwoHc3VjY2VzcxgBIAEoCBIvCgVxdW90YRgCIAEoCzIgLnBhcmxleS5ndWlsZC52MS5HdWlsZE1hdGNoUXVvdGESJgoFZXJyb3IYAyABKAsyFy5wYXJsZXkuY29tbW9uLnYxLkVycm9yMq0HChRHdWlsZFNldHRpbmdzU2VydmljZRJkChBHZXRHdWlsZFNldHRpbmdzEigucGFybGV5Lmd1aWxkLnYxLkdldEd1aWxkU2V0dGluZ3NSZXF1ZXN0GiYucGFybGV5Lmd1aWxkLnYxLkd1aWxkU2V0dGluZ3NSZXNwb25zZRJqChNVcHNlcnRHdWlsZFNldHRpbmdzEisucGFybGV5Lmd1aWxkLnYxLlVwc2VydEd1aWxkU2V0dGluZ3NSZXF1ZXN0GiYucGFybGV5Lmd1aWxkLnYxLkd1aWxkU2V0dGluZ3NSZXNwb25zZRJyChNHZXRNYXRjaG1ha2luZ1J1bGVzEisucGFybGV5Lmd1aWxkLnYxLkdldE1hdGNobWFraW5nUnVsZXNSZXF1ZXN0Gi4ucGFybGV5Lmd1aWxkLnYxLkd1aWxkTWF0Y2htYWtpbmdSdWxlc1Jlc3BvbnNlEngKFlVwc2VydE1hdGNobWFraW5nUnVsZXMSLi5wYXJsZXkuZ3VpbGQudjEuVXBzZXJ0TWF0Y2htYWtpbmdSdWxlc1JlcXVlc3QaLi5wYXJsZXkuZ3VpbGQudjEuR3VpbGRNYXRjaG1ha2luZ1J1bGVzUmVzcG9uc2USfgoXR2V0Tm90aWZpY2F0aW9uU2V0dGluZ3MSLy5wYXJsZXkuZ3VpbGQudjEuR2V0Tm90aWZpY2F0aW9uU2V0dGluZ3NSZXF1ZXN0GjIucGFybGV5Lmd1aWxkLnYxLkd1aWxkTm90aWZpY2F0aW9uU2V0dGluZ3NSZXNwb25zZRKEAQoaVXBzZXJ0Tm90aWZpY2F0aW9uU2V0dGluZ3MSMi5wYXJsZXkuZ3VpbGQudjEuVXBzZXJ0Tm90aWZpY2F0aW9uU2V0dGluZ3NSZXF1ZXN0GjIucGFybGV5Lmd1aWxkLnYxLkd1aWxkTm90aWZpY2F0aW9uU2V0dGluZ3NSZXNwb25zZRJjCg5HZXRNYXRjaFF1b3RhcxImLnBhcmxleS5ndWlsZC52MS5HZXRNYXRjaFF1b3Rhc1JlcXVlc3QaKS5wYXJsZXkuZ3VpbGQudjEuR3VpbGRNYXRjaFF1b3Rhc1Jlc3BvbnNlEmkKEVVwc2VydE1hdGNoUXVvdGFzEikucGFybGV5Lmd1aWxkLnYxLlVwc2VydE1hdGNoUXVvdGFzUmVxdWVzdBopLnBhcmxleS5ndWlsZC52MS5HdWlsZE1hdGNoUXVvdGFzUmVzcG9uc2VCVQoTYm90LnBhcmxleS5ndWlsZC52MVo+Z2l0aHViLmNvbS9wYWN0dW0tY29tcHV0ZXJzL3BhcmxleS9nZW4vcGFybGV5L2d1aWxkL3YxO2d1aWxkdjFiBnByb3RvMw", [file_common_v1_types]);
+export const file_guild_v1_guild: GenFile /*@__PURE__*/ = fileDesc(
+  "ChRndWlsZC92MS9ndWlsZC5wcm90bxIPcGFybGV5Lmd1aWxkLnYxIosCCg1HdWlsZFNldHRpbmdzEhAKCGd1aWxkX2lkGAEgASgJEiQKBGdhbWUYAiABKA4yFi5wYXJsZXkuY29tbW9uLnYxLkdhbWUSGwoTZGVmYXVsdF90ZWFtX2Zvcm1hdBgDIAEoCRIUCgxhdXRvX2JhbGFuY2UYBCABKAgSHwoXY3Jvc3NfZ3VpbGRfbWF0Y2htYWtpbmcYBSABKAgSFQoNdXBkYXRlZF9hdF9tcxgGIAEoAxIiChp1cGRhdGVkX2J5X2Rpc2NvcmRfdXNlcl9pZBgHIAEoCRIbChNtYXRjaG1ha2luZ19lbmFibGVkGAkgASgISgQICBAJUhBkZWZhdWx0X2xhbmd1YWdlIlEKF0dldEd1aWxkU2V0dGluZ3NSZXF1ZXN0EhAKCGd1aWxkX2lkGAEgASgJEiQKBGdhbWUYAiABKA4yFi5wYXJsZXkuY29tbW9uLnYxLkdhbWUiTgoaVXBzZXJ0R3VpbGRTZXR0aW5nc1JlcXVlc3QSMAoIc2V0dGluZ3MYASABKAsyHi5wYXJsZXkuZ3VpbGQudjEuR3VpbGRTZXR0aW5ncyKCAQoVR3VpbGRTZXR0aW5nc1Jlc3BvbnNlEg8KB3N1Y2Nlc3MYASABKAgSMAoIc2V0dGluZ3MYAiABKAsyHi5wYXJsZXkuZ3VpbGQudjEuR3VpbGRTZXR0aW5ncxImCgVlcnJvchgDIAEoCzIXLnBhcmxleS5jb21tb24udjEuRXJyb3IiygEKFUd1aWxkTWF0Y2htYWtpbmdSdWxlcxIQCghndWlsZF9pZBgBIAEoCRIkCgRnYW1lGAIgASgOMhYucGFybGV5LmNvbW1vbi52MS5HYW1lEg8KB21pbl9lbG8YAyABKAUSDwoHbWF4X2VsbxgEIAEoBRIRCglwbGF0Zm9ybXMYBSADKAkSGAoQcmVxdWlyZV92ZXJpZmllZBgGIAEoCBITCgttYXhfZWxvX2dhcBgHIAEoBRIVCg11cGRhdGVkX2F0X21zGAggASgDIlQKGkdldE1hdGNobWFraW5nUnVsZXNSZXF1ZXN0EhAKCGd1aWxkX2lkGAEgASgJEiQKBGdhbWUYAiABKA4yFi5wYXJsZXkuY29tbW9uLnYxLkdhbWUiVgodVXBzZXJ0TWF0Y2htYWtpbmdSdWxlc1JlcXVlc3QSNQoFcnVsZXMYASABKAsyJi5wYXJsZXkuZ3VpbGQudjEuR3VpbGRNYXRjaG1ha2luZ1J1bGVzIo8BCh1HdWlsZE1hdGNobWFraW5nUnVsZXNSZXNwb25zZRIPCgdzdWNjZXNzGAEgASgIEjUKBXJ1bGVzGAIgASgLMiYucGFybGV5Lmd1aWxkLnYxLkd1aWxkTWF0Y2htYWtpbmdSdWxlcxImCgVlcnJvchgDIAEoCzIXLnBhcmxleS5jb21tb24udjEuRXJyb3Ii0QIKGUd1aWxkTm90aWZpY2F0aW9uU2V0dGluZ3MSEAoIZ3VpbGRfaWQYASABKAkSJAoEZ2FtZRgCIAEoDjIWLnBhcmxleS5jb21tb24udjEuR2FtZRIdChVtYXRjaF9yZXN1bHRzX2NoYW5uZWwYAyABKAkSKAogdG91cm5hbWVudF9hbm5vdW5jZW1lbnRzX2NoYW5uZWwYBCABKAkSIwobbGVhZGVyYm9hcmRfdXBkYXRlc19lbmFibGVkGAUgASgIEhUKDXVwZGF0ZWRfYXRfbXMYBiABKAMSKQohY3Jvc3NfZ3VpbGRfYW5ub3VuY2VtZW50c19lbmFibGVkGAcgASgIEiQKHGFubm91bmNlX21hdGNoX3JlYWR5X2VuYWJsZWQYCCABKAgSJgoeYW5ub3VuY2VfbWF0Y2hfcmVzdWx0c19lbmFibGVkGAkgASgIIlgKHkdldE5vdGlmaWNhdGlvblNldHRpbmdzUmVxdWVzdBIQCghndWlsZF9pZBgBIAEoCRIkCgRnYW1lGAIgASgOMhYucGFybGV5LmNvbW1vbi52MS5HYW1lImEKIVVwc2VydE5vdGlmaWNhdGlvblNldHRpbmdzUmVxdWVzdBI8CghzZXR0aW5ncxgBIAEoCzIqLnBhcmxleS5ndWlsZC52MS5HdWlsZE5vdGlmaWNhdGlvblNldHRpbmdzIpoBCiFHdWlsZE5vdGlmaWNhdGlvblNldHRpbmdzUmVzcG9uc2USDwoHc3VjY2VzcxgBIAEoCBI8CghzZXR0aW5ncxgCIAEoCzIqLnBhcmxleS5ndWlsZC52MS5HdWlsZE5vdGlmaWNhdGlvblNldHRpbmdzEiYKBWVycm9yGAMgASgLMhcucGFybGV5LmNvbW1vbi52MS5FcnJvciKfAQoPR3VpbGRNYXRjaFF1b3RhEhAKCGd1aWxkX2lkGAEgASgJEiQKBGdhbWUYAiABKA4yFi5wYXJsZXkuY29tbW9uLnYxLkdhbWUSGQoRZGFpbHlfbWF0Y2hfbGltaXQYAyABKAUSIgoadXBkYXRlZF9ieV9kaXNjb3JkX3VzZXJfaWQYBCABKAkSFQoNdXBkYXRlZF9hdF9tcxgFIAEoAyJPChVHZXRNYXRjaFF1b3Rhc1JlcXVlc3QSEAoIZ3VpbGRfaWQYASABKAkSJAoEZ2FtZRgCIAEoDjIWLnBhcmxleS5jb21tb24udjEuR2FtZSJLChhVcHNlcnRNYXRjaFF1b3Rhc1JlcXVlc3QSLwoFcXVvdGEYASABKAsyIC5wYXJsZXkuZ3VpbGQudjEuR3VpbGRNYXRjaFF1b3RhIoQBChhHdWlsZE1hdGNoUXVvdGFzUmVzcG9uc2USDwoHc3VjY2VzcxgBIAEoCBIvCgVxdW90YRgCIAEoCzIgLnBhcmxleS5ndWlsZC52MS5HdWlsZE1hdGNoUXVvdGESJgoFZXJyb3IYAyABKAsyFy5wYXJsZXkuY29tbW9uLnYxLkVycm9yMq0HChRHdWlsZFNldHRpbmdzU2VydmljZRJkChBHZXRHdWlsZFNldHRpbmdzEigucGFybGV5Lmd1aWxkLnYxLkdldEd1aWxkU2V0dGluZ3NSZXF1ZXN0GiYucGFybGV5Lmd1aWxkLnYxLkd1aWxkU2V0dGluZ3NSZXNwb25zZRJqChNVcHNlcnRHdWlsZFNldHRpbmdzEisucGFybGV5Lmd1aWxkLnYxLlVwc2VydEd1aWxkU2V0dGluZ3NSZXF1ZXN0GiYucGFybGV5Lmd1aWxkLnYxLkd1aWxkU2V0dGluZ3NSZXNwb25zZRJyChNHZXRNYXRjaG1ha2luZ1J1bGVzEisucGFybGV5Lmd1aWxkLnYxLkdldE1hdGNobWFraW5nUnVsZXNSZXF1ZXN0Gi4ucGFybGV5Lmd1aWxkLnYxLkd1aWxkTWF0Y2htYWtpbmdSdWxlc1Jlc3BvbnNlEngKFlVwc2VydE1hdGNobWFraW5nUnVsZXMSLi5wYXJsZXkuZ3VpbGQudjEuVXBzZXJ0TWF0Y2htYWtpbmdSdWxlc1JlcXVlc3QaLi5wYXJsZXkuZ3VpbGQudjEuR3VpbGRNYXRjaG1ha2luZ1J1bGVzUmVzcG9uc2USfgoXR2V0Tm90aWZpY2F0aW9uU2V0dGluZ3MSLy5wYXJsZXkuZ3VpbGQudjEuR2V0Tm90aWZpY2F0aW9uU2V0dGluZ3NSZXF1ZXN0GjIucGFybGV5Lmd1aWxkLnYxLkd1aWxkTm90aWZpY2F0aW9uU2V0dGluZ3NSZXNwb25zZRKEAQoaVXBzZXJ0Tm90aWZpY2F0aW9uU2V0dGluZ3MSMi5wYXJsZXkuZ3VpbGQudjEuVXBzZXJ0Tm90aWZpY2F0aW9uU2V0dGluZ3NSZXF1ZXN0GjIucGFybGV5Lmd1aWxkLnYxLkd1aWxkTm90aWZpY2F0aW9uU2V0dGluZ3NSZXNwb25zZRJjCg5HZXRNYXRjaFF1b3RhcxImLnBhcmxleS5ndWlsZC52MS5HZXRNYXRjaFF1b3Rhc1JlcXVlc3QaKS5wYXJsZXkuZ3VpbGQudjEuR3VpbGRNYXRjaFF1b3Rhc1Jlc3BvbnNlEmkKEVVwc2VydE1hdGNoUXVvdGFzEikucGFybGV5Lmd1aWxkLnYxLlVwc2VydE1hdGNoUXVvdGFzUmVxdWVzdBopLnBhcmxleS5ndWlsZC52MS5HdWlsZE1hdGNoUXVvdGFzUmVzcG9uc2VCVQoTYm90LnBhcmxleS5ndWlsZC52MVo+Z2l0aHViLmNvbS9wYWN0dW0tY29tcHV0ZXJzL3BhcmxleS9nZW4vcGFybGV5L2d1aWxkL3YxO2d1aWxkdjFiBnByb3RvMw",
+  [file_common_v1_types],
+);
 
 /**
  * @generated from message parley.guild.v1.GuildSettings
@@ -63,8 +65,10 @@ export type GuildSettings = Message<"parley.guild.v1.GuildSettings"> & {
  * Describes the message parley.guild.v1.GuildSettings.
  * Use `create(GuildSettingsSchema)` to create a new message.
  */
-export const GuildSettingsSchema: GenMessage<GuildSettings> = /*@__PURE__*/
-  messageDesc(file_guild_v1_guild, 0);
+export const GuildSettingsSchema: GenMessage<GuildSettings> /*@__PURE__*/ = messageDesc(
+  file_guild_v1_guild,
+  0,
+);
 
 /**
  * @generated from message parley.guild.v1.GetGuildSettingsRequest
@@ -85,7 +89,7 @@ export type GetGuildSettingsRequest = Message<"parley.guild.v1.GetGuildSettingsR
  * Describes the message parley.guild.v1.GetGuildSettingsRequest.
  * Use `create(GetGuildSettingsRequestSchema)` to create a new message.
  */
-export const GetGuildSettingsRequestSchema: GenMessage<GetGuildSettingsRequest> = /*@__PURE__*/
+export const GetGuildSettingsRequestSchema: GenMessage<GetGuildSettingsRequest> /*@__PURE__*/ =
   messageDesc(file_guild_v1_guild, 1);
 
 /**
@@ -102,7 +106,7 @@ export type UpsertGuildSettingsRequest = Message<"parley.guild.v1.UpsertGuildSet
  * Describes the message parley.guild.v1.UpsertGuildSettingsRequest.
  * Use `create(UpsertGuildSettingsRequestSchema)` to create a new message.
  */
-export const UpsertGuildSettingsRequestSchema: GenMessage<UpsertGuildSettingsRequest> = /*@__PURE__*/
+export const UpsertGuildSettingsRequestSchema: GenMessage<UpsertGuildSettingsRequest> /*@__PURE__*/ =
   messageDesc(file_guild_v1_guild, 2);
 
 /**
@@ -129,7 +133,7 @@ export type GuildSettingsResponse = Message<"parley.guild.v1.GuildSettingsRespon
  * Describes the message parley.guild.v1.GuildSettingsResponse.
  * Use `create(GuildSettingsResponseSchema)` to create a new message.
  */
-export const GuildSettingsResponseSchema: GenMessage<GuildSettingsResponse> = /*@__PURE__*/
+export const GuildSettingsResponseSchema: GenMessage<GuildSettingsResponse> /*@__PURE__*/ =
   messageDesc(file_guild_v1_guild, 3);
 
 /**
@@ -185,7 +189,7 @@ export type GuildMatchmakingRules = Message<"parley.guild.v1.GuildMatchmakingRul
  * Describes the message parley.guild.v1.GuildMatchmakingRules.
  * Use `create(GuildMatchmakingRulesSchema)` to create a new message.
  */
-export const GuildMatchmakingRulesSchema: GenMessage<GuildMatchmakingRules> = /*@__PURE__*/
+export const GuildMatchmakingRulesSchema: GenMessage<GuildMatchmakingRules> /*@__PURE__*/ =
   messageDesc(file_guild_v1_guild, 4);
 
 /**
@@ -207,51 +211,53 @@ export type GetMatchmakingRulesRequest = Message<"parley.guild.v1.GetMatchmaking
  * Describes the message parley.guild.v1.GetMatchmakingRulesRequest.
  * Use `create(GetMatchmakingRulesRequestSchema)` to create a new message.
  */
-export const GetMatchmakingRulesRequestSchema: GenMessage<GetMatchmakingRulesRequest> = /*@__PURE__*/
+export const GetMatchmakingRulesRequestSchema: GenMessage<GetMatchmakingRulesRequest> /*@__PURE__*/ =
   messageDesc(file_guild_v1_guild, 5);
 
 /**
  * @generated from message parley.guild.v1.UpsertMatchmakingRulesRequest
  */
-export type UpsertMatchmakingRulesRequest = Message<"parley.guild.v1.UpsertMatchmakingRulesRequest"> & {
-  /**
-   * @generated from field: parley.guild.v1.GuildMatchmakingRules rules = 1;
-   */
-  rules?: GuildMatchmakingRules | undefined;
-};
+export type UpsertMatchmakingRulesRequest =
+  Message<"parley.guild.v1.UpsertMatchmakingRulesRequest"> & {
+    /**
+     * @generated from field: parley.guild.v1.GuildMatchmakingRules rules = 1;
+     */
+    rules?: GuildMatchmakingRules | undefined;
+  };
 
 /**
  * Describes the message parley.guild.v1.UpsertMatchmakingRulesRequest.
  * Use `create(UpsertMatchmakingRulesRequestSchema)` to create a new message.
  */
-export const UpsertMatchmakingRulesRequestSchema: GenMessage<UpsertMatchmakingRulesRequest> = /*@__PURE__*/
+export const UpsertMatchmakingRulesRequestSchema: GenMessage<UpsertMatchmakingRulesRequest> /*@__PURE__*/ =
   messageDesc(file_guild_v1_guild, 6);
 
 /**
  * @generated from message parley.guild.v1.GuildMatchmakingRulesResponse
  */
-export type GuildMatchmakingRulesResponse = Message<"parley.guild.v1.GuildMatchmakingRulesResponse"> & {
-  /**
-   * @generated from field: bool success = 1;
-   */
-  success: boolean;
+export type GuildMatchmakingRulesResponse =
+  Message<"parley.guild.v1.GuildMatchmakingRulesResponse"> & {
+    /**
+     * @generated from field: bool success = 1;
+     */
+    success: boolean;
 
-  /**
-   * @generated from field: parley.guild.v1.GuildMatchmakingRules rules = 2;
-   */
-  rules?: GuildMatchmakingRules | undefined;
+    /**
+     * @generated from field: parley.guild.v1.GuildMatchmakingRules rules = 2;
+     */
+    rules?: GuildMatchmakingRules | undefined;
 
-  /**
-   * @generated from field: parley.common.v1.Error error = 3;
-   */
-  error?: Error | undefined;
-};
+    /**
+     * @generated from field: parley.common.v1.Error error = 3;
+     */
+    error?: Error | undefined;
+  };
 
 /**
  * Describes the message parley.guild.v1.GuildMatchmakingRulesResponse.
  * Use `create(GuildMatchmakingRulesResponseSchema)` to create a new message.
  */
-export const GuildMatchmakingRulesResponseSchema: GenMessage<GuildMatchmakingRulesResponse> = /*@__PURE__*/
+export const GuildMatchmakingRulesResponseSchema: GenMessage<GuildMatchmakingRulesResponse> /*@__PURE__*/ =
   messageDesc(file_guild_v1_guild, 7);
 
 /**
@@ -308,73 +314,76 @@ export type GuildNotificationSettings = Message<"parley.guild.v1.GuildNotificati
  * Describes the message parley.guild.v1.GuildNotificationSettings.
  * Use `create(GuildNotificationSettingsSchema)` to create a new message.
  */
-export const GuildNotificationSettingsSchema: GenMessage<GuildNotificationSettings> = /*@__PURE__*/
+export const GuildNotificationSettingsSchema: GenMessage<GuildNotificationSettings> /*@__PURE__*/ =
   messageDesc(file_guild_v1_guild, 8);
 
 /**
  * @generated from message parley.guild.v1.GetNotificationSettingsRequest
  */
-export type GetNotificationSettingsRequest = Message<"parley.guild.v1.GetNotificationSettingsRequest"> & {
-  /**
-   * @generated from field: string guild_id = 1;
-   */
-  guildId: string;
+export type GetNotificationSettingsRequest =
+  Message<"parley.guild.v1.GetNotificationSettingsRequest"> & {
+    /**
+     * @generated from field: string guild_id = 1;
+     */
+    guildId: string;
 
-  /**
-   * @generated from field: parley.common.v1.Game game = 2;
-   */
-  game: Game;
-};
+    /**
+     * @generated from field: parley.common.v1.Game game = 2;
+     */
+    game: Game;
+  };
 
 /**
  * Describes the message parley.guild.v1.GetNotificationSettingsRequest.
  * Use `create(GetNotificationSettingsRequestSchema)` to create a new message.
  */
-export const GetNotificationSettingsRequestSchema: GenMessage<GetNotificationSettingsRequest> = /*@__PURE__*/
+export const GetNotificationSettingsRequestSchema: GenMessage<GetNotificationSettingsRequest> /*@__PURE__*/ =
   messageDesc(file_guild_v1_guild, 9);
 
 /**
  * @generated from message parley.guild.v1.UpsertNotificationSettingsRequest
  */
-export type UpsertNotificationSettingsRequest = Message<"parley.guild.v1.UpsertNotificationSettingsRequest"> & {
-  /**
-   * @generated from field: parley.guild.v1.GuildNotificationSettings settings = 1;
-   */
-  settings?: GuildNotificationSettings | undefined;
-};
+export type UpsertNotificationSettingsRequest =
+  Message<"parley.guild.v1.UpsertNotificationSettingsRequest"> & {
+    /**
+     * @generated from field: parley.guild.v1.GuildNotificationSettings settings = 1;
+     */
+    settings?: GuildNotificationSettings | undefined;
+  };
 
 /**
  * Describes the message parley.guild.v1.UpsertNotificationSettingsRequest.
  * Use `create(UpsertNotificationSettingsRequestSchema)` to create a new message.
  */
-export const UpsertNotificationSettingsRequestSchema: GenMessage<UpsertNotificationSettingsRequest> = /*@__PURE__*/
+export const UpsertNotificationSettingsRequestSchema: GenMessage<UpsertNotificationSettingsRequest> /*@__PURE__*/ =
   messageDesc(file_guild_v1_guild, 10);
 
 /**
  * @generated from message parley.guild.v1.GuildNotificationSettingsResponse
  */
-export type GuildNotificationSettingsResponse = Message<"parley.guild.v1.GuildNotificationSettingsResponse"> & {
-  /**
-   * @generated from field: bool success = 1;
-   */
-  success: boolean;
+export type GuildNotificationSettingsResponse =
+  Message<"parley.guild.v1.GuildNotificationSettingsResponse"> & {
+    /**
+     * @generated from field: bool success = 1;
+     */
+    success: boolean;
 
-  /**
-   * @generated from field: parley.guild.v1.GuildNotificationSettings settings = 2;
-   */
-  settings?: GuildNotificationSettings | undefined;
+    /**
+     * @generated from field: parley.guild.v1.GuildNotificationSettings settings = 2;
+     */
+    settings?: GuildNotificationSettings | undefined;
 
-  /**
-   * @generated from field: parley.common.v1.Error error = 3;
-   */
-  error?: Error | undefined;
-};
+    /**
+     * @generated from field: parley.common.v1.Error error = 3;
+     */
+    error?: Error | undefined;
+  };
 
 /**
  * Describes the message parley.guild.v1.GuildNotificationSettingsResponse.
  * Use `create(GuildNotificationSettingsResponseSchema)` to create a new message.
  */
-export const GuildNotificationSettingsResponseSchema: GenMessage<GuildNotificationSettingsResponse> = /*@__PURE__*/
+export const GuildNotificationSettingsResponseSchema: GenMessage<GuildNotificationSettingsResponse> /*@__PURE__*/ =
   messageDesc(file_guild_v1_guild, 11);
 
 /**
@@ -411,8 +420,10 @@ export type GuildMatchQuota = Message<"parley.guild.v1.GuildMatchQuota"> & {
  * Describes the message parley.guild.v1.GuildMatchQuota.
  * Use `create(GuildMatchQuotaSchema)` to create a new message.
  */
-export const GuildMatchQuotaSchema: GenMessage<GuildMatchQuota> = /*@__PURE__*/
-  messageDesc(file_guild_v1_guild, 12);
+export const GuildMatchQuotaSchema: GenMessage<GuildMatchQuota> /*@__PURE__*/ = messageDesc(
+  file_guild_v1_guild,
+  12,
+);
 
 /**
  * @generated from message parley.guild.v1.GetMatchQuotasRequest
@@ -433,7 +444,7 @@ export type GetMatchQuotasRequest = Message<"parley.guild.v1.GetMatchQuotasReque
  * Describes the message parley.guild.v1.GetMatchQuotasRequest.
  * Use `create(GetMatchQuotasRequestSchema)` to create a new message.
  */
-export const GetMatchQuotasRequestSchema: GenMessage<GetMatchQuotasRequest> = /*@__PURE__*/
+export const GetMatchQuotasRequestSchema: GenMessage<GetMatchQuotasRequest> /*@__PURE__*/ =
   messageDesc(file_guild_v1_guild, 13);
 
 /**
@@ -450,7 +461,7 @@ export type UpsertMatchQuotasRequest = Message<"parley.guild.v1.UpsertMatchQuota
  * Describes the message parley.guild.v1.UpsertMatchQuotasRequest.
  * Use `create(UpsertMatchQuotasRequestSchema)` to create a new message.
  */
-export const UpsertMatchQuotasRequestSchema: GenMessage<UpsertMatchQuotasRequest> = /*@__PURE__*/
+export const UpsertMatchQuotasRequestSchema: GenMessage<UpsertMatchQuotasRequest> /*@__PURE__*/ =
   messageDesc(file_guild_v1_guild, 14);
 
 /**
@@ -477,7 +488,7 @@ export type GuildMatchQuotasResponse = Message<"parley.guild.v1.GuildMatchQuotas
  * Describes the message parley.guild.v1.GuildMatchQuotasResponse.
  * Use `create(GuildMatchQuotasResponseSchema)` to create a new message.
  */
-export const GuildMatchQuotasResponseSchema: GenMessage<GuildMatchQuotasResponse> = /*@__PURE__*/
+export const GuildMatchQuotasResponseSchema: GenMessage<GuildMatchQuotasResponse> /*@__PURE__*/ =
   messageDesc(file_guild_v1_guild, 15);
 
 /**
@@ -496,7 +507,7 @@ export const GuildSettingsService: GenService<{
     methodKind: "unary";
     input: typeof GetGuildSettingsRequestSchema;
     output: typeof GuildSettingsResponseSchema;
-  },
+  };
   /**
    * @generated from rpc parley.guild.v1.GuildSettingsService.UpsertGuildSettings
    */
@@ -504,7 +515,7 @@ export const GuildSettingsService: GenService<{
     methodKind: "unary";
     input: typeof UpsertGuildSettingsRequestSchema;
     output: typeof GuildSettingsResponseSchema;
-  },
+  };
   /**
    * @generated from rpc parley.guild.v1.GuildSettingsService.GetMatchmakingRules
    */
@@ -512,7 +523,7 @@ export const GuildSettingsService: GenService<{
     methodKind: "unary";
     input: typeof GetMatchmakingRulesRequestSchema;
     output: typeof GuildMatchmakingRulesResponseSchema;
-  },
+  };
   /**
    * @generated from rpc parley.guild.v1.GuildSettingsService.UpsertMatchmakingRules
    */
@@ -520,7 +531,7 @@ export const GuildSettingsService: GenService<{
     methodKind: "unary";
     input: typeof UpsertMatchmakingRulesRequestSchema;
     output: typeof GuildMatchmakingRulesResponseSchema;
-  },
+  };
   /**
    * @generated from rpc parley.guild.v1.GuildSettingsService.GetNotificationSettings
    */
@@ -528,7 +539,7 @@ export const GuildSettingsService: GenService<{
     methodKind: "unary";
     input: typeof GetNotificationSettingsRequestSchema;
     output: typeof GuildNotificationSettingsResponseSchema;
-  },
+  };
   /**
    * @generated from rpc parley.guild.v1.GuildSettingsService.UpsertNotificationSettings
    */
@@ -536,7 +547,7 @@ export const GuildSettingsService: GenService<{
     methodKind: "unary";
     input: typeof UpsertNotificationSettingsRequestSchema;
     output: typeof GuildNotificationSettingsResponseSchema;
-  },
+  };
   /**
    * @generated from rpc parley.guild.v1.GuildSettingsService.GetMatchQuotas
    */
@@ -544,7 +555,7 @@ export const GuildSettingsService: GenService<{
     methodKind: "unary";
     input: typeof GetMatchQuotasRequestSchema;
     output: typeof GuildMatchQuotasResponseSchema;
-  },
+  };
   /**
    * @generated from rpc parley.guild.v1.GuildSettingsService.UpsertMatchQuotas
    */
@@ -552,7 +563,5 @@ export const GuildSettingsService: GenService<{
     methodKind: "unary";
     input: typeof UpsertMatchQuotasRequestSchema;
     output: typeof GuildMatchQuotasResponseSchema;
-  },
-}> = /*@__PURE__*/
-  serviceDesc(file_guild_v1_guild, 0);
-
+  };
+}> /*@__PURE__*/ = serviceDesc(file_guild_v1_guild, 0);

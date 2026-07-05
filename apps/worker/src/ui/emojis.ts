@@ -13,7 +13,9 @@ type EmojiInteraction = {
 };
 
 /** Resolves app emojis via the runtime: KV cache → Discord REST → normalized catalog. */
-export async function resolveEmojis(interaction: EmojiInteraction): Promise<ApplicationEmojiCatalog> {
+export async function resolveEmojis(
+  interaction: EmojiInteraction,
+): Promise<ApplicationEmojiCatalog> {
   const cached = interaction.context.get<ApplicationEmojiCatalog>(EMOJI_CONTEXT_KEY);
   if (cached) {
     return cached;

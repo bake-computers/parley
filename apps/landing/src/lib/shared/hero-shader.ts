@@ -60,10 +60,15 @@ export async function startHeroShader(canvas: HTMLCanvasElement): Promise<HeroSh
     fragment: {
       module,
       entryPoint: "fs",
-      targets: [{ format, blend: {
-        color: { srcFactor: "src-alpha", dstFactor: "one-minus-src-alpha" },
-        alpha: { srcFactor: "one", dstFactor: "one-minus-src-alpha" },
-      } }],
+      targets: [
+        {
+          format,
+          blend: {
+            color: { srcFactor: "src-alpha", dstFactor: "one-minus-src-alpha" },
+            alpha: { srcFactor: "one", dstFactor: "one-minus-src-alpha" },
+          },
+        },
+      ],
     },
     primitive: { topology: "triangle-list" },
   });
@@ -106,12 +111,14 @@ export async function startHeroShader(canvas: HTMLCanvasElement): Promise<HeroSh
 
     const encoder = device.createCommandEncoder();
     const pass = encoder.beginRenderPass({
-      colorAttachments: [{
-        view: context.getCurrentTexture().createView(),
-        clearValue: { r: 0, g: 0, b: 0, a: 0 },
-        loadOp: "clear",
-        storeOp: "store",
-      }],
+      colorAttachments: [
+        {
+          view: context.getCurrentTexture().createView(),
+          clearValue: { r: 0, g: 0, b: 0, a: 0 },
+          loadOp: "clear",
+          storeOp: "store",
+        },
+      ],
     });
     pass.setPipeline(pipeline);
     pass.setBindGroup(0, bindGroup);

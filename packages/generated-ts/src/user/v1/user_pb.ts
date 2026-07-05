@@ -11,8 +11,10 @@ import type { Message } from "@bufbuild/protobuf";
 /**
  * Describes the file user/v1/user.proto.
  */
-export const file_user_v1_user: GenFile = /*@__PURE__*/
-  fileDesc("ChJ1c2VyL3YxL3VzZXIucHJvdG8SDnBhcmxleS51c2VyLnYxIrMBCgxVc2VyU2V0dGluZ3MSFwoPZGlzY29yZF91c2VyX2lkGAEgASgJEhUKDXVwZGF0ZWRfYXRfbXMYAyABKAMSGwoTbWF0Y2htYWtpbmdfZW5hYmxlZBgEIAEoCBIcChR0ZXJtc19hY2NlcHRlZF9hdF9tcxgFIAEoAxIWCg5wcm9maWxlX3B1YmxpYxgGIAEoCBIQCgh0aW1lem9uZRgHIAEoCUoECAIQA1IIbGFuZ3VhZ2UiMQoWR2V0VXNlclNldHRpbmdzUmVxdWVzdBIXCg9kaXNjb3JkX3VzZXJfaWQYASABKAkiSwoZVXBzZXJ0VXNlclNldHRpbmdzUmVxdWVzdBIuCghzZXR0aW5ncxgBIAEoCzIcLnBhcmxleS51c2VyLnYxLlVzZXJTZXR0aW5ncyJ/ChRVc2VyU2V0dGluZ3NSZXNwb25zZRIPCgdzdWNjZXNzGAEgASgIEi4KCHNldHRpbmdzGAIgASgLMhwucGFybGV5LnVzZXIudjEuVXNlclNldHRpbmdzEiYKBWVycm9yGAMgASgLMhcucGFybGV5LmNvbW1vbi52MS5FcnJvciIwChVEZWxldGVVc2VyRGF0YVJlcXVlc3QSFwoPZGlzY29yZF91c2VyX2lkGAEgASgJIt4CChNBbm9ueW1pemF0aW9uQ291bnRzEg8KB3BsYXllcnMYASABKAUSGgoSZGlzY29yZF9pZGVudGl0aWVzGAIgASgFEhkKEWd1aWxkX21lbWJlcnNoaXBzGAMgASgFEg8KB21hdGNoZXMYBCABKAUSGgoSbWF0Y2hfcGFydGljaXBhbnRzGAUgASgFEhoKEm1hdGNobWFraW5nX3F1ZXVlcxgGIAEoBRImCh5tYXRjaG1ha2luZ19xdWV1ZV9wYXJ0aWNpcGFudHMYByABKAUSEwoLdG91cm5hbWVudHMYCCABKAUSGAoQdG91cm5hbWVudF90ZWFtcxgJIAEoBRIfChd0b3VybmFtZW50X3RlYW1fcm9zdGVycxgKIAEoBRIcChRndWlsZF9zZXR0aW5nc19hdWRpdBgLIAEoBRIgChhndWlsZF9tYXRjaF9xdW90YXNfYXVkaXQYDCABKAUizgEKFkRlbGV0ZVVzZXJEYXRhUmVzcG9uc2USDwoHc3VjY2VzcxgBIAEoCBIiChphbm9ueW1pemVkX2Rpc2NvcmRfdXNlcl9pZBgCIAEoCRIZChFjb29sZG93bl91bnRpbF9tcxgDIAEoAxI8Cg90YWJsZXNfYWZmZWN0ZWQYBCABKAsyIy5wYXJsZXkudXNlci52MS5Bbm9ueW1pemF0aW9uQ291bnRzEiYKBWVycm9yGAUgASgLMhcucGFybGV5LmNvbW1vbi52MS5FcnJvcjK+AgoTVXNlclNldHRpbmdzU2VydmljZRJfCg9HZXRVc2VyU2V0dGluZ3MSJi5wYXJsZXkudXNlci52MS5HZXRVc2VyU2V0dGluZ3NSZXF1ZXN0GiQucGFybGV5LnVzZXIudjEuVXNlclNldHRpbmdzUmVzcG9uc2USZQoSVXBzZXJ0VXNlclNldHRpbmdzEikucGFybGV5LnVzZXIudjEuVXBzZXJ0VXNlclNldHRpbmdzUmVxdWVzdBokLnBhcmxleS51c2VyLnYxLlVzZXJTZXR0aW5nc1Jlc3BvbnNlEl8KDkRlbGV0ZVVzZXJEYXRhEiUucGFybGV5LnVzZXIudjEuRGVsZXRlVXNlckRhdGFSZXF1ZXN0GiYucGFybGV5LnVzZXIudjEuRGVsZXRlVXNlckRhdGFSZXNwb25zZUJSChJib3QucGFybGV5LnVzZXIudjFaPGdpdGh1Yi5jb20vcGFjdHVtLWNvbXB1dGVycy9wYXJsZXkvZ2VuL3BhcmxleS91c2VyL3YxO3VzZXJ2MWIGcHJvdG8z", [file_common_v1_types]);
+export const file_user_v1_user: GenFile /*@__PURE__*/ = fileDesc(
+  "ChJ1c2VyL3YxL3VzZXIucHJvdG8SDnBhcmxleS51c2VyLnYxIrMBCgxVc2VyU2V0dGluZ3MSFwoPZGlzY29yZF91c2VyX2lkGAEgASgJEhUKDXVwZGF0ZWRfYXRfbXMYAyABKAMSGwoTbWF0Y2htYWtpbmdfZW5hYmxlZBgEIAEoCBIcChR0ZXJtc19hY2NlcHRlZF9hdF9tcxgFIAEoAxIWCg5wcm9maWxlX3B1YmxpYxgGIAEoCBIQCgh0aW1lem9uZRgHIAEoCUoECAIQA1IIbGFuZ3VhZ2UiMQoWR2V0VXNlclNldHRpbmdzUmVxdWVzdBIXCg9kaXNjb3JkX3VzZXJfaWQYASABKAkiSwoZVXBzZXJ0VXNlclNldHRpbmdzUmVxdWVzdBIuCghzZXR0aW5ncxgBIAEoCzIcLnBhcmxleS51c2VyLnYxLlVzZXJTZXR0aW5ncyJ/ChRVc2VyU2V0dGluZ3NSZXNwb25zZRIPCgdzdWNjZXNzGAEgASgIEi4KCHNldHRpbmdzGAIgASgLMhwucGFybGV5LnVzZXIudjEuVXNlclNldHRpbmdzEiYKBWVycm9yGAMgASgLMhcucGFybGV5LmNvbW1vbi52MS5FcnJvciIwChVEZWxldGVVc2VyRGF0YVJlcXVlc3QSFwoPZGlzY29yZF91c2VyX2lkGAEgASgJIt4CChNBbm9ueW1pemF0aW9uQ291bnRzEg8KB3BsYXllcnMYASABKAUSGgoSZGlzY29yZF9pZGVudGl0aWVzGAIgASgFEhkKEWd1aWxkX21lbWJlcnNoaXBzGAMgASgFEg8KB21hdGNoZXMYBCABKAUSGgoSbWF0Y2hfcGFydGljaXBhbnRzGAUgASgFEhoKEm1hdGNobWFraW5nX3F1ZXVlcxgGIAEoBRImCh5tYXRjaG1ha2luZ19xdWV1ZV9wYXJ0aWNpcGFudHMYByABKAUSEwoLdG91cm5hbWVudHMYCCABKAUSGAoQdG91cm5hbWVudF90ZWFtcxgJIAEoBRIfChd0b3VybmFtZW50X3RlYW1fcm9zdGVycxgKIAEoBRIcChRndWlsZF9zZXR0aW5nc19hdWRpdBgLIAEoBRIgChhndWlsZF9tYXRjaF9xdW90YXNfYXVkaXQYDCABKAUizgEKFkRlbGV0ZVVzZXJEYXRhUmVzcG9uc2USDwoHc3VjY2VzcxgBIAEoCBIiChphbm9ueW1pemVkX2Rpc2NvcmRfdXNlcl9pZBgCIAEoCRIZChFjb29sZG93bl91bnRpbF9tcxgDIAEoAxI8Cg90YWJsZXNfYWZmZWN0ZWQYBCABKAsyIy5wYXJsZXkudXNlci52MS5Bbm9ueW1pemF0aW9uQ291bnRzEiYKBWVycm9yGAUgASgLMhcucGFybGV5LmNvbW1vbi52MS5FcnJvcjK+AgoTVXNlclNldHRpbmdzU2VydmljZRJfCg9HZXRVc2VyU2V0dGluZ3MSJi5wYXJsZXkudXNlci52MS5HZXRVc2VyU2V0dGluZ3NSZXF1ZXN0GiQucGFybGV5LnVzZXIudjEuVXNlclNldHRpbmdzUmVzcG9uc2USZQoSVXBzZXJ0VXNlclNldHRpbmdzEikucGFybGV5LnVzZXIudjEuVXBzZXJ0VXNlclNldHRpbmdzUmVxdWVzdBokLnBhcmxleS51c2VyLnYxLlVzZXJTZXR0aW5nc1Jlc3BvbnNlEl8KDkRlbGV0ZVVzZXJEYXRhEiUucGFybGV5LnVzZXIudjEuRGVsZXRlVXNlckRhdGFSZXF1ZXN0GiYucGFybGV5LnVzZXIudjEuRGVsZXRlVXNlckRhdGFSZXNwb25zZUJSChJib3QucGFybGV5LnVzZXIudjFaPGdpdGh1Yi5jb20vcGFjdHVtLWNvbXB1dGVycy9wYXJsZXkvZ2VuL3BhcmxleS91c2VyL3YxO3VzZXJ2MWIGcHJvdG8z",
+  [file_common_v1_types],
+);
 
 /**
  * @generated from message parley.user.v1.UserSettings
@@ -53,8 +55,10 @@ export type UserSettings = Message<"parley.user.v1.UserSettings"> & {
  * Describes the message parley.user.v1.UserSettings.
  * Use `create(UserSettingsSchema)` to create a new message.
  */
-export const UserSettingsSchema: GenMessage<UserSettings> = /*@__PURE__*/
-  messageDesc(file_user_v1_user, 0);
+export const UserSettingsSchema: GenMessage<UserSettings> /*@__PURE__*/ = messageDesc(
+  file_user_v1_user,
+  0,
+);
 
 /**
  * @generated from message parley.user.v1.GetUserSettingsRequest
@@ -70,7 +74,7 @@ export type GetUserSettingsRequest = Message<"parley.user.v1.GetUserSettingsRequ
  * Describes the message parley.user.v1.GetUserSettingsRequest.
  * Use `create(GetUserSettingsRequestSchema)` to create a new message.
  */
-export const GetUserSettingsRequestSchema: GenMessage<GetUserSettingsRequest> = /*@__PURE__*/
+export const GetUserSettingsRequestSchema: GenMessage<GetUserSettingsRequest> /*@__PURE__*/ =
   messageDesc(file_user_v1_user, 1);
 
 /**
@@ -87,7 +91,7 @@ export type UpsertUserSettingsRequest = Message<"parley.user.v1.UpsertUserSettin
  * Describes the message parley.user.v1.UpsertUserSettingsRequest.
  * Use `create(UpsertUserSettingsRequestSchema)` to create a new message.
  */
-export const UpsertUserSettingsRequestSchema: GenMessage<UpsertUserSettingsRequest> = /*@__PURE__*/
+export const UpsertUserSettingsRequestSchema: GenMessage<UpsertUserSettingsRequest> /*@__PURE__*/ =
   messageDesc(file_user_v1_user, 2);
 
 /**
@@ -114,7 +118,7 @@ export type UserSettingsResponse = Message<"parley.user.v1.UserSettingsResponse"
  * Describes the message parley.user.v1.UserSettingsResponse.
  * Use `create(UserSettingsResponseSchema)` to create a new message.
  */
-export const UserSettingsResponseSchema: GenMessage<UserSettingsResponse> = /*@__PURE__*/
+export const UserSettingsResponseSchema: GenMessage<UserSettingsResponse> /*@__PURE__*/ =
   messageDesc(file_user_v1_user, 3);
 
 /**
@@ -131,7 +135,7 @@ export type DeleteUserDataRequest = Message<"parley.user.v1.DeleteUserDataReques
  * Describes the message parley.user.v1.DeleteUserDataRequest.
  * Use `create(DeleteUserDataRequestSchema)` to create a new message.
  */
-export const DeleteUserDataRequestSchema: GenMessage<DeleteUserDataRequest> = /*@__PURE__*/
+export const DeleteUserDataRequestSchema: GenMessage<DeleteUserDataRequest> /*@__PURE__*/ =
   messageDesc(file_user_v1_user, 4);
 
 /**
@@ -203,8 +207,10 @@ export type AnonymizationCounts = Message<"parley.user.v1.AnonymizationCounts"> 
  * Describes the message parley.user.v1.AnonymizationCounts.
  * Use `create(AnonymizationCountsSchema)` to create a new message.
  */
-export const AnonymizationCountsSchema: GenMessage<AnonymizationCounts> = /*@__PURE__*/
-  messageDesc(file_user_v1_user, 5);
+export const AnonymizationCountsSchema: GenMessage<AnonymizationCounts> /*@__PURE__*/ = messageDesc(
+  file_user_v1_user,
+  5,
+);
 
 /**
  * @generated from message parley.user.v1.DeleteUserDataResponse
@@ -240,7 +246,7 @@ export type DeleteUserDataResponse = Message<"parley.user.v1.DeleteUserDataRespo
  * Describes the message parley.user.v1.DeleteUserDataResponse.
  * Use `create(DeleteUserDataResponseSchema)` to create a new message.
  */
-export const DeleteUserDataResponseSchema: GenMessage<DeleteUserDataResponse> = /*@__PURE__*/
+export const DeleteUserDataResponseSchema: GenMessage<DeleteUserDataResponse> /*@__PURE__*/ =
   messageDesc(file_user_v1_user, 6);
 
 /**
@@ -256,7 +262,7 @@ export const UserSettingsService: GenService<{
     methodKind: "unary";
     input: typeof GetUserSettingsRequestSchema;
     output: typeof UserSettingsResponseSchema;
-  },
+  };
   /**
    * @generated from rpc parley.user.v1.UserSettingsService.UpsertUserSettings
    */
@@ -264,7 +270,7 @@ export const UserSettingsService: GenService<{
     methodKind: "unary";
     input: typeof UpsertUserSettingsRequestSchema;
     output: typeof UserSettingsResponseSchema;
-  },
+  };
   /**
    * @generated from rpc parley.user.v1.UserSettingsService.DeleteUserData
    */
@@ -272,7 +278,5 @@ export const UserSettingsService: GenService<{
     methodKind: "unary";
     input: typeof DeleteUserDataRequestSchema;
     output: typeof DeleteUserDataResponseSchema;
-  },
-}> = /*@__PURE__*/
-  serviceDesc(file_user_v1_user, 0);
-
+  };
+}> /*@__PURE__*/ = serviceDesc(file_user_v1_user, 0);

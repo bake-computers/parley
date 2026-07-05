@@ -1,1 +1,3076 @@
-{"constants":{"slugs":{"current_season":"system-override","ranked_playlist":"ranked","quick_match_playlist":"quick-match","ranked_bomb_mode":"ranked-bomb","unranked_rank":"v7-unranked","champion_rank":"v7-champion-i","canceled_end_game_reason":"canceled","finished_end_game_reason":"finished","cheating_game_ban_reasons":["battleye","cheating"],"cheating_external_ban_reasons":["cheating"]}},"seasons":{"high-stakes":{"slug":"high-stakes","display":"High Stakes","year":10,"season":3,"primary_color":"#ca0b0b","secondary_color":"#e03f3f","is_filterable":true,"started_at":"2025-09-02T13:00:00Z","ended_at":"2025-12-02T13:59:59.999Z","ranks":["unranked","copper-v","copper-iv","copper-iii","copper-ii","copper-i","bronze-v","bronze-iv","bronze-iii","bronze-ii","bronze-i","silver-v","silver-iv","silver-iii","silver-ii","silver-i","gold-v","gold-iv","gold-iii","gold-ii","gold-i","platinum-v","platinum-iv","platinum-iii","platinum-ii","platinum-i","emerald-v","emerald-iv","emerald-iii","emerald-ii","emerald-i","diamond-v","diamond-iv","diamond-iii","diamond-ii","diamond-i","champion"]},"silent-hunt":{"slug":"silent-hunt","display":"Silent Hunt","year":11,"season":1,"primary_color":"#3a6b4e","secondary_color":"#4e9169","is_filterable":true,"started_at":"2026-03-03T14:00:00Z","ended_at":"2026-06-02T12:59:59.999Z","ranks":["unranked","copper-v","copper-iv","copper-iii","copper-ii","copper-i","bronze-v","bronze-iv","bronze-iii","bronze-ii","bronze-i","silver-v","silver-iv","silver-iii","silver-ii","silver-i","gold-v","gold-iv","gold-iii","gold-ii","gold-i","platinum-v","platinum-iv","platinum-iii","platinum-ii","platinum-i","emerald-v","emerald-iv","emerald-iii","emerald-ii","emerald-i","diamond-v","diamond-iv","diamond-iii","diamond-ii","diamond-i","champion"]},"tenfold-pursuit":{"slug":"tenfold-pursuit","display":"Tenfold Pursuit","year":10,"season":4,"primary_color":"#6e5a61","secondary_color":"#ba98a4","is_filterable":true,"started_at":"2025-12-02T14:00:00Z","ended_at":"2026-03-03T13:59:59.999Z","ranks":["unranked","copper-v","copper-iv","copper-iii","copper-ii","copper-i","bronze-v","bronze-iv","bronze-iii","bronze-ii","bronze-i","silver-v","silver-iv","silver-iii","silver-ii","silver-i","gold-v","gold-iv","gold-iii","gold-ii","gold-i","platinum-v","platinum-iv","platinum-iii","platinum-ii","platinum-i","emerald-v","emerald-iv","emerald-iii","emerald-ii","emerald-i","diamond-v","diamond-iv","diamond-iii","diamond-ii","diamond-i","champion"]},"daybreak":{"slug":"daybreak","display":"Daybreak","year":10,"season":2,"primary_color":"#70808f","secondary_color":"#b8cde0","is_filterable":false,"started_at":"2025-06-10T14:00:00Z","ended_at":"2025-09-02T12:59:59.999Z","ranks":["unranked","copper-v","copper-iv","copper-iii","copper-ii","copper-i","bronze-v","bronze-iv","bronze-iii","bronze-ii","bronze-i","silver-v","silver-iv","silver-iii","silver-ii","silver-i","gold-v","gold-iv","gold-iii","gold-ii","gold-i","platinum-v","platinum-iv","platinum-iii","platinum-ii","platinum-i","emerald-v","emerald-iv","emerald-iii","emerald-ii","emerald-i","diamond-v","diamond-iv","diamond-iii","diamond-ii","diamond-i","champion"]},"system-override":{"slug":"system-override","display":"System Override","year":11,"season":2,"primary_color":"#fd6e72","secondary_color":"#fcabae","is_filterable":true,"started_at":"2026-06-02T13:00:00Z","ranks":["v7-unranked","v7-copper-v","v7-copper-iv","v7-copper-iii","v7-copper-ii","v7-copper-i","v7-bronze-v","v7-bronze-iv","v7-bronze-iii","v7-bronze-ii","v7-bronze-i","v7-silver-v","v7-silver-iv","v7-silver-iii","v7-silver-ii","v7-silver-i","v7-gold-v","v7-gold-iv","v7-gold-iii","v7-gold-ii","v7-gold-i","v7-platinum-v","v7-platinum-iv","v7-platinum-iii","v7-platinum-ii","v7-platinum-i","v7-emerald-v","v7-emerald-iv","v7-emerald-iii","v7-emerald-ii","v7-emerald-i","v7-diamond-v","v7-diamond-iv","v7-diamond-iii","v7-diamond-ii","v7-diamond-i","v7-champion-v","v7-champion-iv","v7-champion-iii","v7-champion-ii","v7-champion-i"]},"dread-factor":{"slug":"dread-factor","display":"Dread Factor","year":8,"season":2,"primary_color":"#6432ef","secondary_color":"#27235e","is_filterable":false,"started_at":"2023-05-30T15:00:00Z","ended_at":"2023-08-29T14:59:59.999Z","ranks":["unranked","copper-v","copper-iv","copper-iii","copper-ii","copper-i","bronze-v","bronze-iv","bronze-iii","bronze-ii","bronze-i","silver-v","silver-iv","silver-iii","silver-ii","silver-i","gold-v","gold-iv","gold-iii","gold-ii","gold-i","platinum-v","platinum-iv","platinum-iii","platinum-ii","platinum-i","emerald-v","emerald-iv","emerald-iii","emerald-ii","emerald-i","diamond-v","diamond-iv","diamond-iii","diamond-ii","diamond-i","champion"]},"prep-phase":{"slug":"prep-phase","display":"Prep Phase","year":10,"season":1,"primary_color":"#ff6d20","secondary_color":"#ff8e53","is_filterable":false,"started_at":"2025-03-04T14:00:00Z","ended_at":"2025-06-10T13:59:59.999Z","ranks":["unranked","copper-v","copper-iv","copper-iii","copper-ii","copper-i","bronze-v","bronze-iv","bronze-iii","bronze-ii","bronze-i","silver-v","silver-iv","silver-iii","silver-ii","silver-i","gold-v","gold-iv","gold-iii","gold-ii","gold-i","platinum-v","platinum-iv","platinum-iii","platinum-ii","platinum-i","emerald-v","emerald-iv","emerald-iii","emerald-ii","emerald-i","diamond-v","diamond-iv","diamond-iii","diamond-ii","diamond-i","champion"]},"new-blood":{"slug":"new-blood","display":"New Blood","year":9,"season":2,"primary_color":"#f58223","secondary_color":"#f58223","is_filterable":false,"started_at":"2024-06-11T13:00:00Z","ended_at":"2024-09-10T12:59:59.999Z","ranks":["unranked","copper-v","copper-iv","copper-iii","copper-ii","copper-i","bronze-v","bronze-iv","bronze-iii","bronze-ii","bronze-i","silver-v","silver-iv","silver-iii","silver-ii","silver-i","gold-v","gold-iv","gold-iii","gold-ii","gold-i","platinum-v","platinum-iv","platinum-iii","platinum-ii","platinum-i","emerald-v","emerald-iv","emerald-iii","emerald-ii","emerald-i","diamond-v","diamond-iv","diamond-iii","diamond-ii","diamond-i","champion"]},"deadly-omen":{"slug":"deadly-omen","display":"Deadly Omen","year":9,"season":1,"primary_color":"#f14b37","secondary_color":"#ab3d30","is_filterable":false,"started_at":"2024-03-12T15:00:00Z","ended_at":"2024-06-11T12:59:59.999Z","ranks":["unranked","copper-v","copper-iv","copper-iii","copper-ii","copper-i","bronze-v","bronze-iv","bronze-iii","bronze-ii","bronze-i","silver-v","silver-iv","silver-iii","silver-ii","silver-i","gold-v","gold-iv","gold-iii","gold-ii","gold-i","platinum-v","platinum-iv","platinum-iii","platinum-ii","platinum-i","emerald-v","emerald-iv","emerald-iii","emerald-ii","emerald-i","diamond-v","diamond-iv","diamond-iii","diamond-ii","diamond-i","champion"]},"twin-shells":{"slug":"twin-shells","display":"Twin Shells","year":9,"season":3,"primary_color":"#cc71d9","secondary_color":"#ab3dbb","is_filterable":false,"started_at":"2024-09-10T13:00:00Z","ended_at":"2024-12-03T13:59:59.999Z","ranks":["unranked","copper-v","copper-iv","copper-iii","copper-ii","copper-i","bronze-v","bronze-iv","bronze-iii","bronze-ii","bronze-i","silver-v","silver-iv","silver-iii","silver-ii","silver-i","gold-v","gold-iv","gold-iii","gold-ii","gold-i","platinum-v","platinum-iv","platinum-iii","platinum-ii","platinum-i","emerald-v","emerald-iv","emerald-iii","emerald-ii","emerald-i","diamond-v","diamond-iv","diamond-iii","diamond-ii","diamond-i","champion"]},"heavy-mettle":{"slug":"heavy-mettle","display":"Heavy Mettle","year":8,"season":3,"primary_color":"#cb6500","secondary_color":"#4d3b37","is_filterable":false,"started_at":"2023-08-29T15:00:00Z","ended_at":"2023-12-06T14:59:59.999Z","ranks":["unranked","copper-v","copper-iv","copper-iii","copper-ii","copper-i","bronze-v","bronze-iv","bronze-iii","bronze-ii","bronze-i","silver-v","silver-iv","silver-iii","silver-ii","silver-i","gold-v","gold-iv","gold-iii","gold-ii","gold-i","platinum-v","platinum-iv","platinum-iii","platinum-ii","platinum-i","emerald-v","emerald-iv","emerald-iii","emerald-ii","emerald-i","diamond-v","diamond-iv","diamond-iii","diamond-ii","diamond-i","champion"]},"commanding-force":{"slug":"commanding-force","display":"Commanding Force","year":8,"season":1,"primary_color":"#45abf3","secondary_color":"#095890","is_filterable":false,"started_at":"2023-03-07T15:00:00Z","ended_at":"2023-05-30T14:59:59.999Z","ranks":["unranked","copper-v","copper-iv","copper-iii","copper-ii","copper-i","bronze-v","bronze-iv","bronze-iii","bronze-ii","bronze-i","silver-v","silver-iv","silver-iii","silver-ii","silver-i","gold-v","gold-iv","gold-iii","gold-ii","gold-i","platinum-v","platinum-iv","platinum-iii","platinum-ii","platinum-i","emerald-v","emerald-iv","emerald-iii","emerald-ii","emerald-i","diamond-v","diamond-iv","diamond-iii","diamond-ii","diamond-i","champion"]},"deep-freeze":{"slug":"deep-freeze","display":"Deep Freeze","year":8,"season":4,"primary_color":"#55a1aa","secondary_color":"#38818a","is_filterable":false,"started_at":"2023-12-06T15:00:00Z","ended_at":"2024-03-12T14:59:59.999Z","ranks":["unranked","copper-v","copper-iv","copper-iii","copper-ii","copper-i","bronze-v","bronze-iv","bronze-iii","bronze-ii","bronze-i","silver-v","silver-iv","silver-iii","silver-ii","silver-i","gold-v","gold-iv","gold-iii","gold-ii","gold-i","platinum-v","platinum-iv","platinum-iii","platinum-ii","platinum-i","emerald-v","emerald-iv","emerald-iii","emerald-ii","emerald-i","diamond-v","diamond-iv","diamond-iii","diamond-ii","diamond-i","champion"]},"solar-raid":{"slug":"solar-raid","display":"Solar Raid","year":7,"season":4,"primary_color":"#c04126","secondary_color":"#732717","is_filterable":false,"started_at":"2022-12-06T15:00:00Z","ended_at":"2023-03-07T14:59:59.999Z","ranks":["unranked","copper-v","copper-iv","copper-iii","copper-ii","copper-i","bronze-v","bronze-iv","bronze-iii","bronze-ii","bronze-i","silver-v","silver-iv","silver-iii","silver-ii","silver-i","gold-v","gold-iv","gold-iii","gold-ii","gold-i","platinum-v","platinum-iv","platinum-iii","platinum-ii","platinum-i","emerald-v","emerald-iv","emerald-iii","emerald-ii","emerald-i","diamond-v","diamond-iv","diamond-iii","diamond-ii","diamond-i","champion"]},"collision-point":{"slug":"collision-point","display":"Collision Point","year":9,"season":4,"primary_color":"#c1922c","secondary_color":"#d3b26b","is_filterable":false,"started_at":"2024-12-03T14:00:00Z","ended_at":"2025-03-04T13:59:59.999Z","ranks":["unranked","copper-v","copper-iv","copper-iii","copper-ii","copper-i","bronze-v","bronze-iv","bronze-iii","bronze-ii","bronze-i","silver-v","silver-iv","silver-iii","silver-ii","silver-i","gold-v","gold-iv","gold-iii","gold-ii","gold-i","platinum-v","platinum-iv","platinum-iii","platinum-ii","platinum-i","emerald-v","emerald-iv","emerald-iii","emerald-ii","emerald-i","diamond-v","diamond-iv","diamond-iii","diamond-ii","diamond-i","champion"]}},"rank_tiers":{"gold":{"slug":"gold","display":"Gold","color":"#ffe14c"},"copper":{"slug":"copper","display":"Copper","color":"#b31323"},"silver":{"slug":"silver","display":"Silver","color":"#a6a6a6"},"diamond":{"slug":"diamond","display":"Diamond","color":"#be99ff"},"emerald":{"slug":"emerald","display":"Emerald","color":"#0ac142"},"champion":{"slug":"champion","display":"Champions","color":"#e20b6b"},"bronze":{"slug":"bronze","display":"Bronze","color":"#db9d18"},"platinum":{"slug":"platinum","display":"Platinum","color":"#32d1ce"},"unranked":{"slug":"unranked","display":"No Rank","color":"#575757"}},"ranks":{"v7-emerald-v":{"slug":"v7-emerald-v","display":"Emerald V","tier":"emerald","min_points":3500,"max_points":3599,"has_position":false},"silver-i":{"slug":"silver-i","display":"Silver I","tier":"silver","min_points":2400,"max_points":2499,"has_position":false},"silver-v":{"slug":"silver-v","display":"Silver V","tier":"silver","min_points":2000,"max_points":2099,"has_position":false},"bronze-iii":{"slug":"bronze-iii","display":"Bronze III","tier":"bronze","min_points":1700,"max_points":1799,"has_position":false},"champion":{"slug":"champion","display":"Champions","tier":"champion","min_points":4500,"has_position":true},"silver-ii":{"slug":"silver-ii","display":"Silver II","tier":"silver","min_points":2300,"max_points":2399,"has_position":false},"bronze-iv":{"slug":"bronze-iv","display":"Bronze IV","tier":"bronze","min_points":1600,"max_points":1699,"has_position":false},"v7-unranked":{"slug":"v7-unranked","display":"No Rank","tier":"unranked","max_points":999,"has_position":false},"platinum-i":{"slug":"platinum-i","display":"Platinum I","tier":"platinum","min_points":3400,"max_points":3499,"has_position":false},"v7-gold-iii":{"slug":"v7-gold-iii","display":"Gold III","tier":"gold","min_points":2700,"max_points":2799,"has_position":false},"v7-emerald-iii":{"slug":"v7-emerald-iii","display":"Emerald III","tier":"emerald","min_points":3700,"max_points":3799,"has_position":false},"v7-diamond-i":{"slug":"v7-diamond-i","display":"Diamond I","tier":"diamond","min_points":4400,"max_points":4499,"has_position":false},"bronze-v":{"slug":"bronze-v","display":"Bronze V","tier":"bronze","min_points":1500,"max_points":1599,"has_position":false},"platinum-ii":{"slug":"platinum-ii","display":"Platinum II","tier":"platinum","min_points":3300,"max_points":3399,"has_position":false},"v7-silver-ii":{"slug":"v7-silver-ii","display":"Silver II","tier":"silver","min_points":2300,"max_points":2399,"has_position":false},"platinum-v":{"slug":"platinum-v","display":"Platinum V","tier":"platinum","min_points":3000,"max_points":3099,"has_position":false},"v7-champion-v":{"slug":"v7-champion-v","display":"Champion V","tier":"champion","min_points":4500,"max_points":4599,"has_position":false},"emerald-iv":{"slug":"emerald-iv","display":"Emerald IV","tier":"emerald","min_points":3600,"max_points":3699,"has_position":false},"v7-platinum-iii":{"slug":"v7-platinum-iii","display":"Platinum III","tier":"platinum","min_points":3200,"max_points":3299,"has_position":false},"v7-champion-i":{"slug":"v7-champion-i","display":"Champion I","tier":"champion","min_points":4900,"has_position":false},"v7-bronze-i":{"slug":"v7-bronze-i","display":"Bronze I","tier":"bronze","min_points":1900,"max_points":1999,"has_position":false},"silver-iv":{"slug":"silver-iv","display":"Silver IV","tier":"silver","min_points":2100,"max_points":2199,"has_position":false},"v7-diamond-iii":{"slug":"v7-diamond-iii","display":"Diamond III","tier":"diamond","min_points":4200,"max_points":4299,"has_position":false},"v7-silver-i":{"slug":"v7-silver-i","display":"Silver I","tier":"silver","min_points":2400,"max_points":2499,"has_position":false},"diamond-ii":{"slug":"diamond-ii","display":"Diamond II","tier":"diamond","min_points":4300,"max_points":4399,"has_position":false},"emerald-v":{"slug":"emerald-v","display":"Emerald V","tier":"emerald","min_points":3500,"max_points":3599,"has_position":false},"v7-platinum-v":{"slug":"v7-platinum-v","display":"Platinum V","tier":"platinum","min_points":3000,"max_points":3099,"has_position":false},"v7-diamond-iv":{"slug":"v7-diamond-iv","display":"Diamond IV","tier":"diamond","min_points":4100,"max_points":4199,"has_position":false},"gold-i":{"slug":"gold-i","display":"Gold I","tier":"gold","min_points":2900,"max_points":2999,"has_position":false},"v7-diamond-ii":{"slug":"v7-diamond-ii","display":"Diamond II","tier":"diamond","min_points":4300,"max_points":4399,"has_position":false},"v7-copper-iii":{"slug":"v7-copper-iii","display":"Copper III","tier":"copper","min_points":1200,"max_points":1299,"has_position":false},"diamond-iii":{"slug":"diamond-iii","display":"Diamond III","tier":"diamond","min_points":4200,"max_points":4299,"has_position":false},"emerald-iii":{"slug":"emerald-iii","display":"Emerald III","tier":"emerald","min_points":3700,"max_points":3799,"has_position":false},"diamond-i":{"slug":"diamond-i","display":"Diamond I","tier":"diamond","min_points":4400,"max_points":4499,"has_position":false},"v7-gold-iv":{"slug":"v7-gold-iv","display":"Gold IV","tier":"gold","min_points":2600,"max_points":2699,"has_position":false},"v7-silver-iii":{"slug":"v7-silver-iii","display":"Silver III","tier":"silver","min_points":2200,"max_points":2299,"has_position":false},"v7-copper-i":{"slug":"v7-copper-i","display":"Copper I","tier":"copper","min_points":1400,"max_points":1499,"has_position":false},"emerald-i":{"slug":"emerald-i","display":"Emerald I","tier":"emerald","min_points":3900,"max_points":3999,"has_position":false},"v7-silver-v":{"slug":"v7-silver-v","display":"Silver V","tier":"silver","min_points":2000,"max_points":2099,"has_position":false},"v7-copper-iv":{"slug":"v7-copper-iv","display":"Copper IV","tier":"copper","min_points":1100,"max_points":1199,"has_position":false},"v7-champion-iv":{"slug":"v7-champion-iv","display":"Champion IV","tier":"champion","min_points":4600,"max_points":4699,"has_position":false},"copper-v":{"slug":"copper-v","display":"Copper V","tier":"copper","min_points":1000,"max_points":1099,"has_position":false},"platinum-iv":{"slug":"platinum-iv","display":"Platinum IV","tier":"platinum","min_points":3100,"max_points":3199,"has_position":false},"v7-bronze-v":{"slug":"v7-bronze-v","display":"Bronze V","tier":"bronze","min_points":1500,"max_points":1599,"has_position":false},"v7-emerald-ii":{"slug":"v7-emerald-ii","display":"Emerald II","tier":"emerald","min_points":3800,"max_points":3899,"has_position":false},"emerald-ii":{"slug":"emerald-ii","display":"Emerald II","tier":"emerald","min_points":3800,"max_points":3899,"has_position":false},"gold-v":{"slug":"gold-v","display":"Gold V","tier":"gold","min_points":2500,"max_points":2599,"has_position":false},"v7-copper-v":{"slug":"v7-copper-v","display":"Copper V","tier":"copper","min_points":1000,"max_points":1099,"has_position":false},"platinum-iii":{"slug":"platinum-iii","display":"Platinum III","tier":"platinum","min_points":3200,"max_points":3299,"has_position":false},"v7-bronze-ii":{"slug":"v7-bronze-ii","display":"Bronze II","tier":"bronze","min_points":1800,"max_points":1899,"has_position":false},"copper-ii":{"slug":"copper-ii","display":"Copper II","tier":"copper","min_points":1300,"max_points":1399,"has_position":false},"v7-gold-ii":{"slug":"v7-gold-ii","display":"Gold II","tier":"gold","min_points":2800,"max_points":2899,"has_position":false},"copper-iii":{"slug":"copper-iii","display":"Copper III","tier":"copper","min_points":1200,"max_points":1299,"has_position":false},"v7-copper-ii":{"slug":"v7-copper-ii","display":"Copper II","tier":"copper","min_points":1300,"max_points":1399,"has_position":false},"v7-champion-ii":{"slug":"v7-champion-ii","display":"Champion II","tier":"champion","min_points":4800,"max_points":4899,"has_position":false},"copper-iv":{"slug":"copper-iv","display":"Copper IV","tier":"copper","min_points":1100,"max_points":1199,"has_position":false},"v7-platinum-ii":{"slug":"v7-platinum-ii","display":"Platinum II","tier":"platinum","min_points":3300,"max_points":3399,"has_position":false},"bronze-i":{"slug":"bronze-i","display":"Bronze I","tier":"bronze","min_points":1900,"max_points":1999,"has_position":false},"unranked":{"slug":"unranked","display":"No Rank","tier":"unranked","max_points":999,"has_position":false},"v7-gold-v":{"slug":"v7-gold-v","display":"Gold V","tier":"gold","min_points":2500,"max_points":2599,"has_position":false},"gold-ii":{"slug":"gold-ii","display":"Gold II","tier":"gold","min_points":2800,"max_points":2899,"has_position":false},"v7-platinum-i":{"slug":"v7-platinum-i","display":"Platinum I","tier":"platinum","min_points":3400,"max_points":3499,"has_position":false},"diamond-iv":{"slug":"diamond-iv","display":"Diamond IV","tier":"diamond","min_points":4100,"max_points":4199,"has_position":false},"diamond-v":{"slug":"diamond-v","display":"Diamond V","tier":"diamond","min_points":4000,"max_points":4099,"has_position":false},"v7-diamond-v":{"slug":"v7-diamond-v","display":"Diamond V","tier":"diamond","min_points":4000,"max_points":4099,"has_position":false},"v7-emerald-iv":{"slug":"v7-emerald-iv","display":"Emerald IV","tier":"emerald","min_points":3600,"max_points":3699,"has_position":false},"v7-bronze-iii":{"slug":"v7-bronze-iii","display":"Bronze III","tier":"bronze","min_points":1700,"max_points":1799,"has_position":false},"gold-iii":{"slug":"gold-iii","display":"Gold III","tier":"gold","min_points":2700,"max_points":2799,"has_position":false},"copper-i":{"slug":"copper-i","display":"Copper I","tier":"copper","min_points":1400,"max_points":1499,"has_position":false},"v7-bronze-iv":{"slug":"v7-bronze-iv","display":"Bronze IV","tier":"bronze","min_points":1600,"max_points":1699,"has_position":false},"v7-platinum-iv":{"slug":"v7-platinum-iv","display":"Platinum IV","tier":"platinum","min_points":3100,"max_points":3199,"has_position":false},"v7-emerald-i":{"slug":"v7-emerald-i","display":"Emerald I","tier":"emerald","min_points":3900,"max_points":3999,"has_position":false},"silver-iii":{"slug":"silver-iii","display":"Silver III","tier":"silver","min_points":2200,"max_points":2299,"has_position":false},"v7-silver-iv":{"slug":"v7-silver-iv","display":"Silver IV","tier":"silver","min_points":2100,"max_points":2199,"has_position":false},"v7-gold-i":{"slug":"v7-gold-i","display":"Gold I","tier":"gold","min_points":2900,"max_points":2999,"has_position":false},"v7-champion-iii":{"slug":"v7-champion-iii","display":"Champion III","tier":"champion","min_points":4700,"max_points":4799,"has_position":false},"bronze-ii":{"slug":"bronze-ii","display":"Bronze II","tier":"bronze","min_points":1800,"max_points":1899,"has_position":false},"gold-iv":{"slug":"gold-iv","display":"Gold IV","tier":"gold","min_points":2600,"max_points":2699,"has_position":false}},"ctus":{"gsutr":{"slug":"gsutr","display":"GSUTR"},"ros":{"slug":"ros","display":"ROS"},"sfg":{"slug":"sfg","display":"SFG"},"gsg-9":{"slug":"gsg-9","display":"GSG 9"},"navy":{"slug":"navy","display":"NAVY SEAL"},"bope":{"slug":"bope","display":"BOPE"},"grom":{"slug":"grom","display":"GROM"},"gigr":{"slug":"gigr","display":"GIGR"},"dae":{"slug":"dae","display":"DAE"},"apca":{"slug":"apca","display":"APCA"},"secret-service":{"slug":"secret-service","display":"SECRET SERVICE"},"afeau":{"slug":"afeau","display":"AFEAU"},"starnet":{"slug":"starnet","display":"STAR-NET AVIATION"},"sas":{"slug":"sas","display":"SAS"},"itf":{"slug":"itf","display":"INKABA TASK FORCE"},"geo":{"slug":"geo","display":"GEO"},"jaeger-corps":{"slug":"jaeger-corps","display":"JAEGER CORPS"},"spetsnaz":{"slug":"spetsnaz","display":"SPETSNAZ"},"sasr":{"slug":"sasr","display":"SASR"},"gis":{"slug":"gis","display":"GIS"},"fuerzas-especiales":{"slug":"fuerzas-especiales","display":"FUERZAS ESPECIALES"},"cot":{"slug":"cot","display":"COT"},"ekam":{"slug":"ekam","display":"SAS"},"reu":{"slug":"reu","display":"REU"},"sat":{"slug":"sat","display":"SAT"},"nzsas":{"slug":"nzsas","display":"NZSAS"},"fbi":{"slug":"fbi","display":"FBI SWAT"},"keres-legion":{"slug":"keres-legion","display":"KERES LEGION"},"nighthaven":{"slug":"nighthaven","display":"NIGHTHAVEN"},"commando-battalion":{"slug":"commando-battalion","display":"35TH COMMANDO BATTALION"},"cbrn":{"slug":"cbrn","display":"CBRN THREAT UNIT"},"eru":{"slug":"eru","display":"EMERGENCY RESPONSE UNIT"},"unaffiliated":{"slug":"unaffiliated","display":"UNAFFILIATED"},"smb":{"slug":"smb","display":"707th SMB"},"sdu":{"slug":"sdu","display":"SDU"},"jtf2":{"slug":"jtf2","display":"JTF2"},"gign":{"slug":"gign","display":"GIGN"}},"difficulty_ratings":{"low":{"slug":"low","display":"Low","rating":1},"high":{"slug":"high","display":"High","rating":3},"medium":{"slug":"medium","display":"Medium","rating":2}},"operator_playstyles":{"attacker-intel-provider":{"slug":"attacker-intel-provider","display":"Intel","is_filterable":true},"defender-entry-denier":{"slug":"defender-entry-denier","display":"Trapper","is_filterable":true},"attacker-entry-fragger":{"slug":"attacker-entry-fragger","display":"Front-Line","is_filterable":true},"defender-utility-denier":{"slug":"defender-utility-denier","display":"Anti-Gadget","is_filterable":true},"attacker-breacher":{"slug":"attacker-breacher","display":"Breach","is_filterable":true},"defender-trapper":{"slug":"defender-trapper","display":"Trapper","is_filterable":true},"undefined":{"slug":"undefined","display":"Undefined","is_filterable":false},"defender-supporter":{"slug":"defender-supporter","display":"Support","is_filterable":true},"defender-intel-provider":{"slug":"defender-intel-provider","display":"Intel","is_filterable":true},"attacker-utility-clearer":{"slug":"attacker-utility-clearer","display":"Anti-Gadget","is_filterable":true},"defender-debuffer":{"slug":"defender-debuffer","display":"Crowd Control","is_filterable":true},"attacker-roam-clearer":{"slug":"attacker-roam-clearer","display":"Map Control","is_filterable":true},"attacker-supporter":{"slug":"attacker-supporter","display":"Support","is_filterable":true}},"operator_positions":{"attacker-flank":{"slug":"attacker-flank","display":"Flank","is_filterable":true},"defender-roamer":{"slug":"defender-roamer","display":"Roamer","is_filterable":true},"defender-anchor":{"slug":"defender-anchor","display":"Anchor","is_filterable":true},"attacker-core":{"slug":"attacker-core","display":"Core","is_filterable":true},"undefined":{"slug":"undefined","display":"Undefined","is_filterable":false}},"operator_sides":{"attacker":{"slug":"attacker","display":"Attacker","is_filterable":true},"invalid":{"slug":"invalid","display":"Attacker","is_filterable":false},"defender":{"slug":"defender","display":"Defender","is_filterable":true},"both":{"slug":"both","display":"Defender","is_filterable":false}},"operators":{"melusi":{"slug":"melusi","display":"Melusi","color":"#2B7F90","ctu":"itf","side":"defender","position":"defender-roamer","difficulty":"low","playstyles":["defender-intel-provider","defender-debuffer"]},"denari":{"slug":"denari","display":"Denari","color":"#C82127","ctu":"nighthaven","side":"defender","position":"defender-roamer","difficulty":"high","playstyles":["defender-utility-denier","defender-debuffer"]},"frost":{"slug":"frost","display":"Frost","color":"#00789E","ctu":"jtf2","side":"defender","position":"defender-anchor","difficulty":"low","playstyles":["defender-trapper","defender-entry-denier"]},"ying":{"slug":"ying","display":"Ying","color":"#AA4825","ctu":"sdu","side":"attacker","position":"attacker-core","difficulty":"medium","playstyles":["attacker-entry-fragger","attacker-roam-clearer"]},"doc":{"slug":"doc","display":"Doc","color":"#315978","ctu":"gign","side":"defender","position":"defender-anchor","difficulty":"low","playstyles":["defender-supporter"]},"valkyrie":{"slug":"valkyrie","display":"Valkyrie","color":"#BD8833","ctu":"navy","side":"defender","position":"defender-roamer","difficulty":"medium","playstyles":["defender-intel-provider","defender-supporter"]},"flores":{"slug":"flores","display":"Flores","color":"#860C04","ctu":"unaffiliated","side":"attacker","position":"attacker-core","difficulty":"medium","playstyles":["attacker-intel-provider","attacker-utility-clearer"]},"sledge":{"slug":"sledge","display":"Sledge","color":"#88666F","ctu":"sas","side":"attacker","position":"attacker-flank","difficulty":"low","playstyles":["attacker-breacher","attacker-utility-clearer"]},"dokkaebi":{"slug":"dokkaebi","display":"Dokkaebi","color":"#BEC9CA","ctu":"smb","side":"attacker","position":"attacker-flank","difficulty":"medium","playstyles":["attacker-intel-provider","attacker-roam-clearer"]},"mozzie":{"slug":"mozzie","display":"Mozzie","color":"#D31850","ctu":"sasr","side":"defender","position":"defender-roamer","difficulty":"medium","playstyles":["defender-utility-denier","defender-intel-provider"]},"warden":{"slug":"warden","display":"Warden","color":"#25387D","ctu":"secret-service","side":"defender","position":"defender-anchor","difficulty":"medium","playstyles":["defender-utility-denier","defender-intel-provider"]},"gridlock":{"slug":"gridlock","display":"Gridlock","color":"#D31850","ctu":"sasr","side":"attacker","position":"attacker-flank","difficulty":"low","playstyles":["attacker-supporter","attacker-roam-clearer"]},"hibana":{"slug":"hibana","display":"Hibana","color":"#942838","ctu":"sat","side":"attacker","position":"attacker-core","difficulty":"low","playstyles":["attacker-breacher","attacker-entry-fragger"]},"grim":{"slug":"grim","display":"Grim","color":"#DCC53D","ctu":"nighthaven","side":"attacker","position":"attacker-core","difficulty":"low","playstyles":["attacker-entry-fragger","attacker-roam-clearer"]},"azami":{"slug":"azami","display":"Azami","color":"#3C63AD","ctu":"unaffiliated","side":"defender","position":"defender-anchor","difficulty":"high","playstyles":["defender-entry-denier","defender-supporter"]},"fuze":{"slug":"fuze","display":"Fuze","color":"#A62222","ctu":"spetsnaz","side":"attacker","position":"attacker-flank","difficulty":"low","playstyles":["attacker-utility-clearer"]},"iana":{"slug":"iana","display":"Iana","color":"#8C638C","ctu":"reu","side":"attacker","position":"attacker-flank","difficulty":"low","playstyles":["attacker-intel-provider","attacker-entry-fragger"]},"smoke":{"slug":"smoke","display":"Smoke","color":"#88666F","ctu":"sas","side":"defender","position":"defender-anchor","difficulty":"medium","playstyles":["defender-trapper","defender-entry-denier"]},"castle":{"slug":"castle","display":"Castle","color":"#D75B2A","ctu":"fbi","side":"defender","position":"defender-anchor","difficulty":"medium","playstyles":["defender-supporter","defender-entry-denier"]},"maestro":{"slug":"maestro","display":"Maestro","color":"#929637","ctu":"gis","side":"defender","position":"defender-anchor","difficulty":"medium","playstyles":["defender-utility-denier","defender-intel-provider"]},"glaz":{"slug":"glaz","display":"Glaz","color":"#A62222","ctu":"spetsnaz","side":"attacker","position":"attacker-core","difficulty":"medium","playstyles":["attacker-supporter","attacker-intel-provider"]},"thatcher":{"slug":"thatcher","display":"Thatcher","color":"#88666F","ctu":"sas","side":"attacker","position":"attacker-core","difficulty":"low","playstyles":["attacker-utility-clearer","attacker-supporter"]},"kali":{"slug":"kali","display":"Kali","color":"#00BFCA","ctu":"nighthaven","side":"attacker","position":"attacker-core","difficulty":"medium","playstyles":["attacker-utility-clearer","attacker-supporter"]},"montagne":{"slug":"montagne","display":"Montagne","color":"#315978","ctu":"gign","side":"attacker","position":"attacker-core","difficulty":"high","playstyles":["attacker-supporter","attacker-intel-provider"]},"twitch":{"slug":"twitch","display":"Twitch","color":"#315978","ctu":"gign","side":"attacker","position":"attacker-flank","difficulty":"medium","playstyles":["attacker-intel-provider","attacker-utility-clearer"]},"skopos":{"slug":"skopos","display":"Skopós","color":"#88666F","ctu":"ekam","side":"defender","position":"defender-anchor","difficulty":"medium","playstyles":["defender-entry-denier","defender-trapper"]},"pulse":{"slug":"pulse","display":"Pulse","color":"#D75B2A","ctu":"fbi","side":"defender","position":"defender-roamer","difficulty":"high","playstyles":["defender-supporter","defender-intel-provider"]},"mute":{"slug":"mute","display":"Mute","color":"#88666F","ctu":"sas","side":"defender","position":"defender-anchor","difficulty":"low","playstyles":["defender-debuffer","defender-utility-denier"]},"solis":{"slug":"solis","display":"Solis","color":"#E7411F","ctu":"afeau","side":"defender","position":"defender-anchor","difficulty":"high","playstyles":["defender-intel-provider","defender-supporter"]},"zofia":{"slug":"zofia","display":"Zofia","color":"#419291","ctu":"grom","side":"attacker","position":"attacker-flank","difficulty":"low","playstyles":["attacker-breacher","attacker-utility-clearer"]},"mira":{"slug":"mira","display":"Mira","color":"#673081","ctu":"geo","side":"defender","position":"defender-anchor","difficulty":"high","playstyles":["defender-intel-provider","defender-supporter"]},"goyo":{"slug":"goyo","display":"Goyo","color":"#17650B","ctu":"fuerzas-especiales","side":"defender","position":"defender-anchor","difficulty":"medium","playstyles":["defender-entry-denier","defender-trapper"]},"ace":{"slug":"ace","display":"Ace","color":"#2B7F90","ctu":"nighthaven","side":"attacker","position":"attacker-core","difficulty":"low","playstyles":["attacker-breacher","attacker-utility-clearer"]},"finka":{"slug":"finka","display":"Finka","color":"#FEAD33","ctu":"cbrn","side":"attacker","position":"attacker-core","difficulty":"low","playstyles":["attacker-entry-fragger","attacker-supporter"]},"jackal":{"slug":"jackal","display":"Jackal","color":"#673081","ctu":"geo","side":"attacker","position":"attacker-flank","difficulty":"high","playstyles":["attacker-intel-provider","attacker-roam-clearer"]},"kapkan":{"slug":"kapkan","display":"Kapkan","color":"#A62222","ctu":"spetsnaz","side":"defender","position":"defender-anchor","difficulty":"low","playstyles":["defender-trapper","defender-entry-denier"]},"thunderbird":{"slug":"thunderbird","display":"Thunderbird","color":"#7F3C32","ctu":"starnet","side":"defender","position":"defender-roamer","difficulty":"low","playstyles":["defender-supporter"]},"ram":{"slug":"ram","display":"Ram","color":"#F67F20","ctu":"commando-battalion","side":"attacker","position":"attacker-flank","difficulty":"medium","playstyles":["attacker-breacher","attacker-utility-clearer"]},"rook":{"slug":"rook","display":"Rook","color":"#315978","ctu":"gign","side":"defender","position":"defender-anchor","difficulty":"low","playstyles":["defender-supporter"]},"striker":{"slug":"striker","display":"Striker","color":"#FF8E2D","ctu":"ros","side":"attacker","position":"attacker-core","difficulty":"low","playstyles":["attacker-supporter"]},"capitao":{"slug":"capitao","display":"Capitão","color":"#3E7F3F","ctu":"bope","side":"attacker","position":"attacker-core","difficulty":"medium","playstyles":["attacker-entry-fragger","attacker-roam-clearer"]},"blackbeard":{"slug":"blackbeard","display":"Blackbeard","color":"#BD8833","ctu":"navy","side":"attacker","position":"attacker-core","difficulty":"low","playstyles":["attacker-supporter"]},"nokk":{"slug":"nokk","display":"Nøkk","color":"#25387D","ctu":"jaeger-corps","side":"attacker","position":"attacker-flank","difficulty":"high","playstyles":["attacker-entry-fragger","attacker-roam-clearer"]},"solid-snake":{"slug":"solid-snake","display":"Solid Snake","color":"#C72429","ctu":"unaffiliated","side":"attacker","position":"attacker-core","difficulty":"medium","playstyles":["attacker-entry-fragger","attacker-intel-provider"]},"tachanka":{"slug":"tachanka","display":"Tachanka","color":"#A62222","ctu":"spetsnaz","side":"defender","position":"defender-anchor","difficulty":"low","playstyles":["defender-debuffer","defender-entry-denier"]},"iq":{"slug":"iq","display":"Iq","color":"#FBBB3F","ctu":"gsg-9","side":"attacker","position":"attacker-flank","difficulty":"high","playstyles":["attacker-intel-provider","attacker-supporter"]},"bandit":{"slug":"bandit","display":"Bandit","color":"#FBBB3F","ctu":"gsg-9","side":"defender","position":"defender-anchor","difficulty":"low","playstyles":["defender-utility-denier","defender-entry-denier"]},"zero":{"slug":"zero","display":"Zero","color":"#6CA542","ctu":"ros","side":"attacker","position":"attacker-flank","difficulty":"low","playstyles":["attacker-intel-provider","attacker-utility-clearer"]},"echo":{"slug":"echo","display":"Echo","color":"#942838","ctu":"sat","side":"defender","position":"defender-anchor","difficulty":"high","playstyles":["defender-intel-provider","defender-debuffer"]},"sentry":{"slug":"sentry","display":"Sentry","color":"#FF8E2D","ctu":"ros","side":"defender","position":"defender-anchor","difficulty":"low","playstyles":["defender-supporter"]},"alibi":{"slug":"alibi","display":"Alibi","color":"#929637","ctu":"gis","side":"defender","position":"defender-roamer","difficulty":"high","playstyles":["defender-intel-provider","defender-trapper"]},"osa":{"slug":"osa","display":"Osa","color":"#FD972C","ctu":"nighthaven","side":"attacker","position":"attacker-core","difficulty":"medium","playstyles":["attacker-intel-provider","attacker-supporter"]},"clash":{"slug":"clash","display":"Clash","color":"#708090","ctu":"gsutr","side":"defender","position":"defender-anchor","difficulty":"high","playstyles":["defender-intel-provider","defender-debuffer"]},"blitz":{"slug":"blitz","display":"Blitz","color":"#FBBB3F","ctu":"gsg-9","side":"attacker","position":"attacker-flank","difficulty":"high","playstyles":["attacker-entry-fragger","attacker-roam-clearer"]},"nomad":{"slug":"nomad","display":"Nomad","color":"#A2794B","ctu":"gigr","side":"attacker","position":"attacker-flank","difficulty":"high","playstyles":["attacker-entry-fragger","attacker-roam-clearer"]},"vigil":{"slug":"vigil","display":"Vigil","color":"#BEC9CA","ctu":"smb","side":"defender","position":"defender-roamer","difficulty":"high","playstyles":["defender-utility-denier","defender-debuffer"]},"kaid":{"slug":"kaid","display":"Kaid","color":"#A2794B","ctu":"gigr","side":"defender","position":"defender-anchor","difficulty":"medium","playstyles":["defender-entry-denier","defender-utility-denier"]},"wamai":{"slug":"wamai","display":"Wamai","color":"#00BFCA","ctu":"nighthaven","side":"defender","position":"defender-anchor","difficulty":"medium","playstyles":["defender-utility-denier","defender-trapper"]},"oryx":{"slug":"oryx","display":"Oryx","color":"#8C638C","ctu":"unaffiliated","side":"defender","position":"defender-roamer","difficulty":"medium","playstyles":["defender-supporter"]},"maverick":{"slug":"maverick","display":"Maverick","color":"#708090","ctu":"gsutr","side":"attacker","position":"attacker-core","difficulty":"medium","playstyles":["attacker-breacher","attacker-entry-fragger"]},"amaru":{"slug":"amaru","display":"Amaru","color":"#17650B","ctu":"apca","side":"attacker","position":"attacker-flank","difficulty":"medium","playstyles":["attacker-entry-fragger","attacker-roam-clearer"]},"lion":{"slug":"lion","display":"Lion","color":"#FEAD33","ctu":"cbrn","side":"attacker","position":"attacker-flank","difficulty":"low","playstyles":["attacker-intel-provider","attacker-roam-clearer"]},"thorn":{"slug":"thorn","display":"Thorn","color":"#577524","ctu":"eru","side":"defender","position":"defender-anchor","difficulty":"low","playstyles":["defender-entry-denier","defender-trapper"]},"brava":{"slug":"brava","display":"Brava","color":"#45ABF3","ctu":"cot","side":"attacker","position":"attacker-core","difficulty":"high","playstyles":["attacker-utility-clearer","attacker-intel-provider"]},"tubarao":{"slug":"tubarao","display":"Tubarão","color":"#3A6E75","ctu":"dae","side":"defender","position":"defender-anchor","difficulty":"medium","playstyles":["defender-utility-denier","defender-debuffer"]},"caveira":{"slug":"caveira","display":"Caveira","color":"#3E7F3F","ctu":"bope","side":"defender","position":"defender-roamer","difficulty":"high","playstyles":["defender-intel-provider","defender-debuffer"]},"deimos":{"slug":"deimos","display":"Deimos","color":"#EF4C38","ctu":"keres-legion","side":"attacker","position":"attacker-flank","difficulty":"medium","playstyles":["attacker-intel-provider","attacker-roam-clearer"]},"rauora":{"slug":"rauora","display":"Rauora","color":"#FF6D20","ctu":"nzsas","side":"attacker","position":"attacker-core","difficulty":"medium","playstyles":["attacker-supporter","attacker-roam-clearer"]},"aruni":{"slug":"aruni","display":"Aruni","color":"#D14007","ctu":"nighthaven","side":"defender","position":"defender-anchor","difficulty":"medium","playstyles":["defender-entry-denier","defender-utility-denier"]},"ela":{"slug":"ela","display":"Ela","color":"#419291","ctu":"grom","side":"defender","position":"defender-roamer","difficulty":"low","playstyles":["defender-debuffer","defender-trapper"]},"recruit":{"slug":"recruit","display":"Recruit","color":"#315978","ctu":"fbi","side":"both","position":"undefined","difficulty":"low","playstyles":["attacker-supporter","defender-supporter"]},"fenrir":{"slug":"fenrir","display":"Fenrir","color":"#5F51BF","ctu":"unaffiliated","side":"defender","position":"defender-anchor","difficulty":"high","playstyles":["defender-trapper","defender-debuffer"]},"buck":{"slug":"buck","display":"Buck","color":"#00789E","ctu":"jtf2","side":"attacker","position":"attacker-flank","difficulty":"low","playstyles":["attacker-breacher","attacker-supporter"]},"ash":{"slug":"ash","display":"Ash","color":"#D75B2A","ctu":"fbi","side":"attacker","position":"attacker-flank","difficulty":"medium","playstyles":["attacker-breacher","attacker-entry-fragger"]},"lesion":{"slug":"lesion","display":"Lesion","color":"#AA4825","ctu":"sdu","side":"defender","position":"defender-roamer","difficulty":"low","playstyles":["defender-entry-denier","defender-trapper"]},"sens":{"slug":"sens","display":"Sens","color":"#59BDA5","ctu":"sfg","side":"attacker","position":"attacker-core","difficulty":"medium","playstyles":["attacker-supporter","attacker-roam-clearer"]},"thermite":{"slug":"thermite","display":"Thermite","color":"#D75B2A","ctu":"fbi","side":"attacker","position":"attacker-core","difficulty":"low","playstyles":["attacker-breacher","attacker-supporter"]},"jager":{"slug":"jager","display":"Jäger","color":"#FBBB3F","ctu":"gsg-9","side":"defender","position":"defender-roamer","difficulty":"medium","playstyles":["defender-supporter","defender-utility-denier"]}},"datacenter_families":{"eu-west":{"slug":"eu-west","display":"Europe West"},"eu-south":{"slug":"eu-south","display":"Europe South"},"asia-northeast":{"slug":"asia-northeast","display":"Asia Northeast"},"middle-east":{"slug":"middle-east","display":"Middle East"},"us-west":{"slug":"us-west","display":"US West"},"australia":{"slug":"australia","display":"Australia"},"canada":{"slug":"canada","display":"Canada"},"africa":{"slug":"africa","display":"Africa"},"eu-central":{"slug":"eu-central","display":"Europe Central"},"asia-east":{"slug":"asia-east","display":"Asia East"},"us-east":{"slug":"us-east","display":"US East"},"us-central":{"slug":"us-central","display":"US Central"},"eu-north":{"slug":"eu-north","display":"Europe North"},"private":{"slug":"private","display":"Private"},"asia-southeast":{"slug":"asia-southeast","display":"Asia Southeast"},"south-america":{"slug":"south-america","display":"South America"}},"datacenters":{"west-europe":{"slug":"west-europe","display":"West Europe","family":"eu-west"},"ap-northeast-2":{"slug":"ap-northeast-2","display":"ap-northeast-2","family":"asia-northeast"},"us-west-1":{"slug":"us-west-1","display":"us-west-1","family":"us-west"},"central-us":{"slug":"central-us","display":"Central US","family":"us-central"},"private":{"slug":"private","display":"Private","family":"private"},"eu-south-1":{"slug":"eu-south-1","display":"eu-south-1","family":"eu-south"},"eu-west-3":{"slug":"eu-west-3","display":"eu-west-3","family":"eu-west"},"gamelift-ca-central-1":{"slug":"gamelift-ca-central-1","display":"gamelift/ca-central-1","family":"canada"},"eu-central-1":{"slug":"eu-central-1","display":"eu-central-1","family":"eu-central"},"south-africa-north":{"slug":"south-africa-north","display":"South Africa North","family":"africa"},"westus2":{"slug":"westus2","display":"westus2","family":"us-west"},"north-europe":{"slug":"north-europe","display":"North Europe","family":"eu-north"},"east-us":{"slug":"east-us","display":"East US","family":"us-east"},"me-south-1":{"slug":"me-south-1","display":"me-south-1","family":"middle-east"},"ap-east-1":{"slug":"ap-east-1","display":"ap-east-1","family":"asia-east"},"af-south-1":{"slug":"af-south-1","display":"af-south-1","family":"africa"},"us-east-2":{"slug":"us-east-2","display":"us-east-2","family":"us-east"},"japan-east":{"slug":"japan-east","display":"Japan East","family":"asia-northeast"},"uae-north":{"slug":"uae-north","display":"UAE North","family":"middle-east"},"eu-west-2":{"slug":"eu-west-2","display":"eu-west-2","family":"eu-west"},"south-central-us":{"slug":"south-central-us","display":"South Central US","family":"us-central"},"eu-north-1":{"slug":"eu-north-1","display":"eu-north-1","family":"eu-north"},"gamelift-ap-south-1":{"slug":"gamelift-ap-south-1","display":"gamelift/ap-south-1"},"ap-northeast-1":{"slug":"ap-northeast-1","display":"ap-northeast-1","family":"asia-northeast"},"south-east-asia":{"slug":"south-east-asia","display":"South East Asia","family":"asia-southeast"},"ap-southeast-2":{"slug":"ap-southeast-2","display":"ap-southeast-2","family":"australia"},"us-west-2":{"slug":"us-west-2","display":"us-west-2","family":"us-west"},"ap-southeast-1":{"slug":"ap-southeast-1","display":"ap-southeast-1","family":"asia-southeast"},"west-us":{"slug":"west-us","display":"West US","family":"us-west"},"sa-east-1":{"slug":"sa-east-1","display":"sa-east-1","family":"south-america"},"playfab-eastus2":{"slug":"playfab-eastus2","display":"playfab/eastus2"},"brazil-south":{"slug":"brazil-south","display":"Brazil South","family":"south-america"},"us-east-1":{"slug":"us-east-1","display":"us-east-1","family":"us-east"},"australia-east":{"slug":"australia-east","display":"Australia East","family":"australia"},"eu-west-1":{"slug":"eu-west-1","display":"eu-west-1","family":"eu-west"},"east-asia":{"slug":"east-asia","display":"East Asia","family":"asia-east"}},"platform_families":{"pc":{"slug":"pc","display":"PC","icon":"mdi:microsoft-windows"},"console":{"slug":"console","display":"Console","icon":"mdi:controller"}},"platforms":{"pc":{"slug":"pc","display":"PC","family":"pc","icon":"mdi:microsoft-windows"},"playstation":{"slug":"playstation","display":"Playstation","family":"console","icon":"mdi:sony-playstation"},"xbox":{"slug":"xbox","display":"Xbox","family":"console","icon":"mdi:microsoft-xbox"}},"playlists":{"1v1":{"slug":"1v1","display":"1v1","is_filterable":true},"pve-coop-matchmaking-bots-game":{"slug":"pve-coop-matchmaking-bots-game","display":"PVE_COOP_Matchmaking_Bots_Game","is_filterable":false},"quick-match":{"slug":"quick-match","display":"Quick Match","is_filterable":true},"permafrost":{"slug":"permafrost","display":"Permafrost","is_filterable":true},"dual-front":{"slug":"dual-front","display":"Dual Front","is_filterable":true},"unranked":{"slug":"unranked","display":"Unranked","is_filterable":true},"map-run":{"slug":"map-run","display":"Map Run","is_filterable":false},"arcade":{"slug":"arcade","display":"Arcade","is_filterable":true},"pvp-3v3-event-game":{"slug":"pvp-3v3-event-game","display":"PVP_3V3_Event_Game","is_filterable":false},"pve-casual-party-game":{"slug":"pve-casual-party-game","display":"PVE_Casual_Party_Game","is_filterable":false},"custom":{"slug":"custom","display":"Custom","is_filterable":false},"ranked":{"slug":"ranked","display":"Ranked","is_filterable":true},"event":{"slug":"event","display":"Event","is_filterable":true},"training":{"slug":"training","display":"Training","is_filterable":false},"pve-casual-game":{"slug":"pve-casual-game","display":"PVE_Casual_Game","is_filterable":false},"siege-cup":{"slug":"siege-cup","display":"Siege Cup","is_filterable":true}},"modes":{"team-deathmatch":{"slug":"team-deathmatch","display":"TDM","is_round_based":false,"is_team_based":true,"is_filterable":true,"leaderboard_stats":[],"playlist":"arcade"},"hide-and-seek":{"slug":"hide-and-seek","display":"Hide and Seek","is_round_based":true,"is_team_based":true,"is_filterable":true,"leaderboard_stats":[],"playlist":"event"},"68f8e5cc41fa8bacff5f26f5_knife-confirmed":{"slug":"68f8e5cc41fa8bacff5f26f5_knife-confirmed","display":"Knife Confirmed","is_round_based":true,"is_team_based":true,"is_filterable":true,"leaderboard_stats":[],"playlist":"event"},"custom-bomb":{"slug":"custom-bomb","display":"Bomb","is_round_based":true,"is_team_based":true,"is_filterable":false,"leaderboard_stats":[],"playlist":"custom"},"custom-secure-area":{"slug":"custom-secure-area","display":"Secure Area","is_round_based":true,"is_team_based":true,"is_filterable":false,"leaderboard_stats":[],"playlist":"custom"},"custom-team-deathmatch":{"slug":"custom-team-deathmatch","display":"TDM","is_round_based":false,"is_team_based":true,"is_filterable":false,"leaderboard_stats":[],"playlist":"custom"},"landmark-drill":{"slug":"landmark-drill","display":"Landmark Drill","is_round_based":false,"is_team_based":false,"is_filterable":false,"leaderboard_stats":[],"playlist":"map-run"},"event-mute-protocol-flesh-and-metal":{"slug":"event-mute-protocol-flesh-and-metal","display":"m.u.t.e. Protocol: Flesh and Metal","is_round_based":true,"is_team_based":true,"is_filterable":true,"leaderboard_stats":[],"playlist":"event"},"clear-house":{"slug":"clear-house","display":"Clear House","is_round_based":false,"is_team_based":false,"is_filterable":false,"leaderboard_stats":[],"playlist":"map-run"},"versus-ai":{"slug":"versus-ai","display":"Versus AI","is_round_based":true,"is_team_based":true,"rounds_per_half":2,"is_filterable":false,"leaderboard_stats":[],"playlist":"training"},"custom-mute-protocol-flesh-and-metal":{"slug":"custom-mute-protocol-flesh-and-metal","display":"m.u.t.e. Protocol: Flesh and Metal","is_round_based":true,"is_team_based":true,"is_filterable":false,"leaderboard_stats":[],"playlist":"custom"},"custom-dual-front":{"slug":"custom-dual-front","display":"Dual Front","is_round_based":false,"is_team_based":true,"is_filterable":false,"leaderboard_stats":[],"playlist":"custom"},"arcade-weapon-roulette":{"slug":"arcade-weapon-roulette","display":"Weapon Roulette","is_round_based":true,"is_team_based":true,"is_filterable":true,"leaderboard_stats":[],"playlist":"arcade"},"pve-coop-matchmaking-bots-game-versus-ai":{"slug":"pve-coop-matchmaking-bots-game-versus-ai","display":"Versus Ai","is_round_based":true,"is_team_based":true,"is_filterable":false,"leaderboard_stats":[],"playlist":"pve-coop-matchmaking-bots-game"},"1v1-bomb":{"slug":"1v1-bomb","display":"Bomb","is_round_based":true,"is_team_based":true,"is_filterable":true,"leaderboard_stats":["wr","wins","losses","abandons","kd","kills","deaths","hs"],"playlist":"1v1"},"unranked-bomb":{"slug":"unranked-bomb","display":"Bomb","is_round_based":true,"is_team_based":true,"rounds_per_half":3,"is_filterable":true,"leaderboard_stats":[],"playlist":"unranked"},"68e2ec53a496962cde2414ba_bop-the-teddy":{"slug":"68e2ec53a496962cde2414ba_bop-the-teddy","display":"Bop the Teddy","is_round_based":true,"is_team_based":true,"is_filterable":true,"leaderboard_stats":[],"playlist":"custom"},"event-rengoku":{"slug":"event-rengoku","display":"Rengoku","is_round_based":true,"is_team_based":true,"is_filterable":true,"leaderboard_stats":[],"playlist":"event"},"custom-golden-gun":{"slug":"custom-golden-gun","display":"Golden Gun","is_round_based":true,"is_team_based":true,"is_filterable":true,"leaderboard_stats":[],"playlist":"custom"},"free-for-all-permafrost":{"slug":"free-for-all-permafrost","display":"Permafrost","is_round_based":true,"is_team_based":true,"is_filterable":true,"leaderboard_stats":[],"playlist":"permafrost"},"68f8e5cc41fa8bacff5f26f5_bop-the-teddy":{"slug":"68f8e5cc41fa8bacff5f26f5_bop-the-teddy","display":"Bop the Teddy","is_round_based":true,"is_team_based":true,"is_filterable":true,"leaderboard_stats":[],"playlist":"event"},"quick-match-hostage":{"slug":"quick-match-hostage","display":"Hostage","is_round_based":true,"is_team_based":true,"rounds_per_half":2,"is_filterable":true,"leaderboard_stats":[],"playlist":"quick-match"},"arcade-golden-gun":{"slug":"arcade-golden-gun","display":"Golden Gun","is_round_based":true,"is_team_based":true,"is_filterable":true,"leaderboard_stats":[],"playlist":"arcade"},"custom-hide-and-seek":{"slug":"custom-hide-and-seek","display":"Hide and Seek","is_round_based":true,"is_team_based":true,"is_filterable":false,"leaderboard_stats":[],"playlist":"custom"},"custom-hostage":{"slug":"custom-hostage","display":"Hostage","is_round_based":true,"is_team_based":true,"is_filterable":false,"leaderboard_stats":[],"playlist":"custom"},"ranked-bomb":{"slug":"ranked-bomb","display":"Bomb","is_round_based":true,"is_team_based":true,"rounds_per_half":3,"is_filterable":true,"leaderboard_stats":[],"playlist":"ranked"},"68e2ec53a496962cde2414ba_hack-extract":{"slug":"68e2ec53a496962cde2414ba_hack-extract","display":"Hack & Extract","is_round_based":true,"is_team_based":true,"is_filterable":true,"leaderboard_stats":[],"playlist":"custom"},"698156c47916a31dbc8098fb_3-vs-3-secure-area":{"slug":"698156c47916a31dbc8098fb_3-vs-3-secure-area","display":"3 vs 3 Secure Area","is_round_based":true,"is_team_based":true,"is_filterable":false,"leaderboard_stats":[],"playlist":"pvp-3v3-event-game"},"custom-weapon-roulette":{"slug":"custom-weapon-roulette","display":"Weapon Roulette","is_round_based":true,"is_team_based":true,"is_filterable":true,"leaderboard_stats":[],"playlist":"custom"},"quick-match-bomb":{"slug":"quick-match-bomb","display":"Bomb","is_round_based":true,"is_team_based":true,"rounds_per_half":2,"is_filterable":true,"leaderboard_stats":[],"playlist":"quick-match"},"68f8e5cc41fa8bacff5f26f5_bomb":{"slug":"68f8e5cc41fa8bacff5f26f5_bomb","display":"Bomb","is_round_based":true,"is_team_based":true,"is_filterable":false,"leaderboard_stats":[],"playlist":"event"},"68e2ec53a496962cde2414ba_3-vs-3-secure-area":{"slug":"68e2ec53a496962cde2414ba_3-vs-3-secure-area","display":"3 vs 3 Secure Area","is_round_based":true,"is_team_based":true,"is_filterable":false,"leaderboard_stats":[],"playlist":"custom"},"quick-match-secure-area":{"slug":"quick-match-secure-area","display":"Secure Area","is_round_based":true,"is_team_based":true,"is_filterable":true,"leaderboard_stats":[],"playlist":"quick-match"},"custom-free-for-all":{"slug":"custom-free-for-all","display":"Free for All","is_round_based":false,"is_team_based":false,"is_filterable":false,"leaderboard_stats":[],"playlist":"custom"},"custom-rengoku":{"slug":"custom-rengoku","display":"Rengoku","is_round_based":true,"is_team_based":true,"is_filterable":true,"leaderboard_stats":[],"playlist":"custom"},"custom-tdm-prototyping":{"slug":"custom-tdm-prototyping","display":"TDM","is_round_based":true,"is_team_based":true,"is_filterable":true,"leaderboard_stats":[],"playlist":"custom"},"free-for-all":{"slug":"free-for-all","display":"Free for All","is_round_based":false,"is_team_based":false,"is_filterable":true,"leaderboard_stats":[],"playlist":"arcade"},"dual-front":{"slug":"dual-front","display":"Dual Front","is_round_based":false,"is_team_based":true,"is_filterable":true,"leaderboard_stats":[],"playlist":"dual-front"},"6970ec1564260336ee16a6b4_hack-extract":{"slug":"6970ec1564260336ee16a6b4_hack-extract","display":"Hack & Extract","is_round_based":true,"is_team_based":true,"is_filterable":true,"leaderboard_stats":[],"playlist":"permafrost"},"target-drill":{"slug":"target-drill","display":"Target Drill","is_round_based":false,"is_team_based":false,"is_filterable":false,"leaderboard_stats":[],"playlist":"map-run"},"6a1ef3288716c3b960afeef7_bomb":{"slug":"6a1ef3288716c3b960afeef7_bomb","display":"Bomb","is_round_based":true,"is_team_based":true,"is_filterable":false,"leaderboard_stats":[],"playlist":"pve-casual-party-game"},"6a1ef3320c1c2d0a548c1821_bomb":{"slug":"6a1ef3320c1c2d0a548c1821_bomb","display":"Bomb","is_round_based":true,"is_team_based":true,"is_filterable":false,"leaderboard_stats":[],"playlist":"pve-casual-game"},"68e2ec53a496962cde2414ba_knife-confirmed":{"slug":"68e2ec53a496962cde2414ba_knife-confirmed","display":"Knife Confirmed","is_round_based":true,"is_team_based":true,"is_filterable":true,"leaderboard_stats":[],"playlist":"custom"},"siege-cup-bomb":{"slug":"siege-cup-bomb","display":"Bomb","is_round_based":true,"is_team_based":true,"rounds_per_half":3,"is_filterable":true,"leaderboard_stats":[],"playlist":"siege-cup"}},"maps":{"fort-truth":{"slug":"fort-truth","display":"Fort Truth","is_filterable":true},"district":{"slug":"district","display":"District","is_filterable":true},"doktors-castle":{"slug":"doktors-castle","display":"Doktor's Castle","is_filterable":true},"fortress":{"slug":"fortress","display":"Fortress","is_filterable":true},"border":{"slug":"border","display":"Border","is_filterable":true},"bartlett-u":{"slug":"bartlett-u","display":"Bartlett U.","is_filterable":true},"close-quarter":{"slug":"close-quarter","display":"Close Quarter","is_filterable":true},"coastline":{"slug":"coastline","display":"Coastline","is_filterable":true},"chalet":{"slug":"chalet","display":"Chalet","is_filterable":true},"consulate":{"slug":"consulate","display":"Consulate","is_filterable":true},"bank":{"slug":"bank","display":"Bank","is_filterable":true},"air-cute-one":{"slug":"air-cute-one","display":"Air Cute One","is_filterable":true},"arctic-workshop":{"slug":"arctic-workshop","display":"Arctic Workshop","is_filterable":true},"stadium-bravo":{"slug":"stadium-bravo","display":"Stadium Bravo","is_filterable":true},"club-house":{"slug":"club-house","display":"Club House","is_filterable":true},"shinden":{"slug":"shinden","display":"Shinden","is_filterable":true},"lair":{"slug":"lair","display":"Lair","is_filterable":true},"theme-park":{"slug":"theme-park","display":"Theme Park","is_filterable":true},"mute-comm-tower":{"slug":"mute-comm-tower","display":"M.U.T.E. Comm Tower","is_filterable":true},"doktors-lab":{"slug":"doktors-lab","display":"Doktor's Lab","is_filterable":true},"kanal":{"slug":"kanal","display":"Kanal","is_filterable":true},"tower":{"slug":"tower","display":"Tower","is_filterable":true},"outback":{"slug":"outback","display":"Outback","is_filterable":true},"emerald-plains":{"slug":"emerald-plains","display":"Emerald Plains","is_filterable":true},"yacht":{"slug":"yacht","display":"Yacht","is_filterable":true},"house":{"slug":"house","display":"House","is_filterable":true},"magus-tower":{"slug":"magus-tower","display":"Magus Tower","is_filterable":true},"favela":{"slug":"favela","display":"Favela","is_filterable":true},"oregon":{"slug":"oregon","display":"Oregon","is_filterable":true},"villa":{"slug":"villa","display":"Villa","is_filterable":true},"skyscraper":{"slug":"skyscraper","display":"Skyscraper","is_filterable":true},"calypso-casino":{"slug":"calypso-casino","display":"Calypso Casino","is_filterable":true},"kafe-dostoyevsky":{"slug":"kafe-dostoyevsky","display":"Kafe Dostoyevsky","is_filterable":true},"glacial-facility":{"slug":"glacial-facility","display":"Glacial Facility","is_filterable":true},"stadium-2020":{"slug":"stadium-2020","display":"Stadium 2020","is_filterable":true},"nighthaven-labs":{"slug":"nighthaven-labs","display":"Nighthaven Labs","is_filterable":true},"presidential-plane":{"slug":"presidential-plane","display":"Presidential Plane","is_filterable":true},"unknown":{"slug":"unknown","display":"<Unknown>","is_filterable":false}},"end_game_reasons":{"invalid":{"slug":"invalid","display":"Invalid"},"canceled":{"slug":"canceled","display":"Cancelled"},"finished":{"slug":"finished","display":"Finished"},"quit-game":{"slug":"quit-game","display":"QuitGame"},"no-enemies":{"slug":"no-enemies","display":"No Enemies"}},"round_end_reasons":{"objective-protected":{"slug":"objective-protected","display":"Objective Protected","icon":"ph:shield-fill"},"attackers-reached-objective":{"slug":"attackers-reached-objective","display":"Attackers Reached Objective","icon":"ph:trophy-fill"},"bomb-exploded":{"slug":"bomb-exploded","display":"Bomb Exploded","icon":"game-icons:mine-explosion"},"hostage-extracted":{"slug":"hostage-extracted","display":"Hostage Extracted"},"defenders-eliminated-defuser-planted":{"slug":"defenders-eliminated-defuser-planted","display":"Defenders Eliminated","icon":"ph:skull-fill"},"bomb-deactivated-one-bomb":{"slug":"bomb-deactivated-one-bomb","display":"Bomb Deactivated","icon":"mdi:briefcase"},"match-cancelled":{"slug":"match-cancelled","display":"Match Cancelled","icon":"mdi:cancel"},"defenders-surrendered":{"slug":"defenders-surrendered","display":"Defenders Surrendered","icon":"mdi:flag"},"attackers-surrendered":{"slug":"attackers-surrendered","display":"Attackers Surrendered","icon":"mdi:flag"},"fury-victory":{"slug":"fury-victory","display":"Fury Victory"},"invalid":{"slug":"invalid","display":"Invalid"},"defuser-deactivated":{"slug":"defuser-deactivated","display":"Defuser Deactivated","icon":"mdi:briefcase-off"},"defenders-eliminated":{"slug":"defenders-eliminated","display":"Defenders Eliminated","icon":"ph:skull-fill"},"ffa-everyone-surrendered":{"slug":"ffa-everyone-surrendered","display":"FFA Everyone Surrendered","icon":"mdi:flag"},"all-teams-dead":{"slug":"all-teams-dead","display":"All Teams Dead","icon":"mdi:skull-fill"},"fury-defeat":{"slug":"fury-defeat","display":"Fury Defeat"},"unknown":{"slug":"unknown","display":"Unknown"},"attackers-eliminated":{"slug":"attackers-eliminated","display":"Attackers Eliminated","icon":"ph:skull-fill"},"warmup-time-limit-reached":{"slug":"warmup-time-limit-reached","display":"Warmup Time Limit Reached","icon":"ph:clock-clockwise-bold"},"ffa-kill-limit-reached":{"slug":"ffa-kill-limit-reached","display":"FFA Kill Limit Reached","icon":"ph:clock-clockwise-bold"},"attackers-killed-hostage":{"slug":"attackers-killed-hostage","display":"Attackers Killed Hostage","icon":"ph:person-fill"},"time-expired":{"slug":"time-expired","display":"Time Expired","icon":"ph:clock-clockwise-bold"},"objective-captured":{"slug":"objective-captured","display":"Objective Captured"},"defenders-killed-hostage":{"slug":"defenders-killed-hostage","display":"Defenders Killed Hostage","icon":"ph:person-fill"},"warmup-kill-limit-reached":{"slug":"warmup-kill-limit-reached","display":"Warmup Kill Limit Reached","icon":"ph:clock-clockwise-bold"},"defenders-reached-objective":{"slug":"defenders-reached-objective","display":"Defenders Reached Objective","icon":"ph:trophy-fill"}},"ban_reasons":{"tos-breach":{"slug":"tos-breach","display":"ToS Breach"},"battleye":{"slug":"battleye","display":"BattlEye"},"toxic-behavior":{"slug":"toxic-behavior","display":"Toxic Behavior"},"cheating":{"slug":"cheating","display":"Cheating"},"boosted":{"slug":"boosted","display":"Boosted"},"ddos":{"slug":"ddos","display":"DDOS"},"botting":{"slug":"botting","display":"Botting"}},"external_ban_providers":{"reputation":{"slug":"reputation","display":"ReputationGG","site":"https://reputation.gg"}},"external_ban_reasons":{"toxic-behavior":{"slug":"toxic-behavior","display":"Toxic Behavior"},"sabotage":{"slug":"sabotage","display":"Sabotage"},"racism":{"slug":"racism","display":"Racism"},"homophobic":{"slug":"homophobic","display":"Homophobic"},"cheating":{"slug":"cheating","display":"Cheating"},"glitching":{"slug":"glitching","display":"Glitching"},"boosted":{"slug":"boosted","display":"Boosted"}},"profile_match_outcomes":{"self-cancel":{"slug":"self-cancel","display":"Self Cancel"},"abandon":{"slug":"abandon","display":"Abandon"},"enemy-cancel":{"slug":"enemy-cancel","display":"Enemy Cancel"},"forfeit":{"slug":"forfeit","display":"Forfeit"},"loss":{"slug":"loss","display":"Loss"},"surrender":{"slug":"surrender","display":"Surrender"},"win":{"slug":"win","display":"Win"},"team-cancel":{"slug":"team-cancel","display":"Team Cancel"}}}
+{
+  "constants": {
+    "slugs": {
+      "current_season": "system-override",
+      "ranked_playlist": "ranked",
+      "quick_match_playlist": "quick-match",
+      "ranked_bomb_mode": "ranked-bomb",
+      "unranked_rank": "v7-unranked",
+      "champion_rank": "v7-champion-i",
+      "canceled_end_game_reason": "canceled",
+      "finished_end_game_reason": "finished",
+      "cheating_game_ban_reasons": ["battleye", "cheating"],
+      "cheating_external_ban_reasons": ["cheating"]
+    }
+  },
+  "seasons": {
+    "high-stakes": {
+      "slug": "high-stakes",
+      "display": "High Stakes",
+      "year": 10,
+      "season": 3,
+      "primary_color": "#ca0b0b",
+      "secondary_color": "#e03f3f",
+      "is_filterable": true,
+      "started_at": "2025-09-02T13:00:00Z",
+      "ended_at": "2025-12-02T13:59:59.999Z",
+      "ranks": [
+        "unranked",
+        "copper-v",
+        "copper-iv",
+        "copper-iii",
+        "copper-ii",
+        "copper-i",
+        "bronze-v",
+        "bronze-iv",
+        "bronze-iii",
+        "bronze-ii",
+        "bronze-i",
+        "silver-v",
+        "silver-iv",
+        "silver-iii",
+        "silver-ii",
+        "silver-i",
+        "gold-v",
+        "gold-iv",
+        "gold-iii",
+        "gold-ii",
+        "gold-i",
+        "platinum-v",
+        "platinum-iv",
+        "platinum-iii",
+        "platinum-ii",
+        "platinum-i",
+        "emerald-v",
+        "emerald-iv",
+        "emerald-iii",
+        "emerald-ii",
+        "emerald-i",
+        "diamond-v",
+        "diamond-iv",
+        "diamond-iii",
+        "diamond-ii",
+        "diamond-i",
+        "champion"
+      ]
+    },
+    "silent-hunt": {
+      "slug": "silent-hunt",
+      "display": "Silent Hunt",
+      "year": 11,
+      "season": 1,
+      "primary_color": "#3a6b4e",
+      "secondary_color": "#4e9169",
+      "is_filterable": true,
+      "started_at": "2026-03-03T14:00:00Z",
+      "ended_at": "2026-06-02T12:59:59.999Z",
+      "ranks": [
+        "unranked",
+        "copper-v",
+        "copper-iv",
+        "copper-iii",
+        "copper-ii",
+        "copper-i",
+        "bronze-v",
+        "bronze-iv",
+        "bronze-iii",
+        "bronze-ii",
+        "bronze-i",
+        "silver-v",
+        "silver-iv",
+        "silver-iii",
+        "silver-ii",
+        "silver-i",
+        "gold-v",
+        "gold-iv",
+        "gold-iii",
+        "gold-ii",
+        "gold-i",
+        "platinum-v",
+        "platinum-iv",
+        "platinum-iii",
+        "platinum-ii",
+        "platinum-i",
+        "emerald-v",
+        "emerald-iv",
+        "emerald-iii",
+        "emerald-ii",
+        "emerald-i",
+        "diamond-v",
+        "diamond-iv",
+        "diamond-iii",
+        "diamond-ii",
+        "diamond-i",
+        "champion"
+      ]
+    },
+    "tenfold-pursuit": {
+      "slug": "tenfold-pursuit",
+      "display": "Tenfold Pursuit",
+      "year": 10,
+      "season": 4,
+      "primary_color": "#6e5a61",
+      "secondary_color": "#ba98a4",
+      "is_filterable": true,
+      "started_at": "2025-12-02T14:00:00Z",
+      "ended_at": "2026-03-03T13:59:59.999Z",
+      "ranks": [
+        "unranked",
+        "copper-v",
+        "copper-iv",
+        "copper-iii",
+        "copper-ii",
+        "copper-i",
+        "bronze-v",
+        "bronze-iv",
+        "bronze-iii",
+        "bronze-ii",
+        "bronze-i",
+        "silver-v",
+        "silver-iv",
+        "silver-iii",
+        "silver-ii",
+        "silver-i",
+        "gold-v",
+        "gold-iv",
+        "gold-iii",
+        "gold-ii",
+        "gold-i",
+        "platinum-v",
+        "platinum-iv",
+        "platinum-iii",
+        "platinum-ii",
+        "platinum-i",
+        "emerald-v",
+        "emerald-iv",
+        "emerald-iii",
+        "emerald-ii",
+        "emerald-i",
+        "diamond-v",
+        "diamond-iv",
+        "diamond-iii",
+        "diamond-ii",
+        "diamond-i",
+        "champion"
+      ]
+    },
+    "daybreak": {
+      "slug": "daybreak",
+      "display": "Daybreak",
+      "year": 10,
+      "season": 2,
+      "primary_color": "#70808f",
+      "secondary_color": "#b8cde0",
+      "is_filterable": false,
+      "started_at": "2025-06-10T14:00:00Z",
+      "ended_at": "2025-09-02T12:59:59.999Z",
+      "ranks": [
+        "unranked",
+        "copper-v",
+        "copper-iv",
+        "copper-iii",
+        "copper-ii",
+        "copper-i",
+        "bronze-v",
+        "bronze-iv",
+        "bronze-iii",
+        "bronze-ii",
+        "bronze-i",
+        "silver-v",
+        "silver-iv",
+        "silver-iii",
+        "silver-ii",
+        "silver-i",
+        "gold-v",
+        "gold-iv",
+        "gold-iii",
+        "gold-ii",
+        "gold-i",
+        "platinum-v",
+        "platinum-iv",
+        "platinum-iii",
+        "platinum-ii",
+        "platinum-i",
+        "emerald-v",
+        "emerald-iv",
+        "emerald-iii",
+        "emerald-ii",
+        "emerald-i",
+        "diamond-v",
+        "diamond-iv",
+        "diamond-iii",
+        "diamond-ii",
+        "diamond-i",
+        "champion"
+      ]
+    },
+    "system-override": {
+      "slug": "system-override",
+      "display": "System Override",
+      "year": 11,
+      "season": 2,
+      "primary_color": "#fd6e72",
+      "secondary_color": "#fcabae",
+      "is_filterable": true,
+      "started_at": "2026-06-02T13:00:00Z",
+      "ranks": [
+        "v7-unranked",
+        "v7-copper-v",
+        "v7-copper-iv",
+        "v7-copper-iii",
+        "v7-copper-ii",
+        "v7-copper-i",
+        "v7-bronze-v",
+        "v7-bronze-iv",
+        "v7-bronze-iii",
+        "v7-bronze-ii",
+        "v7-bronze-i",
+        "v7-silver-v",
+        "v7-silver-iv",
+        "v7-silver-iii",
+        "v7-silver-ii",
+        "v7-silver-i",
+        "v7-gold-v",
+        "v7-gold-iv",
+        "v7-gold-iii",
+        "v7-gold-ii",
+        "v7-gold-i",
+        "v7-platinum-v",
+        "v7-platinum-iv",
+        "v7-platinum-iii",
+        "v7-platinum-ii",
+        "v7-platinum-i",
+        "v7-emerald-v",
+        "v7-emerald-iv",
+        "v7-emerald-iii",
+        "v7-emerald-ii",
+        "v7-emerald-i",
+        "v7-diamond-v",
+        "v7-diamond-iv",
+        "v7-diamond-iii",
+        "v7-diamond-ii",
+        "v7-diamond-i",
+        "v7-champion-v",
+        "v7-champion-iv",
+        "v7-champion-iii",
+        "v7-champion-ii",
+        "v7-champion-i"
+      ]
+    },
+    "dread-factor": {
+      "slug": "dread-factor",
+      "display": "Dread Factor",
+      "year": 8,
+      "season": 2,
+      "primary_color": "#6432ef",
+      "secondary_color": "#27235e",
+      "is_filterable": false,
+      "started_at": "2023-05-30T15:00:00Z",
+      "ended_at": "2023-08-29T14:59:59.999Z",
+      "ranks": [
+        "unranked",
+        "copper-v",
+        "copper-iv",
+        "copper-iii",
+        "copper-ii",
+        "copper-i",
+        "bronze-v",
+        "bronze-iv",
+        "bronze-iii",
+        "bronze-ii",
+        "bronze-i",
+        "silver-v",
+        "silver-iv",
+        "silver-iii",
+        "silver-ii",
+        "silver-i",
+        "gold-v",
+        "gold-iv",
+        "gold-iii",
+        "gold-ii",
+        "gold-i",
+        "platinum-v",
+        "platinum-iv",
+        "platinum-iii",
+        "platinum-ii",
+        "platinum-i",
+        "emerald-v",
+        "emerald-iv",
+        "emerald-iii",
+        "emerald-ii",
+        "emerald-i",
+        "diamond-v",
+        "diamond-iv",
+        "diamond-iii",
+        "diamond-ii",
+        "diamond-i",
+        "champion"
+      ]
+    },
+    "prep-phase": {
+      "slug": "prep-phase",
+      "display": "Prep Phase",
+      "year": 10,
+      "season": 1,
+      "primary_color": "#ff6d20",
+      "secondary_color": "#ff8e53",
+      "is_filterable": false,
+      "started_at": "2025-03-04T14:00:00Z",
+      "ended_at": "2025-06-10T13:59:59.999Z",
+      "ranks": [
+        "unranked",
+        "copper-v",
+        "copper-iv",
+        "copper-iii",
+        "copper-ii",
+        "copper-i",
+        "bronze-v",
+        "bronze-iv",
+        "bronze-iii",
+        "bronze-ii",
+        "bronze-i",
+        "silver-v",
+        "silver-iv",
+        "silver-iii",
+        "silver-ii",
+        "silver-i",
+        "gold-v",
+        "gold-iv",
+        "gold-iii",
+        "gold-ii",
+        "gold-i",
+        "platinum-v",
+        "platinum-iv",
+        "platinum-iii",
+        "platinum-ii",
+        "platinum-i",
+        "emerald-v",
+        "emerald-iv",
+        "emerald-iii",
+        "emerald-ii",
+        "emerald-i",
+        "diamond-v",
+        "diamond-iv",
+        "diamond-iii",
+        "diamond-ii",
+        "diamond-i",
+        "champion"
+      ]
+    },
+    "new-blood": {
+      "slug": "new-blood",
+      "display": "New Blood",
+      "year": 9,
+      "season": 2,
+      "primary_color": "#f58223",
+      "secondary_color": "#f58223",
+      "is_filterable": false,
+      "started_at": "2024-06-11T13:00:00Z",
+      "ended_at": "2024-09-10T12:59:59.999Z",
+      "ranks": [
+        "unranked",
+        "copper-v",
+        "copper-iv",
+        "copper-iii",
+        "copper-ii",
+        "copper-i",
+        "bronze-v",
+        "bronze-iv",
+        "bronze-iii",
+        "bronze-ii",
+        "bronze-i",
+        "silver-v",
+        "silver-iv",
+        "silver-iii",
+        "silver-ii",
+        "silver-i",
+        "gold-v",
+        "gold-iv",
+        "gold-iii",
+        "gold-ii",
+        "gold-i",
+        "platinum-v",
+        "platinum-iv",
+        "platinum-iii",
+        "platinum-ii",
+        "platinum-i",
+        "emerald-v",
+        "emerald-iv",
+        "emerald-iii",
+        "emerald-ii",
+        "emerald-i",
+        "diamond-v",
+        "diamond-iv",
+        "diamond-iii",
+        "diamond-ii",
+        "diamond-i",
+        "champion"
+      ]
+    },
+    "deadly-omen": {
+      "slug": "deadly-omen",
+      "display": "Deadly Omen",
+      "year": 9,
+      "season": 1,
+      "primary_color": "#f14b37",
+      "secondary_color": "#ab3d30",
+      "is_filterable": false,
+      "started_at": "2024-03-12T15:00:00Z",
+      "ended_at": "2024-06-11T12:59:59.999Z",
+      "ranks": [
+        "unranked",
+        "copper-v",
+        "copper-iv",
+        "copper-iii",
+        "copper-ii",
+        "copper-i",
+        "bronze-v",
+        "bronze-iv",
+        "bronze-iii",
+        "bronze-ii",
+        "bronze-i",
+        "silver-v",
+        "silver-iv",
+        "silver-iii",
+        "silver-ii",
+        "silver-i",
+        "gold-v",
+        "gold-iv",
+        "gold-iii",
+        "gold-ii",
+        "gold-i",
+        "platinum-v",
+        "platinum-iv",
+        "platinum-iii",
+        "platinum-ii",
+        "platinum-i",
+        "emerald-v",
+        "emerald-iv",
+        "emerald-iii",
+        "emerald-ii",
+        "emerald-i",
+        "diamond-v",
+        "diamond-iv",
+        "diamond-iii",
+        "diamond-ii",
+        "diamond-i",
+        "champion"
+      ]
+    },
+    "twin-shells": {
+      "slug": "twin-shells",
+      "display": "Twin Shells",
+      "year": 9,
+      "season": 3,
+      "primary_color": "#cc71d9",
+      "secondary_color": "#ab3dbb",
+      "is_filterable": false,
+      "started_at": "2024-09-10T13:00:00Z",
+      "ended_at": "2024-12-03T13:59:59.999Z",
+      "ranks": [
+        "unranked",
+        "copper-v",
+        "copper-iv",
+        "copper-iii",
+        "copper-ii",
+        "copper-i",
+        "bronze-v",
+        "bronze-iv",
+        "bronze-iii",
+        "bronze-ii",
+        "bronze-i",
+        "silver-v",
+        "silver-iv",
+        "silver-iii",
+        "silver-ii",
+        "silver-i",
+        "gold-v",
+        "gold-iv",
+        "gold-iii",
+        "gold-ii",
+        "gold-i",
+        "platinum-v",
+        "platinum-iv",
+        "platinum-iii",
+        "platinum-ii",
+        "platinum-i",
+        "emerald-v",
+        "emerald-iv",
+        "emerald-iii",
+        "emerald-ii",
+        "emerald-i",
+        "diamond-v",
+        "diamond-iv",
+        "diamond-iii",
+        "diamond-ii",
+        "diamond-i",
+        "champion"
+      ]
+    },
+    "heavy-mettle": {
+      "slug": "heavy-mettle",
+      "display": "Heavy Mettle",
+      "year": 8,
+      "season": 3,
+      "primary_color": "#cb6500",
+      "secondary_color": "#4d3b37",
+      "is_filterable": false,
+      "started_at": "2023-08-29T15:00:00Z",
+      "ended_at": "2023-12-06T14:59:59.999Z",
+      "ranks": [
+        "unranked",
+        "copper-v",
+        "copper-iv",
+        "copper-iii",
+        "copper-ii",
+        "copper-i",
+        "bronze-v",
+        "bronze-iv",
+        "bronze-iii",
+        "bronze-ii",
+        "bronze-i",
+        "silver-v",
+        "silver-iv",
+        "silver-iii",
+        "silver-ii",
+        "silver-i",
+        "gold-v",
+        "gold-iv",
+        "gold-iii",
+        "gold-ii",
+        "gold-i",
+        "platinum-v",
+        "platinum-iv",
+        "platinum-iii",
+        "platinum-ii",
+        "platinum-i",
+        "emerald-v",
+        "emerald-iv",
+        "emerald-iii",
+        "emerald-ii",
+        "emerald-i",
+        "diamond-v",
+        "diamond-iv",
+        "diamond-iii",
+        "diamond-ii",
+        "diamond-i",
+        "champion"
+      ]
+    },
+    "commanding-force": {
+      "slug": "commanding-force",
+      "display": "Commanding Force",
+      "year": 8,
+      "season": 1,
+      "primary_color": "#45abf3",
+      "secondary_color": "#095890",
+      "is_filterable": false,
+      "started_at": "2023-03-07T15:00:00Z",
+      "ended_at": "2023-05-30T14:59:59.999Z",
+      "ranks": [
+        "unranked",
+        "copper-v",
+        "copper-iv",
+        "copper-iii",
+        "copper-ii",
+        "copper-i",
+        "bronze-v",
+        "bronze-iv",
+        "bronze-iii",
+        "bronze-ii",
+        "bronze-i",
+        "silver-v",
+        "silver-iv",
+        "silver-iii",
+        "silver-ii",
+        "silver-i",
+        "gold-v",
+        "gold-iv",
+        "gold-iii",
+        "gold-ii",
+        "gold-i",
+        "platinum-v",
+        "platinum-iv",
+        "platinum-iii",
+        "platinum-ii",
+        "platinum-i",
+        "emerald-v",
+        "emerald-iv",
+        "emerald-iii",
+        "emerald-ii",
+        "emerald-i",
+        "diamond-v",
+        "diamond-iv",
+        "diamond-iii",
+        "diamond-ii",
+        "diamond-i",
+        "champion"
+      ]
+    },
+    "deep-freeze": {
+      "slug": "deep-freeze",
+      "display": "Deep Freeze",
+      "year": 8,
+      "season": 4,
+      "primary_color": "#55a1aa",
+      "secondary_color": "#38818a",
+      "is_filterable": false,
+      "started_at": "2023-12-06T15:00:00Z",
+      "ended_at": "2024-03-12T14:59:59.999Z",
+      "ranks": [
+        "unranked",
+        "copper-v",
+        "copper-iv",
+        "copper-iii",
+        "copper-ii",
+        "copper-i",
+        "bronze-v",
+        "bronze-iv",
+        "bronze-iii",
+        "bronze-ii",
+        "bronze-i",
+        "silver-v",
+        "silver-iv",
+        "silver-iii",
+        "silver-ii",
+        "silver-i",
+        "gold-v",
+        "gold-iv",
+        "gold-iii",
+        "gold-ii",
+        "gold-i",
+        "platinum-v",
+        "platinum-iv",
+        "platinum-iii",
+        "platinum-ii",
+        "platinum-i",
+        "emerald-v",
+        "emerald-iv",
+        "emerald-iii",
+        "emerald-ii",
+        "emerald-i",
+        "diamond-v",
+        "diamond-iv",
+        "diamond-iii",
+        "diamond-ii",
+        "diamond-i",
+        "champion"
+      ]
+    },
+    "solar-raid": {
+      "slug": "solar-raid",
+      "display": "Solar Raid",
+      "year": 7,
+      "season": 4,
+      "primary_color": "#c04126",
+      "secondary_color": "#732717",
+      "is_filterable": false,
+      "started_at": "2022-12-06T15:00:00Z",
+      "ended_at": "2023-03-07T14:59:59.999Z",
+      "ranks": [
+        "unranked",
+        "copper-v",
+        "copper-iv",
+        "copper-iii",
+        "copper-ii",
+        "copper-i",
+        "bronze-v",
+        "bronze-iv",
+        "bronze-iii",
+        "bronze-ii",
+        "bronze-i",
+        "silver-v",
+        "silver-iv",
+        "silver-iii",
+        "silver-ii",
+        "silver-i",
+        "gold-v",
+        "gold-iv",
+        "gold-iii",
+        "gold-ii",
+        "gold-i",
+        "platinum-v",
+        "platinum-iv",
+        "platinum-iii",
+        "platinum-ii",
+        "platinum-i",
+        "emerald-v",
+        "emerald-iv",
+        "emerald-iii",
+        "emerald-ii",
+        "emerald-i",
+        "diamond-v",
+        "diamond-iv",
+        "diamond-iii",
+        "diamond-ii",
+        "diamond-i",
+        "champion"
+      ]
+    },
+    "collision-point": {
+      "slug": "collision-point",
+      "display": "Collision Point",
+      "year": 9,
+      "season": 4,
+      "primary_color": "#c1922c",
+      "secondary_color": "#d3b26b",
+      "is_filterable": false,
+      "started_at": "2024-12-03T14:00:00Z",
+      "ended_at": "2025-03-04T13:59:59.999Z",
+      "ranks": [
+        "unranked",
+        "copper-v",
+        "copper-iv",
+        "copper-iii",
+        "copper-ii",
+        "copper-i",
+        "bronze-v",
+        "bronze-iv",
+        "bronze-iii",
+        "bronze-ii",
+        "bronze-i",
+        "silver-v",
+        "silver-iv",
+        "silver-iii",
+        "silver-ii",
+        "silver-i",
+        "gold-v",
+        "gold-iv",
+        "gold-iii",
+        "gold-ii",
+        "gold-i",
+        "platinum-v",
+        "platinum-iv",
+        "platinum-iii",
+        "platinum-ii",
+        "platinum-i",
+        "emerald-v",
+        "emerald-iv",
+        "emerald-iii",
+        "emerald-ii",
+        "emerald-i",
+        "diamond-v",
+        "diamond-iv",
+        "diamond-iii",
+        "diamond-ii",
+        "diamond-i",
+        "champion"
+      ]
+    }
+  },
+  "rank_tiers": {
+    "gold": { "slug": "gold", "display": "Gold", "color": "#ffe14c" },
+    "copper": { "slug": "copper", "display": "Copper", "color": "#b31323" },
+    "silver": { "slug": "silver", "display": "Silver", "color": "#a6a6a6" },
+    "diamond": { "slug": "diamond", "display": "Diamond", "color": "#be99ff" },
+    "emerald": { "slug": "emerald", "display": "Emerald", "color": "#0ac142" },
+    "champion": { "slug": "champion", "display": "Champions", "color": "#e20b6b" },
+    "bronze": { "slug": "bronze", "display": "Bronze", "color": "#db9d18" },
+    "platinum": { "slug": "platinum", "display": "Platinum", "color": "#32d1ce" },
+    "unranked": { "slug": "unranked", "display": "No Rank", "color": "#575757" }
+  },
+  "ranks": {
+    "v7-emerald-v": {
+      "slug": "v7-emerald-v",
+      "display": "Emerald V",
+      "tier": "emerald",
+      "min_points": 3500,
+      "max_points": 3599,
+      "has_position": false
+    },
+    "silver-i": {
+      "slug": "silver-i",
+      "display": "Silver I",
+      "tier": "silver",
+      "min_points": 2400,
+      "max_points": 2499,
+      "has_position": false
+    },
+    "silver-v": {
+      "slug": "silver-v",
+      "display": "Silver V",
+      "tier": "silver",
+      "min_points": 2000,
+      "max_points": 2099,
+      "has_position": false
+    },
+    "bronze-iii": {
+      "slug": "bronze-iii",
+      "display": "Bronze III",
+      "tier": "bronze",
+      "min_points": 1700,
+      "max_points": 1799,
+      "has_position": false
+    },
+    "champion": {
+      "slug": "champion",
+      "display": "Champions",
+      "tier": "champion",
+      "min_points": 4500,
+      "has_position": true
+    },
+    "silver-ii": {
+      "slug": "silver-ii",
+      "display": "Silver II",
+      "tier": "silver",
+      "min_points": 2300,
+      "max_points": 2399,
+      "has_position": false
+    },
+    "bronze-iv": {
+      "slug": "bronze-iv",
+      "display": "Bronze IV",
+      "tier": "bronze",
+      "min_points": 1600,
+      "max_points": 1699,
+      "has_position": false
+    },
+    "v7-unranked": {
+      "slug": "v7-unranked",
+      "display": "No Rank",
+      "tier": "unranked",
+      "max_points": 999,
+      "has_position": false
+    },
+    "platinum-i": {
+      "slug": "platinum-i",
+      "display": "Platinum I",
+      "tier": "platinum",
+      "min_points": 3400,
+      "max_points": 3499,
+      "has_position": false
+    },
+    "v7-gold-iii": {
+      "slug": "v7-gold-iii",
+      "display": "Gold III",
+      "tier": "gold",
+      "min_points": 2700,
+      "max_points": 2799,
+      "has_position": false
+    },
+    "v7-emerald-iii": {
+      "slug": "v7-emerald-iii",
+      "display": "Emerald III",
+      "tier": "emerald",
+      "min_points": 3700,
+      "max_points": 3799,
+      "has_position": false
+    },
+    "v7-diamond-i": {
+      "slug": "v7-diamond-i",
+      "display": "Diamond I",
+      "tier": "diamond",
+      "min_points": 4400,
+      "max_points": 4499,
+      "has_position": false
+    },
+    "bronze-v": {
+      "slug": "bronze-v",
+      "display": "Bronze V",
+      "tier": "bronze",
+      "min_points": 1500,
+      "max_points": 1599,
+      "has_position": false
+    },
+    "platinum-ii": {
+      "slug": "platinum-ii",
+      "display": "Platinum II",
+      "tier": "platinum",
+      "min_points": 3300,
+      "max_points": 3399,
+      "has_position": false
+    },
+    "v7-silver-ii": {
+      "slug": "v7-silver-ii",
+      "display": "Silver II",
+      "tier": "silver",
+      "min_points": 2300,
+      "max_points": 2399,
+      "has_position": false
+    },
+    "platinum-v": {
+      "slug": "platinum-v",
+      "display": "Platinum V",
+      "tier": "platinum",
+      "min_points": 3000,
+      "max_points": 3099,
+      "has_position": false
+    },
+    "v7-champion-v": {
+      "slug": "v7-champion-v",
+      "display": "Champion V",
+      "tier": "champion",
+      "min_points": 4500,
+      "max_points": 4599,
+      "has_position": false
+    },
+    "emerald-iv": {
+      "slug": "emerald-iv",
+      "display": "Emerald IV",
+      "tier": "emerald",
+      "min_points": 3600,
+      "max_points": 3699,
+      "has_position": false
+    },
+    "v7-platinum-iii": {
+      "slug": "v7-platinum-iii",
+      "display": "Platinum III",
+      "tier": "platinum",
+      "min_points": 3200,
+      "max_points": 3299,
+      "has_position": false
+    },
+    "v7-champion-i": {
+      "slug": "v7-champion-i",
+      "display": "Champion I",
+      "tier": "champion",
+      "min_points": 4900,
+      "has_position": false
+    },
+    "v7-bronze-i": {
+      "slug": "v7-bronze-i",
+      "display": "Bronze I",
+      "tier": "bronze",
+      "min_points": 1900,
+      "max_points": 1999,
+      "has_position": false
+    },
+    "silver-iv": {
+      "slug": "silver-iv",
+      "display": "Silver IV",
+      "tier": "silver",
+      "min_points": 2100,
+      "max_points": 2199,
+      "has_position": false
+    },
+    "v7-diamond-iii": {
+      "slug": "v7-diamond-iii",
+      "display": "Diamond III",
+      "tier": "diamond",
+      "min_points": 4200,
+      "max_points": 4299,
+      "has_position": false
+    },
+    "v7-silver-i": {
+      "slug": "v7-silver-i",
+      "display": "Silver I",
+      "tier": "silver",
+      "min_points": 2400,
+      "max_points": 2499,
+      "has_position": false
+    },
+    "diamond-ii": {
+      "slug": "diamond-ii",
+      "display": "Diamond II",
+      "tier": "diamond",
+      "min_points": 4300,
+      "max_points": 4399,
+      "has_position": false
+    },
+    "emerald-v": {
+      "slug": "emerald-v",
+      "display": "Emerald V",
+      "tier": "emerald",
+      "min_points": 3500,
+      "max_points": 3599,
+      "has_position": false
+    },
+    "v7-platinum-v": {
+      "slug": "v7-platinum-v",
+      "display": "Platinum V",
+      "tier": "platinum",
+      "min_points": 3000,
+      "max_points": 3099,
+      "has_position": false
+    },
+    "v7-diamond-iv": {
+      "slug": "v7-diamond-iv",
+      "display": "Diamond IV",
+      "tier": "diamond",
+      "min_points": 4100,
+      "max_points": 4199,
+      "has_position": false
+    },
+    "gold-i": {
+      "slug": "gold-i",
+      "display": "Gold I",
+      "tier": "gold",
+      "min_points": 2900,
+      "max_points": 2999,
+      "has_position": false
+    },
+    "v7-diamond-ii": {
+      "slug": "v7-diamond-ii",
+      "display": "Diamond II",
+      "tier": "diamond",
+      "min_points": 4300,
+      "max_points": 4399,
+      "has_position": false
+    },
+    "v7-copper-iii": {
+      "slug": "v7-copper-iii",
+      "display": "Copper III",
+      "tier": "copper",
+      "min_points": 1200,
+      "max_points": 1299,
+      "has_position": false
+    },
+    "diamond-iii": {
+      "slug": "diamond-iii",
+      "display": "Diamond III",
+      "tier": "diamond",
+      "min_points": 4200,
+      "max_points": 4299,
+      "has_position": false
+    },
+    "emerald-iii": {
+      "slug": "emerald-iii",
+      "display": "Emerald III",
+      "tier": "emerald",
+      "min_points": 3700,
+      "max_points": 3799,
+      "has_position": false
+    },
+    "diamond-i": {
+      "slug": "diamond-i",
+      "display": "Diamond I",
+      "tier": "diamond",
+      "min_points": 4400,
+      "max_points": 4499,
+      "has_position": false
+    },
+    "v7-gold-iv": {
+      "slug": "v7-gold-iv",
+      "display": "Gold IV",
+      "tier": "gold",
+      "min_points": 2600,
+      "max_points": 2699,
+      "has_position": false
+    },
+    "v7-silver-iii": {
+      "slug": "v7-silver-iii",
+      "display": "Silver III",
+      "tier": "silver",
+      "min_points": 2200,
+      "max_points": 2299,
+      "has_position": false
+    },
+    "v7-copper-i": {
+      "slug": "v7-copper-i",
+      "display": "Copper I",
+      "tier": "copper",
+      "min_points": 1400,
+      "max_points": 1499,
+      "has_position": false
+    },
+    "emerald-i": {
+      "slug": "emerald-i",
+      "display": "Emerald I",
+      "tier": "emerald",
+      "min_points": 3900,
+      "max_points": 3999,
+      "has_position": false
+    },
+    "v7-silver-v": {
+      "slug": "v7-silver-v",
+      "display": "Silver V",
+      "tier": "silver",
+      "min_points": 2000,
+      "max_points": 2099,
+      "has_position": false
+    },
+    "v7-copper-iv": {
+      "slug": "v7-copper-iv",
+      "display": "Copper IV",
+      "tier": "copper",
+      "min_points": 1100,
+      "max_points": 1199,
+      "has_position": false
+    },
+    "v7-champion-iv": {
+      "slug": "v7-champion-iv",
+      "display": "Champion IV",
+      "tier": "champion",
+      "min_points": 4600,
+      "max_points": 4699,
+      "has_position": false
+    },
+    "copper-v": {
+      "slug": "copper-v",
+      "display": "Copper V",
+      "tier": "copper",
+      "min_points": 1000,
+      "max_points": 1099,
+      "has_position": false
+    },
+    "platinum-iv": {
+      "slug": "platinum-iv",
+      "display": "Platinum IV",
+      "tier": "platinum",
+      "min_points": 3100,
+      "max_points": 3199,
+      "has_position": false
+    },
+    "v7-bronze-v": {
+      "slug": "v7-bronze-v",
+      "display": "Bronze V",
+      "tier": "bronze",
+      "min_points": 1500,
+      "max_points": 1599,
+      "has_position": false
+    },
+    "v7-emerald-ii": {
+      "slug": "v7-emerald-ii",
+      "display": "Emerald II",
+      "tier": "emerald",
+      "min_points": 3800,
+      "max_points": 3899,
+      "has_position": false
+    },
+    "emerald-ii": {
+      "slug": "emerald-ii",
+      "display": "Emerald II",
+      "tier": "emerald",
+      "min_points": 3800,
+      "max_points": 3899,
+      "has_position": false
+    },
+    "gold-v": {
+      "slug": "gold-v",
+      "display": "Gold V",
+      "tier": "gold",
+      "min_points": 2500,
+      "max_points": 2599,
+      "has_position": false
+    },
+    "v7-copper-v": {
+      "slug": "v7-copper-v",
+      "display": "Copper V",
+      "tier": "copper",
+      "min_points": 1000,
+      "max_points": 1099,
+      "has_position": false
+    },
+    "platinum-iii": {
+      "slug": "platinum-iii",
+      "display": "Platinum III",
+      "tier": "platinum",
+      "min_points": 3200,
+      "max_points": 3299,
+      "has_position": false
+    },
+    "v7-bronze-ii": {
+      "slug": "v7-bronze-ii",
+      "display": "Bronze II",
+      "tier": "bronze",
+      "min_points": 1800,
+      "max_points": 1899,
+      "has_position": false
+    },
+    "copper-ii": {
+      "slug": "copper-ii",
+      "display": "Copper II",
+      "tier": "copper",
+      "min_points": 1300,
+      "max_points": 1399,
+      "has_position": false
+    },
+    "v7-gold-ii": {
+      "slug": "v7-gold-ii",
+      "display": "Gold II",
+      "tier": "gold",
+      "min_points": 2800,
+      "max_points": 2899,
+      "has_position": false
+    },
+    "copper-iii": {
+      "slug": "copper-iii",
+      "display": "Copper III",
+      "tier": "copper",
+      "min_points": 1200,
+      "max_points": 1299,
+      "has_position": false
+    },
+    "v7-copper-ii": {
+      "slug": "v7-copper-ii",
+      "display": "Copper II",
+      "tier": "copper",
+      "min_points": 1300,
+      "max_points": 1399,
+      "has_position": false
+    },
+    "v7-champion-ii": {
+      "slug": "v7-champion-ii",
+      "display": "Champion II",
+      "tier": "champion",
+      "min_points": 4800,
+      "max_points": 4899,
+      "has_position": false
+    },
+    "copper-iv": {
+      "slug": "copper-iv",
+      "display": "Copper IV",
+      "tier": "copper",
+      "min_points": 1100,
+      "max_points": 1199,
+      "has_position": false
+    },
+    "v7-platinum-ii": {
+      "slug": "v7-platinum-ii",
+      "display": "Platinum II",
+      "tier": "platinum",
+      "min_points": 3300,
+      "max_points": 3399,
+      "has_position": false
+    },
+    "bronze-i": {
+      "slug": "bronze-i",
+      "display": "Bronze I",
+      "tier": "bronze",
+      "min_points": 1900,
+      "max_points": 1999,
+      "has_position": false
+    },
+    "unranked": {
+      "slug": "unranked",
+      "display": "No Rank",
+      "tier": "unranked",
+      "max_points": 999,
+      "has_position": false
+    },
+    "v7-gold-v": {
+      "slug": "v7-gold-v",
+      "display": "Gold V",
+      "tier": "gold",
+      "min_points": 2500,
+      "max_points": 2599,
+      "has_position": false
+    },
+    "gold-ii": {
+      "slug": "gold-ii",
+      "display": "Gold II",
+      "tier": "gold",
+      "min_points": 2800,
+      "max_points": 2899,
+      "has_position": false
+    },
+    "v7-platinum-i": {
+      "slug": "v7-platinum-i",
+      "display": "Platinum I",
+      "tier": "platinum",
+      "min_points": 3400,
+      "max_points": 3499,
+      "has_position": false
+    },
+    "diamond-iv": {
+      "slug": "diamond-iv",
+      "display": "Diamond IV",
+      "tier": "diamond",
+      "min_points": 4100,
+      "max_points": 4199,
+      "has_position": false
+    },
+    "diamond-v": {
+      "slug": "diamond-v",
+      "display": "Diamond V",
+      "tier": "diamond",
+      "min_points": 4000,
+      "max_points": 4099,
+      "has_position": false
+    },
+    "v7-diamond-v": {
+      "slug": "v7-diamond-v",
+      "display": "Diamond V",
+      "tier": "diamond",
+      "min_points": 4000,
+      "max_points": 4099,
+      "has_position": false
+    },
+    "v7-emerald-iv": {
+      "slug": "v7-emerald-iv",
+      "display": "Emerald IV",
+      "tier": "emerald",
+      "min_points": 3600,
+      "max_points": 3699,
+      "has_position": false
+    },
+    "v7-bronze-iii": {
+      "slug": "v7-bronze-iii",
+      "display": "Bronze III",
+      "tier": "bronze",
+      "min_points": 1700,
+      "max_points": 1799,
+      "has_position": false
+    },
+    "gold-iii": {
+      "slug": "gold-iii",
+      "display": "Gold III",
+      "tier": "gold",
+      "min_points": 2700,
+      "max_points": 2799,
+      "has_position": false
+    },
+    "copper-i": {
+      "slug": "copper-i",
+      "display": "Copper I",
+      "tier": "copper",
+      "min_points": 1400,
+      "max_points": 1499,
+      "has_position": false
+    },
+    "v7-bronze-iv": {
+      "slug": "v7-bronze-iv",
+      "display": "Bronze IV",
+      "tier": "bronze",
+      "min_points": 1600,
+      "max_points": 1699,
+      "has_position": false
+    },
+    "v7-platinum-iv": {
+      "slug": "v7-platinum-iv",
+      "display": "Platinum IV",
+      "tier": "platinum",
+      "min_points": 3100,
+      "max_points": 3199,
+      "has_position": false
+    },
+    "v7-emerald-i": {
+      "slug": "v7-emerald-i",
+      "display": "Emerald I",
+      "tier": "emerald",
+      "min_points": 3900,
+      "max_points": 3999,
+      "has_position": false
+    },
+    "silver-iii": {
+      "slug": "silver-iii",
+      "display": "Silver III",
+      "tier": "silver",
+      "min_points": 2200,
+      "max_points": 2299,
+      "has_position": false
+    },
+    "v7-silver-iv": {
+      "slug": "v7-silver-iv",
+      "display": "Silver IV",
+      "tier": "silver",
+      "min_points": 2100,
+      "max_points": 2199,
+      "has_position": false
+    },
+    "v7-gold-i": {
+      "slug": "v7-gold-i",
+      "display": "Gold I",
+      "tier": "gold",
+      "min_points": 2900,
+      "max_points": 2999,
+      "has_position": false
+    },
+    "v7-champion-iii": {
+      "slug": "v7-champion-iii",
+      "display": "Champion III",
+      "tier": "champion",
+      "min_points": 4700,
+      "max_points": 4799,
+      "has_position": false
+    },
+    "bronze-ii": {
+      "slug": "bronze-ii",
+      "display": "Bronze II",
+      "tier": "bronze",
+      "min_points": 1800,
+      "max_points": 1899,
+      "has_position": false
+    },
+    "gold-iv": {
+      "slug": "gold-iv",
+      "display": "Gold IV",
+      "tier": "gold",
+      "min_points": 2600,
+      "max_points": 2699,
+      "has_position": false
+    }
+  },
+  "ctus": {
+    "gsutr": { "slug": "gsutr", "display": "GSUTR" },
+    "ros": { "slug": "ros", "display": "ROS" },
+    "sfg": { "slug": "sfg", "display": "SFG" },
+    "gsg-9": { "slug": "gsg-9", "display": "GSG 9" },
+    "navy": { "slug": "navy", "display": "NAVY SEAL" },
+    "bope": { "slug": "bope", "display": "BOPE" },
+    "grom": { "slug": "grom", "display": "GROM" },
+    "gigr": { "slug": "gigr", "display": "GIGR" },
+    "dae": { "slug": "dae", "display": "DAE" },
+    "apca": { "slug": "apca", "display": "APCA" },
+    "secret-service": { "slug": "secret-service", "display": "SECRET SERVICE" },
+    "afeau": { "slug": "afeau", "display": "AFEAU" },
+    "starnet": { "slug": "starnet", "display": "STAR-NET AVIATION" },
+    "sas": { "slug": "sas", "display": "SAS" },
+    "itf": { "slug": "itf", "display": "INKABA TASK FORCE" },
+    "geo": { "slug": "geo", "display": "GEO" },
+    "jaeger-corps": { "slug": "jaeger-corps", "display": "JAEGER CORPS" },
+    "spetsnaz": { "slug": "spetsnaz", "display": "SPETSNAZ" },
+    "sasr": { "slug": "sasr", "display": "SASR" },
+    "gis": { "slug": "gis", "display": "GIS" },
+    "fuerzas-especiales": { "slug": "fuerzas-especiales", "display": "FUERZAS ESPECIALES" },
+    "cot": { "slug": "cot", "display": "COT" },
+    "ekam": { "slug": "ekam", "display": "SAS" },
+    "reu": { "slug": "reu", "display": "REU" },
+    "sat": { "slug": "sat", "display": "SAT" },
+    "nzsas": { "slug": "nzsas", "display": "NZSAS" },
+    "fbi": { "slug": "fbi", "display": "FBI SWAT" },
+    "keres-legion": { "slug": "keres-legion", "display": "KERES LEGION" },
+    "nighthaven": { "slug": "nighthaven", "display": "NIGHTHAVEN" },
+    "commando-battalion": { "slug": "commando-battalion", "display": "35TH COMMANDO BATTALION" },
+    "cbrn": { "slug": "cbrn", "display": "CBRN THREAT UNIT" },
+    "eru": { "slug": "eru", "display": "EMERGENCY RESPONSE UNIT" },
+    "unaffiliated": { "slug": "unaffiliated", "display": "UNAFFILIATED" },
+    "smb": { "slug": "smb", "display": "707th SMB" },
+    "sdu": { "slug": "sdu", "display": "SDU" },
+    "jtf2": { "slug": "jtf2", "display": "JTF2" },
+    "gign": { "slug": "gign", "display": "GIGN" }
+  },
+  "difficulty_ratings": {
+    "low": { "slug": "low", "display": "Low", "rating": 1 },
+    "high": { "slug": "high", "display": "High", "rating": 3 },
+    "medium": { "slug": "medium", "display": "Medium", "rating": 2 }
+  },
+  "operator_playstyles": {
+    "attacker-intel-provider": {
+      "slug": "attacker-intel-provider",
+      "display": "Intel",
+      "is_filterable": true
+    },
+    "defender-entry-denier": {
+      "slug": "defender-entry-denier",
+      "display": "Trapper",
+      "is_filterable": true
+    },
+    "attacker-entry-fragger": {
+      "slug": "attacker-entry-fragger",
+      "display": "Front-Line",
+      "is_filterable": true
+    },
+    "defender-utility-denier": {
+      "slug": "defender-utility-denier",
+      "display": "Anti-Gadget",
+      "is_filterable": true
+    },
+    "attacker-breacher": {
+      "slug": "attacker-breacher",
+      "display": "Breach",
+      "is_filterable": true
+    },
+    "defender-trapper": { "slug": "defender-trapper", "display": "Trapper", "is_filterable": true },
+    "undefined": { "slug": "undefined", "display": "Undefined", "is_filterable": false },
+    "defender-supporter": {
+      "slug": "defender-supporter",
+      "display": "Support",
+      "is_filterable": true
+    },
+    "defender-intel-provider": {
+      "slug": "defender-intel-provider",
+      "display": "Intel",
+      "is_filterable": true
+    },
+    "attacker-utility-clearer": {
+      "slug": "attacker-utility-clearer",
+      "display": "Anti-Gadget",
+      "is_filterable": true
+    },
+    "defender-debuffer": {
+      "slug": "defender-debuffer",
+      "display": "Crowd Control",
+      "is_filterable": true
+    },
+    "attacker-roam-clearer": {
+      "slug": "attacker-roam-clearer",
+      "display": "Map Control",
+      "is_filterable": true
+    },
+    "attacker-supporter": {
+      "slug": "attacker-supporter",
+      "display": "Support",
+      "is_filterable": true
+    }
+  },
+  "operator_positions": {
+    "attacker-flank": { "slug": "attacker-flank", "display": "Flank", "is_filterable": true },
+    "defender-roamer": { "slug": "defender-roamer", "display": "Roamer", "is_filterable": true },
+    "defender-anchor": { "slug": "defender-anchor", "display": "Anchor", "is_filterable": true },
+    "attacker-core": { "slug": "attacker-core", "display": "Core", "is_filterable": true },
+    "undefined": { "slug": "undefined", "display": "Undefined", "is_filterable": false }
+  },
+  "operator_sides": {
+    "attacker": { "slug": "attacker", "display": "Attacker", "is_filterable": true },
+    "invalid": { "slug": "invalid", "display": "Attacker", "is_filterable": false },
+    "defender": { "slug": "defender", "display": "Defender", "is_filterable": true },
+    "both": { "slug": "both", "display": "Defender", "is_filterable": false }
+  },
+  "operators": {
+    "melusi": {
+      "slug": "melusi",
+      "display": "Melusi",
+      "color": "#2B7F90",
+      "ctu": "itf",
+      "side": "defender",
+      "position": "defender-roamer",
+      "difficulty": "low",
+      "playstyles": ["defender-intel-provider", "defender-debuffer"]
+    },
+    "denari": {
+      "slug": "denari",
+      "display": "Denari",
+      "color": "#C82127",
+      "ctu": "nighthaven",
+      "side": "defender",
+      "position": "defender-roamer",
+      "difficulty": "high",
+      "playstyles": ["defender-utility-denier", "defender-debuffer"]
+    },
+    "frost": {
+      "slug": "frost",
+      "display": "Frost",
+      "color": "#00789E",
+      "ctu": "jtf2",
+      "side": "defender",
+      "position": "defender-anchor",
+      "difficulty": "low",
+      "playstyles": ["defender-trapper", "defender-entry-denier"]
+    },
+    "ying": {
+      "slug": "ying",
+      "display": "Ying",
+      "color": "#AA4825",
+      "ctu": "sdu",
+      "side": "attacker",
+      "position": "attacker-core",
+      "difficulty": "medium",
+      "playstyles": ["attacker-entry-fragger", "attacker-roam-clearer"]
+    },
+    "doc": {
+      "slug": "doc",
+      "display": "Doc",
+      "color": "#315978",
+      "ctu": "gign",
+      "side": "defender",
+      "position": "defender-anchor",
+      "difficulty": "low",
+      "playstyles": ["defender-supporter"]
+    },
+    "valkyrie": {
+      "slug": "valkyrie",
+      "display": "Valkyrie",
+      "color": "#BD8833",
+      "ctu": "navy",
+      "side": "defender",
+      "position": "defender-roamer",
+      "difficulty": "medium",
+      "playstyles": ["defender-intel-provider", "defender-supporter"]
+    },
+    "flores": {
+      "slug": "flores",
+      "display": "Flores",
+      "color": "#860C04",
+      "ctu": "unaffiliated",
+      "side": "attacker",
+      "position": "attacker-core",
+      "difficulty": "medium",
+      "playstyles": ["attacker-intel-provider", "attacker-utility-clearer"]
+    },
+    "sledge": {
+      "slug": "sledge",
+      "display": "Sledge",
+      "color": "#88666F",
+      "ctu": "sas",
+      "side": "attacker",
+      "position": "attacker-flank",
+      "difficulty": "low",
+      "playstyles": ["attacker-breacher", "attacker-utility-clearer"]
+    },
+    "dokkaebi": {
+      "slug": "dokkaebi",
+      "display": "Dokkaebi",
+      "color": "#BEC9CA",
+      "ctu": "smb",
+      "side": "attacker",
+      "position": "attacker-flank",
+      "difficulty": "medium",
+      "playstyles": ["attacker-intel-provider", "attacker-roam-clearer"]
+    },
+    "mozzie": {
+      "slug": "mozzie",
+      "display": "Mozzie",
+      "color": "#D31850",
+      "ctu": "sasr",
+      "side": "defender",
+      "position": "defender-roamer",
+      "difficulty": "medium",
+      "playstyles": ["defender-utility-denier", "defender-intel-provider"]
+    },
+    "warden": {
+      "slug": "warden",
+      "display": "Warden",
+      "color": "#25387D",
+      "ctu": "secret-service",
+      "side": "defender",
+      "position": "defender-anchor",
+      "difficulty": "medium",
+      "playstyles": ["defender-utility-denier", "defender-intel-provider"]
+    },
+    "gridlock": {
+      "slug": "gridlock",
+      "display": "Gridlock",
+      "color": "#D31850",
+      "ctu": "sasr",
+      "side": "attacker",
+      "position": "attacker-flank",
+      "difficulty": "low",
+      "playstyles": ["attacker-supporter", "attacker-roam-clearer"]
+    },
+    "hibana": {
+      "slug": "hibana",
+      "display": "Hibana",
+      "color": "#942838",
+      "ctu": "sat",
+      "side": "attacker",
+      "position": "attacker-core",
+      "difficulty": "low",
+      "playstyles": ["attacker-breacher", "attacker-entry-fragger"]
+    },
+    "grim": {
+      "slug": "grim",
+      "display": "Grim",
+      "color": "#DCC53D",
+      "ctu": "nighthaven",
+      "side": "attacker",
+      "position": "attacker-core",
+      "difficulty": "low",
+      "playstyles": ["attacker-entry-fragger", "attacker-roam-clearer"]
+    },
+    "azami": {
+      "slug": "azami",
+      "display": "Azami",
+      "color": "#3C63AD",
+      "ctu": "unaffiliated",
+      "side": "defender",
+      "position": "defender-anchor",
+      "difficulty": "high",
+      "playstyles": ["defender-entry-denier", "defender-supporter"]
+    },
+    "fuze": {
+      "slug": "fuze",
+      "display": "Fuze",
+      "color": "#A62222",
+      "ctu": "spetsnaz",
+      "side": "attacker",
+      "position": "attacker-flank",
+      "difficulty": "low",
+      "playstyles": ["attacker-utility-clearer"]
+    },
+    "iana": {
+      "slug": "iana",
+      "display": "Iana",
+      "color": "#8C638C",
+      "ctu": "reu",
+      "side": "attacker",
+      "position": "attacker-flank",
+      "difficulty": "low",
+      "playstyles": ["attacker-intel-provider", "attacker-entry-fragger"]
+    },
+    "smoke": {
+      "slug": "smoke",
+      "display": "Smoke",
+      "color": "#88666F",
+      "ctu": "sas",
+      "side": "defender",
+      "position": "defender-anchor",
+      "difficulty": "medium",
+      "playstyles": ["defender-trapper", "defender-entry-denier"]
+    },
+    "castle": {
+      "slug": "castle",
+      "display": "Castle",
+      "color": "#D75B2A",
+      "ctu": "fbi",
+      "side": "defender",
+      "position": "defender-anchor",
+      "difficulty": "medium",
+      "playstyles": ["defender-supporter", "defender-entry-denier"]
+    },
+    "maestro": {
+      "slug": "maestro",
+      "display": "Maestro",
+      "color": "#929637",
+      "ctu": "gis",
+      "side": "defender",
+      "position": "defender-anchor",
+      "difficulty": "medium",
+      "playstyles": ["defender-utility-denier", "defender-intel-provider"]
+    },
+    "glaz": {
+      "slug": "glaz",
+      "display": "Glaz",
+      "color": "#A62222",
+      "ctu": "spetsnaz",
+      "side": "attacker",
+      "position": "attacker-core",
+      "difficulty": "medium",
+      "playstyles": ["attacker-supporter", "attacker-intel-provider"]
+    },
+    "thatcher": {
+      "slug": "thatcher",
+      "display": "Thatcher",
+      "color": "#88666F",
+      "ctu": "sas",
+      "side": "attacker",
+      "position": "attacker-core",
+      "difficulty": "low",
+      "playstyles": ["attacker-utility-clearer", "attacker-supporter"]
+    },
+    "kali": {
+      "slug": "kali",
+      "display": "Kali",
+      "color": "#00BFCA",
+      "ctu": "nighthaven",
+      "side": "attacker",
+      "position": "attacker-core",
+      "difficulty": "medium",
+      "playstyles": ["attacker-utility-clearer", "attacker-supporter"]
+    },
+    "montagne": {
+      "slug": "montagne",
+      "display": "Montagne",
+      "color": "#315978",
+      "ctu": "gign",
+      "side": "attacker",
+      "position": "attacker-core",
+      "difficulty": "high",
+      "playstyles": ["attacker-supporter", "attacker-intel-provider"]
+    },
+    "twitch": {
+      "slug": "twitch",
+      "display": "Twitch",
+      "color": "#315978",
+      "ctu": "gign",
+      "side": "attacker",
+      "position": "attacker-flank",
+      "difficulty": "medium",
+      "playstyles": ["attacker-intel-provider", "attacker-utility-clearer"]
+    },
+    "skopos": {
+      "slug": "skopos",
+      "display": "Skopós",
+      "color": "#88666F",
+      "ctu": "ekam",
+      "side": "defender",
+      "position": "defender-anchor",
+      "difficulty": "medium",
+      "playstyles": ["defender-entry-denier", "defender-trapper"]
+    },
+    "pulse": {
+      "slug": "pulse",
+      "display": "Pulse",
+      "color": "#D75B2A",
+      "ctu": "fbi",
+      "side": "defender",
+      "position": "defender-roamer",
+      "difficulty": "high",
+      "playstyles": ["defender-supporter", "defender-intel-provider"]
+    },
+    "mute": {
+      "slug": "mute",
+      "display": "Mute",
+      "color": "#88666F",
+      "ctu": "sas",
+      "side": "defender",
+      "position": "defender-anchor",
+      "difficulty": "low",
+      "playstyles": ["defender-debuffer", "defender-utility-denier"]
+    },
+    "solis": {
+      "slug": "solis",
+      "display": "Solis",
+      "color": "#E7411F",
+      "ctu": "afeau",
+      "side": "defender",
+      "position": "defender-anchor",
+      "difficulty": "high",
+      "playstyles": ["defender-intel-provider", "defender-supporter"]
+    },
+    "zofia": {
+      "slug": "zofia",
+      "display": "Zofia",
+      "color": "#419291",
+      "ctu": "grom",
+      "side": "attacker",
+      "position": "attacker-flank",
+      "difficulty": "low",
+      "playstyles": ["attacker-breacher", "attacker-utility-clearer"]
+    },
+    "mira": {
+      "slug": "mira",
+      "display": "Mira",
+      "color": "#673081",
+      "ctu": "geo",
+      "side": "defender",
+      "position": "defender-anchor",
+      "difficulty": "high",
+      "playstyles": ["defender-intel-provider", "defender-supporter"]
+    },
+    "goyo": {
+      "slug": "goyo",
+      "display": "Goyo",
+      "color": "#17650B",
+      "ctu": "fuerzas-especiales",
+      "side": "defender",
+      "position": "defender-anchor",
+      "difficulty": "medium",
+      "playstyles": ["defender-entry-denier", "defender-trapper"]
+    },
+    "ace": {
+      "slug": "ace",
+      "display": "Ace",
+      "color": "#2B7F90",
+      "ctu": "nighthaven",
+      "side": "attacker",
+      "position": "attacker-core",
+      "difficulty": "low",
+      "playstyles": ["attacker-breacher", "attacker-utility-clearer"]
+    },
+    "finka": {
+      "slug": "finka",
+      "display": "Finka",
+      "color": "#FEAD33",
+      "ctu": "cbrn",
+      "side": "attacker",
+      "position": "attacker-core",
+      "difficulty": "low",
+      "playstyles": ["attacker-entry-fragger", "attacker-supporter"]
+    },
+    "jackal": {
+      "slug": "jackal",
+      "display": "Jackal",
+      "color": "#673081",
+      "ctu": "geo",
+      "side": "attacker",
+      "position": "attacker-flank",
+      "difficulty": "high",
+      "playstyles": ["attacker-intel-provider", "attacker-roam-clearer"]
+    },
+    "kapkan": {
+      "slug": "kapkan",
+      "display": "Kapkan",
+      "color": "#A62222",
+      "ctu": "spetsnaz",
+      "side": "defender",
+      "position": "defender-anchor",
+      "difficulty": "low",
+      "playstyles": ["defender-trapper", "defender-entry-denier"]
+    },
+    "thunderbird": {
+      "slug": "thunderbird",
+      "display": "Thunderbird",
+      "color": "#7F3C32",
+      "ctu": "starnet",
+      "side": "defender",
+      "position": "defender-roamer",
+      "difficulty": "low",
+      "playstyles": ["defender-supporter"]
+    },
+    "ram": {
+      "slug": "ram",
+      "display": "Ram",
+      "color": "#F67F20",
+      "ctu": "commando-battalion",
+      "side": "attacker",
+      "position": "attacker-flank",
+      "difficulty": "medium",
+      "playstyles": ["attacker-breacher", "attacker-utility-clearer"]
+    },
+    "rook": {
+      "slug": "rook",
+      "display": "Rook",
+      "color": "#315978",
+      "ctu": "gign",
+      "side": "defender",
+      "position": "defender-anchor",
+      "difficulty": "low",
+      "playstyles": ["defender-supporter"]
+    },
+    "striker": {
+      "slug": "striker",
+      "display": "Striker",
+      "color": "#FF8E2D",
+      "ctu": "ros",
+      "side": "attacker",
+      "position": "attacker-core",
+      "difficulty": "low",
+      "playstyles": ["attacker-supporter"]
+    },
+    "capitao": {
+      "slug": "capitao",
+      "display": "Capitão",
+      "color": "#3E7F3F",
+      "ctu": "bope",
+      "side": "attacker",
+      "position": "attacker-core",
+      "difficulty": "medium",
+      "playstyles": ["attacker-entry-fragger", "attacker-roam-clearer"]
+    },
+    "blackbeard": {
+      "slug": "blackbeard",
+      "display": "Blackbeard",
+      "color": "#BD8833",
+      "ctu": "navy",
+      "side": "attacker",
+      "position": "attacker-core",
+      "difficulty": "low",
+      "playstyles": ["attacker-supporter"]
+    },
+    "nokk": {
+      "slug": "nokk",
+      "display": "Nøkk",
+      "color": "#25387D",
+      "ctu": "jaeger-corps",
+      "side": "attacker",
+      "position": "attacker-flank",
+      "difficulty": "high",
+      "playstyles": ["attacker-entry-fragger", "attacker-roam-clearer"]
+    },
+    "solid-snake": {
+      "slug": "solid-snake",
+      "display": "Solid Snake",
+      "color": "#C72429",
+      "ctu": "unaffiliated",
+      "side": "attacker",
+      "position": "attacker-core",
+      "difficulty": "medium",
+      "playstyles": ["attacker-entry-fragger", "attacker-intel-provider"]
+    },
+    "tachanka": {
+      "slug": "tachanka",
+      "display": "Tachanka",
+      "color": "#A62222",
+      "ctu": "spetsnaz",
+      "side": "defender",
+      "position": "defender-anchor",
+      "difficulty": "low",
+      "playstyles": ["defender-debuffer", "defender-entry-denier"]
+    },
+    "iq": {
+      "slug": "iq",
+      "display": "Iq",
+      "color": "#FBBB3F",
+      "ctu": "gsg-9",
+      "side": "attacker",
+      "position": "attacker-flank",
+      "difficulty": "high",
+      "playstyles": ["attacker-intel-provider", "attacker-supporter"]
+    },
+    "bandit": {
+      "slug": "bandit",
+      "display": "Bandit",
+      "color": "#FBBB3F",
+      "ctu": "gsg-9",
+      "side": "defender",
+      "position": "defender-anchor",
+      "difficulty": "low",
+      "playstyles": ["defender-utility-denier", "defender-entry-denier"]
+    },
+    "zero": {
+      "slug": "zero",
+      "display": "Zero",
+      "color": "#6CA542",
+      "ctu": "ros",
+      "side": "attacker",
+      "position": "attacker-flank",
+      "difficulty": "low",
+      "playstyles": ["attacker-intel-provider", "attacker-utility-clearer"]
+    },
+    "echo": {
+      "slug": "echo",
+      "display": "Echo",
+      "color": "#942838",
+      "ctu": "sat",
+      "side": "defender",
+      "position": "defender-anchor",
+      "difficulty": "high",
+      "playstyles": ["defender-intel-provider", "defender-debuffer"]
+    },
+    "sentry": {
+      "slug": "sentry",
+      "display": "Sentry",
+      "color": "#FF8E2D",
+      "ctu": "ros",
+      "side": "defender",
+      "position": "defender-anchor",
+      "difficulty": "low",
+      "playstyles": ["defender-supporter"]
+    },
+    "alibi": {
+      "slug": "alibi",
+      "display": "Alibi",
+      "color": "#929637",
+      "ctu": "gis",
+      "side": "defender",
+      "position": "defender-roamer",
+      "difficulty": "high",
+      "playstyles": ["defender-intel-provider", "defender-trapper"]
+    },
+    "osa": {
+      "slug": "osa",
+      "display": "Osa",
+      "color": "#FD972C",
+      "ctu": "nighthaven",
+      "side": "attacker",
+      "position": "attacker-core",
+      "difficulty": "medium",
+      "playstyles": ["attacker-intel-provider", "attacker-supporter"]
+    },
+    "clash": {
+      "slug": "clash",
+      "display": "Clash",
+      "color": "#708090",
+      "ctu": "gsutr",
+      "side": "defender",
+      "position": "defender-anchor",
+      "difficulty": "high",
+      "playstyles": ["defender-intel-provider", "defender-debuffer"]
+    },
+    "blitz": {
+      "slug": "blitz",
+      "display": "Blitz",
+      "color": "#FBBB3F",
+      "ctu": "gsg-9",
+      "side": "attacker",
+      "position": "attacker-flank",
+      "difficulty": "high",
+      "playstyles": ["attacker-entry-fragger", "attacker-roam-clearer"]
+    },
+    "nomad": {
+      "slug": "nomad",
+      "display": "Nomad",
+      "color": "#A2794B",
+      "ctu": "gigr",
+      "side": "attacker",
+      "position": "attacker-flank",
+      "difficulty": "high",
+      "playstyles": ["attacker-entry-fragger", "attacker-roam-clearer"]
+    },
+    "vigil": {
+      "slug": "vigil",
+      "display": "Vigil",
+      "color": "#BEC9CA",
+      "ctu": "smb",
+      "side": "defender",
+      "position": "defender-roamer",
+      "difficulty": "high",
+      "playstyles": ["defender-utility-denier", "defender-debuffer"]
+    },
+    "kaid": {
+      "slug": "kaid",
+      "display": "Kaid",
+      "color": "#A2794B",
+      "ctu": "gigr",
+      "side": "defender",
+      "position": "defender-anchor",
+      "difficulty": "medium",
+      "playstyles": ["defender-entry-denier", "defender-utility-denier"]
+    },
+    "wamai": {
+      "slug": "wamai",
+      "display": "Wamai",
+      "color": "#00BFCA",
+      "ctu": "nighthaven",
+      "side": "defender",
+      "position": "defender-anchor",
+      "difficulty": "medium",
+      "playstyles": ["defender-utility-denier", "defender-trapper"]
+    },
+    "oryx": {
+      "slug": "oryx",
+      "display": "Oryx",
+      "color": "#8C638C",
+      "ctu": "unaffiliated",
+      "side": "defender",
+      "position": "defender-roamer",
+      "difficulty": "medium",
+      "playstyles": ["defender-supporter"]
+    },
+    "maverick": {
+      "slug": "maverick",
+      "display": "Maverick",
+      "color": "#708090",
+      "ctu": "gsutr",
+      "side": "attacker",
+      "position": "attacker-core",
+      "difficulty": "medium",
+      "playstyles": ["attacker-breacher", "attacker-entry-fragger"]
+    },
+    "amaru": {
+      "slug": "amaru",
+      "display": "Amaru",
+      "color": "#17650B",
+      "ctu": "apca",
+      "side": "attacker",
+      "position": "attacker-flank",
+      "difficulty": "medium",
+      "playstyles": ["attacker-entry-fragger", "attacker-roam-clearer"]
+    },
+    "lion": {
+      "slug": "lion",
+      "display": "Lion",
+      "color": "#FEAD33",
+      "ctu": "cbrn",
+      "side": "attacker",
+      "position": "attacker-flank",
+      "difficulty": "low",
+      "playstyles": ["attacker-intel-provider", "attacker-roam-clearer"]
+    },
+    "thorn": {
+      "slug": "thorn",
+      "display": "Thorn",
+      "color": "#577524",
+      "ctu": "eru",
+      "side": "defender",
+      "position": "defender-anchor",
+      "difficulty": "low",
+      "playstyles": ["defender-entry-denier", "defender-trapper"]
+    },
+    "brava": {
+      "slug": "brava",
+      "display": "Brava",
+      "color": "#45ABF3",
+      "ctu": "cot",
+      "side": "attacker",
+      "position": "attacker-core",
+      "difficulty": "high",
+      "playstyles": ["attacker-utility-clearer", "attacker-intel-provider"]
+    },
+    "tubarao": {
+      "slug": "tubarao",
+      "display": "Tubarão",
+      "color": "#3A6E75",
+      "ctu": "dae",
+      "side": "defender",
+      "position": "defender-anchor",
+      "difficulty": "medium",
+      "playstyles": ["defender-utility-denier", "defender-debuffer"]
+    },
+    "caveira": {
+      "slug": "caveira",
+      "display": "Caveira",
+      "color": "#3E7F3F",
+      "ctu": "bope",
+      "side": "defender",
+      "position": "defender-roamer",
+      "difficulty": "high",
+      "playstyles": ["defender-intel-provider", "defender-debuffer"]
+    },
+    "deimos": {
+      "slug": "deimos",
+      "display": "Deimos",
+      "color": "#EF4C38",
+      "ctu": "keres-legion",
+      "side": "attacker",
+      "position": "attacker-flank",
+      "difficulty": "medium",
+      "playstyles": ["attacker-intel-provider", "attacker-roam-clearer"]
+    },
+    "rauora": {
+      "slug": "rauora",
+      "display": "Rauora",
+      "color": "#FF6D20",
+      "ctu": "nzsas",
+      "side": "attacker",
+      "position": "attacker-core",
+      "difficulty": "medium",
+      "playstyles": ["attacker-supporter", "attacker-roam-clearer"]
+    },
+    "aruni": {
+      "slug": "aruni",
+      "display": "Aruni",
+      "color": "#D14007",
+      "ctu": "nighthaven",
+      "side": "defender",
+      "position": "defender-anchor",
+      "difficulty": "medium",
+      "playstyles": ["defender-entry-denier", "defender-utility-denier"]
+    },
+    "ela": {
+      "slug": "ela",
+      "display": "Ela",
+      "color": "#419291",
+      "ctu": "grom",
+      "side": "defender",
+      "position": "defender-roamer",
+      "difficulty": "low",
+      "playstyles": ["defender-debuffer", "defender-trapper"]
+    },
+    "recruit": {
+      "slug": "recruit",
+      "display": "Recruit",
+      "color": "#315978",
+      "ctu": "fbi",
+      "side": "both",
+      "position": "undefined",
+      "difficulty": "low",
+      "playstyles": ["attacker-supporter", "defender-supporter"]
+    },
+    "fenrir": {
+      "slug": "fenrir",
+      "display": "Fenrir",
+      "color": "#5F51BF",
+      "ctu": "unaffiliated",
+      "side": "defender",
+      "position": "defender-anchor",
+      "difficulty": "high",
+      "playstyles": ["defender-trapper", "defender-debuffer"]
+    },
+    "buck": {
+      "slug": "buck",
+      "display": "Buck",
+      "color": "#00789E",
+      "ctu": "jtf2",
+      "side": "attacker",
+      "position": "attacker-flank",
+      "difficulty": "low",
+      "playstyles": ["attacker-breacher", "attacker-supporter"]
+    },
+    "ash": {
+      "slug": "ash",
+      "display": "Ash",
+      "color": "#D75B2A",
+      "ctu": "fbi",
+      "side": "attacker",
+      "position": "attacker-flank",
+      "difficulty": "medium",
+      "playstyles": ["attacker-breacher", "attacker-entry-fragger"]
+    },
+    "lesion": {
+      "slug": "lesion",
+      "display": "Lesion",
+      "color": "#AA4825",
+      "ctu": "sdu",
+      "side": "defender",
+      "position": "defender-roamer",
+      "difficulty": "low",
+      "playstyles": ["defender-entry-denier", "defender-trapper"]
+    },
+    "sens": {
+      "slug": "sens",
+      "display": "Sens",
+      "color": "#59BDA5",
+      "ctu": "sfg",
+      "side": "attacker",
+      "position": "attacker-core",
+      "difficulty": "medium",
+      "playstyles": ["attacker-supporter", "attacker-roam-clearer"]
+    },
+    "thermite": {
+      "slug": "thermite",
+      "display": "Thermite",
+      "color": "#D75B2A",
+      "ctu": "fbi",
+      "side": "attacker",
+      "position": "attacker-core",
+      "difficulty": "low",
+      "playstyles": ["attacker-breacher", "attacker-supporter"]
+    },
+    "jager": {
+      "slug": "jager",
+      "display": "Jäger",
+      "color": "#FBBB3F",
+      "ctu": "gsg-9",
+      "side": "defender",
+      "position": "defender-roamer",
+      "difficulty": "medium",
+      "playstyles": ["defender-supporter", "defender-utility-denier"]
+    }
+  },
+  "datacenter_families": {
+    "eu-west": { "slug": "eu-west", "display": "Europe West" },
+    "eu-south": { "slug": "eu-south", "display": "Europe South" },
+    "asia-northeast": { "slug": "asia-northeast", "display": "Asia Northeast" },
+    "middle-east": { "slug": "middle-east", "display": "Middle East" },
+    "us-west": { "slug": "us-west", "display": "US West" },
+    "australia": { "slug": "australia", "display": "Australia" },
+    "canada": { "slug": "canada", "display": "Canada" },
+    "africa": { "slug": "africa", "display": "Africa" },
+    "eu-central": { "slug": "eu-central", "display": "Europe Central" },
+    "asia-east": { "slug": "asia-east", "display": "Asia East" },
+    "us-east": { "slug": "us-east", "display": "US East" },
+    "us-central": { "slug": "us-central", "display": "US Central" },
+    "eu-north": { "slug": "eu-north", "display": "Europe North" },
+    "private": { "slug": "private", "display": "Private" },
+    "asia-southeast": { "slug": "asia-southeast", "display": "Asia Southeast" },
+    "south-america": { "slug": "south-america", "display": "South America" }
+  },
+  "datacenters": {
+    "west-europe": { "slug": "west-europe", "display": "West Europe", "family": "eu-west" },
+    "ap-northeast-2": {
+      "slug": "ap-northeast-2",
+      "display": "ap-northeast-2",
+      "family": "asia-northeast"
+    },
+    "us-west-1": { "slug": "us-west-1", "display": "us-west-1", "family": "us-west" },
+    "central-us": { "slug": "central-us", "display": "Central US", "family": "us-central" },
+    "private": { "slug": "private", "display": "Private", "family": "private" },
+    "eu-south-1": { "slug": "eu-south-1", "display": "eu-south-1", "family": "eu-south" },
+    "eu-west-3": { "slug": "eu-west-3", "display": "eu-west-3", "family": "eu-west" },
+    "gamelift-ca-central-1": {
+      "slug": "gamelift-ca-central-1",
+      "display": "gamelift/ca-central-1",
+      "family": "canada"
+    },
+    "eu-central-1": { "slug": "eu-central-1", "display": "eu-central-1", "family": "eu-central" },
+    "south-africa-north": {
+      "slug": "south-africa-north",
+      "display": "South Africa North",
+      "family": "africa"
+    },
+    "westus2": { "slug": "westus2", "display": "westus2", "family": "us-west" },
+    "north-europe": { "slug": "north-europe", "display": "North Europe", "family": "eu-north" },
+    "east-us": { "slug": "east-us", "display": "East US", "family": "us-east" },
+    "me-south-1": { "slug": "me-south-1", "display": "me-south-1", "family": "middle-east" },
+    "ap-east-1": { "slug": "ap-east-1", "display": "ap-east-1", "family": "asia-east" },
+    "af-south-1": { "slug": "af-south-1", "display": "af-south-1", "family": "africa" },
+    "us-east-2": { "slug": "us-east-2", "display": "us-east-2", "family": "us-east" },
+    "japan-east": { "slug": "japan-east", "display": "Japan East", "family": "asia-northeast" },
+    "uae-north": { "slug": "uae-north", "display": "UAE North", "family": "middle-east" },
+    "eu-west-2": { "slug": "eu-west-2", "display": "eu-west-2", "family": "eu-west" },
+    "south-central-us": {
+      "slug": "south-central-us",
+      "display": "South Central US",
+      "family": "us-central"
+    },
+    "eu-north-1": { "slug": "eu-north-1", "display": "eu-north-1", "family": "eu-north" },
+    "gamelift-ap-south-1": { "slug": "gamelift-ap-south-1", "display": "gamelift/ap-south-1" },
+    "ap-northeast-1": {
+      "slug": "ap-northeast-1",
+      "display": "ap-northeast-1",
+      "family": "asia-northeast"
+    },
+    "south-east-asia": {
+      "slug": "south-east-asia",
+      "display": "South East Asia",
+      "family": "asia-southeast"
+    },
+    "ap-southeast-2": {
+      "slug": "ap-southeast-2",
+      "display": "ap-southeast-2",
+      "family": "australia"
+    },
+    "us-west-2": { "slug": "us-west-2", "display": "us-west-2", "family": "us-west" },
+    "ap-southeast-1": {
+      "slug": "ap-southeast-1",
+      "display": "ap-southeast-1",
+      "family": "asia-southeast"
+    },
+    "west-us": { "slug": "west-us", "display": "West US", "family": "us-west" },
+    "sa-east-1": { "slug": "sa-east-1", "display": "sa-east-1", "family": "south-america" },
+    "playfab-eastus2": { "slug": "playfab-eastus2", "display": "playfab/eastus2" },
+    "brazil-south": {
+      "slug": "brazil-south",
+      "display": "Brazil South",
+      "family": "south-america"
+    },
+    "us-east-1": { "slug": "us-east-1", "display": "us-east-1", "family": "us-east" },
+    "australia-east": {
+      "slug": "australia-east",
+      "display": "Australia East",
+      "family": "australia"
+    },
+    "eu-west-1": { "slug": "eu-west-1", "display": "eu-west-1", "family": "eu-west" },
+    "east-asia": { "slug": "east-asia", "display": "East Asia", "family": "asia-east" }
+  },
+  "platform_families": {
+    "pc": { "slug": "pc", "display": "PC", "icon": "mdi:microsoft-windows" },
+    "console": { "slug": "console", "display": "Console", "icon": "mdi:controller" }
+  },
+  "platforms": {
+    "pc": { "slug": "pc", "display": "PC", "family": "pc", "icon": "mdi:microsoft-windows" },
+    "playstation": {
+      "slug": "playstation",
+      "display": "Playstation",
+      "family": "console",
+      "icon": "mdi:sony-playstation"
+    },
+    "xbox": { "slug": "xbox", "display": "Xbox", "family": "console", "icon": "mdi:microsoft-xbox" }
+  },
+  "playlists": {
+    "1v1": { "slug": "1v1", "display": "1v1", "is_filterable": true },
+    "pve-coop-matchmaking-bots-game": {
+      "slug": "pve-coop-matchmaking-bots-game",
+      "display": "PVE_COOP_Matchmaking_Bots_Game",
+      "is_filterable": false
+    },
+    "quick-match": { "slug": "quick-match", "display": "Quick Match", "is_filterable": true },
+    "permafrost": { "slug": "permafrost", "display": "Permafrost", "is_filterable": true },
+    "dual-front": { "slug": "dual-front", "display": "Dual Front", "is_filterable": true },
+    "unranked": { "slug": "unranked", "display": "Unranked", "is_filterable": true },
+    "map-run": { "slug": "map-run", "display": "Map Run", "is_filterable": false },
+    "arcade": { "slug": "arcade", "display": "Arcade", "is_filterable": true },
+    "pvp-3v3-event-game": {
+      "slug": "pvp-3v3-event-game",
+      "display": "PVP_3V3_Event_Game",
+      "is_filterable": false
+    },
+    "pve-casual-party-game": {
+      "slug": "pve-casual-party-game",
+      "display": "PVE_Casual_Party_Game",
+      "is_filterable": false
+    },
+    "custom": { "slug": "custom", "display": "Custom", "is_filterable": false },
+    "ranked": { "slug": "ranked", "display": "Ranked", "is_filterable": true },
+    "event": { "slug": "event", "display": "Event", "is_filterable": true },
+    "training": { "slug": "training", "display": "Training", "is_filterable": false },
+    "pve-casual-game": {
+      "slug": "pve-casual-game",
+      "display": "PVE_Casual_Game",
+      "is_filterable": false
+    },
+    "siege-cup": { "slug": "siege-cup", "display": "Siege Cup", "is_filterable": true }
+  },
+  "modes": {
+    "team-deathmatch": {
+      "slug": "team-deathmatch",
+      "display": "TDM",
+      "is_round_based": false,
+      "is_team_based": true,
+      "is_filterable": true,
+      "leaderboard_stats": [],
+      "playlist": "arcade"
+    },
+    "hide-and-seek": {
+      "slug": "hide-and-seek",
+      "display": "Hide and Seek",
+      "is_round_based": true,
+      "is_team_based": true,
+      "is_filterable": true,
+      "leaderboard_stats": [],
+      "playlist": "event"
+    },
+    "68f8e5cc41fa8bacff5f26f5_knife-confirmed": {
+      "slug": "68f8e5cc41fa8bacff5f26f5_knife-confirmed",
+      "display": "Knife Confirmed",
+      "is_round_based": true,
+      "is_team_based": true,
+      "is_filterable": true,
+      "leaderboard_stats": [],
+      "playlist": "event"
+    },
+    "custom-bomb": {
+      "slug": "custom-bomb",
+      "display": "Bomb",
+      "is_round_based": true,
+      "is_team_based": true,
+      "is_filterable": false,
+      "leaderboard_stats": [],
+      "playlist": "custom"
+    },
+    "custom-secure-area": {
+      "slug": "custom-secure-area",
+      "display": "Secure Area",
+      "is_round_based": true,
+      "is_team_based": true,
+      "is_filterable": false,
+      "leaderboard_stats": [],
+      "playlist": "custom"
+    },
+    "custom-team-deathmatch": {
+      "slug": "custom-team-deathmatch",
+      "display": "TDM",
+      "is_round_based": false,
+      "is_team_based": true,
+      "is_filterable": false,
+      "leaderboard_stats": [],
+      "playlist": "custom"
+    },
+    "landmark-drill": {
+      "slug": "landmark-drill",
+      "display": "Landmark Drill",
+      "is_round_based": false,
+      "is_team_based": false,
+      "is_filterable": false,
+      "leaderboard_stats": [],
+      "playlist": "map-run"
+    },
+    "event-mute-protocol-flesh-and-metal": {
+      "slug": "event-mute-protocol-flesh-and-metal",
+      "display": "m.u.t.e. Protocol: Flesh and Metal",
+      "is_round_based": true,
+      "is_team_based": true,
+      "is_filterable": true,
+      "leaderboard_stats": [],
+      "playlist": "event"
+    },
+    "clear-house": {
+      "slug": "clear-house",
+      "display": "Clear House",
+      "is_round_based": false,
+      "is_team_based": false,
+      "is_filterable": false,
+      "leaderboard_stats": [],
+      "playlist": "map-run"
+    },
+    "versus-ai": {
+      "slug": "versus-ai",
+      "display": "Versus AI",
+      "is_round_based": true,
+      "is_team_based": true,
+      "rounds_per_half": 2,
+      "is_filterable": false,
+      "leaderboard_stats": [],
+      "playlist": "training"
+    },
+    "custom-mute-protocol-flesh-and-metal": {
+      "slug": "custom-mute-protocol-flesh-and-metal",
+      "display": "m.u.t.e. Protocol: Flesh and Metal",
+      "is_round_based": true,
+      "is_team_based": true,
+      "is_filterable": false,
+      "leaderboard_stats": [],
+      "playlist": "custom"
+    },
+    "custom-dual-front": {
+      "slug": "custom-dual-front",
+      "display": "Dual Front",
+      "is_round_based": false,
+      "is_team_based": true,
+      "is_filterable": false,
+      "leaderboard_stats": [],
+      "playlist": "custom"
+    },
+    "arcade-weapon-roulette": {
+      "slug": "arcade-weapon-roulette",
+      "display": "Weapon Roulette",
+      "is_round_based": true,
+      "is_team_based": true,
+      "is_filterable": true,
+      "leaderboard_stats": [],
+      "playlist": "arcade"
+    },
+    "pve-coop-matchmaking-bots-game-versus-ai": {
+      "slug": "pve-coop-matchmaking-bots-game-versus-ai",
+      "display": "Versus Ai",
+      "is_round_based": true,
+      "is_team_based": true,
+      "is_filterable": false,
+      "leaderboard_stats": [],
+      "playlist": "pve-coop-matchmaking-bots-game"
+    },
+    "1v1-bomb": {
+      "slug": "1v1-bomb",
+      "display": "Bomb",
+      "is_round_based": true,
+      "is_team_based": true,
+      "is_filterable": true,
+      "leaderboard_stats": ["wr", "wins", "losses", "abandons", "kd", "kills", "deaths", "hs"],
+      "playlist": "1v1"
+    },
+    "unranked-bomb": {
+      "slug": "unranked-bomb",
+      "display": "Bomb",
+      "is_round_based": true,
+      "is_team_based": true,
+      "rounds_per_half": 3,
+      "is_filterable": true,
+      "leaderboard_stats": [],
+      "playlist": "unranked"
+    },
+    "68e2ec53a496962cde2414ba_bop-the-teddy": {
+      "slug": "68e2ec53a496962cde2414ba_bop-the-teddy",
+      "display": "Bop the Teddy",
+      "is_round_based": true,
+      "is_team_based": true,
+      "is_filterable": true,
+      "leaderboard_stats": [],
+      "playlist": "custom"
+    },
+    "event-rengoku": {
+      "slug": "event-rengoku",
+      "display": "Rengoku",
+      "is_round_based": true,
+      "is_team_based": true,
+      "is_filterable": true,
+      "leaderboard_stats": [],
+      "playlist": "event"
+    },
+    "custom-golden-gun": {
+      "slug": "custom-golden-gun",
+      "display": "Golden Gun",
+      "is_round_based": true,
+      "is_team_based": true,
+      "is_filterable": true,
+      "leaderboard_stats": [],
+      "playlist": "custom"
+    },
+    "free-for-all-permafrost": {
+      "slug": "free-for-all-permafrost",
+      "display": "Permafrost",
+      "is_round_based": true,
+      "is_team_based": true,
+      "is_filterable": true,
+      "leaderboard_stats": [],
+      "playlist": "permafrost"
+    },
+    "68f8e5cc41fa8bacff5f26f5_bop-the-teddy": {
+      "slug": "68f8e5cc41fa8bacff5f26f5_bop-the-teddy",
+      "display": "Bop the Teddy",
+      "is_round_based": true,
+      "is_team_based": true,
+      "is_filterable": true,
+      "leaderboard_stats": [],
+      "playlist": "event"
+    },
+    "quick-match-hostage": {
+      "slug": "quick-match-hostage",
+      "display": "Hostage",
+      "is_round_based": true,
+      "is_team_based": true,
+      "rounds_per_half": 2,
+      "is_filterable": true,
+      "leaderboard_stats": [],
+      "playlist": "quick-match"
+    },
+    "arcade-golden-gun": {
+      "slug": "arcade-golden-gun",
+      "display": "Golden Gun",
+      "is_round_based": true,
+      "is_team_based": true,
+      "is_filterable": true,
+      "leaderboard_stats": [],
+      "playlist": "arcade"
+    },
+    "custom-hide-and-seek": {
+      "slug": "custom-hide-and-seek",
+      "display": "Hide and Seek",
+      "is_round_based": true,
+      "is_team_based": true,
+      "is_filterable": false,
+      "leaderboard_stats": [],
+      "playlist": "custom"
+    },
+    "custom-hostage": {
+      "slug": "custom-hostage",
+      "display": "Hostage",
+      "is_round_based": true,
+      "is_team_based": true,
+      "is_filterable": false,
+      "leaderboard_stats": [],
+      "playlist": "custom"
+    },
+    "ranked-bomb": {
+      "slug": "ranked-bomb",
+      "display": "Bomb",
+      "is_round_based": true,
+      "is_team_based": true,
+      "rounds_per_half": 3,
+      "is_filterable": true,
+      "leaderboard_stats": [],
+      "playlist": "ranked"
+    },
+    "68e2ec53a496962cde2414ba_hack-extract": {
+      "slug": "68e2ec53a496962cde2414ba_hack-extract",
+      "display": "Hack & Extract",
+      "is_round_based": true,
+      "is_team_based": true,
+      "is_filterable": true,
+      "leaderboard_stats": [],
+      "playlist": "custom"
+    },
+    "698156c47916a31dbc8098fb_3-vs-3-secure-area": {
+      "slug": "698156c47916a31dbc8098fb_3-vs-3-secure-area",
+      "display": "3 vs 3 Secure Area",
+      "is_round_based": true,
+      "is_team_based": true,
+      "is_filterable": false,
+      "leaderboard_stats": [],
+      "playlist": "pvp-3v3-event-game"
+    },
+    "custom-weapon-roulette": {
+      "slug": "custom-weapon-roulette",
+      "display": "Weapon Roulette",
+      "is_round_based": true,
+      "is_team_based": true,
+      "is_filterable": true,
+      "leaderboard_stats": [],
+      "playlist": "custom"
+    },
+    "quick-match-bomb": {
+      "slug": "quick-match-bomb",
+      "display": "Bomb",
+      "is_round_based": true,
+      "is_team_based": true,
+      "rounds_per_half": 2,
+      "is_filterable": true,
+      "leaderboard_stats": [],
+      "playlist": "quick-match"
+    },
+    "68f8e5cc41fa8bacff5f26f5_bomb": {
+      "slug": "68f8e5cc41fa8bacff5f26f5_bomb",
+      "display": "Bomb",
+      "is_round_based": true,
+      "is_team_based": true,
+      "is_filterable": false,
+      "leaderboard_stats": [],
+      "playlist": "event"
+    },
+    "68e2ec53a496962cde2414ba_3-vs-3-secure-area": {
+      "slug": "68e2ec53a496962cde2414ba_3-vs-3-secure-area",
+      "display": "3 vs 3 Secure Area",
+      "is_round_based": true,
+      "is_team_based": true,
+      "is_filterable": false,
+      "leaderboard_stats": [],
+      "playlist": "custom"
+    },
+    "quick-match-secure-area": {
+      "slug": "quick-match-secure-area",
+      "display": "Secure Area",
+      "is_round_based": true,
+      "is_team_based": true,
+      "is_filterable": true,
+      "leaderboard_stats": [],
+      "playlist": "quick-match"
+    },
+    "custom-free-for-all": {
+      "slug": "custom-free-for-all",
+      "display": "Free for All",
+      "is_round_based": false,
+      "is_team_based": false,
+      "is_filterable": false,
+      "leaderboard_stats": [],
+      "playlist": "custom"
+    },
+    "custom-rengoku": {
+      "slug": "custom-rengoku",
+      "display": "Rengoku",
+      "is_round_based": true,
+      "is_team_based": true,
+      "is_filterable": true,
+      "leaderboard_stats": [],
+      "playlist": "custom"
+    },
+    "custom-tdm-prototyping": {
+      "slug": "custom-tdm-prototyping",
+      "display": "TDM",
+      "is_round_based": true,
+      "is_team_based": true,
+      "is_filterable": true,
+      "leaderboard_stats": [],
+      "playlist": "custom"
+    },
+    "free-for-all": {
+      "slug": "free-for-all",
+      "display": "Free for All",
+      "is_round_based": false,
+      "is_team_based": false,
+      "is_filterable": true,
+      "leaderboard_stats": [],
+      "playlist": "arcade"
+    },
+    "dual-front": {
+      "slug": "dual-front",
+      "display": "Dual Front",
+      "is_round_based": false,
+      "is_team_based": true,
+      "is_filterable": true,
+      "leaderboard_stats": [],
+      "playlist": "dual-front"
+    },
+    "6970ec1564260336ee16a6b4_hack-extract": {
+      "slug": "6970ec1564260336ee16a6b4_hack-extract",
+      "display": "Hack & Extract",
+      "is_round_based": true,
+      "is_team_based": true,
+      "is_filterable": true,
+      "leaderboard_stats": [],
+      "playlist": "permafrost"
+    },
+    "target-drill": {
+      "slug": "target-drill",
+      "display": "Target Drill",
+      "is_round_based": false,
+      "is_team_based": false,
+      "is_filterable": false,
+      "leaderboard_stats": [],
+      "playlist": "map-run"
+    },
+    "6a1ef3288716c3b960afeef7_bomb": {
+      "slug": "6a1ef3288716c3b960afeef7_bomb",
+      "display": "Bomb",
+      "is_round_based": true,
+      "is_team_based": true,
+      "is_filterable": false,
+      "leaderboard_stats": [],
+      "playlist": "pve-casual-party-game"
+    },
+    "6a1ef3320c1c2d0a548c1821_bomb": {
+      "slug": "6a1ef3320c1c2d0a548c1821_bomb",
+      "display": "Bomb",
+      "is_round_based": true,
+      "is_team_based": true,
+      "is_filterable": false,
+      "leaderboard_stats": [],
+      "playlist": "pve-casual-game"
+    },
+    "68e2ec53a496962cde2414ba_knife-confirmed": {
+      "slug": "68e2ec53a496962cde2414ba_knife-confirmed",
+      "display": "Knife Confirmed",
+      "is_round_based": true,
+      "is_team_based": true,
+      "is_filterable": true,
+      "leaderboard_stats": [],
+      "playlist": "custom"
+    },
+    "siege-cup-bomb": {
+      "slug": "siege-cup-bomb",
+      "display": "Bomb",
+      "is_round_based": true,
+      "is_team_based": true,
+      "rounds_per_half": 3,
+      "is_filterable": true,
+      "leaderboard_stats": [],
+      "playlist": "siege-cup"
+    }
+  },
+  "maps": {
+    "fort-truth": { "slug": "fort-truth", "display": "Fort Truth", "is_filterable": true },
+    "district": { "slug": "district", "display": "District", "is_filterable": true },
+    "doktors-castle": {
+      "slug": "doktors-castle",
+      "display": "Doktor's Castle",
+      "is_filterable": true
+    },
+    "fortress": { "slug": "fortress", "display": "Fortress", "is_filterable": true },
+    "border": { "slug": "border", "display": "Border", "is_filterable": true },
+    "bartlett-u": { "slug": "bartlett-u", "display": "Bartlett U.", "is_filterable": true },
+    "close-quarter": { "slug": "close-quarter", "display": "Close Quarter", "is_filterable": true },
+    "coastline": { "slug": "coastline", "display": "Coastline", "is_filterable": true },
+    "chalet": { "slug": "chalet", "display": "Chalet", "is_filterable": true },
+    "consulate": { "slug": "consulate", "display": "Consulate", "is_filterable": true },
+    "bank": { "slug": "bank", "display": "Bank", "is_filterable": true },
+    "air-cute-one": { "slug": "air-cute-one", "display": "Air Cute One", "is_filterable": true },
+    "arctic-workshop": {
+      "slug": "arctic-workshop",
+      "display": "Arctic Workshop",
+      "is_filterable": true
+    },
+    "stadium-bravo": { "slug": "stadium-bravo", "display": "Stadium Bravo", "is_filterable": true },
+    "club-house": { "slug": "club-house", "display": "Club House", "is_filterable": true },
+    "shinden": { "slug": "shinden", "display": "Shinden", "is_filterable": true },
+    "lair": { "slug": "lair", "display": "Lair", "is_filterable": true },
+    "theme-park": { "slug": "theme-park", "display": "Theme Park", "is_filterable": true },
+    "mute-comm-tower": {
+      "slug": "mute-comm-tower",
+      "display": "M.U.T.E. Comm Tower",
+      "is_filterable": true
+    },
+    "doktors-lab": { "slug": "doktors-lab", "display": "Doktor's Lab", "is_filterable": true },
+    "kanal": { "slug": "kanal", "display": "Kanal", "is_filterable": true },
+    "tower": { "slug": "tower", "display": "Tower", "is_filterable": true },
+    "outback": { "slug": "outback", "display": "Outback", "is_filterable": true },
+    "emerald-plains": {
+      "slug": "emerald-plains",
+      "display": "Emerald Plains",
+      "is_filterable": true
+    },
+    "yacht": { "slug": "yacht", "display": "Yacht", "is_filterable": true },
+    "house": { "slug": "house", "display": "House", "is_filterable": true },
+    "magus-tower": { "slug": "magus-tower", "display": "Magus Tower", "is_filterable": true },
+    "favela": { "slug": "favela", "display": "Favela", "is_filterable": true },
+    "oregon": { "slug": "oregon", "display": "Oregon", "is_filterable": true },
+    "villa": { "slug": "villa", "display": "Villa", "is_filterable": true },
+    "skyscraper": { "slug": "skyscraper", "display": "Skyscraper", "is_filterable": true },
+    "calypso-casino": {
+      "slug": "calypso-casino",
+      "display": "Calypso Casino",
+      "is_filterable": true
+    },
+    "kafe-dostoyevsky": {
+      "slug": "kafe-dostoyevsky",
+      "display": "Kafe Dostoyevsky",
+      "is_filterable": true
+    },
+    "glacial-facility": {
+      "slug": "glacial-facility",
+      "display": "Glacial Facility",
+      "is_filterable": true
+    },
+    "stadium-2020": { "slug": "stadium-2020", "display": "Stadium 2020", "is_filterable": true },
+    "nighthaven-labs": {
+      "slug": "nighthaven-labs",
+      "display": "Nighthaven Labs",
+      "is_filterable": true
+    },
+    "presidential-plane": {
+      "slug": "presidential-plane",
+      "display": "Presidential Plane",
+      "is_filterable": true
+    },
+    "unknown": { "slug": "unknown", "display": "<Unknown>", "is_filterable": false }
+  },
+  "end_game_reasons": {
+    "invalid": { "slug": "invalid", "display": "Invalid" },
+    "canceled": { "slug": "canceled", "display": "Cancelled" },
+    "finished": { "slug": "finished", "display": "Finished" },
+    "quit-game": { "slug": "quit-game", "display": "QuitGame" },
+    "no-enemies": { "slug": "no-enemies", "display": "No Enemies" }
+  },
+  "round_end_reasons": {
+    "objective-protected": {
+      "slug": "objective-protected",
+      "display": "Objective Protected",
+      "icon": "ph:shield-fill"
+    },
+    "attackers-reached-objective": {
+      "slug": "attackers-reached-objective",
+      "display": "Attackers Reached Objective",
+      "icon": "ph:trophy-fill"
+    },
+    "bomb-exploded": {
+      "slug": "bomb-exploded",
+      "display": "Bomb Exploded",
+      "icon": "game-icons:mine-explosion"
+    },
+    "hostage-extracted": { "slug": "hostage-extracted", "display": "Hostage Extracted" },
+    "defenders-eliminated-defuser-planted": {
+      "slug": "defenders-eliminated-defuser-planted",
+      "display": "Defenders Eliminated",
+      "icon": "ph:skull-fill"
+    },
+    "bomb-deactivated-one-bomb": {
+      "slug": "bomb-deactivated-one-bomb",
+      "display": "Bomb Deactivated",
+      "icon": "mdi:briefcase"
+    },
+    "match-cancelled": {
+      "slug": "match-cancelled",
+      "display": "Match Cancelled",
+      "icon": "mdi:cancel"
+    },
+    "defenders-surrendered": {
+      "slug": "defenders-surrendered",
+      "display": "Defenders Surrendered",
+      "icon": "mdi:flag"
+    },
+    "attackers-surrendered": {
+      "slug": "attackers-surrendered",
+      "display": "Attackers Surrendered",
+      "icon": "mdi:flag"
+    },
+    "fury-victory": { "slug": "fury-victory", "display": "Fury Victory" },
+    "invalid": { "slug": "invalid", "display": "Invalid" },
+    "defuser-deactivated": {
+      "slug": "defuser-deactivated",
+      "display": "Defuser Deactivated",
+      "icon": "mdi:briefcase-off"
+    },
+    "defenders-eliminated": {
+      "slug": "defenders-eliminated",
+      "display": "Defenders Eliminated",
+      "icon": "ph:skull-fill"
+    },
+    "ffa-everyone-surrendered": {
+      "slug": "ffa-everyone-surrendered",
+      "display": "FFA Everyone Surrendered",
+      "icon": "mdi:flag"
+    },
+    "all-teams-dead": {
+      "slug": "all-teams-dead",
+      "display": "All Teams Dead",
+      "icon": "mdi:skull-fill"
+    },
+    "fury-defeat": { "slug": "fury-defeat", "display": "Fury Defeat" },
+    "unknown": { "slug": "unknown", "display": "Unknown" },
+    "attackers-eliminated": {
+      "slug": "attackers-eliminated",
+      "display": "Attackers Eliminated",
+      "icon": "ph:skull-fill"
+    },
+    "warmup-time-limit-reached": {
+      "slug": "warmup-time-limit-reached",
+      "display": "Warmup Time Limit Reached",
+      "icon": "ph:clock-clockwise-bold"
+    },
+    "ffa-kill-limit-reached": {
+      "slug": "ffa-kill-limit-reached",
+      "display": "FFA Kill Limit Reached",
+      "icon": "ph:clock-clockwise-bold"
+    },
+    "attackers-killed-hostage": {
+      "slug": "attackers-killed-hostage",
+      "display": "Attackers Killed Hostage",
+      "icon": "ph:person-fill"
+    },
+    "time-expired": {
+      "slug": "time-expired",
+      "display": "Time Expired",
+      "icon": "ph:clock-clockwise-bold"
+    },
+    "objective-captured": { "slug": "objective-captured", "display": "Objective Captured" },
+    "defenders-killed-hostage": {
+      "slug": "defenders-killed-hostage",
+      "display": "Defenders Killed Hostage",
+      "icon": "ph:person-fill"
+    },
+    "warmup-kill-limit-reached": {
+      "slug": "warmup-kill-limit-reached",
+      "display": "Warmup Kill Limit Reached",
+      "icon": "ph:clock-clockwise-bold"
+    },
+    "defenders-reached-objective": {
+      "slug": "defenders-reached-objective",
+      "display": "Defenders Reached Objective",
+      "icon": "ph:trophy-fill"
+    }
+  },
+  "ban_reasons": {
+    "tos-breach": { "slug": "tos-breach", "display": "ToS Breach" },
+    "battleye": { "slug": "battleye", "display": "BattlEye" },
+    "toxic-behavior": { "slug": "toxic-behavior", "display": "Toxic Behavior" },
+    "cheating": { "slug": "cheating", "display": "Cheating" },
+    "boosted": { "slug": "boosted", "display": "Boosted" },
+    "ddos": { "slug": "ddos", "display": "DDOS" },
+    "botting": { "slug": "botting", "display": "Botting" }
+  },
+  "external_ban_providers": {
+    "reputation": {
+      "slug": "reputation",
+      "display": "ReputationGG",
+      "site": "https://reputation.gg"
+    }
+  },
+  "external_ban_reasons": {
+    "toxic-behavior": { "slug": "toxic-behavior", "display": "Toxic Behavior" },
+    "sabotage": { "slug": "sabotage", "display": "Sabotage" },
+    "racism": { "slug": "racism", "display": "Racism" },
+    "homophobic": { "slug": "homophobic", "display": "Homophobic" },
+    "cheating": { "slug": "cheating", "display": "Cheating" },
+    "glitching": { "slug": "glitching", "display": "Glitching" },
+    "boosted": { "slug": "boosted", "display": "Boosted" }
+  },
+  "profile_match_outcomes": {
+    "self-cancel": { "slug": "self-cancel", "display": "Self Cancel" },
+    "abandon": { "slug": "abandon", "display": "Abandon" },
+    "enemy-cancel": { "slug": "enemy-cancel", "display": "Enemy Cancel" },
+    "forfeit": { "slug": "forfeit", "display": "Forfeit" },
+    "loss": { "slug": "loss", "display": "Loss" },
+    "surrender": { "slug": "surrender", "display": "Surrender" },
+    "win": { "slug": "win", "display": "Win" },
+    "team-cancel": { "slug": "team-cancel", "display": "Team Cancel" }
+  }
+}

@@ -56,13 +56,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
         <style dangerouslySetInnerHTML={{ __html: criticalCss }} />
-        <link
-          rel="preload"
-          href={GEIST_SANS}
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
+        <link rel="preload" href={GEIST_SANS} as="font" type="font/woff2" crossOrigin="anonymous" />
         <link
           rel="preload"
           href={HERO_PRELOAD}

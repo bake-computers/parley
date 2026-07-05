@@ -30,7 +30,9 @@ export function Matchmaking() {
                     <Icon className="size-4 text-accent-silver" aria-hidden="true" />
                     <h3 className="font-medium text-foreground">{point.title}</h3>
                   </div>
-                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{point.body}</p>
+                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                    {point.body}
+                  </p>
                 </div>
               </li>
             );

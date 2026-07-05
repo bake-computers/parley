@@ -41,7 +41,7 @@ describe("user/ui — settings card", () => {
     const text = JSON.stringify(card);
     expect(text).toContain("user/page/");
     expect(text).toContain("user/matchmaking/");
-    expect(text).toContain("\"type\":2");
+    expect(text).toContain('"type":2');
   });
 
   test("stays within the Discord Components v2 limit of 40 total components", () => {

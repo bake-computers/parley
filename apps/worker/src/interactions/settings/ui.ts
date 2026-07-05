@@ -274,9 +274,7 @@ export function buildSettingsErrorCard(
   return new ContainerBuilder()
     .setAccentColor(COLORS.error)
     .addComponents(
-      new TextDisplayBuilder().setContent(
-        titleWith(emojis, "ban_hammer_red", "Settings Error"),
-      ),
+      new TextDisplayBuilder().setContent(titleWith(emojis, "ban_hammer_red", "Settings Error")),
       separator(),
       new TextDisplayBuilder().setContent(message),
     );

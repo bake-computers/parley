@@ -84,9 +84,7 @@ async function applyUpdate(
   await editReplyV2(interaction, card);
 }
 
-function parseUserPageCustomId(
-  customId: string,
-): UserSettingsView | undefined {
+function parseUserPageCustomId(customId: string): UserSettingsView | undefined {
   if (customId.startsWith(USER_PAGE_PREFIX)) {
     const rest = customId.slice(USER_PAGE_PREFIX.length);
     const [pageStr, tzStr] = rest.split(":");
@@ -237,10 +235,7 @@ export const userButtonHandler = new ComponentHandler("user", COMPONENT_BUTTON).
     }
     if (customId === USER_CANCEL) {
       const emojis = await resolveEmojis(interaction);
-      await editReplyV2(
-        interaction,
-        buildSettingsCard(current, emojis, DEFAULT_VIEW),
-      );
+      await editReplyV2(interaction, buildSettingsCard(current, emojis, DEFAULT_VIEW));
       return;
     }
   },

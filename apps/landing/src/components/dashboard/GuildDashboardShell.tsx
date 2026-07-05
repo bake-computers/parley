@@ -51,7 +51,13 @@ export function GuildDashboardShell({ guildId, guild, user, children }: GuildDas
             </div>
           </div>
           <Link to="/dashboard/account" className="shrink-0 transition-opacity hover:opacity-90">
-            <img src={avatar} alt="" width={32} height={32} className="size-8 rounded-full ring-1 ring-border" />
+            <img
+              src={avatar}
+              alt=""
+              width={32}
+              height={32}
+              className="size-8 rounded-full ring-1 ring-border"
+            />
           </Link>
         </div>
       </header>

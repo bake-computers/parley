@@ -6,21 +6,22 @@ description: Use when adding/editing Discord slash commands, components, or moda
 # Parley Discord Runtime
 
 ## Overview
+
 `@parley/runtime` is a type-safe wrapper over Discord's API: builders for Components v2 (Container, Section, TextDisplay, Separator), a `ParleyClient` Hono-compatible fetch handler, Ed25519 signature verification, and a `DiscordRestClient` for outbound calls. The Worker (`apps/worker`) mounts the client and provides `ui/` helpers like `replyV2`.
 
 ## Quick reference
 
-| Action | Location / function |
-| --- | --- |
-| Define a slash command | `apps/worker/src/interactions/<name>/slash.ts` (or co-located `<name>.ts` like `ping.ts`) |
-| Wire into runtime | `apps/worker/src/app.ts:19-30` — add to `client.loadHandlers(...)` |
-| Register with Discord | `apps/worker/src/register-commands.ts:64-71` — add to `commands` array |
-| Components v2 top-level | `ContainerBuilder` (`packages/runtime/src/builders/container.ts`) |
-| Send a v2 message | `replyV2(interaction, container, ephemeral)` from `apps/worker/src/ui/discord.ts` |
-| Outbound Discord REST | `DiscordRestClient` from `@parley/runtime`; token `env.DISCORD_BOT_TOKEN ?? env.DISCORD_TOKEN` |
-| Signature verification | Automatic in `ParleyClient.fetch` via `verifyDiscordRequest` (Ed25519) |
+| Action                   | Location / function                                                                                               |
+| ------------------------ | ----------------------------------------------------------------------------------------------------------------- |
+| Define a slash command   | `apps/worker/src/interactions/<name>/slash.ts` (or co-located `<name>.ts` like `ping.ts`)                         |
+| Wire into runtime        | `apps/worker/src/app.ts:19-30` — add to `client.loadHandlers(...)`                                                |
+| Register with Discord    | `apps/worker/src/register-commands.ts:64-71` — add to `commands` array                                            |
+| Components v2 top-level  | `ContainerBuilder` (`packages/runtime/src/builders/container.ts`)                                                 |
+| Send a v2 message        | `replyV2(interaction, container, ephemeral)` from `apps/worker/src/ui/discord.ts`                                 |
+| Outbound Discord REST    | `DiscordRestClient` from `@parley/runtime`; token `env.DISCORD_BOT_TOKEN ?? env.DISCORD_TOKEN`                    |
+| Signature verification   | Automatic in `ParleyClient.fetch` via `verifyDiscordRequest` (Ed25519)                                            |
 | Push commands to Discord | `bun run register-commands` from `apps/worker` (Bun script, needs `DISCORD_BOT_TOKEN` + `DISCORD_APPLICATION_ID`) |
-| Deploy the worker | `cd apps/worker && bun run deploy` (Wrangler) |
+| Deploy the worker        | `cd apps/worker && bun run deploy` (Wrangler)                                                                     |
 
 ## Critical patterns
 
@@ -41,6 +42,7 @@ description: Use when adding/editing Discord slash commands, components, or moda
 - Renaming a command and deploying without re-running `register-commands` — Discord keeps the old name
 
 ## See also
+
 - `README.md` §5.3, §7 — Worker architecture and request lifecycle
 - `packages/runtime/src/index.ts` — full export surface
 - `apps/worker/src/app.ts` — canonical handler wiring example

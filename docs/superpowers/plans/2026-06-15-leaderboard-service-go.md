@@ -14,11 +14,11 @@
 
 **Rust references:**
 
-| Rust | Go |
-|------|-----|
-| `src/leaderboard.rs` | `internal/services/leaderboard.go` (+ tests) |
-| `src/handlers/leaderboard.rs` | `internal/handlers/leaderboard.go` (+ tests) |
-| `AppContext.leaderboard: Option<Arc<LeaderboardStore>>` | `*LeaderboardService` with `store Store` (nil when Redis absent) |
+| Rust                                                       | Go                                                                    |
+| ---------------------------------------------------------- | --------------------------------------------------------------------- |
+| `src/leaderboard.rs`                                       | `internal/services/leaderboard.go` (+ tests)                          |
+| `src/handlers/leaderboard.rs`                              | `internal/handlers/leaderboard.go` (+ tests)                          |
+| `AppContext.leaderboard: Option<Arc<LeaderboardStore>>`    | `*LeaderboardService` with `store Store` (nil when Redis absent)      |
 | HTTP `encode_error(SERVICE_UNAVAILABLE, "unavailable", …)` | `connect.NewError(connect.CodeFailedPrecondition, err)` per task spec |
 
 **Generated Connect:**
@@ -30,14 +30,14 @@
 
 ## File map
 
-| Path | Action | Responsibility |
-|------|--------|----------------|
-| `internal/services/leaderboard.go` | create | `Kind`, `Entry`, `Store` interface, `RedisStore`, `LeaderboardService`, key helpers |
-| `internal/services/leaderboard_test.go` | create | miniredis + nil-store service tests |
-| `internal/handlers/leaderboard.go` | create | Connect handler: proto mapping, delegates to service |
-| `internal/handlers/leaderboard_test.go` | create | Handler tests: FailedPrecondition, happy path via fake store |
-| `go.mod` / `go.sum` | edit | Add `go-redis/v9`, `miniredis/v2` |
-| `cmd/parley/main.go` or future `internal/connect/router.go` | edit (when present) | Mount `NewLeaderboardServiceHandler` with injected service |
+| Path                                                        | Action              | Responsibility                                                                      |
+| ----------------------------------------------------------- | ------------------- | ----------------------------------------------------------------------------------- |
+| `internal/services/leaderboard.go`                          | create              | `Kind`, `Entry`, `Store` interface, `RedisStore`, `LeaderboardService`, key helpers |
+| `internal/services/leaderboard_test.go`                     | create              | miniredis + nil-store service tests                                                 |
+| `internal/handlers/leaderboard.go`                          | create              | Connect handler: proto mapping, delegates to service                                |
+| `internal/handlers/leaderboard_test.go`                     | create              | Handler tests: FailedPrecondition, happy path via fake store                        |
+| `go.mod` / `go.sum`                                         | edit                | Add `go-redis/v9`, `miniredis/v2`                                                   |
+| `cmd/parley/main.go` or future `internal/connect/router.go` | edit (when present) | Mount `NewLeaderboardServiceHandler` with injected service                          |
 
 Do **not** add Diesel/SQL/Bun queries for leaderboard reads.
 
@@ -57,12 +57,12 @@ lb:{game}:{scope}:{kind}
 
 ### `Kind` (maps `LeaderboardType` proto)
 
-| Proto | Go `Kind` | Redis suffix |
-|-------|-----------|--------------|
-| `LEADERBOARD_TYPE_ELO` (1) | `KindElo` | `elo` |
-| `LEADERBOARD_TYPE_WIN_RATE` (2) | `KindWinRate` | `winrate` |
-| `LEADERBOARD_TYPE_RANK_POINTS` (3) | `KindRankPoints` | `rp` |
-| `UNSPECIFIED` (0) | default `KindElo` | `elo` |
+| Proto                              | Go `Kind`         | Redis suffix |
+| ---------------------------------- | ----------------- | ------------ |
+| `LEADERBOARD_TYPE_ELO` (1)         | `KindElo`         | `elo`        |
+| `LEADERBOARD_TYPE_WIN_RATE` (2)    | `KindWinRate`     | `winrate`    |
+| `LEADERBOARD_TYPE_RANK_POINTS` (3) | `KindRankPoints`  | `rp`         |
+| `UNSPECIFIED` (0)                  | default `KindElo` | `elo`        |
 
 ### `Touch` scores (for stats cache integration later)
 
@@ -681,16 +681,16 @@ Expected: 0 failures.
 
 ## Self-review (spec coverage)
 
-| Requirement | Task |
-|-------------|------|
-| `LeaderboardStore` interface porting Rust ZSET ops | Task 2 |
-| Redis + in-memory/miniredis tests | Tasks 2–4 |
-| `GetLeaderboard`, `GetPlayerRank` RPCs | Task 4 |
-| Thin handlers | Task 4 |
-| `FailedPrecondition` when store nil | Tasks 3–4 |
-| No Postgres reads | File map + service design |
-| No global mutable leaderboard | Constructor injection in Tasks 3–5 |
-| Append notepad | Task 6 |
+| Requirement                                        | Task                               |
+| -------------------------------------------------- | ---------------------------------- |
+| `LeaderboardStore` interface porting Rust ZSET ops | Task 2                             |
+| Redis + in-memory/miniredis tests                  | Tasks 2–4                          |
+| `GetLeaderboard`, `GetPlayerRank` RPCs             | Task 4                             |
+| Thin handlers                                      | Task 4                             |
+| `FailedPrecondition` when store nil                | Tasks 3–4                          |
+| No Postgres reads                                  | File map + service design          |
+| No global mutable leaderboard                      | Constructor injection in Tasks 3–5 |
+| Append notepad                                     | Task 6                             |
 
 **Note:** Rust returns HTTP 503 + JSON `"unavailable"` for nil leaderboard; Go Connect path uses `CodeFailedPrecondition` per Task 19 spec. Bridge/worker clients must already handle Connect errors; document any client-visible difference in the notepad if QA finds regressions.
 

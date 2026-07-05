@@ -114,7 +114,10 @@ export async function resumeAfterAccept(
     case "history": {
       const guildId = interaction.guildId;
       if (!guildId) {
-        await updateV2(interaction, buildHistoryErrorCard("This command can only be used in a server."));
+        await updateV2(
+          interaction,
+          buildHistoryErrorCard("This command can only be used in a server."),
+        );
         return;
       }
       const result = await invokeListMatches({

@@ -34,10 +34,7 @@ export function parleyRankForElo(elo: number): ParleyRankTier {
   return tier;
 }
 
-export function formatParleyRankLine(
-  catalog: ApplicationEmojiCatalog,
-  elo: number,
-): string {
+export function formatParleyRankLine(catalog: ApplicationEmojiCatalog, elo: number): string {
   const tier = parleyRankForElo(elo);
   const emoji = formatApplicationEmoji(catalog, tier.emojiName);
   const points = Math.round(elo).toLocaleString("en-US");

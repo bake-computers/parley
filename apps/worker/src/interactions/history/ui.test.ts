@@ -2,11 +2,7 @@ import { describe, test, expect } from "bun:test";
 import type { Match, MatchParticipant } from "@parley/proto/matchmaking/v1/matchmaking_pb.js";
 import { buildHistoryCard } from "./ui.js";
 
-function makeParticipant(
-  team: string,
-  username: string,
-  discordUserId: string,
-): MatchParticipant {
+function makeParticipant(team: string, username: string, discordUserId: string): MatchParticipant {
   return {
     $typeName: "parley.matchmaking.v1.MatchParticipant" as const,
     discordUserId,
@@ -70,7 +66,7 @@ describe("buildHistoryCard", () => {
   test("uses graphite accent and separators", () => {
     const card = buildHistoryCard([makeMatch()], "guild-123").toJSON();
     expect(card["accent_color"]).toBe(0x8a8a8e);
-    expect(JSON.stringify(card)).toContain("\"type\":14");
+    expect(JSON.stringify(card)).toContain('"type":14');
   });
 
   test("handles missing participants without crashing", () => {

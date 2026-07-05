@@ -4,7 +4,7 @@ import { LegalNoticeInlineLink } from "#/components/LegalNoticeInlineLink";
 export function TermsContentEn() {
   return (
     <>
-<section>
+      <section>
         <h2 className="mb-3 text-base font-medium text-foreground">1. Acceptance of Terms</h2>
         <p>
           By accessing or using Parley (&ldquo;the Service&rdquo;), you agree to be bound by these

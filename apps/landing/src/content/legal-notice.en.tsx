@@ -95,8 +95,8 @@ export function LegalNoticeContentEn() {
         </h2>
         <p>
           As a service provider, we are responsible for our own content on these pages in accordance
-          with general laws pursuant to &sect; 7 Abs. 1 DDG. According to &sect;&sect; 8 to 10 DDG, we
-          are not obligated to monitor transmitted or stored third-party information. However,
+          with general laws pursuant to &sect; 7 Abs. 1 DDG. According to &sect;&sect; 8 to 10 DDG,
+          we are not obligated to monitor transmitted or stored third-party information. However,
           Parley is an active matchmaking platform. We reserve the right to immediately ban users
           and remove content that violates our community guidelines, including cheating, toxicity,
           or abuse, upon gaining knowledge of such activities. Obligations to remove or block the

@@ -1,11 +1,7 @@
 import type { OAuthEnvSource } from "../../discord/env.js";
 import { resolveBotToken } from "../../discord/env.js";
 import { fetchGuildTextChannels } from "../../discord/guild-channels.js";
-import {
-  requireDashboardSession,
-  sessionCanManageGuild,
-  type DashboardSession,
-} from "../auth.js";
+import { requireDashboardSession, sessionCanManageGuild, type DashboardSession } from "../auth.js";
 import type { EngineEnvSource } from "../../engine/env.js";
 import { engineEnvFromCloudflare } from "../../engine/env.js";
 import {
@@ -137,11 +133,7 @@ function sectionFromBody(body: unknown): { section: SettingsSection; payload: un
   return { section, payload: record.payload };
 }
 
-function parseGeneral(
-  guildId: string,
-  userId: string,
-  payload: unknown,
-): GuildSettingsJson | null {
+function parseGeneral(guildId: string, userId: string, payload: unknown): GuildSettingsJson | null {
   if (!payload || typeof payload !== "object") {
     return null;
   }
@@ -226,11 +218,7 @@ function parseNotifications(
   };
 }
 
-function parseQuota(
-  guildId: string,
-  userId: string,
-  payload: unknown,
-): GuildMatchQuotaJson | null {
+function parseQuota(guildId: string, userId: string, payload: unknown): GuildMatchQuotaJson | null {
   if (!payload || typeof payload !== "object") {
     return null;
   }

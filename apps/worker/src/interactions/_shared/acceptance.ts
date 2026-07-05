@@ -62,7 +62,7 @@ export function buildAcceptanceCard(
   sourceCommand = "user",
 ): ContainerBuilder {
   const pin = formatApplicationEmoji(emojis, "pin");
-  const title_text = "**Welcome to Parley**"
+  const title_text = "**Welcome to Parley**";
   const title = pin ? `${pin} ${title_text}` : `${title_text}`;
 
   const acceptButton = new ButtonBuilder()
@@ -167,8 +167,7 @@ export async function assertAccepted(
     return true;
   }
 
-  const source =
-    sourceCommand ?? (isSlashCommand(interaction) ? interaction.commandName : "user");
+  const source = sourceCommand ?? (isSlashCommand(interaction) ? interaction.commandName : "user");
 
   const acceptancePayload = {
     components: [buildAcceptanceCard({}, source).toJSON()],

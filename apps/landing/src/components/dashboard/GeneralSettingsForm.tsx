@@ -2,10 +2,7 @@ import { useCallback, useMemo, useState } from "react";
 import { GlassPanel } from "#/components/ui/glass-panel";
 import type { GuildSettingsJson } from "#/lib/dashboard/guild/types";
 import { settingsBaselineKey } from "#/lib/shared/settings-baseline";
-import {
-  suggestTeamFormats,
-  validateTeamFormat,
-} from "#/lib/dashboard/guild/validation";
+import { suggestTeamFormats, validateTeamFormat } from "#/lib/dashboard/guild/validation";
 import { useSettingsSection } from "#/hooks/useSettingsSection";
 import { useGuildDashboard } from "./GuildDashboardContext";
 import { AutocompleteInput } from "./AutocompleteInput";
@@ -17,7 +14,10 @@ export function GeneralSettingsForm() {
   const { guildId, settings, patchSettings } = useGuildDashboard();
   const [toast, setToast] = useState<string | null>(null);
 
-  const validate = useCallback((draft: GuildSettingsJson) => validateTeamFormat(draft.defaultTeamFormat), []);
+  const validate = useCallback(
+    (draft: GuildSettingsJson) => validateTeamFormat(draft.defaultTeamFormat),
+    [],
+  );
 
   const generalKey = settingsBaselineKey(settings.general);
   const initial = useMemo(
@@ -47,9 +47,15 @@ export function GeneralSettingsForm() {
       <GlassPanel as="section" className="flex flex-col gap-4 p-6">
         <div>
           <h2 className="text-lg font-semibold tracking-tight">General</h2>
-          <p className="text-muted-foreground text-sm">Core matchmaking behavior for this server.</p>
+          <p className="text-muted-foreground text-sm">
+            Core matchmaking behavior for this server.
+          </p>
         </div>
-        <SettingsField label="Default team format" error={section.isDirty ? formatError : null} hint="e.g. 5v5">
+        <SettingsField
+          label="Default team format"
+          error={section.isDirty ? formatError : null}
+          hint="e.g. 5v5"
+        >
           <AutocompleteInput
             value={section.draft.defaultTeamFormat}
             onChange={(v) => section.setDraft((g) => ({ ...g, defaultTeamFormat: v }))}

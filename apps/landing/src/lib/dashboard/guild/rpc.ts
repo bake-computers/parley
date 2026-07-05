@@ -9,11 +9,7 @@ import type {
 
 type RpcError = { code?: string; message?: string };
 
-async function engineCall<T>(
-  env: EngineTransportEnv,
-  path: string,
-  body: unknown,
-): Promise<T> {
+async function engineCall<T>(env: EngineTransportEnv, path: string, body: unknown): Promise<T> {
   const { baseUrl, fetchImpl } = resolveEngineTransport(env);
   const url = new URL(path, baseUrl).href;
   const res = await fetchImpl(url, {
@@ -31,11 +27,7 @@ async function engineCall<T>(
 
 const SVC = "/parley.guild.v1.GuildSettingsService";
 
-export async function rpcGetGuildSettings(
-  env: EngineTransportEnv,
-  guildId: string,
-  game: number,
-) {
+export async function rpcGetGuildSettings(env: EngineTransportEnv, guildId: string, game: number) {
   return engineCall<{
     success: boolean;
     settings?: GuildSettingsJson;
@@ -43,10 +35,7 @@ export async function rpcGetGuildSettings(
   }>(env, `${SVC}/GetGuildSettings`, { guildId, game });
 }
 
-export async function rpcUpsertGuildSettings(
-  env: EngineTransportEnv,
-  settings: GuildSettingsJson,
-) {
+export async function rpcUpsertGuildSettings(env: EngineTransportEnv, settings: GuildSettingsJson) {
   return engineCall<{
     success: boolean;
     settings?: GuildSettingsJson;
@@ -100,11 +89,7 @@ export async function rpcUpsertNotificationSettings(
   }>(env, `${SVC}/UpsertNotificationSettings`, { settings });
 }
 
-export async function rpcGetMatchQuotas(
-  env: EngineTransportEnv,
-  guildId: string,
-  game: number,
-) {
+export async function rpcGetMatchQuotas(env: EngineTransportEnv, guildId: string, game: number) {
   return engineCall<{
     success: boolean;
     quota?: GuildMatchQuotaJson;
@@ -112,10 +97,7 @@ export async function rpcGetMatchQuotas(
   }>(env, `${SVC}/GetMatchQuotas`, { guildId, game });
 }
 
-export async function rpcUpsertMatchQuotas(
-  env: EngineTransportEnv,
-  quota: GuildMatchQuotaJson,
-) {
+export async function rpcUpsertMatchQuotas(env: EngineTransportEnv, quota: GuildMatchQuotaJson) {
   return engineCall<{
     success: boolean;
     quota?: GuildMatchQuotaJson;

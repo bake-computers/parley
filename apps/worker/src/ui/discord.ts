@@ -16,9 +16,7 @@ type ReplyableInteraction = {
 };
 
 type UpdatableInteraction = {
-  update: (
-    options: V2Payload,
-  ) => Promise<Result<JsonValue, DiscordApiError>>;
+  update: (options: V2Payload) => Promise<Result<JsonValue, DiscordApiError>>;
 };
 
 type EditableInteraction = {

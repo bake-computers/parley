@@ -12,9 +12,7 @@ export function invokeGetNotificationSettings(
   },
   guildId: string,
 ): Promise<Result<GuildNotificationSettingsResponse, ConnectError>> {
-  return wrap(
-    client.getNotificationSettings({ guildId, game: Game.R6 } as never),
-  );
+  return wrap(client.getNotificationSettings({ guildId, game: Game.R6 } as never));
 }
 
 export function invokeUpsertNotificationSettings(

@@ -34,7 +34,8 @@ export function NotificationsSettingsForm() {
       matchResultsChannel: settings.notifications.matchResultsChannel ?? "",
       tournamentAnnouncementsChannel: settings.notifications.tournamentAnnouncementsChannel ?? "",
       leaderboardUpdatesEnabled: settings.notifications.leaderboardUpdatesEnabled ?? false,
-      crossGuildAnnouncementsEnabled: settings.notifications.crossGuildAnnouncementsEnabled ?? false,
+      crossGuildAnnouncementsEnabled:
+        settings.notifications.crossGuildAnnouncementsEnabled ?? false,
       announceMatchReadyEnabled: settings.notifications.announceMatchReadyEnabled ?? true,
       announceMatchResultsEnabled: settings.notifications.announceMatchResultsEnabled ?? true,
     }),
@@ -71,24 +72,25 @@ export function NotificationsSettingsForm() {
             label="Match results channel"
             error={
               section.isDirty
-                ? validateDiscordSnowflake(section.draft.matchResultsChannel, "Match results channel")
+                ? validateDiscordSnowflake(
+                    section.draft.matchResultsChannel,
+                    "Match results channel",
+                  )
                 : null
             }
           >
             {useChannelPicker ? (
               <ChannelAutocomplete
                 value={section.draft.matchResultsChannel}
-                onChange={(id) =>
-                  section.setDraft((n) => ({ ...n, matchResultsChannel: id }))
-                }
+                onChange={(id) => section.setDraft((n) => ({ ...n, matchResultsChannel: id }))}
                 channels={channelList}
                 disabled={loading}
                 invalid={Boolean(
                   section.isDirty &&
-                    validateDiscordSnowflake(
-                      section.draft.matchResultsChannel,
-                      "Match results channel",
-                    ),
+                  validateDiscordSnowflake(
+                    section.draft.matchResultsChannel,
+                    "Match results channel",
+                  ),
                 )}
                 placeholder={loading ? "Loading channels…" : "Select a channel"}
               />
@@ -127,10 +129,10 @@ export function NotificationsSettingsForm() {
                 disabled={loading}
                 invalid={Boolean(
                   section.isDirty &&
-                    validateDiscordSnowflake(
-                      section.draft.tournamentAnnouncementsChannel,
-                      "Tournament channel",
-                    ),
+                  validateDiscordSnowflake(
+                    section.draft.tournamentAnnouncementsChannel,
+                    "Tournament channel",
+                  ),
                 )}
                 placeholder={loading ? "Loading channels…" : "Select a channel"}
               />
@@ -157,9 +159,7 @@ export function NotificationsSettingsForm() {
         <SettingsToggle
           label="Cross-guild announcements"
           checked={section.draft.crossGuildAnnouncementsEnabled}
-          onChange={(v) =>
-            section.setDraft((n) => ({ ...n, crossGuildAnnouncementsEnabled: v }))
-          }
+          onChange={(v) => section.setDraft((n) => ({ ...n, crossGuildAnnouncementsEnabled: v }))}
         />
         <SettingsToggle
           label="Announce match ready"

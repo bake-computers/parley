@@ -39,7 +39,7 @@ The platform is **Discord-first**: the primary interaction surface is a Cloudfla
 | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Single source of truth for contracts** | All RPC messages and service definitions live in `proto/`. Go and TypeScript clients are generated via `buf`; the engine consumes `gen/parley`.                                                 |
 | **Engine owns state**                    | Postgres is the system of record. Redis accelerates stats caching and leaderboard reads when present. Edge workers remain stateless except for the leaderboard Durable Object.                  |
-| **Game-scoped multi-tenancy**            | Every domain table carries a `game` discriminator (`r6`). Composite unique indexes include `game` for forward-compatible schema evolution.                          |
+| **Game-scoped multi-tenancy**            | Every domain table carries a `game` discriminator (`r6`). Composite unique indexes include `game` for forward-compatible schema evolution.                                                      |
 | **Graceful degradation**                 | Without `DATABASE_URL`, the engine runs in memory-only mode. Without `REDIS_URL`, caching falls back to direct backend calls. The service remains operable for development and partial outages. |
 | **Edge locality**                        | Discord interactions and web traffic terminate at Cloudflare Workers globally. Only RPC calls to the engine cross into the origin network.                                                      |
 
@@ -402,15 +402,15 @@ make run
 bun run dev
 ```
 
-| Command                 | Scope                                      |
-| ----------------------- | ------------------------------------------ |
-| `make test`             | Go unit tests (`go test ./...`)            |
-| `make test-integration` | Go integration tests (Docker/testcontainers) |
-| `make fmt` / `make vet` | Go format and vet                          |
-| `make lint`             | golangci-lint (when installed)             |
-| `bun run typecheck`     | TypeScript strict checking                 |
-| `bun run lint`          | Oxlint across workspaces                   |
-| `make fmt && bun run format` | Format Go and TypeScript              |
+| Command                      | Scope                                        |
+| ---------------------------- | -------------------------------------------- |
+| `make test`                  | Go unit tests (`go test ./...`)              |
+| `make test-integration`      | Go integration tests (Docker/testcontainers) |
+| `make fmt` / `make vet`      | Go format and vet                            |
+| `make lint`                  | golangci-lint (when installed)               |
+| `bun run typecheck`          | TypeScript strict checking                   |
+| `bun run lint`               | Oxlint across workspaces                     |
+| `make fmt && bun run format` | Format Go and TypeScript                     |
 
 Generate protobuf after modifying `.proto` files:
 

@@ -8,7 +8,8 @@ export function DashboardSessionError({ onRetry }: { onRetry: () => void }) {
       <GlassPanel className="w-full p-8">
         <p className="text-sm font-medium">Could not refresh your session</p>
         <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
-          The dashboard is still signed in, but server list data did not load. Try again in a moment.
+          The dashboard is still signed in, but server list data did not load. Try again in a
+          moment.
         </p>
         <button type="button" onClick={onRetry} className={cn(buttonVariants(), "mt-6")}>
           Retry

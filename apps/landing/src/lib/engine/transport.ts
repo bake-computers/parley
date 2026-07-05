@@ -30,8 +30,7 @@ export function resolveEngineTransport(env: EngineTransportEnv): EngineTransport
     baseUrl,
     cacheKey: `vpc:${baseUrl}`,
     fetchImpl: ((input: string | URL | Request, init?: RequestInit) => {
-      const url =
-        typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+      const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
       const resolved = url.startsWith("http") ? url : new URL(url, baseUrl).href;
       return vpc.fetch(resolved, (init ?? {}) as Parameters<Fetcher["fetch"]>[1]);
     }) as unknown as EngineFetch,

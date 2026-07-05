@@ -65,10 +65,7 @@ export function AutocompleteInput({
 
   const text = value ?? "";
 
-  const suggestions = useMemo(
-    () => filterOptions(text, options, multi),
-    [multi, options, text],
-  );
+  const suggestions = useMemo(() => filterOptions(text, options, multi), [multi, options, text]);
 
   useEffect(() => {
     setActiveIndex(0);

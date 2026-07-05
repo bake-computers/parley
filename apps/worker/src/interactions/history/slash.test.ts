@@ -111,5 +111,4 @@ describe("historyCommand", () => {
     const json = JSON.stringify(editReplyV2Calls[0]);
     expect(json).toContain("Could not load match history");
   });
-
 });

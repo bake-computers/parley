@@ -37,11 +37,7 @@ function DashboardPage() {
     return <Navigate to="/auth/login" search={{ redirect: "/dashboard" }} replace />;
   }
 
-  return (
-    <AuthMeProvider value={auth}>
-      {isIndex ? <DashboardIndex /> : <Outlet />}
-    </AuthMeProvider>
-  );
+  return <AuthMeProvider value={auth}>{isIndex ? <DashboardIndex /> : <Outlet />}</AuthMeProvider>;
 }
 
 function GuildGrid({ guilds }: { guilds: AuthMeGuild[] }) {

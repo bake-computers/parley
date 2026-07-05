@@ -29,11 +29,7 @@ export function GuildSettingsNav({ guildId, layout = "tabs" }: GuildSettingsNavP
   return (
     <nav
       aria-label="Guild settings"
-      className={cn(
-        layout === "sidebar"
-          ? "flex flex-col gap-1"
-          : "flex flex-wrap gap-2",
-      )}
+      className={cn(layout === "sidebar" ? "flex flex-col gap-1" : "flex flex-wrap gap-2")}
     >
       {SECTIONS.map((section) => {
         const href = `/dashboard/guilds/${guildId}/${section.slug}`;

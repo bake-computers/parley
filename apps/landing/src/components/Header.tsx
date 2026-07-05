@@ -219,7 +219,12 @@ function HeaderProfileMenu({
           <Link to="/dashboard" role="menuitem" onClick={close} className={profileMenuItemClass}>
             {m.nav.dashboard}
           </Link>
-          <Link to="/dashboard/account" role="menuitem" onClick={close} className={profileMenuItemClass}>
+          <Link
+            to="/dashboard/account"
+            role="menuitem"
+            onClick={close}
+            className={profileMenuItemClass}
+          >
             {m.nav.account}
           </Link>
           <a href="/auth/logout" role="menuitem" onClick={signOut} className={profileMenuItemClass}>
@@ -290,12 +295,7 @@ export function SiteHeader() {
   ];
 
   return (
-    <header
-      className={cn(
-        "z-50 px-4 md:px-6",
-        isHome ? "fixed inset-x-0 top-4" : "sticky top-4",
-      )}
-    >
+    <header className={cn("z-50 px-4 md:px-6", isHome ? "fixed inset-x-0 top-4" : "sticky top-4")}>
       <div className="mx-auto max-w-5xl">
         <div className="glass-pill flex w-full items-center gap-2 px-2 py-2 md:gap-3 md:px-3">
           <a
@@ -309,10 +309,15 @@ export function SiteHeader() {
               height={28}
               className="size-7"
             />
-            <span className="hidden text-sm font-semibold text-foreground sm:inline">{m.nav.brand}</span>
+            <span className="hidden text-sm font-semibold text-foreground sm:inline">
+              {m.nav.brand}
+            </span>
           </a>
 
-          <nav className="hidden min-w-0 flex-1 items-center justify-center gap-1 md:flex" aria-label="Primary">
+          <nav
+            className="hidden min-w-0 flex-1 items-center justify-center gap-1 md:flex"
+            aria-label="Primary"
+          >
             {primaryNav.map((item) => {
               const isActive = item.sectionId !== null && activeId === item.sectionId;
               return (

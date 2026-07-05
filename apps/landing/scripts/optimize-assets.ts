@@ -18,15 +18,60 @@ function cwebp(args: string[]): Promise<void> {
 
 async function optimizeHero(source: string) {
   await mkdir(heroDir, { recursive: true });
-  await cwebp(["-q", "75", "-resize", "1280", "720", source, "-o", join(heroDir, "hero-cinematic-1280.webp")]);
-  await cwebp(["-q", "72", "-resize", "768", "432", source, "-o", join(heroDir, "hero-cinematic-768.webp")]);
-  await cwebp(["-q", "75", "-resize", "1280", "720", source, "-o", join(landingRoot, "public/assets/hero-cinematic.webp")]);
+  await cwebp([
+    "-q",
+    "75",
+    "-resize",
+    "1280",
+    "720",
+    source,
+    "-o",
+    join(heroDir, "hero-cinematic-1280.webp"),
+  ]);
+  await cwebp([
+    "-q",
+    "72",
+    "-resize",
+    "768",
+    "432",
+    source,
+    "-o",
+    join(heroDir, "hero-cinematic-768.webp"),
+  ]);
+  await cwebp([
+    "-q",
+    "75",
+    "-resize",
+    "1280",
+    "720",
+    source,
+    "-o",
+    join(landingRoot, "public/assets/hero-cinematic.webp"),
+  ]);
 }
 
 async function optimizeFounder(slug: string) {
   const source = join(foundersDir, `${slug}.webp`);
-  await cwebp(["-q", "80", "-resize", "64", "64", source, "-o", join(foundersDir, `${slug}-64.webp`)]);
-  await cwebp(["-q", "82", "-resize", "128", "128", source, "-o", join(foundersDir, `${slug}-128.webp`)]);
+  await cwebp([
+    "-q",
+    "80",
+    "-resize",
+    "64",
+    "64",
+    source,
+    "-o",
+    join(foundersDir, `${slug}-64.webp`),
+  ]);
+  await cwebp([
+    "-q",
+    "82",
+    "-resize",
+    "128",
+    "128",
+    source,
+    "-o",
+    join(foundersDir, `${slug}-128.webp`),
+  ]);
 }
 
 async function main() {

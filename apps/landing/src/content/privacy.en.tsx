@@ -3,7 +3,7 @@ import { LegalDocFooter } from "#/components/LegalDocFooter";
 export function PrivacyContentEn() {
   return (
     <>
-<section>
+      <section>
         <h2 className="mb-3 text-base font-medium text-foreground">1. Introduction</h2>
         <p>
           Parley (&ldquo;we,&rdquo; &ldquo;our,&rdquo; or &ldquo;us&rdquo;) is committed to
@@ -24,17 +24,17 @@ export function PrivacyContentEn() {
         <p>
           To allow server administrators to manage Parley and users to view their profiles, we
           utilize Discord OAuth2 authentication. When you log into our web dashboard, we request
-          strictly necessary scopes (identify and guilds). We collect and store your Discord User ID,
-          username, avatar, and server memberships. We do not request, collect, or store your email
-          address or passwords.
+          strictly necessary scopes (identify and guilds). We collect and store your Discord User
+          ID, username, avatar, and server memberships. We do not request, collect, or store your
+          email address or passwords.
         </p>
         <p className="mt-2">
           Before you are redirected to Discord, our sign-in page uses{" "}
-          <strong>Cloudflare Turnstile</strong> to distinguish legitimate users from automated abuse.
-          Turnstile may process technical interaction signals (such as your IP address, browser
-          characteristics, and challenge responses) and transmit a one-time verification token to
-          our servers. We validate that token with Cloudflare before starting OAuth. We do not use
-          Turnstile for advertising or cross-site tracking. Legal basis: Art. 6(1)(f) GDPR
+          <strong>Cloudflare Turnstile</strong> to distinguish legitimate users from automated
+          abuse. Turnstile may process technical interaction signals (such as your IP address,
+          browser characteristics, and challenge responses) and transmit a one-time verification
+          token to our servers. We validate that token with Cloudflare before starting OAuth. We do
+          not use Turnstile for advertising or cross-site tracking. Legal basis: Art. 6(1)(f) GDPR
           (legitimate interest in securing authentication and preventing abuse).
         </p>
 
@@ -43,15 +43,15 @@ export function PrivacyContentEn() {
         </h3>
         <p>
           To power our matchmaking, bracket generation, and auto-balancing, we utilize an artificial
-          intelligence model hosted via OVI.run. Our AI analyzes gameplay telemetry to evaluate skill
-          levels and assign brackets.
+          intelligence model hosted via OVI.run. Our AI analyzes gameplay telemetry to evaluate
+          skill levels and assign brackets.
         </p>
         <p className="mt-2">
           Because Ubisoft does not provide direct public APIs for all necessary metrics, we transmit
-          your provided gaming username to <strong>stats.cc</strong>, an independent third-party data
-          controller. We use their closed API to retrieve your public Rainbow Six Siege statistics
-          (e.g., Rank points, K/D ratio, win rates). We do not share your internal Parley match
-          history or ELO with <strong>stats.cc</strong>.
+          your provided gaming username to <strong>stats.cc</strong>, an independent third-party
+          data controller. We use their closed API to retrieve your public Rainbow Six Siege
+          statistics (e.g., Rank points, K/D ratio, win rates). We do not share your internal Parley
+          match history or ELO with <strong>stats.cc</strong>.
         </p>
         <p className="mt-2">
           <strong>Automated Profiling:</strong> Under the GDPR and the EU AI Act, our matchmaking
@@ -92,9 +92,9 @@ export function PrivacyContentEn() {
             persist this preference.
           </li>
           <li>
-            <strong>parley_cookie_consent</strong> (local storage): records your cookie notice choice
-            so we do not ask again until our policy version changes. Legal basis: Art. 6(1)(f) GDPR
-            (demonstrating compliance).
+            <strong>parley_cookie_consent</strong> (local storage): records your cookie notice
+            choice so we do not ask again until our policy version changes. Legal basis: Art.
+            6(1)(f) GDPR (demonstrating compliance).
           </li>
         </ul>
       </section>
@@ -154,9 +154,9 @@ export function PrivacyContentEn() {
             matchmaking telemetry via our AI model (processor).
           </li>
           <li>
-            <span className="font-medium text-foreground/80">Stats.cc:</span> We transmit your gaming
-            username to this independent data controller solely to retrieve your public gameplay
-            statistics.
+            <span className="font-medium text-foreground/80">Stats.cc:</span> We transmit your
+            gaming username to this independent data controller solely to retrieve your public
+            gameplay statistics.
           </li>
         </ul>
       </section>
@@ -190,8 +190,8 @@ export function PrivacyContentEn() {
           7. Age Requirements and Children&rsquo;s Privacy
         </h2>
         <p>
-          Parley relies on Discord&rsquo;s authentication infrastructure. Under Discord&rsquo;s Terms
-          of Service and the GDPR, users in Germany must be at least 16 years old to use the
+          Parley relies on Discord&rsquo;s authentication infrastructure. Under Discord&rsquo;s
+          Terms of Service and the GDPR, users in Germany must be at least 16 years old to use the
           platform. We do not knowingly collect data from anyone under the applicable age of digital
           consent. By authenticating with Parley via Discord OAuth2, you confirm you meet
           Discord&rsquo;s minimum age requirements for your region. If we are notified that a user
@@ -202,8 +202,8 @@ export function PrivacyContentEn() {
       <section>
         <h2 className="mb-3 text-base font-medium text-foreground">8. Your GDPR Rights</h2>
         <p>
-          Because we operate in the EU and utilize automated profiling, you have the following rights
-          regarding your personal data:
+          Because we operate in the EU and utilize automated profiling, you have the following
+          rights regarding your personal data:
         </p>
         <ul className="mt-2 list-inside list-disc space-y-1.5 pl-1">
           <li>
@@ -219,8 +219,9 @@ export function PrivacyContentEn() {
           </li>
           <li>
             <strong>Explainability:</strong> Because you are subject to automated matchmaking
-            decisions by our AI, you have the right to request an explanation of how your bracket was
-            determined or request human intervention if you believe the AI made a significant error.
+            decisions by our AI, you have the right to request an explanation of how your bracket
+            was determined or request human intervention if you believe the AI made a significant
+            error.
           </li>
         </ul>
         <p className="mt-2">

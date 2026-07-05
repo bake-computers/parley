@@ -197,7 +197,10 @@ export async function sealOAuthState(payload: OAuthStatePayload, secret: string)
   return `${sig}.${body}`;
 }
 
-export async function unsealOAuthState(token: string, secret: string): Promise<OAuthStatePayload | null> {
+export async function unsealOAuthState(
+  token: string,
+  secret: string,
+): Promise<OAuthStatePayload | null> {
   const dot = token.indexOf(".");
   if (dot <= 0) {
     return null;
@@ -260,8 +263,7 @@ export async function unsealSession(token: string, secret: string): Promise<Cook
     if (Array.isArray(parsed.guilds)) {
       parsed.guilds = parsed.guilds.map((g) => ({
         ...g,
-        permissions:
-          typeof g.permissions === "string" ? g.permissions : String(1n << 5n),
+        permissions: typeof g.permissions === "string" ? g.permissions : String(1n << 5n),
       }));
     }
     return parsed;
@@ -284,7 +286,11 @@ function appendCookieFlags(parts: string[], requestUrl: string): void {
   }
 }
 
-export function sessionCookieHeader(value: string, maxAgeSeconds: number, requestUrl: string): string {
+export function sessionCookieHeader(
+  value: string,
+  maxAgeSeconds: number,
+  requestUrl: string,
+): string {
   const parts = [`${SESSION_COOKIE}=${encodeURIComponent(value)}`, `Max-Age=${maxAgeSeconds}`];
   appendCookieFlags(parts, requestUrl);
   return parts.join("; ");
@@ -308,10 +314,7 @@ export function clearStateCookieHeader(requestUrl: string): string {
   return parts.join("; ");
 }
 
-export function toPublicSession(
-  session: CookieSession,
-  guilds: PublicGuild[],
-) {
+export function toPublicSession(session: CookieSession, guilds: PublicGuild[]) {
   return {
     user: {
       id: session.user.id,
@@ -333,8 +336,7 @@ export async function resolveSessionGuilds(session: CookieSession): Promise<Cook
       if (session.guilds?.length) {
         return session.guilds.map((g) => ({
           ...g,
-          permissions:
-            typeof g.permissions === "string" ? g.permissions : String(1n << 5n),
+          permissions: typeof g.permissions === "string" ? g.permissions : String(1n << 5n),
         }));
       }
       return [];
@@ -342,8 +344,7 @@ export async function resolveSessionGuilds(session: CookieSession): Promise<Cook
   }
   return (session.guilds ?? []).map((g) => ({
     ...g,
-    permissions:
-      typeof g.permissions === "string" ? g.permissions : String(1n << 5n),
+    permissions: typeof g.permissions === "string" ? g.permissions : String(1n << 5n),
   }));
 }
 

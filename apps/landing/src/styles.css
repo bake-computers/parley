@@ -213,7 +213,8 @@
     -webkit-backdrop-filter: blur(20px) saturate(1.8);
     box-shadow:
       inset 0 1px 0 color-mix(in srgb, white 25%, transparent),
-      0 8px 32px color-mix(in srgb, var(--shadow-color) calc(var(--shadow-opacity) * 100%), transparent);
+      0 8px 32px
+        color-mix(in srgb, var(--shadow-color) calc(var(--shadow-opacity) * 100%), transparent);
     transition:
       transform 0.3s ease-out,
       box-shadow 0.3s ease-out;
@@ -234,7 +235,8 @@
     -webkit-backdrop-filter: blur(24px) saturate(1.8);
     box-shadow:
       inset 0 1px 0 color-mix(in srgb, white 20%, transparent),
-      0 4px 24px color-mix(in srgb, var(--shadow-color) calc(var(--shadow-opacity) * 100%), transparent);
+      0 4px 24px
+        color-mix(in srgb, var(--shadow-color) calc(var(--shadow-opacity) * 100%), transparent);
   }
 
   .dark .glass-pill {
@@ -262,7 +264,12 @@
   }
 
   .dark .auth-authorize-btn {
-    background: linear-gradient(135deg, #5865f2 0%, #4752c4 55%, color-mix(in srgb, #4752c4 70%, #1c1917) 100%);
+    background: linear-gradient(
+      135deg,
+      #5865f2 0%,
+      #4752c4 55%,
+      color-mix(in srgb, #4752c4 70%, #1c1917) 100%
+    );
     box-shadow: 0 12px 32px color-mix(in srgb, #5865f2 28%, transparent);
   }
 
