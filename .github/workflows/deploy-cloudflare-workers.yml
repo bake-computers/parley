@@ -16,11 +16,11 @@ on:
       - "oxlint.config.ts"
       - "tsconfig.base.json"
       - "packages/tsconfig-base/**"
-      - ".github/workflows/deploy-workers.yml"
+      - ".github/workflows/deploy-cloudflare-workers.yml"
   workflow_dispatch:
 
 concurrency:
-  group: deploy-workers-${{ github.ref }}
+  group: deploy-cloudflare-workers-${{ github.ref }}
   cancel-in-progress: false
 
 env:
