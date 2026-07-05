@@ -28,7 +28,7 @@ services:
       - internal-net
 
   parley:
-    image: ghcr.io/pactum-computer/parley:latest
+    image: ghcr.io/pactum-computer/parley-engine:latest
     container_name: parley-backend
     restart: always
     ports:
