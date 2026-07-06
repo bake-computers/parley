@@ -1,6 +1,6 @@
 const DISCORD_API = "https://discord.com/api/v10";
 
-/** Slash commands, messages, embeds, channels, history — enough for matchmaking + notifications. */
+/** Slash commands, messages, embeds, channels, history — enough for matchmaking. */
 export const PARLEY_BOT_PERMISSIONS = "388160";
 
 export function buildBotInviteUrl(clientId: string, guildId: string): string {

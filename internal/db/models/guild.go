@@ -49,21 +49,6 @@ type GuildMatchmakingRules struct {
 	UpdatedAt       int64    `bun:"updated_at,notnull"`
 }
 
-// GuildNotificationSettings is a row in `guild_notification_settings`.
-type GuildNotificationSettings struct {
-	bun.BaseModel `bun:"table:guild_notification_settings,alias:gns"`
-
-	GuildID                        string  `bun:"guild_id,pk,notnull"`
-	Game                           Game    `bun:"game,pk,notnull"`
-	MatchResultsChannel            *string `bun:"match_results_channel"`
-	TournamentAnnouncementsChannel *string `bun:"tournament_announcements_channel"`
-	LeaderboardUpdatesEnabled      bool    `bun:"leaderboard_updates_enabled,notnull"`
-	UpdatedAt                      int64   `bun:"updated_at,notnull"`
-	CrossGuildAnnouncementsEnabled bool    `bun:"cross_guild_announcements_enabled,notnull"`
-	AnnounceMatchReadyEnabled      bool    `bun:"announce_match_ready_enabled,notnull"`
-	AnnounceMatchResultsEnabled    bool    `bun:"announce_match_results_enabled,notnull"`
-}
-
 // GuildMatchQuota is a row in `guild_match_quotas`.
 type GuildMatchQuota struct {
 	bun.BaseModel `bun:"table:guild_match_quotas,alias:gq"`

@@ -27,7 +27,7 @@ Parley delivers three primary capabilities:
 
 2. **Telemetry-driven matchmaking** — The engine fetches ranked-season statistics from upstream providers, normalizes them into a Composite Performance Rating (CPR), and applies Glicko-2 team-balancing heuristics to minimize expected skill gaps across both sides of a lobby.
 
-3. **Structured competition** — Guild-scoped queues, custom matches, and single-elimination tournaments share a common match record model. Guild administrators configure matchmaking rules, notification preferences, and quotas per game.
+3. **Structured competition** — Guild-scoped queues, custom matches, and single-elimination tournaments share a common match record model. Guild administrators configure matchmaking rules and quotas per game.
 
 The platform is **Discord-first**: the primary interaction surface is a Cloudflare Worker hosting the bot. A TanStack Start landing application provides marketing, legal pages, and a live global leaderboard. Both edge applications communicate with the engine exclusively through ConnectRPC over HTTP.
 
@@ -88,7 +88,7 @@ Protobuf definitions are the canonical API surface. Seven services are defined:
 | ---------------------- | --------------------------------------------------------------------------- |
 | `IdentityService`      | Link, unlink, and resolve Discord-to-player mappings                        |
 | `StatsService`         | Fetch single-season or full-season-collection player statistics             |
-| `GuildSettingsService` | Per-guild configuration: settings, matchmaking rules, notifications, quotas |
+| `GuildSettingsService` | Per-guild configuration: settings, matchmaking rules, quotas |
 | `UserSettingsService`  | Per-user preferences within a guild context                                 |
 | `MatchmakingService`   | Team building, queue lifecycle, custom matches, result reporting            |
 | `TournamentService`    | Tournament creation, registration, bracket progression                      |
@@ -177,12 +177,6 @@ Infrastructure is provisioned with **Wrangler**. Each app owns its `wrangler.jso
 Local secrets live in each app's `.dev.vars` (gitignored); production secrets are managed with `wrangler secret put <NAME>` (run from the app directory).
 
 The engine-service runs as a standalone process (default listen address `0.0.0.0:50051`) on origin infrastructure with `DATABASE_URL` and optionally `REDIS_URL`. Workers receive `ENGINE_SERVICE_URL` as a binding.
-
-**Guild Discord notifications** — When `NOTIFY_WEBHOOK_URL` and `NOTIFY_WEBHOOK_SECRET` are set on the engine, match and tournament events trigger signed HTTP POSTs to the Discord worker dispatch route. Production endpoint:
-
-`https://app.parley.bot/internal/notifications/dispatch`
-
-Use the same shared secret on both sides: engine env `NOTIFY_WEBHOOK_SECRET` and worker secret `NOTIFY_WEBHOOK_SECRET` via `cd apps/worker && wrangler secret put NOTIFY_WEBHOOK_SECRET` (or `apps/worker/.dev.vars` locally). See `.env.example` and `deploy/systemd/parley.service` for engine variables.
 
 Observability is unified through Axiom: engine-service, Worker, and Bridge all emit structured logs to a shared dataset when `AXIOM_TOKEN` is configured.
 
@@ -366,7 +360,7 @@ The Postgres schema is organized around game-scoped entities:
 - **Performance** — `player_stat_snapshots`, `external_match_history`
 - **Matchmaking** — `match_queues`, `matches`, `match_participants`
 - **Tournaments** — `tournaments`, `tournament_teams`, `bracket_matches`
-- **Configuration** — `guild_settings`, `guild_matchmaking_rules`, `guild_notification_settings`, `guild_match_quotas`, `user_settings`
+- **Configuration** — `guild_settings`, `guild_matchmaking_rules`, `guild_match_quotas`, `user_settings`
 
 Domain timestamps use `bigint` epoch milliseconds. Auth-adjacent tables (managed by better-auth conventions) use `timestamptz`.
 

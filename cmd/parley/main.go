@@ -14,7 +14,6 @@ import (
 	"github.com/pactum-computers/parley/internal/db"
 	"github.com/pactum-computers/parley/internal/logging"
 	"github.com/pactum-computers/parley/internal/matchmaking"
-	"github.com/pactum-computers/parley/internal/notify"
 	"github.com/pactum-computers/parley/internal/repos"
 	"github.com/pactum-computers/parley/internal/server"
 	"github.com/pactum-computers/parley/internal/services"
@@ -138,36 +137,16 @@ func run() error {
 		}
 	}
 
-	notifier := notify.New(notify.Config{
-		URL:    cfg.NotifyWebhookURL,
-		Secret: cfg.NotifyWebhookSecret,
-		Logger: logger,
-	})
-
-	defer func() {
-		shutdownCtx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
-		defer cancel()
-		if err := notifier.Shutdown(shutdownCtx); err != nil {
-			slog.Warn("notify shutdown error", "error", err)
-		}
-	}()
-
-	if notifier.Enabled() {
-		slog.Info("notify webhook configured", "url", cfg.NotifyWebhookURL)
-	} else {
-		slog.Info("notify webhook disabled (NOTIFY_WEBHOOK_URL unset)")
-	}
-
 	// 8. Matchmaking service.
 	var mmService *matchmaking.Service
 	if bunDB != nil {
-		mmService = matchmaking.NewService(guildRepo, matchRepo, queueRepo, snapshotRepo, userRepo, notifier)
+		mmService = matchmaking.NewService(guildRepo, matchRepo, queueRepo, snapshotRepo, userRepo)
 	}
 
 	// 9. Domain services.
 	identitySvc := services.NewIdentityService(identityRepo, guildRepo)
 	guildSvc := services.NewGuildService(guildRepo)
-	matchSvc := services.NewMatchService(matchRepo, queueRepo, guildRepo, mmService, notifier)
+	matchSvc := services.NewMatchService(matchRepo, queueRepo, guildRepo, mmService)
 	statsSvc := services.NewStatsService(cacheStore, registry)
 	userSvc := services.NewUserSettingsService(userRepo, guildRepo, identityRepo)
 
@@ -179,7 +158,7 @@ func run() error {
 
 	var tournSvc *services.TournamentService
 	if bunDB != nil {
-		tournSvc = services.NewTournamentService(bunDB, tournRepo, teamRepo, rosterRepo, bracketRepo, mmService, notifier)
+		tournSvc = services.NewTournamentService(bunDB, tournRepo, teamRepo, rosterRepo, bracketRepo, mmService)
 	}
 
 	// 9. Build Fiber app via server package.

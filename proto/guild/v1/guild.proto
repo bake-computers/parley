@@ -18,9 +18,6 @@ service GuildSettingsService {
   rpc GetMatchmakingRules(GetMatchmakingRulesRequest)             returns (GuildMatchmakingRulesResponse);
   rpc UpsertMatchmakingRules(UpsertMatchmakingRulesRequest)       returns (GuildMatchmakingRulesResponse);
 
-  rpc GetNotificationSettings(GetNotificationSettingsRequest)     returns (GuildNotificationSettingsResponse);
-  rpc UpsertNotificationSettings(UpsertNotificationSettingsRequest) returns (GuildNotificationSettingsResponse);
-
   rpc GetMatchQuotas(GetMatchQuotasRequest)                       returns (GuildMatchQuotasResponse);
   rpc UpsertMatchQuotas(UpsertMatchQuotasRequest)                 returns (GuildMatchQuotasResponse);
 }
@@ -79,34 +76,6 @@ message GuildMatchmakingRulesResponse {
   bool   success               = 1;
   GuildMatchmakingRules rules  = 2;
   parley.common.v1.Error error = 3;
-}
-
-
-message GuildNotificationSettings {
-  string guild_id                            = 1;
-  parley.common.v1.Game game                 = 2;
-  string match_results_channel               = 3;
-  string tournament_announcements_channel    = 4;
-  bool   leaderboard_updates_enabled         = 5;
-  int64  updated_at_ms                       = 6;
-  bool   cross_guild_announcements_enabled   = 7;
-  bool   announce_match_ready_enabled        = 8;
-  bool   announce_match_results_enabled      = 9;
-}
-
-message GetNotificationSettingsRequest {
-  string guild_id            = 1;
-  parley.common.v1.Game game = 2;
-}
-
-message UpsertNotificationSettingsRequest {
-  GuildNotificationSettings settings = 1;
-}
-
-message GuildNotificationSettingsResponse {
-  bool success                         = 1;
-  GuildNotificationSettings settings   = 2;
-  parley.common.v1.Error error         = 3;
 }
 
 

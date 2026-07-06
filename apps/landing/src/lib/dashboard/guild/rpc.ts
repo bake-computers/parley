@@ -3,7 +3,6 @@ import { resolveEngineTransport } from "../../engine/transport.js";
 import type {
   GuildMatchmakingRulesJson,
   GuildMatchQuotaJson,
-  GuildNotificationSettingsJson,
   GuildSettingsJson,
 } from "./types.js";
 
@@ -64,29 +63,6 @@ export async function rpcUpsertMatchmakingRules(
     rules?: GuildMatchmakingRulesJson;
     error?: RpcError;
   }>(env, `${SVC}/UpsertMatchmakingRules`, { rules });
-}
-
-export async function rpcGetNotificationSettings(
-  env: EngineTransportEnv,
-  guildId: string,
-  game: number,
-) {
-  return engineCall<{
-    success: boolean;
-    settings?: GuildNotificationSettingsJson;
-    error?: RpcError;
-  }>(env, `${SVC}/GetNotificationSettings`, { guildId, game });
-}
-
-export async function rpcUpsertNotificationSettings(
-  env: EngineTransportEnv,
-  settings: GuildNotificationSettingsJson,
-) {
-  return engineCall<{
-    success: boolean;
-    settings?: GuildNotificationSettingsJson;
-    error?: RpcError;
-  }>(env, `${SVC}/UpsertNotificationSettings`, { settings });
 }
 
 export async function rpcGetMatchQuotas(env: EngineTransportEnv, guildId: string, game: number) {

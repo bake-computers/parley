@@ -1,6 +1,4 @@
 import type { OAuthEnvSource } from "../../discord/env.js";
-import { resolveBotToken } from "../../discord/env.js";
-import { fetchGuildTextChannels } from "../../discord/guild-channels.js";
 import { requireDashboardSession, sessionCanManageGuild, type DashboardSession } from "../auth.js";
 import type { EngineEnvSource } from "../../engine/env.js";
 import { engineEnvFromCloudflare } from "../../engine/env.js";
@@ -8,25 +6,22 @@ import {
   rpcGetGuildSettings,
   rpcGetMatchmakingRules,
   rpcGetMatchQuotas,
-  rpcGetNotificationSettings,
   rpcUpsertGuildSettings,
   rpcUpsertMatchmakingRules,
   rpcUpsertMatchQuotas,
-  rpcUpsertNotificationSettings,
 } from "./rpc.js";
 import type {
   GuildMatchmakingRulesJson,
   GuildMatchQuotaJson,
-  GuildNotificationSettingsJson,
   GuildSettingsBundleJson,
   GuildSettingsJson,
   SettingsSection,
 } from "./types.js";
 import { GAME_R6 } from "./types.js";
 
-function guildIdFromUrl(request: Request, resource = "settings"): string | null {
+function guildIdFromUrl(request: Request): string | null {
   const pathname = new URL(request.url).pathname;
-  const match = pathname.match(new RegExp(`/api/dashboard/guilds/([^/]+)/${resource}`));
+  const match = pathname.match(/\/api\/dashboard\/guilds\/([^/]+)\/settings/);
   return match?.[1] ?? null;
 }
 
@@ -69,10 +64,9 @@ export async function handleGetGuildSettingsBundle(
   const game = GAME_R6;
 
   try {
-    const [generalRes, rulesRes, notifRes, quotaRes] = await Promise.all([
+    const [generalRes, rulesRes, quotaRes] = await Promise.all([
       rpcGetGuildSettings(env, guildId, game),
       rpcGetMatchmakingRules(env, guildId, game),
-      rpcGetNotificationSettings(env, guildId, game),
       rpcGetMatchQuotas(env, guildId, game),
     ]);
 
@@ -88,12 +82,6 @@ export async function handleGetGuildSettingsBundle(
         { status: 502 },
       );
     }
-    if (!notifRes.success || !notifRes.settings) {
-      return Response.json(
-        { error: notifRes.error?.message ?? "Could not load notification settings" },
-        { status: 502 },
-      );
-    }
     if (!quotaRes.success || !quotaRes.quota) {
       return Response.json(
         { error: quotaRes.error?.message ?? "Could not load match quotas" },
@@ -104,7 +92,6 @@ export async function handleGetGuildSettingsBundle(
     const bundle: GuildSettingsBundleJson = {
       general: normalizeGeneral(generalRes.settings),
       matchmakingRules: normalizeRules(rulesRes.rules),
-      notifications: normalizeNotifications(notifRes.settings),
       matchQuota: quotaRes.quota,
     };
 
@@ -122,12 +109,7 @@ function sectionFromBody(body: unknown): { section: SettingsSection; payload: un
   }
   const record = body as Record<string, unknown>;
   const section = record.section;
-  if (
-    section !== "general" &&
-    section !== "matchmakingRules" &&
-    section !== "notifications" &&
-    section !== "matchQuota"
-  ) {
+  if (section !== "general" && section !== "matchmakingRules" && section !== "matchQuota") {
     return null;
   }
   return { section, payload: record.payload };
@@ -167,16 +149,6 @@ function normalizeRules(rules: GuildMatchmakingRulesJson): GuildMatchmakingRules
   };
 }
 
-function normalizeNotifications(
-  settings: GuildNotificationSettingsJson,
-): GuildNotificationSettingsJson {
-  return {
-    ...settings,
-    matchResultsChannel: settings.matchResultsChannel ?? "",
-    tournamentAnnouncementsChannel: settings.tournamentAnnouncementsChannel ?? "",
-  };
-}
-
 function parseRules(guildId: string, payload: unknown): GuildMatchmakingRulesJson | null {
   if (!payload || typeof payload !== "object") {
     return null;
@@ -194,27 +166,6 @@ function parseRules(guildId: string, payload: unknown): GuildMatchmakingRulesJso
     requireVerified: Boolean(p.requireVerified),
     maxEloGap: Number(p.maxEloGap ?? 0),
     updatedAtMs: 0,
-  };
-}
-
-function parseNotifications(
-  guildId: string,
-  payload: unknown,
-): GuildNotificationSettingsJson | null {
-  if (!payload || typeof payload !== "object") {
-    return null;
-  }
-  const p = payload as Record<string, unknown>;
-  return {
-    guildId,
-    game: GAME_R6,
-    matchResultsChannel: String(p.matchResultsChannel ?? ""),
-    tournamentAnnouncementsChannel: String(p.tournamentAnnouncementsChannel ?? ""),
-    leaderboardUpdatesEnabled: Boolean(p.leaderboardUpdatesEnabled),
-    updatedAtMs: 0,
-    crossGuildAnnouncementsEnabled: Boolean(p.crossGuildAnnouncementsEnabled),
-    announceMatchReadyEnabled: Boolean(p.announceMatchReadyEnabled),
-    announceMatchResultsEnabled: Boolean(p.announceMatchResultsEnabled),
   };
 }
 
@@ -286,17 +237,6 @@ export async function handlePatchGuildSettingsBundle(
         }
         return Response.json({ matchmakingRules: normalizeRules(res.rules) });
       }
-      case "notifications": {
-        const settings = parseNotifications(guildId, parsed.payload);
-        if (!settings) {
-          return Response.json({ error: "invalid_payload" }, { status: 400 });
-        }
-        const res = await rpcUpsertNotificationSettings(env, settings);
-        if (!res.success || !res.settings) {
-          return Response.json({ error: res.error?.message ?? "Update failed" }, { status: 502 });
-        }
-        return Response.json({ notifications: normalizeNotifications(res.settings) });
-      }
       case "matchQuota": {
         const quota = parseQuota(guildId, userId, parsed.payload);
         if (!quota) {
@@ -314,27 +254,4 @@ export async function handlePatchGuildSettingsBundle(
   } catch (e) {
     return engineFailure(e);
   }
-}
-
-export async function handleGetGuildChannels(
-  request: Request,
-  oauthEnv: OAuthEnvSource,
-): Promise<Response> {
-  const guildId = guildIdFromUrl(request, "channels");
-  if (!guildId) {
-    return Response.json({ error: "invalid_guild" }, { status: 400 });
-  }
-
-  const auth = await authorizeGuild(request, oauthEnv, guildId);
-  if (auth instanceof Response) {
-    return auth;
-  }
-
-  const botToken = resolveBotToken(oauthEnv);
-  if (!botToken) {
-    return Response.json({ error: "bot_not_configured" }, { status: 503 });
-  }
-
-  const channels = await fetchGuildTextChannels(guildId, botToken);
-  return Response.json({ channels }, { headers: { "Cache-Control": "private, max-age=60" } });
 }

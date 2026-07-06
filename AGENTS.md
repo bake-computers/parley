@@ -34,7 +34,6 @@ TypeScript (Bun workspaces) ← buf generate → packages/generated-ts
 - `internal/server` — Fiber v3 + connect-go handlers for all protobuf services; `GET /health`, `GET /ready`, `GET /stats/:username`.
 - `internal/matchmaking` — Glicko-2, CPR, queue + background sweeper.
 - `internal/stats` — backends, Redis/direct cache, scrape/fetch, Postgres persistence.
-- `internal/notify` — optional HMAC webhook to the worker at `NOTIFY_WEBHOOK_URL` (e.g. `https://app.parley.bot/internal/notifications/dispatch`); disabled when unset.
 - Graceful degradation without `DATABASE_URL` (in-memory / limited RPCs) and without `REDIS_URL` (direct stats, no Redis leaderboard).
 
 Subdirectory guides: [`proto/AGENTS.md`](proto/AGENTS.md) if present, [`apps/worker/AGENTS.md`](apps/worker/AGENTS.md), [`apps/landing/AGENTS.md`](apps/landing/AGENTS.md), [`apps/bridge/AGENTS.md`](apps/bridge/AGENTS.md), [`packages/runtime/AGENTS.md`](packages/runtime/AGENTS.md).

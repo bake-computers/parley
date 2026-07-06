@@ -20,7 +20,6 @@ import (
 	"github.com/pactum-computers/parley/internal/apperr"
 	"github.com/pactum-computers/parley/internal/matchmaking"
 	"github.com/pactum-computers/parley/internal/models"
-	"github.com/pactum-computers/parley/internal/notify"
 	"github.com/pactum-computers/parley/internal/repos"
 )
 
@@ -30,26 +29,20 @@ type MatchService struct {
 	queue       *repos.MatchmakingQueueRepo
 	guild       *repos.GuildRepo
 	matchmaking *matchmaking.Service
-	notifier    *notify.Client
 }
 
-// NewMatchService returns a service backed by the given repos. The
-// notifier may be nil or a no-op client; it is fired after
-// successful JoinQueue, CreateCustomMatch, and ReportMatchResult
-// without ever blocking the caller.
+// NewMatchService returns a service backed by the given repos.
 func NewMatchService(
 	match *repos.MatchRepo,
 	queue *repos.MatchmakingQueueRepo,
 	guild *repos.GuildRepo,
 	mm *matchmaking.Service,
-	notifier *notify.Client,
 ) *MatchService {
 	return &MatchService{
 		match:       match,
 		queue:       queue,
 		guild:       guild,
 		matchmaking: mm,
-		notifier:    notifier,
 	}
 }
 
@@ -443,7 +436,6 @@ func (s *MatchService) JoinQueue(
 	}
 	if formed != nil {
 		teamA, teamB := assignmentsFromPartition(formed.Players, formed.Partition.TeamA, formed.Partition.TeamB)
-		s.dispatchMatchReady(ctx, game, formed)
 		return connect.NewResponse(&matchv1.JoinQueueResponse{
 			Success:        true,
 			Status:         "matched",
@@ -703,7 +695,7 @@ func (s *MatchService) CreateCustomMatch(
 	if err != nil {
 		return nil, apperr.Internal(fmt.Sprintf("create match: %v", err))
 	}
-	s.dispatchCustomMatchReady(ctx, game, saved.ID)
+
 	teamA, teamB := assignmentsFromPartition(players, partition.TeamA, partition.TeamB)
 	return connect.NewResponse(&matchv1.CreateCustomMatchResponse{
 		Success:        true,
@@ -824,7 +816,7 @@ func (s *MatchService) ReportMatchResult(
 	if completed == nil {
 		return nil, apperr.NotFound("match not found")
 	}
-	s.dispatchMatchResult(ctx, game, completed)
+
 	updated, err := s.match.Participants(ctx, completed.ID)
 	if err != nil {
 		return nil, apperr.Internal(fmt.Sprintf("participants: %v", err))

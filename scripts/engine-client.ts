@@ -225,49 +225,6 @@ export function upsertMatchmakingRules(baseUrl: string, req: UpsertMatchmakingRu
   );
 }
 
-export interface GuildNotificationSettingsPayload {
-  guildId: string;
-  game: Game;
-  matchResultsChannel: string;
-  tournamentAnnouncementsChannel: string;
-  leaderboardUpdatesEnabled: boolean;
-  updatedAtMs: number;
-}
-
-export interface GetNotificationSettingsRequest {
-  guildId: string;
-  game: Game;
-}
-
-export interface UpsertNotificationSettingsRequest {
-  settings: GuildNotificationSettingsPayload;
-}
-
-export interface GuildNotificationSettingsResponse {
-  success: boolean;
-  settings?: GuildNotificationSettingsPayload;
-  error?: ErrorResponse;
-}
-
-export function getNotificationSettings(baseUrl: string, req: GetNotificationSettingsRequest) {
-  return call<GuildNotificationSettingsResponse>(
-    baseUrl,
-    "/parley.guild.v1.GuildSettingsService/GetNotificationSettings",
-    req,
-  );
-}
-
-export function upsertNotificationSettings(
-  baseUrl: string,
-  req: UpsertNotificationSettingsRequest,
-) {
-  return call<GuildNotificationSettingsResponse>(
-    baseUrl,
-    "/parley.guild.v1.GuildSettingsService/UpsertNotificationSettings",
-    req,
-  );
-}
-
 export interface GuildMatchQuotaPayload {
   guildId: string;
   game: Game;
@@ -836,32 +793,6 @@ async function main() {
   //   console.log("UpsertMatchmakingRules:", JSON.stringify(upsert, null, 2));
   // } catch (e) {
   //   console.log("UpsertMatchmakingRules:", (e as Error).message);
-  // }
-
-  // try {
-  //   const ns = await getNotificationSettings(baseUrl, {
-  //     guildId: "guild_123",
-  //     game: GAME_R6,
-  //   });
-  //   console.log("GetNotificationSettings:", JSON.stringify(ns, null, 2));
-  // } catch (e) {
-  //   console.log("GetNotificationSettings:", (e as Error).message);
-  // }
-
-  // try {
-  //   const upsert = await upsertNotificationSettings(baseUrl, {
-  //     settings: {
-  //       guildId: "guild_123",
-  //       game: GAME_R6,
-  //       matchResultsChannel: "channel_456",
-  //       tournamentAnnouncementsChannel: "channel_789",
-  //       leaderboardUpdatesEnabled: true,
-  //       updatedAtMs: Date.now(),
-  //     },
-  //   });
-  //   console.log("UpsertNotificationSettings:", JSON.stringify(upsert, null, 2));
-  // } catch (e) {
-  //   console.log("UpsertNotificationSettings:", (e as Error).message);
   // }
 
   // try {

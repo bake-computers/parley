@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/pactum-computers/parley/internal/models"
-	"github.com/pactum-computers/parley/internal/notify"
 	"github.com/pactum-computers/parley/internal/repos"
 )
 
@@ -21,20 +20,17 @@ type Service struct {
 	queue    *repos.MatchmakingQueueRepo
 	snapshot *repos.PlayerStatSnapshotRepo
 	users    *repos.UserSettingsRepo
-	notifier *notify.Client
 }
 
 // NewService returns a matchmaking service backed by the given
 // repositories. The caller is responsible for ensuring the repos share a
-// single bun.DB handle so cross-table transactions work. notifier may
-// be nil or a no-op client — Dispatch is always safe to call.
+// single bun.DB handle so cross-table transactions work.
 func NewService(
 	guild *repos.GuildRepo,
 	match *repos.MatchRepo,
 	queue *repos.MatchmakingQueueRepo,
 	snapshot *repos.PlayerStatSnapshotRepo,
 	users *repos.UserSettingsRepo,
-	notifier *notify.Client,
 ) *Service {
 	return &Service{
 		guild:    guild,
@@ -42,7 +38,6 @@ func NewService(
 		queue:    queue,
 		snapshot: snapshot,
 		users:    users,
-		notifier: notifier,
 	}
 }
 

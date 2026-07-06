@@ -14,7 +14,6 @@ interface __BaseEnv_Env {
   DISCORD_BOT_TOKEN: string;
   DISCORD_APPLICATION_ID: string;
   DISCORD_BOT_OWNER_ID: string;
-  NOTIFY_WEBHOOK_SECRET: string;
   VPC_SERVICE?: Fetcher;
   SERVICE_NAME?: "worker";
   AXIOM_ENABLED?: "true";
@@ -36,7 +35,6 @@ declare namespace Cloudflare {
     DISCORD_BOT_TOKEN: string;
     DISCORD_APPLICATION_ID: string;
     DISCORD_BOT_OWNER_ID: string;
-    NOTIFY_WEBHOOK_SECRET: string;
   }
   interface Env extends __BaseEnv_Env {}
 }
@@ -59,7 +57,6 @@ declare namespace NodeJS {
       | "DISCORD_BOT_TOKEN"
       | "DISCORD_APPLICATION_ID"
       | "DISCORD_BOT_OWNER_ID"
-      | "NOTIFY_WEBHOOK_SECRET"
       | "SERVICE_NAME"
       | "AXIOM_ENABLED"
     >

@@ -23,18 +23,6 @@ export type GuildMatchmakingRulesJson = {
   updatedAtMs: number;
 };
 
-export type GuildNotificationSettingsJson = {
-  guildId: string;
-  game: number;
-  matchResultsChannel: string;
-  tournamentAnnouncementsChannel: string;
-  leaderboardUpdatesEnabled: boolean;
-  updatedAtMs: number;
-  crossGuildAnnouncementsEnabled: boolean;
-  announceMatchReadyEnabled: boolean;
-  announceMatchResultsEnabled: boolean;
-};
-
 export type GuildMatchQuotaJson = {
   guildId: string;
   game: number;
@@ -46,7 +34,6 @@ export type GuildMatchQuotaJson = {
 export type GuildSettingsBundleJson = {
   general: GuildSettingsJson;
   matchmakingRules: GuildMatchmakingRulesJson;
-  notifications: GuildNotificationSettingsJson;
   matchQuota: GuildMatchQuotaJson;
 };
 
