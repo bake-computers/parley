@@ -4,7 +4,6 @@ import { cn } from "#/lib/shared/cn";
 const SECTIONS = [
   { slug: "general", label: "General" },
   { slug: "rules", label: "Matchmaking rules" },
-  { slug: "notifications", label: "Notifications" },
   { slug: "quota", label: "Match quota" },
 ] as const;
 
@@ -18,9 +17,7 @@ function sectionTo(guildId: string, slug: (typeof SECTIONS)[number]["slug"]) {
     ? "/dashboard/guilds/$guildId/general"
     : slug === "rules"
       ? "/dashboard/guilds/$guildId/rules"
-      : slug === "notifications"
-        ? "/dashboard/guilds/$guildId/notifications"
-        : "/dashboard/guilds/$guildId/quota";
+      : "/dashboard/guilds/$guildId/quota";
 }
 
 export function GuildSettingsNav({ guildId, layout = "tabs" }: GuildSettingsNavProps) {

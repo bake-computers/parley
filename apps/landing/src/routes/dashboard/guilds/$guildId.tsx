@@ -16,7 +16,6 @@ import {
   getCachedGuildSettings,
   patchCachedGuildSettings,
 } from "#/lib/dashboard/guild-settings-cache";
-import { prefetchGuildTextChannels } from "#/hooks/useGuildTextChannels";
 import { cn } from "#/lib/shared/cn";
 import { GlassPanel } from "#/components/ui/glass-panel";
 import type { GuildSettingsBundleJson } from "#/lib/dashboard/api-types";
@@ -66,7 +65,6 @@ function GuildDashboardLayout() {
     if (cached) {
       setSettings(cached);
       setLoadError(null);
-      prefetchGuildTextChannels(guildId);
       void fetchGuildSettings(guildId, { background: true })
         .then((bundle) => {
           if (!cancelled) {
@@ -81,7 +79,6 @@ function GuildDashboardLayout() {
 
     setSettings(undefined);
     setLoadError(null);
-    prefetchGuildTextChannels(guildId);
     fetchGuildSettings(guildId)
       .then((bundle) => {
         if (!cancelled) {
