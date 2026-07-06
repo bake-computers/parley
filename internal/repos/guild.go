@@ -299,56 +299,6 @@ func (r *GuildRepo) UpsertMatchmakingRules(
 	return &out, nil
 }
 
-// --- notification settings ---
-
-// GetNotificationSettings loads guild notification settings for (guild_id, game).
-func (r *GuildRepo) GetNotificationSettings(
-	ctx context.Context,
-	guildID string,
-	game models.Game,
-) (*models.GuildNotificationSettings, error) {
-	var row models.GuildNotificationSettings
-	err := r.db.NewSelect().
-		Model(&row).
-		Where("guild_id = ?", guildID).
-		Where("game = ?", game).
-		Scan(ctx)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return nil, nil
-		}
-		return nil, err
-	}
-	return &row, nil
-}
-
-// UpsertNotificationSettings inserts or updates guild notification settings.
-func (r *GuildRepo) UpsertNotificationSettings(
-	ctx context.Context,
-	row *models.GuildNotificationSettings,
-) (*models.GuildNotificationSettings, error) {
-	if row == nil {
-		return nil, fmt.Errorf("guild notification settings row is nil")
-	}
-	var out models.GuildNotificationSettings
-	_, err := r.db.NewInsert().
-		Model(row).
-		On("CONFLICT (guild_id, game) DO UPDATE").
-		Set("match_results_channel = EXCLUDED.match_results_channel").
-		Set("tournament_announcements_channel = EXCLUDED.tournament_announcements_channel").
-		Set("leaderboard_updates_enabled = EXCLUDED.leaderboard_updates_enabled").
-		Set("cross_guild_announcements_enabled = EXCLUDED.cross_guild_announcements_enabled").
-		Set("announce_match_ready_enabled = EXCLUDED.announce_match_ready_enabled").
-		Set("announce_match_results_enabled = EXCLUDED.announce_match_results_enabled").
-		Set("updated_at = EXCLUDED.updated_at").
-		Returning("*").
-		Exec(ctx, &out)
-	if err != nil {
-		return nil, err
-	}
-	return &out, nil
-}
-
 // --- quotas ---
 
 // GetMatchQuota loads the guild daily match quota for (guild_id, game).

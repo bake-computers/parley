@@ -9,7 +9,6 @@ import { historyCommand } from "./interactions/history/slash.js";
 import { linkSlashCommand } from "./interactions/link/slash.js";
 import { pingCommand } from "./interactions/ping.js";
 import { profileCommand } from "./interactions/profile.js";
-import { settingsSlashCommand } from "./interactions/settings/index.js";
 import { userSlashCommand } from "./interactions/user/index.js";
 
 async function loadEnvFile(path: string): Promise<void> {
@@ -68,7 +67,6 @@ const commands = [
   historyCommand,
   linkSlashCommand,
   profileCommand,
-  settingsSlashCommand,
   userSlashCommand,
 ];
 

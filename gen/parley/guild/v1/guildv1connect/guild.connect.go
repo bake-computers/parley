@@ -45,12 +45,6 @@ const (
 	// GuildSettingsServiceUpsertMatchmakingRulesProcedure is the fully-qualified name of the
 	// GuildSettingsService's UpsertMatchmakingRules RPC.
 	GuildSettingsServiceUpsertMatchmakingRulesProcedure = "/parley.guild.v1.GuildSettingsService/UpsertMatchmakingRules"
-	// GuildSettingsServiceGetNotificationSettingsProcedure is the fully-qualified name of the
-	// GuildSettingsService's GetNotificationSettings RPC.
-	GuildSettingsServiceGetNotificationSettingsProcedure = "/parley.guild.v1.GuildSettingsService/GetNotificationSettings"
-	// GuildSettingsServiceUpsertNotificationSettingsProcedure is the fully-qualified name of the
-	// GuildSettingsService's UpsertNotificationSettings RPC.
-	GuildSettingsServiceUpsertNotificationSettingsProcedure = "/parley.guild.v1.GuildSettingsService/UpsertNotificationSettings"
 	// GuildSettingsServiceGetMatchQuotasProcedure is the fully-qualified name of the
 	// GuildSettingsService's GetMatchQuotas RPC.
 	GuildSettingsServiceGetMatchQuotasProcedure = "/parley.guild.v1.GuildSettingsService/GetMatchQuotas"
@@ -65,8 +59,6 @@ type GuildSettingsServiceClient interface {
 	UpsertGuildSettings(context.Context, *connect.Request[v1.UpsertGuildSettingsRequest]) (*connect.Response[v1.GuildSettingsResponse], error)
 	GetMatchmakingRules(context.Context, *connect.Request[v1.GetMatchmakingRulesRequest]) (*connect.Response[v1.GuildMatchmakingRulesResponse], error)
 	UpsertMatchmakingRules(context.Context, *connect.Request[v1.UpsertMatchmakingRulesRequest]) (*connect.Response[v1.GuildMatchmakingRulesResponse], error)
-	GetNotificationSettings(context.Context, *connect.Request[v1.GetNotificationSettingsRequest]) (*connect.Response[v1.GuildNotificationSettingsResponse], error)
-	UpsertNotificationSettings(context.Context, *connect.Request[v1.UpsertNotificationSettingsRequest]) (*connect.Response[v1.GuildNotificationSettingsResponse], error)
 	GetMatchQuotas(context.Context, *connect.Request[v1.GetMatchQuotasRequest]) (*connect.Response[v1.GuildMatchQuotasResponse], error)
 	UpsertMatchQuotas(context.Context, *connect.Request[v1.UpsertMatchQuotasRequest]) (*connect.Response[v1.GuildMatchQuotasResponse], error)
 }
@@ -106,18 +98,6 @@ func NewGuildSettingsServiceClient(httpClient connect.HTTPClient, baseURL string
 			connect.WithSchema(guildSettingsServiceMethods.ByName("UpsertMatchmakingRules")),
 			connect.WithClientOptions(opts...),
 		),
-		getNotificationSettings: connect.NewClient[v1.GetNotificationSettingsRequest, v1.GuildNotificationSettingsResponse](
-			httpClient,
-			baseURL+GuildSettingsServiceGetNotificationSettingsProcedure,
-			connect.WithSchema(guildSettingsServiceMethods.ByName("GetNotificationSettings")),
-			connect.WithClientOptions(opts...),
-		),
-		upsertNotificationSettings: connect.NewClient[v1.UpsertNotificationSettingsRequest, v1.GuildNotificationSettingsResponse](
-			httpClient,
-			baseURL+GuildSettingsServiceUpsertNotificationSettingsProcedure,
-			connect.WithSchema(guildSettingsServiceMethods.ByName("UpsertNotificationSettings")),
-			connect.WithClientOptions(opts...),
-		),
 		getMatchQuotas: connect.NewClient[v1.GetMatchQuotasRequest, v1.GuildMatchQuotasResponse](
 			httpClient,
 			baseURL+GuildSettingsServiceGetMatchQuotasProcedure,
@@ -135,14 +115,12 @@ func NewGuildSettingsServiceClient(httpClient connect.HTTPClient, baseURL string
 
 // guildSettingsServiceClient implements GuildSettingsServiceClient.
 type guildSettingsServiceClient struct {
-	getGuildSettings           *connect.Client[v1.GetGuildSettingsRequest, v1.GuildSettingsResponse]
-	upsertGuildSettings        *connect.Client[v1.UpsertGuildSettingsRequest, v1.GuildSettingsResponse]
-	getMatchmakingRules        *connect.Client[v1.GetMatchmakingRulesRequest, v1.GuildMatchmakingRulesResponse]
-	upsertMatchmakingRules     *connect.Client[v1.UpsertMatchmakingRulesRequest, v1.GuildMatchmakingRulesResponse]
-	getNotificationSettings    *connect.Client[v1.GetNotificationSettingsRequest, v1.GuildNotificationSettingsResponse]
-	upsertNotificationSettings *connect.Client[v1.UpsertNotificationSettingsRequest, v1.GuildNotificationSettingsResponse]
-	getMatchQuotas             *connect.Client[v1.GetMatchQuotasRequest, v1.GuildMatchQuotasResponse]
-	upsertMatchQuotas          *connect.Client[v1.UpsertMatchQuotasRequest, v1.GuildMatchQuotasResponse]
+	getGuildSettings       *connect.Client[v1.GetGuildSettingsRequest, v1.GuildSettingsResponse]
+	upsertGuildSettings    *connect.Client[v1.UpsertGuildSettingsRequest, v1.GuildSettingsResponse]
+	getMatchmakingRules    *connect.Client[v1.GetMatchmakingRulesRequest, v1.GuildMatchmakingRulesResponse]
+	upsertMatchmakingRules *connect.Client[v1.UpsertMatchmakingRulesRequest, v1.GuildMatchmakingRulesResponse]
+	getMatchQuotas         *connect.Client[v1.GetMatchQuotasRequest, v1.GuildMatchQuotasResponse]
+	upsertMatchQuotas      *connect.Client[v1.UpsertMatchQuotasRequest, v1.GuildMatchQuotasResponse]
 }
 
 // GetGuildSettings calls parley.guild.v1.GuildSettingsService.GetGuildSettings.
@@ -165,16 +143,6 @@ func (c *guildSettingsServiceClient) UpsertMatchmakingRules(ctx context.Context,
 	return c.upsertMatchmakingRules.CallUnary(ctx, req)
 }
 
-// GetNotificationSettings calls parley.guild.v1.GuildSettingsService.GetNotificationSettings.
-func (c *guildSettingsServiceClient) GetNotificationSettings(ctx context.Context, req *connect.Request[v1.GetNotificationSettingsRequest]) (*connect.Response[v1.GuildNotificationSettingsResponse], error) {
-	return c.getNotificationSettings.CallUnary(ctx, req)
-}
-
-// UpsertNotificationSettings calls parley.guild.v1.GuildSettingsService.UpsertNotificationSettings.
-func (c *guildSettingsServiceClient) UpsertNotificationSettings(ctx context.Context, req *connect.Request[v1.UpsertNotificationSettingsRequest]) (*connect.Response[v1.GuildNotificationSettingsResponse], error) {
-	return c.upsertNotificationSettings.CallUnary(ctx, req)
-}
-
 // GetMatchQuotas calls parley.guild.v1.GuildSettingsService.GetMatchQuotas.
 func (c *guildSettingsServiceClient) GetMatchQuotas(ctx context.Context, req *connect.Request[v1.GetMatchQuotasRequest]) (*connect.Response[v1.GuildMatchQuotasResponse], error) {
 	return c.getMatchQuotas.CallUnary(ctx, req)
@@ -192,8 +160,6 @@ type GuildSettingsServiceHandler interface {
 	UpsertGuildSettings(context.Context, *connect.Request[v1.UpsertGuildSettingsRequest]) (*connect.Response[v1.GuildSettingsResponse], error)
 	GetMatchmakingRules(context.Context, *connect.Request[v1.GetMatchmakingRulesRequest]) (*connect.Response[v1.GuildMatchmakingRulesResponse], error)
 	UpsertMatchmakingRules(context.Context, *connect.Request[v1.UpsertMatchmakingRulesRequest]) (*connect.Response[v1.GuildMatchmakingRulesResponse], error)
-	GetNotificationSettings(context.Context, *connect.Request[v1.GetNotificationSettingsRequest]) (*connect.Response[v1.GuildNotificationSettingsResponse], error)
-	UpsertNotificationSettings(context.Context, *connect.Request[v1.UpsertNotificationSettingsRequest]) (*connect.Response[v1.GuildNotificationSettingsResponse], error)
 	GetMatchQuotas(context.Context, *connect.Request[v1.GetMatchQuotasRequest]) (*connect.Response[v1.GuildMatchQuotasResponse], error)
 	UpsertMatchQuotas(context.Context, *connect.Request[v1.UpsertMatchQuotasRequest]) (*connect.Response[v1.GuildMatchQuotasResponse], error)
 }
@@ -229,18 +195,6 @@ func NewGuildSettingsServiceHandler(svc GuildSettingsServiceHandler, opts ...con
 		connect.WithSchema(guildSettingsServiceMethods.ByName("UpsertMatchmakingRules")),
 		connect.WithHandlerOptions(opts...),
 	)
-	guildSettingsServiceGetNotificationSettingsHandler := connect.NewUnaryHandler(
-		GuildSettingsServiceGetNotificationSettingsProcedure,
-		svc.GetNotificationSettings,
-		connect.WithSchema(guildSettingsServiceMethods.ByName("GetNotificationSettings")),
-		connect.WithHandlerOptions(opts...),
-	)
-	guildSettingsServiceUpsertNotificationSettingsHandler := connect.NewUnaryHandler(
-		GuildSettingsServiceUpsertNotificationSettingsProcedure,
-		svc.UpsertNotificationSettings,
-		connect.WithSchema(guildSettingsServiceMethods.ByName("UpsertNotificationSettings")),
-		connect.WithHandlerOptions(opts...),
-	)
 	guildSettingsServiceGetMatchQuotasHandler := connect.NewUnaryHandler(
 		GuildSettingsServiceGetMatchQuotasProcedure,
 		svc.GetMatchQuotas,
@@ -263,10 +217,6 @@ func NewGuildSettingsServiceHandler(svc GuildSettingsServiceHandler, opts ...con
 			guildSettingsServiceGetMatchmakingRulesHandler.ServeHTTP(w, r)
 		case GuildSettingsServiceUpsertMatchmakingRulesProcedure:
 			guildSettingsServiceUpsertMatchmakingRulesHandler.ServeHTTP(w, r)
-		case GuildSettingsServiceGetNotificationSettingsProcedure:
-			guildSettingsServiceGetNotificationSettingsHandler.ServeHTTP(w, r)
-		case GuildSettingsServiceUpsertNotificationSettingsProcedure:
-			guildSettingsServiceUpsertNotificationSettingsHandler.ServeHTTP(w, r)
 		case GuildSettingsServiceGetMatchQuotasProcedure:
 			guildSettingsServiceGetMatchQuotasHandler.ServeHTTP(w, r)
 		case GuildSettingsServiceUpsertMatchQuotasProcedure:
@@ -294,14 +244,6 @@ func (UnimplementedGuildSettingsServiceHandler) GetMatchmakingRules(context.Cont
 
 func (UnimplementedGuildSettingsServiceHandler) UpsertMatchmakingRules(context.Context, *connect.Request[v1.UpsertMatchmakingRulesRequest]) (*connect.Response[v1.GuildMatchmakingRulesResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("parley.guild.v1.GuildSettingsService.UpsertMatchmakingRules is not implemented"))
-}
-
-func (UnimplementedGuildSettingsServiceHandler) GetNotificationSettings(context.Context, *connect.Request[v1.GetNotificationSettingsRequest]) (*connect.Response[v1.GuildNotificationSettingsResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("parley.guild.v1.GuildSettingsService.GetNotificationSettings is not implemented"))
-}
-
-func (UnimplementedGuildSettingsServiceHandler) UpsertNotificationSettings(context.Context, *connect.Request[v1.UpsertNotificationSettingsRequest]) (*connect.Response[v1.GuildNotificationSettingsResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("parley.guild.v1.GuildSettingsService.UpsertNotificationSettings is not implemented"))
 }
 
 func (UnimplementedGuildSettingsServiceHandler) GetMatchQuotas(context.Context, *connect.Request[v1.GetMatchQuotasRequest]) (*connect.Response[v1.GuildMatchQuotasResponse], error) {

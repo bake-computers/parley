@@ -96,7 +96,7 @@ export function executeUnlinkAccount(input: {
   return invokeUnlinkAccount(client, {
     discordUserId: input.user?.id ?? "",
     game: Game.R6,
-    ...(input.platform != null && { platform: input.platform }),
+    ...(input.platform !== undefined && { platform: input.platform }),
   });
 }
 

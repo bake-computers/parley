@@ -98,7 +98,7 @@ function cardDescription({
     return "You need Manage Server or Administrator to configure Parley on this server.";
   }
   if (parleyInstalled) {
-    return "Matchmaking, notifications, quotas, and Parley defaults for Rainbow Six Siege.";
+    return "Matchmaking, quotas, and Parley defaults for Rainbow Six Siege.";
   }
   return "Parley is not in this server yet. Add the bot to unlock guild settings.";
 }

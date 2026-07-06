@@ -8,11 +8,6 @@ import {
 import { pingCommand } from "./interactions/ping.js";
 import { profileCommand } from "./interactions/profile.js";
 import {
-  settingsButtonHandler,
-  settingsSelectHandler,
-  settingsSlashCommand,
-} from "./interactions/settings/index.js";
-import {
   userButtonHandler,
   userModalHandler,
   userSlashCommand,
@@ -25,9 +20,6 @@ export const workerHandlers = [
   linkSlashCommand,
   pingCommand,
   profileCommand,
-  settingsButtonHandler,
-  settingsSelectHandler,
-  settingsSlashCommand,
   userButtonHandler,
   userModalHandler,
   userSlashCommand,

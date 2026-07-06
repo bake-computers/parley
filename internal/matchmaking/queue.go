@@ -6,7 +6,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/pactum-computers/parley/internal/models"
-	"github.com/pactum-computers/parley/internal/notify"
 	"github.com/pactum-computers/parley/internal/repos"
 )
 
@@ -14,8 +13,7 @@ import (
 // persisted match id, the team partition that produced it, the
 // player list in their original order, the queue ids that were
 // consumed, the lobby's mean CPR, the public UUID used for the
-// landing-page link, and the host guild id (set so the notifier
-// can build the dispatch payload). Mirrors FormedMatch in
+// landing-page link, and the host guild id. Mirrors FormedMatch in
 // src/matchmaking/queue.rs.
 type FormedMatch struct {
 	MatchID          int32
@@ -305,8 +303,7 @@ func (s *Service) CreateStack(
 // SweepPool is the one-shot entry point the background sweeper calls
 // per (game, guild, team_size) tuple. It is a thin wrapper around
 // TryFormMatch and exists for naming parity with the Rust
-// sweep_pool in src/matchmaking/queue.rs. When a match is formed
-// the notifier is fired with the match.ready event.
+// sweep_pool in src/matchmaking/queue.rs.
 func (s *Service) SweepPool(
 	ctx context.Context,
 	game models.Game,
@@ -319,38 +316,7 @@ func (s *Service) SweepPool(
 	if err != nil || formed == nil {
 		return formed, err
 	}
-	s.dispatchMatchReady(ctx, game, formed)
 	return formed, nil
-}
-
-// dispatchMatchReady fans out a match.ready event. It is the single
-// emit point for the sweeper path; the request-driven path in
-// services.MatchService.JoinQueue mirrors it. Errors are logged by
-// the notifier and never propagated to the caller.
-func (s *Service) dispatchMatchReady(
-	ctx context.Context,
-	game models.Game,
-	formed *FormedMatch,
-) {
-	if s.notifier == nil || !s.notifier.Enabled() {
-		return
-	}
-	hostGuilds, _ := s.match.ParticipantGuildIDsForMatch(ctx, formed.MatchID)
-	if len(hostGuilds) == 0 {
-		hostGuilds = []string{formed.HostGuildID}
-	}
-	s.notifier.Dispatch(ctx, notify.Event{
-		Event:             notify.EventMatchReady,
-		Game:              string(game),
-		MatchID:           formatMatchID(formed.MatchID),
-		HostGuildID:       formed.HostGuildID,
-		PublicUUID:        formed.PublicUUID.String(),
-		ParticipantGuilds: hostGuilds,
-	})
-}
-
-func formatMatchID(v int32) string {
-	return fmt.Sprintf("%d", v)
 }
 
 // nowMS is a tiny indirection so tests can stub the clock later if

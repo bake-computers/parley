@@ -168,7 +168,7 @@ export function AuthLoginPage({
           <div className="mx-auto w-full max-w-[22rem] motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 motion-safe:duration-500">
             <h1 className="text-[2rem] font-semibold tracking-tight sm:text-[2.15rem]">Sign in</h1>
             <p className="text-muted-foreground mt-3 text-sm leading-relaxed">
-              Authorize with Discord to access guild settings, matchmaking rules, and notifications.
+              Authorize with Discord to access guild settings and matchmaking rules.
             </p>
 
             {error === "turnstile" ? (

@@ -36,9 +36,6 @@ type Config struct {
 
 	AccountDeletionHMACSecret string
 
-	NotifyWebhookURL    string
-	NotifyWebhookSecret string
-
 	LogLevel string
 }
 
@@ -78,9 +75,6 @@ func Load() (*Config, error) {
 		AxiomEnabled: readAxiomEnabled(),
 
 		AccountDeletionHMACSecret: os.Getenv("ACCOUNT_DELETION_HMAC_SECRET"),
-
-		NotifyWebhookURL:    os.Getenv("NOTIFY_WEBHOOK_URL"),
-		NotifyWebhookSecret: os.Getenv("NOTIFY_WEBHOOK_SECRET"),
 
 		LogLevel: readLogLevel(),
 	}

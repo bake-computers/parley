@@ -103,44 +103,6 @@ func TestUpsertMatchmakingRules_EmptyGuildID(t *testing.T) {
 	assertNotSuccess(t, resp.Msg.Success, resp.Msg.Error)
 }
 
-func TestGetNotificationSettings_EmptyGuildID(t *testing.T) {
-	h := newTestHandler(t)
-	req := connect.NewRequest(&guildv1.GetNotificationSettingsRequest{
-		GuildId: "",
-		Game:    commonv1.Game_GAME_R6,
-	})
-	resp, err := h.GetNotificationSettings(context.Background(), req)
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	assertNotSuccess(t, resp.Msg.Success, resp.Msg.Error)
-}
-
-func TestUpsertNotificationSettings_NilSettings(t *testing.T) {
-	h := newTestHandler(t)
-	req := connect.NewRequest(&guildv1.UpsertNotificationSettingsRequest{})
-	resp, err := h.UpsertNotificationSettings(context.Background(), req)
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	assertNotSuccess(t, resp.Msg.Success, resp.Msg.Error)
-}
-
-func TestUpsertNotificationSettings_EmptyGuildID(t *testing.T) {
-	h := newTestHandler(t)
-	req := connect.NewRequest(&guildv1.UpsertNotificationSettingsRequest{
-		Settings: &guildv1.GuildNotificationSettings{
-			GuildId: "",
-			Game:    commonv1.Game_GAME_R6,
-		},
-	})
-	resp, err := h.UpsertNotificationSettings(context.Background(), req)
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	assertNotSuccess(t, resp.Msg.Success, resp.Msg.Error)
-}
-
 func TestGetMatchQuotas_EmptyGuildID(t *testing.T) {
 	h := newTestHandler(t)
 	req := connect.NewRequest(&guildv1.GetMatchQuotasRequest{

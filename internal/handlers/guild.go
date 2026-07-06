@@ -125,58 +125,6 @@ func (h *GuildHandler) UpsertMatchmakingRules(
 	}), nil
 }
 
-func (h *GuildHandler) GetNotificationSettings(
-	ctx context.Context,
-	req *connect.Request[guildv1.GetNotificationSettingsRequest],
-) (*connect.Response[guildv1.GuildNotificationSettingsResponse], error) {
-	msg := req.Msg
-	if strings.TrimSpace(msg.GetGuildId()) == "" {
-		return connect.NewResponse(&guildv1.GuildNotificationSettingsResponse{
-			Success: false,
-			Error:   errProto(apperr.CodeInvalidArgument, "guild_id is required"),
-		}), nil
-	}
-
-	settings, err := h.svc.GetNotificationSettings(ctx, msg.GetGuildId(), msg.GetGame())
-	if err != nil {
-		return nil, err
-	}
-
-	return connect.NewResponse(&guildv1.GuildNotificationSettingsResponse{
-		Success:  true,
-		Settings: settings,
-	}), nil
-}
-
-func (h *GuildHandler) UpsertNotificationSettings(
-	ctx context.Context,
-	req *connect.Request[guildv1.UpsertNotificationSettingsRequest],
-) (*connect.Response[guildv1.GuildNotificationSettingsResponse], error) {
-	msg := req.Msg
-	if msg.GetSettings() == nil {
-		return connect.NewResponse(&guildv1.GuildNotificationSettingsResponse{
-			Success: false,
-			Error:   errProto(apperr.CodeInvalidArgument, "settings is required"),
-		}), nil
-	}
-	if strings.TrimSpace(msg.GetSettings().GetGuildId()) == "" {
-		return connect.NewResponse(&guildv1.GuildNotificationSettingsResponse{
-			Success: false,
-			Error:   errProto(apperr.CodeInvalidArgument, "guild_id is required"),
-		}), nil
-	}
-
-	saved, err := h.svc.UpsertNotificationSettings(ctx, msg.GetSettings())
-	if err != nil {
-		return nil, err
-	}
-
-	return connect.NewResponse(&guildv1.GuildNotificationSettingsResponse{
-		Success:  true,
-		Settings: saved,
-	}), nil
-}
-
 func (h *GuildHandler) GetMatchQuotas(
 	ctx context.Context,
 	req *connect.Request[guildv1.GetMatchQuotasRequest],

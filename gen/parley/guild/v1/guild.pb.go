@@ -534,270 +534,6 @@ func (x *GuildMatchmakingRulesResponse) GetError() *v1.Error {
 	return nil
 }
 
-type GuildNotificationSettings struct {
-	state                          protoimpl.MessageState `protogen:"open.v1"`
-	GuildId                        string                 `protobuf:"bytes,1,opt,name=guild_id,json=guildId,proto3" json:"guild_id,omitempty"`
-	Game                           v1.Game                `protobuf:"varint,2,opt,name=game,proto3,enum=parley.common.v1.Game" json:"game,omitempty"`
-	MatchResultsChannel            string                 `protobuf:"bytes,3,opt,name=match_results_channel,json=matchResultsChannel,proto3" json:"match_results_channel,omitempty"`
-	TournamentAnnouncementsChannel string                 `protobuf:"bytes,4,opt,name=tournament_announcements_channel,json=tournamentAnnouncementsChannel,proto3" json:"tournament_announcements_channel,omitempty"`
-	LeaderboardUpdatesEnabled      bool                   `protobuf:"varint,5,opt,name=leaderboard_updates_enabled,json=leaderboardUpdatesEnabled,proto3" json:"leaderboard_updates_enabled,omitempty"`
-	UpdatedAtMs                    int64                  `protobuf:"varint,6,opt,name=updated_at_ms,json=updatedAtMs,proto3" json:"updated_at_ms,omitempty"`
-	CrossGuildAnnouncementsEnabled bool                   `protobuf:"varint,7,opt,name=cross_guild_announcements_enabled,json=crossGuildAnnouncementsEnabled,proto3" json:"cross_guild_announcements_enabled,omitempty"`
-	AnnounceMatchReadyEnabled      bool                   `protobuf:"varint,8,opt,name=announce_match_ready_enabled,json=announceMatchReadyEnabled,proto3" json:"announce_match_ready_enabled,omitempty"`
-	AnnounceMatchResultsEnabled    bool                   `protobuf:"varint,9,opt,name=announce_match_results_enabled,json=announceMatchResultsEnabled,proto3" json:"announce_match_results_enabled,omitempty"`
-	unknownFields                  protoimpl.UnknownFields
-	sizeCache                      protoimpl.SizeCache
-}
-
-func (x *GuildNotificationSettings) Reset() {
-	*x = GuildNotificationSettings{}
-	mi := &file_guild_v1_guild_proto_msgTypes[8]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GuildNotificationSettings) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GuildNotificationSettings) ProtoMessage() {}
-
-func (x *GuildNotificationSettings) ProtoReflect() protoreflect.Message {
-	mi := &file_guild_v1_guild_proto_msgTypes[8]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GuildNotificationSettings.ProtoReflect.Descriptor instead.
-func (*GuildNotificationSettings) Descriptor() ([]byte, []int) {
-	return file_guild_v1_guild_proto_rawDescGZIP(), []int{8}
-}
-
-func (x *GuildNotificationSettings) GetGuildId() string {
-	if x != nil {
-		return x.GuildId
-	}
-	return ""
-}
-
-func (x *GuildNotificationSettings) GetGame() v1.Game {
-	if x != nil {
-		return x.Game
-	}
-	return v1.Game(0)
-}
-
-func (x *GuildNotificationSettings) GetMatchResultsChannel() string {
-	if x != nil {
-		return x.MatchResultsChannel
-	}
-	return ""
-}
-
-func (x *GuildNotificationSettings) GetTournamentAnnouncementsChannel() string {
-	if x != nil {
-		return x.TournamentAnnouncementsChannel
-	}
-	return ""
-}
-
-func (x *GuildNotificationSettings) GetLeaderboardUpdatesEnabled() bool {
-	if x != nil {
-		return x.LeaderboardUpdatesEnabled
-	}
-	return false
-}
-
-func (x *GuildNotificationSettings) GetUpdatedAtMs() int64 {
-	if x != nil {
-		return x.UpdatedAtMs
-	}
-	return 0
-}
-
-func (x *GuildNotificationSettings) GetCrossGuildAnnouncementsEnabled() bool {
-	if x != nil {
-		return x.CrossGuildAnnouncementsEnabled
-	}
-	return false
-}
-
-func (x *GuildNotificationSettings) GetAnnounceMatchReadyEnabled() bool {
-	if x != nil {
-		return x.AnnounceMatchReadyEnabled
-	}
-	return false
-}
-
-func (x *GuildNotificationSettings) GetAnnounceMatchResultsEnabled() bool {
-	if x != nil {
-		return x.AnnounceMatchResultsEnabled
-	}
-	return false
-}
-
-type GetNotificationSettingsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	GuildId       string                 `protobuf:"bytes,1,opt,name=guild_id,json=guildId,proto3" json:"guild_id,omitempty"`
-	Game          v1.Game                `protobuf:"varint,2,opt,name=game,proto3,enum=parley.common.v1.Game" json:"game,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetNotificationSettingsRequest) Reset() {
-	*x = GetNotificationSettingsRequest{}
-	mi := &file_guild_v1_guild_proto_msgTypes[9]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetNotificationSettingsRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetNotificationSettingsRequest) ProtoMessage() {}
-
-func (x *GetNotificationSettingsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_guild_v1_guild_proto_msgTypes[9]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetNotificationSettingsRequest.ProtoReflect.Descriptor instead.
-func (*GetNotificationSettingsRequest) Descriptor() ([]byte, []int) {
-	return file_guild_v1_guild_proto_rawDescGZIP(), []int{9}
-}
-
-func (x *GetNotificationSettingsRequest) GetGuildId() string {
-	if x != nil {
-		return x.GuildId
-	}
-	return ""
-}
-
-func (x *GetNotificationSettingsRequest) GetGame() v1.Game {
-	if x != nil {
-		return x.Game
-	}
-	return v1.Game(0)
-}
-
-type UpsertNotificationSettingsRequest struct {
-	state         protoimpl.MessageState     `protogen:"open.v1"`
-	Settings      *GuildNotificationSettings `protobuf:"bytes,1,opt,name=settings,proto3" json:"settings,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *UpsertNotificationSettingsRequest) Reset() {
-	*x = UpsertNotificationSettingsRequest{}
-	mi := &file_guild_v1_guild_proto_msgTypes[10]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *UpsertNotificationSettingsRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*UpsertNotificationSettingsRequest) ProtoMessage() {}
-
-func (x *UpsertNotificationSettingsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_guild_v1_guild_proto_msgTypes[10]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use UpsertNotificationSettingsRequest.ProtoReflect.Descriptor instead.
-func (*UpsertNotificationSettingsRequest) Descriptor() ([]byte, []int) {
-	return file_guild_v1_guild_proto_rawDescGZIP(), []int{10}
-}
-
-func (x *UpsertNotificationSettingsRequest) GetSettings() *GuildNotificationSettings {
-	if x != nil {
-		return x.Settings
-	}
-	return nil
-}
-
-type GuildNotificationSettingsResponse struct {
-	state         protoimpl.MessageState     `protogen:"open.v1"`
-	Success       bool                       `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
-	Settings      *GuildNotificationSettings `protobuf:"bytes,2,opt,name=settings,proto3" json:"settings,omitempty"`
-	Error         *v1.Error                  `protobuf:"bytes,3,opt,name=error,proto3" json:"error,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GuildNotificationSettingsResponse) Reset() {
-	*x = GuildNotificationSettingsResponse{}
-	mi := &file_guild_v1_guild_proto_msgTypes[11]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GuildNotificationSettingsResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GuildNotificationSettingsResponse) ProtoMessage() {}
-
-func (x *GuildNotificationSettingsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_guild_v1_guild_proto_msgTypes[11]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GuildNotificationSettingsResponse.ProtoReflect.Descriptor instead.
-func (*GuildNotificationSettingsResponse) Descriptor() ([]byte, []int) {
-	return file_guild_v1_guild_proto_rawDescGZIP(), []int{11}
-}
-
-func (x *GuildNotificationSettingsResponse) GetSuccess() bool {
-	if x != nil {
-		return x.Success
-	}
-	return false
-}
-
-func (x *GuildNotificationSettingsResponse) GetSettings() *GuildNotificationSettings {
-	if x != nil {
-		return x.Settings
-	}
-	return nil
-}
-
-func (x *GuildNotificationSettingsResponse) GetError() *v1.Error {
-	if x != nil {
-		return x.Error
-	}
-	return nil
-}
-
 type GuildMatchQuota struct {
 	state                  protoimpl.MessageState `protogen:"open.v1"`
 	GuildId                string                 `protobuf:"bytes,1,opt,name=guild_id,json=guildId,proto3" json:"guild_id,omitempty"`
@@ -811,7 +547,7 @@ type GuildMatchQuota struct {
 
 func (x *GuildMatchQuota) Reset() {
 	*x = GuildMatchQuota{}
-	mi := &file_guild_v1_guild_proto_msgTypes[12]
+	mi := &file_guild_v1_guild_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -823,7 +559,7 @@ func (x *GuildMatchQuota) String() string {
 func (*GuildMatchQuota) ProtoMessage() {}
 
 func (x *GuildMatchQuota) ProtoReflect() protoreflect.Message {
-	mi := &file_guild_v1_guild_proto_msgTypes[12]
+	mi := &file_guild_v1_guild_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -836,7 +572,7 @@ func (x *GuildMatchQuota) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GuildMatchQuota.ProtoReflect.Descriptor instead.
 func (*GuildMatchQuota) Descriptor() ([]byte, []int) {
-	return file_guild_v1_guild_proto_rawDescGZIP(), []int{12}
+	return file_guild_v1_guild_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GuildMatchQuota) GetGuildId() string {
@@ -884,7 +620,7 @@ type GetMatchQuotasRequest struct {
 
 func (x *GetMatchQuotasRequest) Reset() {
 	*x = GetMatchQuotasRequest{}
-	mi := &file_guild_v1_guild_proto_msgTypes[13]
+	mi := &file_guild_v1_guild_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -896,7 +632,7 @@ func (x *GetMatchQuotasRequest) String() string {
 func (*GetMatchQuotasRequest) ProtoMessage() {}
 
 func (x *GetMatchQuotasRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_guild_v1_guild_proto_msgTypes[13]
+	mi := &file_guild_v1_guild_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -909,7 +645,7 @@ func (x *GetMatchQuotasRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMatchQuotasRequest.ProtoReflect.Descriptor instead.
 func (*GetMatchQuotasRequest) Descriptor() ([]byte, []int) {
-	return file_guild_v1_guild_proto_rawDescGZIP(), []int{13}
+	return file_guild_v1_guild_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *GetMatchQuotasRequest) GetGuildId() string {
@@ -935,7 +671,7 @@ type UpsertMatchQuotasRequest struct {
 
 func (x *UpsertMatchQuotasRequest) Reset() {
 	*x = UpsertMatchQuotasRequest{}
-	mi := &file_guild_v1_guild_proto_msgTypes[14]
+	mi := &file_guild_v1_guild_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -947,7 +683,7 @@ func (x *UpsertMatchQuotasRequest) String() string {
 func (*UpsertMatchQuotasRequest) ProtoMessage() {}
 
 func (x *UpsertMatchQuotasRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_guild_v1_guild_proto_msgTypes[14]
+	mi := &file_guild_v1_guild_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -960,7 +696,7 @@ func (x *UpsertMatchQuotasRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpsertMatchQuotasRequest.ProtoReflect.Descriptor instead.
 func (*UpsertMatchQuotasRequest) Descriptor() ([]byte, []int) {
-	return file_guild_v1_guild_proto_rawDescGZIP(), []int{14}
+	return file_guild_v1_guild_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *UpsertMatchQuotasRequest) GetQuota() *GuildMatchQuota {
@@ -981,7 +717,7 @@ type GuildMatchQuotasResponse struct {
 
 func (x *GuildMatchQuotasResponse) Reset() {
 	*x = GuildMatchQuotasResponse{}
-	mi := &file_guild_v1_guild_proto_msgTypes[15]
+	mi := &file_guild_v1_guild_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -993,7 +729,7 @@ func (x *GuildMatchQuotasResponse) String() string {
 func (*GuildMatchQuotasResponse) ProtoMessage() {}
 
 func (x *GuildMatchQuotasResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_guild_v1_guild_proto_msgTypes[15]
+	mi := &file_guild_v1_guild_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1006,7 +742,7 @@ func (x *GuildMatchQuotasResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GuildMatchQuotasResponse.ProtoReflect.Descriptor instead.
 func (*GuildMatchQuotasResponse) Descriptor() ([]byte, []int) {
-	return file_guild_v1_guild_proto_rawDescGZIP(), []int{15}
+	return file_guild_v1_guild_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *GuildMatchQuotasResponse) GetSuccess() bool {
@@ -1070,25 +806,6 @@ const file_guild_v1_guild_proto_rawDesc = "" +
 	"\x1dGuildMatchmakingRulesResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12<\n" +
 	"\x05rules\x18\x02 \x01(\v2&.parley.guild.v1.GuildMatchmakingRulesR\x05rules\x12-\n" +
-	"\x05error\x18\x03 \x01(\v2\x17.parley.common.v1.ErrorR\x05error\"\x95\x04\n" +
-	"\x19GuildNotificationSettings\x12\x19\n" +
-	"\bguild_id\x18\x01 \x01(\tR\aguildId\x12*\n" +
-	"\x04game\x18\x02 \x01(\x0e2\x16.parley.common.v1.GameR\x04game\x122\n" +
-	"\x15match_results_channel\x18\x03 \x01(\tR\x13matchResultsChannel\x12H\n" +
-	" tournament_announcements_channel\x18\x04 \x01(\tR\x1etournamentAnnouncementsChannel\x12>\n" +
-	"\x1bleaderboard_updates_enabled\x18\x05 \x01(\bR\x19leaderboardUpdatesEnabled\x12\"\n" +
-	"\rupdated_at_ms\x18\x06 \x01(\x03R\vupdatedAtMs\x12I\n" +
-	"!cross_guild_announcements_enabled\x18\a \x01(\bR\x1ecrossGuildAnnouncementsEnabled\x12?\n" +
-	"\x1cannounce_match_ready_enabled\x18\b \x01(\bR\x19announceMatchReadyEnabled\x12C\n" +
-	"\x1eannounce_match_results_enabled\x18\t \x01(\bR\x1bannounceMatchResultsEnabled\"g\n" +
-	"\x1eGetNotificationSettingsRequest\x12\x19\n" +
-	"\bguild_id\x18\x01 \x01(\tR\aguildId\x12*\n" +
-	"\x04game\x18\x02 \x01(\x0e2\x16.parley.common.v1.GameR\x04game\"k\n" +
-	"!UpsertNotificationSettingsRequest\x12F\n" +
-	"\bsettings\x18\x01 \x01(\v2*.parley.guild.v1.GuildNotificationSettingsR\bsettings\"\xb4\x01\n" +
-	"!GuildNotificationSettingsResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess\x12F\n" +
-	"\bsettings\x18\x02 \x01(\v2*.parley.guild.v1.GuildNotificationSettingsR\bsettings\x12-\n" +
 	"\x05error\x18\x03 \x01(\v2\x17.parley.common.v1.ErrorR\x05error\"\xe4\x01\n" +
 	"\x0fGuildMatchQuota\x12\x19\n" +
 	"\bguild_id\x18\x01 \x01(\tR\aguildId\x12*\n" +
@@ -1104,14 +821,12 @@ const file_guild_v1_guild_proto_rawDesc = "" +
 	"\x18GuildMatchQuotasResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x126\n" +
 	"\x05quota\x18\x02 \x01(\v2 .parley.guild.v1.GuildMatchQuotaR\x05quota\x12-\n" +
-	"\x05error\x18\x03 \x01(\v2\x17.parley.common.v1.ErrorR\x05error2\xad\a\n" +
+	"\x05error\x18\x03 \x01(\v2\x17.parley.common.v1.ErrorR\x05error2\xa6\x05\n" +
 	"\x14GuildSettingsService\x12d\n" +
 	"\x10GetGuildSettings\x12(.parley.guild.v1.GetGuildSettingsRequest\x1a&.parley.guild.v1.GuildSettingsResponse\x12j\n" +
 	"\x13UpsertGuildSettings\x12+.parley.guild.v1.UpsertGuildSettingsRequest\x1a&.parley.guild.v1.GuildSettingsResponse\x12r\n" +
 	"\x13GetMatchmakingRules\x12+.parley.guild.v1.GetMatchmakingRulesRequest\x1a..parley.guild.v1.GuildMatchmakingRulesResponse\x12x\n" +
-	"\x16UpsertMatchmakingRules\x12..parley.guild.v1.UpsertMatchmakingRulesRequest\x1a..parley.guild.v1.GuildMatchmakingRulesResponse\x12~\n" +
-	"\x17GetNotificationSettings\x12/.parley.guild.v1.GetNotificationSettingsRequest\x1a2.parley.guild.v1.GuildNotificationSettingsResponse\x12\x84\x01\n" +
-	"\x1aUpsertNotificationSettings\x122.parley.guild.v1.UpsertNotificationSettingsRequest\x1a2.parley.guild.v1.GuildNotificationSettingsResponse\x12c\n" +
+	"\x16UpsertMatchmakingRules\x12..parley.guild.v1.UpsertMatchmakingRulesRequest\x1a..parley.guild.v1.GuildMatchmakingRulesResponse\x12c\n" +
 	"\x0eGetMatchQuotas\x12&.parley.guild.v1.GetMatchQuotasRequest\x1a).parley.guild.v1.GuildMatchQuotasResponse\x12i\n" +
 	"\x11UpsertMatchQuotas\x12).parley.guild.v1.UpsertMatchQuotasRequest\x1a).parley.guild.v1.GuildMatchQuotasResponseBU\n" +
 	"\x13bot.parley.guild.v1Z>github.com/pactum-computers/parley/gen/parley/guild/v1;guildv1b\x06proto3"
@@ -1128,69 +843,56 @@ func file_guild_v1_guild_proto_rawDescGZIP() []byte {
 	return file_guild_v1_guild_proto_rawDescData
 }
 
-var file_guild_v1_guild_proto_msgTypes = make([]protoimpl.MessageInfo, 16)
+var file_guild_v1_guild_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_guild_v1_guild_proto_goTypes = []any{
-	(*GuildSettings)(nil),                     // 0: parley.guild.v1.GuildSettings
-	(*GetGuildSettingsRequest)(nil),           // 1: parley.guild.v1.GetGuildSettingsRequest
-	(*UpsertGuildSettingsRequest)(nil),        // 2: parley.guild.v1.UpsertGuildSettingsRequest
-	(*GuildSettingsResponse)(nil),             // 3: parley.guild.v1.GuildSettingsResponse
-	(*GuildMatchmakingRules)(nil),             // 4: parley.guild.v1.GuildMatchmakingRules
-	(*GetMatchmakingRulesRequest)(nil),        // 5: parley.guild.v1.GetMatchmakingRulesRequest
-	(*UpsertMatchmakingRulesRequest)(nil),     // 6: parley.guild.v1.UpsertMatchmakingRulesRequest
-	(*GuildMatchmakingRulesResponse)(nil),     // 7: parley.guild.v1.GuildMatchmakingRulesResponse
-	(*GuildNotificationSettings)(nil),         // 8: parley.guild.v1.GuildNotificationSettings
-	(*GetNotificationSettingsRequest)(nil),    // 9: parley.guild.v1.GetNotificationSettingsRequest
-	(*UpsertNotificationSettingsRequest)(nil), // 10: parley.guild.v1.UpsertNotificationSettingsRequest
-	(*GuildNotificationSettingsResponse)(nil), // 11: parley.guild.v1.GuildNotificationSettingsResponse
-	(*GuildMatchQuota)(nil),                   // 12: parley.guild.v1.GuildMatchQuota
-	(*GetMatchQuotasRequest)(nil),             // 13: parley.guild.v1.GetMatchQuotasRequest
-	(*UpsertMatchQuotasRequest)(nil),          // 14: parley.guild.v1.UpsertMatchQuotasRequest
-	(*GuildMatchQuotasResponse)(nil),          // 15: parley.guild.v1.GuildMatchQuotasResponse
-	(v1.Game)(0),                              // 16: parley.common.v1.Game
-	(*v1.Error)(nil),                          // 17: parley.common.v1.Error
+	(*GuildSettings)(nil),                 // 0: parley.guild.v1.GuildSettings
+	(*GetGuildSettingsRequest)(nil),       // 1: parley.guild.v1.GetGuildSettingsRequest
+	(*UpsertGuildSettingsRequest)(nil),    // 2: parley.guild.v1.UpsertGuildSettingsRequest
+	(*GuildSettingsResponse)(nil),         // 3: parley.guild.v1.GuildSettingsResponse
+	(*GuildMatchmakingRules)(nil),         // 4: parley.guild.v1.GuildMatchmakingRules
+	(*GetMatchmakingRulesRequest)(nil),    // 5: parley.guild.v1.GetMatchmakingRulesRequest
+	(*UpsertMatchmakingRulesRequest)(nil), // 6: parley.guild.v1.UpsertMatchmakingRulesRequest
+	(*GuildMatchmakingRulesResponse)(nil), // 7: parley.guild.v1.GuildMatchmakingRulesResponse
+	(*GuildMatchQuota)(nil),               // 8: parley.guild.v1.GuildMatchQuota
+	(*GetMatchQuotasRequest)(nil),         // 9: parley.guild.v1.GetMatchQuotasRequest
+	(*UpsertMatchQuotasRequest)(nil),      // 10: parley.guild.v1.UpsertMatchQuotasRequest
+	(*GuildMatchQuotasResponse)(nil),      // 11: parley.guild.v1.GuildMatchQuotasResponse
+	(v1.Game)(0),                          // 12: parley.common.v1.Game
+	(*v1.Error)(nil),                      // 13: parley.common.v1.Error
 }
 var file_guild_v1_guild_proto_depIdxs = []int32{
-	16, // 0: parley.guild.v1.GuildSettings.game:type_name -> parley.common.v1.Game
-	16, // 1: parley.guild.v1.GetGuildSettingsRequest.game:type_name -> parley.common.v1.Game
+	12, // 0: parley.guild.v1.GuildSettings.game:type_name -> parley.common.v1.Game
+	12, // 1: parley.guild.v1.GetGuildSettingsRequest.game:type_name -> parley.common.v1.Game
 	0,  // 2: parley.guild.v1.UpsertGuildSettingsRequest.settings:type_name -> parley.guild.v1.GuildSettings
 	0,  // 3: parley.guild.v1.GuildSettingsResponse.settings:type_name -> parley.guild.v1.GuildSettings
-	17, // 4: parley.guild.v1.GuildSettingsResponse.error:type_name -> parley.common.v1.Error
-	16, // 5: parley.guild.v1.GuildMatchmakingRules.game:type_name -> parley.common.v1.Game
-	16, // 6: parley.guild.v1.GetMatchmakingRulesRequest.game:type_name -> parley.common.v1.Game
+	13, // 4: parley.guild.v1.GuildSettingsResponse.error:type_name -> parley.common.v1.Error
+	12, // 5: parley.guild.v1.GuildMatchmakingRules.game:type_name -> parley.common.v1.Game
+	12, // 6: parley.guild.v1.GetMatchmakingRulesRequest.game:type_name -> parley.common.v1.Game
 	4,  // 7: parley.guild.v1.UpsertMatchmakingRulesRequest.rules:type_name -> parley.guild.v1.GuildMatchmakingRules
 	4,  // 8: parley.guild.v1.GuildMatchmakingRulesResponse.rules:type_name -> parley.guild.v1.GuildMatchmakingRules
-	17, // 9: parley.guild.v1.GuildMatchmakingRulesResponse.error:type_name -> parley.common.v1.Error
-	16, // 10: parley.guild.v1.GuildNotificationSettings.game:type_name -> parley.common.v1.Game
-	16, // 11: parley.guild.v1.GetNotificationSettingsRequest.game:type_name -> parley.common.v1.Game
-	8,  // 12: parley.guild.v1.UpsertNotificationSettingsRequest.settings:type_name -> parley.guild.v1.GuildNotificationSettings
-	8,  // 13: parley.guild.v1.GuildNotificationSettingsResponse.settings:type_name -> parley.guild.v1.GuildNotificationSettings
-	17, // 14: parley.guild.v1.GuildNotificationSettingsResponse.error:type_name -> parley.common.v1.Error
-	16, // 15: parley.guild.v1.GuildMatchQuota.game:type_name -> parley.common.v1.Game
-	16, // 16: parley.guild.v1.GetMatchQuotasRequest.game:type_name -> parley.common.v1.Game
-	12, // 17: parley.guild.v1.UpsertMatchQuotasRequest.quota:type_name -> parley.guild.v1.GuildMatchQuota
-	12, // 18: parley.guild.v1.GuildMatchQuotasResponse.quota:type_name -> parley.guild.v1.GuildMatchQuota
-	17, // 19: parley.guild.v1.GuildMatchQuotasResponse.error:type_name -> parley.common.v1.Error
-	1,  // 20: parley.guild.v1.GuildSettingsService.GetGuildSettings:input_type -> parley.guild.v1.GetGuildSettingsRequest
-	2,  // 21: parley.guild.v1.GuildSettingsService.UpsertGuildSettings:input_type -> parley.guild.v1.UpsertGuildSettingsRequest
-	5,  // 22: parley.guild.v1.GuildSettingsService.GetMatchmakingRules:input_type -> parley.guild.v1.GetMatchmakingRulesRequest
-	6,  // 23: parley.guild.v1.GuildSettingsService.UpsertMatchmakingRules:input_type -> parley.guild.v1.UpsertMatchmakingRulesRequest
-	9,  // 24: parley.guild.v1.GuildSettingsService.GetNotificationSettings:input_type -> parley.guild.v1.GetNotificationSettingsRequest
-	10, // 25: parley.guild.v1.GuildSettingsService.UpsertNotificationSettings:input_type -> parley.guild.v1.UpsertNotificationSettingsRequest
-	13, // 26: parley.guild.v1.GuildSettingsService.GetMatchQuotas:input_type -> parley.guild.v1.GetMatchQuotasRequest
-	14, // 27: parley.guild.v1.GuildSettingsService.UpsertMatchQuotas:input_type -> parley.guild.v1.UpsertMatchQuotasRequest
-	3,  // 28: parley.guild.v1.GuildSettingsService.GetGuildSettings:output_type -> parley.guild.v1.GuildSettingsResponse
-	3,  // 29: parley.guild.v1.GuildSettingsService.UpsertGuildSettings:output_type -> parley.guild.v1.GuildSettingsResponse
-	7,  // 30: parley.guild.v1.GuildSettingsService.GetMatchmakingRules:output_type -> parley.guild.v1.GuildMatchmakingRulesResponse
-	7,  // 31: parley.guild.v1.GuildSettingsService.UpsertMatchmakingRules:output_type -> parley.guild.v1.GuildMatchmakingRulesResponse
-	11, // 32: parley.guild.v1.GuildSettingsService.GetNotificationSettings:output_type -> parley.guild.v1.GuildNotificationSettingsResponse
-	11, // 33: parley.guild.v1.GuildSettingsService.UpsertNotificationSettings:output_type -> parley.guild.v1.GuildNotificationSettingsResponse
-	15, // 34: parley.guild.v1.GuildSettingsService.GetMatchQuotas:output_type -> parley.guild.v1.GuildMatchQuotasResponse
-	15, // 35: parley.guild.v1.GuildSettingsService.UpsertMatchQuotas:output_type -> parley.guild.v1.GuildMatchQuotasResponse
-	28, // [28:36] is the sub-list for method output_type
-	20, // [20:28] is the sub-list for method input_type
-	20, // [20:20] is the sub-list for extension type_name
-	20, // [20:20] is the sub-list for extension extendee
-	0,  // [0:20] is the sub-list for field type_name
+	13, // 9: parley.guild.v1.GuildMatchmakingRulesResponse.error:type_name -> parley.common.v1.Error
+	12, // 10: parley.guild.v1.GuildMatchQuota.game:type_name -> parley.common.v1.Game
+	12, // 11: parley.guild.v1.GetMatchQuotasRequest.game:type_name -> parley.common.v1.Game
+	8,  // 12: parley.guild.v1.UpsertMatchQuotasRequest.quota:type_name -> parley.guild.v1.GuildMatchQuota
+	8,  // 13: parley.guild.v1.GuildMatchQuotasResponse.quota:type_name -> parley.guild.v1.GuildMatchQuota
+	13, // 14: parley.guild.v1.GuildMatchQuotasResponse.error:type_name -> parley.common.v1.Error
+	1,  // 15: parley.guild.v1.GuildSettingsService.GetGuildSettings:input_type -> parley.guild.v1.GetGuildSettingsRequest
+	2,  // 16: parley.guild.v1.GuildSettingsService.UpsertGuildSettings:input_type -> parley.guild.v1.UpsertGuildSettingsRequest
+	5,  // 17: parley.guild.v1.GuildSettingsService.GetMatchmakingRules:input_type -> parley.guild.v1.GetMatchmakingRulesRequest
+	6,  // 18: parley.guild.v1.GuildSettingsService.UpsertMatchmakingRules:input_type -> parley.guild.v1.UpsertMatchmakingRulesRequest
+	9,  // 19: parley.guild.v1.GuildSettingsService.GetMatchQuotas:input_type -> parley.guild.v1.GetMatchQuotasRequest
+	10, // 20: parley.guild.v1.GuildSettingsService.UpsertMatchQuotas:input_type -> parley.guild.v1.UpsertMatchQuotasRequest
+	3,  // 21: parley.guild.v1.GuildSettingsService.GetGuildSettings:output_type -> parley.guild.v1.GuildSettingsResponse
+	3,  // 22: parley.guild.v1.GuildSettingsService.UpsertGuildSettings:output_type -> parley.guild.v1.GuildSettingsResponse
+	7,  // 23: parley.guild.v1.GuildSettingsService.GetMatchmakingRules:output_type -> parley.guild.v1.GuildMatchmakingRulesResponse
+	7,  // 24: parley.guild.v1.GuildSettingsService.UpsertMatchmakingRules:output_type -> parley.guild.v1.GuildMatchmakingRulesResponse
+	11, // 25: parley.guild.v1.GuildSettingsService.GetMatchQuotas:output_type -> parley.guild.v1.GuildMatchQuotasResponse
+	11, // 26: parley.guild.v1.GuildSettingsService.UpsertMatchQuotas:output_type -> parley.guild.v1.GuildMatchQuotasResponse
+	21, // [21:27] is the sub-list for method output_type
+	15, // [15:21] is the sub-list for method input_type
+	15, // [15:15] is the sub-list for extension type_name
+	15, // [15:15] is the sub-list for extension extendee
+	0,  // [0:15] is the sub-list for field type_name
 }
 
 func init() { file_guild_v1_guild_proto_init() }
@@ -1204,7 +906,7 @@ func file_guild_v1_guild_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_guild_v1_guild_proto_rawDesc), len(file_guild_v1_guild_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   16,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
