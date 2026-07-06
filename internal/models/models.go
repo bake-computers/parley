@@ -370,36 +370,6 @@ type NewGuildMatchmakingRules struct {
 	UpdatedAt       int64    `bun:"updated_at,notnull"`
 }
 
-// GuildNotificationSettings maps to table guild_notification_settings.
-type GuildNotificationSettings struct {
-	bun.BaseModel `bun:"table:guild_notification_settings,alias:gns"`
-
-	GuildID                        string  `bun:"guild_id,pk,notnull"`
-	Game                           Game    `bun:",pk,notnull"`
-	MatchResultsChannel            *string `bun:"match_results_channel"`
-	TournamentAnnouncementsChannel *string `bun:"tournament_announcements_channel"`
-	LeaderboardUpdatesEnabled      bool    `bun:"leaderboard_updates_enabled,notnull"`
-	UpdatedAt                      int64   `bun:"updated_at,notnull"`
-	CrossGuildAnnouncementsEnabled bool    `bun:"cross_guild_announcements_enabled,notnull"`
-	AnnounceMatchReadyEnabled      bool    `bun:"announce_match_ready_enabled,notnull"`
-	AnnounceMatchResultsEnabled    bool    `bun:"announce_match_results_enabled,notnull"`
-}
-
-// NewGuildNotificationSettings is the insert shape for guild_notification_settings.
-type NewGuildNotificationSettings struct {
-	bun.BaseModel `bun:"table:guild_notification_settings,alias:gns"`
-
-	GuildID                        string  `bun:"guild_id,notnull"`
-	Game                           Game    `bun:",notnull"`
-	MatchResultsChannel            *string `bun:"match_results_channel"`
-	TournamentAnnouncementsChannel *string `bun:"tournament_announcements_channel"`
-	LeaderboardUpdatesEnabled      bool    `bun:"leaderboard_updates_enabled,notnull"`
-	UpdatedAt                      int64   `bun:"updated_at,notnull"`
-	CrossGuildAnnouncementsEnabled bool    `bun:"cross_guild_announcements_enabled,notnull"`
-	AnnounceMatchReadyEnabled      bool    `bun:"announce_match_ready_enabled,notnull"`
-	AnnounceMatchResultsEnabled    bool    `bun:"announce_match_results_enabled,notnull"`
-}
-
 // TournamentSchedule maps to table tournament_schedules.
 type TournamentSchedule struct {
 	bun.BaseModel `bun:"table:tournament_schedules,alias:ts"`

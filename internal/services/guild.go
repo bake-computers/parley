@@ -161,76 +161,6 @@ func (s *GuildService) UpsertMatchmakingRules(
 	return rulesToProto(saved), nil
 }
 
-func (s *GuildService) GetNotificationSettings(
-	ctx context.Context,
-	guildID string,
-	game commonv1.Game,
-) (*guildv1.GuildNotificationSettings, error) {
-	g, err := protoGameToModel(game)
-	if err != nil {
-		return nil, apperr.InvalidArgument("game must be specified")
-	}
-
-	row, err := s.repo.GetNotificationSettings(ctx, guildID, g)
-	if err != nil {
-		return nil, apperr.Internal(fmt.Sprintf("get notification settings: %v", err))
-	}
-
-	if row == nil {
-		return &guildv1.GuildNotificationSettings{
-			GuildId:                     guildID,
-			Game:                        game,
-			AnnounceMatchReadyEnabled:   true,
-			AnnounceMatchResultsEnabled: true,
-		}, nil
-	}
-
-	return notifToProto(row), nil
-}
-
-func (s *GuildService) UpsertNotificationSettings(
-	ctx context.Context,
-	settings *guildv1.GuildNotificationSettings,
-) (*guildv1.GuildNotificationSettings, error) {
-	if settings == nil {
-		return nil, apperr.InvalidArgument("settings is required")
-	}
-	g, err := protoGameToModel(settings.Game)
-	if err != nil {
-		return nil, apperr.InvalidArgument("game must be specified")
-	}
-
-	now := NowMS()
-	var matchCh, tourCh *string
-	if settings.MatchResultsChannel != "" {
-		v := settings.MatchResultsChannel
-		matchCh = &v
-	}
-	if settings.TournamentAnnouncementsChannel != "" {
-		v := settings.TournamentAnnouncementsChannel
-		tourCh = &v
-	}
-
-	row := &models.GuildNotificationSettings{
-		GuildID:                        settings.GuildId,
-		Game:                           g,
-		MatchResultsChannel:            matchCh,
-		TournamentAnnouncementsChannel: tourCh,
-		LeaderboardUpdatesEnabled:      settings.LeaderboardUpdatesEnabled,
-		UpdatedAt:                      now,
-		CrossGuildAnnouncementsEnabled: settings.CrossGuildAnnouncementsEnabled,
-		AnnounceMatchReadyEnabled:      settings.AnnounceMatchReadyEnabled,
-		AnnounceMatchResultsEnabled:    settings.AnnounceMatchResultsEnabled,
-	}
-
-	saved, err := s.repo.UpsertNotificationSettings(ctx, row)
-	if err != nil {
-		return nil, apperr.Internal(fmt.Sprintf("upsert notification settings: %v", err))
-	}
-
-	return notifToProto(saved), nil
-}
-
 func (s *GuildService) GetMatchQuota(
 	ctx context.Context,
 	guildID string,
@@ -324,28 +254,6 @@ func rulesToProto(row *models.GuildMatchmakingRules) *guildv1.GuildMatchmakingRu
 		RequireVerified: row.RequireVerified,
 		MaxEloGap:       row.MaxEloGap,
 		UpdatedAtMs:     row.UpdatedAt,
-	}
-}
-
-func notifToProto(row *models.GuildNotificationSettings) *guildv1.GuildNotificationSettings {
-	matchCh := ""
-	if row.MatchResultsChannel != nil {
-		matchCh = *row.MatchResultsChannel
-	}
-	tourCh := ""
-	if row.TournamentAnnouncementsChannel != nil {
-		tourCh = *row.TournamentAnnouncementsChannel
-	}
-	return &guildv1.GuildNotificationSettings{
-		GuildId:                        row.GuildID,
-		Game:                           dbGameToProto(row.Game),
-		MatchResultsChannel:            matchCh,
-		TournamentAnnouncementsChannel: tourCh,
-		LeaderboardUpdatesEnabled:      row.LeaderboardUpdatesEnabled,
-		UpdatedAtMs:                    row.UpdatedAt,
-		CrossGuildAnnouncementsEnabled: row.CrossGuildAnnouncementsEnabled,
-		AnnounceMatchReadyEnabled:      row.AnnounceMatchReadyEnabled,
-		AnnounceMatchResultsEnabled:    row.AnnounceMatchResultsEnabled,
 	}
 }
 

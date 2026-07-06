@@ -26,12 +26,6 @@ func TestGetMatchmakingRules_UnspecifiedGame(t *testing.T) {
 	assertConnectCode(t, err, connect.CodeInvalidArgument)
 }
 
-func TestGetNotificationSettings_UnspecifiedGame(t *testing.T) {
-	svc := newNilDBService()
-	_, err := svc.GetNotificationSettings(context.Background(), "guild-1", commonv1.Game_GAME_UNSPECIFIED)
-	assertConnectCode(t, err, connect.CodeInvalidArgument)
-}
-
 func TestGetMatchQuota_UnspecifiedGame(t *testing.T) {
 	svc := newNilDBService()
 	_, err := svc.GetMatchQuota(context.Background(), "guild-1", commonv1.Game_GAME_UNSPECIFIED)
@@ -47,12 +41,6 @@ func TestUpsertGuildSettings_NilPayload(t *testing.T) {
 func TestUpsertMatchmakingRules_NilPayload(t *testing.T) {
 	svc := newNilDBService()
 	_, err := svc.UpsertMatchmakingRules(context.Background(), nil)
-	assertConnectCode(t, err, connect.CodeInvalidArgument)
-}
-
-func TestUpsertNotificationSettings_NilPayload(t *testing.T) {
-	svc := newNilDBService()
-	_, err := svc.UpsertNotificationSettings(context.Background(), nil)
 	assertConnectCode(t, err, connect.CodeInvalidArgument)
 }
 
@@ -74,15 +62,6 @@ func TestUpsertGuildSettings_UnspecifiedGame(t *testing.T) {
 func TestUpsertMatchmakingRules_UnspecifiedGame(t *testing.T) {
 	svc := newNilDBService()
 	_, err := svc.UpsertMatchmakingRules(context.Background(), &guildv1.GuildMatchmakingRules{
-		GuildId: "guild-1",
-		Game:    commonv1.Game_GAME_UNSPECIFIED,
-	})
-	assertConnectCode(t, err, connect.CodeInvalidArgument)
-}
-
-func TestUpsertNotificationSettings_UnspecifiedGame(t *testing.T) {
-	svc := newNilDBService()
-	_, err := svc.UpsertNotificationSettings(context.Background(), &guildv1.GuildNotificationSettings{
 		GuildId: "guild-1",
 		Game:    commonv1.Game_GAME_UNSPECIFIED,
 	})
