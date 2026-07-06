@@ -23,7 +23,6 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260506.1",
-    "@parley/tsconfig-base": "workspace:*",
-    "typescript": "^6.0.3"
+    "@parley/tsconfig-base": "workspace:*"
   }
 }
