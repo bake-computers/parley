@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Create `internal/server/server.go` — a Fiber v3 app that registers all 7 ConnectRPC services (39 RPCs), health/ready/stats endpoints, and standard middleware.
+**Goal:** Create `internal/server/server.go` — a Fiber v3 app that registers all 7 ConnectRPC services (37 RPCs), health/ready/stats endpoints, and standard middleware.
 
 **Architecture:** Fiber v3 auto-adapts `http.Handler` — each generated `NewXxxServiceHandler` returns `(string, http.Handler)` which mounts directly via `app.Post(path, handler)`. A `ServerDeps` struct injects all service dependencies.
 
@@ -316,19 +316,19 @@ Expected: no issues
 
 ## RPC Coverage Checklist
 
-All 39 RPCs from Rust `src/connect.rs` are covered:
+All 37 RPCs from Rust `src/connect.rs` are covered:
 
 | Service     | RPCs                                                                                                                                                                           | Handler Constructor                                 |
 | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------- |
 | Identity    | 4 (LinkAccount, UnlinkAccount, LookupByDiscord, LookupByUsername)                                                                                                              | `identityv1connect.NewIdentityServiceHandler`       |
-| Guild       | 8 (GetGuildSettings, UpsertGuildSettings, GetMatchmakingRules, UpsertMatchmakingRules, GetNotificationSettings, UpsertNotificationSettings, GetMatchQuotas, UpsertMatchQuotas) | `guildv1connect.NewGuildSettingsServiceHandler`     |
+| Guild       | 6 (GetGuildSettings, UpsertGuildSettings, GetMatchmakingRules, UpsertMatchmakingRules, GetMatchQuotas, UpsertMatchQuotas)                                                     | `guildv1connect.NewGuildSettingsServiceHandler`     |
 | User        | 4 (GetUserSettings, UpsertUserSettings, ResolveLanguage, DeleteUserData)                                                                                                       | `userv1connect.NewUserSettingsServiceHandler`       |
 | Leaderboard | 2 (GetLeaderboard, GetPlayerRank)                                                                                                                                              | `leaderboardv1connect.NewLeaderboardServiceHandler` |
 | Matchmaking | 10 (BuildTeams, ListGuildMembers, JoinQueue, LeaveQueue, GetQueueStatus, CreateCustomMatch, ReportMatchResult, GetMatch, ListMatches, GetMatchByUuid)                          | `matchmakingv1connect.NewMatchmakingServiceHandler` |
 | Tournament  | 9 (CreateTournament, GetTournament, ListTournaments, RegisterTeam, UpdateTeamRoster, UnregisterTeam, StartTournament, ReportBracketResult, CancelTournament)                   | `tournamentv1connect.NewTournamentServiceHandler`   |
 | Stats       | 2 (FetchStats, FetchStatsCollection)                                                                                                                                           | `statsv1connect.NewStatsServiceHandler`             |
 
-**Total: 39 RPCs** ✓
+**Total: 37 RPCs** ✓
 
 ---
 
