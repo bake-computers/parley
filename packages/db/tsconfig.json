@@ -1,6 +1,7 @@
 {
   "extends": "@parley/tsconfig-base/tsconfig.json",
   "compilerOptions": {
+    "rootDir": ".",
     "outDir": "./dist",
     "composite": true,
     "paths": {
