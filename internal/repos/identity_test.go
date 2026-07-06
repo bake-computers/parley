@@ -105,13 +105,16 @@ func TestIdentityRepoUpsertAndLink(t *testing.T) {
 		t.Fatalf("relink player_id = %d, want %d", rel.PlayerID, otherPlayer.ID)
 	}
 
+	// The multi_platform_discord_links migration dropped the unique
+	// (game, discord_user_id) index so one Discord user can link multiple
+	// R6 players, so linking a second player adds a distinct identity row.
 	game := models.GameR6
 	rows, err := repo.FindDiscordIdentities(ctx, &game, discord)
 	if err != nil {
 		t.Fatalf("FindDiscordIdentities: %v", err)
 	}
-	if len(rows) != 1 {
-		t.Fatalf("identities len = %d, want 1", len(rows))
+	if len(rows) != 2 {
+		t.Fatalf("identities len = %d, want 2", len(rows))
 	}
 
 	found, err := repo.FindPlayerByIdentity(ctx, models.GameR6, "TestUser", platform)
@@ -122,12 +125,13 @@ func TestIdentityRepoUpsertAndLink(t *testing.T) {
 		t.Fatalf("FindPlayerByIdentity mismatch")
 	}
 
+	// An empty platform filter removes every identity linked to the Discord user.
 	n, err := repo.UnlinkDiscordIdentity(ctx, models.GameR6, discord, "")
 	if err != nil {
 		t.Fatalf("UnlinkDiscordIdentity: %v", err)
 	}
-	if n != 1 {
-		t.Fatalf("unlink rows = %d, want 1", n)
+	if n != 2 {
+		t.Fatalf("unlink rows = %d, want 2", n)
 	}
 }
 
