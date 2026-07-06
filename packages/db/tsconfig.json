@@ -1,7 +1,7 @@
 {
   "extends": "@parley/tsconfig-base/tsconfig.json",
   "compilerOptions": {
-    "rootDir": ".",
+    "rootDir": "./src",
     "outDir": "./dist",
     "composite": true,
     "paths": {
@@ -9,6 +9,6 @@
     },
     "types": ["node"]
   },
-  "include": ["../../reset.d.ts", "src/**/*", "drizzle.config.ts"],
+  "include": ["../../reset.d.ts", "src/**/*"],
   "exclude": ["node_modules", "dist"]
 }
