@@ -25,8 +25,8 @@ export async function resolveEmojis(
   const applicationId = env.DISCORD_APPLICATION_ID ?? interaction.applicationId;
   const botToken = env.DISCORD_BOT_TOKEN ?? env.DISCORD_TOKEN;
   const catalog = await resolveApplicationEmojiCatalog({
-    ...(applicationId != null && { applicationId }),
-    ...(botToken != null && { botToken }),
+    ...(applicationId !== undefined && { applicationId }),
+    ...(botToken !== undefined && { botToken }),
     cache: (env as { KV?: KVNamespace }).KV ?? null,
     network: true,
   });
