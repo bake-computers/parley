@@ -109,7 +109,15 @@ func (b *ProfileBatcher) flush() {
 	b.timer = nil
 	b.mu.Unlock()
 
-	profiles, err := b.client.BatchProfiles(context.Background(), profileIDs)
+	// The batch is shared across independent waiters that may cancel their own
+	// contexts at any time, so we can't adopt any single caller's context. Bound
+	// the outbound request with a timeout consistent with the client's default
+	// HTTP timeout so a stalled batch can't run unbounded after every waiter has
+	// already returned with ctx.Err().
+	ctx, cancel := context.WithTimeout(context.Background(), defaultTimeout)
+	defer cancel()
+
+	profiles, err := b.client.BatchProfiles(ctx, profileIDs)
 	if err != nil {
 		for _, entry := range entries {
 			entry.send(profileBatchResult{err: err})
