@@ -66,11 +66,16 @@ func Load() (*Config, error) {
 		StatsTTLR6MS:      readUint64("STATS_TTL_R6_MS", 60_000),
 		StatsStaleGraceMS: readUint64("STATS_STALE_GRACE_MS", 86_400_000),
 
-		StatsCCAPIKey:              os.Getenv("STATS_CC_API_KEY"),
-		StatsCCAPIBaseURL:          getenv("STATS_CC_API_BASE_URL", "https://r6.stats.cc"),
-		StatsCCConfigCacheTTLMS:    readUint64("STATS_CC_CONFIG_CACHE_TTL_MS", 420_000),
-		StatsCCProfileBatchSize:    clampUint64(readUint64("STATS_CC_PROFILE_BATCH_SIZE", 10), 1, 10),
-		StatsCCProfileBatchDelayMS: readMinUint64("STATS_CC_PROFILE_BATCH_DELAY_MS", 1000, 1),
+		StatsCCAPIKey:           os.Getenv("STATS_CC_API_KEY"),
+		StatsCCAPIBaseURL:       getenv("STATS_CC_API_BASE_URL", "https://r6.stats.cc"),
+		StatsCCConfigCacheTTLMS: readUint64("STATS_CC_CONFIG_CACHE_TTL_MS", 420_000),
+		StatsCCProfileBatchSize: clampUint64(readUint64("STATS_CC_PROFILE_BATCH_SIZE", 10), 1, 10),
+		// Keep the default coalescing window small: the stats fetch path issues one
+		// GetProfile per request, so a large delay would add that latency to every
+		// lookup (the size-based flush never triggers for a single request). 25ms is
+		// enough to coalesce concurrent bursts (e.g. team/leaderboard fanout) without
+		// a noticeable per-request regression.
+		StatsCCProfileBatchDelayMS: readMinUint64("STATS_CC_PROFILE_BATCH_DELAY_MS", 25, 1),
 
 		AxiomToken:   os.Getenv("AXIOM_TOKEN"),
 		AxiomDataset: getenv("AXIOM_DATASET", "parley"),

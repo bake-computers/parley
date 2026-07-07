@@ -39,7 +39,7 @@ func NewProfileBatcher(client *Client, maxSize int, delay time.Duration) *Profil
 		maxSize = 10
 	}
 	if delay <= 0 {
-		delay = time.Second
+		delay = defaultProfileBatchDelay
 	}
 	return &ProfileBatcher{
 		client:  client,

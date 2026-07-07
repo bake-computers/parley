@@ -20,6 +20,11 @@ const (
 	defaultTimeout = 12 * time.Second
 	maxMatchPages  = 3
 	matchesPerPage = 20
+
+	// defaultProfileBatchDelay is the coalescing window used when a caller does not
+	// specify one. Kept small so a lone profile lookup is not delayed by the timer
+	// (the size-based flush never fires for a single request).
+	defaultProfileBatchDelay = 25 * time.Millisecond
 )
 
 // Client calls the stats.cc v2 API.
@@ -70,7 +75,7 @@ func NewClient(opts Options) *Client {
 	}
 	batchDelay := opts.ProfileBatchDelay
 	if batchDelay <= 0 {
-		batchDelay = time.Second
+		batchDelay = defaultProfileBatchDelay
 	}
 
 	c := &Client{

@@ -138,8 +138,8 @@ func TestLoad_defaults(t *testing.T) {
 	if cfg.StatsCCProfileBatchSize != 10 {
 		t.Errorf("StatsCCProfileBatchSize = %d, want 10", cfg.StatsCCProfileBatchSize)
 	}
-	if cfg.StatsCCProfileBatchDelayMS != 1000 {
-		t.Errorf("StatsCCProfileBatchDelayMS = %d, want 1000", cfg.StatsCCProfileBatchDelayMS)
+	if cfg.StatsCCProfileBatchDelayMS != 25 {
+		t.Errorf("StatsCCProfileBatchDelayMS = %d, want 25", cfg.StatsCCProfileBatchDelayMS)
 	}
 	if cfg.AxiomDataset != "parley" {
 		t.Errorf("AxiomDataset = %q", cfg.AxiomDataset)
@@ -163,8 +163,8 @@ func TestLoad_statsCCProfileBatchClamps(t *testing.T) {
 	if cfg.StatsCCProfileBatchSize != 10 {
 		t.Errorf("StatsCCProfileBatchSize = %d, want 10", cfg.StatsCCProfileBatchSize)
 	}
-	if cfg.StatsCCProfileBatchDelayMS != 1000 {
-		t.Errorf("StatsCCProfileBatchDelayMS = %d, want 1000", cfg.StatsCCProfileBatchDelayMS)
+	if cfg.StatsCCProfileBatchDelayMS != 25 {
+		t.Errorf("StatsCCProfileBatchDelayMS = %d, want 25", cfg.StatsCCProfileBatchDelayMS)
 	}
 
 	t.Setenv("STATS_CC_PROFILE_BATCH_SIZE", "0")
