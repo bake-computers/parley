@@ -106,11 +106,13 @@ func run() error {
 	}
 
 	statsClient := fetch.NewStatsClientFromOptions(fetch.ClientOptions{
-		APIKey:         cfg.StatsCCAPIKey,
-		APIBaseURL:     cfg.StatsCCAPIBaseURL,
-		ScraperBaseURL: "https://stats.cc",
-		ScrapeFn:       scrape.ScrapeHTMLStatsCollection,
-		ConfigCache:    statsConfigCache,
+		APIKey:            cfg.StatsCCAPIKey,
+		APIBaseURL:        cfg.StatsCCAPIBaseURL,
+		ScraperBaseURL:    "https://stats.cc",
+		ScrapeFn:          scrape.ScrapeHTMLStatsCollection,
+		ConfigCache:       statsConfigCache,
+		ProfileBatchSize:  int(cfg.StatsCCProfileBatchSize),
+		ProfileBatchDelay: time.Duration(cfg.StatsCCProfileBatchDelayMS) * time.Millisecond,
 	})
 
 	registry := backends.NewStatsBackendRegistry()

@@ -24,9 +24,11 @@ type Config struct {
 	StatsTTLR6MS      uint64
 	StatsStaleGraceMS uint64
 
-	StatsCCAPIKey           string
-	StatsCCAPIBaseURL       string
-	StatsCCConfigCacheTTLMS uint64
+	StatsCCAPIKey              string
+	StatsCCAPIBaseURL          string
+	StatsCCConfigCacheTTLMS    uint64
+	StatsCCProfileBatchSize    uint64
+	StatsCCProfileBatchDelayMS uint64
 
 	AxiomToken   string
 	AxiomDataset string
@@ -64,9 +66,11 @@ func Load() (*Config, error) {
 		StatsTTLR6MS:      readUint64("STATS_TTL_R6_MS", 60_000),
 		StatsStaleGraceMS: readUint64("STATS_STALE_GRACE_MS", 86_400_000),
 
-		StatsCCAPIKey:           os.Getenv("STATS_CC_API_KEY"),
-		StatsCCAPIBaseURL:       getenv("STATS_CC_API_BASE_URL", "https://r6.stats.cc"),
-		StatsCCConfigCacheTTLMS: readUint64("STATS_CC_CONFIG_CACHE_TTL_MS", 420_000),
+		StatsCCAPIKey:              os.Getenv("STATS_CC_API_KEY"),
+		StatsCCAPIBaseURL:          getenv("STATS_CC_API_BASE_URL", "https://r6.stats.cc"),
+		StatsCCConfigCacheTTLMS:    readUint64("STATS_CC_CONFIG_CACHE_TTL_MS", 420_000),
+		StatsCCProfileBatchSize:    clampUint64(readUint64("STATS_CC_PROFILE_BATCH_SIZE", 10), 1, 10),
+		StatsCCProfileBatchDelayMS: readMinUint64("STATS_CC_PROFILE_BATCH_DELAY_MS", 1000, 1),
 
 		AxiomToken:   os.Getenv("AXIOM_TOKEN"),
 		AxiomDataset: getenv("AXIOM_DATASET", "parley"),
@@ -109,6 +113,24 @@ func readUint64(key string, defaultVal uint64) uint64 {
 	n, err := strconv.ParseUint(v, 10, 64)
 	if err != nil {
 		return defaultVal
+	}
+	return n
+}
+
+func readMinUint64(key string, defaultVal, minVal uint64) uint64 {
+	n := readUint64(key, defaultVal)
+	if n < minVal {
+		return defaultVal
+	}
+	return n
+}
+
+func clampUint64(n, minVal, maxVal uint64) uint64 {
+	if n < minVal {
+		return minVal
+	}
+	if n > maxVal {
+		return maxVal
 	}
 	return n
 }

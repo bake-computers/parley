@@ -14,12 +14,14 @@ const scraperUserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_6) AppleWebK
 
 // ClientOptions configures StatsClient with optional API + scraper paths.
 type ClientOptions struct {
-	APIKey         string
-	APIBaseURL     string
-	ScraperBaseURL string
-	ScrapeFn       ScrapeFunc
-	ConfigCache    *api.ConfigCache
-	HTTPClient     *http.Client
+	APIKey            string
+	APIBaseURL        string
+	ScraperBaseURL    string
+	ScrapeFn          ScrapeFunc
+	ConfigCache       *api.ConfigCache
+	HTTPClient        *http.Client
+	ProfileBatchSize  int
+	ProfileBatchDelay time.Duration
 }
 
 // StatsClient fetches stats from stats.cc API (primary) or HTML scraper (fallback).
@@ -68,10 +70,12 @@ func NewStatsClientFromOptions(opts ClientOptions) *StatsClient {
 
 	if opts.APIKey != "" && opts.APIBaseURL != "" {
 		c.api = api.NewClient(api.Options{
-			BaseURL:     opts.APIBaseURL,
-			APIKey:      opts.APIKey,
-			ConfigCache: opts.ConfigCache,
-			HTTPClient:  httpClient,
+			BaseURL:           opts.APIBaseURL,
+			APIKey:            opts.APIKey,
+			ConfigCache:       opts.ConfigCache,
+			HTTPClient:        httpClient,
+			ProfileBatchSize:  opts.ProfileBatchSize,
+			ProfileBatchDelay: opts.ProfileBatchDelay,
 		})
 	}
 
