@@ -21,7 +21,6 @@ TypeScript (Bun workspaces) ← buf generate → packages/generated-ts
   apps/worker/             ← Cloudflare Worker: Hono, @parley/proto clients
   packages/runtime/        ← Discord API wrapper (Embeds & Components v2)
   packages/generated-ts/   ← @parley/proto: buf-generated TS + ConnectRPC clients
-  packages/db/             ← @parley/db: FROZEN legacy Drizzle schema (see below)
   packages/tsconfig-base/  ← Shared TS strict-mode base config
 ```
 
@@ -84,8 +83,6 @@ Canonical schema is defined by SQL migrations in `/migrations` and mirrored in B
 # Apply migrations at boot
 RUN_MIGRATIONS=1 make run
 ```
-
-**The `@parley/db` Drizzle package is FROZEN.** Do not extend it — add SQL migrations and Go repos instead.
 
 ### Environment setup
 
