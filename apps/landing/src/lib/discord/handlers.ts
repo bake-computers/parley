@@ -4,7 +4,10 @@ import {
   clearStateCookieHeader,
   discordRedirectUri,
   exchangeDiscordCode,
+  cookieGuildsFromOAuth,
+  fetchDiscordGuilds,
   fetchDiscordUser,
+  primeSessionGuildsCache,
   resolveSessionGuilds,
   sealOAuthState,
   sealSession,
@@ -18,6 +21,7 @@ import {
   type DiscordOAuthEnv,
   type DiscordUser,
 } from "./oauth.js";
+import { primeBotGuildsCache } from "./bot.js";
 import { oauthEnvFromSource, resolveBotToken, type OAuthEnvSource } from "./env.js";
 import { publicGuildsForDashboard } from "./guild-dashboard.js";
 import { turnstileEnabled, verifyTurnstileToken } from "../turnstile.js";
@@ -194,11 +198,30 @@ async function handleDiscordCallbackImpl(
   }
 
   let user: DiscordUser;
+  let oauthGuilds: Awaited<ReturnType<typeof fetchDiscordGuilds>> | null = null;
   try {
-    user = await fetchDiscordUser(token.access_token);
+    // Parallel: user, guild list, bot membership — so first /api/auth/me is warm.
+    const botToken = resolveBotToken(envSource);
+    const [u, guildsResult] = await Promise.all([
+      fetchDiscordUser(token.access_token),
+      fetchDiscordGuilds(token.access_token).then(
+        (g) => g,
+        () => null,
+      ),
+      botToken ? primeBotGuildsCache(botToken).then(
+        () => null,
+        () => null,
+      ) : Promise.resolve(null),
+    ]);
+    user = u;
+    oauthGuilds = guildsResult;
   } catch (e) {
     const message = e instanceof Error ? e.message : "Discord API failed";
     return new Response(message, { status: 502 });
+  }
+
+  if (oauthGuilds) {
+    await primeSessionGuildsCache(user.id, cookieGuildsFromOAuth(oauthGuilds));
   }
 
   const expiresAtMs = Date.now() + token.expires_in * 1000;

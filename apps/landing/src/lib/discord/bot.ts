@@ -1,3 +1,10 @@
+import {
+  BOT_GUILDS_CACHE_KEY,
+  BOT_GUILDS_TTL_SEC,
+  cacheGetJson,
+  cachePutJson,
+} from "./discord-cache.js";
+
 const DISCORD_API = "https://discord.com/api/v10";
 
 /** Slash commands, messages, embeds, channels, history — enough for matchmaking. */
@@ -64,15 +71,74 @@ export async function botIsInGuild(
   }
 }
 
-export async function botInstalledGuildIds(
+/** One Discord list call instead of N per-guild membership probes. */
+export async function fetchBotGuildIds(botToken: string): Promise<string[]> {
+  const ids: string[] = [];
+  let after: string | undefined;
+  const headers = { Authorization: `Bot ${botToken}` };
+
+  for (let page = 0; page < 50; page++) {
+    const url = new URL(`${DISCORD_API}/users/@me/guilds`);
+    url.searchParams.set("limit", "200");
+    if (after) {
+      url.searchParams.set("after", after);
+    }
+    const res = await fetch(url.href, { headers });
+    if (!res.ok) {
+      throw new Error(`Discord bot guilds failed (${res.status})`);
+    }
+    const batch = (await res.json()) as Array<{ id?: string }>;
+    if (!Array.isArray(batch) || batch.length === 0) {
+      break;
+    }
+    for (const g of batch) {
+      if (typeof g.id === "string") {
+        ids.push(g.id);
+      }
+    }
+    if (batch.length < 200) {
+      break;
+    }
+    const last = batch[batch.length - 1]?.id;
+    if (!last) {
+      break;
+    }
+    after = last;
+  }
+  return ids;
+}
+
+let botGuildsInflight: Promise<Set<string>> | null = null;
+
+async function loadBotGuildIdSet(botToken: string): Promise<Set<string>> {
+  const cached = await cacheGetJson<string[]>(BOT_GUILDS_CACHE_KEY);
+  if (cached) {
+    return new Set(cached);
+  }
+  if (botGuildsInflight) {
+    return botGuildsInflight;
+  }
+  botGuildsInflight = (async () => {
+    const ids = await fetchBotGuildIds(botToken);
+    await cachePutJson(BOT_GUILDS_CACHE_KEY, ids, BOT_GUILDS_TTL_SEC);
+    return new Set(ids);
+  })().finally(() => {
+    botGuildsInflight = null;
+  });
+  return botGuildsInflight;
+}
+
+/** Prefetch bot guild membership into cache (call after login). */
+export async function primeBotGuildsCache(botToken: string): Promise<void> {
+  await loadBotGuildIdSet(botToken);
+}
+
+/** Legacy path: one Discord request per guild (batched). */
+async function botInstalledGuildIdsLegacy(
   botToken: string,
   guildIds: string[],
 ): Promise<Set<string>> {
   const installed = new Set<string>();
-  if (guildIds.length === 0) {
-    return installed;
-  }
-
   const botUserId = await fetchBotUserId(botToken);
   const batchSize = 8;
   for (let i = 0; i < guildIds.length; i += batchSize) {
@@ -90,4 +156,27 @@ export async function botInstalledGuildIds(
     }
   }
   return installed;
+}
+
+export async function botInstalledGuildIds(
+  botToken: string,
+  guildIds: string[],
+): Promise<Set<string>> {
+  const installed = new Set<string>();
+  if (guildIds.length === 0) {
+    return installed;
+  }
+
+  try {
+    const botGuilds = await loadBotGuildIdSet(botToken);
+    for (const id of guildIds) {
+      if (botGuilds.has(id)) {
+        installed.add(id);
+      }
+    }
+    return installed;
+  } catch {
+    // ponytail: list endpoint can fail for some bot configs; fall back to probes
+    return botInstalledGuildIdsLegacy(botToken, guildIds);
+  }
 }
