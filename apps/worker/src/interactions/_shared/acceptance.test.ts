@@ -8,7 +8,7 @@ import {
   ACCEPT_BUTTON,
   acceptCustomId,
   parseAcceptSource,
-} from "./acceptance.js";
+} from "#/interactions/_shared/acceptance.js";
 
 const ENV = { ENGINE_SERVICE_URL: "http://localhost:50051" };
 

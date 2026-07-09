@@ -7,9 +7,9 @@ import {
   StatsService,
   UserSettingsService,
 } from "@parley/proto";
-import { resolveEngineTransport, type EngineTransportEnv } from "./engine-transport.js";
+import { resolveEngineTransport, type EngineTransportEnv } from "#/engine-transport.js";
 
-export type { EngineTransportEnv } from "./engine-transport.js";
+export type { EngineTransportEnv } from "#/engine-transport.js";
 
 const clientCache = new Map<string, unknown>();
 

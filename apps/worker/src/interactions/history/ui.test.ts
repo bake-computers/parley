@@ -1,6 +1,6 @@
 import { describe, test, expect } from "bun:test";
 import type { Match, MatchParticipant } from "@parley/proto/matchmaking/v1/matchmaking_pb.js";
-import { buildHistoryCard } from "./ui.js";
+import { buildHistoryCard } from "#/interactions/history/ui.js";
 
 function makeParticipant(team: string, username: string, discordUserId: string): MatchParticipant {
   return {

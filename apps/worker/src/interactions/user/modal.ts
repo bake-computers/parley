@@ -1,6 +1,6 @@
 import { ActionRowBuilder, ModalBuilder, TextInputBuilder } from "@parley/runtime";
 import { TextInputStyle } from "discord-api-types/v10";
-import { USER_DELETE_MODAL } from "./constants.js";
+import { USER_DELETE_MODAL } from "#/interactions/user/constants.js";
 
 export function buildDeleteConfirmModal(expectedUsername: string): ModalBuilder {
   const input = new TextInputBuilder()

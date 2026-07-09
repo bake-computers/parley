@@ -4,12 +4,12 @@ import {
   isSlashCommandHandler,
   registerApplicationCommands,
 } from "@parley/runtime";
-import { helpCommand } from "./interactions/help.js";
-import { historyCommand } from "./interactions/history/slash.js";
-import { linkSlashCommand } from "./interactions/link/slash.js";
-import { pingCommand } from "./interactions/ping.js";
-import { profileCommand } from "./interactions/profile.js";
-import { userSlashCommand } from "./interactions/user/index.js";
+import { helpCommand } from "#/interactions/help.js";
+import { historyCommand } from "#/interactions/history/slash.js";
+import { linkSlashCommand } from "#/interactions/link/slash.js";
+import { pingCommand } from "#/interactions/ping.js";
+import { profileCommand } from "#/interactions/profile.js";
+import { userSlashCommand } from "#/interactions/user/index.js";
 
 async function loadEnvFile(path: string): Promise<void> {
   const file = Bun.file(path);

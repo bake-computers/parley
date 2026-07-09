@@ -1,5 +1,5 @@
 import { ParleyClient } from "@parley/runtime";
-import { workerHandlers } from "./handlers.js";
+import { workerHandlers } from "#/handlers.js";
 
 export function createApp(): ParleyClient {
   const client = new ParleyClient();

@@ -6,8 +6,8 @@ import {
   logger,
   parseCustomId,
 } from "@parley/runtime";
-import { updateV2 } from "../../ui/discord.js";
-import { resolveEmojis } from "../../ui/emojis.js";
+import { updateV2 } from "#/ui/discord.js";
+import { resolveEmojis } from "#/ui/emojis.js";
 import {
   GAME_NAME,
   TextInputStyle,
@@ -17,8 +17,8 @@ import {
   platformLabel,
   usernameModalCustomId,
   type Platform,
-} from "./constants.js";
-import { buildConfirmCard } from "./ui.js";
+} from "#/interactions/link/constants.js";
+import { buildConfirmCard } from "#/interactions/link/ui.js";
 
 /**
  * Step 2: collect the in-game username via a modal, then update the wizard

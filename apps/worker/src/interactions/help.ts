@@ -1,6 +1,6 @@
 import { ContainerBuilder, SlashCommand, TextDisplayBuilder } from "@parley/runtime";
-import { replyV2 } from "../ui/discord.js";
-import { UI_TOKENS } from "../ui/tokens.js";
+import { replyV2 } from "#/ui/discord.js";
+import { UI_TOKENS } from "#/ui/tokens.js";
 
 export const helpCommand = new SlashCommand()
   .setName("help")

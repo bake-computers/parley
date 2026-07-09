@@ -5,8 +5,8 @@ import type {
 import { Game } from "@parley/proto";
 import { ConnectError } from "@connectrpc/connect";
 import { err, ok, type Result } from "neverthrow";
-import { getIdentityClient, type EngineTransportEnv } from "../../transport.js";
-import type { Platform } from "./constants.js";
+import { getIdentityClient, type EngineTransportEnv } from "#/transport.js";
+import type { Platform } from "#/interactions/link/constants.js";
 
 type LinkInteractionContext = {
   context: { env: unknown };
@@ -117,4 +117,4 @@ export {
   platformToStatsPlatform,
   type FetchStatsPlatform,
   type ExecuteFetchStatsInput,
-} from "../_shared/stats.js";
+} from "#/interactions/_shared/stats.js";

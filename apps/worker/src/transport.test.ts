@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { withFollowRedirect } from "./transport.js";
+import { withFollowRedirect } from "#/transport.js";
 
 describe("withFollowRedirect", () => {
   test("rewrites redirect: 'error' to 'follow' on the request init", async () => {
