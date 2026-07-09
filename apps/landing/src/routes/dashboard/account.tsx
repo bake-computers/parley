@@ -7,6 +7,11 @@ import { DashboardSessionError } from "#/components/dashboard/DashboardSessionEr
 import { UserSettingsForm } from "#/components/dashboard/UserSettingsForm";
 import { GlassPanel } from "#/components/ui/glass-panel";
 import { Skeleton } from "#/components/ui/skeleton";
+import {
+  fetchUserSettings,
+  getCachedUserSettings,
+  setCachedUserSettings,
+} from "#/lib/dashboard/user-settings-cache";
 import { discordAvatarUrl } from "#/lib/discord/oauth";
 import type { UserSettingsJson } from "#/lib/dashboard/user/types";
 
@@ -31,6 +36,7 @@ function AccountSettingsPage() {
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const patchSettings = useCallback((next: UserSettingsJson) => {
+    setCachedUserSettings(next);
     setSettings(next);
   }, []);
 
@@ -38,17 +44,16 @@ function AccountSettingsPage() {
     if (!me) {
       return;
     }
+    const cached = getCachedUserSettings();
+    if (cached) {
+      setSettings(cached);
+      setLoadError(null);
+      return;
+    }
     let cancelled = false;
     setSettings(undefined);
     setLoadError(null);
-    fetch("/api/dashboard/user/settings", { credentials: "include" })
-      .then(async (res) => {
-        const data = (await res.json()) as { settings?: UserSettingsJson; error?: string };
-        if (!res.ok) {
-          throw new Error(data.error ?? "Failed to load settings");
-        }
-        return data.settings!;
-      })
+    fetchUserSettings()
       .then((bundle) => {
         if (!cancelled) {
           setSettings(bundle);
