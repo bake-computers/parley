@@ -4,6 +4,9 @@
   "private": true,
   "description": "Realtime bridge for Parley public APIs (leaderboards, streams, and more).",
   "type": "module",
+  "imports": {
+    "#/*": "./src/*"
+  },
   "scripts": {
     "build": "tsc",
     "deploy": "wrangler deploy",

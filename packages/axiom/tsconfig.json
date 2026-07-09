@@ -4,7 +4,10 @@
     "lib": ["ESNext"],
     "types": ["@cloudflare/workers-types"],
     "rootDir": "./src",
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "paths": {
+      "#/*": ["./src/*"]
+    }
   },
   "include": ["src/**/*.ts"],
   "exclude": ["src/**/__tests__/**"]
