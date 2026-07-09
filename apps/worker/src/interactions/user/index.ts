@@ -1,2 +1,2 @@
-export { userSlashCommand } from "./slash.js";
-export { userButtonHandler, userModalHandler } from "./components.js";
+export { userSlashCommand } from "#/interactions/user/slash";
+export { userButtonHandler, userModalHandler } from "#/interactions/user/components";

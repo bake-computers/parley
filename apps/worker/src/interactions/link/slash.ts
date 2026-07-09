@@ -1,11 +1,11 @@
 import { SlashCommand, logger } from "@parley/runtime";
 import { Game, type LinkedIdentity } from "@parley/proto";
-import { assertAccepted } from "../_shared/acceptance.js";
-import { editReplyV2 } from "../../ui/discord.js";
-import { resolveEmojis } from "../../ui/emojis.js";
-import { invokeLookupByDiscord } from "../profile.js";
-import { getIdentityClient, type EngineTransportEnv } from "../../transport.js";
-import { buildLinkHubCard } from "./ui.js";
+import { assertAccepted } from "#/interactions/_shared/acceptance";
+import { editReplyV2 } from "#/ui/discord";
+import { resolveEmojis } from "#/ui/emojis";
+import { invokeLookupByDiscord } from "#/interactions/profile";
+import { getIdentityClient, type EngineTransportEnv } from "#/transport";
+import { buildLinkHubCard } from "#/interactions/link/ui";
 
 export const linkSlashCommand = new SlashCommand()
   .setName("link")

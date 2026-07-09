@@ -2,8 +2,13 @@
   "extends": "@parley/tsconfig-base",
   "compilerOptions": {
     "lib": ["ESNext"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "rootDir": "./src",
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "paths": {
+      "#/*": ["./src/*"]
+    }
   },
   "include": ["src/**/*.ts"]
 }

@@ -6,10 +6,10 @@ import {
   logger,
 } from "@parley/runtime";
 import type { UserSettings as ProtoUserSettings } from "@parley/proto";
-import { getUserSettingsClient } from "../../transport.js";
-import { editReplyV2, updateV2 } from "../../ui/discord.js";
-import { resolveEmojis } from "../../ui/emojis.js";
-import { nowMs } from "./helpers.js";
+import { getUserSettingsClient } from "#/transport";
+import { editReplyV2, updateV2 } from "#/ui/discord";
+import { resolveEmojis } from "#/ui/emojis";
+import { nowMs } from "#/interactions/user/helpers";
 import {
   USER_CANCEL,
   USER_DELETE_MODAL,
@@ -21,12 +21,12 @@ import {
   USER_ACCEPT_BUTTON,
   USER_PAGE_PREFIX,
   USER_TZ_PAGE_PREFIX,
-} from "./constants.js";
-import { buildDeleteConfirmModal } from "./modal.js";
-import { parseAcceptSource, refreshSettingsCache } from "../_shared/acceptance.js";
-import { resumeAfterAccept } from "../_shared/resume-after-accept.js";
-import { buildDeleteResultCard, buildErrorCard, buildInfoCard, buildSettingsCard } from "./ui.js";
-import { invokeDeleteUserData, invokeGetUserSettings, invokeUpsertUserSettings } from "./rpc.js";
+} from "#/interactions/user/constants";
+import { buildDeleteConfirmModal } from "#/interactions/user/modal";
+import { parseAcceptSource, refreshSettingsCache } from "#/interactions/_shared/acceptance";
+import { resumeAfterAccept } from "#/interactions/_shared/resume-after-accept";
+import { buildDeleteResultCard, buildErrorCard, buildInfoCard, buildSettingsCard } from "#/interactions/user/ui";
+import { invokeDeleteUserData, invokeGetUserSettings, invokeUpsertUserSettings } from "#/interactions/user/rpc";
 const COMPONENT_BUTTON = 2;
 
 function getClient(env: unknown) {

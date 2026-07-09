@@ -2,9 +2,14 @@
   "extends": "@parley/tsconfig-base",
   "compilerOptions": {
     "lib": ["ESNext"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "types": ["@cloudflare/workers-types"],
     "rootDir": "./src",
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "paths": {
+      "#/*": ["./src/*"]
+    }
   },
   "include": ["src/**/*.ts"],
   "exclude": ["src/**/__tests__/**"]

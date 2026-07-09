@@ -1,6 +1,6 @@
 import { describe, expect, test, spyOn } from "bun:test";
-import { matchHandler } from "./match.js";
-import type { Env } from "../types.js";
+import { matchHandler } from "#/routes/match";
+import type { Env } from "#/types";
 import type { Context } from "hono";
 import type { AxiomVariables } from "@parley/axiom";
 

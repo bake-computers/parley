@@ -4,16 +4,16 @@ import {
   type MessageComponentInteraction,
 } from "@parley/runtime";
 import { Game, type LinkedIdentity, type UserSettings as ProtoUserSettings } from "@parley/proto";
-import { updateV2 } from "../../ui/discord.js";
-import { resolveEmojis } from "../../ui/emojis.js";
-import { formatParleyRankLine } from "../../ui/parley-rank.js";
-import { UI_TOKENS } from "../../ui/tokens.js";
-import { getIdentityClient, type EngineTransportEnv } from "../../transport.js";
-import { buildLinkHubCard } from "../link/ui.js";
-import { invokeListMatches } from "../history/rpc.js";
-import { buildHistoryCard, buildHistoryErrorCard } from "../history/ui.js";
-import { invokeLookupByDiscord } from "../profile.js";
-import { buildSettingsCard } from "../user/ui.js";
+import { updateV2 } from "#/ui/discord";
+import { resolveEmojis } from "#/ui/emojis";
+import { formatParleyRankLine } from "#/ui/parley-rank";
+import { UI_TOKENS } from "#/ui/tokens";
+import { getIdentityClient, type EngineTransportEnv } from "#/transport";
+import { buildLinkHubCard } from "#/interactions/link/ui";
+import { invokeListMatches } from "#/interactions/history/rpc";
+import { buildHistoryCard, buildHistoryErrorCard } from "#/interactions/history/ui";
+import { invokeLookupByDiscord } from "#/interactions/profile";
+import { buildSettingsCard } from "#/interactions/user/ui";
 import type { ApplicationEmojiCatalog } from "@parley/runtime";
 
 const GAME_NAMES: Record<number, string> = {

@@ -1,11 +1,11 @@
 import { SlashCommand, type ChatInputCommandInteraction } from "@parley/runtime";
-import { assertAccepted } from "../_shared/acceptance.js";
-import { editReplyV2 } from "../../ui/discord.js";
-import { invokeListMatches } from "./rpc.js";
-import { buildHistoryCard, buildHistoryErrorCard } from "./ui.js";
-import { HISTORY_COMMAND_NAME, HISTORY_COMMAND_DESCRIPTION } from "./constants.js";
+import { assertAccepted } from "#/interactions/_shared/acceptance";
+import { editReplyV2 } from "#/ui/discord";
+import { invokeListMatches } from "#/interactions/history/rpc";
+import { buildHistoryCard, buildHistoryErrorCard } from "#/interactions/history/ui";
+import { HISTORY_COMMAND_NAME, HISTORY_COMMAND_DESCRIPTION } from "#/interactions/history/constants";
 import { Game } from "@parley/proto";
-import type { EngineTransportEnv } from "../../transport.js";
+import type { EngineTransportEnv } from "#/transport";
 
 export const historyCommand = new SlashCommand()
   .setName(HISTORY_COMMAND_NAME)

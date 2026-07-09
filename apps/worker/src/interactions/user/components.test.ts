@@ -6,7 +6,7 @@ import {
   USER_VISIBILITY_PREFIX,
   USER_REFRESH_STATS,
   USER_TIMEZONE_PREFIX,
-} from "./constants.js";
+} from "#/interactions/user/constants";
 
 describe("user/constants — customId prefixes", () => {
   test("matchmaking prefix is user/matchmaking/", () => {
@@ -29,7 +29,7 @@ describe("user/constants — customId prefixes", () => {
   });
 });
 
-import { userButtonHandler, userModalHandler } from "./components.js";
+import { userButtonHandler, userModalHandler } from "#/interactions/user/components";
 test("userButtonHandler is registered with the user prefix", () => {
   expect(userButtonHandler).toBeDefined();
   expect(userButtonHandler.prefix).toBe("user");

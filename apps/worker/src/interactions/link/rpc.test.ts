@@ -6,7 +6,7 @@ import type {
   UnlinkAccountResponse,
 } from "@parley/proto/identity/v1/identity_pb.js";
 import type { FetchStatsResponse } from "@parley/proto/stats/v1/stats_pb.js";
-import { invokeFetchStats, invokeLinkAccount, platformToStatsPlatform } from "./rpc.js";
+import { invokeFetchStats, invokeLinkAccount, platformToStatsPlatform } from "#/interactions/link/rpc";
 
 const ARGS = {
   discordUserId: "123456789",

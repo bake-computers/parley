@@ -1,7 +1,7 @@
 import type { Context } from "hono";
 import type { AxiomVariables } from "@parley/axiom";
-import type { Env } from "../types.js";
-import { resolveEngineTransport } from "../engine-transport.js";
+import type { Env } from "#/types";
+import { resolveEngineTransport } from "#/engine-transport";
 
 const GAME_R6 = 1;
 const KV_TTL_SECONDS = 3600;

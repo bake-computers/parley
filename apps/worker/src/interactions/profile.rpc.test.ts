@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { ConnectError } from "@connectrpc/connect";
-import { invokeLookupByDiscord } from "./profile.js";
+import { invokeLookupByDiscord } from "#/interactions/profile";
 
 describe("invokeLookupByDiscord", () => {
   test("wraps a successful response in Ok", async () => {

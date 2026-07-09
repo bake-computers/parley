@@ -1,4 +1,4 @@
-import type { WireEntry } from "./types.js";
+import type { WireEntry } from "#/types";
 
 export async function hashEntries(entries: WireEntry[]): Promise<string> {
   const canonical = JSON.stringify(

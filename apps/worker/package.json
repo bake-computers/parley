@@ -4,6 +4,9 @@
   "private": true,
   "description": "Cloudflare Worker REST API for the Parley platform, powered by typed ConnectRPC clients.",
   "type": "module",
+  "imports": {
+    "#/*": "./src/*"
+  },
   "scripts": {
     "build": "tsc",
     "deploy": "wrangler deploy",

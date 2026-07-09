@@ -1,3 +1,3 @@
-export { linkSlashCommand } from "./slash.js";
-export { linkSelectHandler } from "./components.js";
-export { usernameModalHandler } from "./modal.js";
+export { linkSlashCommand } from "#/interactions/link/slash";
+export { linkSelectHandler } from "#/interactions/link/components";
+export { usernameModalHandler } from "#/interactions/link/modal";

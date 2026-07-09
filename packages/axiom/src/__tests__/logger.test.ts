@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { resolveAxiomConfig, resolveAxiomIngestUrl } from "../config.js";
-import { AxiomLogger } from "../logger.js";
+import { resolveAxiomConfig, resolveAxiomIngestUrl } from "#/config";
+import { AxiomLogger } from "#/logger";
 
 describe("resolveAxiomIngestUrl", () => {
   test("uses legacy US API by default", () => {

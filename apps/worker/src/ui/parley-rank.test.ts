@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { formatParleyRankLine, parleyRankForElo, parseCooldownUntilMs } from "./parley-rank.js";
+import { formatParleyRankLine, parleyRankForElo, parseCooldownUntilMs } from "#/ui/parley-rank";
 
 describe("parleyRankForElo", () => {
   test("maps boundary elo values to expected tiers", () => {

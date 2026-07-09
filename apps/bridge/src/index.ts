@@ -1,15 +1,15 @@
 import { axiomMiddleware, type AxiomVariables } from "@parley/axiom";
 import { Hono } from "hono";
-import { GlobalLeaderboard } from "./do/global-leaderboard.js";
-import { matchHandler } from "./routes/match.js";
+import { GlobalLeaderboard } from "#/do/global-leaderboard";
+import { matchHandler } from "#/routes/match";
 import {
   checkConnectionRateLimit,
   corsHeaders,
   isOriginAllowed,
   parseAllowedOrigins,
-} from "./security.js";
-import type { Env } from "./types.js";
-import { metricToDoId, parseMetric } from "./types.js";
+} from "#/security";
+import type { Env } from "#/types";
+import { metricToDoId, parseMetric } from "#/types";
 
 export { GlobalLeaderboard };
 
@@ -81,8 +81,9 @@ app.get("/ws", async (c) => {
   }
 
   const ip = c.req.header("CF-Connecting-IP") ?? "unknown";
+  const axiom = c.get("axiom");
   if (!checkConnectionRateLimit(ip)) {
-    c.var.axiom.logWs({
+    axiom.logWs({
       action: "rate_limited",
       metric,
       client_ip: ip,
@@ -90,7 +91,7 @@ app.get("/ws", async (c) => {
     return c.text("Too Many Requests", 429);
   }
 
-  c.var.axiom.logWs({
+  axiom.logWs({
     action: "connect",
     metric,
     client_ip: ip,

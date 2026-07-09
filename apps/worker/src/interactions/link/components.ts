@@ -6,17 +6,17 @@ import {
   type MessageComponentInteraction,
 } from "@parley/runtime";
 import { Game } from "@parley/proto";
-import { resolveEmojis } from "../../ui/emojis.js";
-import { editReplyV2 } from "../../ui/discord.js";
+import { resolveEmojis } from "#/ui/emojis";
+import { editReplyV2 } from "#/ui/discord";
 import {
   CONFIRM_ACTION_BACK,
   CONFIRM_ACTION_CONTINUE,
   PLATFORM_SELECT_CUSTOM_ID,
   UNLINK_SELECT_CUSTOM_ID,
   isPlatform,
-} from "./constants.js";
-import { buildUsernameModal } from "./modal.js";
-import { executeFetchStats, executeLinkAccount, executeUnlinkAccount } from "./rpc.js";
+} from "#/interactions/link/constants";
+import { buildUsernameModal } from "#/interactions/link/modal";
+import { executeFetchStats, executeLinkAccount, executeUnlinkAccount } from "#/interactions/link/rpc";
 import {
   buildConfirmCard,
   buildErrorCard,
@@ -25,11 +25,11 @@ import {
   buildReadyToPlayCard,
   buildUnlinkCooldownCard,
   isConfirmSelectCustomId,
-} from "./ui.js";
-import { assertAccepted } from "../_shared/acceptance.js";
-import { invokeLookupByDiscord } from "../profile.js";
-import { getIdentityClient, type EngineTransportEnv } from "../../transport.js";
-import { parseCooldownUntilMs } from "../../ui/parley-rank.js";
+} from "#/interactions/link/ui";
+import { assertAccepted } from "#/interactions/_shared/acceptance";
+import { invokeLookupByDiscord } from "#/interactions/profile";
+import { getIdentityClient, type EngineTransportEnv } from "#/transport";
+import { parseCooldownUntilMs } from "#/ui/parley-rank";
 
 const COMPONENT_STRING_SELECT = 3;
 

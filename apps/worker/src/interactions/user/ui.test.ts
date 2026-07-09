@@ -5,7 +5,7 @@ import {
   buildDeleteResultCard,
   buildInfoCard,
   buildRefreshErrorCard,
-} from "./ui.js";
+} from "#/interactions/user/ui";
 
 const SETTINGS = {
   discordUserId: "u1",
