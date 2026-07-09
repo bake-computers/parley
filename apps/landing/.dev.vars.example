@@ -1,6 +1,8 @@
 # Copy to .dev.vars (gitignored) for local OAuth.
 DISCORD_CLIENT_SECRET=
 AUTH_SECRET=
+# Must match the secret configured for apps/worker; it verifies /tournament create handoffs.
+TOURNAMENT_HANDOFF_SECRET=
 
 # Cloudflare Turnstile — use official test keys locally (always pass on localhost).
 # https://developers.cloudflare.com/turnstile/troubleshooting/testing/

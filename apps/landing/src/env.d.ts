@@ -8,6 +8,7 @@ declare namespace Cloudflare {
     DISCORD_BOT_TOKEN?: string;
     DISCORD_TOKEN?: string;
     AUTH_SECRET: string;
+    TOURNAMENT_HANDOFF_SECRET?: string;
     DISCORD_OAUTH_REDIRECT_ORIGIN?: string;
     TURNSTILE_SITE_KEY?: string;
     TURNSTILE_SECRET_KEY?: string;

@@ -8,565 +8,595 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from "./routes/__root";
-import { Route as TermsRouteImport } from "./routes/terms";
-import { Route as PrivacyRouteImport } from "./routes/privacy";
-import { Route as LegalNoticeRouteImport } from "./routes/legal-notice";
-import { Route as LeaderboardRouteImport } from "./routes/leaderboard";
-import { Route as DashboardRouteImport } from "./routes/dashboard";
-import { Route as IndexRouteImport } from "./routes/index";
-import { Route as TournamentsCreateRouteImport } from "./routes/tournaments/create";
-import { Route as TournamentsCodeRouteImport } from "./routes/tournaments/$code";
-import { Route as DashboardAccountRouteImport } from "./routes/dashboard/account";
-import { Route as AuthLogoutRouteImport } from "./routes/auth/logout";
-import { Route as AuthLoginRouteImport } from "./routes/auth/login";
-import { Route as AuthDiscordIndexRouteImport } from "./routes/auth/discord/index";
-import { Route as TournamentsCodeManageRouteImport } from "./routes/tournaments/$code/manage";
-import { Route as MatchGuildIdUuidRouteImport } from "./routes/match/$guildId/$uuid";
-import { Route as DashboardGuildsGuildIdRouteImport } from "./routes/dashboard/guilds/$guildId";
-import { Route as AuthDiscordCallbackRouteImport } from "./routes/auth/discord/callback";
-import { Route as ApiBridgeWsRouteImport } from "./routes/api/bridge/ws";
-import { Route as ApiBridgeSnapshotRouteImport } from "./routes/api/bridge/snapshot";
-import { Route as ApiAuthMeRouteImport } from "./routes/api/auth/me";
-import { Route as DashboardGuildsGuildIdIndexRouteImport } from "./routes/dashboard/guilds/$guildId/index";
-import { Route as DashboardGuildsGuildIdRulesRouteImport } from "./routes/dashboard/guilds/$guildId/rules";
-import { Route as DashboardGuildsGuildIdQuotaRouteImport } from "./routes/dashboard/guilds/$guildId/quota";
-import { Route as DashboardGuildsGuildIdGeneralRouteImport } from "./routes/dashboard/guilds/$guildId/general";
-import { Route as ApiDashboardUserSettingsRouteImport } from "./routes/api/dashboard/user/settings";
-import { Route as ApiDashboardGuildsGuildIdSettingsRouteImport } from "./routes/api/dashboard/guilds/$guildId/settings";
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as LegalNoticeRouteImport } from './routes/legal-notice'
+import { Route as LeaderboardRouteImport } from './routes/leaderboard'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as TournamentsCreateRouteImport } from './routes/tournaments/create'
+import { Route as TournamentsCodeRouteImport } from './routes/tournaments/$code'
+import { Route as DashboardAccountRouteImport } from './routes/dashboard/account'
+import { Route as AuthLogoutRouteImport } from './routes/auth/logout'
+import { Route as AuthLoginRouteImport } from './routes/auth/login'
+import { Route as AuthDiscordIndexRouteImport } from './routes/auth/discord/index'
+import { Route as TournamentsCodeManageRouteImport } from './routes/tournaments/$code/manage'
+import { Route as MatchGuildIdUuidRouteImport } from './routes/match/$guildId/$uuid'
+import { Route as DashboardGuildsGuildIdRouteImport } from './routes/dashboard/guilds/$guildId'
+import { Route as AuthDiscordCallbackRouteImport } from './routes/auth/discord/callback'
+import { Route as ApiTournamentsCreateRouteImport } from './routes/api/tournaments/create'
+import { Route as ApiBridgeWsRouteImport } from './routes/api/bridge/ws'
+import { Route as ApiBridgeSnapshotRouteImport } from './routes/api/bridge/snapshot'
+import { Route as ApiAuthMeRouteImport } from './routes/api/auth/me'
+import { Route as DashboardGuildsGuildIdIndexRouteImport } from './routes/dashboard/guilds/$guildId/index'
+import { Route as DashboardGuildsGuildIdRulesRouteImport } from './routes/dashboard/guilds/$guildId/rules'
+import { Route as DashboardGuildsGuildIdQuotaRouteImport } from './routes/dashboard/guilds/$guildId/quota'
+import { Route as DashboardGuildsGuildIdGeneralRouteImport } from './routes/dashboard/guilds/$guildId/general'
+import { Route as ApiDashboardUserSettingsRouteImport } from './routes/api/dashboard/user/settings'
+import { Route as ApiDashboardGuildsGuildIdSettingsRouteImport } from './routes/api/dashboard/guilds/$guildId/settings'
 
 const TermsRoute = TermsRouteImport.update({
-  id: "/terms",
-  path: "/terms",
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const PrivacyRoute = PrivacyRouteImport.update({
-  id: "/privacy",
-  path: "/privacy",
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const LegalNoticeRoute = LegalNoticeRouteImport.update({
-  id: "/legal-notice",
-  path: "/legal-notice",
+  id: '/legal-notice',
+  path: '/legal-notice',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const LeaderboardRoute = LeaderboardRouteImport.update({
-  id: "/leaderboard",
-  path: "/leaderboard",
+  id: '/leaderboard',
+  path: '/leaderboard',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
-  id: "/dashboard",
-  path: "/dashboard",
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const IndexRoute = IndexRouteImport.update({
-  id: "/",
-  path: "/",
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const TournamentsCreateRoute = TournamentsCreateRouteImport.update({
-  id: "/tournaments/create",
-  path: "/tournaments/create",
+  id: '/tournaments/create',
+  path: '/tournaments/create',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const TournamentsCodeRoute = TournamentsCodeRouteImport.update({
-  id: "/tournaments/$code",
-  path: "/tournaments/$code",
+  id: '/tournaments/$code',
+  path: '/tournaments/$code',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const DashboardAccountRoute = DashboardAccountRouteImport.update({
-  id: "/account",
-  path: "/account",
+  id: '/account',
+  path: '/account',
   getParentRoute: () => DashboardRoute,
-} as any);
+} as any)
 const AuthLogoutRoute = AuthLogoutRouteImport.update({
-  id: "/auth/logout",
-  path: "/auth/logout",
+  id: '/auth/logout',
+  path: '/auth/logout',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const AuthLoginRoute = AuthLoginRouteImport.update({
-  id: "/auth/login",
-  path: "/auth/login",
+  id: '/auth/login',
+  path: '/auth/login',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const AuthDiscordIndexRoute = AuthDiscordIndexRouteImport.update({
-  id: "/auth/discord/",
-  path: "/auth/discord/",
+  id: '/auth/discord/',
+  path: '/auth/discord/',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const TournamentsCodeManageRoute = TournamentsCodeManageRouteImport.update({
-  id: "/manage",
-  path: "/manage",
+  id: '/manage',
+  path: '/manage',
   getParentRoute: () => TournamentsCodeRoute,
-} as any);
+} as any)
 const MatchGuildIdUuidRoute = MatchGuildIdUuidRouteImport.update({
-  id: "/match/$guildId/$uuid",
-  path: "/match/$guildId/$uuid",
+  id: '/match/$guildId/$uuid',
+  path: '/match/$guildId/$uuid',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const DashboardGuildsGuildIdRoute = DashboardGuildsGuildIdRouteImport.update({
-  id: "/guilds/$guildId",
-  path: "/guilds/$guildId",
+  id: '/guilds/$guildId',
+  path: '/guilds/$guildId',
   getParentRoute: () => DashboardRoute,
-} as any);
+} as any)
 const AuthDiscordCallbackRoute = AuthDiscordCallbackRouteImport.update({
-  id: "/auth/discord/callback",
-  path: "/auth/discord/callback",
+  id: '/auth/discord/callback',
+  path: '/auth/discord/callback',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
+const ApiTournamentsCreateRoute = ApiTournamentsCreateRouteImport.update({
+  id: '/api/tournaments/create',
+  path: '/api/tournaments/create',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiBridgeWsRoute = ApiBridgeWsRouteImport.update({
-  id: "/api/bridge/ws",
-  path: "/api/bridge/ws",
+  id: '/api/bridge/ws',
+  path: '/api/bridge/ws',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const ApiBridgeSnapshotRoute = ApiBridgeSnapshotRouteImport.update({
-  id: "/api/bridge/snapshot",
-  path: "/api/bridge/snapshot",
+  id: '/api/bridge/snapshot',
+  path: '/api/bridge/snapshot',
   getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
 const ApiAuthMeRoute = ApiAuthMeRouteImport.update({
-  id: "/api/auth/me",
-  path: "/api/auth/me",
+  id: '/api/auth/me',
+  path: '/api/auth/me',
   getParentRoute: () => rootRouteImport,
-} as any);
-const DashboardGuildsGuildIdIndexRoute = DashboardGuildsGuildIdIndexRouteImport.update({
-  id: "/",
-  path: "/",
-  getParentRoute: () => DashboardGuildsGuildIdRoute,
-} as any);
-const DashboardGuildsGuildIdRulesRoute = DashboardGuildsGuildIdRulesRouteImport.update({
-  id: "/rules",
-  path: "/rules",
-  getParentRoute: () => DashboardGuildsGuildIdRoute,
-} as any);
-const DashboardGuildsGuildIdQuotaRoute = DashboardGuildsGuildIdQuotaRouteImport.update({
-  id: "/quota",
-  path: "/quota",
-  getParentRoute: () => DashboardGuildsGuildIdRoute,
-} as any);
-const DashboardGuildsGuildIdGeneralRoute = DashboardGuildsGuildIdGeneralRouteImport.update({
-  id: "/general",
-  path: "/general",
-  getParentRoute: () => DashboardGuildsGuildIdRoute,
-} as any);
-const ApiDashboardUserSettingsRoute = ApiDashboardUserSettingsRouteImport.update({
-  id: "/api/dashboard/user/settings",
-  path: "/api/dashboard/user/settings",
-  getParentRoute: () => rootRouteImport,
-} as any);
-const ApiDashboardGuildsGuildIdSettingsRoute = ApiDashboardGuildsGuildIdSettingsRouteImport.update({
-  id: "/api/dashboard/guilds/$guildId/settings",
-  path: "/api/dashboard/guilds/$guildId/settings",
-  getParentRoute: () => rootRouteImport,
-} as any);
+} as any)
+const DashboardGuildsGuildIdIndexRoute =
+  DashboardGuildsGuildIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => DashboardGuildsGuildIdRoute,
+  } as any)
+const DashboardGuildsGuildIdRulesRoute =
+  DashboardGuildsGuildIdRulesRouteImport.update({
+    id: '/rules',
+    path: '/rules',
+    getParentRoute: () => DashboardGuildsGuildIdRoute,
+  } as any)
+const DashboardGuildsGuildIdQuotaRoute =
+  DashboardGuildsGuildIdQuotaRouteImport.update({
+    id: '/quota',
+    path: '/quota',
+    getParentRoute: () => DashboardGuildsGuildIdRoute,
+  } as any)
+const DashboardGuildsGuildIdGeneralRoute =
+  DashboardGuildsGuildIdGeneralRouteImport.update({
+    id: '/general',
+    path: '/general',
+    getParentRoute: () => DashboardGuildsGuildIdRoute,
+  } as any)
+const ApiDashboardUserSettingsRoute =
+  ApiDashboardUserSettingsRouteImport.update({
+    id: '/api/dashboard/user/settings',
+    path: '/api/dashboard/user/settings',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiDashboardGuildsGuildIdSettingsRoute =
+  ApiDashboardGuildsGuildIdSettingsRouteImport.update({
+    id: '/api/dashboard/guilds/$guildId/settings',
+    path: '/api/dashboard/guilds/$guildId/settings',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
-  "/": typeof IndexRoute;
-  "/dashboard": typeof DashboardRouteWithChildren;
-  "/leaderboard": typeof LeaderboardRoute;
-  "/legal-notice": typeof LegalNoticeRoute;
-  "/privacy": typeof PrivacyRoute;
-  "/terms": typeof TermsRoute;
-  "/auth/login": typeof AuthLoginRoute;
-  "/auth/logout": typeof AuthLogoutRoute;
-  "/dashboard/account": typeof DashboardAccountRoute;
-  "/tournaments/$code": typeof TournamentsCodeRouteWithChildren;
-  "/tournaments/create": typeof TournamentsCreateRoute;
-  "/api/auth/me": typeof ApiAuthMeRoute;
-  "/api/bridge/snapshot": typeof ApiBridgeSnapshotRoute;
-  "/api/bridge/ws": typeof ApiBridgeWsRoute;
-  "/auth/discord/callback": typeof AuthDiscordCallbackRoute;
-  "/dashboard/guilds/$guildId": typeof DashboardGuildsGuildIdRouteWithChildren;
-  "/match/$guildId/$uuid": typeof MatchGuildIdUuidRoute;
-  "/tournaments/$code/manage": typeof TournamentsCodeManageRoute;
-  "/auth/discord/": typeof AuthDiscordIndexRoute;
-  "/api/dashboard/user/settings": typeof ApiDashboardUserSettingsRoute;
-  "/dashboard/guilds/$guildId/general": typeof DashboardGuildsGuildIdGeneralRoute;
-  "/dashboard/guilds/$guildId/quota": typeof DashboardGuildsGuildIdQuotaRoute;
-  "/dashboard/guilds/$guildId/rules": typeof DashboardGuildsGuildIdRulesRoute;
-  "/dashboard/guilds/$guildId/": typeof DashboardGuildsGuildIdIndexRoute;
-  "/api/dashboard/guilds/$guildId/settings": typeof ApiDashboardGuildsGuildIdSettingsRoute;
+  '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRouteWithChildren
+  '/leaderboard': typeof LeaderboardRoute
+  '/legal-notice': typeof LegalNoticeRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
+  '/auth/login': typeof AuthLoginRoute
+  '/auth/logout': typeof AuthLogoutRoute
+  '/dashboard/account': typeof DashboardAccountRoute
+  '/tournaments/$code': typeof TournamentsCodeRouteWithChildren
+  '/tournaments/create': typeof TournamentsCreateRoute
+  '/api/auth/me': typeof ApiAuthMeRoute
+  '/api/bridge/snapshot': typeof ApiBridgeSnapshotRoute
+  '/api/bridge/ws': typeof ApiBridgeWsRoute
+  '/api/tournaments/create': typeof ApiTournamentsCreateRoute
+  '/auth/discord/callback': typeof AuthDiscordCallbackRoute
+  '/dashboard/guilds/$guildId': typeof DashboardGuildsGuildIdRouteWithChildren
+  '/match/$guildId/$uuid': typeof MatchGuildIdUuidRoute
+  '/tournaments/$code/manage': typeof TournamentsCodeManageRoute
+  '/auth/discord/': typeof AuthDiscordIndexRoute
+  '/api/dashboard/user/settings': typeof ApiDashboardUserSettingsRoute
+  '/dashboard/guilds/$guildId/general': typeof DashboardGuildsGuildIdGeneralRoute
+  '/dashboard/guilds/$guildId/quota': typeof DashboardGuildsGuildIdQuotaRoute
+  '/dashboard/guilds/$guildId/rules': typeof DashboardGuildsGuildIdRulesRoute
+  '/dashboard/guilds/$guildId/': typeof DashboardGuildsGuildIdIndexRoute
+  '/api/dashboard/guilds/$guildId/settings': typeof ApiDashboardGuildsGuildIdSettingsRoute
 }
 export interface FileRoutesByTo {
-  "/": typeof IndexRoute;
-  "/dashboard": typeof DashboardRouteWithChildren;
-  "/leaderboard": typeof LeaderboardRoute;
-  "/legal-notice": typeof LegalNoticeRoute;
-  "/privacy": typeof PrivacyRoute;
-  "/terms": typeof TermsRoute;
-  "/auth/login": typeof AuthLoginRoute;
-  "/auth/logout": typeof AuthLogoutRoute;
-  "/dashboard/account": typeof DashboardAccountRoute;
-  "/tournaments/$code": typeof TournamentsCodeRouteWithChildren;
-  "/tournaments/create": typeof TournamentsCreateRoute;
-  "/api/auth/me": typeof ApiAuthMeRoute;
-  "/api/bridge/snapshot": typeof ApiBridgeSnapshotRoute;
-  "/api/bridge/ws": typeof ApiBridgeWsRoute;
-  "/auth/discord/callback": typeof AuthDiscordCallbackRoute;
-  "/match/$guildId/$uuid": typeof MatchGuildIdUuidRoute;
-  "/tournaments/$code/manage": typeof TournamentsCodeManageRoute;
-  "/auth/discord": typeof AuthDiscordIndexRoute;
-  "/api/dashboard/user/settings": typeof ApiDashboardUserSettingsRoute;
-  "/dashboard/guilds/$guildId/general": typeof DashboardGuildsGuildIdGeneralRoute;
-  "/dashboard/guilds/$guildId/quota": typeof DashboardGuildsGuildIdQuotaRoute;
-  "/dashboard/guilds/$guildId/rules": typeof DashboardGuildsGuildIdRulesRoute;
-  "/dashboard/guilds/$guildId": typeof DashboardGuildsGuildIdIndexRoute;
-  "/api/dashboard/guilds/$guildId/settings": typeof ApiDashboardGuildsGuildIdSettingsRoute;
+  '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRouteWithChildren
+  '/leaderboard': typeof LeaderboardRoute
+  '/legal-notice': typeof LegalNoticeRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
+  '/auth/login': typeof AuthLoginRoute
+  '/auth/logout': typeof AuthLogoutRoute
+  '/dashboard/account': typeof DashboardAccountRoute
+  '/tournaments/$code': typeof TournamentsCodeRouteWithChildren
+  '/tournaments/create': typeof TournamentsCreateRoute
+  '/api/auth/me': typeof ApiAuthMeRoute
+  '/api/bridge/snapshot': typeof ApiBridgeSnapshotRoute
+  '/api/bridge/ws': typeof ApiBridgeWsRoute
+  '/api/tournaments/create': typeof ApiTournamentsCreateRoute
+  '/auth/discord/callback': typeof AuthDiscordCallbackRoute
+  '/match/$guildId/$uuid': typeof MatchGuildIdUuidRoute
+  '/tournaments/$code/manage': typeof TournamentsCodeManageRoute
+  '/auth/discord': typeof AuthDiscordIndexRoute
+  '/api/dashboard/user/settings': typeof ApiDashboardUserSettingsRoute
+  '/dashboard/guilds/$guildId/general': typeof DashboardGuildsGuildIdGeneralRoute
+  '/dashboard/guilds/$guildId/quota': typeof DashboardGuildsGuildIdQuotaRoute
+  '/dashboard/guilds/$guildId/rules': typeof DashboardGuildsGuildIdRulesRoute
+  '/dashboard/guilds/$guildId': typeof DashboardGuildsGuildIdIndexRoute
+  '/api/dashboard/guilds/$guildId/settings': typeof ApiDashboardGuildsGuildIdSettingsRoute
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport;
-  "/": typeof IndexRoute;
-  "/dashboard": typeof DashboardRouteWithChildren;
-  "/leaderboard": typeof LeaderboardRoute;
-  "/legal-notice": typeof LegalNoticeRoute;
-  "/privacy": typeof PrivacyRoute;
-  "/terms": typeof TermsRoute;
-  "/auth/login": typeof AuthLoginRoute;
-  "/auth/logout": typeof AuthLogoutRoute;
-  "/dashboard/account": typeof DashboardAccountRoute;
-  "/tournaments/$code": typeof TournamentsCodeRouteWithChildren;
-  "/tournaments/create": typeof TournamentsCreateRoute;
-  "/api/auth/me": typeof ApiAuthMeRoute;
-  "/api/bridge/snapshot": typeof ApiBridgeSnapshotRoute;
-  "/api/bridge/ws": typeof ApiBridgeWsRoute;
-  "/auth/discord/callback": typeof AuthDiscordCallbackRoute;
-  "/dashboard/guilds/$guildId": typeof DashboardGuildsGuildIdRouteWithChildren;
-  "/match/$guildId/$uuid": typeof MatchGuildIdUuidRoute;
-  "/tournaments/$code/manage": typeof TournamentsCodeManageRoute;
-  "/auth/discord/": typeof AuthDiscordIndexRoute;
-  "/api/dashboard/user/settings": typeof ApiDashboardUserSettingsRoute;
-  "/dashboard/guilds/$guildId/general": typeof DashboardGuildsGuildIdGeneralRoute;
-  "/dashboard/guilds/$guildId/quota": typeof DashboardGuildsGuildIdQuotaRoute;
-  "/dashboard/guilds/$guildId/rules": typeof DashboardGuildsGuildIdRulesRoute;
-  "/dashboard/guilds/$guildId/": typeof DashboardGuildsGuildIdIndexRoute;
-  "/api/dashboard/guilds/$guildId/settings": typeof ApiDashboardGuildsGuildIdSettingsRoute;
+  __root__: typeof rootRouteImport
+  '/': typeof IndexRoute
+  '/dashboard': typeof DashboardRouteWithChildren
+  '/leaderboard': typeof LeaderboardRoute
+  '/legal-notice': typeof LegalNoticeRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
+  '/auth/login': typeof AuthLoginRoute
+  '/auth/logout': typeof AuthLogoutRoute
+  '/dashboard/account': typeof DashboardAccountRoute
+  '/tournaments/$code': typeof TournamentsCodeRouteWithChildren
+  '/tournaments/create': typeof TournamentsCreateRoute
+  '/api/auth/me': typeof ApiAuthMeRoute
+  '/api/bridge/snapshot': typeof ApiBridgeSnapshotRoute
+  '/api/bridge/ws': typeof ApiBridgeWsRoute
+  '/api/tournaments/create': typeof ApiTournamentsCreateRoute
+  '/auth/discord/callback': typeof AuthDiscordCallbackRoute
+  '/dashboard/guilds/$guildId': typeof DashboardGuildsGuildIdRouteWithChildren
+  '/match/$guildId/$uuid': typeof MatchGuildIdUuidRoute
+  '/tournaments/$code/manage': typeof TournamentsCodeManageRoute
+  '/auth/discord/': typeof AuthDiscordIndexRoute
+  '/api/dashboard/user/settings': typeof ApiDashboardUserSettingsRoute
+  '/dashboard/guilds/$guildId/general': typeof DashboardGuildsGuildIdGeneralRoute
+  '/dashboard/guilds/$guildId/quota': typeof DashboardGuildsGuildIdQuotaRoute
+  '/dashboard/guilds/$guildId/rules': typeof DashboardGuildsGuildIdRulesRoute
+  '/dashboard/guilds/$guildId/': typeof DashboardGuildsGuildIdIndexRoute
+  '/api/dashboard/guilds/$guildId/settings': typeof ApiDashboardGuildsGuildIdSettingsRoute
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath;
+  fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    | "/"
-    | "/dashboard"
-    | "/leaderboard"
-    | "/legal-notice"
-    | "/privacy"
-    | "/terms"
-    | "/auth/login"
-    | "/auth/logout"
-    | "/dashboard/account"
-    | "/tournaments/$code"
-    | "/tournaments/create"
-    | "/api/auth/me"
-    | "/api/bridge/snapshot"
-    | "/api/bridge/ws"
-    | "/auth/discord/callback"
-    | "/dashboard/guilds/$guildId"
-    | "/match/$guildId/$uuid"
-    | "/tournaments/$code/manage"
-    | "/auth/discord/"
-    | "/api/dashboard/user/settings"
-    | "/dashboard/guilds/$guildId/general"
-    | "/dashboard/guilds/$guildId/quota"
-    | "/dashboard/guilds/$guildId/rules"
-    | "/dashboard/guilds/$guildId/"
-    | "/api/dashboard/guilds/$guildId/settings";
-  fileRoutesByTo: FileRoutesByTo;
+    | '/'
+    | '/dashboard'
+    | '/leaderboard'
+    | '/legal-notice'
+    | '/privacy'
+    | '/terms'
+    | '/auth/login'
+    | '/auth/logout'
+    | '/dashboard/account'
+    | '/tournaments/$code'
+    | '/tournaments/create'
+    | '/api/auth/me'
+    | '/api/bridge/snapshot'
+    | '/api/bridge/ws'
+    | '/api/tournaments/create'
+    | '/auth/discord/callback'
+    | '/dashboard/guilds/$guildId'
+    | '/match/$guildId/$uuid'
+    | '/tournaments/$code/manage'
+    | '/auth/discord/'
+    | '/api/dashboard/user/settings'
+    | '/dashboard/guilds/$guildId/general'
+    | '/dashboard/guilds/$guildId/quota'
+    | '/dashboard/guilds/$guildId/rules'
+    | '/dashboard/guilds/$guildId/'
+    | '/api/dashboard/guilds/$guildId/settings'
+  fileRoutesByTo: FileRoutesByTo
   to:
-    | "/"
-    | "/dashboard"
-    | "/leaderboard"
-    | "/legal-notice"
-    | "/privacy"
-    | "/terms"
-    | "/auth/login"
-    | "/auth/logout"
-    | "/dashboard/account"
-    | "/tournaments/$code"
-    | "/tournaments/create"
-    | "/api/auth/me"
-    | "/api/bridge/snapshot"
-    | "/api/bridge/ws"
-    | "/auth/discord/callback"
-    | "/match/$guildId/$uuid"
-    | "/tournaments/$code/manage"
-    | "/auth/discord"
-    | "/api/dashboard/user/settings"
-    | "/dashboard/guilds/$guildId/general"
-    | "/dashboard/guilds/$guildId/quota"
-    | "/dashboard/guilds/$guildId/rules"
-    | "/dashboard/guilds/$guildId"
-    | "/api/dashboard/guilds/$guildId/settings";
+    | '/'
+    | '/dashboard'
+    | '/leaderboard'
+    | '/legal-notice'
+    | '/privacy'
+    | '/terms'
+    | '/auth/login'
+    | '/auth/logout'
+    | '/dashboard/account'
+    | '/tournaments/$code'
+    | '/tournaments/create'
+    | '/api/auth/me'
+    | '/api/bridge/snapshot'
+    | '/api/bridge/ws'
+    | '/api/tournaments/create'
+    | '/auth/discord/callback'
+    | '/match/$guildId/$uuid'
+    | '/tournaments/$code/manage'
+    | '/auth/discord'
+    | '/api/dashboard/user/settings'
+    | '/dashboard/guilds/$guildId/general'
+    | '/dashboard/guilds/$guildId/quota'
+    | '/dashboard/guilds/$guildId/rules'
+    | '/dashboard/guilds/$guildId'
+    | '/api/dashboard/guilds/$guildId/settings'
   id:
-    | "__root__"
-    | "/"
-    | "/dashboard"
-    | "/leaderboard"
-    | "/legal-notice"
-    | "/privacy"
-    | "/terms"
-    | "/auth/login"
-    | "/auth/logout"
-    | "/dashboard/account"
-    | "/tournaments/$code"
-    | "/tournaments/create"
-    | "/api/auth/me"
-    | "/api/bridge/snapshot"
-    | "/api/bridge/ws"
-    | "/auth/discord/callback"
-    | "/dashboard/guilds/$guildId"
-    | "/match/$guildId/$uuid"
-    | "/tournaments/$code/manage"
-    | "/auth/discord/"
-    | "/api/dashboard/user/settings"
-    | "/dashboard/guilds/$guildId/general"
-    | "/dashboard/guilds/$guildId/quota"
-    | "/dashboard/guilds/$guildId/rules"
-    | "/dashboard/guilds/$guildId/"
-    | "/api/dashboard/guilds/$guildId/settings";
-  fileRoutesById: FileRoutesById;
+    | '__root__'
+    | '/'
+    | '/dashboard'
+    | '/leaderboard'
+    | '/legal-notice'
+    | '/privacy'
+    | '/terms'
+    | '/auth/login'
+    | '/auth/logout'
+    | '/dashboard/account'
+    | '/tournaments/$code'
+    | '/tournaments/create'
+    | '/api/auth/me'
+    | '/api/bridge/snapshot'
+    | '/api/bridge/ws'
+    | '/api/tournaments/create'
+    | '/auth/discord/callback'
+    | '/dashboard/guilds/$guildId'
+    | '/match/$guildId/$uuid'
+    | '/tournaments/$code/manage'
+    | '/auth/discord/'
+    | '/api/dashboard/user/settings'
+    | '/dashboard/guilds/$guildId/general'
+    | '/dashboard/guilds/$guildId/quota'
+    | '/dashboard/guilds/$guildId/rules'
+    | '/dashboard/guilds/$guildId/'
+    | '/api/dashboard/guilds/$guildId/settings'
+  fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute;
-  DashboardRoute: typeof DashboardRouteWithChildren;
-  LeaderboardRoute: typeof LeaderboardRoute;
-  LegalNoticeRoute: typeof LegalNoticeRoute;
-  PrivacyRoute: typeof PrivacyRoute;
-  TermsRoute: typeof TermsRoute;
-  AuthLoginRoute: typeof AuthLoginRoute;
-  AuthLogoutRoute: typeof AuthLogoutRoute;
-  TournamentsCodeRoute: typeof TournamentsCodeRouteWithChildren;
-  TournamentsCreateRoute: typeof TournamentsCreateRoute;
-  ApiAuthMeRoute: typeof ApiAuthMeRoute;
-  ApiBridgeSnapshotRoute: typeof ApiBridgeSnapshotRoute;
-  ApiBridgeWsRoute: typeof ApiBridgeWsRoute;
-  AuthDiscordCallbackRoute: typeof AuthDiscordCallbackRoute;
-  MatchGuildIdUuidRoute: typeof MatchGuildIdUuidRoute;
-  AuthDiscordIndexRoute: typeof AuthDiscordIndexRoute;
-  ApiDashboardUserSettingsRoute: typeof ApiDashboardUserSettingsRoute;
-  ApiDashboardGuildsGuildIdSettingsRoute: typeof ApiDashboardGuildsGuildIdSettingsRoute;
+  IndexRoute: typeof IndexRoute
+  DashboardRoute: typeof DashboardRouteWithChildren
+  LeaderboardRoute: typeof LeaderboardRoute
+  LegalNoticeRoute: typeof LegalNoticeRoute
+  PrivacyRoute: typeof PrivacyRoute
+  TermsRoute: typeof TermsRoute
+  AuthLoginRoute: typeof AuthLoginRoute
+  AuthLogoutRoute: typeof AuthLogoutRoute
+  TournamentsCodeRoute: typeof TournamentsCodeRouteWithChildren
+  TournamentsCreateRoute: typeof TournamentsCreateRoute
+  ApiAuthMeRoute: typeof ApiAuthMeRoute
+  ApiBridgeSnapshotRoute: typeof ApiBridgeSnapshotRoute
+  ApiBridgeWsRoute: typeof ApiBridgeWsRoute
+  ApiTournamentsCreateRoute: typeof ApiTournamentsCreateRoute
+  AuthDiscordCallbackRoute: typeof AuthDiscordCallbackRoute
+  MatchGuildIdUuidRoute: typeof MatchGuildIdUuidRoute
+  AuthDiscordIndexRoute: typeof AuthDiscordIndexRoute
+  ApiDashboardUserSettingsRoute: typeof ApiDashboardUserSettingsRoute
+  ApiDashboardGuildsGuildIdSettingsRoute: typeof ApiDashboardGuildsGuildIdSettingsRoute
 }
 
-declare module "@tanstack/react-router" {
+declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    "/terms": {
-      id: "/terms";
-      path: "/terms";
-      fullPath: "/terms";
-      preLoaderRoute: typeof TermsRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/privacy": {
-      id: "/privacy";
-      path: "/privacy";
-      fullPath: "/privacy";
-      preLoaderRoute: typeof PrivacyRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/legal-notice": {
-      id: "/legal-notice";
-      path: "/legal-notice";
-      fullPath: "/legal-notice";
-      preLoaderRoute: typeof LegalNoticeRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/leaderboard": {
-      id: "/leaderboard";
-      path: "/leaderboard";
-      fullPath: "/leaderboard";
-      preLoaderRoute: typeof LeaderboardRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/dashboard": {
-      id: "/dashboard";
-      path: "/dashboard";
-      fullPath: "/dashboard";
-      preLoaderRoute: typeof DashboardRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/": {
-      id: "/";
-      path: "/";
-      fullPath: "/";
-      preLoaderRoute: typeof IndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/tournaments/create": {
-      id: "/tournaments/create";
-      path: "/tournaments/create";
-      fullPath: "/tournaments/create";
-      preLoaderRoute: typeof TournamentsCreateRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/tournaments/$code": {
-      id: "/tournaments/$code";
-      path: "/tournaments/$code";
-      fullPath: "/tournaments/$code";
-      preLoaderRoute: typeof TournamentsCodeRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/dashboard/account": {
-      id: "/dashboard/account";
-      path: "/account";
-      fullPath: "/dashboard/account";
-      preLoaderRoute: typeof DashboardAccountRouteImport;
-      parentRoute: typeof DashboardRoute;
-    };
-    "/auth/logout": {
-      id: "/auth/logout";
-      path: "/auth/logout";
-      fullPath: "/auth/logout";
-      preLoaderRoute: typeof AuthLogoutRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/auth/login": {
-      id: "/auth/login";
-      path: "/auth/login";
-      fullPath: "/auth/login";
-      preLoaderRoute: typeof AuthLoginRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/auth/discord/": {
-      id: "/auth/discord/";
-      path: "/auth/discord";
-      fullPath: "/auth/discord/";
-      preLoaderRoute: typeof AuthDiscordIndexRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/tournaments/$code/manage": {
-      id: "/tournaments/$code/manage";
-      path: "/manage";
-      fullPath: "/tournaments/$code/manage";
-      preLoaderRoute: typeof TournamentsCodeManageRouteImport;
-      parentRoute: typeof TournamentsCodeRoute;
-    };
-    "/match/$guildId/$uuid": {
-      id: "/match/$guildId/$uuid";
-      path: "/match/$guildId/$uuid";
-      fullPath: "/match/$guildId/$uuid";
-      preLoaderRoute: typeof MatchGuildIdUuidRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/dashboard/guilds/$guildId": {
-      id: "/dashboard/guilds/$guildId";
-      path: "/guilds/$guildId";
-      fullPath: "/dashboard/guilds/$guildId";
-      preLoaderRoute: typeof DashboardGuildsGuildIdRouteImport;
-      parentRoute: typeof DashboardRoute;
-    };
-    "/auth/discord/callback": {
-      id: "/auth/discord/callback";
-      path: "/auth/discord/callback";
-      fullPath: "/auth/discord/callback";
-      preLoaderRoute: typeof AuthDiscordCallbackRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/api/bridge/ws": {
-      id: "/api/bridge/ws";
-      path: "/api/bridge/ws";
-      fullPath: "/api/bridge/ws";
-      preLoaderRoute: typeof ApiBridgeWsRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/api/bridge/snapshot": {
-      id: "/api/bridge/snapshot";
-      path: "/api/bridge/snapshot";
-      fullPath: "/api/bridge/snapshot";
-      preLoaderRoute: typeof ApiBridgeSnapshotRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/api/auth/me": {
-      id: "/api/auth/me";
-      path: "/api/auth/me";
-      fullPath: "/api/auth/me";
-      preLoaderRoute: typeof ApiAuthMeRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/dashboard/guilds/$guildId/": {
-      id: "/dashboard/guilds/$guildId/";
-      path: "/";
-      fullPath: "/dashboard/guilds/$guildId/";
-      preLoaderRoute: typeof DashboardGuildsGuildIdIndexRouteImport;
-      parentRoute: typeof DashboardGuildsGuildIdRoute;
-    };
-    "/dashboard/guilds/$guildId/rules": {
-      id: "/dashboard/guilds/$guildId/rules";
-      path: "/rules";
-      fullPath: "/dashboard/guilds/$guildId/rules";
-      preLoaderRoute: typeof DashboardGuildsGuildIdRulesRouteImport;
-      parentRoute: typeof DashboardGuildsGuildIdRoute;
-    };
-    "/dashboard/guilds/$guildId/quota": {
-      id: "/dashboard/guilds/$guildId/quota";
-      path: "/quota";
-      fullPath: "/dashboard/guilds/$guildId/quota";
-      preLoaderRoute: typeof DashboardGuildsGuildIdQuotaRouteImport;
-      parentRoute: typeof DashboardGuildsGuildIdRoute;
-    };
-    "/dashboard/guilds/$guildId/general": {
-      id: "/dashboard/guilds/$guildId/general";
-      path: "/general";
-      fullPath: "/dashboard/guilds/$guildId/general";
-      preLoaderRoute: typeof DashboardGuildsGuildIdGeneralRouteImport;
-      parentRoute: typeof DashboardGuildsGuildIdRoute;
-    };
-    "/api/dashboard/user/settings": {
-      id: "/api/dashboard/user/settings";
-      path: "/api/dashboard/user/settings";
-      fullPath: "/api/dashboard/user/settings";
-      preLoaderRoute: typeof ApiDashboardUserSettingsRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/api/dashboard/guilds/$guildId/settings": {
-      id: "/api/dashboard/guilds/$guildId/settings";
-      path: "/api/dashboard/guilds/$guildId/settings";
-      fullPath: "/api/dashboard/guilds/$guildId/settings";
-      preLoaderRoute: typeof ApiDashboardGuildsGuildIdSettingsRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/legal-notice': {
+      id: '/legal-notice'
+      path: '/legal-notice'
+      fullPath: '/legal-notice'
+      preLoaderRoute: typeof LegalNoticeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/leaderboard': {
+      id: '/leaderboard'
+      path: '/leaderboard'
+      fullPath: '/leaderboard'
+      preLoaderRoute: typeof LeaderboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tournaments/create': {
+      id: '/tournaments/create'
+      path: '/tournaments/create'
+      fullPath: '/tournaments/create'
+      preLoaderRoute: typeof TournamentsCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tournaments/$code': {
+      id: '/tournaments/$code'
+      path: '/tournaments/$code'
+      fullPath: '/tournaments/$code'
+      preLoaderRoute: typeof TournamentsCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/account': {
+      id: '/dashboard/account'
+      path: '/account'
+      fullPath: '/dashboard/account'
+      preLoaderRoute: typeof DashboardAccountRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/auth/logout': {
+      id: '/auth/logout'
+      path: '/auth/logout'
+      fullPath: '/auth/logout'
+      preLoaderRoute: typeof AuthLogoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/login': {
+      id: '/auth/login'
+      path: '/auth/login'
+      fullPath: '/auth/login'
+      preLoaderRoute: typeof AuthLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/discord/': {
+      id: '/auth/discord/'
+      path: '/auth/discord'
+      fullPath: '/auth/discord/'
+      preLoaderRoute: typeof AuthDiscordIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tournaments/$code/manage': {
+      id: '/tournaments/$code/manage'
+      path: '/manage'
+      fullPath: '/tournaments/$code/manage'
+      preLoaderRoute: typeof TournamentsCodeManageRouteImport
+      parentRoute: typeof TournamentsCodeRoute
+    }
+    '/match/$guildId/$uuid': {
+      id: '/match/$guildId/$uuid'
+      path: '/match/$guildId/$uuid'
+      fullPath: '/match/$guildId/$uuid'
+      preLoaderRoute: typeof MatchGuildIdUuidRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/guilds/$guildId': {
+      id: '/dashboard/guilds/$guildId'
+      path: '/guilds/$guildId'
+      fullPath: '/dashboard/guilds/$guildId'
+      preLoaderRoute: typeof DashboardGuildsGuildIdRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/auth/discord/callback': {
+      id: '/auth/discord/callback'
+      path: '/auth/discord/callback'
+      fullPath: '/auth/discord/callback'
+      preLoaderRoute: typeof AuthDiscordCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/tournaments/create': {
+      id: '/api/tournaments/create'
+      path: '/api/tournaments/create'
+      fullPath: '/api/tournaments/create'
+      preLoaderRoute: typeof ApiTournamentsCreateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/bridge/ws': {
+      id: '/api/bridge/ws'
+      path: '/api/bridge/ws'
+      fullPath: '/api/bridge/ws'
+      preLoaderRoute: typeof ApiBridgeWsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/bridge/snapshot': {
+      id: '/api/bridge/snapshot'
+      path: '/api/bridge/snapshot'
+      fullPath: '/api/bridge/snapshot'
+      preLoaderRoute: typeof ApiBridgeSnapshotRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/me': {
+      id: '/api/auth/me'
+      path: '/api/auth/me'
+      fullPath: '/api/auth/me'
+      preLoaderRoute: typeof ApiAuthMeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/guilds/$guildId/': {
+      id: '/dashboard/guilds/$guildId/'
+      path: '/'
+      fullPath: '/dashboard/guilds/$guildId/'
+      preLoaderRoute: typeof DashboardGuildsGuildIdIndexRouteImport
+      parentRoute: typeof DashboardGuildsGuildIdRoute
+    }
+    '/dashboard/guilds/$guildId/rules': {
+      id: '/dashboard/guilds/$guildId/rules'
+      path: '/rules'
+      fullPath: '/dashboard/guilds/$guildId/rules'
+      preLoaderRoute: typeof DashboardGuildsGuildIdRulesRouteImport
+      parentRoute: typeof DashboardGuildsGuildIdRoute
+    }
+    '/dashboard/guilds/$guildId/quota': {
+      id: '/dashboard/guilds/$guildId/quota'
+      path: '/quota'
+      fullPath: '/dashboard/guilds/$guildId/quota'
+      preLoaderRoute: typeof DashboardGuildsGuildIdQuotaRouteImport
+      parentRoute: typeof DashboardGuildsGuildIdRoute
+    }
+    '/dashboard/guilds/$guildId/general': {
+      id: '/dashboard/guilds/$guildId/general'
+      path: '/general'
+      fullPath: '/dashboard/guilds/$guildId/general'
+      preLoaderRoute: typeof DashboardGuildsGuildIdGeneralRouteImport
+      parentRoute: typeof DashboardGuildsGuildIdRoute
+    }
+    '/api/dashboard/user/settings': {
+      id: '/api/dashboard/user/settings'
+      path: '/api/dashboard/user/settings'
+      fullPath: '/api/dashboard/user/settings'
+      preLoaderRoute: typeof ApiDashboardUserSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/dashboard/guilds/$guildId/settings': {
+      id: '/api/dashboard/guilds/$guildId/settings'
+      path: '/api/dashboard/guilds/$guildId/settings'
+      fullPath: '/api/dashboard/guilds/$guildId/settings'
+      preLoaderRoute: typeof ApiDashboardGuildsGuildIdSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 interface DashboardGuildsGuildIdRouteChildren {
-  DashboardGuildsGuildIdGeneralRoute: typeof DashboardGuildsGuildIdGeneralRoute;
-  DashboardGuildsGuildIdQuotaRoute: typeof DashboardGuildsGuildIdQuotaRoute;
-  DashboardGuildsGuildIdRulesRoute: typeof DashboardGuildsGuildIdRulesRoute;
-  DashboardGuildsGuildIdIndexRoute: typeof DashboardGuildsGuildIdIndexRoute;
+  DashboardGuildsGuildIdGeneralRoute: typeof DashboardGuildsGuildIdGeneralRoute
+  DashboardGuildsGuildIdQuotaRoute: typeof DashboardGuildsGuildIdQuotaRoute
+  DashboardGuildsGuildIdRulesRoute: typeof DashboardGuildsGuildIdRulesRoute
+  DashboardGuildsGuildIdIndexRoute: typeof DashboardGuildsGuildIdIndexRoute
 }
 
-const DashboardGuildsGuildIdRouteChildren: DashboardGuildsGuildIdRouteChildren = {
-  DashboardGuildsGuildIdGeneralRoute: DashboardGuildsGuildIdGeneralRoute,
-  DashboardGuildsGuildIdQuotaRoute: DashboardGuildsGuildIdQuotaRoute,
-  DashboardGuildsGuildIdRulesRoute: DashboardGuildsGuildIdRulesRoute,
-  DashboardGuildsGuildIdIndexRoute: DashboardGuildsGuildIdIndexRoute,
-};
+const DashboardGuildsGuildIdRouteChildren: DashboardGuildsGuildIdRouteChildren =
+  {
+    DashboardGuildsGuildIdGeneralRoute: DashboardGuildsGuildIdGeneralRoute,
+    DashboardGuildsGuildIdQuotaRoute: DashboardGuildsGuildIdQuotaRoute,
+    DashboardGuildsGuildIdRulesRoute: DashboardGuildsGuildIdRulesRoute,
+    DashboardGuildsGuildIdIndexRoute: DashboardGuildsGuildIdIndexRoute,
+  }
 
-const DashboardGuildsGuildIdRouteWithChildren = DashboardGuildsGuildIdRoute._addFileChildren(
-  DashboardGuildsGuildIdRouteChildren,
-);
+const DashboardGuildsGuildIdRouteWithChildren =
+  DashboardGuildsGuildIdRoute._addFileChildren(
+    DashboardGuildsGuildIdRouteChildren,
+  )
 
 interface DashboardRouteChildren {
-  DashboardAccountRoute: typeof DashboardAccountRoute;
-  DashboardGuildsGuildIdRoute: typeof DashboardGuildsGuildIdRouteWithChildren;
+  DashboardAccountRoute: typeof DashboardAccountRoute
+  DashboardGuildsGuildIdRoute: typeof DashboardGuildsGuildIdRouteWithChildren
 }
 
 const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardAccountRoute: DashboardAccountRoute,
   DashboardGuildsGuildIdRoute: DashboardGuildsGuildIdRouteWithChildren,
-};
+}
 
-const DashboardRouteWithChildren = DashboardRoute._addFileChildren(DashboardRouteChildren);
+const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
+  DashboardRouteChildren,
+)
 
 interface TournamentsCodeRouteChildren {
-  TournamentsCodeManageRoute: typeof TournamentsCodeManageRoute;
+  TournamentsCodeManageRoute: typeof TournamentsCodeManageRoute
 }
 
 const TournamentsCodeRouteChildren: TournamentsCodeRouteChildren = {
   TournamentsCodeManageRoute: TournamentsCodeManageRoute,
-};
+}
 
 const TournamentsCodeRouteWithChildren = TournamentsCodeRoute._addFileChildren(
   TournamentsCodeRouteChildren,
-);
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -582,21 +612,23 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAuthMeRoute: ApiAuthMeRoute,
   ApiBridgeSnapshotRoute: ApiBridgeSnapshotRoute,
   ApiBridgeWsRoute: ApiBridgeWsRoute,
+  ApiTournamentsCreateRoute: ApiTournamentsCreateRoute,
   AuthDiscordCallbackRoute: AuthDiscordCallbackRoute,
   MatchGuildIdUuidRoute: MatchGuildIdUuidRoute,
   AuthDiscordIndexRoute: AuthDiscordIndexRoute,
   ApiDashboardUserSettingsRoute: ApiDashboardUserSettingsRoute,
-  ApiDashboardGuildsGuildIdSettingsRoute: ApiDashboardGuildsGuildIdSettingsRoute,
-};
+  ApiDashboardGuildsGuildIdSettingsRoute:
+    ApiDashboardGuildsGuildIdSettingsRoute,
+}
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>();
+  ._addFileTypes<FileRouteTypes>()
 
-import type { getRouter } from "./router.tsx";
-import type { createStart } from "@tanstack/react-start";
-declare module "@tanstack/react-start" {
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
   interface Register {
-    ssr: true;
-    router: Awaited<ReturnType<typeof getRouter>>;
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
   }
 }

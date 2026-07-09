@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { CheckCircle2, Trophy } from "lucide-react";
-import { useState } from "react";
+import { Trophy } from "lucide-react";
+import { useState, type FormEvent } from "react";
 import { DashboardLoader } from "#/components/dashboard/DashboardLoader";
 import {
   TournamentAuthGate,
@@ -31,7 +31,8 @@ const FORMAT_OPTIONS = [
 function CreateTournamentPage() {
   const { handoff } = Route.useSearch() as { handoff?: string };
   const { me } = useAuthMe();
-  const [submitted, setSubmitted] = useState(false);
+  const [creating, setCreating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const loginRedirect = `/tournaments/create?handoff=${handoff ?? ""}`;
 
   if (me === undefined) {
@@ -88,117 +89,132 @@ function CreateTournamentPage() {
       contentClassName="max-w-2xl"
     >
       <Reveal>
-        {submitted ? (
-          <GlassPanel className="p-8 md:p-10">
-            <div className="flex size-12 items-center justify-center rounded-2xl bg-accent-silver/15">
-              <CheckCircle2 className="size-6 text-accent-silver" aria-hidden />
+        <GlassPanel as="section" className="p-6 md:p-8">
+          <div className="mb-6 flex items-center gap-3">
+            <div className="flex size-10 items-center justify-center rounded-2xl bg-accent-silver/15">
+              <Trophy className="size-5 text-accent-silver" aria-hidden />
             </div>
-            <h2 className="mt-6 text-xl font-semibold tracking-tight text-foreground md:text-2xl">
-              Tournament is being created
-            </h2>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground md:text-base">
-              Setup is running in the background. Share the tournament code with your teams once it
-              appears — they can register from the event page.
-            </p>
-            <div className="mt-8 rounded-2xl border border-border/50 bg-muted/30 px-4 py-3">
-              <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                Next step
-              </p>
-              <p className="mt-1 text-sm text-foreground">
-                You will receive the shareable code when provisioning completes.
-              </p>
+            <div>
+              <p className="text-sm font-medium text-foreground">Event setup</p>
+              <p className="text-xs text-muted-foreground">Name, format, capacity, and rules</p>
             </div>
-          </GlassPanel>
-        ) : (
-          <GlassPanel as="section" className="p-6 md:p-8">
-            <div className="mb-6 flex items-center gap-3">
-              <div className="flex size-10 items-center justify-center rounded-2xl bg-accent-silver/15">
-                <Trophy className="size-5 text-accent-silver" aria-hidden />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-foreground">Event setup</p>
-                <p className="text-xs text-muted-foreground">Name, format, capacity, and rules</p>
-              </div>
-            </div>
+          </div>
 
-            <form
-              className="grid gap-5"
-              onSubmit={(e) => {
-                e.preventDefault();
-                setSubmitted(true);
-              }}
-            >
-              <TournamentField label="Tournament name" htmlFor="tournament-name">
-                <TournamentInput
-                  id="tournament-name"
-                  required
-                  name="name"
-                  placeholder="e.g. Friday Night 5v5"
-                  autoComplete="off"
-                />
-              </TournamentField>
+          <form className="grid gap-5" onSubmit={submitTournament}>
+            <TournamentField label="Tournament name" htmlFor="tournament-name">
+              <TournamentInput
+                id="tournament-name"
+                required
+                name="name"
+                placeholder="e.g. Friday Night 5v5"
+                autoComplete="off"
+              />
+            </TournamentField>
 
-              <div className="grid gap-5 sm:grid-cols-2">
-                <TournamentField label="Format" htmlFor="tournament-format">
-                  <TournamentSelect
-                    id="tournament-format"
-                    name="format"
-                    defaultValue={FORMAT_OPTIONS[0].value}
-                  >
-                    {FORMAT_OPTIONS.map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </TournamentSelect>
-                </TournamentField>
-
-                <TournamentField
-                  label="Team cap"
-                  htmlFor="tournament-team-cap"
-                  hint="Between 2 and 64 teams"
+            <div className="grid gap-5 sm:grid-cols-2">
+              <TournamentField label="Format" htmlFor="tournament-format">
+                <TournamentSelect
+                  id="tournament-format"
+                  name="format"
+                  defaultValue={FORMAT_OPTIONS[0].value}
                 >
-                  <TournamentInput
-                    id="tournament-team-cap"
-                    required
-                    type="number"
-                    min={2}
-                    max={64}
-                    defaultValue={8}
-                    name="teamCap"
-                  />
-                </TournamentField>
-              </div>
+                  {FORMAT_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </TournamentSelect>
+              </TournamentField>
 
               <TournamentField
-                label="Rules and event details"
-                htmlFor="tournament-rules"
-                hint="Maps, check-in windows, prize info — shown to registering teams"
+                label="Team cap"
+                htmlFor="tournament-team-cap"
+                hint="Between 2 and 64 teams"
               >
-                <TournamentTextarea
-                  id="tournament-rules"
-                  name="rules"
-                  placeholder="Rules, map pool, check-in time, and anything teams need to know…"
-                  rows={5}
+                <TournamentInput
+                  id="tournament-team-cap"
+                  required
+                  type="number"
+                  min={2}
+                  max={64}
+                  defaultValue={8}
+                  name="teamCap"
                 />
               </TournamentField>
+            </div>
 
-              <div className="border-border/40 flex flex-col gap-3 border-t pt-5 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-xs text-muted-foreground">
-                  Submitting verifies host server access and your Discord identity.
-                </p>
-                <Button
-                  type="submit"
-                  size="lg"
-                  className="h-11 shrink-0 rounded-full bg-foreground px-6 text-background hover:bg-foreground/90"
-                >
-                  Create tournament
-                </Button>
-              </div>
-            </form>
-          </GlassPanel>
-        )}
+            <TournamentField
+              label="Rules and event details"
+              htmlFor="tournament-rules"
+              hint="Maps, check-in windows, prize info — shown to registering teams"
+            >
+              <TournamentTextarea
+                id="tournament-rules"
+                name="rules"
+                placeholder="Rules, map pool, check-in time, and anything teams need to know…"
+                rows={5}
+              />
+            </TournamentField>
+
+            <div className="border-border/40 flex flex-col gap-3 border-t pt-5 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-xs text-muted-foreground">
+                Submitting verifies host server access and your Discord identity.
+              </p>
+              <Button
+                type="submit"
+                size="lg"
+                disabled={creating || !handoff}
+                className="h-11 shrink-0 rounded-full bg-foreground px-6 text-background hover:bg-foreground/90"
+              >
+                {creating ? "Creating tournament…" : "Create tournament"}
+              </Button>
+            </div>
+            {error ? (
+              <p role="alert" className="text-sm text-destructive">
+                {error}
+              </p>
+            ) : null}
+            {!handoff ? (
+              <p className="text-sm text-destructive">
+                Start tournament creation from the <code>/tournament create</code> command in your
+                host server.
+              </p>
+            ) : null}
+          </form>
+        </GlassPanel>
       </Reveal>
     </TournamentShell>
   );
+
+  async function submitTournament(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!handoff || creating) return;
+    const form = new FormData(event.currentTarget);
+    setCreating(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/tournaments/create", {
+        method: "POST",
+        credentials: "include",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          handoff,
+          name: form.get("name"),
+          format: form.get("format"),
+          teamCap: Number(form.get("teamCap")),
+          rulesText: form.get("rules"),
+        }),
+      });
+      const data = (await res.json()) as { tournament?: { publicCode?: string }; error?: string };
+      if (!res.ok || !data.tournament?.publicCode) {
+        throw new Error(data.error ?? "Tournament creation failed");
+      }
+      window.location.assign(`/tournaments/${encodeURIComponent(data.tournament.publicCode)}`);
+    } catch (reason) {
+      setError(
+        reason instanceof Error ? reason.message : "Tournament creation failed. Please try again.",
+      );
+      setCreating(false);
+    }
+  }
 }
