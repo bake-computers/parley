@@ -415,6 +415,29 @@ func (s *TournamentService) CreateTournament(
 	}), nil
 }
 
+func (s *TournamentService) GetTournamentByCode(ctx context.Context, req *connect.Request[tournamentv1.GetTournamentByCodeRequest]) (*connect.Response[tournamentv1.TournamentResponse], error) {
+	game, cerr := requireR6TournamentGame(req.Msg.GetGame())
+	if cerr != nil {
+		return nil, cerr
+	}
+	code := strings.ToUpper(strings.TrimSpace(req.Msg.GetPublicCode()))
+	if len(code) != 6 {
+		return nil, apperr.InvalidArgument("invalid tournament code")
+	}
+	t, err := s.tourn.GetByPublicCode(ctx, game, code)
+	if err != nil {
+		return nil, apperr.Internal(fmt.Sprintf("get tournament: %v", err))
+	}
+	if t == nil {
+		return nil, apperr.NotFound("tournament not found")
+	}
+	p, err := s.buildTournamentProto(ctx, game, *t)
+	if err != nil {
+		return nil, apperr.Internal(err.Error())
+	}
+	return connect.NewResponse(&tournamentv1.TournamentResponse{Success: true, Tournament: p}), nil
+}
+
 // GetTournament loads a single tournament by id and returns its proto
 // view (teams, rosters, brackets). Mirrors get_tournament_rpc in Rust.
 func (s *TournamentService) GetTournament(
