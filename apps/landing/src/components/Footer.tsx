@@ -5,7 +5,6 @@ import { useMessages } from "#/lib/content/messages/use-messages";
 
 const poweredBy = [
   { name: "stats.cc", href: "https://stats.cc", icon: "https://stats.cc/favicon.ico" },
-  { name: "Ovi AI", href: "https://ovi.run", icon: "https://ovi.run/favicon.ico" },
 ];
 
 export function SiteFooter() {
