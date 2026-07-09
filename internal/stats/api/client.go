@@ -1,6 +1,7 @@
 package api
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -19,22 +20,31 @@ const (
 	defaultTimeout = 12 * time.Second
 	maxMatchPages  = 3
 	matchesPerPage = 20
+
+	// defaultProfileBatchDelay is the coalescing window used when a caller does not
+	// specify one. Kept small so a lone profile lookup is not delayed by the timer
+	// (the size-based flush never fires for a single request).
+	defaultProfileBatchDelay = 25 * time.Millisecond
 )
 
 // Client calls the stats.cc v2 API.
 type Client struct {
-	http    *http.Client
-	baseURL string
-	apiKey  string
-	cache   *ConfigCache
+	http           *http.Client
+	baseURL        string
+	apiKey         string
+	cache          *ConfigCache
+	profileBatcher *ProfileBatcher
 }
 
 // Options configures a Client.
 type Options struct {
-	BaseURL     string
-	APIKey      string
-	ConfigCache *ConfigCache
-	HTTPClient  *http.Client
+	BaseURL             string
+	APIKey              string
+	ConfigCache         *ConfigCache
+	HTTPClient          *http.Client
+	ProfileBatchSize    int // 0 disables batching; 1–10 is the API limit
+	ProfileBatchDelay   time.Duration
+	DisableProfileBatch bool
 }
 
 // NewClient returns an API client. baseURL should be https://r6.stats.cc.
@@ -55,12 +65,28 @@ func NewClient(opts Options) *Client {
 			Timeout:   defaultTimeout,
 		}
 	}
-	return &Client{
+
+	c := &Client{
 		http:    httpClient,
 		baseURL: strings.TrimRight(opts.BaseURL, "/"),
 		apiKey:  opts.APIKey,
 		cache:   opts.ConfigCache,
 	}
+
+	// ProfileBatchSize 0 or DisableProfileBatch forces direct GET only.
+	// Callers that want batching must pass a positive size (config default is 10).
+	if !opts.DisableProfileBatch && opts.ProfileBatchSize > 0 {
+		batchSize := opts.ProfileBatchSize
+		if batchSize > 10 {
+			batchSize = 10
+		}
+		batchDelay := opts.ProfileBatchDelay
+		if batchDelay <= 0 {
+			batchDelay = defaultProfileBatchDelay
+		}
+		c.profileBatcher = NewProfileBatcher(c, batchSize, batchDelay)
+	}
+	return c
 }
 
 // Warmup pre-establishes a connection to the API (non-fatal on error).
@@ -106,12 +132,37 @@ func (c *Client) Search(ctx context.Context, username, platform string, limit in
 
 // GetProfile fetches a full profile by ID.
 func (c *Client) GetProfile(ctx context.Context, profileID string) (*Profile, error) {
+	if c.profileBatcher != nil {
+		return c.profileBatcher.Get(ctx, profileID)
+	}
+	return c.getProfileDirect(ctx, profileID)
+}
+
+func (c *Client) getProfileDirect(ctx context.Context, profileID string) (*Profile, error) {
 	var p Profile
 	path := "/v2/profiles/" + url.PathEscape(profileID)
 	if err := c.getJSON(ctx, path, nil, &p); err != nil {
 		return nil, err
 	}
 	return &p, nil
+}
+
+// BatchProfiles fetches 1-10 full profiles in one stats.cc API call.
+func (c *Client) BatchProfiles(ctx context.Context, profileIDs []string) ([]Profile, error) {
+	if len(profileIDs) == 0 {
+		return nil, nil
+	}
+	if len(profileIDs) > 10 {
+		return nil, &Error{Kind: ErrHTTP, Message: "profile batch size exceeds 10"}
+	}
+	body := struct {
+		ProfileIDs []string `json:"profile_ids"`
+	}{ProfileIDs: profileIDs}
+	var profiles []Profile
+	if err := c.postJSON(ctx, "/v2/profiles/batch", nil, body, &profiles); err != nil {
+		return nil, err
+	}
+	return profiles, nil
 }
 
 // ListMatches fetches ranked matches for KOST round stats (capped pagination).
@@ -151,15 +202,34 @@ func (c *Client) ListSessions(ctx context.Context, profileID, playlist string, l
 }
 
 func (c *Client) getJSON(ctx context.Context, path string, q url.Values, out any) error {
+	return c.doJSON(ctx, http.MethodGet, path, q, nil, out)
+}
+
+func (c *Client) postJSON(ctx context.Context, path string, q url.Values, body any, out any) error {
+	return c.doJSON(ctx, http.MethodPost, path, q, body, out)
+}
+
+func (c *Client) doJSON(ctx context.Context, method string, path string, q url.Values, requestBody any, out any) error {
 	u := c.baseURL + path
 	if len(q) > 0 {
 		u += "?" + q.Encode()
 	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
+	var bodyReader io.Reader
+	if requestBody != nil {
+		raw, err := json.Marshal(requestBody)
+		if err != nil {
+			return fmt.Errorf("marshal request: %w", err)
+		}
+		bodyReader = bytes.NewReader(raw)
+	}
+	req, err := http.NewRequestWithContext(ctx, method, u, bodyReader)
 	if err != nil {
 		return fmt.Errorf("build request: %w", err)
 	}
 	req.Header.Set("User-Agent", userAgent)
+	if requestBody != nil {
+		req.Header.Set("Content-Type", "application/json")
+	}
 	if c.apiKey != "" {
 		req.Header.Set("X-Api-Key", c.apiKey)
 	}

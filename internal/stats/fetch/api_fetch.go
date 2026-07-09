@@ -4,7 +4,6 @@ import (
 	"context"
 	"log/slog"
 	"strings"
-	"sync"
 
 	"github.com/pactum-computers/parley/internal/stats/api"
 	"github.com/pactum-computers/parley/internal/stats/scrape"
@@ -83,68 +82,22 @@ func (c *StatsClient) resolveAPIProfile(ctx context.Context, username string, pl
 	expected := normalizeDisplayName(username)
 	order := platformSearchOrder(platform)
 
-	if platform == StatsPlatformAuto && len(order) > 1 {
-		return c.resolveAPIProfileParallel(ctx, order, expected)
-	}
-
+	// Walk platforms sequentially. On Auto (multi-platform order) a transient
+	// failure on one platform must not abort the whole resolve — keep going and
+	// only surface lastErr if nothing matched.
+	var lastErr error
 	for _, p := range order {
+		if err := ctx.Err(); err != nil {
+			return nil, err
+		}
 		target, err := c.searchAPIOne(ctx, username, p, expected)
 		if err != nil {
-			return nil, err
+			lastErr = err
+			continue
 		}
 		if target != nil {
 			return target, nil
 		}
-	}
-	return nil, NewStatsFetchError(StatsFetchErrorProfileNotFound, "Could not resolve profile target", false)
-}
-
-func (c *StatsClient) resolveAPIProfileParallel(ctx context.Context, order []StatsPlatform, expected string) (*apiResolvedProfile, error) {
-	type result struct {
-		target *apiResolvedProfile
-		err    error
-	}
-
-	var (
-		mu      sync.Mutex
-		wg      sync.WaitGroup
-		lastErr error
-		done    bool
-		resCh   = make(chan result, len(order))
-	)
-
-	for _, p := range order {
-		wg.Add(1)
-		go func(p StatsPlatform) {
-			defer wg.Done()
-			target, err := c.searchAPIOne(ctx, expected, p, expected)
-			mu.Lock()
-			defer mu.Unlock()
-			if done {
-				return
-			}
-			if err != nil {
-				lastErr = err
-				return
-			}
-			if target != nil {
-				done = true
-				resCh <- result{target, nil}
-			}
-		}(p)
-	}
-
-	go func() {
-		wg.Wait()
-		close(resCh)
-	}()
-
-	r, ok := <-resCh
-	if ok && r.target != nil {
-		return r.target, nil
-	}
-	if ctx.Err() != nil {
-		return nil, ctx.Err()
 	}
 	if lastErr != nil {
 		return nil, lastErr

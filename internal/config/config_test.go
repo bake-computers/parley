@@ -19,6 +19,8 @@ func TestLoad(t *testing.T) {
 	t.Setenv("DB_TLS_CA_FILE", "/tmp/ca.pem")
 	t.Setenv("STATS_TTL_R6_MS", "120000")
 	t.Setenv("STATS_STALE_GRACE_MS", "3600000")
+	t.Setenv("STATS_CC_PROFILE_BATCH_SIZE", "7")
+	t.Setenv("STATS_CC_PROFILE_BATCH_DELAY_MS", "1500")
 	t.Setenv("AXIOM_TOKEN", "tok")
 	t.Setenv("AXIOM_DATASET", "ds")
 	t.Setenv("AXIOM_ORG_ID", "org")
@@ -68,6 +70,12 @@ func TestLoad(t *testing.T) {
 	if cfg.StatsStaleGraceMS != 3600000 {
 		t.Errorf("StatsStaleGraceMS = %d, want 3600000", cfg.StatsStaleGraceMS)
 	}
+	if cfg.StatsCCProfileBatchSize != 7 {
+		t.Errorf("StatsCCProfileBatchSize = %d, want 7", cfg.StatsCCProfileBatchSize)
+	}
+	if cfg.StatsCCProfileBatchDelayMS != 1500 {
+		t.Errorf("StatsCCProfileBatchDelayMS = %d, want 1500", cfg.StatsCCProfileBatchDelayMS)
+	}
 	if cfg.AxiomToken != "tok" {
 		t.Errorf("AxiomToken = %q", cfg.AxiomToken)
 	}
@@ -97,6 +105,8 @@ func TestLoad_defaults(t *testing.T) {
 		"RUN_MIGRATIONS",
 		"DB_POOL_MAX",
 		"STATS_TTL_R6_MS",
+		"STATS_CC_PROFILE_BATCH_SIZE",
+		"STATS_CC_PROFILE_BATCH_DELAY_MS",
 		"AXIOM_DATASET",
 		"AXIOM_ENABLED",
 		"LOG_LEVEL",
@@ -125,6 +135,12 @@ func TestLoad_defaults(t *testing.T) {
 	if cfg.StatsStaleGraceMS != 86_400_000 {
 		t.Errorf("StatsStaleGraceMS = %d", cfg.StatsStaleGraceMS)
 	}
+	if cfg.StatsCCProfileBatchSize != 10 {
+		t.Errorf("StatsCCProfileBatchSize = %d, want 10", cfg.StatsCCProfileBatchSize)
+	}
+	if cfg.StatsCCProfileBatchDelayMS != 25 {
+		t.Errorf("StatsCCProfileBatchDelayMS = %d, want 25", cfg.StatsCCProfileBatchDelayMS)
+	}
 	if cfg.AxiomDataset != "parley" {
 		t.Errorf("AxiomDataset = %q", cfg.AxiomDataset)
 	}
@@ -133,6 +149,50 @@ func TestLoad_defaults(t *testing.T) {
 	}
 	if cfg.LogLevel != "info" {
 		t.Errorf("LogLevel = %q, want info", cfg.LogLevel)
+	}
+}
+
+func TestLoad_statsCCProfileBatchClamps(t *testing.T) {
+	t.Setenv("STATS_CC_PROFILE_BATCH_SIZE", "99")
+	t.Setenv("STATS_CC_PROFILE_BATCH_DELAY_MS", "0")
+
+	cfg, err := config.Load()
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	if cfg.StatsCCProfileBatchSize != 10 {
+		t.Errorf("StatsCCProfileBatchSize = %d, want 10", cfg.StatsCCProfileBatchSize)
+	}
+	if cfg.StatsCCProfileBatchDelayMS != 25 {
+		t.Errorf("StatsCCProfileBatchDelayMS = %d, want 25", cfg.StatsCCProfileBatchDelayMS)
+	}
+
+	// 0 disables batching; delay floor is 1ms.
+	t.Setenv("STATS_CC_PROFILE_BATCH_SIZE", "0")
+	t.Setenv("STATS_CC_PROFILE_BATCH_DELAY_MS", "1")
+	cfg, err = config.Load()
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	if cfg.StatsCCProfileBatchSize != 0 {
+		t.Errorf("StatsCCProfileBatchSize = %d, want 0 (disabled)", cfg.StatsCCProfileBatchSize)
+	}
+	if cfg.StatsCCProfileBatchDelayMS != 1 {
+		t.Errorf("StatsCCProfileBatchDelayMS = %d, want 1", cfg.StatsCCProfileBatchDelayMS)
+	}
+
+	// Delay ceiling avoids self-DoS via env misconfig.
+	t.Setenv("STATS_CC_PROFILE_BATCH_SIZE", "5")
+	t.Setenv("STATS_CC_PROFILE_BATCH_DELAY_MS", "999999")
+	cfg, err = config.Load()
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	if cfg.StatsCCProfileBatchSize != 5 {
+		t.Errorf("StatsCCProfileBatchSize = %d, want 5", cfg.StatsCCProfileBatchSize)
+	}
+	if cfg.StatsCCProfileBatchDelayMS != 2000 {
+		t.Errorf("StatsCCProfileBatchDelayMS = %d, want 2000", cfg.StatsCCProfileBatchDelayMS)
 	}
 }
 
