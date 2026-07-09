@@ -10,6 +10,7 @@ package services
 
 import (
 	"context"
+	"crypto/rand"
 	"fmt"
 	"strings"
 	"time"
@@ -25,6 +26,19 @@ import (
 	"github.com/pactum-computers/parley/internal/tourney"
 	"github.com/uptrace/bun"
 )
+
+const tournamentCodeAlphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+
+func newTournamentCode() (string, error) {
+	b := make([]byte, 6)
+	if _, err := rand.Read(b); err != nil {
+		return "", err
+	}
+	for i := range b {
+		b[i] = tournamentCodeAlphabet[int(b[i])%len(tournamentCodeAlphabet)]
+	}
+	return string(b), nil
+}
 
 // TournamentService wires the tournament repositories and the matchmaking
 // engine into a Connect handler. Bracket persistence is delegated to
@@ -250,6 +264,12 @@ func (s *TournamentService) buildTournamentProto(
 		WinnerTeamId:           winner,
 		CreatedAtMs:            tournament.CreatedAt,
 		UpdatedAtMs:            tournament.UpdatedAt,
+		PublicCode:             tournament.PublicCode,
+		Description:            tournament.Description,
+		RulesText:              tournament.RulesText,
+		PrizeText:              tournament.PrizeText,
+		StartMode:              tournament.StartMode,
+		MinTeams:               tournament.MinTeams,
 		Teams:                  protoTeams,
 		BracketMatches:         protoBrackets,
 	}, nil
@@ -300,7 +320,7 @@ func (s *TournamentService) CreateTournament(
 		return nil, cerr
 	}
 	name := strings.TrimSpace(msg.GetName())
-	if name == "" || msg.GetTeamCap() < 2 {
+	if name == "" || msg.GetTeamCap() < 2 || msg.GetTeamCap() > 64 {
 		return nil, apperr.InvalidArgument("name and team_cap >= 2 required")
 	}
 
@@ -312,6 +332,30 @@ func (s *TournamentService) CreateTournament(
 	if format == "" {
 		format = "5v5 single_elimination"
 	}
+	_, size := tourney.ParseTournamentFormat(format)
+	if size != 1 && size != 2 && size != 3 && size != 5 {
+		return nil, apperr.InvalidArgument("team size must be 1, 2, 3, or 5")
+	}
+	startMode := strings.TrimSpace(msg.GetStartMode())
+	if startMode == "" {
+		startMode = "manual"
+	}
+	if startMode != "manual" && startMode != "automatic" {
+		return nil, apperr.InvalidArgument("invalid start_mode")
+	}
+	if msg.GetMinTeams() != 0 && (msg.GetMinTeams() < 2 || msg.GetMinTeams() > msg.GetTeamCap()) {
+		return nil, apperr.InvalidArgument("invalid min_teams")
+	}
+	if startMode == "automatic" && msg.GetScheduledStartAtMs() <= 0 {
+		return nil, apperr.InvalidArgument("automatic start requires a scheduled start")
+	}
+	if msg.GetRegistrationClosesAtMs() > 0 && msg.GetScheduledStartAtMs() > 0 && msg.GetRegistrationClosesAtMs() > msg.GetScheduledStartAtMs() {
+		return nil, apperr.InvalidArgument("registration must close before start")
+	}
+	code, err := newTournamentCode()
+	if err != nil {
+		return nil, apperr.Internal("generate tournament code")
+	}
 
 	now := time.Now().UTC().UnixMilli()
 	row := &models.NewTournament{
@@ -322,17 +366,38 @@ func (s *TournamentService) CreateTournament(
 		TeamCap:                msg.GetTeamCap(),
 		Visibility:             visibility,
 		Status:                 repos.TournamentStatusOpen,
+		PublicCode:             code,
+		Description:            strings.TrimSpace(msg.GetDescription()),
+		RulesText:              strings.TrimSpace(msg.GetRulesText()),
+		PrizeText:              strings.TrimSpace(msg.GetPrizeText()),
+		StartMode:              startMode,
+		MinTeams:               msg.GetMinTeams(),
 		CreatedByGuildID:       strings.TrimSpace(msg.GetGuildId()),
 		CreatedByChannelID:     strings.TrimSpace(msg.GetChannelId()),
 		CreatedByDiscordUserID: strings.TrimSpace(msg.GetCreatedByDiscordUserId()),
 		HubMessageID:           nil,
 		FilledAt:               nil,
-		AutoStartAt:            nil,
-		StartedAt:              nil,
-		CompletedAt:            nil,
-		WinnerEntryID:          nil,
-		CreatedAt:              now,
-		UpdatedAt:              now,
+		AutoStartAt: func() *int64 {
+			if startMode == "automatic" {
+				v := msg.GetScheduledStartAtMs()
+				return &v
+			}
+			return nil
+		}(),
+		StartedAt:     nil,
+		CompletedAt:   nil,
+		WinnerEntryID: nil,
+		CreatedAt:     now,
+		UpdatedAt:     now,
+	}
+	if row.MinTeams == 0 {
+		row.MinTeams = 2
+	}
+	if v := msg.GetRegistrationClosesAtMs(); v > 0 {
+		row.RegistrationClosesAt = &v
+	}
+	if v := msg.GetScheduledStartAtMs(); v > 0 {
+		row.ScheduledStartAt = &v
 	}
 
 	saved, err := s.tourn.Create(ctx, row)
@@ -348,6 +413,29 @@ func (s *TournamentService) CreateTournament(
 		Success:    true,
 		Tournament: proto,
 	}), nil
+}
+
+func (s *TournamentService) GetTournamentByCode(ctx context.Context, req *connect.Request[tournamentv1.GetTournamentByCodeRequest]) (*connect.Response[tournamentv1.TournamentResponse], error) {
+	game, cerr := requireR6TournamentGame(req.Msg.GetGame())
+	if cerr != nil {
+		return nil, cerr
+	}
+	code := strings.ToUpper(strings.TrimSpace(req.Msg.GetPublicCode()))
+	if len(code) != 6 {
+		return nil, apperr.InvalidArgument("invalid tournament code")
+	}
+	t, err := s.tourn.GetByPublicCode(ctx, game, code)
+	if err != nil {
+		return nil, apperr.Internal(fmt.Sprintf("get tournament: %v", err))
+	}
+	if t == nil {
+		return nil, apperr.NotFound("tournament not found")
+	}
+	p, err := s.buildTournamentProto(ctx, game, *t)
+	if err != nil {
+		return nil, apperr.Internal(err.Error())
+	}
+	return connect.NewResponse(&tournamentv1.TournamentResponse{Success: true, Tournament: p}), nil
 }
 
 // GetTournament loads a single tournament by id and returns its proto

@@ -8,6 +8,7 @@ import {
 import { pingCommand } from "#/interactions/ping";
 import { profileCommand } from "#/interactions/profile";
 import { queueSlashCommand } from "#/interactions/queue/slash";
+import { tournamentSlashCommand } from "#/interactions/tournament/slash";
 import {
   userButtonHandler,
   userModalHandler,
@@ -22,6 +23,7 @@ export const workerHandlers = [
   pingCommand,
   profileCommand,
   queueSlashCommand,
+  tournamentSlashCommand,
   userButtonHandler,
   userModalHandler,
   userSlashCommand,

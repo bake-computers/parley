@@ -5,6 +5,7 @@ import {
   IdentityService,
   MatchmakingService,
   StatsService,
+  TournamentService,
   UserSettingsService,
 } from "@parley/proto";
 import { resolveEngineTransport, type EngineTransportEnv } from "#/engine-transport";
@@ -64,6 +65,10 @@ export function getMatchmakingClient(env: EngineTransportEnv) {
 
 export function getStatsClient(env: EngineTransportEnv) {
   return getOrCreateClient(StatsService, env);
+}
+
+export function getTournamentClient(env: EngineTransportEnv) {
+  return getOrCreateClient(TournamentService, env);
 }
 
 export function getUserSettingsClient(env: EngineTransportEnv) {

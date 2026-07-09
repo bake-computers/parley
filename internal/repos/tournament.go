@@ -110,6 +110,19 @@ func (r *TournamentRepo) ListForGuild(
 	return rows, err
 }
 
+// GetByPublicCode loads a tournament using its shareable public identifier.
+func (r *TournamentRepo) GetByPublicCode(ctx context.Context, game models.Game, code string) (*models.Tournament, error) {
+	var row models.Tournament
+	err := r.db.NewSelect().Model(&row).Where("game = ?", game).Where("public_code = ?", code).Scan(ctx)
+	if errors.Is(err, sql.ErrNoRows) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return &row, nil
+}
+
 // ParticipantGuildIDs returns the distinct set of guild IDs that
 // have teams registered in the tournament, plus the host guild.
 // Used by the notifier to build the participant_guild_ids payload

@@ -38,6 +38,10 @@ func (h *TournamentHandler) GetTournament(
 	return h.svc.GetTournament(ctx, req)
 }
 
+func (h *TournamentHandler) GetTournamentByCode(ctx context.Context, req *connect.Request[tournamentv1.GetTournamentByCodeRequest]) (*connect.Response[tournamentv1.TournamentResponse], error) {
+	return h.svc.GetTournamentByCode(ctx, req)
+}
+
 func (h *TournamentHandler) ListTournaments(
 	ctx context.Context,
 	req *connect.Request[tournamentv1.ListTournamentsRequest],
