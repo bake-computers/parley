@@ -1,0 +1,19 @@
+apps/landing/src/routes/tournaments/create.tsx
+  s_37946ee286d049::t_abd6916129274e 1-21
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "2437a68def837bd14152ae66622297ea7f99f01a",
+  "prompts": {},
+  "sessions": {
+    "s_37946ee286d049": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f490d-a02e-7232-b4b8-978e77f52e68",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
