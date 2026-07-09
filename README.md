@@ -126,7 +126,6 @@ The Bridge Worker polls `LeaderboardService` on a configurable interval, stores 
 | `@parley/runtime`       | Discord interaction framework, embed builders, component builders |
 | `@parley/axiom`         | Structured logging middleware shared across Workers               |
 | `@parley/tsconfig-base` | Strict TypeScript compiler defaults for all workspaces            |
-| `@parley/db`            | Legacy Drizzle schema (frozen; not extended)                      |
 
 ### 5.5 Data Stores
 
@@ -441,7 +440,6 @@ parley/
 │   ├── generated-ts/       @parley/proto — generated clients
 │   ├── runtime/            @parley/runtime — Discord framework
 │   ├── axiom/              @parley/axiom — logging middleware
-│   ├── db/                 @parley/db — frozen legacy schema
 │   └── tsconfig-base/      Shared TypeScript config
 ├── apps/                   Cloudflare Workers, each with its own wrangler.jsonc
 └── AGENTS.md               Contributor and agent reference
