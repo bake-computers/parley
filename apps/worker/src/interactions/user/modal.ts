@@ -2,9 +2,11 @@ import { ActionRowBuilder, ModalBuilder, TextInputBuilder } from "@parley/runtim
 import { TextInputStyle } from "discord-api-types/v10";
 import { USER_DELETE_MODAL } from "#/interactions/user/constants";
 
+export const USER_DELETE_CONFIRM_INPUT = "user/delete-confirm-input";
+
 export function buildDeleteConfirmModal(expectedUsername: string): ModalBuilder {
   const input = new TextInputBuilder()
-    .setCustomId("user/delete-confirm-input")
+    .setCustomId(USER_DELETE_CONFIRM_INPUT)
     .setLabel(`Type "${expectedUsername}" to confirm (30-day re-link cooldown)`)
     .setStyle(TextInputStyle.Short)
     .setRequired(true)

@@ -5,11 +5,20 @@ import { resolveEmojis } from "#/ui/emojis";
 import { getUserSettingsClient, type EngineTransportEnv } from "#/transport";
 import { invokeGetUserSettings } from "#/interactions/user/rpc";
 import { buildErrorCard, buildSettingsCard } from "#/interactions/user/ui";
+import { buildDeleteConfirmModal } from "#/interactions/user/modal";
 
 export const userSlashCommand = new SlashCommand()
   .setName("user")
   .setDescription("Manage your matchmaking, visibility, timezone, and data")
+  .addSubcommand((subcommand) => subcommand.setName("settings").setDescription("View your settings"))
+  .addSubcommand((subcommand) => subcommand.setName("delete").setDescription("Delete your Parley data"))
   .addHandler(async (interaction: ChatInputCommandInteraction) => {
+    const subcommand = interaction.options.getSubcommand();
+    if (subcommand === "delete") {
+      await interaction.showModal(buildDeleteConfirmModal(interaction.user?.username ?? ""));
+      return;
+    }
+
     const env = interaction.context.env as EngineTransportEnv;
     if (!(await assertAccepted(interaction, env as never))) {
       return;
