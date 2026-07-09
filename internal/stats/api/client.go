@@ -34,7 +34,6 @@ type Client struct {
 	apiKey         string
 	cache          *ConfigCache
 	profileBatcher *ProfileBatcher
-	batchDisabled  bool
 }
 
 // Options configures a Client.
@@ -43,7 +42,7 @@ type Options struct {
 	APIKey              string
 	ConfigCache         *ConfigCache
 	HTTPClient          *http.Client
-	ProfileBatchSize    int
+	ProfileBatchSize    int // 0 disables batching; 1–10 is the API limit
 	ProfileBatchDelay   time.Duration
 	DisableProfileBatch bool
 }
@@ -66,17 +65,6 @@ func NewClient(opts Options) *Client {
 			Timeout:   defaultTimeout,
 		}
 	}
-	batchSize := opts.ProfileBatchSize
-	if batchSize <= 0 {
-		batchSize = 10
-	}
-	if batchSize > 10 {
-		batchSize = 10
-	}
-	batchDelay := opts.ProfileBatchDelay
-	if batchDelay <= 0 {
-		batchDelay = defaultProfileBatchDelay
-	}
 
 	c := &Client{
 		http:    httpClient,
@@ -84,8 +72,18 @@ func NewClient(opts Options) *Client {
 		apiKey:  opts.APIKey,
 		cache:   opts.ConfigCache,
 	}
-	c.batchDisabled = opts.DisableProfileBatch
-	if !opts.DisableProfileBatch {
+
+	// ProfileBatchSize 0 or DisableProfileBatch forces direct GET only.
+	// Callers that want batching must pass a positive size (config default is 10).
+	if !opts.DisableProfileBatch && opts.ProfileBatchSize > 0 {
+		batchSize := opts.ProfileBatchSize
+		if batchSize > 10 {
+			batchSize = 10
+		}
+		batchDelay := opts.ProfileBatchDelay
+		if batchDelay <= 0 {
+			batchDelay = defaultProfileBatchDelay
+		}
 		c.profileBatcher = NewProfileBatcher(c, batchSize, batchDelay)
 	}
 	return c
@@ -134,7 +132,7 @@ func (c *Client) Search(ctx context.Context, username, platform string, limit in
 
 // GetProfile fetches a full profile by ID.
 func (c *Client) GetProfile(ctx context.Context, profileID string) (*Profile, error) {
-	if c.profileBatcher != nil && !c.batchDisabled {
+	if c.profileBatcher != nil {
 		return c.profileBatcher.Get(ctx, profileID)
 	}
 	return c.getProfileDirect(ctx, profileID)

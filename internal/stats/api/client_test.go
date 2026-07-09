@@ -275,10 +275,17 @@ func TestClient_GetProfile_DedupesSameID(t *testing.T) {
 	}
 }
 
-func TestClient_GetProfile_BatchMissingIDReturnsProfileNotFound(t *testing.T) {
+func TestClient_GetProfile_BatchMissingIDFallsBackToDirect(t *testing.T) {
+	var batchHits, directHits int32
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("/v2/profiles/batch", func(w http.ResponseWriter, _ *http.Request) {
+		atomic.AddInt32(&batchHits, 1)
 		_, _ = io.WriteString(w, `[]`)
+	})
+	mux.HandleFunc("/v2/profiles/id-1", func(w http.ResponseWriter, _ *http.Request) {
+		atomic.AddInt32(&directHits, 1)
+		_, _ = io.WriteString(w, `{"id":"id-1","username":"One","platform":"pc","level":1}`)
 	})
 
 	srv := httptest.NewServer(mux)
@@ -286,6 +293,79 @@ func TestClient_GetProfile_BatchMissingIDReturnsProfileNotFound(t *testing.T) {
 
 	client := api.NewClient(api.Options{
 		BaseURL:           srv.URL,
+		ProfileBatchSize:  10,
+		ProfileBatchDelay: 1 * time.Millisecond,
+	})
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
+	profile, err := client.GetProfile(ctx, "id-1")
+	if err != nil {
+		t.Fatalf("GetProfile: %v", err)
+	}
+	if profile.ID != "id-1" {
+		t.Fatalf("profile id = %q", profile.ID)
+	}
+	if atomic.LoadInt32(&batchHits) != 1 {
+		t.Fatalf("batch hits = %d, want 1", batchHits)
+	}
+	if atomic.LoadInt32(&directHits) != 1 {
+		t.Fatalf("direct hits = %d, want 1", directHits)
+	}
+}
+
+func TestClient_GetProfile_Batch404FallsBackToDirect(t *testing.T) {
+	var batchHits, directHits int32
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/v2/profiles/batch", func(w http.ResponseWriter, _ *http.Request) {
+		atomic.AddInt32(&batchHits, 1)
+		http.NotFound(w, nil)
+	})
+	mux.HandleFunc("/v2/profiles/id-1", func(w http.ResponseWriter, _ *http.Request) {
+		atomic.AddInt32(&directHits, 1)
+		_, _ = io.WriteString(w, `{"id":"id-1","username":"One","platform":"pc","level":1}`)
+	})
+
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+
+	client := api.NewClient(api.Options{
+		BaseURL:           srv.URL,
+		ProfileBatchSize:  10,
+		ProfileBatchDelay: 1 * time.Millisecond,
+	})
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+
+	profile, err := client.GetProfile(ctx, "id-1")
+	if err != nil {
+		t.Fatalf("GetProfile: %v", err)
+	}
+	if profile.ID != "id-1" {
+		t.Fatalf("profile id = %q", profile.ID)
+	}
+	if atomic.LoadInt32(&batchHits) != 1 {
+		t.Fatalf("batch hits = %d, want 1", batchHits)
+	}
+	if atomic.LoadInt32(&directHits) != 1 {
+		t.Fatalf("direct hits = %d, want 1", directHits)
+	}
+}
+
+func TestClient_GetProfile_BatchAndDirectMissingReturnsNotFound(t *testing.T) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/v2/profiles/batch", func(w http.ResponseWriter, _ *http.Request) {
+		_, _ = io.WriteString(w, `[]`)
+	})
+	// Direct path: default mux 404 → ErrNotFound
+
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+
+	client := api.NewClient(api.Options{
+		BaseURL:           srv.URL,
+		ProfileBatchSize:  10,
 		ProfileBatchDelay: 1 * time.Millisecond,
 	})
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
@@ -296,8 +376,140 @@ func TestClient_GetProfile_BatchMissingIDReturnsProfileNotFound(t *testing.T) {
 		t.Fatal("expected error")
 	}
 	apiErr, ok := err.(*api.Error)
-	if !ok || apiErr.Kind != api.ErrProfileNotFound {
-		t.Fatalf("got %T %v, want ErrProfileNotFound", err, err)
+	if !ok || apiErr.Kind != api.ErrNotFound {
+		t.Fatalf("got %T %v, want ErrNotFound", err, err)
+	}
+}
+
+func TestClient_GetProfile_InFlightJoinsSameBatch(t *testing.T) {
+	var batchHits int32
+	started := make(chan struct{})
+	release := make(chan struct{})
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/v2/profiles/batch", func(w http.ResponseWriter, r *http.Request) {
+		atomic.AddInt32(&batchHits, 1)
+		ids := decodeBatchIDs(t, r)
+		close(started)
+		<-release
+		writeProfiles(w, ids)
+	})
+
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+
+	client := api.NewClient(api.Options{
+		BaseURL:           srv.URL,
+		ProfileBatchSize:  10,
+		ProfileBatchDelay: 5 * time.Millisecond,
+	})
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancel()
+
+	var wg sync.WaitGroup
+	errs := make([]error, 2)
+	profiles := make([]*api.Profile, 2)
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		profiles[0], errs[0] = client.GetProfile(ctx, "id-1")
+	}()
+
+	<-started
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		profiles[1], errs[1] = client.GetProfile(ctx, "id-1")
+	}()
+
+	// Give the second Get a moment to join inFlight before completing the batch.
+	time.Sleep(20 * time.Millisecond)
+	close(release)
+	wg.Wait()
+
+	for _, err := range errs {
+		if err != nil {
+			t.Fatalf("GetProfile: %v", err)
+		}
+	}
+	if profiles[0].ID != "id-1" || profiles[1].ID != "id-1" {
+		t.Fatalf("profiles = %#v", profiles)
+	}
+	if atomic.LoadInt32(&batchHits) != 1 {
+		t.Fatalf("batch hits = %d, want 1", batchHits)
+	}
+}
+
+func TestClient_GetProfile_CancelDropsPendingWaiter(t *testing.T) {
+	var batchHits int32
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/v2/profiles/batch", func(w http.ResponseWriter, r *http.Request) {
+		atomic.AddInt32(&batchHits, 1)
+		writeProfiles(w, decodeBatchIDs(t, r))
+	})
+
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+
+	client := api.NewClient(api.Options{
+		BaseURL:           srv.URL,
+		ProfileBatchSize:  10,
+		ProfileBatchDelay: time.Hour, // only flush if we leave waiters pending
+	})
+
+	ctx, cancel := context.WithCancel(context.Background())
+	errCh := make(chan error, 1)
+	go func() {
+		_, err := client.GetProfile(ctx, "id-1")
+		errCh <- err
+	}()
+
+	time.Sleep(20 * time.Millisecond)
+	cancel()
+
+	err := <-errCh
+	if err == nil {
+		t.Fatal("expected cancel error")
+	}
+	// No remaining waiters → timer stopped, batch must not fire.
+	time.Sleep(30 * time.Millisecond)
+	if atomic.LoadInt32(&batchHits) != 0 {
+		t.Fatalf("batch hits = %d, want 0 after sole waiter cancel", batchHits)
+	}
+}
+
+func TestClient_GetProfile_SizeZeroDisablesBatch(t *testing.T) {
+	var batchHits, directHits int32
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/v2/profiles/batch", func(w http.ResponseWriter, _ *http.Request) {
+		atomic.AddInt32(&batchHits, 1)
+		http.Error(w, "batch should not be used", http.StatusTeapot)
+	})
+	mux.HandleFunc("/v2/profiles/id-1", func(w http.ResponseWriter, _ *http.Request) {
+		atomic.AddInt32(&directHits, 1)
+		_, _ = io.WriteString(w, `{"id":"id-1","username":"One","platform":"pc","level":1}`)
+	})
+
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+
+	client := api.NewClient(api.Options{BaseURL: srv.URL, ProfileBatchSize: 0})
+	profile, err := client.GetProfile(context.Background(), "id-1")
+	if err != nil {
+		t.Fatalf("GetProfile: %v", err)
+	}
+	if profile.ID != "id-1" {
+		t.Fatalf("profile id = %q", profile.ID)
+	}
+	if atomic.LoadInt32(&batchHits) != 0 {
+		t.Fatalf("batch hits = %d, want 0", batchHits)
+	}
+	if atomic.LoadInt32(&directHits) != 1 {
+		t.Fatalf("direct hits = %d, want 1", directHits)
 	}
 }
 
