@@ -612,6 +612,14 @@ type Tournament struct {
 	TeamCap                int32   `bun:"team_cap,notnull"`
 	Visibility             string  `bun:",notnull"`
 	Status                 string  `bun:",notnull"`
+	PublicCode             string  `bun:"public_code"`
+	Description            string  `bun:"description,notnull"`
+	RulesText              string  `bun:"rules_text,notnull"`
+	PrizeText              string  `bun:"prize_text,notnull"`
+	RegistrationClosesAt   *int64  `bun:"registration_closes_at"`
+	ScheduledStartAt       *int64  `bun:"scheduled_start_at"`
+	StartMode              string  `bun:"start_mode,notnull"`
+	MinTeams               int32   `bun:"min_teams,notnull"`
 	CreatedByGuildID       string  `bun:"created_by_guild_id,notnull"`
 	CreatedByChannelID     string  `bun:"created_by_channel_id,notnull"`
 	CreatedByDiscordUserID string  `bun:"created_by_discord_user_id,notnull"`
@@ -636,6 +644,14 @@ type NewTournament struct {
 	TeamCap                int32   `bun:"team_cap,notnull"`
 	Visibility             string  `bun:",notnull"`
 	Status                 string  `bun:",notnull"`
+	PublicCode             string  `bun:"public_code"`
+	Description            string  `bun:"description,notnull"`
+	RulesText              string  `bun:"rules_text,notnull"`
+	PrizeText              string  `bun:"prize_text,notnull"`
+	RegistrationClosesAt   *int64  `bun:"registration_closes_at"`
+	ScheduledStartAt       *int64  `bun:"scheduled_start_at"`
+	StartMode              string  `bun:"start_mode,notnull"`
+	MinTeams               int32   `bun:"min_teams,notnull"`
 	CreatedByGuildID       string  `bun:"created_by_guild_id,notnull"`
 	CreatedByChannelID     string  `bun:"created_by_channel_id,notnull"`
 	CreatedByDiscordUserID string  `bun:"created_by_discord_user_id,notnull"`
