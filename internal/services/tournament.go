@@ -10,6 +10,7 @@ package services
 
 import (
 	"context"
+	"crypto/rand"
 	"fmt"
 	"strings"
 	"time"
@@ -25,6 +26,19 @@ import (
 	"github.com/pactum-computers/parley/internal/tourney"
 	"github.com/uptrace/bun"
 )
+
+const tournamentCodeAlphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+
+func newTournamentCode() (string, error) {
+	b := make([]byte, 6)
+	if _, err := rand.Read(b); err != nil {
+		return "", err
+	}
+	for i := range b {
+		b[i] = tournamentCodeAlphabet[int(b[i])%len(tournamentCodeAlphabet)]
+	}
+	return string(b), nil
+}
 
 // TournamentService wires the tournament repositories and the matchmaking
 // engine into a Connect handler. Bracket persistence is delegated to
