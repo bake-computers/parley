@@ -11,6 +11,7 @@ option go_package = "github.com/pactum-computers/parley/gen/parley/tournament/v1
 service TournamentService {
   rpc CreateTournament(CreateTournamentRequest) returns (TournamentResponse);
   rpc GetTournament(GetTournamentRequest) returns (TournamentResponse);
+  rpc GetTournamentByCode(GetTournamentByCodeRequest) returns (TournamentResponse);
   rpc ListTournaments(ListTournamentsRequest) returns (ListTournamentsResponse);
   rpc RegisterTeam(RegisterTeamRequest) returns (TeamResponse);
   rpc UpdateTeamRoster(UpdateTeamRosterRequest) returns (TeamResponse);
@@ -38,6 +39,14 @@ message Tournament {
   int64  updated_at_ms = 15;
   repeated TournamentTeam teams = 16;
   repeated BracketMatch bracket_matches = 17;
+  string public_code = 18;
+  string description = 19;
+  string rules_text = 20;
+  string prize_text = 21;
+  int64 registration_closes_at_ms = 22;
+  int64 scheduled_start_at_ms = 23;
+  string start_mode = 24;
+  int32 min_teams = 25;
 }
 
 message TournamentTeam {
@@ -80,10 +89,22 @@ message CreateTournamentRequest {
   string format = 6;
   int32  team_cap = 7;
   string visibility = 8;
+  string description = 9;
+  string rules_text = 10;
+  string prize_text = 11;
+  int64 registration_closes_at_ms = 12;
+  int64 scheduled_start_at_ms = 13;
+  string start_mode = 14;
+  int32 min_teams = 15;
 }
 
 message GetTournamentRequest {
   int32  tournament_id = 1;
+  parley.common.v1.Game game = 2;
+}
+
+message GetTournamentByCodeRequest {
+  string public_code = 1;
   parley.common.v1.Game game = 2;
 }
 
