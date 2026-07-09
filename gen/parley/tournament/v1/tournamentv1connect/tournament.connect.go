@@ -39,6 +39,9 @@ const (
 	// TournamentServiceGetTournamentProcedure is the fully-qualified name of the TournamentService's
 	// GetTournament RPC.
 	TournamentServiceGetTournamentProcedure = "/parley.tournament.v1.TournamentService/GetTournament"
+	// TournamentServiceGetTournamentByCodeProcedure is the fully-qualified name of the
+	// TournamentService's GetTournamentByCode RPC.
+	TournamentServiceGetTournamentByCodeProcedure = "/parley.tournament.v1.TournamentService/GetTournamentByCode"
 	// TournamentServiceListTournamentsProcedure is the fully-qualified name of the TournamentService's
 	// ListTournaments RPC.
 	TournamentServiceListTournamentsProcedure = "/parley.tournament.v1.TournamentService/ListTournaments"
@@ -66,6 +69,7 @@ const (
 type TournamentServiceClient interface {
 	CreateTournament(context.Context, *connect.Request[v1.CreateTournamentRequest]) (*connect.Response[v1.TournamentResponse], error)
 	GetTournament(context.Context, *connect.Request[v1.GetTournamentRequest]) (*connect.Response[v1.TournamentResponse], error)
+	GetTournamentByCode(context.Context, *connect.Request[v1.GetTournamentByCodeRequest]) (*connect.Response[v1.TournamentResponse], error)
 	ListTournaments(context.Context, *connect.Request[v1.ListTournamentsRequest]) (*connect.Response[v1.ListTournamentsResponse], error)
 	RegisterTeam(context.Context, *connect.Request[v1.RegisterTeamRequest]) (*connect.Response[v1.TeamResponse], error)
 	UpdateTeamRoster(context.Context, *connect.Request[v1.UpdateTeamRosterRequest]) (*connect.Response[v1.TeamResponse], error)
@@ -96,6 +100,12 @@ func NewTournamentServiceClient(httpClient connect.HTTPClient, baseURL string, o
 			httpClient,
 			baseURL+TournamentServiceGetTournamentProcedure,
 			connect.WithSchema(tournamentServiceMethods.ByName("GetTournament")),
+			connect.WithClientOptions(opts...),
+		),
+		getTournamentByCode: connect.NewClient[v1.GetTournamentByCodeRequest, v1.TournamentResponse](
+			httpClient,
+			baseURL+TournamentServiceGetTournamentByCodeProcedure,
+			connect.WithSchema(tournamentServiceMethods.ByName("GetTournamentByCode")),
 			connect.WithClientOptions(opts...),
 		),
 		listTournaments: connect.NewClient[v1.ListTournamentsRequest, v1.ListTournamentsResponse](
@@ -147,6 +157,7 @@ func NewTournamentServiceClient(httpClient connect.HTTPClient, baseURL string, o
 type tournamentServiceClient struct {
 	createTournament    *connect.Client[v1.CreateTournamentRequest, v1.TournamentResponse]
 	getTournament       *connect.Client[v1.GetTournamentRequest, v1.TournamentResponse]
+	getTournamentByCode *connect.Client[v1.GetTournamentByCodeRequest, v1.TournamentResponse]
 	listTournaments     *connect.Client[v1.ListTournamentsRequest, v1.ListTournamentsResponse]
 	registerTeam        *connect.Client[v1.RegisterTeamRequest, v1.TeamResponse]
 	updateTeamRoster    *connect.Client[v1.UpdateTeamRosterRequest, v1.TeamResponse]
@@ -164,6 +175,11 @@ func (c *tournamentServiceClient) CreateTournament(ctx context.Context, req *con
 // GetTournament calls parley.tournament.v1.TournamentService.GetTournament.
 func (c *tournamentServiceClient) GetTournament(ctx context.Context, req *connect.Request[v1.GetTournamentRequest]) (*connect.Response[v1.TournamentResponse], error) {
 	return c.getTournament.CallUnary(ctx, req)
+}
+
+// GetTournamentByCode calls parley.tournament.v1.TournamentService.GetTournamentByCode.
+func (c *tournamentServiceClient) GetTournamentByCode(ctx context.Context, req *connect.Request[v1.GetTournamentByCodeRequest]) (*connect.Response[v1.TournamentResponse], error) {
+	return c.getTournamentByCode.CallUnary(ctx, req)
 }
 
 // ListTournaments calls parley.tournament.v1.TournamentService.ListTournaments.
@@ -206,6 +222,7 @@ func (c *tournamentServiceClient) CancelTournament(ctx context.Context, req *con
 type TournamentServiceHandler interface {
 	CreateTournament(context.Context, *connect.Request[v1.CreateTournamentRequest]) (*connect.Response[v1.TournamentResponse], error)
 	GetTournament(context.Context, *connect.Request[v1.GetTournamentRequest]) (*connect.Response[v1.TournamentResponse], error)
+	GetTournamentByCode(context.Context, *connect.Request[v1.GetTournamentByCodeRequest]) (*connect.Response[v1.TournamentResponse], error)
 	ListTournaments(context.Context, *connect.Request[v1.ListTournamentsRequest]) (*connect.Response[v1.ListTournamentsResponse], error)
 	RegisterTeam(context.Context, *connect.Request[v1.RegisterTeamRequest]) (*connect.Response[v1.TeamResponse], error)
 	UpdateTeamRoster(context.Context, *connect.Request[v1.UpdateTeamRosterRequest]) (*connect.Response[v1.TeamResponse], error)
@@ -232,6 +249,12 @@ func NewTournamentServiceHandler(svc TournamentServiceHandler, opts ...connect.H
 		TournamentServiceGetTournamentProcedure,
 		svc.GetTournament,
 		connect.WithSchema(tournamentServiceMethods.ByName("GetTournament")),
+		connect.WithHandlerOptions(opts...),
+	)
+	tournamentServiceGetTournamentByCodeHandler := connect.NewUnaryHandler(
+		TournamentServiceGetTournamentByCodeProcedure,
+		svc.GetTournamentByCode,
+		connect.WithSchema(tournamentServiceMethods.ByName("GetTournamentByCode")),
 		connect.WithHandlerOptions(opts...),
 	)
 	tournamentServiceListTournamentsHandler := connect.NewUnaryHandler(
@@ -282,6 +305,8 @@ func NewTournamentServiceHandler(svc TournamentServiceHandler, opts ...connect.H
 			tournamentServiceCreateTournamentHandler.ServeHTTP(w, r)
 		case TournamentServiceGetTournamentProcedure:
 			tournamentServiceGetTournamentHandler.ServeHTTP(w, r)
+		case TournamentServiceGetTournamentByCodeProcedure:
+			tournamentServiceGetTournamentByCodeHandler.ServeHTTP(w, r)
 		case TournamentServiceListTournamentsProcedure:
 			tournamentServiceListTournamentsHandler.ServeHTTP(w, r)
 		case TournamentServiceRegisterTeamProcedure:
@@ -311,6 +336,10 @@ func (UnimplementedTournamentServiceHandler) CreateTournament(context.Context, *
 
 func (UnimplementedTournamentServiceHandler) GetTournament(context.Context, *connect.Request[v1.GetTournamentRequest]) (*connect.Response[v1.TournamentResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("parley.tournament.v1.TournamentService.GetTournament is not implemented"))
+}
+
+func (UnimplementedTournamentServiceHandler) GetTournamentByCode(context.Context, *connect.Request[v1.GetTournamentByCodeRequest]) (*connect.Response[v1.TournamentResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("parley.tournament.v1.TournamentService.GetTournamentByCode is not implemented"))
 }
 
 func (UnimplementedTournamentServiceHandler) ListTournaments(context.Context, *connect.Request[v1.ListTournamentsRequest]) (*connect.Response[v1.ListTournamentsResponse], error) {
