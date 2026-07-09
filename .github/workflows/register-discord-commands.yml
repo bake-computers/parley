@@ -55,6 +55,10 @@ jobs:
       - name: Install Dependencies
         run: bun install --frozen-lockfile
 
+      # @parley/runtime main points at dist/ — source alone is not importable
+      - name: Build runtime
+        run: bun run --filter @parley/runtime build
+
       - name: Register Discord commands
         working-directory: apps/worker
         env:
