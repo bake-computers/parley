@@ -10,7 +10,7 @@ const toBase64Url = (value: string) => btoa(value).replace(/\+/g, "-").replace(/
 async function signedHandoff(interaction: ChatInputCommandInteraction): Promise<string> {
   const env = interaction.context.env as EngineTransportEnv & { TOURNAMENT_HANDOFF_SECRET?: string };
   const payload = toBase64Url(JSON.stringify({ guildId: interaction.guildId, channelId: interaction.channelId, userId: interaction.user?.id, expiresAt: Date.now() + 600000 }));
-  if (!env.TOURNAMENT_HANDOFF_SECRET) throw new Error("TOURNAMENT_HANDOFF_SECRET is not configured");
+  if (!env.TOURNAMENT_HANDOFF_SECRET) { throw new Error("TOURNAMENT_HANDOFF_SECRET is not configured"); }
   const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(env.TOURNAMENT_HANDOFF_SECRET), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
   const signature = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(payload));
   return `${toBase64Url(String.fromCharCode(...new Uint8Array(signature)))}.${payload}`;
@@ -36,7 +36,7 @@ export const tournamentSlashCommand = new SlashCommand()
     try {
       const client = getTournamentClient(interaction.context.env as EngineTransportEnv) as { getTournamentByCode(x: unknown): Promise<{ success: boolean; tournament?: { name: string; status: string } }> };
       const r = await client.getTournamentByCode({ publicCode: code, game: Game.R6 });
-      if (!r.success || !r.tournament) throw new Error("not found");
+      if (!r.success || !r.tournament) { throw new Error("not found"); }
       await replyV2(interaction, card(r.tournament.name, `Status: **${r.tournament.status}**\nOpen the [tournament page](${base}/${code}), log in with Discord, and select the same team as your teammates.`));
     } catch { await replyV2(interaction, card("Tournament not found", "Check the code and ask the organizer for a current link.")); }
   });
