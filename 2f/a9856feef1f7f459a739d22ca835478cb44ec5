@@ -1,0 +1,19 @@
+proto/tournament/v1/tournament.proto
+  s_37946ee286d049::t_e6529fcf4e2339 14,42-49,92-98,106-110,187
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "2fa9856feef1f7f459a739d22ca835478cb44ec5",
+  "prompts": {},
+  "sessions": {
+    "s_37946ee286d049": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f490d-a02e-7232-b4b8-978e77f52e68",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
