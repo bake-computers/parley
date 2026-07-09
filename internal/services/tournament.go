@@ -320,7 +320,7 @@ func (s *TournamentService) CreateTournament(
 		return nil, cerr
 	}
 	name := strings.TrimSpace(msg.GetName())
-	if name == "" || msg.GetTeamCap() < 2 {
+	if name == "" || msg.GetTeamCap() < 2 || msg.GetTeamCap() > 64 {
 		return nil, apperr.InvalidArgument("name and team_cap >= 2 required")
 	}
 
