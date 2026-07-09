@@ -1,0 +1,19 @@
+migrations/2026-07-10-120000_tournament_public_web/up.sql
+  s_37946ee286d049::t_e6529fcf4e2339 1-9
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "0afd1dc9da8a75e2da79baf49c9ce9c80d61361a",
+  "prompts": {},
+  "sessions": {
+    "s_37946ee286d049": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f490d-a02e-7232-b4b8-978e77f52e68",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
