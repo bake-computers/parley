@@ -1,0 +1,20 @@
+packages/generated-ts/src/tournament/v1/tournament_pb.ts
+  s_37946ee286d049::t_7c52f40dd8d90c 17,107-146,348-382,414-435,466,493,540,577,609,636,678,705,732,759,791,813-818
+  s_37946ee286d049::t_6c0b0775c81170 819-820
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "abf01d219d87e6a8a515f3c929071b54c3ab1b4a",
+  "prompts": {},
+  "sessions": {
+    "s_37946ee286d049": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f490d-a02e-7232-b4b8-978e77f52e68",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
