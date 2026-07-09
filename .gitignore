@@ -57,12 +57,6 @@ target/
 # grapify
 graphify-out
 
-# superpowers brainstorm
-.superpowers/
-
-# .omo
-.omo/
-
 # Go engine binary and test artifacts
 /parley
 coverage.out
