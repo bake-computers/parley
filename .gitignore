@@ -61,3 +61,6 @@ graphify-out
 /parley
 coverage.out
 *.test
+
+.superpowers
+.omo
