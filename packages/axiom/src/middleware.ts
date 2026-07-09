@@ -1,7 +1,7 @@
 import type { Context, MiddlewareHandler } from "hono";
-import type { AxiomEnv } from "./config.js";
-import { resolveAxiomConfig } from "./config.js";
-import { AxiomLogger } from "./logger.js";
+import type { AxiomEnv } from "#/config.js";
+import { resolveAxiomConfig } from "#/config.js";
+import { AxiomLogger } from "#/logger.js";
 
 export type AxiomVariables = {
   axiom: AxiomLogger;

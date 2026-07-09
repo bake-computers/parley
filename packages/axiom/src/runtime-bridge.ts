@@ -1,4 +1,4 @@
-import type { AxiomLogger } from "./logger.js";
+import type { AxiomLogger } from "#/logger.js";
 
 type RuntimeLogRecord = {
   timestamp: string;

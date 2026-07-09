@@ -1,5 +1,5 @@
-import { type AxiomConfig, isAxiomConfigured } from "./config.js";
-import type { AxiomEvent } from "./events.js";
+import { type AxiomConfig, isAxiomConfigured } from "#/config.js";
+import type { AxiomEvent } from "#/events.js";
 
 export class AxiomLogger {
   private readonly config: AxiomConfig;
