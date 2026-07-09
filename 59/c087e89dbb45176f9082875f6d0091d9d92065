@@ -1,0 +1,24 @@
+apps/worker/src/interactions/user/slash.ts
+  s_bc8ca3b2c871ef::t_460ba6618498c4 8,13-14,16-21
+apps/worker/src/interactions/user/modal.ts
+  s_bc8ca3b2c871ef::t_460ba6618498c4 5-6,9
+apps/worker/src/interactions/user/components.ts
+  s_bc8ca3b2c871ef::t_460ba6618498c4 25,248-249,254-259
+  s_bc8ca3b2c871ef::t_d16a304c656d77 260-261
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "59c087e89dbb45176f9082875f6d0091d9d92065",
+  "prompts": {},
+  "sessions": {
+    "s_bc8ca3b2c871ef": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f4817-1213-7191-9925-96c35fb2255f",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
