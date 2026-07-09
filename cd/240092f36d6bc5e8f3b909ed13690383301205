@@ -1,0 +1,16 @@
+apps/landing/wrangler.jsonc
+  h_93d17961f46f35 5,8,10-12
+.gitignore
+  h_93d17961f46f35 64-66
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "cd240092f36d6bc5e8f3b909ed13690383301205",
+  "prompts": {},
+  "humans": {
+    "h_93d17961f46f35": {
+      "author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
