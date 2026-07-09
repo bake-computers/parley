@@ -332,6 +332,30 @@ func (s *TournamentService) CreateTournament(
 	if format == "" {
 		format = "5v5 single_elimination"
 	}
+	_, size := tourney.ParseTournamentFormat(format)
+	if size != 1 && size != 2 && size != 3 && size != 5 {
+		return nil, apperr.InvalidArgument("team size must be 1, 2, 3, or 5")
+	}
+	startMode := strings.TrimSpace(msg.GetStartMode())
+	if startMode == "" {
+		startMode = "manual"
+	}
+	if startMode != "manual" && startMode != "automatic" {
+		return nil, apperr.InvalidArgument("invalid start_mode")
+	}
+	if msg.GetMinTeams() != 0 && (msg.GetMinTeams() < 2 || msg.GetMinTeams() > msg.GetTeamCap()) {
+		return nil, apperr.InvalidArgument("invalid min_teams")
+	}
+	if startMode == "automatic" && msg.GetScheduledStartAtMs() <= 0 {
+		return nil, apperr.InvalidArgument("automatic start requires a scheduled start")
+	}
+	if msg.GetRegistrationClosesAtMs() > 0 && msg.GetScheduledStartAtMs() > 0 && msg.GetRegistrationClosesAtMs() > msg.GetScheduledStartAtMs() {
+		return nil, apperr.InvalidArgument("registration must close before start")
+	}
+	code, err := newTournamentCode()
+	if err != nil {
+		return nil, apperr.Internal("generate tournament code")
+	}
 
 	now := time.Now().UTC().UnixMilli()
 	row := &models.NewTournament{
