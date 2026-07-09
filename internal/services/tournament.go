@@ -366,17 +366,38 @@ func (s *TournamentService) CreateTournament(
 		TeamCap:                msg.GetTeamCap(),
 		Visibility:             visibility,
 		Status:                 repos.TournamentStatusOpen,
+		PublicCode:             code,
+		Description:            strings.TrimSpace(msg.GetDescription()),
+		RulesText:              strings.TrimSpace(msg.GetRulesText()),
+		PrizeText:              strings.TrimSpace(msg.GetPrizeText()),
+		StartMode:              startMode,
+		MinTeams:               msg.GetMinTeams(),
 		CreatedByGuildID:       strings.TrimSpace(msg.GetGuildId()),
 		CreatedByChannelID:     strings.TrimSpace(msg.GetChannelId()),
 		CreatedByDiscordUserID: strings.TrimSpace(msg.GetCreatedByDiscordUserId()),
 		HubMessageID:           nil,
 		FilledAt:               nil,
-		AutoStartAt:            nil,
-		StartedAt:              nil,
-		CompletedAt:            nil,
-		WinnerEntryID:          nil,
-		CreatedAt:              now,
-		UpdatedAt:              now,
+		AutoStartAt: func() *int64 {
+			if startMode == "automatic" {
+				v := msg.GetScheduledStartAtMs()
+				return &v
+			}
+			return nil
+		}(),
+		StartedAt:     nil,
+		CompletedAt:   nil,
+		WinnerEntryID: nil,
+		CreatedAt:     now,
+		UpdatedAt:     now,
+	}
+	if row.MinTeams == 0 {
+		row.MinTeams = 2
+	}
+	if v := msg.GetRegistrationClosesAtMs(); v > 0 {
+		row.RegistrationClosesAt = &v
+	}
+	if v := msg.GetScheduledStartAtMs(); v > 0 {
+		row.ScheduledStartAt = &v
 	}
 
 	saved, err := s.tourn.Create(ctx, row)
