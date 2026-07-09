@@ -105,14 +105,16 @@ func run() error {
 		slog.Info("stats.cc api disabled (STATS_CC_API_KEY unset); using HTML scraper only")
 	}
 
+	batchSize := int(cfg.StatsCCProfileBatchSize)
 	statsClient := fetch.NewStatsClientFromOptions(fetch.ClientOptions{
-		APIKey:            cfg.StatsCCAPIKey,
-		APIBaseURL:        cfg.StatsCCAPIBaseURL,
-		ScraperBaseURL:    "https://stats.cc",
-		ScrapeFn:          scrape.ScrapeHTMLStatsCollection,
-		ConfigCache:       statsConfigCache,
-		ProfileBatchSize:  int(cfg.StatsCCProfileBatchSize),
-		ProfileBatchDelay: time.Duration(cfg.StatsCCProfileBatchDelayMS) * time.Millisecond,
+		APIKey:              cfg.StatsCCAPIKey,
+		APIBaseURL:          cfg.StatsCCAPIBaseURL,
+		ScraperBaseURL:      "https://stats.cc",
+		ScrapeFn:            scrape.ScrapeHTMLStatsCollection,
+		ConfigCache:         statsConfigCache,
+		ProfileBatchSize:    batchSize,
+		ProfileBatchDelay:   time.Duration(cfg.StatsCCProfileBatchDelayMS) * time.Millisecond,
+		DisableProfileBatch: batchSize == 0,
 	})
 
 	registry := backends.NewStatsBackendRegistry()

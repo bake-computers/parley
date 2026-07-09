@@ -69,13 +69,15 @@ func Load() (*Config, error) {
 		StatsCCAPIKey:           os.Getenv("STATS_CC_API_KEY"),
 		StatsCCAPIBaseURL:       getenv("STATS_CC_API_BASE_URL", "https://r6.stats.cc"),
 		StatsCCConfigCacheTTLMS: readUint64("STATS_CC_CONFIG_CACHE_TTL_MS", 420_000),
-		StatsCCProfileBatchSize: clampUint64(readUint64("STATS_CC_PROFILE_BATCH_SIZE", 10), 1, 10),
+		// 0 disables batching (direct GET only); 1–10 is the stats.cc batch limit.
+		StatsCCProfileBatchSize: clampUint64(readUint64("STATS_CC_PROFILE_BATCH_SIZE", 10), 0, 10),
 		// Keep the default coalescing window small: the stats fetch path issues one
 		// GetProfile per request, so a large delay would add that latency to every
 		// lookup (the size-based flush never triggers for a single request). 25ms is
 		// enough to coalesce concurrent bursts (e.g. team/leaderboard fanout) without
-		// a noticeable per-request regression.
-		StatsCCProfileBatchDelayMS: readMinUint64("STATS_CC_PROFILE_BATCH_DELAY_MS", 25, 1),
+		// a noticeable per-request regression. Cap at 2s so a bad env value can't
+		// self-DoS profile lookups.
+		StatsCCProfileBatchDelayMS: clampUint64(readMinUint64("STATS_CC_PROFILE_BATCH_DELAY_MS", 25, 1), 1, 2000),
 
 		AxiomToken:   os.Getenv("AXIOM_TOKEN"),
 		AxiomDataset: getenv("AXIOM_DATASET", "parley"),

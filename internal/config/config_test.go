@@ -167,17 +167,32 @@ func TestLoad_statsCCProfileBatchClamps(t *testing.T) {
 		t.Errorf("StatsCCProfileBatchDelayMS = %d, want 25", cfg.StatsCCProfileBatchDelayMS)
 	}
 
+	// 0 disables batching; delay floor is 1ms.
 	t.Setenv("STATS_CC_PROFILE_BATCH_SIZE", "0")
 	t.Setenv("STATS_CC_PROFILE_BATCH_DELAY_MS", "1")
 	cfg, err = config.Load()
 	if err != nil {
 		t.Fatalf("Load() error = %v", err)
 	}
-	if cfg.StatsCCProfileBatchSize != 1 {
-		t.Errorf("StatsCCProfileBatchSize = %d, want 1", cfg.StatsCCProfileBatchSize)
+	if cfg.StatsCCProfileBatchSize != 0 {
+		t.Errorf("StatsCCProfileBatchSize = %d, want 0 (disabled)", cfg.StatsCCProfileBatchSize)
 	}
 	if cfg.StatsCCProfileBatchDelayMS != 1 {
 		t.Errorf("StatsCCProfileBatchDelayMS = %d, want 1", cfg.StatsCCProfileBatchDelayMS)
+	}
+
+	// Delay ceiling avoids self-DoS via env misconfig.
+	t.Setenv("STATS_CC_PROFILE_BATCH_SIZE", "5")
+	t.Setenv("STATS_CC_PROFILE_BATCH_DELAY_MS", "999999")
+	cfg, err = config.Load()
+	if err != nil {
+		t.Fatalf("Load() error = %v", err)
+	}
+	if cfg.StatsCCProfileBatchSize != 5 {
+		t.Errorf("StatsCCProfileBatchSize = %d, want 5", cfg.StatsCCProfileBatchSize)
+	}
+	if cfg.StatsCCProfileBatchDelayMS != 2000 {
+		t.Errorf("StatsCCProfileBatchDelayMS = %d, want 2000", cfg.StatsCCProfileBatchDelayMS)
 	}
 }
 
