@@ -1,0 +1,20 @@
+apps/worker/src/interactions/tournament/slash.ts
+  s_37946ee286d049::t_5737e34a806aa2 6-17,27-47,53-54,56-63,66-72,74-76,80-86,90-96,98-103,105-120
+  s_37946ee286d049::t_8e030b3d057d7d 18-24,49
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "2c99c4c55415bec4efecfb8cc3aae5dd39e39094",
+  "prompts": {},
+  "sessions": {
+    "s_37946ee286d049": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f490d-a02e-7232-b4b8-978e77f52e68",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
