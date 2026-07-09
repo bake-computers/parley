@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { hashEntries, shouldBroadcast } from "../hash.js";
+import { hashEntries, shouldBroadcast } from "#/hash.js";
 
 describe("hash", () => {
   test("hashEntries is stable for identical payloads", async () => {

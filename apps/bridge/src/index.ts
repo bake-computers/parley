@@ -1,15 +1,15 @@
 import { axiomMiddleware, type AxiomVariables } from "@parley/axiom";
 import { Hono } from "hono";
-import { GlobalLeaderboard } from "./do/global-leaderboard.js";
-import { matchHandler } from "./routes/match.js";
+import { GlobalLeaderboard } from "#/do/global-leaderboard.js";
+import { matchHandler } from "#/routes/match.js";
 import {
   checkConnectionRateLimit,
   corsHeaders,
   isOriginAllowed,
   parseAllowedOrigins,
-} from "./security.js";
-import type { Env } from "./types.js";
-import { metricToDoId, parseMetric } from "./types.js";
+} from "#/security.js";
+import type { Env } from "#/types.js";
+import { metricToDoId, parseMetric } from "#/types.js";
 
 export { GlobalLeaderboard };
 
