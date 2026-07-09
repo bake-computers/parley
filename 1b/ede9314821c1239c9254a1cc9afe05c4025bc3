@@ -1,0 +1,20 @@
+gen/parley/tournament/v1/tournamentv1connect/tournament.connect.go
+  s_37946ee286d049::t_7c52f40dd8d90c 42-44,72,105-110,160,180-184,225,254-259,308-309,341-342
+  s_37946ee286d049::t_7be12c8d968973 343-344
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "1bede9314821c1239c9254a1cc9afe05c4025bc3",
+  "prompts": {},
+  "sessions": {
+    "s_37946ee286d049": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f490d-a02e-7232-b4b8-978e77f52e68",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
