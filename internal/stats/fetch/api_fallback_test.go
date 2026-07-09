@@ -263,6 +263,57 @@ func TestResolveAPIProfileAuto_SearchesSequentially(t *testing.T) {
 	}
 }
 
+func TestResolveAPIProfileAuto_ContinuesAfterPlatformError(t *testing.T) {
+	var pcHits, xboxHits int32
+	profileID := "b833121d-9b81-457d-91ef-41ff9d1a9e30"
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/v2/profiles/search", func(w http.ResponseWriter, r *http.Request) {
+		switch r.URL.Query().Get("platform") {
+		case "pc":
+			atomic.AddInt32(&pcHits, 1)
+			http.Error(w, "pc search down", http.StatusInternalServerError)
+		case "xbox":
+			atomic.AddInt32(&xboxHits, 1)
+			http.ServeFile(w, r, "../api/testdata/search.json")
+		default:
+			_, _ = w.Write([]byte("[]"))
+		}
+	})
+	mux.HandleFunc("/v2/config", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "../api/testdata/config.json")
+	})
+	mux.HandleFunc("/v2/profiles/batch", func(w http.ResponseWriter, _ *http.Request) {
+		writeProfileFixtureBatch(t, w)
+	})
+	mux.HandleFunc("/v2/profiles/"+profileID+"/matches", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "../api/testdata/matches.json")
+	})
+
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+
+	cache := api.NewConfigCache(nil, 0)
+	client := NewStatsClientFromOptions(ClientOptions{
+		APIKey:            "test-key",
+		APIBaseURL:        srv.URL,
+		ScraperBaseURL:    srv.URL,
+		ScrapeFn:          nuxtScrape,
+		ConfigCache:       cache,
+		ProfileBatchDelay: time.Millisecond,
+	}).WithRetry(NoRetryPolicy())
+
+	if _, err := client.FetchStatsCollection(context.Background(), "Avqny", StatsPlatformAuto); err != nil {
+		t.Fatalf("FetchStatsCollection: %v", err)
+	}
+	if atomic.LoadInt32(&pcHits) != 1 {
+		t.Fatalf("pc search hits = %d, want 1", pcHits)
+	}
+	if atomic.LoadInt32(&xboxHits) != 1 {
+		t.Fatalf("xbox search hits = %d, want 1", xboxHits)
+	}
+}
+
 func writeProfileFixtureBatch(t *testing.T, w http.ResponseWriter) {
 	t.Helper()
 	raw, err := os.ReadFile("../api/testdata/profile.json")

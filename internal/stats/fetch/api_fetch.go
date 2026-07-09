@@ -82,14 +82,25 @@ func (c *StatsClient) resolveAPIProfile(ctx context.Context, username string, pl
 	expected := normalizeDisplayName(username)
 	order := platformSearchOrder(platform)
 
+	// Walk platforms sequentially. On Auto (multi-platform order) a transient
+	// failure on one platform must not abort the whole resolve — keep going and
+	// only surface lastErr if nothing matched.
+	var lastErr error
 	for _, p := range order {
+		if err := ctx.Err(); err != nil {
+			return nil, err
+		}
 		target, err := c.searchAPIOne(ctx, username, p, expected)
 		if err != nil {
-			return nil, err
+			lastErr = err
+			continue
 		}
 		if target != nil {
 			return target, nil
 		}
+	}
+	if lastErr != nil {
+		return nil, lastErr
 	}
 	return nil, NewStatsFetchError(StatsFetchErrorProfileNotFound, "Could not resolve profile target", false)
 }
