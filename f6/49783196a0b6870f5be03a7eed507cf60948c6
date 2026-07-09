@@ -1,0 +1,19 @@
+internal/db/db_test.go
+  s_37946ee286d049::t_8f4ca696a213bc 28-29
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "f649783196a0b6870f5be03a7eed507cf60948c6",
+  "prompts": {},
+  "sessions": {
+    "s_37946ee286d049": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f490d-a02e-7232-b4b8-978e77f52e68",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
