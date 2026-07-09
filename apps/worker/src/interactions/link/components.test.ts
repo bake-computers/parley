@@ -4,8 +4,8 @@ import { ComponentType, InteractionResponseType } from "discord-api-types/v10";
 import type { Fetcher } from "@cloudflare/workers-types";
 import { ok, type Result } from "neverthrow";
 import { parseCustomId, type DiscordApiError, type JsonValue } from "@parley/runtime";
-import { resolveEngineTransport } from "#/engine-transport.js";
-import { COMPONENTS_V2_EPHEMERAL, editReplyV2, replyV2, updateV2 } from "#/ui/discord.js";
+import { resolveEngineTransport } from "#/engine-transport";
+import { COMPONENTS_V2_EPHEMERAL, editReplyV2, replyV2, updateV2 } from "#/ui/discord";
 import {
   buildLinkHubCard,
   buildConfirmCard,
@@ -14,15 +14,15 @@ import {
   buildReadyToPlayCard,
   buildSuccessCard,
   buildUnlinkCooldownCard,
-} from "#/interactions/link/ui.js";
+} from "#/interactions/link/ui";
 import {
   CONFIRM_ACTION_CONTINUE,
   PLATFORM_SELECT_CUSTOM_ID,
   UNLINK_SELECT_CUSTOM_ID,
   confirmSelectCustomId,
   usernameModalCustomId,
-} from "#/interactions/link/constants.js";
-import { buildUsernameModal } from "#/interactions/link/modal.js";
+} from "#/interactions/link/constants";
+import { buildUsernameModal } from "#/interactions/link/modal";
 
 const EMPTY_EMOJIS = {};
 

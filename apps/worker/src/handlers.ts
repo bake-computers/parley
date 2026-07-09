@@ -1,17 +1,17 @@
-import { helpCommand } from "#/interactions/help.js";
-import { historyCommand } from "#/interactions/history/slash.js";
+import { helpCommand } from "#/interactions/help";
+import { historyCommand } from "#/interactions/history/slash";
 import {
   linkSelectHandler,
   linkSlashCommand,
   usernameModalHandler,
-} from "#/interactions/link/index.js";
-import { pingCommand } from "#/interactions/ping.js";
-import { profileCommand } from "#/interactions/profile.js";
+} from "#/interactions/link/index";
+import { pingCommand } from "#/interactions/ping";
+import { profileCommand } from "#/interactions/profile";
 import {
   userButtonHandler,
   userModalHandler,
   userSlashCommand,
-} from "#/interactions/user/index.js";
+} from "#/interactions/user/index";
 
 export const workerHandlers = [
   helpCommand,

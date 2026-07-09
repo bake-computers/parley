@@ -7,7 +7,7 @@ import {
 import { configureLogSink, resetLogSink, type DiscordRuntimeEnv } from "@parley/runtime";
 import type { Fetcher, KVNamespace } from "@cloudflare/workers-types";
 import { Hono } from "hono";
-import { createApp } from "#/app.js";
+import { createApp } from "#/app";
 
 type Bindings = DiscordRuntimeEnv &
   AxiomEnv & {

@@ -1,6 +1,6 @@
-import { UI_TOKENS } from "#/ui/tokens.js";
+import { UI_TOKENS } from "#/ui/tokens";
 
-export { ACCEPT_BUTTON as USER_ACCEPT_BUTTON } from "#/interactions/_shared/acceptance.js";
+export { ACCEPT_BUTTON as USER_ACCEPT_BUTTON } from "#/interactions/_shared/acceptance";
 export const USER_MATCHMAKING_PREFIX = "user/matchmaking/";
 export const USER_VISIBILITY_PREFIX = "user/visibility/";
 export const USER_TIMEZONE_PREFIX = "user/timezone/";

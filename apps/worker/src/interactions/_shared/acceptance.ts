@@ -11,9 +11,9 @@ import {
   type ModalInteraction,
 } from "@parley/runtime";
 import type { UserSettingsResponse, UserSettings as ProtoUserSettings } from "@parley/proto";
-import { getUserSettingsClient } from "#/transport.js";
-import { UI_TOKENS } from "#/ui/tokens.js";
-import { COMPONENTS_V2_EPHEMERAL } from "#/ui/discord.js";
+import { getUserSettingsClient } from "#/transport";
+import { UI_TOKENS } from "#/ui/tokens";
+import { COMPONENTS_V2_EPHEMERAL } from "#/ui/discord";
 
 export const ACCEPT_BUTTON = "user/accept-terms";
 

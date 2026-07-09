@@ -9,12 +9,12 @@ import type { LinkedIdentity } from "@parley/proto";
 import type { LookupByDiscordResponse } from "@parley/proto";
 import { ConnectError } from "@connectrpc/connect";
 import { err, ok, type Result } from "neverthrow";
-import { assertAccepted } from "#/interactions/_shared/acceptance.js";
-import { getIdentityClient, type EngineTransportEnv } from "#/transport.js";
-import { editReplyV2 } from "#/ui/discord.js";
-import { resolveEmojis } from "#/ui/emojis.js";
-import { formatParleyRankLine } from "#/ui/parley-rank.js";
-import { UI_TOKENS } from "#/ui/tokens.js";
+import { assertAccepted } from "#/interactions/_shared/acceptance";
+import { getIdentityClient, type EngineTransportEnv } from "#/transport";
+import { editReplyV2 } from "#/ui/discord";
+import { resolveEmojis } from "#/ui/emojis";
+import { formatParleyRankLine } from "#/ui/parley-rank";
+import { UI_TOKENS } from "#/ui/tokens";
 import type { ApplicationEmojiCatalog } from "@parley/runtime";
 
 const GAME_NAMES: Record<number, string> = {

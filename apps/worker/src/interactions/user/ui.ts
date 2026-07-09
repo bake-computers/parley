@@ -23,7 +23,7 @@ import {
   USER_TIMEZONES_PER_PAGE,
   USER_TZ_PAGE_PREFIX,
   USER_VISIBILITY_PREFIX,
-} from "#/interactions/user/constants.js";
+} from "#/interactions/user/constants";
 import type { UserSettings as ProtoUserSettings, AnonymizationCounts } from "@parley/proto";
 
 const SEPARATOR_SPACING_SMALL = 1;

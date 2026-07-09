@@ -1,10 +1,10 @@
 import { createAxiomLogger } from "@parley/axiom";
 import { DurableObject } from "cloudflare:workers";
-import { fetchLeaderboard } from "#/engine.js";
-import { resolveEngineTransport } from "#/engine-transport.js";
-import { hashEntries, shouldBroadcast } from "#/hash.js";
-import type { Env, LeaderboardMetric, LeaderboardSnapshot, WireMessage } from "#/types.js";
-import { emptySnapshot, parseMetric, toWireMessage } from "#/types.js";
+import { fetchLeaderboard } from "#/engine";
+import { resolveEngineTransport } from "#/engine-transport";
+import { hashEntries, shouldBroadcast } from "#/hash";
+import type { Env, LeaderboardMetric, LeaderboardSnapshot, WireMessage } from "#/types";
+import { emptySnapshot, parseMetric, toWireMessage } from "#/types";
 
 const SNAPSHOT_KEY = "snapshot";
 const DEFAULT_POLL_MS = 60_000;

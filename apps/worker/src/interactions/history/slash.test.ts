@@ -20,7 +20,7 @@ mock.module("../../ui/discord.js", () => ({
   editReplyV2: editReplyV2Spy,
 }));
 
-const { historyCommand } = await import("#/interactions/history/slash.js");
+const { historyCommand } = await import("#/interactions/history/slash");
 
 // Helpers
 function makeMockInteraction(guildId?: string) {

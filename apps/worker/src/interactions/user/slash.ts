@@ -1,10 +1,10 @@
 import { SlashCommand, type ChatInputCommandInteraction } from "@parley/runtime";
-import { assertAccepted } from "#/interactions/_shared/acceptance.js";
-import { editReplyV2 } from "#/ui/discord.js";
-import { resolveEmojis } from "#/ui/emojis.js";
-import { getUserSettingsClient, type EngineTransportEnv } from "#/transport.js";
-import { invokeGetUserSettings } from "#/interactions/user/rpc.js";
-import { buildErrorCard, buildSettingsCard } from "#/interactions/user/ui.js";
+import { assertAccepted } from "#/interactions/_shared/acceptance";
+import { editReplyV2 } from "#/ui/discord";
+import { resolveEmojis } from "#/ui/emojis";
+import { getUserSettingsClient, type EngineTransportEnv } from "#/transport";
+import { invokeGetUserSettings } from "#/interactions/user/rpc";
+import { buildErrorCard, buildSettingsCard } from "#/interactions/user/ui";
 
 export const userSlashCommand = new SlashCommand()
   .setName("user")

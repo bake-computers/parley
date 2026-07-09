@@ -4,7 +4,7 @@ import {
   isOriginAllowed,
   parseAllowedOrigins,
   resetConnectionRateLimits,
-} from "#/security.js";
+} from "#/security";
 
 describe("security", () => {
   test("parseAllowedOrigins splits and trims", () => {

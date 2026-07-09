@@ -9,8 +9,8 @@ import {
   setLogSinkForTests,
   type AnyHandler,
 } from "@parley/runtime";
-import { createApp } from "#/app.js";
-import { workerHandlers } from "#/handlers.js";
+import { createApp } from "#/app";
+import { workerHandlers } from "#/handlers";
 
 function registryKeys(handler: ReturnType<typeof flattenHandlers>[number]): string[] {
   if (isSlashCommandHandler(handler) || isContextCommandHandler(handler)) {

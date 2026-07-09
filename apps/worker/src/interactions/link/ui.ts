@@ -1,6 +1,6 @@
 import type { LinkedIdentity } from "@parley/proto";
 import type { FetchStatsResponse, ScrapedStats } from "@parley/proto/stats/v1/stats_pb.js";
-import { formatParleyRankLine } from "#/ui/parley-rank.js";
+import { formatParleyRankLine } from "#/ui/parley-rank";
 import {
   ActionRowBuilder,
   ContainerBuilder,
@@ -28,7 +28,7 @@ import {
   normalizePlatform,
   platformLabel,
   type Platform,
-} from "#/interactions/link/constants.js";
+} from "#/interactions/link/constants";
 
 const SEPARATOR_SPACING_SMALL = 1;
 

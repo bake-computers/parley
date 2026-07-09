@@ -1,6 +1,6 @@
 import { LeaderboardType } from "@parley/proto/leaderboard/v1/leaderboard_pb.js";
-import type { EngineFetch } from "#/engine-transport.js";
-import type { LeaderboardMetric, WireEntry } from "#/types.js";
+import type { EngineFetch } from "#/engine-transport";
+import type { LeaderboardMetric, WireEntry } from "#/types";
 
 const GAME_R6 = 1;
 const LEADERBOARD_LIMIT = 100;
