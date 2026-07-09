@@ -264,6 +264,12 @@ func (s *TournamentService) buildTournamentProto(
 		WinnerTeamId:           winner,
 		CreatedAtMs:            tournament.CreatedAt,
 		UpdatedAtMs:            tournament.UpdatedAt,
+		PublicCode:             tournament.PublicCode,
+		Description:            tournament.Description,
+		RulesText:              tournament.RulesText,
+		PrizeText:              tournament.PrizeText,
+		StartMode:              tournament.StartMode,
+		MinTeams:               tournament.MinTeams,
 		Teams:                  protoTeams,
 		BracketMatches:         protoBrackets,
 	}, nil
