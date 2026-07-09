@@ -81,8 +81,9 @@ app.get("/ws", async (c) => {
   }
 
   const ip = c.req.header("CF-Connecting-IP") ?? "unknown";
+  const axiom = c.get("axiom");
   if (!checkConnectionRateLimit(ip)) {
-    c.var.axiom.logWs({
+    axiom.logWs({
       action: "rate_limited",
       metric,
       client_ip: ip,
@@ -90,7 +91,7 @@ app.get("/ws", async (c) => {
     return c.text("Too Many Requests", 429);
   }
 
-  c.var.axiom.logWs({
+  axiom.logWs({
     action: "connect",
     metric,
     client_ip: ip,
