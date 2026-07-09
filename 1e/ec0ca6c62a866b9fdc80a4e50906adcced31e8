@@ -1,0 +1,18 @@
+apps/landing/src/lib/content/messages/types.ts
+  h_93d17961f46f35 27
+apps/landing/src/lib/content/messages/en.ts
+  h_93d17961f46f35 29,133,142,151
+apps/landing/src/components/Footer.tsx
+  h_93d17961f46f35 10,50-52
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "1eec0ca6c62a866b9fdc80a4e50906adcced31e8",
+  "prompts": {},
+  "humans": {
+    "h_93d17961f46f35": {
+      "author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
