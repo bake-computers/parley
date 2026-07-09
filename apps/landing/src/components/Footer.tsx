@@ -4,7 +4,11 @@ import { siteHref, type SitePath } from "#/lib/content/paths";
 import { useMessages } from "#/lib/content/messages/use-messages";
 
 const poweredBy = [
-  { name: "stats.cc", href: "https://stats.cc", icon: "https://stats.cc/favicon.ico" },
+  {
+    name: "stats.cc",
+    href: "https://stats.cc",
+    icon: "https://stats.cc/favicon.ico",
+  },
 ];
 
 export function SiteFooter() {
@@ -19,7 +23,10 @@ export function SiteFooter() {
 
   return (
     <footer className="px-6 pb-12 pt-8">
-      <Reveal direction="up" className="mx-auto w-full max-w-6xl border-t border-border/30 pt-8">
+      <Reveal
+        direction="up"
+        className="mx-auto w-full max-w-6xl border-t border-border/30 pt-8"
+      >
         <div className="flex flex-col gap-6">
           <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
             <div className="flex items-center gap-3">
@@ -31,9 +38,18 @@ export function SiteFooter() {
                 className="size-7"
               />
               <div>
-                <p className="text-sm font-semibold text-foreground">{m.nav.brand}</p>
-                <p className="text-xs text-muted-foreground">{m.footer.notUbisoft}</p>
-                <p className="text-xs text-muted-foreground">{m.footer.notDiscord}</p>
+                <p className="text-sm font-semibold text-foreground">
+                  {m.nav.brand}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {m.footer.notUbisoft}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {m.footer.notDiscord}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {m.footer.projectOf}
+                </p>
               </div>
             </div>
 
@@ -75,7 +91,9 @@ export function SiteFooter() {
             ))}
           </div>
 
-          <p className="text-xs text-muted-foreground/60">© {new Date().getFullYear()} Parley</p>
+          <p className="text-xs text-muted-foreground/60">
+            © {new Date().getFullYear()} Parley
+          </p>
         </div>
       </Reveal>
     </footer>

@@ -24,6 +24,7 @@ export type Messages = {
     poweredBy: string;
     notUbisoft: string;
     notDiscord: string;
+    projectOf: string;
   };
   notFound: {
     label: string;
