@@ -1,0 +1,20 @@
+internal/services/tournament.go
+  s_37946ee286d049::t_bfeb85c42c176f 335
+  s_37946ee286d049::t_100087cc699653 336-358
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "e9b4fe605a741fc93ec81c17b65abd129674deec",
+  "prompts": {},
+  "sessions": {
+    "s_37946ee286d049": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f490d-a02e-7232-b4b8-978e77f52e68",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
