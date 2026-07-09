@@ -1,8 +1,10 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
+import { cacheClearMemoryForTests } from "./discord-cache.js";
 import {
   buildDiscordAuthorizeUrl,
   cookieUsesSecure,
   DISCORD_OAUTH_SCOPES,
+  primeSessionGuildsCache,
   resolveSessionGuilds,
   sealOAuthState,
   sealSession,
@@ -69,6 +71,7 @@ describe("discord oauth", () => {
 describe("resolveSessionGuilds", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
+    cacheClearMemoryForTests();
   });
 
   test("falls back to legacy cookie guilds when Discord API fails", async () => {
@@ -94,5 +97,52 @@ describe("resolveSessionGuilds", () => {
     expect(guilds).toEqual([
       { id: "99", name: "Legacy", icon: null, owner: true, permissions: "8" },
     ]);
+  });
+
+  test("serves primed cache without hitting Discord", async () => {
+    const fetchMock = vi.fn(async () => new Response("should-not-call", { status: 500 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await primeSessionGuildsCache("user-1", [
+      { id: "g1", name: "Cached", icon: null, owner: true, permissions: "8" },
+    ]);
+
+    const session: CookieSession = {
+      user: {
+        id: "user-1",
+        username: "u",
+        global_name: null,
+        avatar: null,
+        discriminator: "0",
+      },
+      accessToken: "tok",
+      expiresAtMs: Date.now() + 60_000,
+    };
+
+    const guilds = await resolveSessionGuilds(session);
+    expect(guilds).toEqual([
+      { id: "g1", name: "Cached", icon: null, owner: true, permissions: "8" },
+    ]);
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  test("does not retry on 401", async () => {
+    const fetchMock = vi.fn(async () => new Response("nope", { status: 401 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const session: CookieSession = {
+      user: {
+        id: "user-401",
+        username: "u",
+        global_name: null,
+        avatar: null,
+        discriminator: "0",
+      },
+      accessToken: "bad",
+      expiresAtMs: Date.now() + 60_000,
+    };
+
+    await expect(resolveSessionGuilds(session)).resolves.toEqual([]);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 });

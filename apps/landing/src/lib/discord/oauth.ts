@@ -1,3 +1,10 @@
+import {
+  cacheGetJson,
+  cachePutJson,
+  USER_GUILDS_TTL_SEC,
+  userGuildsCacheKey,
+} from "./discord-cache.js";
+
 export const DISCORD_OAUTH_SCOPES = ["identify", "guilds"] as const;
 
 const DISCORD_AUTHORIZE = "https://discord.com/oauth2/authorize";
@@ -138,10 +145,15 @@ export async function fetchDiscordGuilds(accessToken: string): Promise<DiscordOA
   return (await res.json()) as DiscordOAuthGuild[];
 }
 
+/** Retry only on network / 5xx — not on 401/403. */
 async function fetchDiscordGuildsResilient(accessToken: string): Promise<DiscordOAuthGuild[]> {
   try {
     return await fetchDiscordGuilds(accessToken);
-  } catch {
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "";
+    if (msg.includes("(401)") || msg.includes("(403)") || msg.includes("(400)")) {
+      throw e;
+    }
     return await fetchDiscordGuilds(accessToken);
   }
 }
@@ -327,25 +339,63 @@ export function toPublicSession(session: CookieSession, guilds: PublicGuild[]) {
   };
 }
 
-export async function resolveSessionGuilds(session: CookieSession): Promise<CookieGuild[]> {
-  if (session.accessToken) {
-    try {
-      const guilds = await fetchDiscordGuildsResilient(session.accessToken);
-      return cookieGuildsFromOAuth(guilds);
-    } catch {
-      if (session.guilds?.length) {
-        return session.guilds.map((g) => ({
-          ...g,
-          permissions: typeof g.permissions === "string" ? g.permissions : String(1n << 5n),
-        }));
-      }
-      return [];
-    }
-  }
-  return (session.guilds ?? []).map((g) => ({
+function normalizeCookieGuilds(guilds: CookieGuild[]): CookieGuild[] {
+  return guilds.map((g) => ({
     ...g,
     permissions: typeof g.permissions === "string" ? g.permissions : String(1n << 5n),
   }));
+}
+
+const userGuildsInflight = new Map<string, Promise<CookieGuild[]>>();
+
+/** Warm the guild list cache (e.g. right after OAuth login). */
+export async function primeSessionGuildsCache(
+  userId: string,
+  guilds: CookieGuild[],
+): Promise<void> {
+  await cachePutJson(
+    userGuildsCacheKey(userId),
+    normalizeCookieGuilds(guilds),
+    USER_GUILDS_TTL_SEC,
+  );
+}
+
+export async function resolveSessionGuilds(session: CookieSession): Promise<CookieGuild[]> {
+  if (!session.accessToken) {
+    return normalizeCookieGuilds(session.guilds ?? []);
+  }
+
+  const userId = session.user.id;
+  const cacheKey = userGuildsCacheKey(userId);
+  const cached = await cacheGetJson<CookieGuild[]>(cacheKey);
+  if (cached) {
+    return normalizeCookieGuilds(cached);
+  }
+
+  const pending = userGuildsInflight.get(userId);
+  if (pending) {
+    return pending;
+  }
+
+  const load = (async (): Promise<CookieGuild[]> => {
+    try {
+      const guilds = cookieGuildsFromOAuth(
+        await fetchDiscordGuildsResilient(session.accessToken!),
+      );
+      await cachePutJson(cacheKey, guilds, USER_GUILDS_TTL_SEC);
+      return guilds;
+    } catch {
+      if (session.guilds?.length) {
+        return normalizeCookieGuilds(session.guilds);
+      }
+      return [];
+    } finally {
+      userGuildsInflight.delete(userId);
+    }
+  })();
+
+  userGuildsInflight.set(userId, load);
+  return load;
 }
 
 export function cookieGuildsFromOAuth(guilds: DiscordOAuthGuild[]): CookieGuild[] {
