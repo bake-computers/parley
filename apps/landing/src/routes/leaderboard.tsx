@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { LeaderboardPage } from "#/components/LeaderboardPage";
+import { publicCache } from "#/lib/http-cache";
 
 const META = {
   title: "Global Leaderboard — Parley",
@@ -8,6 +9,8 @@ const META = {
 } as const;
 
 export const Route = createFileRoute("/leaderboard")({
+  // SSR shell only; live data is client-streamed. Short edge TTL.
+  headers: () => publicCache(30, 120, "page:leaderboard"),
   head: () => ({
     meta: [
       { title: META.title },

@@ -1,6 +1,7 @@
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { AuthLoginPage } from "#/components/auth/AuthLoginPage";
 import { useAuthMe } from "#/hooks/useAuthMe";
+import { privateNoStore } from "#/lib/http-cache";
 import { getTurnstileSiteKey } from "#/lib/turnstile-server";
 
 type LoginSearch = {
@@ -20,6 +21,7 @@ export const Route = createFileRoute("/auth/login")({
     redirect: typeof search.redirect === "string" ? search.redirect : undefined,
     error: typeof search.error === "string" ? search.error : undefined,
   }),
+  headers: () => privateNoStore,
   loader: async () => ({
     turnstileSiteKey: await getTurnstileSiteKey(),
   }),

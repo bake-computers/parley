@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { MatchDetailPage } from "#/components/MatchDetailPage";
 import { NotFound } from "#/components/NotFound";
+import { publicCache } from "#/lib/http-cache";
 import { getMatchForRoute } from "#/lib/match/server";
 
 export const Route = createFileRoute("/match/$guildId/$uuid")({
@@ -10,6 +11,7 @@ export const Route = createFileRoute("/match/$guildId/$uuid")({
     });
     return { match };
   },
+  headers: ({ params }) => publicCache(60, 600, `page:match,match:${params.uuid}`),
   head: () => ({
     meta: [
       { name: "robots", content: "index,follow" },

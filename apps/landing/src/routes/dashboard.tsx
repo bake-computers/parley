@@ -10,9 +10,11 @@ import { useAuthMe, type AuthMeGuild } from "#/hooks/useAuthMe";
 import { prefetchGuildSettings } from "#/lib/dashboard/guild-settings-cache";
 import { partitionDashboardGuilds } from "#/lib/discord/guild-dashboard";
 import { discordAvatarUrl } from "#/lib/discord/oauth";
+import { privateNoStore } from "#/lib/http-cache";
 import { cn } from "#/lib/shared/cn";
 
 export const Route = createFileRoute("/dashboard")({
+  headers: () => privateNoStore,
   component: DashboardPage,
 });
 

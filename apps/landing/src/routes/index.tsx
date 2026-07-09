@@ -5,6 +5,7 @@ import { Hero } from "#/components/Hero";
 import { SiteFooter } from "#/components/Footer";
 import { PageSection, PageSections } from "#/components/ui/page-section";
 import { SectionSkeleton } from "#/components/ui/skeleton";
+import { publicCache } from "#/lib/http-cache";
 
 const Problem = lazy(() => import("#/components/Problem").then((m) => ({ default: m.Problem })));
 const OurStory = lazy(() => import("#/components/OurStory").then((m) => ({ default: m.OurStory })));
@@ -19,7 +20,11 @@ const DiscordCta = lazy(() =>
 );
 const Faq = lazy(() => import("#/components/Faq").then((m) => ({ default: m.Faq })));
 
-export const Route = createFileRoute("/")({ component: Home });
+export const Route = createFileRoute("/")({
+  // Marketing shell changes rarely; SWR keeps hits after max-age.
+  headers: () => publicCache(300, 3600, "page:home"),
+  component: Home,
+});
 
 function Home() {
   return (
