@@ -84,15 +84,15 @@ Parley divides into four logical tiers:
 
 Protobuf definitions are the canonical API surface. Seven services are defined:
 
-| Service                | Responsibility                                                              |
-| ---------------------- | --------------------------------------------------------------------------- |
-| `IdentityService`      | Link, unlink, and resolve Discord-to-player mappings                        |
-| `StatsService`         | Fetch single-season or full-season-collection player statistics             |
-| `GuildSettingsService` | Per-guild configuration: settings, matchmaking rules, quotas |
-| `UserSettingsService`  | Per-user preferences within a guild context                                 |
-| `MatchmakingService`   | Team building, queue lifecycle, custom matches, result reporting            |
-| `TournamentService`    | Tournament creation, registration, bracket progression                      |
-| `LeaderboardService`   | Guild and global leaderboard queries                                        |
+| Service                | Responsibility                                                   |
+| ---------------------- | ---------------------------------------------------------------- |
+| `IdentityService`      | Link, unlink, and resolve Discord-to-player mappings             |
+| `StatsService`         | Fetch single-season or full-season-collection player statistics  |
+| `GuildSettingsService` | Per-guild configuration: settings, matchmaking rules, quotas     |
+| `UserSettingsService`  | Per-user preferences within a guild context                      |
+| `MatchmakingService`   | Team building, queue lifecycle, custom matches, result reporting |
+| `TournamentService`    | Tournament creation, registration, bracket progression           |
+| `LeaderboardService`   | Guild and global leaderboard queries                             |
 
 Shared types (`Game`, `Rank`, `PlayerStats`, `Badge`, `Region`, `Language`) reside in `common/v1/types.proto`.
 
