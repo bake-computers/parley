@@ -65,11 +65,17 @@ func (s *Service) TryFormMatch(
 	game models.Game,
 	guildID, channelID, createdBy string,
 	teamSize int32,
+	matchmakingRegion int32,
 	elig *EligibilityContext,
 ) (*FormedMatch, error) {
-	stacks, err := s.queue.FindWaitingForPool(ctx, game, guildID, teamSize)
+	stacks, err := s.queue.FindWaitingForPool(ctx, game, guildID, teamSize, matchmakingRegion)
 	if err != nil {
 		return nil, fmt.Errorf("load stacks: %w", err)
+	}
+	for _, stack := range stacks {
+		if !QueueRegionsCompatible(matchmakingRegion, stack.MatchmakingRegion) {
+			return nil, fmt.Errorf("incompatible matchmaking region in pool")
+		}
 	}
 
 	lobbySize := int(teamSize) * 2
@@ -240,6 +246,34 @@ func (s *Service) TryFormMatch(
 	}, nil
 }
 
+// TryFormMatchForQueue attempts each compatible target region for a newly
+// created queue. A global stack considers explicit regions in oldest-waiting
+// order, then the global-only pool; an explicit stack only considers itself.
+func (s *Service) TryFormMatchForQueue(
+	ctx context.Context,
+	game models.Game,
+	guildID, channelID, createdBy string,
+	teamSize int32,
+	queueRegion int32,
+	elig *EligibilityContext,
+) (*FormedMatch, error) {
+	targets := []int32{queueRegion}
+	if queueRegion == GlobalMatchmakingRegion {
+		explicitRegions, err := s.queue.ExplicitRegionsForPool(ctx, game, guildID, teamSize)
+		if err != nil {
+			return nil, fmt.Errorf("list compatible regions: %w", err)
+		}
+		targets = append(explicitRegions, GlobalMatchmakingRegion)
+	}
+	for _, target := range targets {
+		formed, err := s.TryFormMatch(ctx, game, guildID, channelID, createdBy, teamSize, target, elig)
+		if err != nil || formed != nil {
+			return formed, err
+		}
+	}
+	return nil, nil
+}
+
 // CreateStack inserts a new waiting queue row plus its participants.
 // Mirrors create_stack in src/matchmaking/queue.rs.
 func (s *Service) CreateStack(
@@ -247,6 +281,7 @@ func (s *Service) CreateStack(
 	game models.Game,
 	guildID, channelID, captainDiscordUserID string,
 	teamSize int32,
+	matchmakingRegion int32,
 	players []LoadedPlayer,
 ) (*models.MatchmakingQueue, []models.MatchmakingQueueParticipant, error) {
 	now := nowMS()
@@ -273,6 +308,7 @@ func (s *Service) CreateStack(
 		CreatedAt:            now,
 		UpdatedAt:            now,
 		TeamSize:             teamSize,
+		MatchmakingRegion:    matchmakingRegion,
 	}
 
 	parts := make([]models.NewMatchmakingQueueParticipant, 0, len(players))
@@ -301,7 +337,7 @@ func (s *Service) CreateStack(
 }
 
 // SweepPool is the one-shot entry point the background sweeper calls
-// per (game, guild, team_size) tuple. It is a thin wrapper around
+// per (game, guild, team_size, matchmaking_region) tuple. It is a thin wrapper around
 // TryFormMatch and exists for naming parity with the Rust
 // sweep_pool in src/matchmaking/queue.rs.
 func (s *Service) SweepPool(
@@ -309,10 +345,13 @@ func (s *Service) SweepPool(
 	game models.Game,
 	guildID string,
 	teamSize int32,
+	matchmakingRegion int32,
 	channelID, createdBy string,
 	elig *EligibilityContext,
 ) (*FormedMatch, error) {
-	formed, err := s.TryFormMatch(ctx, game, guildID, channelID, createdBy, teamSize, elig)
+	formed, err := s.TryFormMatch(
+		ctx, game, guildID, channelID, createdBy, teamSize, matchmakingRegion, elig,
+	)
 	if err != nil || formed == nil {
 		return formed, err
 	}
