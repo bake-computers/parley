@@ -1,7 +1,11 @@
 import { describe, expect, test } from "bun:test";
 import { ConnectError } from "@connectrpc/connect";
 import type { DeleteUserDataResponse, UserSettingsResponse } from "@parley/proto";
-import { invokeDeleteUserData, invokeGetUserSettings, invokeUpsertUserSettings } from "#/interactions/user/rpc";
+import {
+  invokeDeleteUserData,
+  invokeGetUserSettings,
+  invokeUpsertUserSettings,
+} from "#/interactions/user/rpc";
 
 describe("invokeGetUserSettings", () => {
   test("wraps a successful response in Ok", async () => {

@@ -1,5 +1,10 @@
 import { Game } from "@parley/proto";
-import { ContainerBuilder, SlashCommand, TextDisplayBuilder, type ChatInputCommandInteraction } from "@parley/runtime";
+import {
+  ContainerBuilder,
+  SlashCommand,
+  TextDisplayBuilder,
+  type ChatInputCommandInteraction,
+} from "@parley/runtime";
 import { getTournamentClient, type EngineTransportEnv } from "#/transport";
 import { replyV2 } from "#/ui/discord";
 
@@ -74,7 +79,13 @@ export const tournamentSlashCommand = new SlashCommand()
       try {
         payload = await signedHandoff(interaction);
       } catch {
-        await replyV2(interaction, card("Tournament creation unavailable", "The secure website handoff is not configured yet."));
+        await replyV2(
+          interaction,
+          card(
+            "Tournament creation unavailable",
+            "The secure website handoff is not configured yet.",
+          ),
+        );
         return;
       }
       await replyV2(
@@ -86,7 +97,9 @@ export const tournamentSlashCommand = new SlashCommand()
       );
       return;
     }
-    const code = String(interaction.options.getString("code") ?? "").trim().toUpperCase();
+    const code = String(interaction.options.getString("code") ?? "")
+      .trim()
+      .toUpperCase();
     if (!/^[A-Z2-9]{6}$/u.test(code)) {
       await replyV2(
         interaction,

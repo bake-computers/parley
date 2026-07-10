@@ -105,6 +105,8 @@ export const queueSlashCommand = new SlashCommand()
     await editReplyV2(interaction, await toggleQueue(interaction));
   });
 
-export async function resumeQueueAfterAccept(interaction: MessageComponentInteraction): Promise<void> {
+export async function resumeQueueAfterAccept(
+  interaction: MessageComponentInteraction,
+): Promise<void> {
   await updateV2(interaction, await toggleQueue(interaction));
 }

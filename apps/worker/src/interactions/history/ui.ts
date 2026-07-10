@@ -1,7 +1,10 @@
 import type { Match, MatchParticipant } from "@parley/proto/matchmaking/v1/matchmaking_pb.js";
 import { ContainerBuilder, SeparatorBuilder, TextDisplayBuilder } from "@parley/runtime";
 import { UI_TOKENS } from "#/ui/tokens";
-import { HISTORY_DISCORD_CHARACTER_BUDGET, MATCH_PORTAL_BASE_URL } from "#/interactions/history/constants";
+import {
+  HISTORY_DISCORD_CHARACTER_BUDGET,
+  MATCH_PORTAL_BASE_URL,
+} from "#/interactions/history/constants";
 
 const SEPARATOR_SPACING_SMALL = 1;
 

@@ -37,12 +37,15 @@ describe("queue RPC wrappers", () => {
       leaveQueue: async () => ({ success: true }),
     };
 
-    const status = await invokeGetQueueStatus(client as never, {
-      discordUserId: "user-1",
-      guildId: "guild-1",
-      game: Game.R6,
-      teamSize: 0,
-    } as never);
+    const status = await invokeGetQueueStatus(
+      client as never,
+      {
+        discordUserId: "user-1",
+        guildId: "guild-1",
+        game: Game.R6,
+        teamSize: 0,
+      } as never,
+    );
     expect(status.isErr() && status.error).toBe(original);
 
     const join = await invokeJoinQueue(client as never, joinRequest as never);
@@ -59,11 +62,13 @@ describe("queue RPC wrappers", () => {
       joinQueue: async () => ({ success: true, status: "waiting" }),
       leaveQueue: async () => ({ success: true }),
     };
-    const result = await invokeLeaveQueue(client as never, {
-      captainDiscordUserId: "user-1",
-      game: Game.R6,
-    } as never);
+    const result = await invokeLeaveQueue(
+      client as never,
+      {
+        captainDiscordUserId: "user-1",
+        game: Game.R6,
+      } as never,
+    );
     expect(result.isOk()).toBe(true);
   });
 });
-

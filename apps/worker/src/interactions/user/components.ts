@@ -25,8 +25,17 @@ import {
 import { buildDeleteConfirmModal, USER_DELETE_CONFIRM_INPUT } from "#/interactions/user/modal";
 import { parseAcceptSource, refreshSettingsCache } from "#/interactions/_shared/acceptance";
 import { resumeAfterAccept } from "#/interactions/_shared/resume-after-accept";
-import { buildDeleteResultCard, buildErrorCard, buildInfoCard, buildSettingsCard } from "#/interactions/user/ui";
-import { invokeDeleteUserData, invokeGetUserSettings, invokeUpsertUserSettings } from "#/interactions/user/rpc";
+import {
+  buildDeleteResultCard,
+  buildErrorCard,
+  buildInfoCard,
+  buildSettingsCard,
+} from "#/interactions/user/ui";
+import {
+  invokeDeleteUserData,
+  invokeGetUserSettings,
+  invokeUpsertUserSettings,
+} from "#/interactions/user/rpc";
 const COMPONENT_BUTTON = 2;
 
 function getClient(env: unknown) {
@@ -255,7 +264,10 @@ export const userModalHandler = new ModalHandler(USER_DELETE_MODAL).addHandler(
       const emojis = await resolveEmojis(interaction);
       await editReplyV2(
         interaction,
-        buildErrorCard("Confirmation did not match your Discord username. Your data was not deleted.", emojis),
+        buildErrorCard(
+          "Confirmation did not match your Discord username. Your data was not deleted.",
+          emojis,
+        ),
       );
       return;
     }

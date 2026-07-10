@@ -43,4 +43,3 @@ export function invokeLeaveQueue(
 ): Promise<Result<LeaveQueueResponse, ConnectError>> {
   return wrap(client.leaveQueue(request));
 }
-

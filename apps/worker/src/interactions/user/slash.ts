@@ -10,8 +10,12 @@ import { buildDeleteConfirmModal } from "#/interactions/user/modal";
 export const userSlashCommand = new SlashCommand()
   .setName("user")
   .setDescription("Manage your matchmaking, visibility, timezone, and data")
-  .addSubcommand((subcommand) => subcommand.setName("settings").setDescription("View your settings"))
-  .addSubcommand((subcommand) => subcommand.setName("delete").setDescription("Delete your Parley data"))
+  .addSubcommand((subcommand) =>
+    subcommand.setName("settings").setDescription("View your settings"),
+  )
+  .addSubcommand((subcommand) =>
+    subcommand.setName("delete").setDescription("Delete your Parley data"),
+  )
   .addHandler(async (interaction: ChatInputCommandInteraction) => {
     const subcommand = interaction.options.getSubcommand();
     if (subcommand === "delete") {

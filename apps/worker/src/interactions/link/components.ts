@@ -16,7 +16,11 @@ import {
   isPlatform,
 } from "#/interactions/link/constants";
 import { buildUsernameModal } from "#/interactions/link/modal";
-import { executeFetchStats, executeLinkAccount, executeUnlinkAccount } from "#/interactions/link/rpc";
+import {
+  executeFetchStats,
+  executeLinkAccount,
+  executeUnlinkAccount,
+} from "#/interactions/link/rpc";
 import {
   buildConfirmCard,
   buildErrorCard,
