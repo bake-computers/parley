@@ -1,0 +1,21 @@
+internal/matchmaking/sweeper.go
+  s_2b158745a3f065::t_7cc70cf2bdcd02 35,54-56
+internal/services/match.go
+  s_2b158745a3f065::t_7cc70cf2bdcd02 427-430,432-434,439-441,458,536-547
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.11",
+  "base_commit_sha": "6c4df6a3985dc664c1305629f1b52b15ae26d7f9",
+  "prompts": {},
+  "sessions": {
+    "s_2b158745a3f065": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f4be1-c4aa-77a0-947c-d49327bd15de",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
