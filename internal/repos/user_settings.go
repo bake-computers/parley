@@ -56,7 +56,7 @@ func (r *UserSettingsRepo) Upsert(
 		Set("matchmaking_enabled = EXCLUDED.matchmaking_enabled").
 		Set("terms_accepted_at_ms = EXCLUDED.terms_accepted_at_ms").
 		Set("profile_public = EXCLUDED.profile_public").
-		Set("timezone = EXCLUDED.timezone").
+		Set("matchmaking_region = EXCLUDED.matchmaking_region").
 		Returning("*").
 		Exec(ctx, &out)
 	if err != nil {
