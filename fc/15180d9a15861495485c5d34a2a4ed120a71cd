@@ -1,0 +1,24 @@
+apps/landing/src/lib/tournament/rpc.ts
+  s_d8fa1fc7055075::t_a6229b16282aee 20-23,68,90
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.10",
+  "base_commit_sha": "fc15180d9a15861495485c5d34a2a4ed120a71cd",
+  "prompts": {},
+  "humans": {
+    "h_93d17961f46f35": {
+      "author": "ryzmae <hi@ryzm.cc>"
+    }
+  },
+  "sessions": {
+    "s_d8fa1fc7055075": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f4945-035c-7821-b687-de3fdec68a2f",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
