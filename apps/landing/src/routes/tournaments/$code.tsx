@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Users } from "lucide-react";
+import { useEffect, useState, type FormEvent } from "react";
 import { DashboardLoader } from "#/components/dashboard/DashboardLoader";
 import { TournamentHero, TournamentShell } from "#/components/tournaments";
 import { Button, buttonVariants } from "#/components/ui/button";
@@ -8,23 +9,64 @@ import { Reveal } from "#/components/ui/reveal";
 import { useAuthMe } from "#/hooks/useAuthMe";
 import { cn } from "#/lib/shared/cn";
 
-export const Route = createFileRoute("/tournaments/$code")({
-  component: TournamentPage,
-});
+export const Route = createFileRoute("/tournaments/$code")({ component: TournamentPage });
+
+type Tournament = {
+  id: number;
+  name: string;
+  format: string;
+  status: string;
+  publicCode: string;
+  teamCap: number;
+  createdByDiscordUserId: string;
+  teams: Array<{ id: number; teamName: string; status: string }>;
+};
 
 function TournamentPage() {
   const { code } = Route.useParams();
   const { me } = useAuthMe();
+  const [tournament, setTournament] = useState<Tournament | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [showRegistration, setShowRegistration] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const displayCode = code.toUpperCase();
   const loginRedirect = `/tournaments/${code}`;
 
-  if (me === undefined) {
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`/api/tournaments/${encodeURIComponent(displayCode)}`, { credentials: "include" })
+      .then(async (res) => {
+        const data = (await res.json()) as { tournament?: Tournament; error?: string };
+        if (!res.ok || !data.tournament) throw new Error(data.error ?? "Could not load tournament");
+        if (!cancelled) setTournament(data.tournament);
+      })
+      .catch(
+        (reason) =>
+          !cancelled &&
+          setError(reason instanceof Error ? reason.message : "Could not load tournament"),
+      )
+      .finally(() => !cancelled && setLoading(false));
+    return () => {
+      cancelled = true;
+    };
+  }, [displayCode]);
+
+  if (me === undefined || loading)
     return (
       <TournamentShell>
-        <DashboardLoader label="Loading session…" />
+        <DashboardLoader label="Loading tournament…" />
       </TournamentShell>
     );
-  }
+  if (!tournament)
+    return (
+      <TournamentShell>
+        <GlassPanel className="p-8">
+          <p role="alert">{error ?? "Tournament not found"}</p>
+        </GlassPanel>
+      </TournamentShell>
+    );
+  const isHost = me?.user.id === tournament.createdByDiscordUserId;
 
   return (
     <TournamentShell
@@ -33,15 +75,14 @@ function TournamentPage() {
           eyebrow="Tournament"
           title={
             <>
-              Event{" "}
-              <span className="text-accent-silver font-mono tracking-wide">{displayCode}</span>
+              <span className="text-accent-silver">{tournament.name}</span>
             </>
           }
-          description="Tournament details, registered teams, and the live bracket appear here once the event is live."
+          description={`${tournament.format} · ${tournament.teams.length}/${tournament.teamCap} teams`}
           meta={
             <div className="glass-chip inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-muted-foreground">
               <span className="size-1.5 rounded-full bg-accent-silver" aria-hidden />
-              Open for registration
+              {tournament.status === "open" ? "Open for registration" : tournament.status}
             </div>
           }
         />
@@ -59,44 +100,94 @@ function TournamentPage() {
                 <p className="text-xs text-muted-foreground">Host-server members only</p>
               </div>
             </div>
-
+            {tournament.teams.length ? (
+              <div className="mb-5 space-y-2">
+                {tournament.teams.map((team) => (
+                  <p
+                    key={team.id}
+                    className="rounded-xl bg-muted/30 px-3 py-2 text-sm text-foreground"
+                  >
+                    {team.teamName}
+                  </p>
+                ))}
+              </div>
+            ) : null}
             {me ? (
-              <div className="space-y-5">
+              <div className="space-y-4">
                 <p className="text-sm leading-relaxed text-muted-foreground">
-                  Create a team or select an open named team with your teammates. Registration is
-                  limited to members of the host server.
+                  Register a complete roster for this event. Hosts can register a team too, or
+                  manage the event without joining.
                 </p>
-                <Button
-                  type="button"
-                  size="lg"
-                  className="h-11 rounded-full bg-foreground px-6 text-background hover:bg-foreground/90"
-                >
-                  Choose a team
-                  <ArrowRight data-icon="inline-end" className="size-4" aria-hidden />
-                </Button>
+                {showRegistration ? (
+                  <form
+                    className="grid gap-3 rounded-2xl border border-border/60 p-4"
+                    onSubmit={registerTeam}
+                  >
+                    <input
+                      required
+                      name="teamName"
+                      placeholder="Team name"
+                      className="h-10 rounded-lg border border-border bg-background px-3 text-sm"
+                    />
+                    <textarea
+                      required
+                      name="discordUserIds"
+                      defaultValue={me.user.id}
+                      rows={3}
+                      placeholder="Discord user IDs, separated by commas"
+                      className="rounded-lg border border-border bg-background p-3 text-sm"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Include yourself. The roster must match the event format.
+                    </p>
+                    <div className="flex gap-2">
+                      <Button type="submit" disabled={submitting}>
+                        {submitting ? "Registering…" : "Register team"}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setShowRegistration(false)}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                    {error ? (
+                      <p role="alert" className="text-sm text-destructive">
+                        {error}
+                      </p>
+                    ) : null}
+                  </form>
+                ) : (
+                  <Button
+                    type="button"
+                    size="lg"
+                    disabled={tournament.status !== "open"}
+                    onClick={() => {
+                      setError(null);
+                      setShowRegistration(true);
+                    }}
+                    className="h-11 rounded-full bg-foreground px-6 text-background hover:bg-foreground/90"
+                  >
+                    Choose a team{" "}
+                    <ArrowRight data-icon="inline-end" className="size-4" aria-hidden />
+                  </Button>
+                )}
               </div>
             ) : (
               <div className="space-y-4">
-                <p className="text-sm leading-relaxed text-muted-foreground">
-                  Log in with Discord to create a team or join an open roster for this event. You
-                  must be a member of the host server.
-                </p>
+                <p className="text-sm text-muted-foreground">Log in with Discord to register.</p>
                 <Link
                   to="/auth/login"
                   search={{ redirect: loginRedirect }}
-                  className={cn(
-                    buttonVariants({ size: "lg" }),
-                    "h-11 rounded-full bg-foreground px-6 text-background hover:bg-foreground/90",
-                  )}
+                  className={cn(buttonVariants({ size: "lg" }), "rounded-full")}
                 >
-                  Log in with Discord to register
-                  <ArrowRight data-icon="inline-end" className="size-4" aria-hidden />
+                  Log in with Discord
                 </Link>
               </div>
             )}
           </GlassPanel>
         </Reveal>
-
         <Reveal delay={80}>
           <div className="space-y-4">
             <GlassPanel className="p-5">
@@ -106,22 +197,16 @@ function TournamentPage() {
               <p className="mt-2 font-mono text-2xl font-semibold tracking-wider text-accent-silver">
                 {displayCode}
               </p>
-              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                Share this code so teammates can open the same event page.
-              </p>
             </GlassPanel>
-
             <GlassPanel className="p-5">
               <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
                 Bracket
               </p>
-              <p className="mt-2 text-sm text-foreground">Not started</p>
-              <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                The live bracket unlocks after the host starts the tournament.
+              <p className="mt-2 text-sm text-foreground">
+                {tournament.status === "open" ? "Not started" : tournament.status}
               </p>
             </GlassPanel>
-
-            {me ? (
+            {isHost ? (
               <Link
                 to="/tournaments/$code/manage"
                 params={{ code }}
@@ -138,4 +223,34 @@ function TournamentPage() {
       </div>
     </TournamentShell>
   );
+
+  async function registerTeam(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (submitting) return;
+    const form = new FormData(event.currentTarget);
+    const discordUserIds = String(form.get("discordUserIds") ?? "")
+      .split(",")
+      .map((id) => id.trim())
+      .filter(Boolean);
+    setSubmitting(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/tournaments/${encodeURIComponent(displayCode)}`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          action: "register",
+          teamName: form.get("teamName"),
+          discordUserIds,
+        }),
+      });
+      const data = (await res.json()) as { error?: string };
+      if (!res.ok) throw new Error(data.error ?? "Team registration failed");
+      window.location.reload();
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Team registration failed");
+      setSubmitting(false);
+    }
+  }
 }

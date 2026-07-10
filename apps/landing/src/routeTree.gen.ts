@@ -26,6 +26,7 @@ import { Route as MatchGuildIdUuidRouteImport } from './routes/match/$guildId/$u
 import { Route as DashboardGuildsGuildIdRouteImport } from './routes/dashboard/guilds/$guildId'
 import { Route as AuthDiscordCallbackRouteImport } from './routes/auth/discord/callback'
 import { Route as ApiTournamentsCreateRouteImport } from './routes/api/tournaments/create'
+import { Route as ApiTournamentsCodeRouteImport } from './routes/api/tournaments/$code'
 import { Route as ApiBridgeWsRouteImport } from './routes/api/bridge/ws'
 import { Route as ApiBridgeSnapshotRouteImport } from './routes/api/bridge/snapshot'
 import { Route as ApiAuthMeRouteImport } from './routes/api/auth/me'
@@ -121,6 +122,11 @@ const ApiTournamentsCreateRoute = ApiTournamentsCreateRouteImport.update({
   path: '/api/tournaments/create',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiTournamentsCodeRoute = ApiTournamentsCodeRouteImport.update({
+  id: '/api/tournaments/$code',
+  path: '/api/tournaments/$code',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiBridgeWsRoute = ApiBridgeWsRouteImport.update({
   id: '/api/bridge/ws',
   path: '/api/bridge/ws',
@@ -188,6 +194,7 @@ export interface FileRoutesByFullPath {
   '/api/auth/me': typeof ApiAuthMeRoute
   '/api/bridge/snapshot': typeof ApiBridgeSnapshotRoute
   '/api/bridge/ws': typeof ApiBridgeWsRoute
+  '/api/tournaments/$code': typeof ApiTournamentsCodeRoute
   '/api/tournaments/create': typeof ApiTournamentsCreateRoute
   '/auth/discord/callback': typeof AuthDiscordCallbackRoute
   '/dashboard/guilds/$guildId': typeof DashboardGuildsGuildIdRouteWithChildren
@@ -216,6 +223,7 @@ export interface FileRoutesByTo {
   '/api/auth/me': typeof ApiAuthMeRoute
   '/api/bridge/snapshot': typeof ApiBridgeSnapshotRoute
   '/api/bridge/ws': typeof ApiBridgeWsRoute
+  '/api/tournaments/$code': typeof ApiTournamentsCodeRoute
   '/api/tournaments/create': typeof ApiTournamentsCreateRoute
   '/auth/discord/callback': typeof AuthDiscordCallbackRoute
   '/match/$guildId/$uuid': typeof MatchGuildIdUuidRoute
@@ -244,6 +252,7 @@ export interface FileRoutesById {
   '/api/auth/me': typeof ApiAuthMeRoute
   '/api/bridge/snapshot': typeof ApiBridgeSnapshotRoute
   '/api/bridge/ws': typeof ApiBridgeWsRoute
+  '/api/tournaments/$code': typeof ApiTournamentsCodeRoute
   '/api/tournaments/create': typeof ApiTournamentsCreateRoute
   '/auth/discord/callback': typeof AuthDiscordCallbackRoute
   '/dashboard/guilds/$guildId': typeof DashboardGuildsGuildIdRouteWithChildren
@@ -274,6 +283,7 @@ export interface FileRouteTypes {
     | '/api/auth/me'
     | '/api/bridge/snapshot'
     | '/api/bridge/ws'
+    | '/api/tournaments/$code'
     | '/api/tournaments/create'
     | '/auth/discord/callback'
     | '/dashboard/guilds/$guildId'
@@ -302,6 +312,7 @@ export interface FileRouteTypes {
     | '/api/auth/me'
     | '/api/bridge/snapshot'
     | '/api/bridge/ws'
+    | '/api/tournaments/$code'
     | '/api/tournaments/create'
     | '/auth/discord/callback'
     | '/match/$guildId/$uuid'
@@ -329,6 +340,7 @@ export interface FileRouteTypes {
     | '/api/auth/me'
     | '/api/bridge/snapshot'
     | '/api/bridge/ws'
+    | '/api/tournaments/$code'
     | '/api/tournaments/create'
     | '/auth/discord/callback'
     | '/dashboard/guilds/$guildId'
@@ -357,6 +369,7 @@ export interface RootRouteChildren {
   ApiAuthMeRoute: typeof ApiAuthMeRoute
   ApiBridgeSnapshotRoute: typeof ApiBridgeSnapshotRoute
   ApiBridgeWsRoute: typeof ApiBridgeWsRoute
+  ApiTournamentsCodeRoute: typeof ApiTournamentsCodeRoute
   ApiTournamentsCreateRoute: typeof ApiTournamentsCreateRoute
   AuthDiscordCallbackRoute: typeof AuthDiscordCallbackRoute
   MatchGuildIdUuidRoute: typeof MatchGuildIdUuidRoute
@@ -486,6 +499,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiTournamentsCreateRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/tournaments/$code': {
+      id: '/api/tournaments/$code'
+      path: '/api/tournaments/$code'
+      fullPath: '/api/tournaments/$code'
+      preLoaderRoute: typeof ApiTournamentsCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/bridge/ws': {
       id: '/api/bridge/ws'
       path: '/api/bridge/ws'
@@ -612,6 +632,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAuthMeRoute: ApiAuthMeRoute,
   ApiBridgeSnapshotRoute: ApiBridgeSnapshotRoute,
   ApiBridgeWsRoute: ApiBridgeWsRoute,
+  ApiTournamentsCodeRoute: ApiTournamentsCodeRoute,
   ApiTournamentsCreateRoute: ApiTournamentsCreateRoute,
   AuthDiscordCallbackRoute: AuthDiscordCallbackRoute,
   MatchGuildIdUuidRoute: MatchGuildIdUuidRoute,
