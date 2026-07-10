@@ -1,0 +1,40 @@
+apps/worker/src/interactions/user/components.ts
+  s_2b158745a3f065::t_e1149089b7424d 8,55,57,105
+  s_2b158745a3f065::t_803b687f324e4a 19,51,97-99,106,109-110,113,203-204,207-208
+apps/worker/src/interactions/user/ui.test.ts
+  s_2b158745a3f065::t_b293084e646a39 15,24
+apps/worker/src/interactions/user/constants.ts
+  s_2b158745a3f065::t_e1149089b7424d 6,15-20
+apps/worker/src/interactions/user/ui.ts
+  s_2b158745a3f065::t_2f02b1f4ac5285 146-147,151-155
+  s_2b158745a3f065::t_803b687f324e4a 15-18,185,216,229-231
+  s_2b158745a3f065::t_07138715742b57 139-142,156
+  s_2b158745a3f065::t_e1149089b7424d 21,26,41-44,60,69,74-76,80-81,85,87,89,144,148-150,158,177,183,189,221
+  s_2b158745a3f065::t_e0529966e4c272 14,143,145,157
+apps/worker/src/interactions/user/components.test.ts
+  s_2b158745a3f065::t_b293084e646a39 8,18-19
+apps/worker/src/interactions/user/slash.ts
+  s_2b158745a3f065::t_b293084e646a39 12
+apps/worker/src/interactions/_shared/acceptance.test.ts
+  s_2b158745a3f065::t_b293084e646a39 67
+apps/worker/src/interactions/user/rpc.test.ts
+  s_2b158745a3f065::t_b293084e646a39 50
+apps/worker/src/interactions/help.ts
+  s_2b158745a3f065::t_b293084e646a39 22
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.11",
+  "base_commit_sha": "b99fc67b06fe1d079e88f81ff62c19de0b6a7482",
+  "prompts": {},
+  "sessions": {
+    "s_2b158745a3f065": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f4be1-c4aa-77a0-947c-d49327bd15de",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
