@@ -13,8 +13,10 @@ import type { Message } from "@bufbuild/protobuf";
 /**
  * Describes the file tournament/v1/tournament.proto.
  */
-export const file_tournament_v1_tournament: GenFile = /*@__PURE__*/
-  fileDesc("Ch50b3VybmFtZW50L3YxL3RvdXJuYW1lbnQucHJvdG8SFHBhcmxleS50b3VybmFtZW50LnYxIpUFCgpUb3VybmFtZW50EgoKAmlkGAEgASgFEiQKBGdhbWUYAiABKA4yFi5wYXJsZXkuY29tbW9uLnYxLkdhbWUSDAoEbmFtZRgDIAEoCRIOCgZmb3JtYXQYBCABKAkSEAoIdGVhbV9jYXAYBSABKAUSEgoKdmlzaWJpbGl0eRgGIAEoCRIOCgZzdGF0dXMYByABKAkSGwoTY3JlYXRlZF9ieV9ndWlsZF9pZBgIIAEoCRIdChVjcmVhdGVkX2J5X2NoYW5uZWxfaWQYCSABKAkSIgoaY3JlYXRlZF9ieV9kaXNjb3JkX3VzZXJfaWQYCiABKAkSFQoNc3RhcnRlZF9hdF9tcxgLIAEoAxIXCg9jb21wbGV0ZWRfYXRfbXMYDCABKAMSFgoOd2lubmVyX3RlYW1faWQYDSABKAUSFQoNY3JlYXRlZF9hdF9tcxgOIAEoAxIVCg11cGRhdGVkX2F0X21zGA8gASgDEjMKBXRlYW1zGBAgAygLMiQucGFybGV5LnRvdXJuYW1lbnQudjEuVG91cm5hbWVudFRlYW0SOwoPYnJhY2tldF9tYXRjaGVzGBEgAygLMiIucGFybGV5LnRvdXJuYW1lbnQudjEuQnJhY2tldE1hdGNoEhMKC3B1YmxpY19jb2RlGBIgASgJEhMKC2Rlc2NyaXB0aW9uGBMgASgJEhIKCnJ1bGVzX3RleHQYFCABKAkSEgoKcHJpemVfdGV4dBgVIAEoCRIhChlyZWdpc3RyYXRpb25fY2xvc2VzX2F0X21zGBYgASgDEh0KFXNjaGVkdWxlZF9zdGFydF9hdF9tcxgXIAEoAxISCgpzdGFydF9tb2RlGBggASgJEhEKCW1pbl90ZWFtcxgZIAEoBSKIAgoOVG91cm5hbWVudFRlYW0SCgoCaWQYASABKAUSFQoNdG91cm5hbWVudF9pZBgCIAEoBRIQCghndWlsZF9pZBgDIAEoCRISCgpjaGFubmVsX2lkGAQgASgJEh8KF2NhcHRhaW5fZGlzY29yZF91c2VyX2lkGAUgASgJEhEKCXRlYW1fbmFtZRgGIAEoCRIOCgZzdGF0dXMYByABKAkSEwoLc2VlZF9udW1iZXIYCCABKAUSHQoVc3RhY2tfYmFsYW5jZV9hdmVyYWdlGAkgASgBEjUKBnJvc3RlchgKIAMoCzIlLnBhcmxleS5tYXRjaG1ha2luZy52MS5UZWFtQXNzaWdubWVudCLSAgoMQnJhY2tldE1hdGNoEgoKAmlkGAEgASgFEhUKDXRvdXJuYW1lbnRfaWQYAiABKAUSDwoHYnJhY2tldBgDIAEoCRIUCgxyb3VuZF9udW1iZXIYBCABKAUSFAoMbWF0Y2hfbnVtYmVyGAUgASgFEg4KBnN0YXR1cxgGIAEoCRIRCgl0ZWFtX2FfaWQYByABKAUSEQoJdGVhbV9iX2lkGAggASgFEhYKDndpbm5lcl90ZWFtX2lkGAkgASgFEhUKDWxvc2VyX3RlYW1faWQYCiABKAUSGgoSd2lubmVyX3RvX21hdGNoX2lkGAsgASgFEhYKDndpbm5lcl90b19zbG90GAwgASgJEhkKEWxvc2VyX3RvX21hdGNoX2lkGA0gASgFEhUKDWxvc2VyX3RvX3Nsb3QYDiABKAkSFwoPY3VzdG9tX21hdGNoX2lkGA8gASgFIvMCChdDcmVhdGVUb3VybmFtZW50UmVxdWVzdBIQCghndWlsZF9pZBgBIAEoCRISCgpjaGFubmVsX2lkGAIgASgJEiIKGmNyZWF0ZWRfYnlfZGlzY29yZF91c2VyX2lkGAMgASgJEiQKBGdhbWUYBCABKA4yFi5wYXJsZXkuY29tbW9uLnYxLkdhbWUSDAoEbmFtZRgFIAEoCRIOCgZmb3JtYXQYBiABKAkSEAoIdGVhbV9jYXAYByABKAUSEgoKdmlzaWJpbGl0eRgIIAEoCRITCgtkZXNjcmlwdGlvbhgJIAEoCRISCgpydWxlc190ZXh0GAogASgJEhIKCnByaXplX3RleHQYCyABKAkSIQoZcmVnaXN0cmF0aW9uX2Nsb3Nlc19hdF9tcxgMIAEoAxIdChVzY2hlZHVsZWRfc3RhcnRfYXRfbXMYDSABKAMSEgoKc3RhcnRfbW9kZRgOIAEoCRIRCgltaW5fdGVhbXMYDyABKAUiUwoUR2V0VG91cm5hbWVudFJlcXVlc3QSFQoNdG91cm5hbWVudF9pZBgBIAEoBRIkCgRnYW1lGAIgASgOMhYucGFybGV5LmNvbW1vbi52MS5HYW1lIlcKGkdldFRvdXJuYW1lbnRCeUNvZGVSZXF1ZXN0EhMKC3B1YmxpY19jb2RlGAEgASgJEiQKBGdhbWUYAiABKA4yFi5wYXJsZXkuY29tbW9uLnYxLkdhbWUibwoWTGlzdFRvdXJuYW1lbnRzUmVxdWVzdBIQCghndWlsZF9pZBgBIAEoCRIkCgRnYW1lGAIgASgOMhYucGFybGV5LmNvbW1vbi52MS5HYW1lEg4KBnN0YXR1cxgDIAEoCRINCgVsaW1pdBgEIAEoBSKJAQoXTGlzdFRvdXJuYW1lbnRzUmVzcG9uc2USDwoHc3VjY2VzcxgBIAEoCBI1Cgt0b3VybmFtZW50cxgCIAMoCzIgLnBhcmxleS50b3VybmFtZW50LnYxLlRvdXJuYW1lbnQSJgoFZXJyb3IYAyABKAsyFy5wYXJsZXkuY29tbW9uLnYxLkVycm9yIsYBChNSZWdpc3RlclRlYW1SZXF1ZXN0EhUKDXRvdXJuYW1lbnRfaWQYASABKAUSJAoEZ2FtZRgCIAEoDjIWLnBhcmxleS5jb21tb24udjEuR2FtZRIQCghndWlsZF9pZBgDIAEoCRISCgpjaGFubmVsX2lkGAQgASgJEh8KF2NhcHRhaW5fZGlzY29yZF91c2VyX2lkGAUgASgJEhEKCXRlYW1fbmFtZRgGIAEoCRIYChBkaXNjb3JkX3VzZXJfaWRzGAcgAygJIqIBChdVcGRhdGVUZWFtUm9zdGVyUmVxdWVzdBIVCg10b3VybmFtZW50X2lkGAEgASgFEg8KB3RlYW1faWQYAiABKAUSJAoEZ2FtZRgDIAEoDjIWLnBhcmxleS5jb21tb24udjEuR2FtZRIfChdjYXB0YWluX2Rpc2NvcmRfdXNlcl9pZBgEIAEoCRIYChBkaXNjb3JkX3VzZXJfaWRzGAUgAygJIoYBChVVbnJlZ2lzdGVyVGVhbVJlcXVlc3QSFQoNdG91cm5hbWVudF9pZBgBIAEoBRIPCgd0ZWFtX2lkGAIgASgFEiQKBGdhbWUYAyABKA4yFi5wYXJsZXkuY29tbW9uLnYxLkdhbWUSHwoXY2FwdGFpbl9kaXNjb3JkX3VzZXJfaWQYBCABKAkiaAoWU3RhcnRUb3VybmFtZW50UmVxdWVzdBIVCg10b3VybmFtZW50X2lkGAEgASgFEiQKBGdhbWUYAiABKA4yFi5wYXJsZXkuY29tbW9uLnYxLkdhbWUSEQoJbWluX3RlYW1zGAMgASgFIsgBChpSZXBvcnRCcmFja2V0UmVzdWx0UmVxdWVzdBIYChBicmFja2V0X21hdGNoX2lkGAEgASgFEiQKBGdhbWUYAiABKA4yFi5wYXJsZXkuY29tbW9uLnYxLkdhbWUSFgoOd2lubmVyX3RlYW1faWQYAyABKAUSGgoSY3JlYXRlX3NjcmltX21hdGNoGAQgASgIEhIKCmNoYW5uZWxfaWQYBSABKAkSIgoaY3JlYXRlZF9ieV9kaXNjb3JkX3VzZXJfaWQYBiABKAkifAoXQ2FuY2VsVG91cm5hbWVudFJlcXVlc3QSFQoNdG91cm5hbWVudF9pZBgBIAEoBRIkCgRnYW1lGAIgASgOMhYucGFybGV5LmNvbW1vbi52MS5HYW1lEiQKHGNhbmNlbGxlZF9ieV9kaXNjb3JkX3VzZXJfaWQYAyABKAkigwEKElRvdXJuYW1lbnRSZXNwb25zZRIPCgdzdWNjZXNzGAEgASgIEjQKCnRvdXJuYW1lbnQYAiABKAsyIC5wYXJsZXkudG91cm5hbWVudC52MS5Ub3VybmFtZW50EiYKBWVycm9yGAMgASgLMhcucGFybGV5LmNvbW1vbi52MS5FcnJvciJ7CgxUZWFtUmVzcG9uc2USDwoHc3VjY2VzcxgBIAEoCBIyCgR0ZWFtGAIgASgLMiQucGFybGV5LnRvdXJuYW1lbnQudjEuVG91cm5hbWVudFRlYW0SJgoFZXJyb3IYAyABKAsyFy5wYXJsZXkuY29tbW9uLnYxLkVycm9yIsABChRCcmFja2V0TWF0Y2hSZXNwb25zZRIPCgdzdWNjZXNzGAEgASgIEjkKDWJyYWNrZXRfbWF0Y2gYAiABKAsyIi5wYXJsZXkudG91cm5hbWVudC52MS5CcmFja2V0TWF0Y2gSNAoKdG91cm5hbWVudBgDIAEoCzIgLnBhcmxleS50b3VybmFtZW50LnYxLlRvdXJuYW1lbnQSJgoFZXJyb3IYBCABKAsyFy5wYXJsZXkuY29tbW9uLnYxLkVycm9yMsAIChFUb3VybmFtZW50U2VydmljZRJrChBDcmVhdGVUb3VybmFtZW50Ei0ucGFybGV5LnRvdXJuYW1lbnQudjEuQ3JlYXRlVG91cm5hbWVudFJlcXVlc3QaKC5wYXJsZXkudG91cm5hbWVudC52MS5Ub3VybmFtZW50UmVzcG9uc2USZQoNR2V0VG91cm5hbWVudBIqLnBhcmxleS50b3VybmFtZW50LnYxLkdldFRvdXJuYW1lbnRSZXF1ZXN0GigucGFybGV5LnRvdXJuYW1lbnQudjEuVG91cm5hbWVudFJlc3BvbnNlEnEKE0dldFRvdXJuYW1lbnRCeUNvZGUSMC5wYXJsZXkudG91cm5hbWVudC52MS5HZXRUb3VybmFtZW50QnlDb2RlUmVxdWVzdBooLnBhcmxleS50b3VybmFtZW50LnYxLlRvdXJuYW1lbnRSZXNwb25zZRJuCg9MaXN0VG91cm5hbWVudHMSLC5wYXJsZXkudG91cm5hbWVudC52MS5MaXN0VG91cm5hbWVudHNSZXF1ZXN0Gi0ucGFybGV5LnRvdXJuYW1lbnQudjEuTGlzdFRvdXJuYW1lbnRzUmVzcG9uc2USXQoMUmVnaXN0ZXJUZWFtEikucGFybGV5LnRvdXJuYW1lbnQudjEuUmVnaXN0ZXJUZWFtUmVxdWVzdBoiLnBhcmxleS50b3VybmFtZW50LnYxLlRlYW1SZXNwb25zZRJlChBVcGRhdGVUZWFtUm9zdGVyEi0ucGFybGV5LnRvdXJuYW1lbnQudjEuVXBkYXRlVGVhbVJvc3RlclJlcXVlc3QaIi5wYXJsZXkudG91cm5hbWVudC52MS5UZWFtUmVzcG9uc2USYQoOVW5yZWdpc3RlclRlYW0SKy5wYXJsZXkudG91cm5hbWVudC52MS5VbnJlZ2lzdGVyVGVhbVJlcXVlc3QaIi5wYXJsZXkudG91cm5hbWVudC52MS5UZWFtUmVzcG9uc2USaQoPU3RhcnRUb3VybmFtZW50EiwucGFybGV5LnRvdXJuYW1lbnQudjEuU3RhcnRUb3VybmFtZW50UmVxdWVzdBooLnBhcmxleS50b3VybmFtZW50LnYxLlRvdXJuYW1lbnRSZXNwb25zZRJzChNSZXBvcnRCcmFja2V0UmVzdWx0EjAucGFybGV5LnRvdXJuYW1lbnQudjEuUmVwb3J0QnJhY2tldFJlc3VsdFJlcXVlc3QaKi5wYXJsZXkudG91cm5hbWVudC52MS5CcmFja2V0TWF0Y2hSZXNwb25zZRJrChBDYW5jZWxUb3VybmFtZW50Ei0ucGFybGV5LnRvdXJuYW1lbnQudjEuQ2FuY2VsVG91cm5hbWVudFJlcXVlc3QaKC5wYXJsZXkudG91cm5hbWVudC52MS5Ub3VybmFtZW50UmVzcG9uc2VCZAoYYm90LnBhcmxleS50b3VybmFtZW50LnYxWkhnaXRodWIuY29tL3BhY3R1bS1jb21wdXRlcnMvcGFybGV5L2dlbi9wYXJsZXkvdG91cm5hbWVudC92MTt0b3VybmFtZW50djFiBnByb3RvMw", [file_common_v1_types, file_matchmaking_v1_matchmaking]);
+export const file_tournament_v1_tournament: GenFile /*@__PURE__*/ = fileDesc(
+  "Ch50b3VybmFtZW50L3YxL3RvdXJuYW1lbnQucHJvdG8SFHBhcmxleS50b3VybmFtZW50LnYxIpUFCgpUb3VybmFtZW50EgoKAmlkGAEgASgFEiQKBGdhbWUYAiABKA4yFi5wYXJsZXkuY29tbW9uLnYxLkdhbWUSDAoEbmFtZRgDIAEoCRIOCgZmb3JtYXQYBCABKAkSEAoIdGVhbV9jYXAYBSABKAUSEgoKdmlzaWJpbGl0eRgGIAEoCRIOCgZzdGF0dXMYByABKAkSGwoTY3JlYXRlZF9ieV9ndWlsZF9pZBgIIAEoCRIdChVjcmVhdGVkX2J5X2NoYW5uZWxfaWQYCSABKAkSIgoaY3JlYXRlZF9ieV9kaXNjb3JkX3VzZXJfaWQYCiABKAkSFQoNc3RhcnRlZF9hdF9tcxgLIAEoAxIXCg9jb21wbGV0ZWRfYXRfbXMYDCABKAMSFgoOd2lubmVyX3RlYW1faWQYDSABKAUSFQoNY3JlYXRlZF9hdF9tcxgOIAEoAxIVCg11cGRhdGVkX2F0X21zGA8gASgDEjMKBXRlYW1zGBAgAygLMiQucGFybGV5LnRvdXJuYW1lbnQudjEuVG91cm5hbWVudFRlYW0SOwoPYnJhY2tldF9tYXRjaGVzGBEgAygLMiIucGFybGV5LnRvdXJuYW1lbnQudjEuQnJhY2tldE1hdGNoEhMKC3B1YmxpY19jb2RlGBIgASgJEhMKC2Rlc2NyaXB0aW9uGBMgASgJEhIKCnJ1bGVzX3RleHQYFCABKAkSEgoKcHJpemVfdGV4dBgVIAEoCRIhChlyZWdpc3RyYXRpb25fY2xvc2VzX2F0X21zGBYgASgDEh0KFXNjaGVkdWxlZF9zdGFydF9hdF9tcxgXIAEoAxISCgpzdGFydF9tb2RlGBggASgJEhEKCW1pbl90ZWFtcxgZIAEoBSKIAgoOVG91cm5hbWVudFRlYW0SCgoCaWQYASABKAUSFQoNdG91cm5hbWVudF9pZBgCIAEoBRIQCghndWlsZF9pZBgDIAEoCRISCgpjaGFubmVsX2lkGAQgASgJEh8KF2NhcHRhaW5fZGlzY29yZF91c2VyX2lkGAUgASgJEhEKCXRlYW1fbmFtZRgGIAEoCRIOCgZzdGF0dXMYByABKAkSEwoLc2VlZF9udW1iZXIYCCABKAUSHQoVc3RhY2tfYmFsYW5jZV9hdmVyYWdlGAkgASgBEjUKBnJvc3RlchgKIAMoCzIlLnBhcmxleS5tYXRjaG1ha2luZy52MS5UZWFtQXNzaWdubWVudCLSAgoMQnJhY2tldE1hdGNoEgoKAmlkGAEgASgFEhUKDXRvdXJuYW1lbnRfaWQYAiABKAUSDwoHYnJhY2tldBgDIAEoCRIUCgxyb3VuZF9udW1iZXIYBCABKAUSFAoMbWF0Y2hfbnVtYmVyGAUgASgFEg4KBnN0YXR1cxgGIAEoCRIRCgl0ZWFtX2FfaWQYByABKAUSEQoJdGVhbV9iX2lkGAggASgFEhYKDndpbm5lcl90ZWFtX2lkGAkgASgFEhUKDWxvc2VyX3RlYW1faWQYCiABKAUSGgoSd2lubmVyX3RvX21hdGNoX2lkGAsgASgFEhYKDndpbm5lcl90b19zbG90GAwgASgJEhkKEWxvc2VyX3RvX21hdGNoX2lkGA0gASgFEhUKDWxvc2VyX3RvX3Nsb3QYDiABKAkSFwoPY3VzdG9tX21hdGNoX2lkGA8gASgFIvMCChdDcmVhdGVUb3VybmFtZW50UmVxdWVzdBIQCghndWlsZF9pZBgBIAEoCRISCgpjaGFubmVsX2lkGAIgASgJEiIKGmNyZWF0ZWRfYnlfZGlzY29yZF91c2VyX2lkGAMgASgJEiQKBGdhbWUYBCABKA4yFi5wYXJsZXkuY29tbW9uLnYxLkdhbWUSDAoEbmFtZRgFIAEoCRIOCgZmb3JtYXQYBiABKAkSEAoIdGVhbV9jYXAYByABKAUSEgoKdmlzaWJpbGl0eRgIIAEoCRITCgtkZXNjcmlwdGlvbhgJIAEoCRISCgpydWxlc190ZXh0GAogASgJEhIKCnByaXplX3RleHQYCyABKAkSIQoZcmVnaXN0cmF0aW9uX2Nsb3Nlc19hdF9tcxgMIAEoAxIdChVzY2hlZHVsZWRfc3RhcnRfYXRfbXMYDSABKAMSEgoKc3RhcnRfbW9kZRgOIAEoCRIRCgltaW5fdGVhbXMYDyABKAUiUwoUR2V0VG91cm5hbWVudFJlcXVlc3QSFQoNdG91cm5hbWVudF9pZBgBIAEoBRIkCgRnYW1lGAIgASgOMhYucGFybGV5LmNvbW1vbi52MS5HYW1lIlcKGkdldFRvdXJuYW1lbnRCeUNvZGVSZXF1ZXN0EhMKC3B1YmxpY19jb2RlGAEgASgJEiQKBGdhbWUYAiABKA4yFi5wYXJsZXkuY29tbW9uLnYxLkdhbWUibwoWTGlzdFRvdXJuYW1lbnRzUmVxdWVzdBIQCghndWlsZF9pZBgBIAEoCRIkCgRnYW1lGAIgASgOMhYucGFybGV5LmNvbW1vbi52MS5HYW1lEg4KBnN0YXR1cxgDIAEoCRINCgVsaW1pdBgEIAEoBSKJAQoXTGlzdFRvdXJuYW1lbnRzUmVzcG9uc2USDwoHc3VjY2VzcxgBIAEoCBI1Cgt0b3VybmFtZW50cxgCIAMoCzIgLnBhcmxleS50b3VybmFtZW50LnYxLlRvdXJuYW1lbnQSJgoFZXJyb3IYAyABKAsyFy5wYXJsZXkuY29tbW9uLnYxLkVycm9yIsYBChNSZWdpc3RlclRlYW1SZXF1ZXN0EhUKDXRvdXJuYW1lbnRfaWQYASABKAUSJAoEZ2FtZRgCIAEoDjIWLnBhcmxleS5jb21tb24udjEuR2FtZRIQCghndWlsZF9pZBgDIAEoCRISCgpjaGFubmVsX2lkGAQgASgJEh8KF2NhcHRhaW5fZGlzY29yZF91c2VyX2lkGAUgASgJEhEKCXRlYW1fbmFtZRgGIAEoCRIYChBkaXNjb3JkX3VzZXJfaWRzGAcgAygJIqIBChdVcGRhdGVUZWFtUm9zdGVyUmVxdWVzdBIVCg10b3VybmFtZW50X2lkGAEgASgFEg8KB3RlYW1faWQYAiABKAUSJAoEZ2FtZRgDIAEoDjIWLnBhcmxleS5jb21tb24udjEuR2FtZRIfChdjYXB0YWluX2Rpc2NvcmRfdXNlcl9pZBgEIAEoCRIYChBkaXNjb3JkX3VzZXJfaWRzGAUgAygJIoYBChVVbnJlZ2lzdGVyVGVhbVJlcXVlc3QSFQoNdG91cm5hbWVudF9pZBgBIAEoBRIPCgd0ZWFtX2lkGAIgASgFEiQKBGdhbWUYAyABKA4yFi5wYXJsZXkuY29tbW9uLnYxLkdhbWUSHwoXY2FwdGFpbl9kaXNjb3JkX3VzZXJfaWQYBCABKAkiaAoWU3RhcnRUb3VybmFtZW50UmVxdWVzdBIVCg10b3VybmFtZW50X2lkGAEgASgFEiQKBGdhbWUYAiABKA4yFi5wYXJsZXkuY29tbW9uLnYxLkdhbWUSEQoJbWluX3RlYW1zGAMgASgFIsgBChpSZXBvcnRCcmFja2V0UmVzdWx0UmVxdWVzdBIYChBicmFja2V0X21hdGNoX2lkGAEgASgFEiQKBGdhbWUYAiABKA4yFi5wYXJsZXkuY29tbW9uLnYxLkdhbWUSFgoOd2lubmVyX3RlYW1faWQYAyABKAUSGgoSY3JlYXRlX3NjcmltX21hdGNoGAQgASgIEhIKCmNoYW5uZWxfaWQYBSABKAkSIgoaY3JlYXRlZF9ieV9kaXNjb3JkX3VzZXJfaWQYBiABKAkifAoXQ2FuY2VsVG91cm5hbWVudFJlcXVlc3QSFQoNdG91cm5hbWVudF9pZBgBIAEoBRIkCgRnYW1lGAIgASgOMhYucGFybGV5LmNvbW1vbi52MS5HYW1lEiQKHGNhbmNlbGxlZF9ieV9kaXNjb3JkX3VzZXJfaWQYAyABKAkigwEKElRvdXJuYW1lbnRSZXNwb25zZRIPCgdzdWNjZXNzGAEgASgIEjQKCnRvdXJuYW1lbnQYAiABKAsyIC5wYXJsZXkudG91cm5hbWVudC52MS5Ub3VybmFtZW50EiYKBWVycm9yGAMgASgLMhcucGFybGV5LmNvbW1vbi52MS5FcnJvciJ7CgxUZWFtUmVzcG9uc2USDwoHc3VjY2VzcxgBIAEoCBIyCgR0ZWFtGAIgASgLMiQucGFybGV5LnRvdXJuYW1lbnQudjEuVG91cm5hbWVudFRlYW0SJgoFZXJyb3IYAyABKAsyFy5wYXJsZXkuY29tbW9uLnYxLkVycm9yIsABChRCcmFja2V0TWF0Y2hSZXNwb25zZRIPCgdzdWNjZXNzGAEgASgIEjkKDWJyYWNrZXRfbWF0Y2gYAiABKAsyIi5wYXJsZXkudG91cm5hbWVudC52MS5CcmFja2V0TWF0Y2gSNAoKdG91cm5hbWVudBgDIAEoCzIgLnBhcmxleS50b3VybmFtZW50LnYxLlRvdXJuYW1lbnQSJgoFZXJyb3IYBCABKAsyFy5wYXJsZXkuY29tbW9uLnYxLkVycm9yMsAIChFUb3VybmFtZW50U2VydmljZRJrChBDcmVhdGVUb3VybmFtZW50Ei0ucGFybGV5LnRvdXJuYW1lbnQudjEuQ3JlYXRlVG91cm5hbWVudFJlcXVlc3QaKC5wYXJsZXkudG91cm5hbWVudC52MS5Ub3VybmFtZW50UmVzcG9uc2USZQoNR2V0VG91cm5hbWVudBIqLnBhcmxleS50b3VybmFtZW50LnYxLkdldFRvdXJuYW1lbnRSZXF1ZXN0GigucGFybGV5LnRvdXJuYW1lbnQudjEuVG91cm5hbWVudFJlc3BvbnNlEnEKE0dldFRvdXJuYW1lbnRCeUNvZGUSMC5wYXJsZXkudG91cm5hbWVudC52MS5HZXRUb3VybmFtZW50QnlDb2RlUmVxdWVzdBooLnBhcmxleS50b3VybmFtZW50LnYxLlRvdXJuYW1lbnRSZXNwb25zZRJuCg9MaXN0VG91cm5hbWVudHMSLC5wYXJsZXkudG91cm5hbWVudC52MS5MaXN0VG91cm5hbWVudHNSZXF1ZXN0Gi0ucGFybGV5LnRvdXJuYW1lbnQudjEuTGlzdFRvdXJuYW1lbnRzUmVzcG9uc2USXQoMUmVnaXN0ZXJUZWFtEikucGFybGV5LnRvdXJuYW1lbnQudjEuUmVnaXN0ZXJUZWFtUmVxdWVzdBoiLnBhcmxleS50b3VybmFtZW50LnYxLlRlYW1SZXNwb25zZRJlChBVcGRhdGVUZWFtUm9zdGVyEi0ucGFybGV5LnRvdXJuYW1lbnQudjEuVXBkYXRlVGVhbVJvc3RlclJlcXVlc3QaIi5wYXJsZXkudG91cm5hbWVudC52MS5UZWFtUmVzcG9uc2USYQoOVW5yZWdpc3RlclRlYW0SKy5wYXJsZXkudG91cm5hbWVudC52MS5VbnJlZ2lzdGVyVGVhbVJlcXVlc3QaIi5wYXJsZXkudG91cm5hbWVudC52MS5UZWFtUmVzcG9uc2USaQoPU3RhcnRUb3VybmFtZW50EiwucGFybGV5LnRvdXJuYW1lbnQudjEuU3RhcnRUb3VybmFtZW50UmVxdWVzdBooLnBhcmxleS50b3VybmFtZW50LnYxLlRvdXJuYW1lbnRSZXNwb25zZRJzChNSZXBvcnRCcmFja2V0UmVzdWx0EjAucGFybGV5LnRvdXJuYW1lbnQudjEuUmVwb3J0QnJhY2tldFJlc3VsdFJlcXVlc3QaKi5wYXJsZXkudG91cm5hbWVudC52MS5CcmFja2V0TWF0Y2hSZXNwb25zZRJrChBDYW5jZWxUb3VybmFtZW50Ei0ucGFybGV5LnRvdXJuYW1lbnQudjEuQ2FuY2VsVG91cm5hbWVudFJlcXVlc3QaKC5wYXJsZXkudG91cm5hbWVudC52MS5Ub3VybmFtZW50UmVzcG9uc2VCZAoYYm90LnBhcmxleS50b3VybmFtZW50LnYxWkhnaXRodWIuY29tL3BhY3R1bS1jb21wdXRlcnMvcGFybGV5L2dlbi9wYXJsZXkvdG91cm5hbWVudC92MTt0b3VybmFtZW50djFiBnByb3RvMw",
+  [file_common_v1_types, file_matchmaking_v1_matchmaking],
+);
 
 /**
  * @generated from message parley.tournament.v1.Tournament
@@ -150,8 +152,10 @@ export type Tournament = Message<"parley.tournament.v1.Tournament"> & {
  * Describes the message parley.tournament.v1.Tournament.
  * Use `create(TournamentSchema)` to create a new message.
  */
-export const TournamentSchema: GenMessage<Tournament> = /*@__PURE__*/
-  messageDesc(file_tournament_v1_tournament, 0);
+export const TournamentSchema: GenMessage<Tournament> /*@__PURE__*/ = messageDesc(
+  file_tournament_v1_tournament,
+  0,
+);
 
 /**
  * @generated from message parley.tournament.v1.TournamentTeam
@@ -212,8 +216,10 @@ export type TournamentTeam = Message<"parley.tournament.v1.TournamentTeam"> & {
  * Describes the message parley.tournament.v1.TournamentTeam.
  * Use `create(TournamentTeamSchema)` to create a new message.
  */
-export const TournamentTeamSchema: GenMessage<TournamentTeam> = /*@__PURE__*/
-  messageDesc(file_tournament_v1_tournament, 1);
+export const TournamentTeamSchema: GenMessage<TournamentTeam> /*@__PURE__*/ = messageDesc(
+  file_tournament_v1_tournament,
+  1,
+);
 
 /**
  * @generated from message parley.tournament.v1.BracketMatch
@@ -299,8 +305,10 @@ export type BracketMatch = Message<"parley.tournament.v1.BracketMatch"> & {
  * Describes the message parley.tournament.v1.BracketMatch.
  * Use `create(BracketMatchSchema)` to create a new message.
  */
-export const BracketMatchSchema: GenMessage<BracketMatch> = /*@__PURE__*/
-  messageDesc(file_tournament_v1_tournament, 2);
+export const BracketMatchSchema: GenMessage<BracketMatch> /*@__PURE__*/ = messageDesc(
+  file_tournament_v1_tournament,
+  2,
+);
 
 /**
  * @generated from message parley.tournament.v1.CreateTournamentRequest
@@ -386,7 +394,7 @@ export type CreateTournamentRequest = Message<"parley.tournament.v1.CreateTourna
  * Describes the message parley.tournament.v1.CreateTournamentRequest.
  * Use `create(CreateTournamentRequestSchema)` to create a new message.
  */
-export const CreateTournamentRequestSchema: GenMessage<CreateTournamentRequest> = /*@__PURE__*/
+export const CreateTournamentRequestSchema: GenMessage<CreateTournamentRequest> /*@__PURE__*/ =
   messageDesc(file_tournament_v1_tournament, 3);
 
 /**
@@ -408,29 +416,30 @@ export type GetTournamentRequest = Message<"parley.tournament.v1.GetTournamentRe
  * Describes the message parley.tournament.v1.GetTournamentRequest.
  * Use `create(GetTournamentRequestSchema)` to create a new message.
  */
-export const GetTournamentRequestSchema: GenMessage<GetTournamentRequest> = /*@__PURE__*/
+export const GetTournamentRequestSchema: GenMessage<GetTournamentRequest> /*@__PURE__*/ =
   messageDesc(file_tournament_v1_tournament, 4);
 
 /**
  * @generated from message parley.tournament.v1.GetTournamentByCodeRequest
  */
-export type GetTournamentByCodeRequest = Message<"parley.tournament.v1.GetTournamentByCodeRequest"> & {
-  /**
-   * @generated from field: string public_code = 1;
-   */
-  publicCode: string;
+export type GetTournamentByCodeRequest =
+  Message<"parley.tournament.v1.GetTournamentByCodeRequest"> & {
+    /**
+     * @generated from field: string public_code = 1;
+     */
+    publicCode: string;
 
-  /**
-   * @generated from field: parley.common.v1.Game game = 2;
-   */
-  game: Game;
-};
+    /**
+     * @generated from field: parley.common.v1.Game game = 2;
+     */
+    game: Game;
+  };
 
 /**
  * Describes the message parley.tournament.v1.GetTournamentByCodeRequest.
  * Use `create(GetTournamentByCodeRequestSchema)` to create a new message.
  */
-export const GetTournamentByCodeRequestSchema: GenMessage<GetTournamentByCodeRequest> = /*@__PURE__*/
+export const GetTournamentByCodeRequestSchema: GenMessage<GetTournamentByCodeRequest> /*@__PURE__*/ =
   messageDesc(file_tournament_v1_tournament, 5);
 
 /**
@@ -462,7 +471,7 @@ export type ListTournamentsRequest = Message<"parley.tournament.v1.ListTournamen
  * Describes the message parley.tournament.v1.ListTournamentsRequest.
  * Use `create(ListTournamentsRequestSchema)` to create a new message.
  */
-export const ListTournamentsRequestSchema: GenMessage<ListTournamentsRequest> = /*@__PURE__*/
+export const ListTournamentsRequestSchema: GenMessage<ListTournamentsRequest> /*@__PURE__*/ =
   messageDesc(file_tournament_v1_tournament, 6);
 
 /**
@@ -489,7 +498,7 @@ export type ListTournamentsResponse = Message<"parley.tournament.v1.ListTourname
  * Describes the message parley.tournament.v1.ListTournamentsResponse.
  * Use `create(ListTournamentsResponseSchema)` to create a new message.
  */
-export const ListTournamentsResponseSchema: GenMessage<ListTournamentsResponse> = /*@__PURE__*/
+export const ListTournamentsResponseSchema: GenMessage<ListTournamentsResponse> /*@__PURE__*/ =
   messageDesc(file_tournament_v1_tournament, 7);
 
 /**
@@ -536,8 +545,10 @@ export type RegisterTeamRequest = Message<"parley.tournament.v1.RegisterTeamRequ
  * Describes the message parley.tournament.v1.RegisterTeamRequest.
  * Use `create(RegisterTeamRequestSchema)` to create a new message.
  */
-export const RegisterTeamRequestSchema: GenMessage<RegisterTeamRequest> = /*@__PURE__*/
-  messageDesc(file_tournament_v1_tournament, 8);
+export const RegisterTeamRequestSchema: GenMessage<RegisterTeamRequest> /*@__PURE__*/ = messageDesc(
+  file_tournament_v1_tournament,
+  8,
+);
 
 /**
  * @generated from message parley.tournament.v1.UpdateTeamRosterRequest
@@ -573,7 +584,7 @@ export type UpdateTeamRosterRequest = Message<"parley.tournament.v1.UpdateTeamRo
  * Describes the message parley.tournament.v1.UpdateTeamRosterRequest.
  * Use `create(UpdateTeamRosterRequestSchema)` to create a new message.
  */
-export const UpdateTeamRosterRequestSchema: GenMessage<UpdateTeamRosterRequest> = /*@__PURE__*/
+export const UpdateTeamRosterRequestSchema: GenMessage<UpdateTeamRosterRequest> /*@__PURE__*/ =
   messageDesc(file_tournament_v1_tournament, 9);
 
 /**
@@ -605,7 +616,7 @@ export type UnregisterTeamRequest = Message<"parley.tournament.v1.UnregisterTeam
  * Describes the message parley.tournament.v1.UnregisterTeamRequest.
  * Use `create(UnregisterTeamRequestSchema)` to create a new message.
  */
-export const UnregisterTeamRequestSchema: GenMessage<UnregisterTeamRequest> = /*@__PURE__*/
+export const UnregisterTeamRequestSchema: GenMessage<UnregisterTeamRequest> /*@__PURE__*/ =
   messageDesc(file_tournament_v1_tournament, 10);
 
 /**
@@ -632,49 +643,50 @@ export type StartTournamentRequest = Message<"parley.tournament.v1.StartTourname
  * Describes the message parley.tournament.v1.StartTournamentRequest.
  * Use `create(StartTournamentRequestSchema)` to create a new message.
  */
-export const StartTournamentRequestSchema: GenMessage<StartTournamentRequest> = /*@__PURE__*/
+export const StartTournamentRequestSchema: GenMessage<StartTournamentRequest> /*@__PURE__*/ =
   messageDesc(file_tournament_v1_tournament, 11);
 
 /**
  * @generated from message parley.tournament.v1.ReportBracketResultRequest
  */
-export type ReportBracketResultRequest = Message<"parley.tournament.v1.ReportBracketResultRequest"> & {
-  /**
-   * @generated from field: int32 bracket_match_id = 1;
-   */
-  bracketMatchId: number;
+export type ReportBracketResultRequest =
+  Message<"parley.tournament.v1.ReportBracketResultRequest"> & {
+    /**
+     * @generated from field: int32 bracket_match_id = 1;
+     */
+    bracketMatchId: number;
 
-  /**
-   * @generated from field: parley.common.v1.Game game = 2;
-   */
-  game: Game;
+    /**
+     * @generated from field: parley.common.v1.Game game = 2;
+     */
+    game: Game;
 
-  /**
-   * @generated from field: int32 winner_team_id = 3;
-   */
-  winnerTeamId: number;
+    /**
+     * @generated from field: int32 winner_team_id = 3;
+     */
+    winnerTeamId: number;
 
-  /**
-   * @generated from field: bool create_scrim_match = 4;
-   */
-  createScrimMatch: boolean;
+    /**
+     * @generated from field: bool create_scrim_match = 4;
+     */
+    createScrimMatch: boolean;
 
-  /**
-   * @generated from field: string channel_id = 5;
-   */
-  channelId: string;
+    /**
+     * @generated from field: string channel_id = 5;
+     */
+    channelId: string;
 
-  /**
-   * @generated from field: string created_by_discord_user_id = 6;
-   */
-  createdByDiscordUserId: string;
-};
+    /**
+     * @generated from field: string created_by_discord_user_id = 6;
+     */
+    createdByDiscordUserId: string;
+  };
 
 /**
  * Describes the message parley.tournament.v1.ReportBracketResultRequest.
  * Use `create(ReportBracketResultRequestSchema)` to create a new message.
  */
-export const ReportBracketResultRequestSchema: GenMessage<ReportBracketResultRequest> = /*@__PURE__*/
+export const ReportBracketResultRequestSchema: GenMessage<ReportBracketResultRequest> /*@__PURE__*/ =
   messageDesc(file_tournament_v1_tournament, 12);
 
 /**
@@ -701,7 +713,7 @@ export type CancelTournamentRequest = Message<"parley.tournament.v1.CancelTourna
  * Describes the message parley.tournament.v1.CancelTournamentRequest.
  * Use `create(CancelTournamentRequestSchema)` to create a new message.
  */
-export const CancelTournamentRequestSchema: GenMessage<CancelTournamentRequest> = /*@__PURE__*/
+export const CancelTournamentRequestSchema: GenMessage<CancelTournamentRequest> /*@__PURE__*/ =
   messageDesc(file_tournament_v1_tournament, 13);
 
 /**
@@ -728,8 +740,10 @@ export type TournamentResponse = Message<"parley.tournament.v1.TournamentRespons
  * Describes the message parley.tournament.v1.TournamentResponse.
  * Use `create(TournamentResponseSchema)` to create a new message.
  */
-export const TournamentResponseSchema: GenMessage<TournamentResponse> = /*@__PURE__*/
-  messageDesc(file_tournament_v1_tournament, 14);
+export const TournamentResponseSchema: GenMessage<TournamentResponse> /*@__PURE__*/ = messageDesc(
+  file_tournament_v1_tournament,
+  14,
+);
 
 /**
  * @generated from message parley.tournament.v1.TeamResponse
@@ -755,8 +769,10 @@ export type TeamResponse = Message<"parley.tournament.v1.TeamResponse"> & {
  * Describes the message parley.tournament.v1.TeamResponse.
  * Use `create(TeamResponseSchema)` to create a new message.
  */
-export const TeamResponseSchema: GenMessage<TeamResponse> = /*@__PURE__*/
-  messageDesc(file_tournament_v1_tournament, 15);
+export const TeamResponseSchema: GenMessage<TeamResponse> /*@__PURE__*/ = messageDesc(
+  file_tournament_v1_tournament,
+  15,
+);
 
 /**
  * @generated from message parley.tournament.v1.BracketMatchResponse
@@ -787,7 +803,7 @@ export type BracketMatchResponse = Message<"parley.tournament.v1.BracketMatchRes
  * Describes the message parley.tournament.v1.BracketMatchResponse.
  * Use `create(BracketMatchResponseSchema)` to create a new message.
  */
-export const BracketMatchResponseSchema: GenMessage<BracketMatchResponse> = /*@__PURE__*/
+export const BracketMatchResponseSchema: GenMessage<BracketMatchResponse> /*@__PURE__*/ =
   messageDesc(file_tournament_v1_tournament, 16);
 
 /**
@@ -801,7 +817,7 @@ export const TournamentService: GenService<{
     methodKind: "unary";
     input: typeof CreateTournamentRequestSchema;
     output: typeof TournamentResponseSchema;
-  },
+  };
   /**
    * @generated from rpc parley.tournament.v1.TournamentService.GetTournament
    */
@@ -809,7 +825,7 @@ export const TournamentService: GenService<{
     methodKind: "unary";
     input: typeof GetTournamentRequestSchema;
     output: typeof TournamentResponseSchema;
-  },
+  };
   /**
    * @generated from rpc parley.tournament.v1.TournamentService.GetTournamentByCode
    */
@@ -817,7 +833,7 @@ export const TournamentService: GenService<{
     methodKind: "unary";
     input: typeof GetTournamentByCodeRequestSchema;
     output: typeof TournamentResponseSchema;
-  },
+  };
   /**
    * @generated from rpc parley.tournament.v1.TournamentService.ListTournaments
    */
@@ -825,7 +841,7 @@ export const TournamentService: GenService<{
     methodKind: "unary";
     input: typeof ListTournamentsRequestSchema;
     output: typeof ListTournamentsResponseSchema;
-  },
+  };
   /**
    * @generated from rpc parley.tournament.v1.TournamentService.RegisterTeam
    */
@@ -833,7 +849,7 @@ export const TournamentService: GenService<{
     methodKind: "unary";
     input: typeof RegisterTeamRequestSchema;
     output: typeof TeamResponseSchema;
-  },
+  };
   /**
    * @generated from rpc parley.tournament.v1.TournamentService.UpdateTeamRoster
    */
@@ -841,7 +857,7 @@ export const TournamentService: GenService<{
     methodKind: "unary";
     input: typeof UpdateTeamRosterRequestSchema;
     output: typeof TeamResponseSchema;
-  },
+  };
   /**
    * @generated from rpc parley.tournament.v1.TournamentService.UnregisterTeam
    */
@@ -849,7 +865,7 @@ export const TournamentService: GenService<{
     methodKind: "unary";
     input: typeof UnregisterTeamRequestSchema;
     output: typeof TeamResponseSchema;
-  },
+  };
   /**
    * @generated from rpc parley.tournament.v1.TournamentService.StartTournament
    */
@@ -857,7 +873,7 @@ export const TournamentService: GenService<{
     methodKind: "unary";
     input: typeof StartTournamentRequestSchema;
     output: typeof TournamentResponseSchema;
-  },
+  };
   /**
    * @generated from rpc parley.tournament.v1.TournamentService.ReportBracketResult
    */
@@ -865,7 +881,7 @@ export const TournamentService: GenService<{
     methodKind: "unary";
     input: typeof ReportBracketResultRequestSchema;
     output: typeof BracketMatchResponseSchema;
-  },
+  };
   /**
    * @generated from rpc parley.tournament.v1.TournamentService.CancelTournament
    */
@@ -873,7 +889,5 @@ export const TournamentService: GenService<{
     methodKind: "unary";
     input: typeof CancelTournamentRequestSchema;
     output: typeof TournamentResponseSchema;
-  },
-}> = /*@__PURE__*/
-  serviceDesc(file_tournament_v1_tournament, 0);
-
+  };
+}> /*@__PURE__*/ = serviceDesc(file_tournament_v1_tournament, 0);
