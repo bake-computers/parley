@@ -218,7 +218,7 @@ type UserSettings struct {
 	MatchmakingEnabled bool   `bun:"matchmaking_enabled,notnull"`
 	TermsAcceptedAtMs  int64  `bun:"terms_accepted_at_ms,notnull"`
 	ProfilePublic      bool   `bun:"profile_public,notnull"`
-	Timezone           string `bun:",notnull"`
+	MatchmakingRegion  int32  `bun:"matchmaking_region,notnull"`
 }
 
 // NewUserSettings is the insert shape for user_settings.
@@ -231,7 +231,7 @@ type NewUserSettings struct {
 	MatchmakingEnabled bool   `bun:"matchmaking_enabled,notnull"`
 	TermsAcceptedAtMs  int64  `bun:"terms_accepted_at_ms,notnull"`
 	ProfilePublic      bool   `bun:"profile_public,notnull"`
-	Timezone           string `bun:",notnull"`
+	MatchmakingRegion  int32  `bun:"matchmaking_region,notnull"`
 }
 
 // AccountDeletionCooldown maps to table account_deletion_cooldowns.
@@ -534,6 +534,7 @@ type MatchmakingQueue struct {
 	CreatedAt            int64   `bun:"created_at,notnull"`
 	UpdatedAt            int64   `bun:"updated_at,notnull"`
 	TeamSize             int32   `bun:"team_size,notnull"`
+	MatchmakingRegion    int32   `bun:"matchmaking_region,notnull"`
 }
 
 // NewMatchmakingQueue is the insert shape for matchmaking_queues.
@@ -553,6 +554,7 @@ type NewMatchmakingQueue struct {
 	CreatedAt            int64   `bun:"created_at,notnull"`
 	UpdatedAt            int64   `bun:"updated_at,notnull"`
 	TeamSize             int32   `bun:"team_size,notnull"`
+	MatchmakingRegion    int32   `bun:"matchmaking_region,notnull"`
 }
 
 // MatchmakingQueueParticipant maps to table matchmaking_queue_participants.
