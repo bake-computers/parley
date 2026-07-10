@@ -32,7 +32,7 @@ func (s *Service) Run(ctx context.Context, interval time.Duration) error {
 }
 
 // Tick is a single one-shot pass: expire stale queues, then iterate the
-// distinct (game, guild, team_size) pools and try to form a match in
+// distinct (game, guild, team_size, matchmaking_region) pools and try to form a match in
 // each. It is the unit-level entry point used by tests and by the
 // sweeper loop. Mirrors run_once in src/matchmaking/sweeper.rs.
 func (s *Service) Tick(ctx context.Context) error {
@@ -51,7 +51,9 @@ func (s *Service) Tick(ctx context.Context) error {
 		if err != nil {
 			return fmt.Errorf("load eligibility: %w", err)
 		}
-		if _, err := s.SweepPool(ctx, p.Game, p.GuildID, p.TeamSize, "", "sweeper", elig); err != nil {
+		if _, err := s.SweepPool(
+			ctx, p.Game, p.GuildID, p.TeamSize, p.MatchmakingRegion, "", "sweeper", elig,
+		); err != nil {
 			return fmt.Errorf("sweep pool: %w", err)
 		}
 	}
