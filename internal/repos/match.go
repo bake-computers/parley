@@ -76,22 +76,29 @@ func (r *MatchmakingQueueRepo) CreateStack(
 	return &savedQueue, savedParts, nil
 }
 
-// FindWaitingForPool returns waiting stacks for a guild pool ordered oldest first.
+// FindWaitingForPool returns waiting stacks compatible with a regional guild
+// pool ordered oldest first. Global stacks are compatible with every explicit
+// region, while a global target includes only other global stacks.
 func (r *MatchmakingQueueRepo) FindWaitingForPool(
 	ctx context.Context,
 	game models.Game,
 	guildID string,
 	teamSize int32,
+	matchmakingRegion int32,
 ) ([]models.MatchmakingQueue, error) {
 	var rows []models.MatchmakingQueue
-	err := r.db.NewSelect().
+	query := r.db.NewSelect().
 		Model(&rows).
 		Where("game = ?", game).
 		Where("guild_id = ?", guildID).
 		Where("team_size = ?", teamSize).
-		Where("status = ?", QueueStatusWaiting).
-		Order("created_at ASC").
-		Scan(ctx)
+		Where("status = ?", QueueStatusWaiting)
+	if matchmakingRegion == 0 {
+		query = query.Where("matchmaking_region = 0")
+	} else {
+		query = query.Where("matchmaking_region IN (0, ?)", matchmakingRegion)
+	}
+	err := query.Order("created_at ASC").Scan(ctx)
 	return rows, err
 }
 
@@ -238,24 +245,25 @@ func (r *MatchmakingQueueRepo) ExpireStale(ctx context.Context, now int64) (int6
 	return res.RowsAffected()
 }
 
-// QueuePoolKey is a (game, guild_id, team_size) tuple identifying a
+// QueuePoolKey is a (game, guild_id, team_size, matchmaking_region) tuple identifying a
 // matchmaking pool. It is the return type of
 // MatchmakingQueueRepo.DistinctWaitingPools and is consumed by the
 // background sweeper.
 type QueuePoolKey struct {
-	Game     models.Game `bun:"game"`
-	GuildID  string      `bun:"guild_id"`
-	TeamSize int32       `bun:"team_size"`
+	Game              models.Game `bun:"game"`
+	GuildID           string      `bun:"guild_id"`
+	TeamSize          int32       `bun:"team_size"`
+	MatchmakingRegion int32       `bun:"matchmaking_region"`
 }
 
-// DistinctWaitingPools returns every unique (game, guild_id,
-// team_size) tuple across all currently-waiting queue rows. The
+// DistinctWaitingPools returns every unique (game, guild_id, team_size,
+// matchmaking_region) tuple across all currently-waiting queue rows. The
 // sweeper iterates the result to attempt match formation per pool.
 // Mirrors the SELECT DISTINCT in run_once in src/matchmaking/sweeper.rs.
 func (r *MatchmakingQueueRepo) DistinctWaitingPools(ctx context.Context) ([]QueuePoolKey, error) {
 	var rows []QueuePoolKey
 	err := r.db.NewSelect().
-		ColumnExpr("DISTINCT game, guild_id, team_size").
+		ColumnExpr("DISTINCT game, guild_id, team_size, matchmaking_region").
 		TableExpr("matchmaking_queues").
 		Where("status = ?", QueueStatusWaiting).
 		Scan(ctx, &rows)
@@ -265,22 +273,62 @@ func (r *MatchmakingQueueRepo) DistinctWaitingPools(ctx context.Context) ([]Queu
 	return rows, nil
 }
 
+// ExplicitRegionsForPool returns the explicit regions with waiting stacks in
+// deterministic oldest-stack order. It is used when a global stack arrives so
+// it can fill one regional lobby without mixing explicit regions.
+func (r *MatchmakingQueueRepo) ExplicitRegionsForPool(
+	ctx context.Context,
+	game models.Game,
+	guildID string,
+	teamSize int32,
+) ([]int32, error) {
+	type regionRow struct {
+		MatchmakingRegion int32 `bun:"matchmaking_region"`
+	}
+	var rows []regionRow
+	err := r.db.NewSelect().
+		ColumnExpr("matchmaking_region").
+		TableExpr("matchmaking_queues").
+		Where("game = ?", game).
+		Where("guild_id = ?", guildID).
+		Where("team_size = ?", teamSize).
+		Where("status = ?", QueueStatusWaiting).
+		Where("matchmaking_region <> 0").
+		GroupExpr("matchmaking_region").
+		OrderExpr("MIN(created_at) ASC, matchmaking_region ASC").
+		Scan(ctx, &rows)
+	if err != nil {
+		return nil, err
+	}
+	regions := make([]int32, 0, len(rows))
+	for _, row := range rows {
+		regions = append(regions, row.MatchmakingRegion)
+	}
+	return regions, nil
+}
+
 // PoolStats returns (waiting_players, waiting_stacks) for a pool.
 func (r *MatchmakingQueueRepo) PoolStats(
 	ctx context.Context,
 	game models.Game,
 	guildID string,
 	teamSize int32,
+	matchmakingRegion int32,
 ) (waitingPlayers int32, waitingStacks int32, err error) {
 	var counts []int32
-	err = r.db.NewSelect().
+	query := r.db.NewSelect().
 		Column("player_count").
 		Model((*models.MatchmakingQueue)(nil)).
 		Where("game = ?", game).
 		Where("guild_id = ?", guildID).
 		Where("team_size = ?", teamSize).
-		Where("status = ?", QueueStatusWaiting).
-		Scan(ctx, &counts)
+		Where("status = ?", QueueStatusWaiting)
+	if matchmakingRegion == 0 {
+		query = query.Where("matchmaking_region = 0")
+	} else {
+		query = query.Where("matchmaking_region IN (0, ?)", matchmakingRegion)
+	}
+	err = query.Scan(ctx, &counts)
 	if err != nil {
 		return 0, 0, err
 	}
