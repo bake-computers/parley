@@ -208,10 +208,12 @@ async function handleDiscordCallbackImpl(
         (g) => g,
         () => null,
       ),
-      botToken ? primeBotGuildsCache(botToken).then(
-        () => null,
-        () => null,
-      ) : Promise.resolve(null),
+      botToken
+        ? primeBotGuildsCache(botToken).then(
+            () => null,
+            () => null,
+          )
+        : Promise.resolve(null),
     ]);
     user = u;
     oauthGuilds = guildsResult;

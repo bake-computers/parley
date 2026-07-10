@@ -50,11 +50,9 @@ export const messagesEn: Messages = {
     problem: {
       titleBefore: "The ranked grind is ",
       titleHighlight: "broken by design.",
-      subtitle:
-        "Take Siege seriously and public matchmaking fights you every round.",
+      subtitle: "Take Siege seriously and public matchmaking fights you every round.",
       costLabel: "What it costs you",
-      costSuffix:
-        "recurring failures Parley is built to remove before the Discord app launches.",
+      costSuffix: "recurring failures Parley is built to remove before the Discord app launches.",
       costFootnote: "Queue report / public matchmaking",
       symptoms: [
         {
@@ -79,8 +77,7 @@ export const messagesEn: Messages = {
         "We spent forever building teams. One side always felt picked on. Same fight, every Saturday.",
         "So we built the tool we wished we had: automatic balance before the first round starts.",
       ],
-      pullQuote:
-        "Ten players. Two teams. Forty-five minutes of arguing, every Saturday.",
+      pullQuote: "Ten players. Two teams. Forty-five minutes of arguing, every Saturday.",
       founderRole: "Founder",
       coFounderRole: "Co-founder",
       avatarAlt: "avatar",
@@ -117,8 +114,7 @@ export const messagesEn: Messages = {
       playersAria: "players",
       balanceScore: "Balance score",
       rebalance: "Rebalance lobby",
-      footnote:
-        "Illustrative preview. Live matchmaking runs inside the Discord app at launch.",
+      footnote: "Illustrative preview. Live matchmaking runs inside the Discord app at launch.",
     },
     experience: {
       title: "From queue to trophy, handled for you.",
@@ -127,29 +123,17 @@ export const messagesEn: Messages = {
         {
           title: "Automated team formation",
           body: "Queue solo or with friends. Parley assembles balanced rosters around skill and role fit.",
-          detail: [
-            "Skill + role-fit balancing",
-            "Solo or stack friendly",
-            "No captain picks",
-          ],
+          detail: ["Skill + role-fit balancing", "Solo or stack friendly", "No captain picks"],
         },
         {
           title: "Scrims on demand",
           body: "Structured scrims against evenly-rated teams, scheduled without endless DMs.",
-          detail: [
-            "Evenly-rated opponents",
-            "Auto-scheduled slots",
-            "Zero DM coordination",
-          ],
+          detail: ["Evenly-rated opponents", "Auto-scheduled slots", "Zero DM coordination"],
         },
         {
           title: "Tournament brackets",
           body: "Seeding, check-ins, and progression run themselves so events stay fair and on time.",
-          detail: [
-            "Automatic seeding",
-            "Self-running check-ins",
-            "Live progression",
-          ],
+          detail: ["Automatic seeding", "Self-running check-ins", "Live progression"],
         },
       ],
     },

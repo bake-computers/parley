@@ -379,9 +379,7 @@ export async function resolveSessionGuilds(session: CookieSession): Promise<Cook
 
   const load = (async (): Promise<CookieGuild[]> => {
     try {
-      const guilds = cookieGuildsFromOAuth(
-        await fetchDiscordGuildsResilient(session.accessToken!),
-      );
+      const guilds = cookieGuildsFromOAuth(await fetchDiscordGuildsResilient(session.accessToken!));
       await cachePutJson(cacheKey, guilds, USER_GUILDS_TTL_SEC);
       return guilds;
     } catch {

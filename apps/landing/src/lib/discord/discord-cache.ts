@@ -72,11 +72,7 @@ export async function cacheGetJson<T>(key: string): Promise<T | null> {
   }
 }
 
-export async function cachePutJson(
-  key: string,
-  value: unknown,
-  ttlSeconds: number,
-): Promise<void> {
+export async function cachePutJson(key: string, value: unknown, ttlSeconds: number): Promise<void> {
   const body = JSON.stringify(value);
   const ttl = Math.max(1, Math.floor(ttlSeconds));
   memory.set(key, { exp: Date.now() + ttl * 1000, body });

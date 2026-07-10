@@ -1,10 +1,6 @@
 import type { EngineTransportEnv } from "../../engine/transport.js";
 import { resolveEngineTransport } from "../../engine/transport.js";
-import type {
-  GuildMatchmakingRulesJson,
-  GuildMatchQuotaJson,
-  GuildSettingsJson,
-} from "./types.js";
+import type { GuildMatchmakingRulesJson, GuildMatchQuotaJson, GuildSettingsJson } from "./types.js";
 
 type RpcError = { code?: string; message?: string };
 
