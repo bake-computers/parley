@@ -66,7 +66,9 @@ function choiceButton(
     .setDisabled(args.active);
   if (args.emojiName) {
     const emoji = toComponentEmoji(catalog, args.emojiName);
-    if (emoji) button.setEmoji(emoji);
+    if (emoji) {
+      button.setEmoji(emoji);
+    }
   }
   return button;
 }
@@ -84,7 +86,9 @@ function pageNav(catalog: ApplicationEmojiCatalog, page: number): ActionRowBuild
     .setDisabled(page >= USER_SETTINGS_PAGE_COUNT - 1);
   for (const button of [previous, next]) {
     const pin = toComponentEmoji(catalog, "redirect");
-    if (pin) button.setEmoji(pin);
+    if (pin) {
+      button.setEmoji(pin);
+    }
   }
   return new ActionRowBuilder().addComponents(previous, next);
 }
@@ -174,19 +178,25 @@ function buildPrivacyPage(
     .setLabel("Refresh stats")
     .setStyle(ButtonStyle.Primary);
   const reloadEmoji = toComponentEmoji(emojis, "reload");
-  if (reloadEmoji) refreshBtn.setEmoji(reloadEmoji);
+  if (reloadEmoji) {
+    refreshBtn.setEmoji(reloadEmoji);
+  }
   const deleteBtn = new ButtonBuilder()
     .setCustomId(USER_DELETE_OPEN)
     .setLabel("Delete my data")
     .setStyle(ButtonStyle.Danger);
   const trashEmoji = toComponentEmoji(emojis, "trash_red");
-  if (trashEmoji) deleteBtn.setEmoji(trashEmoji);
+  if (trashEmoji) {
+    deleteBtn.setEmoji(trashEmoji);
+  }
   const backBtn = new ButtonBuilder()
     .setCustomId(`${USER_PAGE_PREFIX}0`)
     .setLabel("Preferences")
     .setStyle(ButtonStyle.Secondary);
   const redirectEmoji = toComponentEmoji(emojis, "redirect");
-  if (redirectEmoji) backBtn.setEmoji(redirectEmoji);
+  if (redirectEmoji) {
+    backBtn.setEmoji(redirectEmoji);
+  }
   return new ContainerBuilder()
     .setAccentColor(COLORS.main)
     .addComponents(
