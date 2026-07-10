@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	commonv1 "github.com/pactum-computers/parley/gen/parley/common/v1"
 	"github.com/pactum-computers/parley/internal/models"
 	"github.com/pactum-computers/parley/internal/repos"
 )
@@ -116,6 +117,46 @@ func (s *Service) UserMatchmakingEnabled(
 		return true, nil
 	}
 	return settings.MatchmakingEnabled, nil
+}
+
+// ResolveQueueRegion loads the party's saved matchmaking regions and requires
+// every participant to share one exact value. Missing settings default to the
+// global no-preference region.
+func (s *Service) ResolveQueueRegion(ctx context.Context, discordUserIDs []string) (int32, error) {
+	region := GlobalMatchmakingRegion
+	set := false
+	for _, discordUserID := range discordUserIDs {
+		settings, err := s.users.Get(ctx, discordUserID)
+		if err != nil {
+			return 0, fmt.Errorf("user settings: %w", err)
+		}
+		current := GlobalMatchmakingRegion
+		if settings != nil {
+			current = settings.MatchmakingRegion
+		}
+		if !isKnownMatchmakingRegion(current) {
+			return 0, fmt.Errorf("user %s has an invalid matchmaking region", discordUserID)
+		}
+		if set && current != region {
+			return 0, fmt.Errorf("party members must share the same matchmaking region")
+		}
+		region = current
+		set = true
+	}
+	return region, nil
+}
+
+func isKnownMatchmakingRegion(region int32) bool {
+	switch commonv1.Region(region) {
+	case commonv1.Region_REGION_UNSPECIFIED,
+		commonv1.Region_REGION_EU,
+		commonv1.Region_REGION_NA,
+		commonv1.Region_REGION_APAC,
+		commonv1.Region_REGION_SA:
+		return true
+	default:
+		return false
+	}
 }
 
 // CheckQueueEligibility applies all per-user, per-lobby, and per-guild
