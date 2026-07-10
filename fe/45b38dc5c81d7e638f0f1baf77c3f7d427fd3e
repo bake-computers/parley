@@ -1,0 +1,23 @@
+internal/services/user.go
+  s_2b158745a3f065::t_f1c5f28a51cbc4 7,47-49,59,114,125-138
+internal/services/user_test.go
+  s_2b158745a3f065::t_cf92e419576138 30-31,43,61-79
+  s_2b158745a3f065::t_c436da6bd2dc00 86-87
+  s_2b158745a3f065::t_56944e678ab41c 4,8,80-85,88-90
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.11",
+  "base_commit_sha": "fe45b38dc5c81d7e638f0f1baf77c3f7d427fd3e",
+  "prompts": {},
+  "sessions": {
+    "s_2b158745a3f065": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f4be1-c4aa-77a0-947c-d49327bd15de",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
