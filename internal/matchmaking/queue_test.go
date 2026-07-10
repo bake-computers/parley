@@ -66,3 +66,27 @@ func TestFindMatchingStackIndicesEmpty(t *testing.T) {
 		t.Fatalf("expected nil for empty pool, got %v", idx)
 	}
 }
+
+func TestQueueRegionsCompatible(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name   string
+		target int32
+		stack  int32
+		want   bool
+	}{
+		{name: "global only matches global target", target: 0, stack: 0, want: true},
+		{name: "global target excludes eu", target: 0, stack: 1, want: false},
+		{name: "eu includes global", target: 1, stack: 0, want: true},
+		{name: "eu includes eu", target: 1, stack: 1, want: true},
+		{name: "eu excludes na", target: 1, stack: 2, want: false},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := matchmaking.QueueRegionsCompatible(tt.target, tt.stack); got != tt.want {
+				t.Fatalf("QueueRegionsCompatible(%d, %d) = %v, want %v", tt.target, tt.stack, got, tt.want)
+			}
+		})
+	}
+}
