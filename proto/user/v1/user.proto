@@ -22,7 +22,9 @@ message UserSettings {
   bool   matchmaking_enabled          = 4;
   int64  terms_accepted_at_ms         = 5;
   bool   profile_public               = 6;
-  string timezone                     = 7;
+  reserved 7;
+  reserved "timezone";
+  parley.common.v1.Region matchmaking_region = 8;
 }
 
 message GetUserSettingsRequest {
