@@ -9,7 +9,7 @@ import { buildDeleteConfirmModal } from "#/interactions/user/modal";
 
 export const userSlashCommand = new SlashCommand()
   .setName("user")
-  .setDescription("Manage your matchmaking, visibility, timezone, and data")
+  .setDescription("Manage your matchmaking, region, visibility, and data")
   .addSubcommand((subcommand) =>
     subcommand.setName("settings").setDescription("View your settings"),
   )

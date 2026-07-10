@@ -424,13 +424,21 @@ func (s *MatchService) JoinQueue(
 	if err := s.matchmaking.CheckQueueEligibility(ctx, game, guildID, discordIDs, members, elig); err != nil {
 		return nil, apperr.FailedPrecondition(err.Error())
 	}
+	matchmakingRegion, err := s.matchmaking.ResolveQueueRegion(ctx, discordIDs)
+	if err != nil {
+		return nil, apperr.FailedPrecondition(err.Error())
+	}
 
-	queue, _, err := s.matchmaking.CreateStack(ctx, game, guildID, channelID, captain, teamSize, players)
+	queue, _, err := s.matchmaking.CreateStack(
+		ctx, game, guildID, channelID, captain, teamSize, matchmakingRegion, players,
+	)
 	if err != nil {
 		return nil, apperr.Internal(fmt.Sprintf("create stack: %v", err))
 	}
 
-	formed, err := s.matchmaking.TryFormMatch(ctx, game, guildID, channelID, captain, teamSize, elig)
+	formed, err := s.matchmaking.TryFormMatchForQueue(
+		ctx, game, guildID, channelID, captain, teamSize, matchmakingRegion, elig,
+	)
 	if err != nil {
 		return nil, apperr.Internal(fmt.Sprintf("try form match: %v", err))
 	}
@@ -447,7 +455,7 @@ func (s *MatchService) JoinQueue(
 		}), nil
 	}
 
-	waiting, _, err := s.queue.PoolStats(ctx, game, guildID, teamSize)
+	waiting, _, err := s.queue.PoolStats(ctx, game, guildID, teamSize, matchmakingRegion)
 	if err != nil {
 		return nil, apperr.Internal(fmt.Sprintf("pool stats: %v", err))
 	}
@@ -525,7 +533,18 @@ func (s *MatchService) GetQueueStatus(
 	if err != nil {
 		return nil, apperr.Internal(fmt.Sprintf("lookup: %v", err))
 	}
-	waitingPlayers, waitingStacks, err := s.queue.PoolStats(ctx, game, guildID, teamSize)
+	matchmakingRegion := matchmaking.GlobalMatchmakingRegion
+	if active != nil {
+		matchmakingRegion = active.MatchmakingRegion
+	} else {
+		matchmakingRegion, err = s.matchmaking.ResolveQueueRegion(ctx, []string{discordID})
+		if err != nil {
+			return nil, apperr.FailedPrecondition(err.Error())
+		}
+	}
+	waitingPlayers, waitingStacks, err := s.queue.PoolStats(
+		ctx, game, guildID, teamSize, matchmakingRegion,
+	)
 	if err != nil {
 		return nil, apperr.Internal(fmt.Sprintf("pool stats: %v", err))
 	}

@@ -29,7 +29,7 @@ type UserSettings struct {
 	MatchmakingEnabled bool                   `protobuf:"varint,4,opt,name=matchmaking_enabled,json=matchmakingEnabled,proto3" json:"matchmaking_enabled,omitempty"`
 	TermsAcceptedAtMs  int64                  `protobuf:"varint,5,opt,name=terms_accepted_at_ms,json=termsAcceptedAtMs,proto3" json:"terms_accepted_at_ms,omitempty"`
 	ProfilePublic      bool                   `protobuf:"varint,6,opt,name=profile_public,json=profilePublic,proto3" json:"profile_public,omitempty"`
-	Timezone           string                 `protobuf:"bytes,7,opt,name=timezone,proto3" json:"timezone,omitempty"`
+	MatchmakingRegion  v1.Region              `protobuf:"varint,8,opt,name=matchmaking_region,json=matchmakingRegion,proto3,enum=parley.common.v1.Region" json:"matchmaking_region,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -99,11 +99,11 @@ func (x *UserSettings) GetProfilePublic() bool {
 	return false
 }
 
-func (x *UserSettings) GetTimezone() string {
+func (x *UserSettings) GetMatchmakingRegion() v1.Region {
 	if x != nil {
-		return x.Timezone
+		return x.MatchmakingRegion
 	}
-	return ""
+	return v1.Region(0)
 }
 
 type GetUserSettingsRequest struct {
@@ -510,14 +510,14 @@ var File_user_v1_user_proto protoreflect.FileDescriptor
 
 const file_user_v1_user_proto_rawDesc = "" +
 	"\n" +
-	"\x12user/v1/user.proto\x12\x0eparley.user.v1\x1a\x15common/v1/types.proto\"\x8f\x02\n" +
+	"\x12user/v1/user.proto\x12\x0eparley.user.v1\x1a\x15common/v1/types.proto\"\xcc\x02\n" +
 	"\fUserSettings\x12&\n" +
 	"\x0fdiscord_user_id\x18\x01 \x01(\tR\rdiscordUserId\x12\"\n" +
 	"\rupdated_at_ms\x18\x03 \x01(\x03R\vupdatedAtMs\x12/\n" +
 	"\x13matchmaking_enabled\x18\x04 \x01(\bR\x12matchmakingEnabled\x12/\n" +
 	"\x14terms_accepted_at_ms\x18\x05 \x01(\x03R\x11termsAcceptedAtMs\x12%\n" +
-	"\x0eprofile_public\x18\x06 \x01(\bR\rprofilePublic\x12\x1a\n" +
-	"\btimezone\x18\a \x01(\tR\btimezoneJ\x04\b\x02\x10\x03R\blanguage\"@\n" +
+	"\x0eprofile_public\x18\x06 \x01(\bR\rprofilePublic\x12G\n" +
+	"\x12matchmaking_region\x18\b \x01(\x0e2\x18.parley.common.v1.RegionR\x11matchmakingRegionJ\x04\b\x02\x10\x03J\x04\b\a\x10\bR\blanguageR\btimezone\"@\n" +
 	"\x16GetUserSettingsRequest\x12&\n" +
 	"\x0fdiscord_user_id\x18\x01 \x01(\tR\rdiscordUserId\"U\n" +
 	"\x19UpsertUserSettingsRequest\x128\n" +
@@ -575,25 +575,27 @@ var file_user_v1_user_proto_goTypes = []any{
 	(*DeleteUserDataRequest)(nil),     // 4: parley.user.v1.DeleteUserDataRequest
 	(*AnonymizationCounts)(nil),       // 5: parley.user.v1.AnonymizationCounts
 	(*DeleteUserDataResponse)(nil),    // 6: parley.user.v1.DeleteUserDataResponse
-	(*v1.Error)(nil),                  // 7: parley.common.v1.Error
+	(v1.Region)(0),                    // 7: parley.common.v1.Region
+	(*v1.Error)(nil),                  // 8: parley.common.v1.Error
 }
 var file_user_v1_user_proto_depIdxs = []int32{
-	0, // 0: parley.user.v1.UpsertUserSettingsRequest.settings:type_name -> parley.user.v1.UserSettings
-	0, // 1: parley.user.v1.UserSettingsResponse.settings:type_name -> parley.user.v1.UserSettings
-	7, // 2: parley.user.v1.UserSettingsResponse.error:type_name -> parley.common.v1.Error
-	5, // 3: parley.user.v1.DeleteUserDataResponse.tables_affected:type_name -> parley.user.v1.AnonymizationCounts
-	7, // 4: parley.user.v1.DeleteUserDataResponse.error:type_name -> parley.common.v1.Error
-	1, // 5: parley.user.v1.UserSettingsService.GetUserSettings:input_type -> parley.user.v1.GetUserSettingsRequest
-	2, // 6: parley.user.v1.UserSettingsService.UpsertUserSettings:input_type -> parley.user.v1.UpsertUserSettingsRequest
-	4, // 7: parley.user.v1.UserSettingsService.DeleteUserData:input_type -> parley.user.v1.DeleteUserDataRequest
-	3, // 8: parley.user.v1.UserSettingsService.GetUserSettings:output_type -> parley.user.v1.UserSettingsResponse
-	3, // 9: parley.user.v1.UserSettingsService.UpsertUserSettings:output_type -> parley.user.v1.UserSettingsResponse
-	6, // 10: parley.user.v1.UserSettingsService.DeleteUserData:output_type -> parley.user.v1.DeleteUserDataResponse
-	8, // [8:11] is the sub-list for method output_type
-	5, // [5:8] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	7, // 0: parley.user.v1.UserSettings.matchmaking_region:type_name -> parley.common.v1.Region
+	0, // 1: parley.user.v1.UpsertUserSettingsRequest.settings:type_name -> parley.user.v1.UserSettings
+	0, // 2: parley.user.v1.UserSettingsResponse.settings:type_name -> parley.user.v1.UserSettings
+	8, // 3: parley.user.v1.UserSettingsResponse.error:type_name -> parley.common.v1.Error
+	5, // 4: parley.user.v1.DeleteUserDataResponse.tables_affected:type_name -> parley.user.v1.AnonymizationCounts
+	8, // 5: parley.user.v1.DeleteUserDataResponse.error:type_name -> parley.common.v1.Error
+	1, // 6: parley.user.v1.UserSettingsService.GetUserSettings:input_type -> parley.user.v1.GetUserSettingsRequest
+	2, // 7: parley.user.v1.UserSettingsService.UpsertUserSettings:input_type -> parley.user.v1.UpsertUserSettingsRequest
+	4, // 8: parley.user.v1.UserSettingsService.DeleteUserData:input_type -> parley.user.v1.DeleteUserDataRequest
+	3, // 9: parley.user.v1.UserSettingsService.GetUserSettings:output_type -> parley.user.v1.UserSettingsResponse
+	3, // 10: parley.user.v1.UserSettingsService.UpsertUserSettings:output_type -> parley.user.v1.UserSettingsResponse
+	6, // 11: parley.user.v1.UserSettingsService.DeleteUserData:output_type -> parley.user.v1.DeleteUserDataResponse
+	9, // [9:12] is the sub-list for method output_type
+	6, // [6:9] is the sub-list for method input_type
+	6, // [6:6] is the sub-list for extension type_name
+	6, // [6:6] is the sub-list for extension extendee
+	0, // [0:6] is the sub-list for field type_name
 }
 
 func init() { file_user_v1_user_proto_init() }

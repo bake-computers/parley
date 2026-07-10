@@ -12,19 +12,21 @@ import {
   type AppEmojiName,
 } from "@parley/runtime";
 import {
+  Region,
+  type AnonymizationCounts,
+  type UserSettings as ProtoUserSettings,
+} from "@parley/proto";
+import {
   COLORS,
-  TIMEZONES,
+  MATCHMAKING_REGIONS,
   USER_DELETE_OPEN,
   USER_MATCHMAKING_PREFIX,
   USER_PAGE_PREFIX,
   USER_REFRESH_STATS,
+  USER_REGION_PREFIX,
   USER_SETTINGS_PAGE_COUNT,
-  USER_TIMEZONE_PREFIX,
-  USER_TIMEZONES_PER_PAGE,
-  USER_TZ_PAGE_PREFIX,
   USER_VISIBILITY_PREFIX,
 } from "#/interactions/user/constants";
-import type { UserSettings as ProtoUserSettings, AnonymizationCounts } from "@parley/proto";
 
 const SEPARATOR_SPACING_SMALL = 1;
 
@@ -34,6 +36,10 @@ function separator(): SeparatorBuilder {
 
 function visibilityLabel(public_: boolean): string {
   return public_ ? "Public" : "Hidden";
+}
+
+function regionLabel(region: Region): string {
+  return MATCHMAKING_REGIONS.find((option) => option.value === region)?.label ?? "Global";
 }
 
 function titleWith(
@@ -51,12 +57,7 @@ function emojiOr(catalog: ApplicationEmojiCatalog, name: AppEmojiName): string {
 
 function choiceButton(
   catalog: ApplicationEmojiCatalog,
-  args: {
-    customId: string;
-    label: string;
-    active: boolean;
-    emojiName?: AppEmojiName;
-  },
+  args: { customId: string; label: string; active: boolean; emojiName?: AppEmojiName },
 ): ButtonBuilder {
   const button = new ButtonBuilder()
     .setCustomId(args.customId)
@@ -72,51 +73,30 @@ function choiceButton(
   return button;
 }
 
-function pageNav(
-  catalog: ApplicationEmojiCatalog,
-  page: number,
-  timezonePage: number,
-): ActionRowBuilder[] {
-  const tzPageCount = Math.max(1, Math.ceil(TIMEZONES.length / USER_TIMEZONES_PER_PAGE));
-  const prevMain = new ButtonBuilder()
-    .setCustomId(`${USER_PAGE_PREFIX}${Math.max(0, page - 1)}:${timezonePage}`)
+function pageNav(catalog: ApplicationEmojiCatalog, page: number): ActionRowBuilder {
+  const previous = new ButtonBuilder()
+    .setCustomId(`${USER_PAGE_PREFIX}${Math.max(0, page - 1)}`)
     .setLabel("Back")
     .setStyle(ButtonStyle.Secondary)
     .setDisabled(page <= 0);
-  const nextMain = new ButtonBuilder()
-    .setCustomId(
-      `${USER_PAGE_PREFIX}${Math.min(USER_SETTINGS_PAGE_COUNT - 1, page + 1)}:${timezonePage}`,
-    )
+  const next = new ButtonBuilder()
+    .setCustomId(`${USER_PAGE_PREFIX}${Math.min(USER_SETTINGS_PAGE_COUNT - 1, page + 1)}`)
     .setLabel("Privacy")
     .setStyle(ButtonStyle.Primary)
     .setDisabled(page >= USER_SETTINGS_PAGE_COUNT - 1);
-  const prevTz = new ButtonBuilder()
-    .setCustomId(`${USER_TZ_PAGE_PREFIX}${Math.max(0, timezonePage - 1)}:${page}`)
-    .setLabel("Earlier TZ")
-    .setStyle(ButtonStyle.Secondary)
-    .setDisabled(timezonePage <= 0);
-  const nextTz = new ButtonBuilder()
-    .setCustomId(`${USER_TZ_PAGE_PREFIX}${Math.min(tzPageCount - 1, timezonePage + 1)}:${page}`)
-    .setLabel("More TZ")
-    .setStyle(ButtonStyle.Secondary)
-    .setDisabled(timezonePage >= tzPageCount - 1);
-  for (const btn of [prevMain, nextMain, prevTz, nextTz]) {
+  for (const button of [previous, next]) {
     const pin = toComponentEmoji(catalog, "redirect");
     if (pin) {
-      btn.setEmoji(pin);
+      button.setEmoji(pin);
     }
   }
-  return [
-    new ActionRowBuilder().addComponents(prevMain, nextMain),
-    new ActionRowBuilder().addComponents(prevTz, nextTz),
-  ];
+  return new ActionRowBuilder().addComponents(previous, next);
 }
 
 function buildPreferencesPage(
   settings: ProtoUserSettings,
   emojis: ApplicationEmojiCatalog,
   page: number,
-  timezonePage: number,
 ): ContainerBuilder {
   const container = new ContainerBuilder().setAccentColor(COLORS.main).addComponents(
     new TextDisplayBuilder().setContent(titleWith(emojis, "pin", "Your Settings")),
@@ -160,25 +140,27 @@ function buildPreferencesPage(
       }),
     ),
     separator(),
-    new TextDisplayBuilder().setContent(`**Timezone** · \`${settings.timezone}\``),
+    new TextDisplayBuilder().setContent(
+      `**Matchmaking region** · ${regionLabel(settings.matchmakingRegion)}`,
+    ),
+    new TextDisplayBuilder().setContent("Applies to new queue entries."),
   );
-
-  const tzStart = timezonePage * USER_TIMEZONES_PER_PAGE;
-  const tzSlice = TIMEZONES.slice(tzStart, tzStart + USER_TIMEZONES_PER_PAGE);
-  const timezoneButtons = tzSlice.map((tz) => {
-    const active = settings.timezone === tz.value;
-    return choiceButton(emojis, {
-      customId: `${USER_TIMEZONE_PREFIX}${page}:${timezonePage}/${encodeURIComponent(tz.value)}`,
-      label: tz.label,
-      active,
-      emojiName: "time",
-    });
-  });
-  if (timezoneButtons.length > 0) {
-    container.addComponents(new ActionRowBuilder().addComponents(...timezoneButtons));
-  }
-
-  container.addComponents(separator(), ...pageNav(emojis, page, timezonePage));
+  container.addComponents(
+    new ActionRowBuilder().addComponents(
+      ...MATCHMAKING_REGIONS.map((region) => {
+        const args = {
+          customId: `${USER_REGION_PREFIX}${region.value}`,
+          label: region.label,
+          active: settings.matchmakingRegion === region.value,
+        };
+        return region.value === Region.UNSPECIFIED
+          ? choiceButton(emojis, { ...args, emojiName: "global" })
+          : choiceButton(emojis, args);
+      }),
+    ),
+    separator(),
+    pageNav(emojis, page),
+  );
   return container;
 }
 
@@ -186,13 +168,11 @@ function buildPrivacyPage(
   settings: ProtoUserSettings,
   emojis: ApplicationEmojiCatalog,
   page: number,
-  timezonePage: number,
 ): ContainerBuilder {
   const cooldownLine =
     settings.termsAcceptedAtMs > 0
       ? `${emojiOr(emojis, "calendar")} Re-link cooldown · none`
       : `${emojiOr(emojis, "warning_orange")} Accept terms before linking`;
-
   const refreshBtn = new ButtonBuilder()
     .setCustomId(USER_REFRESH_STATS)
     .setLabel("Refresh stats")
@@ -201,7 +181,6 @@ function buildPrivacyPage(
   if (reloadEmoji) {
     refreshBtn.setEmoji(reloadEmoji);
   }
-
   const deleteBtn = new ButtonBuilder()
     .setCustomId(USER_DELETE_OPEN)
     .setLabel("Delete my data")
@@ -210,16 +189,14 @@ function buildPrivacyPage(
   if (trashEmoji) {
     deleteBtn.setEmoji(trashEmoji);
   }
-
   const backBtn = new ButtonBuilder()
-    .setCustomId(`${USER_PAGE_PREFIX}0:${timezonePage}`)
+    .setCustomId(`${USER_PAGE_PREFIX}0`)
     .setLabel("Preferences")
     .setStyle(ButtonStyle.Secondary);
   const redirectEmoji = toComponentEmoji(emojis, "redirect");
   if (redirectEmoji) {
     backBtn.setEmoji(redirectEmoji);
   }
-
   return new ContainerBuilder()
     .setAccentColor(COLORS.main)
     .addComponents(
@@ -246,15 +223,12 @@ function buildPrivacyPage(
         .setAccessory(deleteBtn),
       separator(),
       new SectionBuilder()
-        .addText(new TextDisplayBuilder().setContent("Return to matchmaking & timezone."))
+        .addText(new TextDisplayBuilder().setContent("Return to matchmaking & region."))
         .setAccessory(backBtn),
     );
 }
 
-export type UserSettingsView = {
-  page?: number;
-  timezonePage?: number;
-};
+export type UserSettingsView = { page?: number };
 
 export function buildSettingsCard(
   settings: ProtoUserSettings,
@@ -262,11 +236,9 @@ export function buildSettingsCard(
   view: UserSettingsView = {},
 ): ContainerBuilder {
   const page = Math.min(USER_SETTINGS_PAGE_COUNT - 1, Math.max(0, view.page ?? 0));
-  const timezonePage = Math.max(0, view.timezonePage ?? 0);
-  if (page === 0) {
-    return buildPreferencesPage(settings, emojis, page, timezonePage);
-  }
-  return buildPrivacyPage(settings, emojis, page, timezonePage);
+  return page === 0
+    ? buildPreferencesPage(settings, emojis, page)
+    : buildPrivacyPage(settings, emojis, page);
 }
 
 export function buildInfoCard(message: string): ContainerBuilder {
@@ -321,9 +293,7 @@ export function buildDeleteResultCard(
     `Tournament teams: ${t.tournamentTeams}`,
     `Tournament rosters: ${t.tournamentTeamRosters}`,
   ];
-
   const cooldownDiscordTs = `<t:${Math.floor(response.cooldownUntilMs / 1000)}:F>`;
-
   return new ContainerBuilder()
     .setAccentColor(COLORS.error)
     .addComponents(

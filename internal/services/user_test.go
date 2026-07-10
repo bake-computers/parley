@@ -1,9 +1,11 @@
 package services
 
 import (
+	"context"
 	"testing"
 
 	commonv1 "github.com/pactum-computers/parley/gen/parley/common/v1"
+	userv1 "github.com/pactum-computers/parley/gen/parley/user/v1"
 	"github.com/pactum-computers/parley/internal/models"
 	"github.com/pactum-computers/parley/internal/repos"
 )
@@ -25,8 +27,8 @@ func TestDefaultSettings(t *testing.T) {
 	if !s.ProfilePublic {
 		t.Error("ProfilePublic should be true")
 	}
-	if s.Timezone != "UTC" {
-		t.Errorf("Timezone = %q, want %q", s.Timezone, "UTC")
+	if s.MatchmakingRegion != commonv1.Region_REGION_UNSPECIFIED {
+		t.Errorf("MatchmakingRegion = %v, want global", s.MatchmakingRegion)
 	}
 }
 
@@ -38,7 +40,7 @@ func TestRowToProtoCarriesNewFields(t *testing.T) {
 		MatchmakingEnabled: false,
 		TermsAcceptedAtMs:  0,
 		ProfilePublic:      false,
-		Timezone:           "Europe/Berlin",
+		MatchmakingRegion:  int32(commonv1.Region_REGION_EU),
 	}
 	p := rowToProto(row)
 	if p.TermsAcceptedAtMs != 0 {
@@ -56,8 +58,36 @@ func TestRowToProtoCarriesNewFields(t *testing.T) {
 	if p.MatchmakingEnabled {
 		t.Error("MatchmakingEnabled should be false")
 	}
-	if p.Timezone != "Europe/Berlin" {
-		t.Errorf("Timezone = %q, want %q", p.Timezone, "Europe/Berlin")
+	if p.MatchmakingRegion != commonv1.Region_REGION_EU {
+		t.Errorf("MatchmakingRegion = %v, want EU", p.MatchmakingRegion)
+	}
+}
+
+func TestIsValidMatchmakingRegion(t *testing.T) {
+	for _, region := range []commonv1.Region{
+		commonv1.Region_REGION_UNSPECIFIED,
+		commonv1.Region_REGION_EU,
+		commonv1.Region_REGION_NA,
+		commonv1.Region_REGION_APAC,
+		commonv1.Region_REGION_SA,
+	} {
+		if !isValidMatchmakingRegion(region) {
+			t.Errorf("region %v should be valid", region)
+		}
+	}
+	if isValidMatchmakingRegion(commonv1.Region(99)) {
+		t.Error("unknown region should be invalid")
+	}
+}
+
+func TestUpsertUserSettingsRejectsUnknownMatchmakingRegion(t *testing.T) {
+	svc := &UserSettingsService{}
+	_, err := svc.UpsertUserSettings(context.Background(), &userv1.UserSettings{
+		DiscordUserId:     "u1",
+		MatchmakingRegion: commonv1.Region(99),
+	})
+	if err == nil {
+		t.Fatal("expected invalid matchmaking region error")
 	}
 }
 

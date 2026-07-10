@@ -19,7 +19,7 @@ export const helpCommand = new SlashCommand()
           "**/profile** — View your linked game accounts and stats",
         ),
         new TextDisplayBuilder().setContent(
-          "**/user** — Manage your matchmaking opt-out, profile visibility, timezone, and data",
+          "**/user** — Manage your matchmaking opt-out, region, profile visibility, and data",
         ),
         new TextDisplayBuilder().setContent(
           "**/history** — View your match history for a linked account",

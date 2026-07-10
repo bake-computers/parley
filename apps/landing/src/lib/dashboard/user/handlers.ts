@@ -5,6 +5,13 @@ import { engineEnvFromCloudflare } from "../../engine/env.js";
 import { rpcGetUserSettings, rpcUpsertUserSettings } from "./rpc.js";
 import type { UserSettingsJson } from "./types.js";
 
+const VALID_MATCHMAKING_REGIONS = new Set([0, 1, 2, 3, 4]);
+
+function parseMatchmakingRegion(value: unknown): number | null {
+  const region = Number(value ?? 0);
+  return Number.isInteger(region) && VALID_MATCHMAKING_REGIONS.has(region) ? region : null;
+}
+
 function engineFailure(error: unknown): Response {
   const message = error instanceof Error ? error.message : "Engine request failed";
   return Response.json({ error: message }, { status: 502 });
@@ -15,7 +22,7 @@ export function normalizeUserSettings(settings: UserSettingsJson): UserSettingsJ
     ...settings,
     matchmakingEnabled: settings.matchmakingEnabled ?? true,
     profilePublic: settings.profilePublic ?? true,
-    timezone: settings.timezone?.trim() || "UTC",
+    matchmakingRegion: parseMatchmakingRegion(settings.matchmakingRegion) ?? 0,
     termsAcceptedAtMs: settings.termsAcceptedAtMs ?? 0,
     updatedAtMs: settings.updatedAtMs ?? 0,
   };
@@ -26,13 +33,17 @@ function parseUserSettings(userId: string, payload: unknown): UserSettingsJson |
     return null;
   }
   const p = payload as Record<string, unknown>;
+  const matchmakingRegion = parseMatchmakingRegion(p.matchmakingRegion);
+  if (matchmakingRegion === null) {
+    return null;
+  }
   return {
     discordUserId: userId,
     updatedAtMs: 0,
     matchmakingEnabled: Boolean(p.matchmakingEnabled ?? true),
     termsAcceptedAtMs: Number(p.termsAcceptedAtMs ?? 0),
     profilePublic: Boolean(p.profilePublic ?? true),
-    timezone: String(p.timezone ?? "UTC").trim() || "UTC",
+    matchmakingRegion,
   };
 }
 

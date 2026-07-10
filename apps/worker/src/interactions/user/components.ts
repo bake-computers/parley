@@ -5,7 +5,7 @@ import {
   type ModalInteraction,
   logger,
 } from "@parley/runtime";
-import type { UserSettings as ProtoUserSettings } from "@parley/proto";
+import { Region, type UserSettings as ProtoUserSettings } from "@parley/proto";
 import { getUserSettingsClient } from "#/transport";
 import { editReplyV2, updateV2 } from "#/ui/discord";
 import { resolveEmojis } from "#/ui/emojis";
@@ -16,11 +16,10 @@ import {
   USER_DELETE_OPEN,
   USER_MATCHMAKING_PREFIX,
   USER_REFRESH_STATS,
-  USER_TIMEZONE_PREFIX,
+  USER_REGION_PREFIX,
   USER_VISIBILITY_PREFIX,
   USER_ACCEPT_BUTTON,
   USER_PAGE_PREFIX,
-  USER_TZ_PAGE_PREFIX,
 } from "#/interactions/user/constants";
 import { buildDeleteConfirmModal, USER_DELETE_CONFIRM_INPUT } from "#/interactions/user/modal";
 import { parseAcceptSource, refreshSettingsCache } from "#/interactions/_shared/acceptance";
@@ -49,13 +48,13 @@ function baseSettings(discordUserId: string): ProtoUserSettings {
     matchmakingEnabled: true,
     termsAcceptedAtMs: 0,
     profilePublic: true,
-    timezone: "UTC",
+    matchmakingRegion: Region.UNSPECIFIED,
   } as unknown as ProtoUserSettings;
 }
 
-type UserSettingsView = { page: number; timezonePage: number };
+type UserSettingsView = { page: number };
 
-const DEFAULT_VIEW: UserSettingsView = { page: 0, timezonePage: 0 };
+const DEFAULT_VIEW: UserSettingsView = { page: 0 };
 
 async function deferComponent(interaction: MessageComponentInteraction): Promise<boolean> {
   const deferred = await interaction.deferUpdate();
@@ -95,46 +94,23 @@ async function applyUpdate(
 
 function parseUserPageCustomId(customId: string): UserSettingsView | undefined {
   if (customId.startsWith(USER_PAGE_PREFIX)) {
-    const rest = customId.slice(USER_PAGE_PREFIX.length);
-    const [pageStr, tzStr] = rest.split(":");
-    const page = Number(pageStr);
-    const timezonePage = Number(tzStr);
-    if (Number.isFinite(page) && Number.isFinite(timezonePage)) {
-      return { page, timezonePage };
-    }
-  }
-  if (customId.startsWith(USER_TZ_PAGE_PREFIX)) {
-    const rest = customId.slice(USER_TZ_PAGE_PREFIX.length);
-    const [tzStr, pageStr] = rest.split(":");
-    const timezonePage = Number(tzStr);
-    const page = Number(pageStr);
-    if (Number.isFinite(page) && Number.isFinite(timezonePage)) {
-      return { page, timezonePage };
+    const page = Number(customId.slice(USER_PAGE_PREFIX.length));
+    if (Number.isFinite(page)) {
+      return { page };
     }
   }
   return undefined;
 }
 
-function parseTimezoneCustomId(
-  customId: string,
-): { timezone: string; view: UserSettingsView } | undefined {
-  if (!customId.startsWith(USER_TIMEZONE_PREFIX)) {
+function parseRegionCustomId(customId: string): Region | undefined {
+  if (!customId.startsWith(USER_REGION_PREFIX)) {
     return undefined;
   }
-  const rest = customId.slice(USER_TIMEZONE_PREFIX.length);
-  const slash = rest.indexOf("/");
-  if (slash <= 0) {
+  const region = Number(customId.slice(USER_REGION_PREFIX.length));
+  if (!Number.isInteger(region) || region < Region.UNSPECIFIED || region > Region.SA) {
     return undefined;
   }
-  const meta = rest.slice(0, slash);
-  const timezone = decodeURIComponent(rest.slice(slash + 1));
-  const [pageStr, timezonePageStr] = meta.split(":");
-  const page = Number(pageStr);
-  const timezonePage = Number(timezonePageStr);
-  if (!timezone || !Number.isFinite(page) || !Number.isFinite(timezonePage)) {
-    return undefined;
-  }
-  return { timezone, view: { page, timezonePage } };
+  return region as Region;
 }
 
 export const userButtonHandler = new ComponentHandler("user", COMPONENT_BUTTON).addHandler(
@@ -224,12 +200,12 @@ export const userButtonHandler = new ComponentHandler("user", COMPONENT_BUTTON).
       );
       return;
     }
-    const timezoneSelection = parseTimezoneCustomId(customId);
-    if (timezoneSelection) {
+    const regionSelection = parseRegionCustomId(customId);
+    if (regionSelection !== undefined) {
       await applyUpdate(
         interaction,
-        { ...current, timezone: timezoneSelection.timezone, updatedAtMs: nowMs() },
-        timezoneSelection.view,
+        { ...current, matchmakingRegion: regionSelection, updatedAtMs: nowMs() },
+        DEFAULT_VIEW,
       );
       return;
     }

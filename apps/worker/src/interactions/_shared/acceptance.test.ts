@@ -64,7 +64,7 @@ function userSettings(termsAcceptedAtMs: number): ProtoUserSettings {
     matchmakingEnabled: true,
     termsAcceptedAtMs,
     profilePublic: true,
-    timezone: "UTC",
+    matchmakingRegion: 0,
   } as unknown as ProtoUserSettings;
 }
 
