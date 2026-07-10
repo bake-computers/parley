@@ -17,6 +17,10 @@ export type TournamentJson = {
   teams: Array<{ id: number; teamName: string; captainDiscordUserId: string; status: string }>;
 };
 
+function normalizeTournament(tournament: TournamentJson): TournamentJson {
+  return { ...tournament, teams: tournament.teams ?? [] };
+}
+
 export type CreateTournamentRpcRequest = {
   guildId: string;
   channelId: string;
@@ -61,7 +65,7 @@ export async function rpcGetTournamentByCode(
     { publicCode, game: 1 },
   );
   if (!json.success || !json.tournament) throw new Error("Tournament not found");
-  return json.tournament;
+  return normalizeTournament(json.tournament);
 }
 
 export async function rpcRegisterTeam(
@@ -83,7 +87,7 @@ export async function rpcTournamentAction(
     body,
   );
   if (!json.success || !json.tournament) throw new Error("Tournament update failed");
-  return json.tournament;
+  return normalizeTournament(json.tournament);
 }
 
 export async function rpcCreateTournament(
