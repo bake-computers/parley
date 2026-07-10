@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	commonv1 "github.com/pactum-computers/parley/gen/parley/common/v1"
 	userv1 "github.com/pactum-computers/parley/gen/parley/user/v1"
 	"github.com/pactum-computers/parley/internal/apperr"
 	"github.com/pactum-computers/parley/internal/models"
@@ -43,9 +44,9 @@ func (s *UserSettingsService) UpsertUserSettings(
 	settings *userv1.UserSettings,
 ) (*userv1.UserSettings, error) {
 	now := repos.NowMS()
-	tz := settings.GetTimezone()
-	if tz == "" {
-		tz = "UTC"
+	region := settings.GetMatchmakingRegion()
+	if !isValidMatchmakingRegion(region) {
+		return nil, apperr.InvalidArgument("invalid matchmaking_region")
 	}
 
 	newRow := &models.NewUserSettings{
@@ -55,7 +56,7 @@ func (s *UserSettingsService) UpsertUserSettings(
 		MatchmakingEnabled: settings.GetMatchmakingEnabled(),
 		TermsAcceptedAtMs:  settings.GetTermsAcceptedAtMs(),
 		ProfilePublic:      settings.GetProfilePublic(),
-		Timezone:           tz,
+		MatchmakingRegion:  int32(region),
 	}
 
 	saved, err := s.users.Upsert(ctx, newRow)
@@ -110,7 +111,7 @@ func defaultSettings(discordUserID string) *userv1.UserSettings {
 		MatchmakingEnabled: true,
 		TermsAcceptedAtMs:  0,
 		ProfilePublic:      true,
-		Timezone:           "UTC",
+		MatchmakingRegion:  commonv1.Region_REGION_UNSPECIFIED,
 	}
 }
 
@@ -121,7 +122,20 @@ func rowToProto(row *models.UserSettings) *userv1.UserSettings {
 		MatchmakingEnabled: row.MatchmakingEnabled,
 		TermsAcceptedAtMs:  row.TermsAcceptedAtMs,
 		ProfilePublic:      row.ProfilePublic,
-		Timezone:           row.Timezone,
+		MatchmakingRegion:  commonv1.Region(row.MatchmakingRegion),
+	}
+}
+
+func isValidMatchmakingRegion(region commonv1.Region) bool {
+	switch region {
+	case commonv1.Region_REGION_UNSPECIFIED,
+		commonv1.Region_REGION_EU,
+		commonv1.Region_REGION_NA,
+		commonv1.Region_REGION_APAC,
+		commonv1.Region_REGION_SA:
+		return true
+	default:
+		return false
 	}
 }
 
