@@ -1,0 +1,24 @@
+packages/generated-ts/src/user/v1/user_pb.ts
+  s_2b158745a3f065::t_803b687f324e4a 15
+  s_2b158745a3f065::t_a6fa81c21cbaa0 7,49,51
+proto/user/v1/user.proto
+  s_2b158745a3f065::t_f1c5f28a51cbc4 25-27,69
+gen/parley/user/v1/user.pb.go
+  s_2b158745a3f065::t_e9770734e5088f 32,102,104,106,513,519-520,578-579,582-598
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.11",
+  "base_commit_sha": "1e6544c7e2cb6e15ab94f257bbce8777d6b563ff",
+  "prompts": {},
+  "sessions": {
+    "s_2b158745a3f065": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f4be1-c4aa-77a0-947c-d49327bd15de",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
