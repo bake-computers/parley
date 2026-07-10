@@ -1,0 +1,23 @@
+migrations/2026-07-10-130000_matchmaking_regions/up.sql
+  s_2b158745a3f065::t_f1c5f28a51cbc4 1-14
+migrations/2026-07-10-130000_matchmaking_regions/down.sql
+  s_2b158745a3f065::t_f1c5f28a51cbc4 1-13
+internal/db/db_test.go
+  s_2b158745a3f065::t_2f02b1f4ac5285 28-29
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.11",
+  "base_commit_sha": "3ec9aa1d501e22c58613561cec8123be7b0e45df",
+  "prompts": {},
+  "sessions": {
+    "s_2b158745a3f065": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f4be1-c4aa-77a0-947c-d49327bd15de",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
