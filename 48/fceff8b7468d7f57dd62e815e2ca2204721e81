@@ -1,0 +1,26 @@
+apps/landing/src/lib/dashboard/user/handlers.ts
+  s_2b158745a3f065::t_dc20efa711a34c 9-15,22-28,39
+apps/landing/src/lib/dashboard/user/handlers.test.ts
+  s_2b158745a3f065::t_13ed0d760b329e 1-22
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.11",
+  "base_commit_sha": "48fceff8b7468d7f57dd62e815e2ca2204721e81",
+  "prompts": {},
+  "humans": {
+    "h_93d17961f46f35": {
+      "author": "ryzmae <hi@ryzm.cc>"
+    }
+  },
+  "sessions": {
+    "s_2b158745a3f065": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f4be1-c4aa-77a0-947c-d49327bd15de",
+        "model": "gpt-5.6-luna"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
