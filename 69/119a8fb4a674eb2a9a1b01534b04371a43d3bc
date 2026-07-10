@@ -1,0 +1,20 @@
+internal/matchmaking/queue.go
+  s_2b158745a3f065::t_7cc70cf2bdcd02 68,71,249-276,284,311,340,348,352-354
+  s_2b158745a3f065::t_2f02b1f4ac5285 75-79
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.11",
+  "base_commit_sha": "69119a8fb4a674eb2a9a1b01534b04371a43d3bc",
+  "prompts": {},
+  "sessions": {
+    "s_2b158745a3f065": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f4be1-c4aa-77a0-947c-d49327bd15de",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "ryzmae <hi@ryzm.cc>"
+    }
+  }
+}
