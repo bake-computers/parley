@@ -6,10 +6,24 @@ import { rpcGetUserSettings, rpcUpsertUserSettings } from "./rpc.js";
 import type { UserSettingsJson } from "./types.js";
 
 const VALID_MATCHMAKING_REGIONS = new Set([0, 1, 2, 3, 4]);
+const REGION_ENUM_VALUES: Record<string, number> = {
+  REGION_UNSPECIFIED: 0,
+  REGION_EU: 1,
+  REGION_NA: 2,
+  REGION_APAC: 3,
+  REGION_SA: 4,
+};
 
 function parseMatchmakingRegion(value: unknown): number | null {
   const region = Number(value ?? 0);
   return Number.isInteger(region) && VALID_MATCHMAKING_REGIONS.has(region) ? region : null;
+}
+
+function normalizeMatchmakingRegion(value: unknown): number | null {
+  if (typeof value === "string" && value in REGION_ENUM_VALUES) {
+    return REGION_ENUM_VALUES[value];
+  }
+  return parseMatchmakingRegion(value);
 }
 
 function engineFailure(error: unknown): Response {
@@ -22,7 +36,7 @@ export function normalizeUserSettings(settings: UserSettingsJson): UserSettingsJ
     ...settings,
     matchmakingEnabled: settings.matchmakingEnabled ?? true,
     profilePublic: settings.profilePublic ?? true,
-    matchmakingRegion: parseMatchmakingRegion(settings.matchmakingRegion) ?? 0,
+    matchmakingRegion: normalizeMatchmakingRegion(settings.matchmakingRegion) ?? 0,
     termsAcceptedAtMs: settings.termsAcceptedAtMs ?? 0,
     updatedAtMs: settings.updatedAtMs ?? 0,
   };
