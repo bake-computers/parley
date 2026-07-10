@@ -3,13 +3,17 @@ import { GlassPanel } from "#/components/ui/glass-panel";
 import { useSettingsSection } from "#/hooks/useSettingsSection";
 import { settingsBaselineKey } from "#/lib/shared/settings-baseline";
 import type { UserSettingsJson } from "#/lib/dashboard/user/types";
-import { SettingsField, SettingsInput, SettingsToggle } from "./SettingsField";
+import { SettingsField, SettingsSelect, SettingsToggle } from "./SettingsField";
 import { SettingsSaveBar } from "./SettingsSaveBar";
 import { SettingsToast } from "./SettingsToast";
 
 function validateUserSettings(draft: UserSettingsJson): string | null {
-  if (!draft.timezone.trim()) {
-    return "Timezone is required";
+  if (
+    !Number.isInteger(draft.matchmakingRegion) ||
+    draft.matchmakingRegion < 0 ||
+    draft.matchmakingRegion > 4
+  ) {
+    return "Choose a valid matchmaking region";
   }
   return null;
 }
@@ -29,7 +33,7 @@ export function UserSettingsForm({
       ...settings,
       matchmakingEnabled: settings.matchmakingEnabled ?? true,
       profilePublic: settings.profilePublic ?? true,
-      timezone: settings.timezone?.trim() || "UTC",
+      matchmakingRegion: settings.matchmakingRegion ?? 0,
     }),
     [settingsKey],
   );
@@ -59,12 +63,22 @@ export function UserSettingsForm({
             Personal preferences across all Parley servers.
           </p>
         </div>
-        <SettingsField label="Timezone" hint="IANA name, e.g. Europe/Berlin">
-          <SettingsInput
-            value={section.draft.timezone}
-            onChange={(e) => section.setDraft((s) => ({ ...s, timezone: e.target.value }))}
-            placeholder="UTC"
-          />
+        <SettingsField
+          label="Matchmaking region"
+          hint="Applies to new queue entries. Global can fill one regional lobby without mixing regions."
+        >
+          <SettingsSelect
+            value={section.draft.matchmakingRegion}
+            onChange={(e) =>
+              section.setDraft((s) => ({ ...s, matchmakingRegion: Number(e.target.value) }))
+            }
+          >
+            <option value={0}>Global (no preference)</option>
+            <option value={1}>Europe</option>
+            <option value={2}>North America</option>
+            <option value={3}>Asia-Pacific</option>
+            <option value={4}>South America</option>
+          </SettingsSelect>
         </SettingsField>
         <SettingsToggle
           label="Matchmaking enabled"

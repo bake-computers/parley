@@ -40,6 +40,27 @@ export function SettingsInput({
   );
 }
 
+export function SettingsSelect({
+  className,
+  invalid,
+  children,
+  ...props
+}: React.ComponentProps<"select"> & { invalid?: boolean }) {
+  return (
+    <select
+      className={cn(
+        inputClass,
+        "appearance-none",
+        invalid && "border-destructive focus-visible:ring-destructive/30",
+        className,
+      )}
+      {...props}
+    >
+      {children}
+    </select>
+  );
+}
+
 export function SettingsToggle({
   label,
   description,
