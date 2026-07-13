@@ -103,7 +103,7 @@ The `parley` binary is a Go HTTP server (Fiber + connect-go) exposing ConnectRPC
 - **Handlers** — One module per protobuf service; Connect-RPC handlers invoke services and repositories.
 - **Matchmaking engine** — Pure-logic CPR and Glicko-2 team balancer with queue management and a background sweeper for stale entries.
 - **Tournament engine** — Bracket generation, seeding, and progression logic.
-- **Stats pipeline** — Backend registry dispatches per-game backends; R6 scrapes stats.cc HTML via a Nuxt payload parser. Results pass through a tiered cache (Redis or direct) with optional Postgres persistence.
+- **Stats pipeline** — Backend registry dispatches per-game backends; R6 fetches stats via the stats.cc API and maps responses into domain types. Results pass through a tiered cache (Redis or direct) with optional Postgres persistence.
 - **Database layer** — Bun ORM over pgxpool, embedded SQL migrations, and repository modules for players, identities, matches, tournaments, and guild configuration.
 
 ### 5.3 Edge Applications
@@ -247,7 +247,7 @@ flowchart TB
             tournament_engine["Tournament Engine\nBracket and Seeding"]
             stats_registry["Stats Backend Registry"]
             r6_backend["R6 Stats Backend"]
-            nuxt_parser["Nuxt Payload Parser"]
+            stats_api["stats.cc API Client"]
             guild_cache["Guild Cache"]
             stats_persister["Stats Persister"]
         end
@@ -330,8 +330,8 @@ flowchart TB
     tournament_engine --> bun_repos
 
     stats_registry --> r6_backend
-    r6_backend --> nuxt_parser
-    r6_backend --> stats_cc
+    r6_backend --> stats_api
+    stats_api --> stats_cc
     stats_registry --> stats_persister
     stats_persister --> bun_repos
     stats_persister --> guild_cache
@@ -369,7 +369,7 @@ Domain timestamps use `bigint` epoch milliseconds. Auth-adjacent tables (managed
 
 | Game              | Proto enum | Stats source     | Matchmaking     |
 | ----------------- | ---------- | ---------------- | --------------- |
-| Rainbow Six Siege | `GAME_R6`  | stats.cc scraper | Full CPR engine |
+| Rainbow Six Siege | `GAME_R6`  | stats.cc API     | Full CPR engine |
 
 Adding a new title requires a Postgres migration (`ALTER TYPE games ADD VALUE`), a stats backend implementation, and proto enum extension.
 
