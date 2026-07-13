@@ -6,24 +6,21 @@ import (
 
 	commonv1 "github.com/pactum-computers/parley/gen/parley/common/v1"
 	statsv1 "github.com/pactum-computers/parley/gen/parley/stats/v1"
-	"github.com/pactum-computers/parley/internal/stats/backends"
 	"github.com/pactum-computers/parley/internal/stats/cache"
 	"github.com/pactum-computers/parley/internal/stats/fetch"
 	"github.com/pactum-computers/parley/internal/stats/scrape"
 )
 
-// StatsService fetches player stats through the cache→backend→fetch pipeline.
+// StatsService fetches player stats through the cache→fetch pipeline.
 type StatsService struct {
-	cache    cache.CacheStore
-	registry *backends.StatsBackendRegistry
+	cache cache.CacheStore
 }
 
 // NewStatsService creates a StatsService. cache must be non-nil in production.
 func NewStatsService(
 	cacheStore cache.CacheStore,
-	registry *backends.StatsBackendRegistry,
 ) *StatsService {
-	return &StatsService{cache: cacheStore, registry: registry}
+	return &StatsService{cache: cacheStore}
 }
 
 // FetchStats fetches stats for a single season selector (or latest when empty).
@@ -32,14 +29,9 @@ func (s *StatsService) FetchStats(
 	username string,
 	platform fetch.StatsPlatform,
 	seasonSelector string,
-	game backends.Game,
 ) (scrape.ScrapedStats, error) {
 	season := emptyToNil(seasonSelector)
-
-	if s.cache != nil {
-		return s.cache.Fetch(ctx, game, username, platform, season)
-	}
-	return s.registry.Fetch(ctx, game, username, platform, season)
+	return s.cache.Fetch(ctx, username, platform, season)
 }
 
 // FetchStatsCollection fetches stats for every ranked season.
@@ -47,12 +39,8 @@ func (s *StatsService) FetchStatsCollection(
 	ctx context.Context,
 	username string,
 	platform fetch.StatsPlatform,
-	game backends.Game,
 ) (scrape.ScrapedStatsCollection, error) {
-	if s.cache != nil {
-		return s.cache.FetchCollection(ctx, game, username, platform)
-	}
-	return s.registry.FetchCollection(ctx, game, username, platform)
+	return s.cache.FetchCollection(ctx, username, platform)
 }
 
 // --- Proto conversion helpers ---
@@ -69,12 +57,6 @@ func MapProtoPlatform(p statsv1.StatsPlatform) fetch.StatsPlatform {
 	default:
 		return fetch.StatsPlatformAuto
 	}
-}
-
-// MapProtoGame converts proto Game to backends.Game. Defaults to GameR6 for
-// GAME_UNSPECIFIED so existing clients keep working.
-func MapProtoGame(_ commonv1.Game) backends.Game {
-	return backends.GameR6
 }
 
 // ProtoFromScraped converts a domain ScrapedStats to proto ScrapedStats.

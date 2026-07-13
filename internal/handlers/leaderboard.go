@@ -7,8 +7,8 @@ import (
 	commonv1 "github.com/pactum-computers/parley/gen/parley/common/v1"
 	leaderboardv1 "github.com/pactum-computers/parley/gen/parley/leaderboard/v1"
 	"github.com/pactum-computers/parley/gen/parley/leaderboard/v1/leaderboardv1connect"
+	"github.com/pactum-computers/parley/internal/models"
 	"github.com/pactum-computers/parley/internal/services"
-	"github.com/pactum-computers/parley/internal/stats/backends"
 )
 
 // LeaderboardHandler serves parley.leaderboard.v1.LeaderboardService.
@@ -37,12 +37,12 @@ func mapLeaderboardType(t leaderboardv1.LeaderboardType) services.Kind {
 	}
 }
 
-func mapLeaderboardProtoGame(g commonv1.Game) backends.Game {
+func mapLeaderboardProtoGame(g commonv1.Game) models.Game {
 	switch g {
 	case commonv1.Game_GAME_R6:
-		return backends.GameR6
+		return models.GameR6
 	default:
-		return backends.GameR6
+		return models.GameR6
 	}
 }
 

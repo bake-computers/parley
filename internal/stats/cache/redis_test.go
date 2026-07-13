@@ -9,25 +9,26 @@ import (
 	"time"
 
 	"github.com/alicebob/miniredis/v2"
-	"github.com/redis/go-redis/v9"
-
-	"github.com/pactum-computers/parley/internal/stats/backends"
 	"github.com/pactum-computers/parley/internal/stats/fetch"
 	"github.com/pactum-computers/parley/internal/stats/scrape"
+	"github.com/redis/go-redis/v9"
 )
 
-type fakeBackend struct {
-	game        backends.Game
-	fetchFn     func(ctx context.Context, username string, platform fetch.StatsPlatform, season *string) (scrape.ScrapedStats, error)
-	fetchCollFn func(ctx context.Context, username string, platform fetch.StatsPlatform) (scrape.ScrapedStatsCollection, error)
+type fakeStatsClient struct {
+	fetchCount atomic.Int32
+	stats      scrape.ScrapedStats
+	collection scrape.ScrapedStatsCollection
+	err        error
 }
 
-func (f *fakeBackend) Game() backends.Game { return f.game }
-func (f *fakeBackend) Fetch(ctx context.Context, username string, platform fetch.StatsPlatform, season *string) (scrape.ScrapedStats, error) {
-	return f.fetchFn(ctx, username, platform, season)
+func (f *fakeStatsClient) FetchStats(context.Context, string, fetch.StatsPlatform, *string) (scrape.ScrapedStats, error) {
+	f.fetchCount.Add(1)
+	time.Sleep(20 * time.Millisecond)
+	return f.stats, f.err
 }
-func (f *fakeBackend) FetchCollection(ctx context.Context, username string, platform fetch.StatsPlatform) (scrape.ScrapedStatsCollection, error) {
-	return f.fetchCollFn(ctx, username, platform)
+func (f *fakeStatsClient) FetchStatsCollection(context.Context, string, fetch.StatsPlatform) (scrape.ScrapedStatsCollection, error) {
+	f.fetchCount.Add(1)
+	return f.collection, f.err
 }
 
 func newTestRedis(t *testing.T) (*miniredis.Miniredis, redis.Cmdable) {
@@ -46,248 +47,68 @@ func sampleStats() scrape.ScrapedStats {
 	}
 }
 
-func TestRedisCacheStore_Fetch_Hit(t *testing.T) {
+func TestRedisCacheStoreFetchHit(t *testing.T) {
 	mr, client := newTestRedis(t)
 	stats := sampleStats()
+	key := FreshKey("alice", fetch.StatsPlatformPC, strPtr("y9s1"))
+	p, _ := json.Marshal(stats.Profile)
+	r, _ := json.Marshal(stats.RankedStats)
+	m, _ := json.Marshal(stats.CalculatedMetrics)
+	mr.HSet(key, "p", string(p), "r", string(r), "m", string(m))
+	mr.SetTTL(key, time.Minute)
+	fake := &fakeStatsClient{stats: scrape.ScrapedStats{Profile: scrape.StatsProfile{Username: "wrong"}}}
+	store := NewRedisCacheStore(client, fake, CacheConfig{TTLR6: time.Minute})
 
-	key := FreshKey(backends.GameR6, "alice", fetch.StatsPlatformPC, strPtr("y9s1"))
-	pJSON, _ := json.Marshal(stats.Profile)
-	rJSON, _ := json.Marshal(stats.RankedStats)
-	mJSON, _ := json.Marshal(stats.CalculatedMetrics)
-	mr.HSet(key, "p", string(pJSON))
-	mr.HSet(key, "r", string(rJSON))
-	mr.HSet(key, "m", string(mJSON))
-	mr.SetTTL(key, 60*time.Second)
-
-	reg := backends.NewStatsBackendRegistry()
-	store := NewRedisCacheStore(client, reg, CacheConfig{TTLR6: 60 * time.Second}, nil)
-
-	got, err := store.Fetch(context.Background(), backends.GameR6, "alice", fetch.StatsPlatformPC, strPtr("y9s1"))
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
+	got, err := store.Fetch(context.Background(), "alice", fetch.StatsPlatformPC, strPtr("y9s1"))
+	if err != nil || got.Profile.Username != "alice" {
+		t.Fatalf("got stats=%+v err=%v", got, err)
 	}
-	if got.Profile.Username != "alice" {
-		t.Errorf("username = %q, want %q", got.Profile.Username, "alice")
-	}
-	if got.RankedStats.RankPoints != 3200 {
-		t.Errorf("rank points = %d, want 3200", got.RankedStats.RankPoints)
+	if fake.fetchCount.Load() != 0 {
+		t.Fatal("cache hit called stats client")
 	}
 }
 
-func TestRedisCacheStore_Fetch_Miss_ThenBackend(t *testing.T) {
+func TestRedisCacheStoreFetchMissCachesAndDeduplicates(t *testing.T) {
 	mr, client := newTestRedis(t)
-	stats := sampleStats()
-
-	backend := &fakeBackend{
-		game: backends.GameR6,
-		fetchFn: func(_ context.Context, _ string, _ fetch.StatsPlatform, _ *string) (scrape.ScrapedStats, error) {
-			return stats, nil
-		},
-	}
-	reg := backends.NewStatsBackendRegistry()
-	reg.Register(backend)
-
-	store := NewRedisCacheStore(client, reg, CacheConfig{TTLR6: 60 * time.Second}, nil)
-
-	got, err := store.Fetch(context.Background(), backends.GameR6, "alice", fetch.StatsPlatformPC, strPtr("y9s1"))
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if got.Profile.Username != "alice" {
-		t.Errorf("username = %q, want %q", got.Profile.Username, "alice")
-	}
-
-	freshKey := FreshKey(backends.GameR6, "alice", fetch.StatsPlatformPC, strPtr("y9s1"))
-	if !mr.Exists(freshKey) {
-		t.Error("fresh key should exist after backend fetch")
-	}
-}
-
-func TestRedisCacheStore_Fetch_GcUnavailable_Propagates(t *testing.T) {
-	_, client := newTestRedis(t)
-
-	backend := &fakeBackend{
-		game: backends.GameR6,
-		fetchFn: func(_ context.Context, _ string, _ fetch.StatsPlatform, _ *string) (scrape.ScrapedStats, error) {
-			return scrape.ScrapedStats{}, fetch.NewStatsFetchError(fetch.StatsFetchErrorGcUnavailable, "upstream down", true)
-		},
-	}
-	reg := backends.NewStatsBackendRegistry()
-	reg.Register(backend)
-
-	store := NewRedisCacheStore(client, reg, CacheConfig{TTLR6: 60 * time.Second}, nil)
-
-	_, err := store.Fetch(context.Background(), backends.GameR6, "alice", fetch.StatsPlatformPC, nil)
-	if err == nil {
-		t.Fatal("expected error")
-	}
-	ferr, ok := err.(*fetch.StatsFetchError)
-	if !ok {
-		t.Fatalf("error type = %T, want *fetch.StatsFetchError", err)
-	}
-	if ferr.Kind != fetch.StatsFetchErrorGcUnavailable {
-		t.Errorf("kind = %v, want GcUnavailable", ferr.Kind)
-	}
-}
-
-func TestRedisCacheStore_Fetch_NonGcError_Propagates(t *testing.T) {
-	_, client := newTestRedis(t)
-
-	backend := &fakeBackend{
-		game: backends.GameR6,
-		fetchFn: func(_ context.Context, _ string, _ fetch.StatsPlatform, _ *string) (scrape.ScrapedStats, error) {
-			return scrape.ScrapedStats{}, fetch.NewStatsFetchError(fetch.StatsFetchErrorProfileNotFound, "not found", false)
-		},
-	}
-	reg := backends.NewStatsBackendRegistry()
-	reg.Register(backend)
-
-	store := NewRedisCacheStore(client, reg, CacheConfig{TTLR6: 60 * time.Second}, nil)
-
-	_, err := store.Fetch(context.Background(), backends.GameR6, "nobody", fetch.StatsPlatformPC, nil)
-	if err == nil {
-		t.Fatal("expected error")
-	}
-	ferr := err.(*fetch.StatsFetchError)
-	if ferr.Kind != fetch.StatsFetchErrorProfileNotFound {
-		t.Errorf("kind = %v, want ProfileNotFound", ferr.Kind)
-	}
-}
-
-func TestRedisCacheStore_FetchCollection_Hit(t *testing.T) {
-	mr, client := newTestRedis(t)
-	stats := sampleStats()
-	coll := scrape.ScrapedStatsCollection{
-		Latest:        stats,
-		BySeason:      map[string]scrape.ScrapedStats{"y9s1": stats},
-		SeasonCatalog: []scrape.SeasonCatalogEntry{{Slug: "y9s1", Display: "Year 9 Season 1"}},
-	}
-
-	key := CollectionKey(backends.GameR6, "alice", fetch.StatsPlatformAuto)
-	latestJSON, _ := json.Marshal(coll.Latest)
-	bySeasonJSON, _ := json.Marshal(coll.BySeason)
-	catalogJSON, _ := json.Marshal(coll.SeasonCatalog)
-	mr.HSet(key, "latest", string(latestJSON))
-	mr.HSet(key, "by_season", string(bySeasonJSON))
-	mr.HSet(key, "catalog", string(catalogJSON))
-	mr.SetTTL(key, 60*time.Second)
-
-	reg := backends.NewStatsBackendRegistry()
-	store := NewRedisCacheStore(client, reg, CacheConfig{TTLR6: 60 * time.Second}, nil)
-
-	got, err := store.FetchCollection(context.Background(), backends.GameR6, "alice", fetch.StatsPlatformAuto)
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if got.Latest.Profile.Username != "alice" {
-		t.Errorf("username = %q, want %q", got.Latest.Profile.Username, "alice")
-	}
-	if len(got.BySeason) != 1 {
-		t.Errorf("BySeason length = %d, want 1", len(got.BySeason))
-	}
-}
-
-func TestRedisCacheStore_FetchCollection_Miss(t *testing.T) {
-	_, client := newTestRedis(t)
-	coll := scrape.ScrapedStatsCollection{
-		Latest:   sampleStats(),
-		BySeason: map[string]scrape.ScrapedStats{"y9s1": sampleStats()},
-	}
-
-	backend := &fakeBackend{
-		game: backends.GameR6,
-		fetchCollFn: func(_ context.Context, _ string, _ fetch.StatsPlatform) (scrape.ScrapedStatsCollection, error) {
-			return coll, nil
-		},
-	}
-	reg := backends.NewStatsBackendRegistry()
-	reg.Register(backend)
-
-	store := NewRedisCacheStore(client, reg, CacheConfig{TTLR6: 60 * time.Second}, nil)
-
-	got, err := store.FetchCollection(context.Background(), backends.GameR6, "alice", fetch.StatsPlatformAuto)
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if got.Latest.Profile.Username != "alice" {
-		t.Errorf("username = %q, want %q", got.Latest.Profile.Username, "alice")
-	}
-}
-
-func TestRedisCacheStore_OnFetchCallback(t *testing.T) {
-	_, client := newTestRedis(t)
-	stats := sampleStats()
-
-	backend := &fakeBackend{
-		game: backends.GameR6,
-		fetchFn: func(_ context.Context, _ string, _ fetch.StatsPlatform, _ *string) (scrape.ScrapedStats, error) {
-			return stats, nil
-		},
-	}
-	reg := backends.NewStatsBackendRegistry()
-	reg.Register(backend)
-
-	var called bool
-	var cbGame backends.Game
-	var cbUsername string
-	onFetch := func(_ context.Context, game backends.Game, username string, _ *scrape.ScrapedStats) {
-		called = true
-		cbGame = game
-		cbUsername = username
-	}
-
-	store := NewRedisCacheStore(client, reg, CacheConfig{TTLR6: 60 * time.Second}, onFetch)
-
-	_, err := store.Fetch(context.Background(), backends.GameR6, "alice", fetch.StatsPlatformPC, nil)
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if !called {
-		t.Error("OnFetch callback was not called")
-	}
-	if cbGame != backends.GameR6 {
-		t.Errorf("callback game = %v, want GameR6", cbGame)
-	}
-	if cbUsername != "alice" {
-		t.Errorf("callback username = %q, want %q", cbUsername, "alice")
-	}
-}
-
-func TestRedisCacheStore_Fetch_SingleFlightDedup(t *testing.T) {
-	_, client := newTestRedis(t)
-	stats := sampleStats()
-
-	var fetchCount atomic.Int32
-	backend := &fakeBackend{
-		game: backends.GameR6,
-		fetchFn: func(_ context.Context, _ string, _ fetch.StatsPlatform, _ *string) (scrape.ScrapedStats, error) {
-			fetchCount.Add(1)
-			time.Sleep(50 * time.Millisecond)
-			return stats, nil
-		},
-	}
-	reg := backends.NewStatsBackendRegistry()
-	reg.Register(backend)
-
-	store := NewRedisCacheStore(client, reg, CacheConfig{TTLR6: 60 * time.Second}, nil)
-
+	fake := &fakeStatsClient{stats: sampleStats()}
+	store := NewRedisCacheStore(client, fake, CacheConfig{TTLR6: time.Minute})
 	var wg sync.WaitGroup
-	errs := make([]error, 20)
-	for i := range 20 {
+	for range 20 {
 		wg.Add(1)
-		go func(idx int) {
+		go func() {
 			defer wg.Done()
-			_, errs[idx] = store.Fetch(context.Background(), backends.GameR6, "alice", fetch.StatsPlatformPC, strPtr("y9s1"))
-		}(i)
+			_, _ = store.Fetch(context.Background(), "alice", fetch.StatsPlatformPC, strPtr("y9s1"))
+		}()
 	}
 	wg.Wait()
-
-	for i, err := range errs {
-		if err != nil {
-			t.Errorf("goroutine %d: %v", i, err)
-		}
+	if fake.fetchCount.Load() != 1 {
+		t.Fatalf("stats client calls = %d, want 1", fake.fetchCount.Load())
 	}
-	if got := fetchCount.Load(); got != 1 {
-		t.Errorf("backend called %d times, want 1 (singleflight)", got)
+	if !mr.Exists(FreshKey("alice", fetch.StatsPlatformPC, strPtr("y9s1"))) {
+		t.Fatal("fresh key missing after fetch")
+	}
+}
+
+func TestRedisCacheStoreFetchPropagatesError(t *testing.T) {
+	_, client := newTestRedis(t)
+	fake := &fakeStatsClient{err: fetch.NewStatsFetchError(fetch.StatsFetchErrorProfileNotFound, "not found", false)}
+	store := NewRedisCacheStore(client, fake, CacheConfig{})
+	_, err := store.Fetch(context.Background(), "nobody", fetch.StatsPlatformPC, nil)
+	if err == nil || err.(*fetch.StatsFetchError).Kind != fetch.StatsFetchErrorProfileNotFound {
+		t.Fatalf("unexpected error: %v", err)
+	}
+}
+
+func TestRedisCacheStoreCollection(t *testing.T) {
+	_, client := newTestRedis(t)
+	coll := scrape.ScrapedStatsCollection{Latest: sampleStats(), BySeason: map[string]scrape.ScrapedStats{"y9s1": sampleStats()}}
+	fake := &fakeStatsClient{collection: coll}
+	store := NewRedisCacheStore(client, fake, CacheConfig{TTLR6: time.Minute})
+	got, err := store.FetchCollection(context.Background(), "alice", fetch.StatsPlatformAuto)
+	if err != nil || got.Latest.Profile.Username != "alice" {
+		t.Fatalf("got collection=%+v err=%v", got, err)
+	}
+	if fake.fetchCount.Load() != 1 {
+		t.Fatalf("stats client calls = %d, want 1", fake.fetchCount.Load())
 	}
 }

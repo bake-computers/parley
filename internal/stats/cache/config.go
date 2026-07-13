@@ -6,11 +6,10 @@ import (
 	"time"
 
 	"github.com/pactum-computers/parley/internal/config"
-	"github.com/pactum-computers/parley/internal/stats/backends"
 	"github.com/pactum-computers/parley/internal/stats/fetch"
 )
 
-// CacheConfig holds per-game TTLs.
+// CacheConfig holds the R6 stats TTL.
 type CacheConfig struct {
 	TTLR6 time.Duration
 }
@@ -23,16 +22,11 @@ func NewCacheConfigFromEnv(cfg *config.Config) CacheConfig {
 }
 
 // TTLFor returns the TTL for a given game.
-func (c CacheConfig) TTLFor(game backends.Game) time.Duration {
-	switch game {
-	case backends.GameR6:
-		if c.TTLR6 > 0 {
-			return c.TTLR6
-		}
-		return 60 * time.Second
-	default:
-		return 60 * time.Second
+func (c CacheConfig) TTL() time.Duration {
+	if c.TTLR6 > 0 {
+		return c.TTLR6
 	}
+	return 60 * time.Second
 }
 
 func platformKey(p fetch.StatsPlatform) string {
@@ -49,15 +43,15 @@ func platformKey(p fetch.StatsPlatform) string {
 }
 
 // FreshKey returns the Redis hash key for a fresh stats entry.
-func FreshKey(game backends.Game, username string, platform fetch.StatsPlatform, season *string) string {
+func FreshKey(username string, platform fetch.StatsPlatform, season *string) string {
 	s := ""
 	if season != nil {
 		s = *season
 	}
-	return fmt.Sprintf("stats:%s:%s:%s:%s", game, strings.ToLower(strings.TrimSpace(username)), platformKey(platform), s)
+	return fmt.Sprintf("stats:r6:%s:%s:%s", strings.ToLower(strings.TrimSpace(username)), platformKey(platform), s)
 }
 
 // CollectionKey returns the Redis hash key for a collection entry.
-func CollectionKey(game backends.Game, username string, platform fetch.StatsPlatform) string {
-	return fmt.Sprintf("stats:collection:%s:%s:%s", game, strings.ToLower(strings.TrimSpace(username)), platformKey(platform))
+func CollectionKey(username string, platform fetch.StatsPlatform) string {
+	return fmt.Sprintf("stats:collection:r6:%s:%s", strings.ToLower(strings.TrimSpace(username)), platformKey(platform))
 }

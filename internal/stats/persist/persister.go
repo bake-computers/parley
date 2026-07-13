@@ -8,7 +8,6 @@ import (
 
 	"github.com/pactum-computers/parley/internal/models"
 	"github.com/pactum-computers/parley/internal/repos"
-	"github.com/pactum-computers/parley/internal/stats/backends"
 	"github.com/pactum-computers/parley/internal/stats/scrape"
 )
 
@@ -23,13 +22,12 @@ type GuildInvalidator interface {
 }
 
 type persistReq struct {
-	game  backends.Game
 	stats scrape.ScrapedStats
 }
 
 // SnapshotWriter persists one scraped stats payload (used for tests and production).
 type SnapshotWriter interface {
-	PersistSnapshot(ctx context.Context, game backends.Game, stats *scrape.ScrapedStats) error
+	PersistSnapshot(ctx context.Context, stats *scrape.ScrapedStats) error
 }
 
 // DBSnapshotWriter writes snapshots via identity + snapshot repos.
@@ -40,21 +38,9 @@ type DBSnapshotWriter struct {
 	Invalidate GuildInvalidator
 }
 
-func backendToModelGame(game backends.Game) (models.Game, bool) {
-	switch game {
-	case backends.GameR6:
-		return models.GameR6, true
-	default:
-		return "", false
-	}
-}
-
 // PersistSnapshot mirrors persist_snapshot in src/stats_persist.rs.
-func (w *DBSnapshotWriter) PersistSnapshot(ctx context.Context, game backends.Game, stats *scrape.ScrapedStats) error {
-	dbGame, ok := backendToModelGame(game)
-	if !ok {
-		return nil
-	}
+func (w *DBSnapshotWriter) PersistSnapshot(ctx context.Context, stats *scrape.ScrapedStats) error {
+	dbGame := models.GameR6
 
 	player, err := w.Identity.FindPlayerByUsernameNormalized(ctx, dbGame, stats.Profile.Username)
 	if err != nil {
@@ -159,16 +145,16 @@ func NewStatsPersisterWithCapacity(writer SnapshotWriter, capacity int) *StatsPe
 }
 
 // Enqueue schedules a snapshot write without blocking the caller.
-func (p *StatsPersister) Enqueue(game backends.Game, stats scrape.ScrapedStats) {
+func (p *StatsPersister) Enqueue(stats scrape.ScrapedStats) {
 	if p == nil || p.writer == nil {
 		return
 	}
-	req := persistReq{game: game, stats: stats}
+	req := persistReq{stats: stats}
 	select {
 	case p.ch <- req:
 	default:
 		slog.Warn("persist channel full, dropping snapshot",
-			"game", game.String(),
+			"game", models.GameR6,
 			"username", stats.Profile.Username,
 			"capacity", p.capacity,
 		)
@@ -193,7 +179,7 @@ func (p *StatsPersister) Run(ctx context.Context) {
 
 func (p *StatsPersister) handle(ctx context.Context, req persistReq) {
 	stats := req.stats
-	if err := p.writer.PersistSnapshot(ctx, req.game, &stats); err != nil {
+	if err := p.writer.PersistSnapshot(ctx, &stats); err != nil {
 		slog.Warn("stats snapshot persist failed", "error", err)
 	}
 }

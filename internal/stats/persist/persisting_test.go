@@ -6,22 +6,21 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pactum-computers/parley/internal/stats/backends"
 	"github.com/pactum-computers/parley/internal/stats/fetch"
 	"github.com/pactum-computers/parley/internal/stats/scrape"
 )
 
 type mockCacheStore struct {
-	fetchFn     func(ctx context.Context, game backends.Game, username string, platform fetch.StatsPlatform, season *string) (scrape.ScrapedStats, error)
-	fetchCollFn func(ctx context.Context, game backends.Game, username string, platform fetch.StatsPlatform) (scrape.ScrapedStatsCollection, error)
+	fetchFn     func(ctx context.Context, username string, platform fetch.StatsPlatform, season *string) (scrape.ScrapedStats, error)
+	fetchCollFn func(ctx context.Context, username string, platform fetch.StatsPlatform) (scrape.ScrapedStatsCollection, error)
 }
 
-func (m *mockCacheStore) Fetch(ctx context.Context, game backends.Game, username string, platform fetch.StatsPlatform, season *string) (scrape.ScrapedStats, error) {
-	return m.fetchFn(ctx, game, username, platform, season)
+func (m *mockCacheStore) Fetch(ctx context.Context, username string, platform fetch.StatsPlatform, season *string) (scrape.ScrapedStats, error) {
+	return m.fetchFn(ctx, username, platform, season)
 }
 
-func (m *mockCacheStore) FetchCollection(ctx context.Context, game backends.Game, username string, platform fetch.StatsPlatform) (scrape.ScrapedStatsCollection, error) {
-	return m.fetchCollFn(ctx, game, username, platform)
+func (m *mockCacheStore) FetchCollection(ctx context.Context, username string, platform fetch.StatsPlatform) (scrape.ScrapedStatsCollection, error) {
+	return m.fetchCollFn(ctx, username, platform)
 }
 
 type mockSnapshotWriter struct {
@@ -30,7 +29,7 @@ type mockSnapshotWriter struct {
 	err   error
 }
 
-func (m *mockSnapshotWriter) PersistSnapshot(_ context.Context, _ backends.Game, stats *scrape.ScrapedStats) error {
+func (m *mockSnapshotWriter) PersistSnapshot(_ context.Context, stats *scrape.ScrapedStats) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	m.calls = append(m.calls, *stats)
@@ -46,10 +45,10 @@ func (m *mockSnapshotWriter) count() int {
 func TestPersistingStatsCacheStore_Fetch_EnqueuesOnSuccess(t *testing.T) {
 	want := scrape.ScrapedStats{Profile: scrape.StatsProfile{Username: "alice"}}
 	inner := &mockCacheStore{
-		fetchFn: func(_ context.Context, _ backends.Game, _ string, _ fetch.StatsPlatform, _ *string) (scrape.ScrapedStats, error) {
+		fetchFn: func(_ context.Context, _ string, _ fetch.StatsPlatform, _ *string) (scrape.ScrapedStats, error) {
 			return want, nil
 		},
-		fetchCollFn: func(context.Context, backends.Game, string, fetch.StatsPlatform) (scrape.ScrapedStatsCollection, error) {
+		fetchCollFn: func(context.Context, string, fetch.StatsPlatform) (scrape.ScrapedStatsCollection, error) {
 			return scrape.ScrapedStatsCollection{}, nil
 		},
 	}
@@ -60,7 +59,7 @@ func TestPersistingStatsCacheStore_Fetch_EnqueuesOnSuccess(t *testing.T) {
 	go persister.Run(ctx)
 
 	store := NewPersistingStatsCacheStore(inner, persister)
-	got, err := store.Fetch(context.Background(), backends.GameR6, "alice", fetch.StatsPlatformPC, nil)
+	got, err := store.Fetch(context.Background(), "alice", fetch.StatsPlatformPC, nil)
 	if err != nil {
 		t.Fatalf("Fetch: %v", err)
 	}
@@ -79,17 +78,17 @@ func TestPersistingStatsCacheStore_Fetch_EnqueuesOnSuccess(t *testing.T) {
 
 func TestPersistingStatsCacheStore_Fetch_SkipsEnqueueOnError(t *testing.T) {
 	inner := &mockCacheStore{
-		fetchFn: func(context.Context, backends.Game, string, fetch.StatsPlatform, *string) (scrape.ScrapedStats, error) {
+		fetchFn: func(context.Context, string, fetch.StatsPlatform, *string) (scrape.ScrapedStats, error) {
 			return scrape.ScrapedStats{}, fetch.NewStatsFetchError(fetch.StatsFetchErrorProfileNotFound, "missing", false)
 		},
-		fetchCollFn: func(context.Context, backends.Game, string, fetch.StatsPlatform) (scrape.ScrapedStatsCollection, error) {
+		fetchCollFn: func(context.Context, string, fetch.StatsPlatform) (scrape.ScrapedStatsCollection, error) {
 			return scrape.ScrapedStatsCollection{}, nil
 		},
 	}
 	writer := &mockSnapshotWriter{}
 	persister := NewStatsPersister(writer)
 	store := NewPersistingStatsCacheStore(inner, persister)
-	_, err := store.Fetch(context.Background(), backends.GameR6, "nobody", fetch.StatsPlatformPC, nil)
+	_, err := store.Fetch(context.Background(), "nobody", fetch.StatsPlatformPC, nil)
 	if err == nil {
 		t.Fatal("expected error")
 	}
@@ -101,10 +100,10 @@ func TestPersistingStatsCacheStore_Fetch_SkipsEnqueueOnError(t *testing.T) {
 func TestPersistingStatsCacheStore_FetchCollection_EnqueuesLatest(t *testing.T) {
 	latest := scrape.ScrapedStats{Profile: scrape.StatsProfile{Username: "bob"}}
 	inner := &mockCacheStore{
-		fetchFn: func(context.Context, backends.Game, string, fetch.StatsPlatform, *string) (scrape.ScrapedStats, error) {
+		fetchFn: func(context.Context, string, fetch.StatsPlatform, *string) (scrape.ScrapedStats, error) {
 			return scrape.ScrapedStats{}, nil
 		},
-		fetchCollFn: func(context.Context, backends.Game, string, fetch.StatsPlatform) (scrape.ScrapedStatsCollection, error) {
+		fetchCollFn: func(context.Context, string, fetch.StatsPlatform) (scrape.ScrapedStatsCollection, error) {
 			return scrape.ScrapedStatsCollection{Latest: latest}, nil
 		},
 	}
@@ -115,7 +114,7 @@ func TestPersistingStatsCacheStore_FetchCollection_EnqueuesLatest(t *testing.T) 
 	go persister.Run(ctx)
 
 	store := NewPersistingStatsCacheStore(inner, persister)
-	_, err := store.FetchCollection(context.Background(), backends.GameR6, "bob", fetch.StatsPlatformPC)
+	_, err := store.FetchCollection(context.Background(), "bob", fetch.StatsPlatformPC)
 	if err != nil {
 		t.Fatalf("FetchCollection: %v", err)
 	}
@@ -138,7 +137,7 @@ func TestStatsPersister_Enqueue_ChannelFullDoesNotBlock(t *testing.T) {
 	go func() {
 		stats := scrape.ScrapedStats{Profile: scrape.StatsProfile{Username: "u"}}
 		for range cap + 100 {
-			persister.Enqueue(backends.GameR6, stats)
+			persister.Enqueue(stats)
 		}
 		close(done)
 	}()
@@ -157,7 +156,7 @@ func TestStatsPersister_Run_DrainsOnCancel(t *testing.T) {
 	go persister.Run(ctx)
 
 	stats := scrape.ScrapedStats{Profile: scrape.StatsProfile{Username: "drain"}}
-	persister.Enqueue(backends.GameR6, stats)
+	persister.Enqueue(stats)
 	cancel()
 
 	deadline := time.Now().Add(3 * time.Second)

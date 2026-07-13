@@ -3,7 +3,6 @@ package persist
 import (
 	"context"
 
-	"github.com/pactum-computers/parley/internal/stats/backends"
 	"github.com/pactum-computers/parley/internal/stats/cache"
 	"github.com/pactum-computers/parley/internal/stats/fetch"
 	"github.com/pactum-computers/parley/internal/stats/scrape"
@@ -24,17 +23,16 @@ func NewPersistingStatsCacheStore(inner cache.CacheStore, persister *StatsPersis
 // Fetch delegates to the inner store, then enqueues a snapshot on success.
 func (s *PersistingStatsCacheStore) Fetch(
 	ctx context.Context,
-	game backends.Game,
 	username string,
 	platform fetch.StatsPlatform,
 	season *string,
 ) (scrape.ScrapedStats, error) {
-	result, err := s.inner.Fetch(ctx, game, username, platform, season)
+	result, err := s.inner.Fetch(ctx, username, platform, season)
 	if err != nil {
 		return scrape.ScrapedStats{}, err
 	}
 	if s.persister != nil {
-		s.persister.Enqueue(game, result)
+		s.persister.Enqueue(result)
 	}
 	return result, nil
 }
@@ -42,16 +40,15 @@ func (s *PersistingStatsCacheStore) Fetch(
 // FetchCollection delegates to the inner store, then enqueues latest snapshot on success.
 func (s *PersistingStatsCacheStore) FetchCollection(
 	ctx context.Context,
-	game backends.Game,
 	username string,
 	platform fetch.StatsPlatform,
 ) (scrape.ScrapedStatsCollection, error) {
-	result, err := s.inner.FetchCollection(ctx, game, username, platform)
+	result, err := s.inner.FetchCollection(ctx, username, platform)
 	if err != nil {
 		return scrape.ScrapedStatsCollection{}, err
 	}
 	if s.persister != nil {
-		s.persister.Enqueue(game, result.Latest)
+		s.persister.Enqueue(result.Latest)
 	}
 	return result, nil
 }

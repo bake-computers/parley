@@ -7,7 +7,6 @@ import (
 
 	"github.com/redis/go-redis/v9"
 
-	"github.com/pactum-computers/parley/internal/stats/backends"
 	"github.com/pactum-computers/parley/internal/stats/fetch"
 	"github.com/pactum-computers/parley/internal/stats/scrape"
 )
@@ -24,11 +23,10 @@ const (
 // RedisCacheStore implements CacheStore with Redis hash-backed caching and
 // singleflight deduplication.
 type RedisCacheStore struct {
-	client   redis.Cmdable
-	registry *backends.StatsBackendRegistry
-	cfg      CacheConfig
-	flight   *SingleFlight[string, fetchResult]
-	onFetch  OnFetchFunc
+	client      redis.Cmdable
+	statsClient fetch.Client
+	cfg         CacheConfig
+	flight      *SingleFlight[string, fetchResult]
 }
 
 type fetchResult struct {
@@ -36,21 +34,17 @@ type fetchResult struct {
 	err   error
 }
 
-// NewRedisCacheStore creates a Redis-backed cache store.
-// onFetch may be nil; when set, it is called on every successful backend
-// fetch (wire it to leaderboard.Touch at construction time).
+// NewRedisCacheStore creates a Redis-backed R6 stats store.
 func NewRedisCacheStore(
 	client redis.Cmdable,
-	registry *backends.StatsBackendRegistry,
+	statsClient fetch.Client,
 	cfg CacheConfig,
-	onFetch OnFetchFunc,
 ) *RedisCacheStore {
 	return &RedisCacheStore{
-		client:   client,
-		registry: registry,
-		cfg:      cfg,
-		flight:   NewSingleFlight[string, fetchResult](),
-		onFetch:  onFetch,
+		client:      client,
+		statsClient: statsClient,
+		cfg:         cfg,
+		flight:      NewSingleFlight[string, fetchResult](),
 	}
 }
 
@@ -113,9 +107,9 @@ func collectionFromHash(fields map[string]string) *scrape.ScrapedStatsCollection
 }
 
 // Fetch looks up the fresh key in Redis. On miss, it coalesces concurrent
-// callers via singleflight, calls the backend, writes the fresh hash, and returns.
-func (r *RedisCacheStore) Fetch(ctx context.Context, game backends.Game, username string, platform fetch.StatsPlatform, season *string) (scrape.ScrapedStats, error) {
-	fresh := FreshKey(game, username, platform, season)
+// callers via singleflight, calls the stats client, writes the fresh hash, and returns.
+func (r *RedisCacheStore) Fetch(ctx context.Context, username string, platform fetch.StatsPlatform, season *string) (scrape.ScrapedStats, error) {
+	fresh := FreshKey(username, platform, season)
 
 	fields, err := r.client.HGetAll(ctx, fresh).Result()
 	if err == nil {
@@ -124,10 +118,10 @@ func (r *RedisCacheStore) Fetch(ctx context.Context, game backends.Game, usernam
 		}
 	}
 
-	flightKey := FreshKey(game, strings.ToLower(strings.TrimSpace(username)), platform, season)
+	flightKey := FreshKey(strings.ToLower(strings.TrimSpace(username)), platform, season)
 
 	result := r.flight.Do(flightKey, func() fetchResult {
-		stats, err := r.registry.Fetch(ctx, game, username, platform, season)
+		stats, err := r.statsClient.FetchStats(ctx, username, platform, season)
 		return fetchResult{stats: stats, err: err}
 	})
 
@@ -135,7 +129,7 @@ func (r *RedisCacheStore) Fetch(ctx context.Context, game backends.Game, usernam
 		return scrape.ScrapedStats{}, result.err
 	}
 
-	ttl := r.cfg.TTLFor(game)
+	ttl := r.cfg.TTL()
 
 	pJSON, _ := json.Marshal(result.stats.Profile)
 	rJSON, _ := json.Marshal(result.stats.RankedStats)
@@ -148,17 +142,13 @@ func (r *RedisCacheStore) Fetch(ctx context.Context, game backends.Game, usernam
 	pipe.Expire(ctx, fresh, ttl)
 	_, _ = pipe.Exec(ctx)
 
-	if r.onFetch != nil {
-		r.onFetch(ctx, game, username, &result.stats)
-	}
-
 	return result.stats, nil
 }
 
 // FetchCollection checks the collection key in Redis, then falls back to
-// the backend. No singleflight for collections.
-func (r *RedisCacheStore) FetchCollection(ctx context.Context, game backends.Game, username string, platform fetch.StatsPlatform) (scrape.ScrapedStatsCollection, error) {
-	key := CollectionKey(game, username, platform)
+// the stats client. No singleflight for collections.
+func (r *RedisCacheStore) FetchCollection(ctx context.Context, username string, platform fetch.StatsPlatform) (scrape.ScrapedStatsCollection, error) {
+	key := CollectionKey(username, platform)
 
 	fields, err := r.client.HGetAll(ctx, key).Result()
 	if err == nil {
@@ -167,12 +157,12 @@ func (r *RedisCacheStore) FetchCollection(ctx context.Context, game backends.Gam
 		}
 	}
 
-	result, err := r.registry.FetchCollection(ctx, game, username, platform)
+	result, err := r.statsClient.FetchStatsCollection(ctx, username, platform)
 	if err != nil {
 		return scrape.ScrapedStatsCollection{}, err
 	}
 
-	ttl := r.cfg.TTLFor(game)
+	ttl := r.cfg.TTL()
 
 	latestJSON, _ := json.Marshal(result.Latest)
 	bySeasonJSON, _ := json.Marshal(result.BySeason)
