@@ -8,8 +8,8 @@ import (
 	commonv1 "github.com/pactum-computers/parley/gen/parley/common/v1"
 	leaderboardv1 "github.com/pactum-computers/parley/gen/parley/leaderboard/v1"
 	"github.com/pactum-computers/parley/internal/handlers"
+	"github.com/pactum-computers/parley/internal/models"
 	"github.com/pactum-computers/parley/internal/services"
-	"github.com/pactum-computers/parley/internal/stats/backends"
 	"github.com/pactum-computers/parley/internal/stats/scrape"
 )
 
@@ -41,22 +41,22 @@ type fakeLeaderboardStore struct {
 	cnt int64
 }
 
-func (f *fakeLeaderboardStore) Touch(context.Context, backends.Game, string, string, *scrape.ScrapedStats) error {
+func (f *fakeLeaderboardStore) Touch(context.Context, models.Game, string, string, *scrape.ScrapedStats) error {
 	return nil
 }
 
-func (f *fakeLeaderboardStore) Top(context.Context, backends.Game, string, services.Kind, int64, int64) ([]services.Entry, error) {
+func (f *fakeLeaderboardStore) Top(context.Context, models.Game, string, services.Kind, int64, int64) ([]services.Entry, error) {
 	return f.top, nil
 }
 
-func (f *fakeLeaderboardStore) PlayerRank(context.Context, backends.Game, string, services.Kind, string) (*services.Entry, error) {
+func (f *fakeLeaderboardStore) PlayerRank(context.Context, models.Game, string, services.Kind, string) (*services.Entry, error) {
 	return nil, nil
 }
 
-func (f *fakeLeaderboardStore) Count(context.Context, backends.Game, string, services.Kind) (int64, error) {
+func (f *fakeLeaderboardStore) Count(context.Context, models.Game, string, services.Kind) (int64, error) {
 	return f.cnt, nil
 }
 
-func (f *fakeLeaderboardStore) Remove(context.Context, backends.Game, string, string) error {
+func (f *fakeLeaderboardStore) Remove(context.Context, models.Game, string, string) error {
 	return nil
 }
