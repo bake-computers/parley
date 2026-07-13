@@ -62,7 +62,7 @@ Parley divides into four logical tiers:
                              │ ConnectRPC / HTTP
 ┌────────────────────────────▼────────────────────────────────────┐
 │  Engine (Go / Fiber + connect-go)                               │
-│  ConnectRPC handlers · Matchmaking engine · Stats backends      │
+│  ConnectRPC handlers · Matchmaking engine · Stats pipeline      │
 └────────────┬───────────────────────────────┬────────────────────┘
              │                               │
 ┌────────────▼──────────┐       ┌────────────▼──────────────────┐
@@ -103,7 +103,7 @@ The `parley` binary is a Go HTTP server (Fiber + connect-go) exposing ConnectRPC
 - **Handlers** — One module per protobuf service; Connect-RPC handlers invoke services and repositories.
 - **Matchmaking engine** — Pure-logic CPR and Glicko-2 team balancer with queue management and a background sweeper for stale entries.
 - **Tournament engine** — Bracket generation, seeding, and progression logic.
-- **Stats pipeline** — Backend registry dispatches per-game backends; R6 fetches stats via the stats.cc API and maps responses into domain types. Results pass through a tiered cache (Redis or direct) with optional Postgres persistence.
+- **Stats pipeline** — R6 stats flow through the Redis cache to the stats.cc API, map into domain types, and are optionally persisted to Postgres asynchronously.
 - **Database layer** — Bun ORM over pgxpool, embedded SQL migrations, and repository modules for players, identities, matches, tournaments, and guild configuration.
 
 ### 5.3 Edge Applications
@@ -245,8 +245,7 @@ flowchart TB
             queue_manager["Queue Manager"]
             queue_sweeper["Queue Sweeper"]
             tournament_engine["Tournament Engine\nBracket and Seeding"]
-            stats_registry["Stats Backend Registry"]
-            r6_backend["R6 Stats Backend"]
+            stats_cache["R6 Stats Cache"]
             stats_api["stats.cc API Client"]
             guild_cache["Guild Cache"]
             stats_persister["Stats Persister"]
@@ -322,24 +321,22 @@ flowchart TB
     tournament_svc --> tournament_engine
     tournament_svc --> bun_repos
     leaderboard_svc --> bun_repos
-    stats_svc --> stats_registry
+    stats_svc --> stats_cache
 
     matchmaking_engine --> queue_manager
     queue_manager --> queue_sweeper
     queue_sweeper --> bun_repos
     tournament_engine --> bun_repos
 
-    stats_registry --> r6_backend
-    r6_backend --> stats_api
+    stats_cache --> stats_api
     stats_api --> stats_cc
-    stats_registry --> stats_persister
     stats_persister --> bun_repos
     stats_persister --> guild_cache
     guild_cache --> redis
 
     bun_repos --> pgx_pool
     pgx_pool --> postgres
-    stats_registry --> redis
+    stats_cache --> redis
     leaderboard_svc --> redis
 
     proto_defs --> buf_gen
@@ -371,7 +368,7 @@ Domain timestamps use `bigint` epoch milliseconds. Auth-adjacent tables (managed
 | ----------------- | ---------- | ---------------- | --------------- |
 | Rainbow Six Siege | `GAME_R6`  | stats.cc API     | Full CPR engine |
 
-Adding a new title requires a Postgres migration (`ALTER TYPE games ADD VALUE`), a stats backend implementation, and proto enum extension.
+Adding a stats-enabled title requires a Postgres migration (`ALTER TYPE games ADD VALUE`), a provider/client and API mapping, and a proto enum extension. The currently R6-only cache and service boundary must be generalized when a second stats source is introduced.
 
 ---
 

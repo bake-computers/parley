@@ -1,13 +1,13 @@
 ---
 name: parley-stats-pipeline
-description: Use when working on the Go stats subsystem in the Parley engine — adding a per-game backend, debugging cache hits/misses, tracing a fetch through cache→backend→HTTP→API map→persist, or understanding Redis cache behavior.
+description: Use when working on the Go stats subsystem in the Parley engine — debugging cache hits/misses, tracing a fetch through cache→HTTP→API map→persist, or understanding Redis cache behavior.
 ---
 
 # Parley Stats Pipeline
 
 ## Overview
 
-Stats flow: `StatsService` → `CacheStore` (Redis) → `StatsBackendRegistry` → per-game `StatsBackend` (R6) → `fetch.Client` (API) → `api.MapCollection` → domain types in `scrape` package → optional async `persist` to Postgres. `proto/stats/v1/StatsService` sits on top.
+Stats flow: `StatsService` → `CacheStore` (Redis) → `fetch.Client` (stats.cc API) → `api.MapCollection` → domain types in `scrape` package → optional async `persist` to Postgres. The current stats pipeline is explicitly R6-only.
 
 ## Quick reference
 
@@ -16,8 +16,7 @@ Stats flow: `StatsService` → `CacheStore` (Redis) → `StatsBackendRegistry` �
 | Service entry    | `internal/services/stats.go`                          | `FetchStats` / `FetchStatsCollection`                          |
 | Cache facade     | `internal/stats/cache/cache.go`                       | `CacheStore` interface                                         |
 | Cache impl       | `internal/stats/cache/{redis,singleflight}.go`        | Redis with `singleflight` de-dup                               |
-| Backend registry | `internal/stats/backends/backend.go`                  | Dispatches by `Game`                                           |
-| R6 backend       | `internal/stats/backends/r6.go`                       | Only implemented game; uses `fetch.Client` (API-only)          |
+| Stats client     | `internal/stats/fetch`                                 | R6 stats.cc API client and retry behavior                      |
 | HTTP client      | `internal/stats/fetch/{client,errors}.go`             | Network I/O only; stats.cc API                                 |
 | API mapping      | `internal/stats/api/{client,map,types}.go`            | Typed API client + map responses → domain types                |
 | Domain types     | `internal/stats/scrape/{types,rounds,metrics}.go`     | Domain models (not HTML); KOST helpers, `ScrapedStats`, etc.   |
@@ -33,12 +32,11 @@ Stats flow: `StatsService` → `CacheStore` (Redis) → `StatsBackendRegistry` �
 
 **Persistence is async and best-effort.** Buffered channel (`defaultChannelCapacity=1024`) feeds a background goroutine writing to `player_stat_snapshots`. Hot path never blocks on Postgres; on full buffer the writer logs and drops (intentional). After a write, `GuildInvalidator` clears guild-scoped caches.
 
-**Adding a game = implement + register.** Steps: (1) add value to `backends.Game` enum, (2) implement `StatsBackend` (R6Backend is the minimal template), (3) `registry.Register(...)` in `cmd/parley/main.go`, (4) extend `MapProtoGame` in `internal/services/stats.go`, (5) `ALTER TYPE games` Postgres migration, (6) `make proto` if you touched the proto enum.
+**Adding a stats-enabled game requires deliberate generalization.** Add the proto and Postgres game values, implement its upstream client and API mapping, then generalize the R6-only cache/service boundary. Do not add a registry until there is a second real stats provider.
 
 ## Common mistakes
 
-- Forgetting `registry.Register(r6Backend)` at boot — returns `StatsFetchErrorGcUnavailable`
-- Bypassing `CacheStore` with a direct backend call — skips Redis + singleflight, hammers stats.cc
+- Bypassing `CacheStore` with a direct client call — skips Redis + singleflight, hammers stats.cc
 - Assuming HTML scrape still exists — live path is API-only; domain types remain in `scrape`
 - Blocking the hot path on Postgres writes — that's why `persist` is async
 - Editing `gen/parley/**` to add an enum value — auto-generated; edit the proto and regen
