@@ -21,9 +21,8 @@ const (
 	hCatalog  = "catalog"
 )
 
-// RedisCacheStore implements CacheStore with Redis hash-backed caching,
-// stale-grace fallback, and singleflight deduplication.
-// Mirrors Rust RedisStatsCacheStore.
+// RedisCacheStore implements CacheStore with Redis hash-backed caching and
+// singleflight deduplication.
 type RedisCacheStore struct {
 	client   redis.Cmdable
 	registry *backends.StatsBackendRegistry
@@ -32,7 +31,6 @@ type RedisCacheStore struct {
 	onFetch  OnFetchFunc
 }
 
-// fetchResult wraps the backend fetch outcome for singleflight sharing.
 type fetchResult struct {
 	stats scrape.ScrapedStats
 	err   error
@@ -115,21 +113,17 @@ func collectionFromHash(fields map[string]string) *scrape.ScrapedStatsCollection
 }
 
 // Fetch looks up the fresh key in Redis. On miss, it coalesces concurrent
-// callers via singleflight, calls the backend, writes both fresh and stale
-// hashes, and returns. On GcUnavailable, it falls back to the stale key.
-func (r *RedisCacheStore) Fetch(ctx context.Context, game backends.Game, username string, platform fetch.StatsPlatform, season *string) (CachedStats, error) {
+// callers via singleflight, calls the backend, writes the fresh hash, and returns.
+func (r *RedisCacheStore) Fetch(ctx context.Context, game backends.Game, username string, platform fetch.StatsPlatform, season *string) (scrape.ScrapedStats, error) {
 	fresh := FreshKey(game, username, platform, season)
-	stale := StaleKey(game, username, platform, season)
 
-	// Fast path: check fresh key.
 	fields, err := r.client.HGetAll(ctx, fresh).Result()
 	if err == nil {
 		if stats := statsFromHash(fields); stats != nil {
-			return CachedStats{Stats: *stats, Degraded: false}, nil
+			return *stats, nil
 		}
 	}
 
-	// Miss — coalesce via singleflight.
 	flightKey := FreshKey(game, strings.ToLower(strings.TrimSpace(username)), platform, season)
 
 	result := r.flight.Do(flightKey, func() fetchResult {
@@ -138,21 +132,10 @@ func (r *RedisCacheStore) Fetch(ctx context.Context, game backends.Game, usernam
 	})
 
 	if result.err != nil {
-		// On GcUnavailable, try stale fallback.
-		if ferr, ok := result.err.(*fetch.StatsFetchError); ok && ferr.Kind == fetch.StatsFetchErrorGcUnavailable {
-			staleFields, sErr := r.client.HGetAll(ctx, stale).Result()
-			if sErr == nil {
-				if stats := statsFromHash(staleFields); stats != nil {
-					return CachedStats{Stats: *stats, Degraded: true}, nil
-				}
-			}
-		}
-		return CachedStats{}, result.err
+		return scrape.ScrapedStats{}, result.err
 	}
 
-	// Success — write fresh + stale hashes atomically via pipeline.
 	ttl := r.cfg.TTLFor(game)
-	grace := r.cfg.StaleGrace()
 
 	pJSON, _ := json.Marshal(result.stats.Profile)
 	rJSON, _ := json.Marshal(result.stats.RankedStats)
@@ -163,22 +146,17 @@ func (r *RedisCacheStore) Fetch(ctx context.Context, game backends.Game, usernam
 	pipe.HSet(ctx, fresh, hRanked, string(rJSON))
 	pipe.HSet(ctx, fresh, hMetrics, string(mJSON))
 	pipe.Expire(ctx, fresh, ttl)
-	pipe.HSet(ctx, stale, hProfile, string(pJSON))
-	pipe.HSet(ctx, stale, hRanked, string(rJSON))
-	pipe.HSet(ctx, stale, hMetrics, string(mJSON))
-	pipe.Expire(ctx, stale, grace)
-	_, _ = pipe.Exec(ctx) // best-effort cache write
+	_, _ = pipe.Exec(ctx)
 
-	// Fire callback (leaderboard integration).
 	if r.onFetch != nil {
 		r.onFetch(ctx, game, username, &result.stats)
 	}
 
-	return CachedStats{Stats: result.stats, Degraded: false}, nil
+	return result.stats, nil
 }
 
 // FetchCollection checks the collection key in Redis, then falls back to
-// the backend. No singleflight for collections (matches Rust behavior).
+// the backend. No singleflight for collections.
 func (r *RedisCacheStore) FetchCollection(ctx context.Context, game backends.Game, username string, platform fetch.StatsPlatform) (scrape.ScrapedStatsCollection, error) {
 	key := CollectionKey(game, username, platform)
 

@@ -11,7 +11,6 @@ import (
 	"github.com/pactum-computers/parley/internal/stats/scrape"
 )
 
-// fakeBackend implements backends.StatsBackend for testing.
 type fakeBackend struct {
 	game        backends.Game
 	fetchFn     func(ctx context.Context, username string, platform fetch.StatsPlatform, season *string) (scrape.ScrapedStats, error)
@@ -26,13 +25,12 @@ func (f *fakeBackend) FetchCollection(ctx context.Context, username string, plat
 	return f.fetchCollFn(ctx, username, platform)
 }
 
-// fakeCacheStore implements cache.CacheStore for testing.
 type fakeCacheStore struct {
-	fetchFn     func(ctx context.Context, game backends.Game, username string, platform fetch.StatsPlatform, season *string) (cache.CachedStats, error)
+	fetchFn     func(ctx context.Context, game backends.Game, username string, platform fetch.StatsPlatform, season *string) (scrape.ScrapedStats, error)
 	fetchCollFn func(ctx context.Context, game backends.Game, username string, platform fetch.StatsPlatform) (scrape.ScrapedStatsCollection, error)
 }
 
-func (f *fakeCacheStore) Fetch(ctx context.Context, game backends.Game, username string, platform fetch.StatsPlatform, season *string) (cache.CachedStats, error) {
+func (f *fakeCacheStore) Fetch(ctx context.Context, game backends.Game, username string, platform fetch.StatsPlatform, season *string) (scrape.ScrapedStats, error) {
 	return f.fetchFn(ctx, game, username, platform, season)
 }
 func (f *fakeCacheStore) FetchCollection(ctx context.Context, game backends.Game, username string, platform fetch.StatsPlatform) (scrape.ScrapedStatsCollection, error) {
@@ -62,8 +60,8 @@ func sampleCollection(username string) scrape.ScrapedStatsCollection {
 func TestStatsService_FetchStats_CacheHit(t *testing.T) {
 	want := sampleStats("alice")
 	store := &fakeCacheStore{
-		fetchFn: func(_ context.Context, _ backends.Game, _ string, _ fetch.StatsPlatform, _ *string) (cache.CachedStats, error) {
-			return cache.CachedStats{Stats: want, Degraded: false}, nil
+		fetchFn: func(_ context.Context, _ backends.Game, _ string, _ fetch.StatsPlatform, _ *string) (scrape.ScrapedStats, error) {
+			return want, nil
 		},
 	}
 	reg := backends.NewStatsBackendRegistry()
@@ -73,33 +71,11 @@ func TestStatsService_FetchStats_CacheHit(t *testing.T) {
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if result.Stats.Profile.Username != "alice" {
-		t.Errorf("username = %q, want %q", result.Stats.Profile.Username, "alice")
+	if result.Profile.Username != "alice" {
+		t.Errorf("username = %q, want %q", result.Profile.Username, "alice")
 	}
-	if result.Degraded {
-		t.Error("Degraded should be false on cache hit")
-	}
-	if result.Stats.RankedStats.RankPoints != 3200 {
-		t.Errorf("rank_points = %d, want 3200", result.Stats.RankedStats.RankPoints)
-	}
-}
-
-func TestStatsService_FetchStats_CacheHit_Degraded(t *testing.T) {
-	want := sampleStats("alice")
-	store := &fakeCacheStore{
-		fetchFn: func(_ context.Context, _ backends.Game, _ string, _ fetch.StatsPlatform, _ *string) (cache.CachedStats, error) {
-			return cache.CachedStats{Stats: want, Degraded: true}, nil
-		},
-	}
-	reg := backends.NewStatsBackendRegistry()
-	svc := NewStatsService(store, reg)
-
-	result, err := svc.FetchStats(context.Background(), "alice", fetch.StatsPlatformPC, "", backends.GameR6)
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if !result.Degraded {
-		t.Error("Degraded should be true when cache returns degraded=true")
+	if result.RankedStats.RankPoints != 3200 {
+		t.Errorf("rank_points = %d, want 3200", result.RankedStats.RankPoints)
 	}
 }
 
@@ -117,18 +93,14 @@ func TestStatsService_FetchStats_CacheMiss_BackendCalled(t *testing.T) {
 	reg := backends.NewStatsBackendRegistry()
 	reg.Register(backend)
 
-	// No cache store — service calls backend directly.
 	svc := NewStatsService(nil, reg)
 
 	result, err := svc.FetchStats(context.Background(), "bob", fetch.StatsPlatformAuto, "y9s1", backends.GameR6)
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if result.Stats.Profile.Username != "bob" {
-		t.Errorf("username = %q, want %q", result.Stats.Profile.Username, "bob")
-	}
-	if result.Degraded {
-		t.Error("Degraded should be false when no cache store")
+	if result.Profile.Username != "bob" {
+		t.Errorf("username = %q, want %q", result.Profile.Username, "bob")
 	}
 }
 
@@ -159,8 +131,8 @@ func TestStatsService_FetchStats_CacheMiss_BackendError(t *testing.T) {
 
 func TestStatsService_FetchStats_CacheError_Propagates(t *testing.T) {
 	store := &fakeCacheStore{
-		fetchFn: func(_ context.Context, _ backends.Game, _ string, _ fetch.StatsPlatform, _ *string) (cache.CachedStats, error) {
-			return cache.CachedStats{}, fetch.NewStatsFetchError(fetch.StatsFetchErrorGcUnavailable, "redis down", true)
+		fetchFn: func(_ context.Context, _ backends.Game, _ string, _ fetch.StatsPlatform, _ *string) (scrape.ScrapedStats, error) {
+			return scrape.ScrapedStats{}, fetch.NewStatsFetchError(fetch.StatsFetchErrorGcUnavailable, "redis down", true)
 		},
 	}
 	reg := backends.NewStatsBackendRegistry()
@@ -370,3 +342,6 @@ func TestProtoFromFetchError(t *testing.T) {
 		t.Errorf("message = %q, want %q", proto.GetMessage(), "player not found")
 	}
 }
+
+// ensure fakeCacheStore implements cache.CacheStore
+var _ cache.CacheStore = (*fakeCacheStore)(nil)

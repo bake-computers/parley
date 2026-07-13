@@ -60,39 +60,27 @@ func run() error {
 	if err != nil {
 		return fmt.Errorf("database init: %w", err)
 	}
+	defer bunDB.Close()
 
-	var (
-		identityRepo *repos.IdentityRepo
-		guildRepo    *repos.GuildRepo
-		matchRepo    *repos.MatchRepo
-		queueRepo    *repos.MatchmakingQueueRepo
-		snapshotRepo *repos.PlayerStatSnapshotRepo
-		userRepo     *repos.UserSettingsRepo
-		tournRepo    *repos.TournamentRepo
-		teamRepo     *repos.TournamentTeamRepo
-		rosterRepo   *repos.TournamentRosterRepo
-		bracketRepo  *repos.BracketMatchRepo
-	)
-	if bunDB != nil {
-		identityRepo = repos.NewIdentityRepo(bunDB)
-		guildRepo = repos.NewGuildRepo(bunDB)
-		matchRepo = repos.NewMatchRepo(bunDB)
-		queueRepo = repos.NewMatchmakingQueueRepo(bunDB)
-		snapshotRepo = repos.NewPlayerStatSnapshotRepo(bunDB)
-		userRepo = repos.NewUserSettingsRepo(bunDB)
-		tournRepo = repos.NewTournamentRepo(bunDB)
-		teamRepo = repos.NewTournamentTeamRepo(bunDB)
-		rosterRepo = repos.NewTournamentRosterRepo(bunDB)
-		bracketRepo = repos.NewBracketMatchRepo(bunDB)
+	identityRepo := repos.NewIdentityRepo(bunDB)
+	guildRepo := repos.NewGuildRepo(bunDB)
+	matchRepo := repos.NewMatchRepo(bunDB)
+	queueRepo := repos.NewMatchmakingQueueRepo(bunDB)
+	snapshotRepo := repos.NewPlayerStatSnapshotRepo(bunDB)
+	userRepo := repos.NewUserSettingsRepo(bunDB)
+	tournRepo := repos.NewTournamentRepo(bunDB)
+	teamRepo := repos.NewTournamentTeamRepo(bunDB)
+	rosterRepo := repos.NewTournamentRosterRepo(bunDB)
+	bracketRepo := repos.NewBracketMatchRepo(bunDB)
+
+	redisOpts, err := config.RedisOptions(cfg.RedisURL)
+	if err != nil {
+		return fmt.Errorf("redis config: %w", err)
 	}
-
-	var rdb *redis.Client
-	if cfg.RedisURL != "" {
-		redisOpts, err := config.RedisOptions(cfg.RedisURL)
-		if err != nil {
-			return fmt.Errorf("redis config: %w", err)
-		}
-		rdb = redis.NewClient(redisOpts)
+	rdb := redis.NewClient(redisOpts)
+	defer rdb.Close()
+	if err := rdb.Ping(ctx).Err(); err != nil {
+		return fmt.Errorf("redis ping: %w", err)
 	}
 
 	var statsConfigCache *api.ConfigCache
@@ -117,52 +105,27 @@ func run() error {
 	registry := backends.NewStatsBackendRegistry()
 	registry.Register(backends.NewR6Backend(statsClient))
 
-	var cacheStore cache.CacheStore
-	var statsPersister *persist.StatsPersister
-
-	if bunDB != nil {
-		writer := &persist.DBSnapshotWriter{
-			Identity:  identityRepo,
-			Snapshots: snapshotRepo,
-			Guild:     guildRepo,
-		}
-		statsPersister = persist.NewStatsPersister(writer)
-
-		if rdb != nil {
-			cacheCfg := cache.NewCacheConfigFromEnv(cfg)
-			redisStore := cache.NewRedisCacheStore(rdb, registry, cacheCfg, nil)
-			cacheStore = persist.NewPersistingStatsCacheStore(redisStore, statsPersister)
-		} else {
-			directStore := cache.NewDirectCacheStore(registry)
-			cacheStore = persist.NewPersistingStatsCacheStore(directStore, statsPersister)
-		}
+	writer := &persist.DBSnapshotWriter{
+		Identity:  identityRepo,
+		Snapshots: snapshotRepo,
+		Guild:     guildRepo,
 	}
+	statsPersister := persist.NewStatsPersister(writer)
 
-	// 8. Matchmaking service.
-	var mmService *matchmaking.Service
-	if bunDB != nil {
-		mmService = matchmaking.NewService(guildRepo, matchRepo, queueRepo, snapshotRepo, userRepo)
-	}
+	cacheCfg := cache.NewCacheConfigFromEnv(cfg)
+	redisStore := cache.NewRedisCacheStore(rdb, registry, cacheCfg, nil)
+	cacheStore := persist.NewPersistingStatsCacheStore(redisStore, statsPersister)
 
-	// 9. Domain services.
+	mmService := matchmaking.NewService(guildRepo, matchRepo, queueRepo, snapshotRepo, userRepo)
+
 	identitySvc := services.NewIdentityService(identityRepo, guildRepo)
 	guildSvc := services.NewGuildService(guildRepo)
 	matchSvc := services.NewMatchService(matchRepo, queueRepo, guildRepo, mmService)
 	statsSvc := services.NewStatsService(cacheStore, registry)
 	userSvc := services.NewUserSettingsService(userRepo, guildRepo, identityRepo)
+	leaderboardSvc := services.NewLeaderboardService(services.NewRedisStore(rdb))
+	tournSvc := services.NewTournamentService(bunDB, tournRepo, teamRepo, rosterRepo, bracketRepo, mmService)
 
-	var leaderboardStore services.Store
-	if rdb != nil {
-		leaderboardStore = services.NewRedisStore(rdb)
-	}
-	leaderboardSvc := services.NewLeaderboardService(leaderboardStore)
-
-	var tournSvc *services.TournamentService
-	if bunDB != nil {
-		tournSvc = services.NewTournamentService(bunDB, tournRepo, teamRepo, rosterRepo, bracketRepo, mmService)
-	}
-
-	// 9. Build Fiber app via server package.
 	deps := server.Deps{
 		Identity:    identitySvc,
 		Guild:       guildSvc,
@@ -172,35 +135,28 @@ func run() error {
 		Tournament:  tournSvc,
 		Stats:       statsSvc,
 		ReadyCheck: func() error {
-			if bunDB != nil {
-				return db.Ping(ctx, bunDB)
+			if err := db.Ping(ctx, bunDB); err != nil {
+				return err
 			}
-			return nil
+			return rdb.Ping(ctx).Err()
 		},
 	}
 	app := server.New(deps)
 
-	// 10. Start background goroutines.
-	if mmService != nil && bunDB != nil {
-		go func() {
-			slog.Info("matchmaking sweeper started")
-			if err := mmService.Run(ctx, 5*time.Second); err != nil && !errors.Is(err, context.Canceled) {
-				slog.Error("sweeper exited with error", "error", err)
-			}
-		}()
-	}
+	go func() {
+		slog.Info("matchmaking sweeper started")
+		if err := mmService.Run(ctx, 5*time.Second); err != nil && !errors.Is(err, context.Canceled) {
+			slog.Error("sweeper exited with error", "error", err)
+		}
+	}()
 
-	if statsPersister != nil {
-		go func() {
-			slog.Info("stats persister started")
-			statsPersister.Run(ctx)
-		}()
-	}
+	go func() {
+		slog.Info("stats persister started")
+		statsPersister.Run(ctx)
+	}()
 
-	// Async warmup: pre-establish TCP+TLS to stats.cc.
 	go statsClient.Warmup(context.Background())
 
-	// 11. Start Fiber server (Listen blocks until shutdown).
 	serverErr := make(chan error, 1)
 	go func() {
 		slog.Info("engine-service listening", "addr", cfg.EngineServiceAddr)
@@ -209,7 +165,6 @@ func run() error {
 		}
 	}()
 
-	// 12. Wait for shutdown signal or unexpected server exit.
 	select {
 	case <-ctx.Done():
 	case err := <-serverErr:
@@ -217,7 +172,6 @@ func run() error {
 	}
 	slog.Info("shutdown signal received, draining...")
 
-	// Give in-flight requests 10s to complete.
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -225,14 +179,6 @@ func run() error {
 		slog.Error("server shutdown error", "error", err)
 	}
 
-	if bunDB != nil {
-		_ = bunDB.Close()
-	}
-	if rdb != nil {
-		_ = rdb.Close()
-	}
-
-	// Flush Axiom logs.
 	if axiomHandler != nil {
 		axiomCtx, axiomCancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer axiomCancel()

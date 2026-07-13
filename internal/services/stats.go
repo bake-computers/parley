@@ -13,13 +13,12 @@ import (
 )
 
 // StatsService fetches player stats through the cache→backend→fetch pipeline.
-// Mirrors Rust StatsHandler.
 type StatsService struct {
 	cache    cache.CacheStore
 	registry *backends.StatsBackendRegistry
 }
 
-// NewStatsService creates a StatsService. cache may be nil (degraded mode).
+// NewStatsService creates a StatsService. cache must be non-nil in production.
 func NewStatsService(
 	cacheStore cache.CacheStore,
 	registry *backends.StatsBackendRegistry,
@@ -27,41 +26,23 @@ func NewStatsService(
 	return &StatsService{cache: cacheStore, registry: registry}
 }
 
-// FetchResult wraps the result of a single-season stats fetch.
-type FetchResult struct {
-	Stats    scrape.ScrapedStats
-	Degraded bool
-}
-
 // FetchStats fetches stats for a single season selector (or latest when empty).
-// Mirrors Rust StatsHandler::fetch_stats_rpc.
 func (s *StatsService) FetchStats(
 	ctx context.Context,
 	username string,
 	platform fetch.StatsPlatform,
 	seasonSelector string,
 	game backends.Game,
-) (FetchResult, error) {
+) (scrape.ScrapedStats, error) {
 	season := emptyToNil(seasonSelector)
 
 	if s.cache != nil {
-		cached, err := s.cache.Fetch(ctx, game, username, platform, season)
-		if err != nil {
-			return FetchResult{}, err
-		}
-		return FetchResult{Stats: cached.Stats, Degraded: cached.Degraded}, nil
+		return s.cache.Fetch(ctx, game, username, platform, season)
 	}
-
-	// No cache — call backend registry directly.
-	stats, err := s.registry.Fetch(ctx, game, username, platform, season)
-	if err != nil {
-		return FetchResult{}, err
-	}
-	return FetchResult{Stats: stats, Degraded: false}, nil
+	return s.registry.Fetch(ctx, game, username, platform, season)
 }
 
 // FetchStatsCollection fetches stats for every ranked season.
-// Mirrors Rust StatsHandler::fetch_stats_collection_rpc.
 func (s *StatsService) FetchStatsCollection(
 	ctx context.Context,
 	username string,
@@ -91,7 +72,7 @@ func MapProtoPlatform(p statsv1.StatsPlatform) fetch.StatsPlatform {
 }
 
 // MapProtoGame converts proto Game to backends.Game. Defaults to GameR6 for
-// GAME_UNSPECIFIED so existing clients keep working (matches Rust behavior).
+// GAME_UNSPECIFIED so existing clients keep working.
 func MapProtoGame(_ commonv1.Game) backends.Game {
 	return backends.GameR6
 }
@@ -171,7 +152,7 @@ func ProtoFromMetrics(m *scrape.CalculatedMetrics) *statsv1.CalculatedMetrics {
 func ProtoFromCollection(c *scrape.ScrapedStatsCollection) *statsv1.ScrapedStatsCollection {
 	bySeason := make(map[string]*statsv1.ScrapedStats, len(c.BySeason))
 	for slug, stats := range c.BySeason {
-		s := stats // copy for pointer stability
+		s := stats
 		bySeason[slug] = ProtoFromScraped(&s)
 	}
 	catalog := make([]*statsv1.SeasonCatalogEntry, 0, len(c.SeasonCatalog))

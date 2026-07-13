@@ -18,7 +18,6 @@ func TestLoad(t *testing.T) {
 	t.Setenv("DB_TLS", "webpki")
 	t.Setenv("DB_TLS_CA_FILE", "/tmp/ca.pem")
 	t.Setenv("STATS_TTL_R6_MS", "120000")
-	t.Setenv("STATS_STALE_GRACE_MS", "3600000")
 	t.Setenv("STATS_CC_PROFILE_BATCH_SIZE", "7")
 	t.Setenv("STATS_CC_PROFILE_BATCH_DELAY_MS", "1500")
 	t.Setenv("AXIOM_TOKEN", "tok")
@@ -67,9 +66,6 @@ func TestLoad(t *testing.T) {
 	if cfg.StatsTTLR6MS != 120000 {
 		t.Errorf("StatsTTLR6MS = %d, want 120000", cfg.StatsTTLR6MS)
 	}
-	if cfg.StatsStaleGraceMS != 3600000 {
-		t.Errorf("StatsStaleGraceMS = %d, want 3600000", cfg.StatsStaleGraceMS)
-	}
 	if cfg.StatsCCProfileBatchSize != 7 {
 		t.Errorf("StatsCCProfileBatchSize = %d, want 7", cfg.StatsCCProfileBatchSize)
 	}
@@ -114,6 +110,9 @@ func TestLoad_defaults(t *testing.T) {
 	} {
 		t.Setenv(key, "")
 	}
+	// Required for boot; defaults tests still need them set.
+	t.Setenv("DATABASE_URL", "postgres://u:p@localhost/db")
+	t.Setenv("REDIS_URL", "redis://localhost:6379")
 
 	cfg, err := config.Load()
 	if err != nil {
@@ -132,9 +131,6 @@ func TestLoad_defaults(t *testing.T) {
 	if cfg.StatsTTLR6MS != 60_000 {
 		t.Errorf("StatsTTLR6MS = %d, want 60000", cfg.StatsTTLR6MS)
 	}
-	if cfg.StatsStaleGraceMS != 86_400_000 {
-		t.Errorf("StatsStaleGraceMS = %d", cfg.StatsStaleGraceMS)
-	}
 	if cfg.StatsCCProfileBatchSize != 10 {
 		t.Errorf("StatsCCProfileBatchSize = %d, want 10", cfg.StatsCCProfileBatchSize)
 	}
@@ -152,7 +148,23 @@ func TestLoad_defaults(t *testing.T) {
 	}
 }
 
+func TestLoad_RequiresDatabaseAndRedis(t *testing.T) {
+	t.Setenv("DATABASE_URL", "")
+	t.Setenv("REDIS_URL", "redis://localhost:6379")
+	if _, err := config.Load(); err == nil {
+		t.Fatal("Load() with empty DATABASE_URL: want error")
+	}
+
+	t.Setenv("DATABASE_URL", "postgres://u:p@localhost/db")
+	t.Setenv("REDIS_URL", "")
+	if _, err := config.Load(); err == nil {
+		t.Fatal("Load() with empty REDIS_URL: want error")
+	}
+}
+
 func TestLoad_statsCCProfileBatchClamps(t *testing.T) {
+	t.Setenv("DATABASE_URL", "postgres://u:p@localhost/db")
+	t.Setenv("REDIS_URL", "redis://localhost:6379")
 	t.Setenv("STATS_CC_PROFILE_BATCH_SIZE", "99")
 	t.Setenv("STATS_CC_PROFILE_BATCH_DELAY_MS", "0")
 
@@ -197,6 +209,8 @@ func TestLoad_statsCCProfileBatchClamps(t *testing.T) {
 }
 
 func TestLoad_rustLogFallback(t *testing.T) {
+	t.Setenv("DATABASE_URL", "postgres://u:p@localhost/db")
+	t.Setenv("REDIS_URL", "redis://localhost:6379")
 	t.Setenv("LOG_LEVEL", "")
 	t.Setenv("RUST_LOG", "parley=warn")
 

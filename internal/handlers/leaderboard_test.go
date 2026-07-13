@@ -2,7 +2,6 @@ package handlers_test
 
 import (
 	"context"
-	"errors"
 	"testing"
 
 	"connectrpc.com/connect"
@@ -13,23 +12,6 @@ import (
 	"github.com/pactum-computers/parley/internal/stats/backends"
 	"github.com/pactum-computers/parley/internal/stats/scrape"
 )
-
-func TestGetLeaderboard_NotConfigured(t *testing.T) {
-	h := handlers.NewLeaderboardHandler(services.NewLeaderboardService(nil))
-	req := connect.NewRequest(&leaderboardv1.GetLeaderboardRequest{
-		Game:  commonv1.Game_GAME_R6,
-		Type:  leaderboardv1.LeaderboardType_LEADERBOARD_TYPE_ELO,
-		Limit: 10,
-	})
-	_, err := h.GetLeaderboard(context.Background(), req)
-	if err == nil {
-		t.Fatal("expected error")
-	}
-	var ce *connect.Error
-	if !errors.As(err, &ce) || ce.Code() != connect.CodeFailedPrecondition {
-		t.Fatalf("got %v", err)
-	}
-}
 
 func TestGetLeaderboard_HappyPath(t *testing.T) {
 	store := &fakeLeaderboardStore{

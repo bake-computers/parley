@@ -5,7 +5,6 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
-	"log/slog"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -19,15 +18,13 @@ import (
 // ErrNoDatabase is returned when an operation requires a database but none is configured.
 var ErrNoDatabase = errors.New("database not configured")
 
-// New opens a Postgres pool and wraps it with bun. When cfg.DatabaseURL is empty,
-// returns (nil, nil) and logs a warning (DB-less mode).
+// New opens a Postgres pool and wraps it with bun. DATABASE_URL must be set.
 func New(ctx context.Context, cfg *config.Config) (*bun.DB, error) {
 	if cfg == nil {
 		return nil, fmt.Errorf("config is nil")
 	}
 	if cfg.DatabaseURL == "" {
-		slog.Warn("DATABASE_URL unset; running without database")
-		return nil, nil
+		return nil, fmt.Errorf("DATABASE_URL is required")
 	}
 
 	poolCfg, err := pgxpool.ParseConfig(cfg.DatabaseURL)

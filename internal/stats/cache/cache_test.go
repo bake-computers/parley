@@ -13,21 +13,12 @@ func TestCacheConfig_DefaultTTL(t *testing.T) {
 	if got := cfg.TTLFor(backends.GameR6); got != 60*time.Second {
 		t.Errorf("default TTLFor(R6) = %v, want 60s", got)
 	}
-	if got := cfg.StaleGrace(); got != 24*time.Hour {
-		t.Errorf("default StaleGrace() = %v, want 24h", got)
-	}
 }
 
 func TestCacheConfig_CustomTTL(t *testing.T) {
-	cfg := CacheConfig{
-		TTLR6:              30 * time.Second,
-		StaleGraceDuration: 12 * time.Hour,
-	}
+	cfg := CacheConfig{TTLR6: 30 * time.Second}
 	if got := cfg.TTLFor(backends.GameR6); got != 30*time.Second {
 		t.Errorf("TTLFor(R6) = %v, want 30s", got)
-	}
-	if got := cfg.StaleGrace(); got != 12*time.Hour {
-		t.Errorf("StaleGrace() = %v, want 12h", got)
 	}
 }
 
@@ -48,14 +39,6 @@ func TestFreshKey(t *testing.T) {
 		if got != tt.want {
 			t.Errorf("FreshKey(%v, %q, %v, %v) = %q, want %q", tt.game, tt.username, tt.platform, tt.season, got, tt.want)
 		}
-	}
-}
-
-func TestStaleKey(t *testing.T) {
-	got := StaleKey(backends.GameR6, "player1", fetch.StatsPlatformPC, strPtr("y9s1"))
-	want := "stats:stale:r6:player1:pc:y9s1"
-	if got != want {
-		t.Errorf("StaleKey() = %q, want %q", got, want)
 	}
 }
 

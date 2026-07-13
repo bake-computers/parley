@@ -4,7 +4,6 @@ package services
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/pactum-computers/parley/internal/stats/backends"
@@ -13,14 +12,6 @@ import (
 )
 
 const leaderboardKeyPrefix = "lb"
-
-// ErrLeaderboardNotConfigured is returned when REDIS_URL was not configured.
-var ErrLeaderboardNotConfigured = errors.New("leaderboard not configured (set REDIS_URL)")
-
-// IsNotConfigured reports whether err is ErrLeaderboardNotConfigured.
-func IsNotConfigured(err error) bool {
-	return errors.Is(err, ErrLeaderboardNotConfigured)
-}
 
 // Kind identifies which ZSET metric is queried.
 type Kind int
@@ -148,7 +139,7 @@ type LeaderboardService struct {
 	store Store
 }
 
-// NewLeaderboardService returns a service; store may be nil when Redis is absent.
+// NewLeaderboardService returns a service backed by store (required).
 func NewLeaderboardService(store Store) *LeaderboardService {
 	return &LeaderboardService{store: store}
 }
@@ -166,13 +157,6 @@ type GetLeaderboardParams struct {
 type GetLeaderboardResult struct {
 	Entries    []Entry
 	TotalCount int64
-}
-
-func (s *LeaderboardService) requireStore() error {
-	if s.store == nil {
-		return ErrLeaderboardNotConfigured
-	}
-	return nil
 }
 
 func clampLimit(limit int32) int64 {
@@ -194,9 +178,6 @@ func clampOffset(offset int32) int64 {
 
 // GetLeaderboard fetches a page of leaderboard entries.
 func (s *LeaderboardService) GetLeaderboard(ctx context.Context, p GetLeaderboardParams) (GetLeaderboardResult, error) {
-	if err := s.requireStore(); err != nil {
-		return GetLeaderboardResult{}, err
-	}
 	limit := clampLimit(p.Limit)
 	offset := clampOffset(p.Offset)
 	entries, err := s.store.Top(ctx, p.Game, p.GuildID, p.Kind, limit, offset)
@@ -220,8 +201,5 @@ type GetPlayerRankParams struct {
 
 // GetPlayerRank returns one player's entry or nil when not ranked.
 func (s *LeaderboardService) GetPlayerRank(ctx context.Context, p GetPlayerRankParams) (*Entry, error) {
-	if err := s.requireStore(); err != nil {
-		return nil, err
-	}
 	return s.store.PlayerRank(ctx, p.Game, p.GuildID, p.Kind, p.PlayerID)
 }

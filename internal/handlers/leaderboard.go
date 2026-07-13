@@ -7,7 +7,6 @@ import (
 	commonv1 "github.com/pactum-computers/parley/gen/parley/common/v1"
 	leaderboardv1 "github.com/pactum-computers/parley/gen/parley/leaderboard/v1"
 	"github.com/pactum-computers/parley/gen/parley/leaderboard/v1/leaderboardv1connect"
-	"github.com/pactum-computers/parley/internal/apperr"
 	"github.com/pactum-computers/parley/internal/services"
 	"github.com/pactum-computers/parley/internal/stats/backends"
 )
@@ -60,13 +59,6 @@ func leaderboardProtoEntry(e services.Entry) *leaderboardv1.LeaderboardEntry {
 	}
 }
 
-func mapLeaderboardErr(err error) error {
-	if services.IsNotConfigured(err) {
-		return apperr.FailedPrecondition(err.Error())
-	}
-	return mapErr(err)
-}
-
 // GetLeaderboard returns a page of ranked players from Redis.
 func (h *LeaderboardHandler) GetLeaderboard(
 	ctx context.Context,
@@ -81,7 +73,7 @@ func (h *LeaderboardHandler) GetLeaderboard(
 		Offset:  r.GetOffset(),
 	})
 	if err != nil {
-		return nil, mapLeaderboardErr(err)
+		return nil, mapErr(err)
 	}
 	entries := make([]*leaderboardv1.LeaderboardEntry, 0, len(result.Entries))
 	for _, e := range result.Entries {
@@ -106,7 +98,7 @@ func (h *LeaderboardHandler) GetPlayerRank(
 		Kind:     mapLeaderboardType(r.GetType()),
 	})
 	if err != nil {
-		return nil, mapLeaderboardErr(err)
+		return nil, mapErr(err)
 	}
 	var proto *leaderboardv1.LeaderboardEntry
 	if entry != nil {
