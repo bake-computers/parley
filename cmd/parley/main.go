@@ -18,7 +18,6 @@ import (
 	"github.com/pactum-computers/parley/internal/server"
 	"github.com/pactum-computers/parley/internal/services"
 	"github.com/pactum-computers/parley/internal/stats/api"
-	"github.com/pactum-computers/parley/internal/stats/backends"
 	"github.com/pactum-computers/parley/internal/stats/cache"
 	"github.com/pactum-computers/parley/internal/stats/fetch"
 	"github.com/pactum-computers/parley/internal/stats/persist"
@@ -102,9 +101,6 @@ func run() error {
 		DisableProfileBatch: batchSize == 0,
 	})
 
-	registry := backends.NewStatsBackendRegistry()
-	registry.Register(backends.NewR6Backend(statsClient))
-
 	writer := &persist.DBSnapshotWriter{
 		Identity:  identityRepo,
 		Snapshots: snapshotRepo,
@@ -113,7 +109,7 @@ func run() error {
 	statsPersister := persist.NewStatsPersister(writer)
 
 	cacheCfg := cache.NewCacheConfigFromEnv(cfg)
-	redisStore := cache.NewRedisCacheStore(rdb, registry, cacheCfg, nil)
+	redisStore := cache.NewRedisCacheStore(rdb, statsClient, cacheCfg)
 	cacheStore := persist.NewPersistingStatsCacheStore(redisStore, statsPersister)
 
 	mmService := matchmaking.NewService(guildRepo, matchRepo, queueRepo, snapshotRepo, userRepo)
@@ -121,7 +117,7 @@ func run() error {
 	identitySvc := services.NewIdentityService(identityRepo, guildRepo)
 	guildSvc := services.NewGuildService(guildRepo)
 	matchSvc := services.NewMatchService(matchRepo, queueRepo, guildRepo, mmService)
-	statsSvc := services.NewStatsService(cacheStore, registry)
+	statsSvc := services.NewStatsService(cacheStore)
 	userSvc := services.NewUserSettingsService(userRepo, guildRepo, identityRepo)
 	leaderboardSvc := services.NewLeaderboardService(services.NewRedisStore(rdb))
 	tournSvc := services.NewTournamentService(bunDB, tournRepo, teamRepo, rosterRepo, bracketRepo, mmService)
