@@ -22,7 +22,6 @@ import (
 	"github.com/pactum-computers/parley/internal/stats/cache"
 	"github.com/pactum-computers/parley/internal/stats/fetch"
 	"github.com/pactum-computers/parley/internal/stats/persist"
-	"github.com/pactum-computers/parley/internal/stats/scrape"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -102,15 +101,13 @@ func run() error {
 		statsConfigCache = api.NewConfigCache(rdb, configTTL)
 		slog.Info("stats.cc api enabled", "base", cfg.StatsCCAPIBaseURL)
 	} else {
-		slog.Info("stats.cc api disabled (STATS_CC_API_KEY unset); using HTML scraper only")
+		slog.Warn("STATS_CC_API_KEY unset; stats fetches will fail until configured")
 	}
 
 	batchSize := int(cfg.StatsCCProfileBatchSize)
 	statsClient := fetch.NewStatsClientFromOptions(fetch.ClientOptions{
 		APIKey:              cfg.StatsCCAPIKey,
 		APIBaseURL:          cfg.StatsCCAPIBaseURL,
-		ScraperBaseURL:      "https://stats.cc",
-		ScrapeFn:            scrape.ScrapeHTMLStatsCollection,
 		ConfigCache:         statsConfigCache,
 		ProfileBatchSize:    batchSize,
 		ProfileBatchDelay:   time.Duration(cfg.StatsCCProfileBatchDelayMS) * time.Millisecond,

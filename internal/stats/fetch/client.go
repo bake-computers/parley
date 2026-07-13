@@ -10,36 +10,22 @@ import (
 	"github.com/pactum-computers/parley/internal/stats/api"
 )
 
-const scraperUserAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
-
-// ClientOptions configures StatsClient with optional API + scraper paths.
+// ClientOptions configures StatsClient (API-only).
 type ClientOptions struct {
 	APIKey              string
 	APIBaseURL          string
-	ScraperBaseURL      string
-	ScrapeFn            ScrapeFunc
 	ConfigCache         *api.ConfigCache
 	HTTPClient          *http.Client
-	ProfileBatchSize    int // unset (0) defaults to 10 unless DisableProfileBatch
+	ProfileBatchSize    int
 	ProfileBatchDelay   time.Duration
-	DisableProfileBatch bool // set by main when STATS_CC_PROFILE_BATCH_SIZE=0
+	DisableProfileBatch bool
 }
 
-// StatsClient fetches stats from stats.cc API (primary) or HTML scraper (fallback).
+// StatsClient fetches stats from the stats.cc API.
 type StatsClient struct {
-	http           *http.Client
-	scraperBaseURL string
-	retry          RetryPolicy
-	scrape         ScrapeFunc
-	api            *api.Client
-}
-
-// NewStatsClient creates a scraper-only client (backward compatible).
-func NewStatsClient(baseURL string, scrapeFn ScrapeFunc) *StatsClient {
-	return NewStatsClientFromOptions(ClientOptions{
-		ScraperBaseURL: baseURL,
-		ScrapeFn:       scrapeFn,
-	})
+	http  *http.Client
+	retry RetryPolicy
+	api   *api.Client
 }
 
 // NewStatsClientFromOptions creates a client with optional API support.
@@ -63,15 +49,11 @@ func NewStatsClientFromOptions(opts ClientOptions) *StatsClient {
 	}
 
 	c := &StatsClient{
-		http:           httpClient,
-		scraperBaseURL: opts.ScraperBaseURL,
-		retry:          DefaultRetryPolicy(),
-		scrape:         opts.ScrapeFn,
+		http:  httpClient,
+		retry: DefaultRetryPolicy(),
 	}
 
 	if opts.APIKey != "" && opts.APIBaseURL != "" {
-		// Unset size defaults to 10. Config disables batching via DisableProfileBatch
-		// (main sets that when STATS_CC_PROFILE_BATCH_SIZE=0).
 		batchSize := opts.ProfileBatchSize
 		if !opts.DisableProfileBatch && batchSize == 0 {
 			batchSize = 10
@@ -90,52 +72,23 @@ func NewStatsClientFromOptions(opts ClientOptions) *StatsClient {
 	return c
 }
 
-// NewStatsClientWithHTTP creates a client with a caller-provided http.Client.
-func NewStatsClientWithHTTP(baseURL string, httpClient *http.Client, scrapeFn ScrapeFunc) *StatsClient {
-	return NewStatsClientFromOptions(ClientOptions{
-		ScraperBaseURL: baseURL,
-		ScrapeFn:       scrapeFn,
-		HTTPClient:     httpClient,
-	})
-}
-
 // WithRetry overrides the retry policy. Returns the same client for chaining.
 func (c *StatsClient) WithRetry(r RetryPolicy) *StatsClient {
 	c.retry = r
 	return c
 }
 
-// Warmup pre-establishes upstream connections (API config when configured, else scraper).
+// Warmup pre-establishes API connections when configured.
 func (c *StatsClient) Warmup(ctx context.Context) {
-	if c.api != nil {
-		if err := c.api.Warmup(ctx); err != nil {
-			slog.Warn("stats api warmup failed (non-fatal)", "error", err)
-			return
-		}
-		slog.Info("stats api connection warmed", "base", "r6.stats.cc")
+	if c.api == nil {
+		slog.Warn("stats api warmup skipped: API not configured")
 		return
 	}
-	url := c.scraperBaseURL + "/"
-	req, err := http.NewRequestWithContext(ctx, http.MethodHead, url, nil)
-	if err != nil {
-		slog.Warn("stats upstream warmup failed (non-fatal)", "url", url, "error", err)
+	if err := c.api.Warmup(ctx); err != nil {
+		slog.Warn("stats api warmup failed (non-fatal)", "error", err)
 		return
 	}
-	req.Header.Set("User-Agent", scraperUserAgent)
-	resp, err := c.http.Do(req)
-	if err != nil {
-		slog.Warn("stats upstream warmup failed (non-fatal)", "url", url, "error", err)
-		return
-	}
-	if err := resp.Body.Close(); err != nil {
-		slog.Warn("stats upstream warmup body close", "error", err)
-	}
-	slog.Info("stats upstream connection pool warmed", "url", url)
-}
-
-// ScrapeFn returns the scrape function used by this client.
-func (c *StatsClient) ScrapeFn() ScrapeFunc {
-	return c.scrape
+	slog.Info("stats api connection warmed")
 }
 
 // APIEnabled reports whether the stats.cc API path is configured.

@@ -44,8 +44,3 @@ func (k ErrorKind) String() string {
 func (e *Error) Error() string {
 	return fmt.Sprintf("stats.cc api %s (status=%d): %s", e.Kind.String(), e.Status, e.Message)
 }
-
-// ShouldFallback reports whether the fetch layer should try the HTML scraper.
-func (e *Error) ShouldFallback() bool {
-	return e.Retryable || e.Kind == ErrAuth || e.Kind == ErrNetwork || e.Kind == ErrHTTP || e.Kind == ErrParse
-}

@@ -1,7 +1,5 @@
 package fetch
 
-import "github.com/pactum-computers/parley/internal/stats/scrape"
-
 // RetryPolicy configures retry behaviour for retryable upstream errors (429, 5xx, network).
 type RetryPolicy struct {
 	MaxAttempts      int
@@ -27,11 +25,3 @@ func NoRetryPolicy() RetryPolicy {
 		MaxBackoffMS:     0,
 	}
 }
-
-// ScrapeFunc parses HTML into a ScrapedStatsCollection.
-// Injected dependency — the actual implementation lives in the scrape package.
-type ScrapeFunc func(html string) scrape.ScrapedStatsCollection
-
-// CanonicalizeSeasonFunc resolves a season selector (slug or display name) to
-// its canonical slug, or returns empty string if not found.
-type CanonicalizeSeasonFunc func(selector string, catalog []scrape.SeasonCatalogEntry) string

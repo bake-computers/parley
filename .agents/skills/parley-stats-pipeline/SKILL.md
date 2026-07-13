@@ -1,13 +1,13 @@
 ---
 name: parley-stats-pipeline
-description: Use when working on the Go stats subsystem in the Parley engine — adding a per-game backend, debugging cache hits/misses, tracing a fetch through cache→backend→HTTP→scrape→persist, or understanding the REDIS_URL vs direct-cache fallback.
+description: Use when working on the Go stats subsystem in the Parley engine — adding a per-game backend, debugging cache hits/misses, tracing a fetch through cache→backend→HTTP→API map→persist, or understanding the REDIS_URL vs direct-cache fallback.
 ---
 
 # Parley Stats Pipeline
 
 ## Overview
 
-Stats flow: `StatsService` → `CacheStore` (Redis or Direct) → `StatsBackendRegistry` → per-game `StatsBackend` (R6) → `fetch.Client` → `scrape` (pure parser) → optional async `persist` to Postgres. `proto/stats/v1/StatsService` sits on top.
+Stats flow: `StatsService` → `CacheStore` (Redis or Direct) → `StatsBackendRegistry` → per-game `StatsBackend` (R6) → `fetch.Client` (API) → `api.MapCollection` → domain types in `scrape` package → optional async `persist` to Postgres. `proto/stats/v1/StatsService` sits on top.
 
 ## Quick reference
 
@@ -17,9 +17,10 @@ Stats flow: `StatsService` → `CacheStore` (Redis or Direct) → `StatsBackendR
 | Cache facade     | `internal/stats/cache/cache.go`                       | `CacheStore` interface                                         |
 | Cache impls      | `internal/stats/cache/{direct,redis,singleflight}.go` | Direct passthrough, Redis with `singleflight` de-dup           |
 | Backend registry | `internal/stats/backends/backend.go`                  | Dispatches by `Game`                                           |
-| R6 backend       | `internal/stats/backends/r6.go`                       | Only implemented game; uses `fetch.Client`                     |
-| HTTP client      | `internal/stats/fetch/{client,errors}.go`             | Network I/O only                                               |
-| HTML scraper     | `internal/stats/scrape/{scrape,nuxt,metrics}.go`      | Pure parsers; `__NUXT_DATA__` index resolver, `maxHops=64` cap |
+| R6 backend       | `internal/stats/backends/r6.go`                       | Only implemented game; uses `fetch.Client` (API-only)          |
+| HTTP client      | `internal/stats/fetch/{client,errors}.go`             | Network I/O only; stats.cc API                                 |
+| API mapping      | `internal/stats/api/{client,map,types}.go`            | Typed API client + map responses → domain types                |
+| Domain types     | `internal/stats/scrape/{types,rounds,metrics}.go`     | Domain models (not HTML); KOST helpers, `ScrapedStats`, etc.   |
 | Persistence      | `internal/stats/persist/persisting.go`                | Async buffered channel → Postgres + guild invalidation         |
 
 ## Critical patterns
@@ -28,7 +29,9 @@ Stats flow: `StatsService` → `CacheStore` (Redis or Direct) → `StatsBackendR
 
 **`Degraded` is a contract, not a flag.** Carried from `CachedStats.Degraded` into the proto response. Redis sets it `true` for partial/stale results; Direct always `false`. Callers treat `Degraded: true` as "use with caution" — never a hard error.
 
-**Scrape layer is pure and bounded.** No I/O in `scrape/*` — all network is in `fetch`. `NuxtResolver` chases index references in the flat payload array, capped at 64 hops. If stats.cc changes, only the `scrape` package needs to change.
+**Live stats require the stats.cc API.** Set `STATS_CC_API_KEY` (and optional `STATS_CC_API_BASE_URL`). There is no HTML scraper fallback — missing/misconfigured API fails the fetch path.
+
+**Domain types still live under `scrape`.** Package `internal/stats/scrape` holds domain models and pure helpers (`ScrapedStats`, rounds, KOST metrics). It is not an HTML network path; mapping from API JSON is in `internal/stats/api`.
 
 **Persistence is async and best-effort.** Buffered channel (`defaultChannelCapacity=1024`) feeds a background goroutine writing to `player_stat_snapshots`. Hot path never blocks on Postgres; on full buffer the writer logs and drops (intentional). After a write, `GuildInvalidator` clears guild-scoped caches.
 
@@ -38,7 +41,7 @@ Stats flow: `StatsService` → `CacheStore` (Redis or Direct) → `StatsBackendR
 
 - Forgetting `registry.Register(r6Backend)` at boot — returns `StatsFetchErrorGcUnavailable`
 - Bypassing `CacheStore` with a direct backend call — skips Redis + singleflight, hammers stats.cc
-- Doing I/O inside `scrape` — must stay pure; HTTP belongs in `fetch`
+- Assuming HTML scrape still exists — live path is API-only; domain types remain in `scrape`
 - Treating `Degraded: true` as a hard error — it's a "use with caution" signal
 - Blocking the hot path on Postgres writes — that's why `persist` is async
 - Editing `gen/parley/**` to add an enum value — auto-generated; edit the proto and regen

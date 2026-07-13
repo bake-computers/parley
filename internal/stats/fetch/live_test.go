@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/pactum-computers/parley/internal/stats/api"
-	"github.com/pactum-computers/parley/internal/stats/scrape"
 )
 
 func TestLiveStatsCCAPI_Avqny(t *testing.T) {
@@ -20,11 +19,9 @@ func TestLiveStatsCCAPI_Avqny(t *testing.T) {
 
 	cache := api.NewConfigCache(nil, 7*time.Minute)
 	client := NewStatsClientFromOptions(ClientOptions{
-		APIKey:         key,
-		APIBaseURL:     getenvDefault("STATS_CC_API_BASE_URL", "https://r6.stats.cc"),
-		ScraperBaseURL: "https://stats.cc",
-		ScrapeFn:       scrape.ScrapeHTMLStatsCollection,
-		ConfigCache:    cache,
+		APIKey:      key,
+		APIBaseURL:  getenvDefault("STATS_CC_API_BASE_URL", "https://r6.stats.cc"),
+		ConfigCache: cache,
 	}).WithRetry(DefaultRetryPolicy())
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)

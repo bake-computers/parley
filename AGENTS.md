@@ -13,7 +13,7 @@ proto/                     ← single source of truth (protobuf)
   ├── common/              → shared types (Game, Rank, Region, PlayerStats, Badge)
   ├── guild/               → guild settings RPCs
   ├── identity/            → account linking RPCs
-  └── stats/               → stats.cc scraper RPCs
+  └── stats/               → player stats RPCs (stats.cc API)
 
 Go (cmd/parley + internal/) ← buf generate → gen/parley (pb + connect)
 

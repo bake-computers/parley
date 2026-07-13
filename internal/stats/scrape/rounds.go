@@ -42,7 +42,18 @@ func SummarizePlayerSummaries(summaries []PlayerSummary) MatchRoundTotals {
 	return t
 }
 
+const kostDescription = "Estimated KOST% from aggregated match summaries (no round-level K/O/S/T flags in payload)"
+
 // BuildScrapedStats assembles profile + ranked stats with calculated KOST metrics.
 func BuildScrapedStats(profile StatsProfile, ranked RankedStats) ScrapedStats {
-	return toScraped(profile, ranked)
+	return ScrapedStats{
+		Profile: profile,
+		CalculatedMetrics: CalculatedMetrics{
+			KOST:            CalculateKost(&ranked),
+			KOSTLowerBound:  KostLowerBound(&ranked),
+			KOSTUpperBound:  KostUpperBound(&ranked),
+			KOSTDescription: kostDescription,
+		},
+		RankedStats: ranked,
+	}
 }
