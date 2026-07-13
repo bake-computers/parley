@@ -42,9 +42,8 @@ func (h *StatsHandler) FetchStats(
 	}
 
 	platform := services.MapProtoPlatform(req.Msg.GetPlatform())
-	game := services.MapProtoGame(req.Msg.GetGame())
 
-	stats, err := h.svc.FetchStats(ctx, username, platform, req.Msg.GetSeasonSelector(), game)
+	stats, err := h.svc.FetchStats(ctx, username, platform, req.Msg.GetSeasonSelector())
 	if err != nil {
 		return nil, mapStatsErr(err)
 	}
@@ -69,9 +68,8 @@ func (h *StatsHandler) FetchStatsCollection(
 	}
 
 	platform := services.MapProtoPlatform(req.Msg.GetPlatform())
-	game := services.MapProtoGame(req.Msg.GetGame())
 
-	collection, err := h.svc.FetchStatsCollection(ctx, username, platform, game)
+	collection, err := h.svc.FetchStatsCollection(ctx, username, platform)
 	if err != nil {
 		return nil, mapStatsErr(err)
 	}
@@ -155,7 +153,7 @@ func StatsRESTHandler(svc *services.StatsService) http.HandlerFunc {
 
 		season := q.Get("season")
 
-		stats, err := svc.FetchStats(r.Context(), username, platform, season, 0 /* GameR6 */)
+		stats, err := svc.FetchStats(r.Context(), username, platform, season)
 		if err != nil {
 			status, code := mapRESTStatus(err)
 			writeRESTError(w, status, code, err.Error())
