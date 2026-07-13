@@ -7,17 +7,16 @@ import (
 	"time"
 
 	"github.com/pactum-computers/parley/internal/stats/backends"
-	"github.com/pactum-computers/parley/internal/stats/cache"
 	"github.com/pactum-computers/parley/internal/stats/fetch"
 	"github.com/pactum-computers/parley/internal/stats/scrape"
 )
 
 type mockCacheStore struct {
-	fetchFn     func(ctx context.Context, game backends.Game, username string, platform fetch.StatsPlatform, season *string) (cache.CachedStats, error)
+	fetchFn     func(ctx context.Context, game backends.Game, username string, platform fetch.StatsPlatform, season *string) (scrape.ScrapedStats, error)
 	fetchCollFn func(ctx context.Context, game backends.Game, username string, platform fetch.StatsPlatform) (scrape.ScrapedStatsCollection, error)
 }
 
-func (m *mockCacheStore) Fetch(ctx context.Context, game backends.Game, username string, platform fetch.StatsPlatform, season *string) (cache.CachedStats, error) {
+func (m *mockCacheStore) Fetch(ctx context.Context, game backends.Game, username string, platform fetch.StatsPlatform, season *string) (scrape.ScrapedStats, error) {
 	return m.fetchFn(ctx, game, username, platform, season)
 }
 
@@ -47,8 +46,8 @@ func (m *mockSnapshotWriter) count() int {
 func TestPersistingStatsCacheStore_Fetch_EnqueuesOnSuccess(t *testing.T) {
 	want := scrape.ScrapedStats{Profile: scrape.StatsProfile{Username: "alice"}}
 	inner := &mockCacheStore{
-		fetchFn: func(_ context.Context, _ backends.Game, _ string, _ fetch.StatsPlatform, _ *string) (cache.CachedStats, error) {
-			return cache.CachedStats{Stats: want, Degraded: false}, nil
+		fetchFn: func(_ context.Context, _ backends.Game, _ string, _ fetch.StatsPlatform, _ *string) (scrape.ScrapedStats, error) {
+			return want, nil
 		},
 		fetchCollFn: func(context.Context, backends.Game, string, fetch.StatsPlatform) (scrape.ScrapedStatsCollection, error) {
 			return scrape.ScrapedStatsCollection{}, nil
@@ -65,8 +64,8 @@ func TestPersistingStatsCacheStore_Fetch_EnqueuesOnSuccess(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Fetch: %v", err)
 	}
-	if got.Stats.Profile.Username != "alice" {
-		t.Fatalf("username = %q", got.Stats.Profile.Username)
+	if got.Profile.Username != "alice" {
+		t.Fatalf("username = %q", got.Profile.Username)
 	}
 
 	deadline := time.Now().Add(2 * time.Second)
@@ -80,8 +79,8 @@ func TestPersistingStatsCacheStore_Fetch_EnqueuesOnSuccess(t *testing.T) {
 
 func TestPersistingStatsCacheStore_Fetch_SkipsEnqueueOnError(t *testing.T) {
 	inner := &mockCacheStore{
-		fetchFn: func(context.Context, backends.Game, string, fetch.StatsPlatform, *string) (cache.CachedStats, error) {
-			return cache.CachedStats{}, fetch.NewStatsFetchError(fetch.StatsFetchErrorProfileNotFound, "missing", false)
+		fetchFn: func(context.Context, backends.Game, string, fetch.StatsPlatform, *string) (scrape.ScrapedStats, error) {
+			return scrape.ScrapedStats{}, fetch.NewStatsFetchError(fetch.StatsFetchErrorProfileNotFound, "missing", false)
 		},
 		fetchCollFn: func(context.Context, backends.Game, string, fetch.StatsPlatform) (scrape.ScrapedStatsCollection, error) {
 			return scrape.ScrapedStatsCollection{}, nil
@@ -102,8 +101,8 @@ func TestPersistingStatsCacheStore_Fetch_SkipsEnqueueOnError(t *testing.T) {
 func TestPersistingStatsCacheStore_FetchCollection_EnqueuesLatest(t *testing.T) {
 	latest := scrape.ScrapedStats{Profile: scrape.StatsProfile{Username: "bob"}}
 	inner := &mockCacheStore{
-		fetchFn: func(context.Context, backends.Game, string, fetch.StatsPlatform, *string) (cache.CachedStats, error) {
-			return cache.CachedStats{}, nil
+		fetchFn: func(context.Context, backends.Game, string, fetch.StatsPlatform, *string) (scrape.ScrapedStats, error) {
+			return scrape.ScrapedStats{}, nil
 		},
 		fetchCollFn: func(context.Context, backends.Game, string, fetch.StatsPlatform) (scrape.ScrapedStatsCollection, error) {
 			return scrape.ScrapedStatsCollection{Latest: latest}, nil

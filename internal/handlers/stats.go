@@ -44,14 +44,14 @@ func (h *StatsHandler) FetchStats(
 	platform := services.MapProtoPlatform(req.Msg.GetPlatform())
 	game := services.MapProtoGame(req.Msg.GetGame())
 
-	result, err := h.svc.FetchStats(ctx, username, platform, req.Msg.GetSeasonSelector(), game)
+	stats, err := h.svc.FetchStats(ctx, username, platform, req.Msg.GetSeasonSelector(), game)
 	if err != nil {
 		return nil, mapStatsErr(err)
 	}
 
 	return connect.NewResponse(&statsv1.FetchStatsResponse{
 		Success: true,
-		Stats:   services.ProtoFromScraped(&result.Stats),
+		Stats:   services.ProtoFromScraped(&stats),
 	}), nil
 }
 
@@ -155,7 +155,7 @@ func StatsRESTHandler(svc *services.StatsService) http.HandlerFunc {
 
 		season := q.Get("season")
 
-		result, err := svc.FetchStats(r.Context(), username, platform, season, 0 /* GameR6 */)
+		stats, err := svc.FetchStats(r.Context(), username, platform, season, 0 /* GameR6 */)
 		if err != nil {
 			status, code := mapRESTStatus(err)
 			writeRESTError(w, status, code, err.Error())
@@ -163,7 +163,7 @@ func StatsRESTHandler(svc *services.StatsService) http.HandlerFunc {
 		}
 
 		w.Header().Set("Content-Type", "application/json")
-		if err := json.NewEncoder(w).Encode(result.Stats); err != nil {
+		if err := json.NewEncoder(w).Encode(stats); err != nil {
 			slog.Error("encode stats response", "error", err)
 		}
 	}

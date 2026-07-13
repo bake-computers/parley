@@ -68,15 +68,4 @@ func TestRedisStoreTopPagination(t *testing.T) {
 	}
 }
 
-func TestLeaderboardServiceNilStoreFailedPrecondition(t *testing.T) {
-	svc := services.NewLeaderboardService(nil)
-	_, err := svc.GetLeaderboard(context.Background(), services.GetLeaderboardParams{
-		Game: backends.GameR6, GuildID: "", Kind: services.KindElo, Limit: 10, Offset: 0,
-	})
-	if err == nil {
-		t.Fatal("expected error")
-	}
-	if !services.IsNotConfigured(err) {
-		t.Fatalf("want not configured, got %v", err)
-	}
-}
+

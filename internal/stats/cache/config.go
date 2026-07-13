@@ -10,18 +10,15 @@ import (
 	"github.com/pactum-computers/parley/internal/stats/fetch"
 )
 
-// CacheConfig holds per-game TTLs and the stale-grace window.
-// Mirrors Rust StatsCacheConfigV2.
+// CacheConfig holds per-game TTLs.
 type CacheConfig struct {
-	TTLR6              time.Duration
-	StaleGraceDuration time.Duration
+	TTLR6 time.Duration
 }
 
 // NewCacheConfigFromEnv builds CacheConfig from the global Config.
 func NewCacheConfigFromEnv(cfg *config.Config) CacheConfig {
 	return CacheConfig{
-		TTLR6:              time.Duration(cfg.StatsTTLR6MS) * time.Millisecond,
-		StaleGraceDuration: time.Duration(cfg.StatsStaleGraceMS) * time.Millisecond,
+		TTLR6: time.Duration(cfg.StatsTTLR6MS) * time.Millisecond,
 	}
 }
 
@@ -37,16 +34,6 @@ func (c CacheConfig) TTLFor(game backends.Game) time.Duration {
 		return 60 * time.Second
 	}
 }
-
-// StaleGrace returns the stale-grace window (default 24h).
-func (c CacheConfig) StaleGrace() time.Duration {
-	if c.StaleGraceDuration > 0 {
-		return c.StaleGraceDuration
-	}
-	return 24 * time.Hour
-}
-
-// --- Redis key helpers (exported for tests) ---
 
 func platformKey(p fetch.StatsPlatform) string {
 	switch p {
@@ -68,15 +55,6 @@ func FreshKey(game backends.Game, username string, platform fetch.StatsPlatform,
 		s = *season
 	}
 	return fmt.Sprintf("stats:%s:%s:%s:%s", game, strings.ToLower(strings.TrimSpace(username)), platformKey(platform), s)
-}
-
-// StaleKey returns the Redis hash key for a stale-grace entry.
-func StaleKey(game backends.Game, username string, platform fetch.StatsPlatform, season *string) string {
-	s := ""
-	if season != nil {
-		s = *season
-	}
-	return fmt.Sprintf("stats:stale:%s:%s:%s:%s", game, strings.ToLower(strings.TrimSpace(username)), platformKey(platform), s)
 }
 
 // CollectionKey returns the Redis hash key for a collection entry.

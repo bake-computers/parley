@@ -16,6 +16,20 @@ import (
 	"github.com/pactum-computers/parley/internal/stats/scrape"
 )
 
+type fakeBackend struct {
+	game        backends.Game
+	fetchFn     func(ctx context.Context, username string, platform fetch.StatsPlatform, season *string) (scrape.ScrapedStats, error)
+	fetchCollFn func(ctx context.Context, username string, platform fetch.StatsPlatform) (scrape.ScrapedStatsCollection, error)
+}
+
+func (f *fakeBackend) Game() backends.Game { return f.game }
+func (f *fakeBackend) Fetch(ctx context.Context, username string, platform fetch.StatsPlatform, season *string) (scrape.ScrapedStats, error) {
+	return f.fetchFn(ctx, username, platform, season)
+}
+func (f *fakeBackend) FetchCollection(ctx context.Context, username string, platform fetch.StatsPlatform) (scrape.ScrapedStatsCollection, error) {
+	return f.fetchCollFn(ctx, username, platform)
+}
+
 func newTestRedis(t *testing.T) (*miniredis.Miniredis, redis.Cmdable) {
 	t.Helper()
 	mr := miniredis.RunT(t)
@@ -36,7 +50,6 @@ func TestRedisCacheStore_Fetch_Hit(t *testing.T) {
 	mr, client := newTestRedis(t)
 	stats := sampleStats()
 
-	// Pre-populate the fresh key.
 	key := FreshKey(backends.GameR6, "alice", fetch.StatsPlatformPC, strPtr("y9s1"))
 	pJSON, _ := json.Marshal(stats.Profile)
 	rJSON, _ := json.Marshal(stats.RankedStats)
@@ -47,21 +60,17 @@ func TestRedisCacheStore_Fetch_Hit(t *testing.T) {
 	mr.SetTTL(key, 60*time.Second)
 
 	reg := backends.NewStatsBackendRegistry()
-	cfg := CacheConfig{TTLR6: 60 * time.Second, StaleGraceDuration: 24 * time.Hour}
-	store := NewRedisCacheStore(client, reg, cfg, nil)
+	store := NewRedisCacheStore(client, reg, CacheConfig{TTLR6: 60 * time.Second}, nil)
 
 	got, err := store.Fetch(context.Background(), backends.GameR6, "alice", fetch.StatsPlatformPC, strPtr("y9s1"))
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if got.Degraded {
-		t.Error("Degraded should be false on cache hit")
+	if got.Profile.Username != "alice" {
+		t.Errorf("username = %q, want %q", got.Profile.Username, "alice")
 	}
-	if got.Stats.Profile.Username != "alice" {
-		t.Errorf("username = %q, want %q", got.Stats.Profile.Username, "alice")
-	}
-	if got.Stats.RankedStats.RankPoints != 3200 {
-		t.Errorf("rank points = %d, want 3200", got.Stats.RankedStats.RankPoints)
+	if got.RankedStats.RankPoints != 3200 {
+		t.Errorf("rank points = %d, want 3200", got.RankedStats.RankPoints)
 	}
 }
 
@@ -78,69 +87,23 @@ func TestRedisCacheStore_Fetch_Miss_ThenBackend(t *testing.T) {
 	reg := backends.NewStatsBackendRegistry()
 	reg.Register(backend)
 
-	cfg := CacheConfig{TTLR6: 60 * time.Second, StaleGraceDuration: 24 * time.Hour}
-	store := NewRedisCacheStore(client, reg, cfg, nil)
+	store := NewRedisCacheStore(client, reg, CacheConfig{TTLR6: 60 * time.Second}, nil)
 
 	got, err := store.Fetch(context.Background(), backends.GameR6, "alice", fetch.StatsPlatformPC, strPtr("y9s1"))
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
-	if got.Stats.Profile.Username != "alice" {
-		t.Errorf("username = %q, want %q", got.Stats.Profile.Username, "alice")
+	if got.Profile.Username != "alice" {
+		t.Errorf("username = %q, want %q", got.Profile.Username, "alice")
 	}
 
-	// Verify fresh key was written.
 	freshKey := FreshKey(backends.GameR6, "alice", fetch.StatsPlatformPC, strPtr("y9s1"))
 	if !mr.Exists(freshKey) {
 		t.Error("fresh key should exist after backend fetch")
 	}
-
-	// Verify stale key was written.
-	staleKey := StaleKey(backends.GameR6, "alice", fetch.StatsPlatformPC, strPtr("y9s1"))
-	if !mr.Exists(staleKey) {
-		t.Error("stale key should exist after backend fetch")
-	}
 }
 
-func TestRedisCacheStore_Fetch_StaleFallback(t *testing.T) {
-	mr, client := newTestRedis(t)
-	stats := sampleStats()
-
-	// Pre-populate the stale key only.
-	staleKey := StaleKey(backends.GameR6, "alice", fetch.StatsPlatformPC, strPtr("y9s1"))
-	pJSON, _ := json.Marshal(stats.Profile)
-	rJSON, _ := json.Marshal(stats.RankedStats)
-	mJSON, _ := json.Marshal(stats.CalculatedMetrics)
-	mr.HSet(staleKey, "p", string(pJSON))
-	mr.HSet(staleKey, "r", string(rJSON))
-	mr.HSet(staleKey, "m", string(mJSON))
-	mr.SetTTL(staleKey, 24*time.Hour)
-
-	backend := &fakeBackend{
-		game: backends.GameR6,
-		fetchFn: func(_ context.Context, _ string, _ fetch.StatsPlatform, _ *string) (scrape.ScrapedStats, error) {
-			return scrape.ScrapedStats{}, fetch.NewStatsFetchError(fetch.StatsFetchErrorGcUnavailable, "upstream down", true)
-		},
-	}
-	reg := backends.NewStatsBackendRegistry()
-	reg.Register(backend)
-
-	cfg := CacheConfig{TTLR6: 60 * time.Second, StaleGraceDuration: 24 * time.Hour}
-	store := NewRedisCacheStore(client, reg, cfg, nil)
-
-	got, err := store.Fetch(context.Background(), backends.GameR6, "alice", fetch.StatsPlatformPC, strPtr("y9s1"))
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if !got.Degraded {
-		t.Error("Degraded should be true on stale fallback")
-	}
-	if got.Stats.Profile.Username != "alice" {
-		t.Errorf("username = %q, want %q", got.Stats.Profile.Username, "alice")
-	}
-}
-
-func TestRedisCacheStore_Fetch_GcUnavailable_NoStale(t *testing.T) {
+func TestRedisCacheStore_Fetch_GcUnavailable_Propagates(t *testing.T) {
 	_, client := newTestRedis(t)
 
 	backend := &fakeBackend{
@@ -152,12 +115,11 @@ func TestRedisCacheStore_Fetch_GcUnavailable_NoStale(t *testing.T) {
 	reg := backends.NewStatsBackendRegistry()
 	reg.Register(backend)
 
-	cfg := CacheConfig{TTLR6: 60 * time.Second, StaleGraceDuration: 24 * time.Hour}
-	store := NewRedisCacheStore(client, reg, cfg, nil)
+	store := NewRedisCacheStore(client, reg, CacheConfig{TTLR6: 60 * time.Second}, nil)
 
 	_, err := store.Fetch(context.Background(), backends.GameR6, "alice", fetch.StatsPlatformPC, nil)
 	if err == nil {
-		t.Fatal("expected error when no stale data available")
+		t.Fatal("expected error")
 	}
 	ferr, ok := err.(*fetch.StatsFetchError)
 	if !ok {
@@ -180,8 +142,7 @@ func TestRedisCacheStore_Fetch_NonGcError_Propagates(t *testing.T) {
 	reg := backends.NewStatsBackendRegistry()
 	reg.Register(backend)
 
-	cfg := CacheConfig{TTLR6: 60 * time.Second, StaleGraceDuration: 24 * time.Hour}
-	store := NewRedisCacheStore(client, reg, cfg, nil)
+	store := NewRedisCacheStore(client, reg, CacheConfig{TTLR6: 60 * time.Second}, nil)
 
 	_, err := store.Fetch(context.Background(), backends.GameR6, "nobody", fetch.StatsPlatformPC, nil)
 	if err == nil {
@@ -212,8 +173,7 @@ func TestRedisCacheStore_FetchCollection_Hit(t *testing.T) {
 	mr.SetTTL(key, 60*time.Second)
 
 	reg := backends.NewStatsBackendRegistry()
-	cfg := CacheConfig{TTLR6: 60 * time.Second, StaleGraceDuration: 24 * time.Hour}
-	store := NewRedisCacheStore(client, reg, cfg, nil)
+	store := NewRedisCacheStore(client, reg, CacheConfig{TTLR6: 60 * time.Second}, nil)
 
 	got, err := store.FetchCollection(context.Background(), backends.GameR6, "alice", fetch.StatsPlatformAuto)
 	if err != nil {
@@ -243,8 +203,7 @@ func TestRedisCacheStore_FetchCollection_Miss(t *testing.T) {
 	reg := backends.NewStatsBackendRegistry()
 	reg.Register(backend)
 
-	cfg := CacheConfig{TTLR6: 60 * time.Second, StaleGraceDuration: 24 * time.Hour}
-	store := NewRedisCacheStore(client, reg, cfg, nil)
+	store := NewRedisCacheStore(client, reg, CacheConfig{TTLR6: 60 * time.Second}, nil)
 
 	got, err := store.FetchCollection(context.Background(), backends.GameR6, "alice", fetch.StatsPlatformAuto)
 	if err != nil {
@@ -277,8 +236,7 @@ func TestRedisCacheStore_OnFetchCallback(t *testing.T) {
 		cbUsername = username
 	}
 
-	cfg := CacheConfig{TTLR6: 60 * time.Second, StaleGraceDuration: 24 * time.Hour}
-	store := NewRedisCacheStore(client, reg, cfg, onFetch)
+	store := NewRedisCacheStore(client, reg, CacheConfig{TTLR6: 60 * time.Second}, onFetch)
 
 	_, err := store.Fetch(context.Background(), backends.GameR6, "alice", fetch.StatsPlatformPC, nil)
 	if err != nil {
@@ -304,15 +262,14 @@ func TestRedisCacheStore_Fetch_SingleFlightDedup(t *testing.T) {
 		game: backends.GameR6,
 		fetchFn: func(_ context.Context, _ string, _ fetch.StatsPlatform, _ *string) (scrape.ScrapedStats, error) {
 			fetchCount.Add(1)
-			time.Sleep(50 * time.Millisecond) // simulate latency
+			time.Sleep(50 * time.Millisecond)
 			return stats, nil
 		},
 	}
 	reg := backends.NewStatsBackendRegistry()
 	reg.Register(backend)
 
-	cfg := CacheConfig{TTLR6: 60 * time.Second, StaleGraceDuration: 24 * time.Hour}
-	store := NewRedisCacheStore(client, reg, cfg, nil)
+	store := NewRedisCacheStore(client, reg, CacheConfig{TTLR6: 60 * time.Second}, nil)
 
 	var wg sync.WaitGroup
 	errs := make([]error, 20)

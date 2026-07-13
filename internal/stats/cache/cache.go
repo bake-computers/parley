@@ -8,17 +8,9 @@ import (
 	"github.com/pactum-computers/parley/internal/stats/scrape"
 )
 
-// CachedStats wraps a single-season stats result with a degraded flag.
-// Mirrors Rust CachedStats.
-type CachedStats struct {
-	Stats    scrape.ScrapedStats
-	Degraded bool
-}
-
 // CacheStore is the game-aware cache-or-fetch facade.
-// Mirrors Rust StatsCacheStore trait.
 type CacheStore interface {
-	Fetch(ctx context.Context, game backends.Game, username string, platform fetch.StatsPlatform, season *string) (CachedStats, error)
+	Fetch(ctx context.Context, game backends.Game, username string, platform fetch.StatsPlatform, season *string) (scrape.ScrapedStats, error)
 	FetchCollection(ctx context.Context, game backends.Game, username string, platform fetch.StatsPlatform) (scrape.ScrapedStatsCollection, error)
 }
 

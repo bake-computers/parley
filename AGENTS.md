@@ -32,8 +32,8 @@ TypeScript (Bun workspaces) ← buf generate → packages/generated-ts
 - `internal/db` — pgx pool, embedded SQL migrations (`migrations/`), Bun ORM models/repos.
 - `internal/server` — Fiber v3 + connect-go handlers for all protobuf services; `GET /health`, `GET /ready`, `GET /stats/:username`.
 - `internal/matchmaking` — Glicko-2, CPR, queue + background sweeper.
-- `internal/stats` — backends, Redis/direct cache, scrape/fetch, Postgres persistence.
-- Graceful degradation without `DATABASE_URL` (in-memory / limited RPCs) and without `REDIS_URL` (direct stats, no Redis leaderboard).
+- `internal/stats` — backends, Redis cache, scrape/fetch, Postgres persistence.
+- Boot requires `DATABASE_URL` and `REDIS_URL` (fail fast if either is missing).
 
 Subdirectory guides: [`proto/AGENTS.md`](proto/AGENTS.md) if present, [`apps/worker/AGENTS.md`](apps/worker/AGENTS.md), [`apps/landing/AGENTS.md`](apps/landing/AGENTS.md), [`apps/bridge/AGENTS.md`](apps/bridge/AGENTS.md), [`packages/runtime/AGENTS.md`](packages/runtime/AGENTS.md).
 
@@ -86,9 +86,9 @@ RUN_MIGRATIONS=1 make run
 
 ### Environment setup
 
-Copy `.env.example` to `.env`. Without `DATABASE_URL`, the engine runs in degraded mode. For production:
+Copy `.env.example` to `.env`. Both `DATABASE_URL` and `REDIS_URL` are required to boot. For production:
 
-- `DATABASE_URL`, optional `REDIS_URL` (use full `redis://` URLs; bare `host:port` also works)
+- `DATABASE_URL`, `REDIS_URL` (use full `redis://` URLs; bare `host:port` also works)
 - `RUN_MIGRATIONS=1` when you want boot-time migrate
 - `ENGINE_SERVICE_ADDR` (default `0.0.0.0:50051`)
 - `DB_TLS=system` for managed Postgres; `accept-invalid` only for local self-signed certs

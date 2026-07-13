@@ -1,13 +1,13 @@
 ---
 name: parley-stats-pipeline
-description: Use when working on the Go stats subsystem in the Parley engine — adding a per-game backend, debugging cache hits/misses, tracing a fetch through cache→backend→HTTP→API map→persist, or understanding the REDIS_URL vs direct-cache fallback.
+description: Use when working on the Go stats subsystem in the Parley engine — adding a per-game backend, debugging cache hits/misses, tracing a fetch through cache→backend→HTTP→API map→persist, or understanding Redis cache behavior.
 ---
 
 # Parley Stats Pipeline
 
 ## Overview
 
-Stats flow: `StatsService` → `CacheStore` (Redis or Direct) → `StatsBackendRegistry` → per-game `StatsBackend` (R6) → `fetch.Client` (API) → `api.MapCollection` → domain types in `scrape` package → optional async `persist` to Postgres. `proto/stats/v1/StatsService` sits on top.
+Stats flow: `StatsService` → `CacheStore` (Redis) → `StatsBackendRegistry` → per-game `StatsBackend` (R6) → `fetch.Client` (API) → `api.MapCollection` → domain types in `scrape` package → optional async `persist` to Postgres. `proto/stats/v1/StatsService` sits on top.
 
 ## Quick reference
 
@@ -15,7 +15,7 @@ Stats flow: `StatsService` → `CacheStore` (Redis or Direct) → `StatsBackendR
 | ---------------- | ----------------------------------------------------- | -------------------------------------------------------------- |
 | Service entry    | `internal/services/stats.go`                          | `FetchStats` / `FetchStatsCollection`                          |
 | Cache facade     | `internal/stats/cache/cache.go`                       | `CacheStore` interface                                         |
-| Cache impls      | `internal/stats/cache/{direct,redis,singleflight}.go` | Direct passthrough, Redis with `singleflight` de-dup           |
+| Cache impl       | `internal/stats/cache/{redis,singleflight}.go`        | Redis with `singleflight` de-dup                               |
 | Backend registry | `internal/stats/backends/backend.go`                  | Dispatches by `Game`                                           |
 | R6 backend       | `internal/stats/backends/r6.go`                       | Only implemented game; uses `fetch.Client` (API-only)          |
 | HTTP client      | `internal/stats/fetch/{client,errors}.go`             | Network I/O only; stats.cc API                                 |
@@ -25,9 +25,7 @@ Stats flow: `StatsService` → `CacheStore` (Redis or Direct) → `StatsBackendR
 
 ## Critical patterns
 
-**Cache choice is config-driven.** `cmd/parley` constructs the cache from `REDIS_URL`: present → `RedisCacheStore` (with `singleflight.Group` de-dup); absent → `DirectCacheStore` (passthrough, `Degraded: false`). `StatsService` is constructed with whichever, possibly `nil` for fully degraded mode.
-
-**`Degraded` is a contract, not a flag.** Carried from `CachedStats.Degraded` into the proto response. Redis sets it `true` for partial/stale results; Direct always `false`. Callers treat `Degraded: true` as "use with caution" — never a hard error.
+**Redis is required.** `cmd/parley` constructs `RedisCacheStore` (with `singleflight.Group` de-dup) from `REDIS_URL`. Boot fails if Redis is missing.
 
 **Live stats require the stats.cc API.** Set `STATS_CC_API_KEY` (and optional `STATS_CC_API_BASE_URL`). There is no HTML scraper fallback — missing/misconfigured API fails the fetch path.
 
@@ -42,7 +40,6 @@ Stats flow: `StatsService` → `CacheStore` (Redis or Direct) → `StatsBackendR
 - Forgetting `registry.Register(r6Backend)` at boot — returns `StatsFetchErrorGcUnavailable`
 - Bypassing `CacheStore` with a direct backend call — skips Redis + singleflight, hammers stats.cc
 - Assuming HTML scrape still exists — live path is API-only; domain types remain in `scrape`
-- Treating `Degraded: true` as a hard error — it's a "use with caution" signal
 - Blocking the hot path on Postgres writes — that's why `persist` is async
 - Editing `gen/parley/**` to add an enum value — auto-generated; edit the proto and regen
 

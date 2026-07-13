@@ -10,7 +10,7 @@ import (
 )
 
 // PersistingStatsCacheStore wraps a CacheStore and enqueues snapshot persistence
-// after successful fetches. Mirrors src/stats_persist.rs PersistingStatsCacheStore.
+// after successful fetches.
 type PersistingStatsCacheStore struct {
 	inner     cache.CacheStore
 	persister *StatsPersister
@@ -28,13 +28,13 @@ func (s *PersistingStatsCacheStore) Fetch(
 	username string,
 	platform fetch.StatsPlatform,
 	season *string,
-) (cache.CachedStats, error) {
+) (scrape.ScrapedStats, error) {
 	result, err := s.inner.Fetch(ctx, game, username, platform, season)
 	if err != nil {
-		return cache.CachedStats{}, err
+		return scrape.ScrapedStats{}, err
 	}
 	if s.persister != nil {
-		s.persister.Enqueue(game, result.Stats)
+		s.persister.Enqueue(game, result)
 	}
 	return result, nil
 }

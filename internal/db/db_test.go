@@ -8,15 +8,15 @@ import (
 	"github.com/pactum-computers/parley/internal/db"
 )
 
-func TestNoDB(t *testing.T) {
+func TestNew_RequiresDatabaseURL(t *testing.T) {
 	ctx := context.Background()
 	cfg := &config.Config{}
 	got, err := db.New(ctx, cfg)
-	if err != nil {
-		t.Fatalf("New() error = %v", err)
+	if err == nil {
+		t.Fatal("New() error = nil, want DATABASE_URL required")
 	}
 	if got != nil {
-		t.Fatalf("New() = %v, want nil *bun.DB", got)
+		t.Fatalf("New() = %v, want nil", got)
 	}
 }
 

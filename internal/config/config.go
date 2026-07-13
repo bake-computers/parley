@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"strconv"
 
@@ -21,8 +22,7 @@ type Config struct {
 	DBTLS                 string
 	DBTLSCAFile           string
 
-	StatsTTLR6MS      uint64
-	StatsStaleGraceMS uint64
+	StatsTTLR6MS uint64
 
 	StatsCCAPIKey              string
 	StatsCCAPIBaseURL          string
@@ -63,8 +63,7 @@ func Load() (*Config, error) {
 		DBTLS:                 getenv("DB_TLS", "system"),
 		DBTLSCAFile:           os.Getenv("DB_TLS_CA_FILE"),
 
-		StatsTTLR6MS:      readUint64("STATS_TTL_R6_MS", 60_000),
-		StatsStaleGraceMS: readUint64("STATS_STALE_GRACE_MS", 86_400_000),
+		StatsTTLR6MS: readUint64("STATS_TTL_R6_MS", 60_000),
 
 		StatsCCAPIKey:           os.Getenv("STATS_CC_API_KEY"),
 		StatsCCAPIBaseURL:       getenv("STATS_CC_API_BASE_URL", "https://r6.stats.cc"),
@@ -88,6 +87,13 @@ func Load() (*Config, error) {
 		AccountDeletionHMACSecret: os.Getenv("ACCOUNT_DELETION_HMAC_SECRET"),
 
 		LogLevel: readLogLevel(),
+	}
+
+	if cfg.DatabaseURL == "" {
+		return nil, fmt.Errorf("DATABASE_URL is required")
+	}
+	if cfg.RedisURL == "" {
+		return nil, fmt.Errorf("REDIS_URL is required")
 	}
 
 	return cfg, nil

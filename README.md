@@ -40,7 +40,7 @@ The platform is **Discord-first**: the primary interaction surface is a Cloudfla
 | **Single source of truth for contracts** | All RPC messages and service definitions live in `proto/`. Go and TypeScript clients are generated via `buf`; the engine consumes `gen/parley`.                                                 |
 | **Engine owns state**                    | Postgres is the system of record. Redis accelerates stats caching and leaderboard reads when present. Edge workers remain stateless except for the leaderboard Durable Object.                  |
 | **Game-scoped multi-tenancy**            | Every domain table carries a `game` discriminator (`r6`). Composite unique indexes include `game` for forward-compatible schema evolution.                                                      |
-| **Graceful degradation**                 | Without `DATABASE_URL`, the engine runs in memory-only mode. Without `REDIS_URL`, caching falls back to direct backend calls. The service remains operable for development and partial outages. |
+| **Required data plane**                  | Engine boot requires `DATABASE_URL` (Postgres) and `REDIS_URL` (stats cache + leaderboard). Missing either fails startup.                                                                    |
 | **Edge locality**                        | Discord interactions and web traffic terminate at Cloudflare Workers globally. Only RPC calls to the engine cross into the origin network.                                                      |
 
 ---
@@ -131,7 +131,7 @@ The Bridge Worker polls `LeaderboardService` on a configurable interval, stores 
 
 **Postgres** holds all durable domain state: players, discord identities, guild memberships, match and queue records, tournament brackets, stat snapshots, and configuration rows. Migrations live in `/migrations` and are applied via Bun migrate when `RUN_MIGRATIONS=1`.
 
-**Redis** (optional) backs the stats cache and in-memory leaderboard store. When absent, the engine serves stats directly from upstream backends with Postgres write-through persistence.
+**Redis** backs the stats cache and leaderboard ZSETs. Required at boot alongside Postgres.
 
 **Durable Object SQLite** stores the latest leaderboard snapshot per metric inside the Bridge Worker, enabling low-latency WebSocket broadcast without hitting the engine on every page view.
 
@@ -175,7 +175,7 @@ Infrastructure is provisioned with **Wrangler**. Each app owns its `wrangler.jso
 
 Local secrets live in each app's `.dev.vars` (gitignored); production secrets are managed with `wrangler secret put <NAME>` (run from the app directory).
 
-The engine-service runs as a standalone process (default listen address `0.0.0.0:50051`) on origin infrastructure with `DATABASE_URL` and optionally `REDIS_URL`. Workers receive `ENGINE_SERVICE_URL` as a binding.
+The engine-service runs as a standalone process (default listen address `0.0.0.0:50051`) on origin infrastructure with `DATABASE_URL` and `REDIS_URL`. Workers receive `ENGINE_SERVICE_URL` as a binding.
 
 Observability is unified through Axiom: engine-service, Worker, and Bridge all emit structured logs to a shared dataset when `AXIOM_TOKEN` is configured.
 

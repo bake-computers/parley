@@ -213,29 +213,6 @@ func newEngineWithDB(t *testing.T) *engineTestRig {
 	return rig
 }
 
-// newEngineNoDB returns an engine rig without a database. It exposes the
-// same /health and /ready probes, but with bunDB = nil so the /ready handler
-// short-circuits to 200 "READY" (this matches the degraded-mode behaviour
-// in cmd/parley/main.go when DATABASE_URL is unset).
-func newEngineNoDB(t *testing.T) *engineTestRig {
-	t.Helper()
-	mux := http.NewServeMux()
-	mux.HandleFunc("GET /health", func(w http.ResponseWriter, _ *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write([]byte("OK"))
-	})
-	mux.HandleFunc("GET /ready", func(w http.ResponseWriter, _ *http.Request) {
-		// No DB configured → ready without checking.
-		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write([]byte("READY"))
-	})
-
-	server := httptest.NewServer(mux)
-	rig := &engineTestRig{Server: server}
-	t.Cleanup(func() { server.Close() })
-	return rig
-}
-
 // connectErrCode returns the connect.Code from an error, or
 // connect.CodeUnknown if the error is not a *connect.Error. Useful for
 // typed assertions on RPC errors.
