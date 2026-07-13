@@ -55,7 +55,7 @@ func (c *StatsClient) fetchStatsCollectionViaAPI(
 		Username: username,
 	})
 
-	// Canonicalize platform to match the scraper path
+	// Canonicalize platform to match prior scraper path
 	plat := target.platform.String()
 	collection.Latest.Profile.Platform = plat
 
@@ -138,7 +138,7 @@ func mapAPIError(err error) error {
 		case api.ErrParse:
 			return NewStatsFetchError(StatsFetchErrorInvalidPayload, ae.Message, ae.Retryable)
 		default:
-			retryable := ae.Retryable || ae.ShouldFallback()
+			retryable := ae.Retryable
 			kind := StatsFetchErrorHTTPStatus
 			if ae.Kind == api.ErrNetwork {
 				kind = StatsFetchErrorNetwork
@@ -156,20 +156,4 @@ func mapAPIError(err error) error {
 		}
 	}
 	return NewStatsFetchError(StatsFetchErrorNetwork, err.Error(), true)
-}
-
-func shouldFallbackToScraper(err error) bool {
-	if err == nil {
-		return false
-	}
-	if fe, ok := err.(*StatsFetchError); ok {
-		if fe.Kind == StatsFetchErrorProfileNotFound || fe.Kind == StatsFetchErrorSeasonNotFound {
-			return false
-		}
-		return fe.Retryable
-	}
-	if ae, ok := err.(*api.Error); ok {
-		return ae.ShouldFallback()
-	}
-	return true
 }
