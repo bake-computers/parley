@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/pactum-computers/parley/internal/stats/backends"
+	"github.com/pactum-computers/parley/internal/models"
 	"github.com/pactum-computers/parley/internal/stats/scrape"
 	"github.com/redis/go-redis/v9"
 )
@@ -42,11 +42,11 @@ type Entry struct {
 
 // Store is the leaderboard persistence port (Redis ZSET or test double).
 type Store interface {
-	Touch(ctx context.Context, game backends.Game, guildID, playerID string, stats *scrape.ScrapedStats) error
-	Top(ctx context.Context, game backends.Game, guildID string, kind Kind, limit, offset int64) ([]Entry, error)
-	PlayerRank(ctx context.Context, game backends.Game, guildID string, kind Kind, playerID string) (*Entry, error)
-	Count(ctx context.Context, game backends.Game, guildID string, kind Kind) (int64, error)
-	Remove(ctx context.Context, game backends.Game, guildID, playerID string) error
+	Touch(ctx context.Context, game models.Game, guildID, playerID string, stats *scrape.ScrapedStats) error
+	Top(ctx context.Context, game models.Game, guildID string, kind Kind, limit, offset int64) ([]Entry, error)
+	PlayerRank(ctx context.Context, game models.Game, guildID string, kind Kind, playerID string) (*Entry, error)
+	Count(ctx context.Context, game models.Game, guildID string, kind Kind) (int64, error)
+	Remove(ctx context.Context, game models.Game, guildID, playerID string) error
 }
 
 // RedisStore implements Store against Redis sorted sets.
@@ -59,16 +59,16 @@ func NewRedisStore(client redis.Cmdable) *RedisStore {
 	return &RedisStore{client: client}
 }
 
-func leaderboardKey(game backends.Game, guildID string, kind Kind) string {
+func leaderboardKey(game models.Game, guildID string, kind Kind) string {
 	scope := guildID
 	if scope == "" {
 		scope = "global"
 	}
-	return fmt.Sprintf("%s:%s:%s:%s", leaderboardKeyPrefix, game.String(), scope, kind.String())
+	return fmt.Sprintf("%s:%s:%s:%s", leaderboardKeyPrefix, string(game), scope, kind.String())
 }
 
 // Touch updates elo, win rate, and rank-points ZSETs for a player.
-func (s *RedisStore) Touch(ctx context.Context, game backends.Game, guildID, playerID string, stats *scrape.ScrapedStats) error {
+func (s *RedisStore) Touch(ctx context.Context, game models.Game, guildID, playerID string, stats *scrape.ScrapedStats) error {
 	if stats == nil {
 		return nil
 	}
@@ -83,7 +83,7 @@ func (s *RedisStore) Touch(ctx context.Context, game backends.Game, guildID, pla
 }
 
 // Top returns the highest-scoring members in descending order.
-func (s *RedisStore) Top(ctx context.Context, game backends.Game, guildID string, kind Kind, limit, offset int64) ([]Entry, error) {
+func (s *RedisStore) Top(ctx context.Context, game models.Game, guildID string, kind Kind, limit, offset int64) ([]Entry, error) {
 	key := leaderboardKey(game, guildID, kind)
 	stop := offset + limit - 1
 	vals, err := s.client.ZRevRangeWithScores(ctx, key, offset, stop).Result()
@@ -103,7 +103,7 @@ func (s *RedisStore) Top(ctx context.Context, game backends.Game, guildID string
 }
 
 // PlayerRank returns one player's rank and score, or nil if absent.
-func (s *RedisStore) PlayerRank(ctx context.Context, game backends.Game, guildID string, kind Kind, playerID string) (*Entry, error) {
+func (s *RedisStore) PlayerRank(ctx context.Context, game models.Game, guildID string, kind Kind, playerID string) (*Entry, error) {
 	key := leaderboardKey(game, guildID, kind)
 	rank, err := s.client.ZRevRank(ctx, key, playerID).Result()
 	if err == redis.Nil {
@@ -120,12 +120,12 @@ func (s *RedisStore) PlayerRank(ctx context.Context, game backends.Game, guildID
 }
 
 // Count returns the number of members in the ZSET.
-func (s *RedisStore) Count(ctx context.Context, game backends.Game, guildID string, kind Kind) (int64, error) {
+func (s *RedisStore) Count(ctx context.Context, game models.Game, guildID string, kind Kind) (int64, error) {
 	return s.client.ZCard(ctx, leaderboardKey(game, guildID, kind)).Result()
 }
 
 // Remove deletes a player from all leaderboard kinds for the scope.
-func (s *RedisStore) Remove(ctx context.Context, game backends.Game, guildID, playerID string) error {
+func (s *RedisStore) Remove(ctx context.Context, game models.Game, guildID, playerID string) error {
 	pipe := s.client.Pipeline()
 	for _, kind := range []Kind{KindElo, KindWinRate, KindRankPoints} {
 		pipe.ZRem(ctx, leaderboardKey(game, guildID, kind), playerID)
@@ -146,7 +146,7 @@ func NewLeaderboardService(store Store) *LeaderboardService {
 
 // GetLeaderboardParams holds normalized query inputs.
 type GetLeaderboardParams struct {
-	Game    backends.Game
+	Game    models.Game
 	GuildID string
 	Kind    Kind
 	Limit   int32
@@ -193,7 +193,7 @@ func (s *LeaderboardService) GetLeaderboard(ctx context.Context, p GetLeaderboar
 
 // GetPlayerRankParams holds a single-player rank query.
 type GetPlayerRankParams struct {
-	Game     backends.Game
+	Game     models.Game
 	GuildID  string
 	PlayerID string
 	Kind     Kind
