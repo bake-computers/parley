@@ -108,6 +108,7 @@ Copy `.env.example` to `.env`. Both `DATABASE_URL` and `REDIS_URL` are required 
 ### Commenting
 
 - No visual divider comments (`// ====`, etc.).
+- If you need to write a paragraph-long comment to justify why the workaround is OK, the code is wrong - fix the code.
 - Go: doc comments on exported symbols; explain _why_ in inline comments.
 - TypeScript: TSDoc on public APIs where helpful.
 
