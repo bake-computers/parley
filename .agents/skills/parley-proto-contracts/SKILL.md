@@ -9,6 +9,8 @@ description: Use when editing .proto files, regenerating Go/TypeScript clients, 
 
 Protobuf definitions in `proto/` are the single source of truth. `buf generate` produces both Go (`gen/parley/`) and TypeScript (`packages/generated-ts/src/`) clients in one pass. Both outputs are committed to git alongside the proto change.
 
+Packages under `proto/`: shared types in `common/`; RPC services in `guild`, `identity`, `matchmaking`, `stats`, `tournament`, `user`.
+
 ## When to use
 
 - Adding or editing a service, RPC, message, or enum
@@ -25,25 +27,22 @@ Protobuf definitions in `proto/` are the single source of truth. `buf generate` 
 | Go messages                 | `gen/parley/<svc>/v1/<svc>.pb.go`                                           |
 | Go connect handlers/clients | `gen/parley/<svc>/v1/<svc>v1connect/<svc>.connect.go`                       |
 | Go import alias             | derived from `go_package` suffix `<alias>v1` (e.g. `identityv1`, `statsv1`) |
-| TS output                   | `packages/generated-ts/src/<svc>/v1/<svc>_pb.ts` + `..._connect.ts`         |
+| TS output                   | `packages/generated-ts/src/<svc>/v1/<svc>_pb.ts` (messages + service descs) |
 | TS barrel                   | `import { ServiceName } from "@parley/proto"`                               |
 | Hand-written TS (keep)      | `packages/generated-ts/src/index.ts` — re-exports per service               |
 
 ## Critical patterns
+
+**`buf.gen.yaml` has 3 plugins.** `bufbuild/es` → `packages/generated-ts/src`; `protocolbuffers/go` + `connectrpc/go` → `gen/parley`. Connect-ES v2 generates service descriptors via protobuf-es (no separate connect-es plugin); TS has `*_pb.ts` only, not `*_connect.ts`.
 
 **Go import alias comes from `go_package` suffix.** Every proto declares
 `option go_package = "github.com/pactum-computers/parley/gen/parley/<svc>/v1;<alias>v1";`
 The `<alias>v1` is the import alias used in Go (`identityv1`, `statsv1`, `matchmakingv1`).
 Connect handlers are a separate import without an alias: `import ".../identity/v1/identityv1connect"`.
 
-**Worker uses cached factory helpers, not direct `createClient`.** Always call
-`getIdentityClient(env)`, `getMatchmakingClient(env)`, etc. from
-`apps/worker/src/transport.ts`. The factory caches per `baseUrl+cacheKey`,
-wraps fetch with `withFollowRedirect` (Cloudflare's `fetch` rejects
-`redirect: "error"`, which connect-web@2.1.1 hardcodes), and sets
-`jsonOptions: { enumAsInteger: true }` to match Go's proto3 JSON output
-where enums are integers by default. Bypassing it causes redirect errors
-and per-request client allocation.
+**Worker uses cached factory helpers, not direct `createClient`.** Always call the factories in `apps/worker/src/transport.ts`:
+`getIdentityClient`, `getGuildSettingsClient`, `getMatchmakingClient`, `getStatsClient`, `getTournamentClient`, `getUserSettingsClient`.
+Each caches per `baseUrl+cacheKey`, wraps fetch with `withFollowRedirect` (Cloudflare's `fetch` rejects `redirect: "error"`, which connect-web hardcodes), and sets `jsonOptions: { enumAsInteger: true }` to match Go's proto3 JSON integers.
 
 **Generated code is committed.** Both `gen/parley/**` and
 `packages/generated-ts/src/**` (except the hand-written barrel
@@ -51,9 +50,9 @@ and per-request client allocation.
 proto change. `buf.gen.yaml` and `buf.yaml` are config, not generated.
 
 **Shared types live in `common/v1/types.proto`.** `Game`, `Rank`, `Region`,
-`PlayerStats`, `Badge`, `Language`, `Error` are imported by other services
-via `import "common/v1/types.proto";`. New cross-service types belong there,
-not in a service-specific file.
+`PlayerStats`, `Badge` / `BadgeCategory`, `Error` (and related rank enums) are
+imported by other services via `import "common/v1/types.proto";`. New
+cross-service types belong there, not in a service-specific file.
 
 ## Common mistakes
 
