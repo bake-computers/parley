@@ -53,12 +53,20 @@ func (w *DBSnapshotWriter) PersistSnapshot(ctx context.Context, stats *scrape.Sc
 	ranked := stats.RankedStats
 	now := repos.NowMS()
 
-	metadata, err := json.Marshal(map[string]int32{
-		"rounds_played":       ranked.RoundsPlayed,
-		"kill_rounds":         ranked.KillRounds,
-		"survival_rounds":     ranked.SurvivalRounds,
-		"traded_rounds":       ranked.TradedRounds,
-		"opening_kill_rounds": ranked.OpeningKillRounds,
+	metadata, err := json.Marshal(map[string]any{
+		"rounds_played":        ranked.RoundsPlayed,
+		"kill_rounds":          ranked.KillRounds,
+		"survival_rounds":      ranked.SurvivalRounds,
+		"traded_rounds":        ranked.TradedRounds,
+		"opening_kill_rounds":  ranked.OpeningKillRounds,
+		"rollup_kills":         ranked.RollupKills,
+		"rollup_deaths":        ranked.RollupDeaths,
+		"opening_death_rounds": ranked.OpeningDeathRounds,
+		"headshot_only_rounds": ranked.HeadshotOnlyRounds,
+		"clutch_1v1_wins":      ranked.Clutch1v1Wins,
+		"clutch_1v2_wins":      ranked.Clutch1v2Wins,
+		"clutch_1v3_wins":      ranked.Clutch1v3Wins,
+		"season_slug":          ranked.SeasonSlug,
 	})
 	if err != nil {
 		return err

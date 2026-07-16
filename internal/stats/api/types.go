@@ -98,15 +98,21 @@ type Match struct {
 }
 
 type PlayerSummary struct {
-	Rounds         int32 `json:"rounds"`
-	RoundSurvivals int32 `json:"round_survivals"`
-	Trades         int32 `json:"trades"`
-	OpeningKills   int32 `json:"opening_kills"`
-	Kills          int32 `json:"kills"`
-	Kills2K        int32 `json:"kills_2k"`
-	Kills3K        int32 `json:"kills_3k"`
-	Kills4K        int32 `json:"kills_4k"`
-	Kills5K        int32 `json:"kills_5k"`
+	Rounds             int32 `json:"rounds"`
+	RoundSurvivals     int32 `json:"round_survivals"`
+	Trades             int32 `json:"trades"`
+	OpeningKills       int32 `json:"opening_kills"`
+	Kills              int32 `json:"kills"`
+	Deaths             int32 `json:"deaths"`
+	OpeningDeaths      int32 `json:"opening_deaths"`
+	HeadshotOnlyRounds int32 `json:"headshot_only_rounds"`
+	Clutch1v1Wins      int32 `json:"clutch_1v1_wins"`
+	Clutch1v2Wins      int32 `json:"clutch_1v2_wins"`
+	Clutch1v3Wins      int32 `json:"clutch_1v3_wins"`
+	Kills2K            int32 `json:"kills_2k"`
+	Kills3K            int32 `json:"kills_3k"`
+	Kills4K            int32 `json:"kills_4k"`
+	Kills5K            int32 `json:"kills_5k"`
 }
 
 // Session is one ranked session from GET /v2/profiles/{id}/sessions.
