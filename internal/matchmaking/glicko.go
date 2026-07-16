@@ -145,12 +145,14 @@ func modelTieBreak(delta, role, collision float64, best *TeamPartition, bestRole
 	}
 	return false
 }
+// teamStrength is the sum of clamped display scores so BalanceGap matches
+// TeamABalanceTotal / TeamBBalanceTotal at call sites.
 func teamStrength(ps []LoadedPlayer, idx []int) float64 {
 	var s float64
 	for _, i := range idx {
-		s += ps[i].RawModelScore
+		s += ps[i].DisplayModelScore
 	}
-	return s / float64(len(idx))
+	return s
 }
 func coverage(ps []LoadedPlayer, idx []int) [4]float64 {
 	var out [4]float64

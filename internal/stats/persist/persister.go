@@ -51,6 +51,22 @@ func (w *DBSnapshotWriter) PersistSnapshot(ctx context.Context, stats *scrape.Sc
 	}
 
 	ranked := stats.RankedStats
+	// Empty match rollups (rounds_played == 0) must not become "latest" and
+	// hard-block OVI matchmaking for a player who already has scorable telemetry.
+	if ranked.RoundsPlayed <= 0 {
+		prev, err := w.Snapshots.LatestForPlayers(ctx, dbGame, []int32{player.ID})
+		if err != nil {
+			return err
+		}
+		if len(prev) > 0 && snapshotRoundsPlayed(prev[0].Metadata) > 0 {
+			slog.Info("skipping empty OVI snapshot to preserve scorable telemetry",
+				"username", stats.Profile.Username,
+				"player_id", player.ID,
+			)
+			return nil
+		}
+	}
+
 	now := repos.NowMS()
 
 	metadata, err := json.Marshal(map[string]any{
@@ -126,6 +142,30 @@ func (w *DBSnapshotWriter) PersistSnapshot(ctx context.Context, stats *scrape.Sc
 	}
 
 	return nil
+}
+
+func snapshotRoundsPlayed(meta json.RawMessage) float64 {
+	if len(meta) == 0 {
+		return 0
+	}
+	var m map[string]any
+	if err := json.Unmarshal(meta, &m); err != nil {
+		return 0
+	}
+	switch n := m["rounds_played"].(type) {
+	case float64:
+		return n
+	case int:
+		return float64(n)
+	case int32:
+		return float64(n)
+	case int64:
+		return float64(n)
+	case json.Number:
+		f, _ := n.Float64()
+		return f
+	}
+	return 0
 }
 
 // StatsPersister enqueues snapshot writes on a buffered channel consumed by Run.

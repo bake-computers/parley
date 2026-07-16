@@ -21,10 +21,13 @@ scored and must be refreshed.
 The partition objective is:
 
 ```text
-abs(team mean raw model scores)
+abs(team sum clamped model scores)
 + 0.10 * role mix total-variation distance
 + 0.05 * mean team role-silo penalty
 ```
+
+`BalanceGap` uses that same sum difference so it matches `team_a_balance_total`
+minus `team_b_balance_total`.
 
 `MATCHMAKING_ROLE_BALANCE_WEIGHT` and
 `MATCHMAKING_ROLE_COLLISION_WEIGHT` override the two weights. See

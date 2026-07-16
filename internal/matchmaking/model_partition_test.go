@@ -27,6 +27,32 @@ func TestPartitionModelTeamsBalancesRoles(t *testing.T) {
 	}
 }
 
+func TestPartitionModelTeamsBalanceGapMatchesDisplaySums(t *testing.T) {
+	// Uneven display scores: gap must equal |sum(A) - sum(B)| of DisplayModelScore.
+	players := make([]LoadedPlayer, 4)
+	scores := []float64{0.9, 0.1, 0.8, 0.2}
+	for i := range players {
+		players[i].DisplayModelScore = scores[i]
+		players[i].RawModelScore = scores[i] + 10 // raw must not drive BalanceGap
+		players[i].Roles[i%4] = 1
+	}
+	p := PartitionModelTeams(players, 2, 0, 0)
+	if p == nil {
+		t.Fatal("nil partition")
+	}
+	var sumA, sumB float64
+	for _, i := range p.TeamA {
+		sumA += players[i].DisplayModelScore
+	}
+	for _, i := range p.TeamB {
+		sumB += players[i].DisplayModelScore
+	}
+	want := math.Abs(sumA - sumB)
+	if math.Abs(p.BalanceGap-want) > 1e-12 {
+		t.Fatalf("BalanceGap=%v want %v (sumA=%v sumB=%v)", p.BalanceGap, want, sumA, sumB)
+	}
+}
+
 func TestFeaturesFromSnapshotMatchOVIFormula(t *testing.T) {
 	meta, _ := json.Marshal(map[string]int32{
 		"rounds_played": 100, "rollup_kills": 120, "rollup_deaths": 100,
@@ -47,5 +73,17 @@ func TestFeaturesFromSnapshotMatchOVIFormula(t *testing.T) {
 		if math.Abs(f[i]-want[i]) > 1e-12 {
 			t.Fatalf("feature %d = %v, want %v", i, f[i], want[i])
 		}
+	}
+}
+
+func TestFeaturesFromSnapshotRejectsMissingRollupKeys(t *testing.T) {
+	// season_slug + rounds_played only — missing rollups must fail closed.
+	meta, _ := json.Marshal(map[string]any{
+		"season_slug":   "current",
+		"rounds_played": 100,
+	})
+	_, _, err := featuresFromSnapshot(models.PlayerStatSnapshot{Matches: 10, Metadata: meta}, 3)
+	if err == nil {
+		t.Fatal("expected missing rollup keys to fail")
 	}
 }

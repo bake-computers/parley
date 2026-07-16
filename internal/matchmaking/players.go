@@ -95,10 +95,16 @@ func snapshotMetadataF64(meta json.RawMessage, key string) float64 {
 	if !ok {
 		return 0
 	}
+	return metadataNumber(v)
+}
+
+func metadataNumber(v any) float64 {
 	switch n := v.(type) {
 	case float64:
 		return n
 	case int:
+		return float64(n)
+	case int32:
 		return float64(n)
 	case int64:
 		return float64(n)
@@ -107,18 +113,6 @@ func snapshotMetadataF64(meta json.RawMessage, key string) float64 {
 		return f
 	}
 	return 0
-}
-
-func snapshotMetadataString(meta json.RawMessage, key string) string {
-	if len(meta) == 0 {
-		return ""
-	}
-	var m map[string]any
-	if json.Unmarshal(meta, &m) != nil {
-		return ""
-	}
-	v, _ := m[key].(string)
-	return v
 }
 
 // ComputeNorms returns the population norms for a guild, derived from
@@ -238,16 +232,25 @@ func featuresFromSnapshot(snap models.PlayerStatSnapshot, minimumMatches int32) 
 	if snap.Matches < minimumMatches {
 		return zero, roles, fmt.Errorf("needs at least %d current-season ranked matches", minimumMatches)
 	}
-	if snapshotMetadataString(snap.Metadata, "season_slug") == "" {
+	if len(snap.Metadata) == 0 {
 		return zero, roles, fmt.Errorf("stats need refreshing for OVI telemetry")
 	}
+	var meta map[string]any
+	if err := json.Unmarshal(snap.Metadata, &meta); err != nil {
+		return zero, roles, fmt.Errorf("stats need refreshing for OVI telemetry")
+	}
+	if season, _ := meta["season_slug"].(string); season == "" {
+		return zero, roles, fmt.Errorf("stats need refreshing for OVI telemetry")
+	}
+	// Keys must be present (value may be 0). Missing keys used to score as 0
+	// and silently mis-rank players.
 	keys := []string{"rollup_kills", "rollup_deaths", "opening_kill_rounds", "opening_death_rounds", "traded_rounds", "clutch_1v1_wins", "clutch_1v2_wins", "clutch_1v3_wins", "headshot_only_rounds", "rounds_played"}
 	values := make(map[string]float64, len(keys))
 	for _, key := range keys {
-		values[key] = snapshotMetadataF64(snap.Metadata, key)
-	}
-	if len(snap.Metadata) == 0 {
-		return zero, roles, fmt.Errorf("stats need refreshing for OVI telemetry")
+		if _, ok := meta[key]; !ok {
+			return zero, roles, fmt.Errorf("stats need refreshing for OVI telemetry")
+		}
+		values[key] = metadataNumber(meta[key])
 	}
 	rounds := values["rounds_played"]
 	if rounds <= 0 {
