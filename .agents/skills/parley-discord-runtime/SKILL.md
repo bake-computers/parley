@@ -13,19 +13,20 @@ description: Use when adding/editing Discord slash commands, components, or moda
 
 | Action                   | Location / function                                                                                               |
 | ------------------------ | ----------------------------------------------------------------------------------------------------------------- |
-| Define a slash command   | `apps/worker/src/interactions/<name>/slash.ts` (or co-located `<name>.ts` like `ping.ts`)                         |
-| Wire into runtime        | `apps/worker/src/app.ts:19-30` — add to `client.loadHandlers(...)`                                                |
-| Register with Discord    | `apps/worker/src/register-commands.ts:64-71` — add to `commands` array                                            |
+| Define a slash command   | `apps/worker/src/interactions/<name>/` (slash, components, modals as needed; simple cmds may be a single file)    |
+| Runtime handler list     | `apps/worker/src/handlers.ts` — export `workerHandlers`                                                           |
+| Mount handlers           | `apps/worker/src/app.ts` — thin `createApp()`: `client.loadHandlers(...workerHandlers)`                           |
+| Register with Discord    | `apps/worker/src/register-commands.ts` — slash list + `registerApplicationCommands` from `@parley/runtime`        |
 | Components v2 top-level  | `ContainerBuilder` (`packages/runtime/src/builders/container.ts`)                                                 |
 | Send a v2 message        | `replyV2(interaction, container, ephemeral)` from `apps/worker/src/ui/discord.ts`                                 |
 | Outbound Discord REST    | `DiscordRestClient` from `@parley/runtime`; token `env.DISCORD_BOT_TOKEN ?? env.DISCORD_TOKEN`                    |
 | Signature verification   | Automatic in `ParleyClient.fetch` via `verifyDiscordRequest` (Ed25519)                                            |
-| Push commands to Discord | `bun run register-commands` from `apps/worker` (Bun script, needs `DISCORD_BOT_TOKEN` + `DISCORD_APPLICATION_ID`) |
+| Push commands to Discord | `bun run register-commands` from `apps/worker` (needs `DISCORD_BOT_TOKEN` + `DISCORD_APPLICATION_ID`)             |
 | Deploy the worker        | `cd apps/worker && bun run deploy` (Wrangler)                                                                     |
 
 ## Critical patterns
 
-**Two-file wiring for every command.** Each new or renamed command must be added in **two** places: `app.ts` (runtime handler) and `register-commands.ts` (Discord registration). Missing `app.ts` → Discord invokes but runtime errors with "no handler". Missing `register-commands.ts` → Discord never sees the new definition.
+**Two-file wiring for every slash command.** Each new or renamed slash command must be added in **two** places: `handlers.ts` (runtime handler list) and `register-commands.ts` (Discord registration). `app.ts` only loads `workerHandlers` — do not wire commands inline there. Missing `handlers.ts` → Discord invokes but runtime errors with "no handler". Missing `register-commands.ts` → Discord never sees the new definition. Component/modal/button handlers go in `handlers.ts` only (they are not slash-registered). Treat `register-commands.ts` as the source of truth for the slash list.
 
 **Components v2 wraps everything in a `ContainerBuilder`.** A v2 message is `components: [container]`, not a flat list. `replyV2` (in `apps/worker/src/ui/discord.ts`) wraps the container and posts using the interaction token. From inside a handler, always reply via `replyV2` — don't call `discordRequest` for the initial response.
 
@@ -35,7 +36,8 @@ description: Use when adding/editing Discord slash commands, components, or moda
 
 ## Common mistakes
 
-- Adding a command to `app.ts` but not `register-commands.ts` (or vice versa) — silent until users try the command
+- Adding a command to `handlers.ts` but not `register-commands.ts` (or vice versa) — silent until users try the command
+- Wiring handlers only in `app.ts` — that file is a thin mount; put handlers in `handlers.ts`
 - Calling `discordRequest` directly for the initial reply — use `replyV2`
 - Flattening Components v2 (`components: [textDisplay, button]`) — Discord rejects it; wrap in `ContainerBuilder`
 - Mistaking `apps/worker/src/transport.ts` for Discord REST — it's the ConnectRPC engine transport
@@ -45,5 +47,5 @@ description: Use when adding/editing Discord slash commands, components, or moda
 
 - `README.md` §5.3, §7 — Worker architecture and request lifecycle
 - `packages/runtime/src/index.ts` — full export surface
-- `apps/worker/src/app.ts` — canonical handler wiring example
+- `apps/worker/src/handlers.ts` + `apps/worker/src/register-commands.ts` — canonical two-file wiring
 - `parley-proto-contracts` skill — for the engine-side RPC contract
