@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	commonv1 "github.com/pactum-computers/parley/gen/parley/common/v1"
+	"github.com/pactum-computers/parley/internal/matchmaking/ovi"
 	"github.com/pactum-computers/parley/internal/models"
 	"github.com/pactum-computers/parley/internal/repos"
 )
@@ -16,11 +17,15 @@ import (
 // It mirrors the AppContext wiring in src/matchmaking/* but stays focused
 // on the matchmaking subsystem.
 type Service struct {
-	guild    *repos.GuildRepo
-	match    *repos.MatchRepo
-	queue    *repos.MatchmakingQueueRepo
-	snapshot *repos.PlayerStatSnapshotRepo
-	users    *repos.UserSettingsRepo
+	guild               *repos.GuildRepo
+	match               *repos.MatchRepo
+	queue               *repos.MatchmakingQueueRepo
+	snapshot            *repos.PlayerStatSnapshotRepo
+	users               *repos.UserSettingsRepo
+	model               *ovi.Model
+	minSeasonMatches    int32
+	roleBalanceWeight   float64
+	roleCollisionWeight float64
 }
 
 // NewService returns a matchmaking service backed by the given
@@ -32,14 +37,26 @@ func NewService(
 	queue *repos.MatchmakingQueueRepo,
 	snapshot *repos.PlayerStatSnapshotRepo,
 	users *repos.UserSettingsRepo,
+	model *ovi.Model,
+	minSeasonMatches int32,
+	roleBalanceWeight, roleCollisionWeight float64,
 ) *Service {
 	return &Service{
-		guild:    guild,
-		match:    match,
-		queue:    queue,
-		snapshot: snapshot,
-		users:    users,
+		guild:               guild,
+		match:               match,
+		queue:               queue,
+		snapshot:            snapshot,
+		users:               users,
+		model:               model,
+		minSeasonMatches:    minSeasonMatches,
+		roleBalanceWeight:   roleBalanceWeight,
+		roleCollisionWeight: roleCollisionWeight,
 	}
+}
+
+// PartitionModelTeams applies this service's configured OVI objective.
+func (s *Service) PartitionModelTeams(players []LoadedPlayer, teamSize int) *TeamPartition {
+	return PartitionModelTeams(players, teamSize, s.roleBalanceWeight, s.roleCollisionWeight)
 }
 
 // QueueExpiryMS is the default matchmaking queue lifetime (30 minutes).

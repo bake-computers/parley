@@ -76,6 +76,119 @@ type TeamPartition struct {
 	BalanceGap     float64
 }
 
+// PartitionModelTeams selects teams using OVI's learned player strength and
+// role composition objective. WinProbability is a compatibility indicator,
+// not a calibrated match probability.
+func PartitionModelTeams(players []LoadedPlayer, teamSize int, roleBalanceWeight, roleCollisionWeight float64) *TeamPartition {
+	n := len(players)
+	if n != teamSize*2 || n == 0 {
+		return nil
+	}
+	var best *TeamPartition
+	bestCost := math.Inf(1)
+	bestRole, bestCollision := math.Inf(1), math.Inf(1)
+	for _, a := range combinationsIncludingFirst(n, teamSize) {
+		inA := make(map[int]struct{}, len(a))
+		for _, i := range a {
+			inA[i] = struct{}{}
+		}
+		b := make([]int, 0, teamSize)
+		for i := 0; i < n; i++ {
+			if _, ok := inA[i]; !ok {
+				b = append(b, i)
+			}
+		}
+		strengthA := teamStrength(players, a)
+		strengthB := teamStrength(players, b)
+		delta := math.Abs(strengthA - strengthB)
+		role := roleBalanceDelta(players, a, b)
+		collision := roleCollisionPenalty(players, a, b)
+		cost := delta + roleBalanceWeight*role + roleCollisionWeight*collision
+		if cost < bestCost-math.SmallestNonzeroFloat64 || (math.Abs(cost-bestCost) <= math.SmallestNonzeroFloat64 && modelTieBreak(delta, role, collision, best, bestRole, bestCollision, a)) {
+			prob := .5
+			if d := strengthA + strengthB; d > 0 {
+				prob = math.Max(0, math.Min(1, strengthA/d))
+			}
+			best = &TeamPartition{TeamA: a, TeamB: b, WinProbability: prob, BalanceGap: delta}
+			bestCost, bestRole, bestCollision = cost, role, collision
+		}
+	}
+	return best
+}
+
+func modelTieBreak(delta, role, collision float64, best *TeamPartition, bestRole, bestCollision float64, a []int) bool {
+	if best == nil {
+		return true
+	}
+	if delta < best.BalanceGap-math.SmallestNonzeroFloat64 {
+		return true
+	}
+	if math.Abs(delta-best.BalanceGap) > math.SmallestNonzeroFloat64 {
+		return false
+	}
+	if role < bestRole-math.SmallestNonzeroFloat64 {
+		return true
+	}
+	if math.Abs(role-bestRole) > math.SmallestNonzeroFloat64 {
+		return false
+	}
+	if collision < bestCollision-math.SmallestNonzeroFloat64 {
+		return true
+	}
+	if math.Abs(collision-bestCollision) > math.SmallestNonzeroFloat64 {
+		return false
+	}
+	for i := range a {
+		if a[i] != best.TeamA[i] {
+			return a[i] < best.TeamA[i]
+		}
+	}
+	return false
+}
+func teamStrength(ps []LoadedPlayer, idx []int) float64 {
+	var s float64
+	for _, i := range idx {
+		s += ps[i].RawModelScore
+	}
+	return s / float64(len(idx))
+}
+func coverage(ps []LoadedPlayer, idx []int) [4]float64 {
+	var out [4]float64
+	for _, i := range idx {
+		for j, v := range ps[i].Roles {
+			out[j] += v
+		}
+	}
+	return out
+}
+func roleBalanceDelta(ps []LoadedPlayer, a, b []int) float64 {
+	ca, cb := coverage(ps, a), coverage(ps, b)
+	var d float64
+	for i := range ca {
+		d += math.Abs(ca[i]/float64(len(a)) - cb[i]/float64(len(b)))
+	}
+	return .5 * d
+}
+func collision(c [4]float64) float64 {
+	var total, entropy float64
+	for _, v := range c {
+		total += v
+	}
+	if total <= 0 {
+		return 0
+	}
+	for _, v := range c {
+		if v > 0 {
+			p := v / total
+			entropy -= p * math.Log(p)
+		}
+	}
+	return 1 - entropy/math.Log(4)
+}
+func roleCollisionPenalty(ps []LoadedPlayer, a, b []int) float64 {
+	return .5 * (collision(coverage(ps, a)) + collision(coverage(ps, b)))
+}
+
 // PartitionTeams splits players into two equal teams of teamSize,
 // returning the partition that minimizes |win_probability - 0.5| and,
 // ties, the smallest |cpr_sum_a - cpr_sum_b|. Returns nil when the

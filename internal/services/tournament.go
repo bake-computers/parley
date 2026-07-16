@@ -151,10 +151,10 @@ func loadedPlayerToAssignment(p matchmaking.LoadedPlayer) *matchv1.TeamAssignmen
 		PlayerId:      p.Member.PlayerID,
 		Username:      p.Member.Username,
 		Platform:      p.Member.Platform,
-		BalanceRating: p.Rated.CPR,
+		BalanceRating: p.DisplayModelScore,
 		Mu:            p.Rated.Mu,
 		Phi:           p.Rated.Phi,
-		Cpr:           p.Rated.CPR,
+		Cpr:           p.DisplayModelScore,
 	}
 }
 
@@ -591,7 +591,7 @@ func (s *TournamentService) registerTeamInner(
 	}
 	var stackTotal float64
 	for _, p := range players {
-		stackTotal += p.Rated.CPR
+		stackTotal += p.DisplayModelScore
 	}
 	stackAvg := stackTotal / float64(len(players))
 	now := time.Now().UTC().UnixMilli()
@@ -625,7 +625,7 @@ func (s *TournamentService) registerTeamInner(
 			Slot:                   int32(slot),
 			Username:               p.Member.Username,
 			Platform:               p.Member.Platform,
-			BalanceRating:          p.Rated.CPR,
+			BalanceRating:          p.DisplayModelScore,
 			SeedRankPoints:         p.Seeds.RankPoints,
 			SeedKDRatio:            p.Seeds.KDRatio,
 			SeedKost:               p.Seeds.Kost,
@@ -700,7 +700,7 @@ func (s *TournamentService) UpdateTeamRoster(
 			Slot:                   int32(slot),
 			Username:               p.Member.Username,
 			Platform:               p.Member.Platform,
-			BalanceRating:          p.Rated.CPR,
+			BalanceRating:          p.DisplayModelScore,
 			SeedRankPoints:         p.Seeds.RankPoints,
 			SeedKDRatio:            p.Seeds.KDRatio,
 			SeedKost:               p.Seeds.Kost,

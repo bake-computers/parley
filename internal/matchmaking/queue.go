@@ -130,11 +130,7 @@ func (s *Service) TryFormMatch(
 		return nil, err
 	}
 
-	rated := make([]RatedPlayer, 0, len(players))
-	for _, p := range players {
-		rated = append(rated, p.Rated)
-	}
-	partition := PartitionTeams(rated, int(teamSize))
+	partition := PartitionModelTeams(players, int(teamSize), s.roleBalanceWeight, s.roleCollisionWeight)
 	if partition == nil {
 		return nil, fmt.Errorf("team partition failed")
 	}
@@ -143,11 +139,11 @@ func (s *Service) TryFormMatch(
 
 	var teamACPR, teamBCPR, teamASeed, teamBSeed float64
 	for _, i := range partition.TeamA {
-		teamACPR += rated[i].CPR
+		teamACPR += players[i].DisplayModelScore
 		teamASeed += players[i].Seeds.Score
 	}
 	for _, i := range partition.TeamB {
-		teamBCPR += rated[i].CPR
+		teamBCPR += players[i].DisplayModelScore
 		teamBSeed += players[i].Seeds.Score
 	}
 
@@ -193,7 +189,7 @@ func (s *Service) TryFormMatch(
 			SeedKPR:                p.Seeds.KPR,
 			SeedHeadshotPercentage: p.Seeds.HeadshotPercentage,
 			SeedScore:              p.Seeds.Score,
-			BalanceRating:          p.Rated.CPR,
+			BalanceRating:          p.DisplayModelScore,
 			Kills:                  nil,
 			Deaths:                 nil,
 			CreatedAt:              newMatch.CreatedAt,
@@ -216,7 +212,7 @@ func (s *Service) TryFormMatch(
 			SeedKPR:                p.Seeds.KPR,
 			SeedHeadshotPercentage: p.Seeds.HeadshotPercentage,
 			SeedScore:              p.Seeds.Score,
-			BalanceRating:          p.Rated.CPR,
+			BalanceRating:          p.DisplayModelScore,
 			Kills:                  nil,
 			Deaths:                 nil,
 			CreatedAt:              newMatch.CreatedAt,
@@ -287,7 +283,7 @@ func (s *Service) CreateStack(
 	now := nowMS()
 	var stackTotal float64
 	for _, p := range players {
-		stackTotal += p.Rated.CPR
+		stackTotal += p.DisplayModelScore
 	}
 	var stackAvg float64
 	if len(players) > 0 {
@@ -321,7 +317,7 @@ func (s *Service) CreateStack(
 			Slot:                   int32(slot),
 			Username:               p.Member.Username,
 			Platform:               p.Member.Platform,
-			BalanceRating:          p.Rated.CPR,
+			BalanceRating:          p.DisplayModelScore,
 			SeedRankPoints:         p.Seeds.RankPoints,
 			SeedKDRatio:            p.Seeds.KDRatio,
 			SeedKost:               p.Seeds.Kost,
