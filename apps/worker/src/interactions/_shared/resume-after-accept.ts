@@ -14,7 +14,6 @@ import { invokeListMatches } from "#/interactions/history/rpc";
 import { buildHistoryCard, buildHistoryErrorCard } from "#/interactions/history/ui";
 import { invokeLookupByDiscord } from "#/interactions/profile";
 import { buildSettingsCard } from "#/interactions/user/ui";
-import { resumeQueueAfterAccept } from "#/interactions/queue/slash";
 import type { ApplicationEmojiCatalog } from "@parley/runtime";
 
 const GAME_NAMES: Record<number, string> = {
@@ -43,10 +42,6 @@ export async function resumeAfterAccept(
   const env = interaction.context.env as EngineTransportEnv;
 
   switch (sourceCommand) {
-    case "queue": {
-      await resumeQueueAfterAccept(interaction);
-      return;
-    }
     case "user": {
       const emojis = await resolveEmojis(interaction);
       await updateV2(interaction, buildSettingsCard(settings, emojis));
@@ -133,7 +128,7 @@ export async function resumeAfterAccept(
         cursor: "",
       });
       if (result.isOk()) {
-        await updateV2(interaction, buildHistoryCard(result.value.matches, guildId));
+        await updateV2(interaction, buildHistoryCard(result.value.matches));
       } else {
         await updateV2(
           interaction,
