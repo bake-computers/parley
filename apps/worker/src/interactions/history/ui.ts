@@ -1,10 +1,7 @@
 import type { Match, MatchParticipant } from "@parley/proto/matchmaking/v1/matchmaking_pb.js";
 import { ContainerBuilder, SeparatorBuilder, TextDisplayBuilder } from "@parley/runtime";
 import { UI_TOKENS } from "#/ui/tokens";
-import {
-  HISTORY_DISCORD_CHARACTER_BUDGET,
-  MATCH_PORTAL_BASE_URL,
-} from "#/interactions/history/constants";
+import { HISTORY_DISCORD_CHARACTER_BUDGET } from "#/interactions/history/constants";
 
 const SEPARATOR_SPACING_SMALL = 1;
 
@@ -42,7 +39,7 @@ function teamName(participants: MatchParticipant[], teamKey: string): string {
   return names.length > 0 ? names.join(", ") : "—";
 }
 
-function buildMatchText(match: Match, guildId: string): string {
+function buildMatchText(match: Match): string {
   const participants = matchParticipants(match);
   const teamA = teamName(participants, "team_a");
   const teamB = teamName(participants, "team_b");
@@ -54,7 +51,6 @@ function buildMatchText(match: Match, guildId: string): string {
   const teamBLabel = teamBWins ? `**${teamB}**` : teamB;
 
   let text = `${teamALabel} vs ${teamBLabel}`;
-  text += `\n-# [View Report](${MATCH_PORTAL_BASE_URL}/${guildId}/${match.publicUuid})`;
   text += `\n-# Played ${relativeDiscordTimestamp(createdAtEpochMs(match))}`;
 
   if (match.mvpUserId) {
@@ -80,7 +76,7 @@ export function buildHistoryErrorCard(message: string): ContainerBuilder {
  * at {@link HISTORY_DISCORD_CHARACTER_BUDGET} — when adding a match would
  * exceed the budget, remaining matches are dropped.
  */
-export function buildHistoryCard(matches: Match[], guildId: string): ContainerBuilder {
+export function buildHistoryCard(matches: Match[]): ContainerBuilder {
   const container = new ContainerBuilder().setAccentColor(UI_TOKENS.main);
 
   if (matches.length === 0) {
@@ -99,7 +95,7 @@ export function buildHistoryCard(matches: Match[], guildId: string): ContainerBu
   let totalChars = headerText.length;
 
   for (const match of matches) {
-    const text = buildMatchText(match, guildId);
+    const text = buildMatchText(match);
     if (totalChars + text.length > HISTORY_DISCORD_CHARACTER_BUDGET) {
       break;
     }
