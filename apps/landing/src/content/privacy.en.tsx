@@ -166,12 +166,11 @@ export function PrivacyContentEn() {
           5. Data Retention and Anonymization
         </h2>
         <p>
-          We retain your data for as long as you actively use Parley. Transient data, such as active
-          matchmaking queues, expires automatically. If you request account deletion, we will purge
-          your personal identifiers (Discord User ID, external platform usernames). However, to
-          preserve the integrity of historical tournament brackets and guild match history, your
-          past match performances will be retained but fully anonymized and decoupled from your
-          identity.
+          We retain your data for as long as you actively use Parley. Transient data expires
+          automatically. If you request account deletion, we will purge your personal identifiers
+          (Discord User ID, external platform usernames). However, to preserve the integrity of
+          historical tournament brackets and guild match history, your past match performances will
+          be retained but fully anonymized and decoupled from your identity.
         </p>
       </section>
 
