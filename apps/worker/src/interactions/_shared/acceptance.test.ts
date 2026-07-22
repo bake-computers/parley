@@ -64,7 +64,6 @@ function userSettings(termsAcceptedAtMs: number): ProtoUserSettings {
     matchmakingEnabled: true,
     termsAcceptedAtMs,
     profilePublic: true,
-    matchmakingRegion: 0,
   } as unknown as ProtoUserSettings;
 }
 

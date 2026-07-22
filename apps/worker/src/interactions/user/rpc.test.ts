@@ -47,7 +47,6 @@ describe("invokeUpsertUserSettings", () => {
         matchmakingEnabled: false,
         termsAcceptedAtMs: 100,
         profilePublic: false,
-        matchmakingRegion: 1,
       } as never,
     );
     expect(calls).toHaveLength(1);
