@@ -10,9 +10,6 @@ option go_package = "github.com/pactum-computers/parley/gen/parley/matchmaking/v
 service MatchmakingService {
   rpc BuildTeams(BuildTeamsRequest) returns (BuildTeamsResponse);
   rpc ListGuildMembers(ListGuildMembersRequest) returns (ListGuildMembersResponse);
-  rpc JoinQueue(JoinQueueRequest) returns (JoinQueueResponse);
-  rpc LeaveQueue(LeaveQueueRequest) returns (LeaveQueueResponse);
-  rpc GetQueueStatus(GetQueueStatusRequest) returns (GetQueueStatusResponse);
   rpc CreateCustomMatch(CreateCustomMatchRequest) returns (CreateCustomMatchResponse);
   rpc ReportMatchResult(ReportMatchResultRequest) returns (ReportMatchResultResponse);
   rpc GetMatch(GetMatchRequest) returns (GetMatchResponse);
@@ -67,54 +64,6 @@ message ListGuildMembersResponse {
   bool success = 1;
   repeated GuildMember members = 2;
   parley.common.v1.Error error = 3;
-}
-
-message JoinQueueRequest {
-  string guild_id = 1;
-  string channel_id = 2;
-  string captain_discord_user_id = 3;
-  parley.common.v1.Game game = 4;
-  repeated string discord_user_ids = 5;
-  int32  team_size = 6;
-}
-
-message JoinQueueResponse {
-  bool success = 1;
-  string status = 2;
-  int32  queue_id = 3;
-  int32  match_id = 4;
-  repeated TeamAssignment team_a = 5;
-  repeated TeamAssignment team_b = 6;
-  double win_probability = 7;
-  int32  pool_waiting_players = 8;
-  parley.common.v1.Error error = 9;
-}
-
-message LeaveQueueRequest {
-  string captain_discord_user_id = 1;
-  parley.common.v1.Game game = 2;
-}
-
-message LeaveQueueResponse {
-  bool success = 1;
-  parley.common.v1.Error error = 2;
-}
-
-message GetQueueStatusRequest {
-  string discord_user_id = 1;
-  string guild_id = 2;
-  parley.common.v1.Game game = 3;
-  int32  team_size = 4;
-}
-
-message GetQueueStatusResponse {
-  bool success = 1;
-  string status = 2;
-  int32  queue_id = 3;
-  int32  match_id = 4;
-  int32  pool_waiting_players = 5;
-  int32  pool_waiting_stacks = 6;
-  parley.common.v1.Error error = 7;
 }
 
 message CreateCustomMatchRequest {
