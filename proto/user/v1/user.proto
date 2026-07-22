@@ -24,7 +24,8 @@ message UserSettings {
   bool   profile_public               = 6;
   reserved 7;
   reserved "timezone";
-  parley.common.v1.Region matchmaking_region = 8;
+  reserved 8;
+  reserved "matchmaking_region";
 }
 
 message GetUserSettingsRequest {
@@ -51,8 +52,8 @@ message AnonymizationCounts {
   int32 guild_memberships              = 3;
   int32 matches                        = 4;
   int32 match_participants             = 5;
-  int32 matchmaking_queues             = 6;
-  int32 matchmaking_queue_participants = 7;
+  reserved 6, 7;
+  reserved "matchmaking_queues", "matchmaking_queue_participants";
   int32 tournaments                    = 8;
   int32 tournament_teams               = 9;
   int32 tournament_team_rosters        = 10;
