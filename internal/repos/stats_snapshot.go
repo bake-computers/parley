@@ -50,6 +50,30 @@ func (r *PlayerStatSnapshotRepo) LatestForPlayers(
 	return rows, nil
 }
 
+// LatestForPlayer returns the most recent snapshot for a single player
+// scoped to game, or (nil, nil) when the player has no snapshots.
+func (r *PlayerStatSnapshotRepo) LatestForPlayer(
+	ctx context.Context,
+	game models.Game,
+	playerID int32,
+) (*models.PlayerStatSnapshot, error) {
+	var row models.PlayerStatSnapshot
+	err := r.db.NewSelect().
+		Model(&row).
+		Where("game = ?", game).
+		Where("player_id = ?", playerID).
+		OrderExpr("fetched_at DESC, id DESC").
+		Limit(1).
+		Scan(ctx)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &row, nil
+}
+
 // Insert writes a new snapshot row. Mirrors PlayerStatSnapshotRepo::insert in
 // src/db/repos.rs.
 func (r *PlayerStatSnapshotRepo) Insert(
