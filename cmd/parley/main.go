@@ -13,6 +13,7 @@ import (
 	"github.com/pactum-computers/parley/internal/db"
 	"github.com/pactum-computers/parley/internal/logging"
 	"github.com/pactum-computers/parley/internal/matchmaking"
+	"github.com/pactum-computers/parley/internal/matchmaking/ovi"
 	"github.com/pactum-computers/parley/internal/repos"
 	"github.com/pactum-computers/parley/internal/server"
 	"github.com/pactum-computers/parley/internal/services"
@@ -99,7 +100,16 @@ func run() error {
 	snapshotStore := cache.NewSnapshotCacheStore(identityRepo, snapshotRepo, statsClient, cacheCfg)
 	cacheStore := persist.NewPersistingStatsCacheStore(snapshotStore, statsPersister)
 
-	mmService := matchmaking.NewService(guildRepo, matchRepo, snapshotRepo, userRepo)
+	modelClient, err := ovi.NewR2Client(ctx, cfg.MatchmakingModelR2AccountID, cfg.MatchmakingModelR2AccessKeyID, cfg.MatchmakingModelR2SecretAccessKey, cfg.MatchmakingModelR2Jurisdiction)
+	if err != nil {
+		return fmt.Errorf("matchmaking model client: %w", err)
+	}
+	model, etag, err := ovi.Load(ctx, modelClient, cfg.MatchmakingModelR2Bucket, cfg.MatchmakingModelR2Key)
+	if err != nil {
+		return fmt.Errorf("load matchmaking model: %w", err)
+	}
+	slog.Info("matchmaking model loaded", "bucket", cfg.MatchmakingModelR2Bucket, "key", cfg.MatchmakingModelR2Key, "etag", etag, "sha256", model.SHA256, "features", ovi.FeatureCount, "min_season_matches", cfg.MatchmakingModelMinSeasonMatches)
+	mmService := matchmaking.NewService(guildRepo, matchRepo, snapshotRepo, userRepo, model, cfg.MatchmakingModelMinSeasonMatches, cfg.MatchmakingRoleBalanceWeight, cfg.MatchmakingRoleCollisionWeight)
 
 	identitySvc := services.NewIdentityService(identityRepo, guildRepo)
 	guildSvc := services.NewGuildService(guildRepo)

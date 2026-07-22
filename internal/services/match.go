@@ -245,11 +245,7 @@ func (s *MatchService) BuildTeams(
 		}
 	}
 
-	rated := make([]matchmaking.RatedPlayer, 0, len(players))
-	for _, p := range players {
-		rated = append(rated, p.Rated)
-	}
-	partition := matchmaking.PartitionTeams(rated, int(teamSize))
+	partition := s.matchmaking.PartitionModelTeams(players, int(teamSize))
 	if partition == nil {
 		return nil, apperr.Internal("team partition failed")
 	}
@@ -391,11 +387,7 @@ func (s *MatchService) CreateCustomMatch(
 		return nil, apperr.FailedPrecondition(err.Error())
 	}
 
-	rated := make([]matchmaking.RatedPlayer, 0, len(players))
-	for _, p := range players {
-		rated = append(rated, p.Rated)
-	}
-	partition := matchmaking.PartitionTeams(rated, int(teamSize))
+	partition := s.matchmaking.PartitionModelTeams(players, int(teamSize))
 	if partition == nil {
 		return nil, apperr.Internal("team partition failed")
 	}
@@ -403,11 +395,11 @@ func (s *MatchService) CreateCustomMatch(
 	now := NowMS()
 	var teamACPR, teamBCPR, teamASeed, teamBSeed float64
 	for _, i := range partition.TeamA {
-		teamACPR += rated[i].CPR
+		teamACPR += players[i].DisplayModelScore
 		teamASeed += players[i].Seeds.Score
 	}
 	for _, i := range partition.TeamB {
-		teamBCPR += rated[i].CPR
+		teamBCPR += players[i].DisplayModelScore
 		teamBSeed += players[i].Seeds.Score
 	}
 
@@ -452,7 +444,7 @@ func (s *MatchService) CreateCustomMatch(
 			SeedKPR:                p.Seeds.KPR,
 			SeedHeadshotPercentage: p.Seeds.HeadshotPercentage,
 			SeedScore:              p.Seeds.Score,
-			BalanceRating:          p.Rated.CPR,
+			BalanceRating:          p.DisplayModelScore,
 			CreatedAt:              now,
 			UpdatedAt:              now,
 		})
@@ -472,7 +464,7 @@ func (s *MatchService) CreateCustomMatch(
 			SeedKPR:                p.Seeds.KPR,
 			SeedHeadshotPercentage: p.Seeds.HeadshotPercentage,
 			SeedScore:              p.Seeds.Score,
-			BalanceRating:          p.Rated.CPR,
+			BalanceRating:          p.DisplayModelScore,
 			CreatedAt:              now,
 			UpdatedAt:              now,
 		})

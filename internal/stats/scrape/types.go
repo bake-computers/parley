@@ -48,6 +48,13 @@ type RankedStats struct {
 	TradedRounds          int32   `json:"traded_rounds"`
 	OpeningKillRounds     int32   `json:"opening_kill_rounds"`
 	MatchesInCache        int32   `json:"matches_in_cache"`
+	RollupKills           int32   `json:"rollup_kills"`
+	RollupDeaths          int32   `json:"rollup_deaths"`
+	OpeningDeathRounds    int32   `json:"opening_death_rounds"`
+	HeadshotOnlyRounds    int32   `json:"headshot_only_rounds"`
+	Clutch1v1Wins         int32   `json:"clutch_1v1_wins"`
+	Clutch1v2Wins         int32   `json:"clutch_1v2_wins"`
+	Clutch1v3Wins         int32   `json:"clutch_1v3_wins"`
 }
 
 // CalculatedMetrics holds derived metrics from aggregated summaries.

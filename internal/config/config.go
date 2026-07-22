@@ -37,6 +37,16 @@ type Config struct {
 
 	AccountDeletionHMACSecret string
 
+	MatchmakingModelR2AccountID       string
+	MatchmakingModelR2AccessKeyID     string
+	MatchmakingModelR2SecretAccessKey string
+	MatchmakingModelR2Bucket          string
+	MatchmakingModelR2Key             string
+	MatchmakingModelR2Jurisdiction    string
+	MatchmakingModelMinSeasonMatches  int32
+	MatchmakingRoleBalanceWeight      float64
+	MatchmakingRoleCollisionWeight    float64
+
 	LogLevel string
 }
 
@@ -84,6 +94,16 @@ func Load() (*Config, error) {
 
 		AccountDeletionHMACSecret: os.Getenv("ACCOUNT_DELETION_HMAC_SECRET"),
 
+		MatchmakingModelR2AccountID:       os.Getenv("MATCHMAKING_MODEL_R2_ACCOUNT_ID"),
+		MatchmakingModelR2AccessKeyID:     os.Getenv("MATCHMAKING_MODEL_R2_ACCESS_KEY_ID"),
+		MatchmakingModelR2SecretAccessKey: os.Getenv("MATCHMAKING_MODEL_R2_SECRET_ACCESS_KEY"),
+		MatchmakingModelR2Bucket:          getenv("MATCHMAKING_MODEL_R2_BUCKET", "ovi"),
+		MatchmakingModelR2Key:             getenv("MATCHMAKING_MODEL_R2_KEY", "ovi_model.onnx"),
+		MatchmakingModelR2Jurisdiction:    getenv("MATCHMAKING_MODEL_R2_JURISDICTION", "eu"),
+		MatchmakingModelMinSeasonMatches:  int32(readUint64("MATCHMAKING_MODEL_MIN_SEASON_MATCHES", 3)),
+		MatchmakingRoleBalanceWeight:      readFloat64("MATCHMAKING_ROLE_BALANCE_WEIGHT", 0.10),
+		MatchmakingRoleCollisionWeight:    readFloat64("MATCHMAKING_ROLE_COLLISION_WEIGHT", 0.05),
+
 		LogLevel: readLogLevel(),
 	}
 
@@ -119,6 +139,18 @@ func readUint64(key string, defaultVal uint64) uint64 {
 		return defaultVal
 	}
 	n, err := strconv.ParseUint(v, 10, 64)
+	if err != nil {
+		return defaultVal
+	}
+	return n
+}
+
+func readFloat64(key string, defaultVal float64) float64 {
+	v := os.Getenv(key)
+	if v == "" {
+		return defaultVal
+	}
+	n, err := strconv.ParseFloat(v, 64)
 	if err != nil {
 		return defaultVal
 	}

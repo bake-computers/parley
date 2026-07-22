@@ -143,15 +143,21 @@ func summarizeMatches(matches []Match) scrape.MatchRoundTotals {
 		}
 		ps := m.PlayerSummary
 		summaries = append(summaries, scrape.PlayerSummary{
-			Rounds:         ps.Rounds,
-			RoundSurvivals: ps.RoundSurvivals,
-			Trades:         ps.Trades,
-			OpeningKills:   ps.OpeningKills,
-			Kills:          ps.Kills,
-			Kills2K:        ps.Kills2K,
-			Kills3K:        ps.Kills3K,
-			Kills4K:        ps.Kills4K,
-			Kills5K:        ps.Kills5K,
+			Rounds:             ps.Rounds,
+			RoundSurvivals:     ps.RoundSurvivals,
+			Trades:             ps.Trades,
+			OpeningKills:       ps.OpeningKills,
+			Kills:              ps.Kills,
+			Deaths:             ps.Deaths,
+			OpeningDeaths:      ps.OpeningDeaths,
+			HeadshotOnlyRounds: ps.HeadshotOnlyRounds,
+			Clutch1v1Wins:      ps.Clutch1v1Wins,
+			Clutch1v2Wins:      ps.Clutch1v2Wins,
+			Clutch1v3Wins:      ps.Clutch1v3Wins,
+			Kills2K:            ps.Kills2K,
+			Kills3K:            ps.Kills3K,
+			Kills4K:            ps.Kills4K,
+			Kills5K:            ps.Kills5K,
 		})
 	}
 	return scrape.SummarizePlayerSummaries(summaries)
@@ -196,6 +202,13 @@ func buildRanked(
 		TradedRounds:          rounds.TradedRounds,
 		OpeningKillRounds:     rounds.OpeningKillRounds,
 		MatchesInCache:        int32(matchCount),
+		RollupKills:           rounds.Kills,
+		RollupDeaths:          rounds.Deaths,
+		OpeningDeathRounds:    rounds.OpeningDeaths,
+		HeadshotOnlyRounds:    rounds.HeadshotOnlyRounds,
+		Clutch1v1Wins:         rounds.Clutch1v1Wins,
+		Clutch1v2Wins:         rounds.Clutch1v2Wins,
+		Clutch1v3Wins:         rounds.Clutch1v3Wins,
 	}
 	if mode != nil {
 		ranked.Matches = mode.Matches

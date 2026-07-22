@@ -4,8 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math"
 	"sort"
 
+	"github.com/pactum-computers/parley/internal/matchmaking/ovi"
 	"github.com/pactum-computers/parley/internal/models"
 	"github.com/pactum-computers/parley/internal/repos"
 )
@@ -25,9 +27,13 @@ type PlayerSeedData struct {
 // LoadedPlayer bundles a guild member with their computed rating and
 // stat seed. Mirrors LoadedPlayer in src/matchmaking/players.rs.
 type LoadedPlayer struct {
-	Member repos.GuildMemberRow
-	Rated  RatedPlayer
-	Seeds  PlayerSeedData
+	Member            repos.GuildMemberRow
+	Rated             RatedPlayer
+	Seeds             PlayerSeedData
+	Features          [ovi.FeatureCount]float64
+	RawModelScore     float64
+	DisplayModelScore float64
+	Roles             [4]float64
 }
 
 // rawStatsFromSnapshot derives the RawPlayerStats from a stat snapshot
@@ -89,10 +95,16 @@ func snapshotMetadataF64(meta json.RawMessage, key string) float64 {
 	if !ok {
 		return 0
 	}
+	return metadataNumber(v)
+}
+
+func metadataNumber(v any) float64 {
 	switch n := v.(type) {
 	case float64:
 		return n
 	case int:
+		return float64(n)
+	case int32:
 		return float64(n)
 	case int64:
 		return float64(n)
@@ -164,11 +176,6 @@ func (s *Service) LoadPlayers(
 		return nil, fmt.Errorf("one or more discord_user_ids are not registered in this guild")
 	}
 
-	norms, err := s.ComputeNorms(ctx, game, guildID)
-	if err != nil {
-		return nil, err
-	}
-
 	playerIDs := make([]int32, 0, len(members))
 	for _, m := range members {
 		playerIDs = append(playerIDs, m.PlayerID)
@@ -190,29 +197,96 @@ func (s *Service) LoadPlayers(
 	loaded := make([]LoadedPlayer, 0, len(members))
 	for _, m := range members {
 		snap, ok := snapByPlayer[m.PlayerID]
-		var matchStats PlayerMatchStats
-		var seeds PlayerSeedData
-		if ok {
-			matchStats = NewPlayerMatchStatsFromRaw(rawStatsFromSnapshot(snap), &norms)
-			seeds = seedsFromSnapshot(snap)
-		} else {
-			matchStats = NeutralPlayerMatchStats()
-			seeds = PlayerSeedData{}
+		if !ok {
+			return nil, fmt.Errorf("player %s needs a current stats snapshot for model matchmaking", m.Username)
 		}
+		features, roles, err := featuresFromSnapshot(snap, s.minSeasonMatches)
+		if err != nil {
+			return nil, fmt.Errorf("player %s: %w", m.Username, err)
+		}
+		raw, err := s.model.Score(features)
+		if err != nil {
+			return nil, fmt.Errorf("player %s: %w", m.Username, err)
+		}
+		seeds := seedsFromSnapshot(snap)
 		loaded = append(loaded, LoadedPlayer{
 			Member: m,
 			Rated: RatedPlayer{
 				Mu:  m.InternalElo,
 				Phi: m.RatingDeviation,
-				CPR: CalculateCPR(matchStats),
+				CPR: ovi.Clamp(raw),
 			},
-			Seeds: seeds,
+			Seeds:    seeds,
+			Features: features, RawModelScore: raw, DisplayModelScore: ovi.Clamp(raw), Roles: roles,
 		})
 	}
 
 	// Sort by the caller's original discord_user_id order.
 	sortLoadedByOrder(loaded, order)
 	return loaded, nil
+}
+
+func featuresFromSnapshot(snap models.PlayerStatSnapshot, minimumMatches int32) ([ovi.FeatureCount]float64, [4]float64, error) {
+	var zero [ovi.FeatureCount]float64
+	var roles [4]float64
+	if snap.Matches < minimumMatches {
+		return zero, roles, fmt.Errorf("needs at least %d current-season ranked matches", minimumMatches)
+	}
+	if len(snap.Metadata) == 0 {
+		return zero, roles, fmt.Errorf("stats need refreshing for OVI telemetry")
+	}
+	var meta map[string]any
+	if err := json.Unmarshal(snap.Metadata, &meta); err != nil {
+		return zero, roles, fmt.Errorf("stats need refreshing for OVI telemetry")
+	}
+	if season, _ := meta["season_slug"].(string); season == "" {
+		return zero, roles, fmt.Errorf("stats need refreshing for OVI telemetry")
+	}
+	// Keys must be present (value may be 0). Missing keys used to score as 0
+	// and silently mis-rank players.
+	keys := []string{"rollup_kills", "rollup_deaths", "opening_kill_rounds", "opening_death_rounds", "traded_rounds", "clutch_1v1_wins", "clutch_1v2_wins", "clutch_1v3_wins", "headshot_only_rounds", "rounds_played"}
+	values := make(map[string]float64, len(keys))
+	for _, key := range keys {
+		if _, ok := meta[key]; !ok {
+			return zero, roles, fmt.Errorf("stats need refreshing for OVI telemetry")
+		}
+		values[key] = metadataNumber(meta[key])
+	}
+	rounds := values["rounds_played"]
+	if rounds <= 0 {
+		return zero, roles, fmt.Errorf("stats need refreshing for OVI telemetry")
+	}
+	rollKD := values["rollup_kills"] / math.Max(values["rollup_deaths"], 1)
+	entry := values["opening_kill_rounds"] / math.Max(values["opening_kill_rounds"]+values["opening_death_rounds"], 1)
+	trade := values["traded_rounds"] / math.Max(values["rollup_deaths"], 1)
+	clutch := (values["clutch_1v1_wins"] + 2*values["clutch_1v2_wins"] + 3*values["clutch_1v3_wins"]) / rounds
+	exec := values["headshot_only_rounds"] / rounds
+	w := math.Min(1, float64(snap.Matches)/20)
+	zero = [ovi.FeatureCount]float64{w*snap.KDRatio + (1-w)*rollKD, entry, trade, clutch, w*(snap.HeadshotPercentage/100) + (1-w)*exec, snap.WinRate / 100}
+	for _, v := range zero {
+		if math.IsNaN(v) || math.IsInf(v, 0) {
+			return [ovi.FeatureCount]float64{}, roles, fmt.Errorf("invalid OVI telemetry")
+		}
+	}
+	roleValues := zero[1:5]
+	total := 0.0
+	for _, v := range roleValues {
+		if v > 0 {
+			total += v
+		}
+	}
+	if total == 0 {
+		for i := range roles {
+			roles[i] = .25
+		}
+	} else {
+		for i, v := range roleValues {
+			if v > 0 {
+				roles[i] = v / total
+			}
+		}
+	}
+	return zero, roles, nil
 }
 
 // sortLoadedByOrder reorders loaded in-place to match the original
@@ -241,7 +315,7 @@ func ExpectedLobbyCPR(players []LoadedPlayer) float64 {
 	}
 	var sum float64
 	for _, p := range players {
-		sum += p.Rated.CPR
+		sum += p.DisplayModelScore
 	}
 	return sum / float64(len(players))
 }
