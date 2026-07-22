@@ -12,19 +12,17 @@ import (
 
 // AnonymizationReport counts rows touched during GDPR-style anonymization.
 type AnonymizationReport struct {
-	AnonymizedDiscordUserID      string
-	Players                      int
-	DiscordIdentities            int
-	GuildMemberships             int
-	Matches                      int
-	MatchParticipants            int
-	MatchmakingQueues            int
-	MatchmakingQueueParticipants int
-	Tournaments                  int
-	TournamentTeams              int
-	TournamentTeamRosters        int
-	GuildSettingsAudit           int
-	GuildMatchQuotasAudit        int
+	AnonymizedDiscordUserID string
+	Players                 int
+	DiscordIdentities       int
+	GuildMemberships        int
+	Matches                 int
+	MatchParticipants       int
+	Tournaments             int
+	TournamentTeams         int
+	TournamentTeamRosters   int
+	GuildSettingsAudit      int
+	GuildMatchQuotasAudit   int
 }
 
 // IdentityRepo provides access to players and discord_identities.
@@ -439,37 +437,6 @@ func (r *IdentityRepo) AnonymizePlayer(
 			return err
 		} else {
 			report.MatchParticipants = int(n)
-		}
-
-		res, err = tx.NewUpdate().
-			Model((*models.MatchmakingQueue)(nil)).
-			Set("captain_discord_user_id = ?", sentinel).
-			Set("updated_at = ?", deletedAt).
-			Where("captain_discord_user_id = ?", discordUserID).
-			Exec(ctx)
-		if err != nil {
-			return err
-		}
-		if n, err := res.RowsAffected(); err != nil {
-			return err
-		} else {
-			report.MatchmakingQueues = int(n)
-		}
-
-		res, err = tx.NewUpdate().
-			Model((*models.MatchmakingQueueParticipant)(nil)).
-			Set("discord_user_id = ?", sentinel).
-			Set("username = ?", "Deleted User").
-			Set("updated_at = ?", deletedAt).
-			Where("discord_user_id = ?", discordUserID).
-			Exec(ctx)
-		if err != nil {
-			return err
-		}
-		if n, err := res.RowsAffected(); err != nil {
-			return err
-		} else {
-			report.MatchmakingQueueParticipants = int(n)
 		}
 
 		res, err = tx.NewUpdate().
