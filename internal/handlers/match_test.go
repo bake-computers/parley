@@ -13,7 +13,7 @@ import (
 
 func newTestMatchHandler(t *testing.T) *handlers.MatchHandler {
 	t.Helper()
-	svc := services.NewMatchService(nil, nil, nil, nil)
+	svc := services.NewMatchService(nil, nil, nil)
 	return handlers.NewMatchHandler(svc)
 }
 
@@ -49,44 +49,6 @@ func TestMatchHandlerListGuildMembers_UnspecifiedGame(t *testing.T) {
 	}))
 	assertConnectCode(t, err, connect.CodeInvalidArgument)
 }
-
-// --- JoinQueue ---
-
-func TestMatchHandlerJoinQueue_EmptyCaptain(t *testing.T) {
-	h := newTestMatchHandler(t)
-	_, err := h.JoinQueue(context.Background(), connect.NewRequest(&matchv1.JoinQueueRequest{
-		GuildId:              "guild-1",
-		ChannelId:            "ch-1",
-		CaptainDiscordUserId: "",
-		Game:                 commonv1.Game_GAME_R6,
-	}))
-	assertConnectCode(t, err, connect.CodeInvalidArgument)
-}
-
-// --- LeaveQueue ---
-
-func TestMatchHandlerLeaveQueue_EmptyCaptain(t *testing.T) {
-	h := newTestMatchHandler(t)
-	_, err := h.LeaveQueue(context.Background(), connect.NewRequest(&matchv1.LeaveQueueRequest{
-		CaptainDiscordUserId: "  ",
-		Game:                 commonv1.Game_GAME_R6,
-	}))
-	assertConnectCode(t, err, connect.CodeInvalidArgument)
-}
-
-// --- GetQueueStatus ---
-
-func TestMatchHandlerGetQueueStatus_EmptyGuildID(t *testing.T) {
-	h := newTestMatchHandler(t)
-	_, err := h.GetQueueStatus(context.Background(), connect.NewRequest(&matchv1.GetQueueStatusRequest{
-		DiscordUserId: "u1",
-		GuildId:       "",
-		Game:          commonv1.Game_GAME_R6,
-	}))
-	assertConnectCode(t, err, connect.CodeInvalidArgument)
-}
-
-// --- CreateCustomMatch ---
 
 func TestMatchHandlerCreateCustomMatch_EmptyChannelID(t *testing.T) {
 	h := newTestMatchHandler(t)
