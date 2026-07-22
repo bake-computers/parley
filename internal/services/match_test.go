@@ -11,7 +11,7 @@ import (
 )
 
 func newNilDBMatchService() *services.MatchService {
-	return services.NewMatchService(nil, nil, nil, nil)
+	return services.NewMatchService(nil, nil, nil)
 }
 
 // --- BuildTeams ---
@@ -62,104 +62,6 @@ func TestMatchListGuildMembers_EmptyGuildID(t *testing.T) {
 	_, err := svc.ListGuildMembers(context.Background(), connect.NewRequest(&matchv1.ListGuildMembersRequest{
 		GuildId: "",
 		Game:    commonv1.Game_GAME_R6,
-	}))
-	assertConnectCode(t, err, connect.CodeInvalidArgument)
-}
-
-// --- JoinQueue ---
-
-func TestMatchJoinQueue_UnspecifiedGame(t *testing.T) {
-	svc := newNilDBMatchService()
-	_, err := svc.JoinQueue(context.Background(), connect.NewRequest(&matchv1.JoinQueueRequest{
-		GuildId:              "guild-1",
-		ChannelId:            "ch-1",
-		CaptainDiscordUserId: "u1",
-		Game:                 commonv1.Game_GAME_UNSPECIFIED,
-	}))
-	assertConnectCode(t, err, connect.CodeInvalidArgument)
-}
-
-func TestMatchJoinQueue_EmptyGuildID(t *testing.T) {
-	svc := newNilDBMatchService()
-	_, err := svc.JoinQueue(context.Background(), connect.NewRequest(&matchv1.JoinQueueRequest{
-		GuildId:              "",
-		ChannelId:            "ch-1",
-		CaptainDiscordUserId: "u1",
-		Game:                 commonv1.Game_GAME_R6,
-	}))
-	assertConnectCode(t, err, connect.CodeInvalidArgument)
-}
-
-func TestMatchJoinQueue_EmptyChannelID(t *testing.T) {
-	svc := newNilDBMatchService()
-	_, err := svc.JoinQueue(context.Background(), connect.NewRequest(&matchv1.JoinQueueRequest{
-		GuildId:              "guild-1",
-		ChannelId:            "",
-		CaptainDiscordUserId: "u1",
-		Game:                 commonv1.Game_GAME_R6,
-	}))
-	assertConnectCode(t, err, connect.CodeInvalidArgument)
-}
-
-func TestMatchJoinQueue_EmptyCaptain(t *testing.T) {
-	svc := newNilDBMatchService()
-	_, err := svc.JoinQueue(context.Background(), connect.NewRequest(&matchv1.JoinQueueRequest{
-		GuildId:              "guild-1",
-		ChannelId:            "ch-1",
-		CaptainDiscordUserId: "",
-		Game:                 commonv1.Game_GAME_R6,
-	}))
-	assertConnectCode(t, err, connect.CodeInvalidArgument)
-}
-
-// --- LeaveQueue ---
-
-func TestMatchLeaveQueue_UnspecifiedGame(t *testing.T) {
-	svc := newNilDBMatchService()
-	_, err := svc.LeaveQueue(context.Background(), connect.NewRequest(&matchv1.LeaveQueueRequest{
-		CaptainDiscordUserId: "u1",
-		Game:                 commonv1.Game_GAME_UNSPECIFIED,
-	}))
-	assertConnectCode(t, err, connect.CodeInvalidArgument)
-}
-
-func TestMatchLeaveQueue_EmptyCaptain(t *testing.T) {
-	svc := newNilDBMatchService()
-	_, err := svc.LeaveQueue(context.Background(), connect.NewRequest(&matchv1.LeaveQueueRequest{
-		CaptainDiscordUserId: "  ",
-		Game:                 commonv1.Game_GAME_R6,
-	}))
-	assertConnectCode(t, err, connect.CodeInvalidArgument)
-}
-
-// --- GetQueueStatus ---
-
-func TestMatchGetQueueStatus_UnspecifiedGame(t *testing.T) {
-	svc := newNilDBMatchService()
-	_, err := svc.GetQueueStatus(context.Background(), connect.NewRequest(&matchv1.GetQueueStatusRequest{
-		DiscordUserId: "u1",
-		GuildId:       "guild-1",
-		Game:          commonv1.Game_GAME_UNSPECIFIED,
-	}))
-	assertConnectCode(t, err, connect.CodeInvalidArgument)
-}
-
-func TestMatchGetQueueStatus_EmptyGuildID(t *testing.T) {
-	svc := newNilDBMatchService()
-	_, err := svc.GetQueueStatus(context.Background(), connect.NewRequest(&matchv1.GetQueueStatusRequest{
-		DiscordUserId: "u1",
-		GuildId:       "",
-		Game:          commonv1.Game_GAME_R6,
-	}))
-	assertConnectCode(t, err, connect.CodeInvalidArgument)
-}
-
-func TestMatchGetQueueStatus_EmptyDiscordID(t *testing.T) {
-	svc := newNilDBMatchService()
-	_, err := svc.GetQueueStatus(context.Background(), connect.NewRequest(&matchv1.GetQueueStatusRequest{
-		DiscordUserId: "",
-		GuildId:       "guild-1",
-		Game:          commonv1.Game_GAME_R6,
 	}))
 	assertConnectCode(t, err, connect.CodeInvalidArgument)
 }
