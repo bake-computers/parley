@@ -17,12 +17,11 @@ import (
 func newTestApp(t *testing.T) *server.Deps {
 	t.Helper()
 	return &server.Deps{
-		Identity:    &services.IdentityService{},
-		Guild:       &services.GuildService{},
-		User:        &services.UserSettingsService{},
-		Leaderboard: &services.LeaderboardService{},
-		Match:       &services.MatchService{},
-		Stats:       &services.StatsService{},
+		Identity: &services.IdentityService{},
+		Guild:    &services.GuildService{},
+		User:     &services.UserSettingsService{},
+		Match:    &services.MatchService{},
+		Stats:    &services.StatsService{},
 	}
 }
 
