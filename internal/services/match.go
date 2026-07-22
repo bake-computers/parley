@@ -1,7 +1,7 @@
 // Package services — match service implementation.
 //
 // The MatchService is a thin orchestration layer over the matchmaking
-// engine and the match / queue / guild repositories. All match
+// engine and the match / guild repositories. All match
 // mathematics (CPR, Glicko-2, partition) live in
 // internal/matchmaking. All persistence lives in internal/repos. This
 // file only coordinates the two and adapts their output to the
@@ -23,10 +23,9 @@ import (
 	"github.com/pactum-computers/parley/internal/repos"
 )
 
-// MatchService orchestrates the 10 MatchmakingService RPCs.
+// MatchService orchestrates the MatchmakingService RPCs.
 type MatchService struct {
 	match       *repos.MatchRepo
-	queue       *repos.MatchmakingQueueRepo
 	guild       *repos.GuildRepo
 	matchmaking *matchmaking.Service
 }
@@ -34,13 +33,11 @@ type MatchService struct {
 // NewMatchService returns a service backed by the given repos.
 func NewMatchService(
 	match *repos.MatchRepo,
-	queue *repos.MatchmakingQueueRepo,
 	guild *repos.GuildRepo,
 	mm *matchmaking.Service,
 ) *MatchService {
 	return &MatchService{
 		match:       match,
-		queue:       queue,
 		guild:       guild,
 		matchmaking: mm,
 	}
@@ -163,9 +160,9 @@ func matchToProto(
 // --- BuildTeams ---
 
 // BuildTeams partitions a list of discord_user_ids into two balanced
-// teams using the same CPR + Glicko-2 + brute-force pipeline as
-// queue-driven matchmaking, but without persisting a match. Mirrors
-// build_teams_rpc in src/handlers/matchmaking.rs.
+// teams using the CPR + Glicko-2 + brute-force pipeline, without
+// persisting a match. Mirrors build_teams_rpc in
+// src/handlers/matchmaking.rs.
 func (s *MatchService) BuildTeams(
 	ctx context.Context,
 	req *connect.Request[matchv1.BuildTeamsRequest],
@@ -211,11 +208,9 @@ func (s *MatchService) BuildTeams(
 		return nil, apperr.InvalidArgument(err.Error())
 	}
 
-	// Per-team platform/elo gap rules: matchmaking's
-	// CheckQueueEligibility covers the same surface, but BuildTeams
-	// applies the rules to the full lobby as a precondition rather
-	// than as a queue gate. Reuse CheckQueueEligibility to avoid
-	// diverging from the queue path.
+	// Per-team platform/elo gap rules: matchmaking's CheckEligibility
+	// covers the same surface; BuildTeams applies the rules to the full
+	// lobby as a precondition.
 	members := make([]repos.GuildMemberRow, 0, len(players))
 	for _, p := range players {
 		members = append(members, p.Member)
@@ -342,238 +337,11 @@ func filterMembers(rows []repos.GuildMemberRow, query string, limit int) []repos
 	return out
 }
 
-// --- JoinQueue ---
-
-// JoinQueue enqueues a stack of players and, if a complementary stack
-// is already waiting, immediately forms a match. Mirrors
-// join_queue_rpc in src/handlers/match_queue.rs.
-func (s *MatchService) JoinQueue(
-	ctx context.Context,
-	req *connect.Request[matchv1.JoinQueueRequest],
-) (*connect.Response[matchv1.JoinQueueResponse], error) {
-	msg := req.Msg
-	game, cerr := requireR6Game(msg.GetGame())
-	if cerr != nil {
-		return nil, cerr
-	}
-	guildID := strings.TrimSpace(msg.GetGuildId())
-	channelID := strings.TrimSpace(msg.GetChannelId())
-	captain := strings.TrimSpace(msg.GetCaptainDiscordUserId())
-	if guildID == "" || channelID == "" {
-		return nil, apperr.InvalidArgument("guild_id and channel_id are required")
-	}
-	if captain == "" {
-		return nil, apperr.InvalidArgument("captain_discord_user_id is required")
-	}
-
-	discordIDs := msg.GetDiscordUserIds()
-	if len(discordIDs) == 0 {
-		discordIDs = []string{captain}
-	}
-	hasCaptain := false
-	for _, id := range discordIDs {
-		if id == captain {
-			hasCaptain = true
-			break
-		}
-	}
-	if !hasCaptain {
-		discordIDs = append([]string{captain}, discordIDs...)
-	}
-
-	// Reject any participant already in a waiting queue.
-	active, err := s.queue.FindActiveForCaptain(ctx, game, captain)
-	if err != nil {
-		return nil, apperr.Internal(fmt.Sprintf("lookup captain: %v", err))
-	}
-	if active != nil {
-		return nil, apperr.FailedPrecondition("already in queue")
-	}
-	for _, id := range discordIDs {
-		other, err := s.queue.FindActiveForParticipant(ctx, game, id)
-		if err != nil {
-			return nil, apperr.Internal(fmt.Sprintf("lookup participant: %v", err))
-		}
-		if other != nil {
-			return nil, apperr.FailedPrecondition(fmt.Sprintf("player %s already in queue", id))
-		}
-	}
-
-	teamSize, err := resolveTeamSize(ctx, s.guild, game, guildID, msg.GetTeamSize())
-	if err != nil {
-		return nil, apperr.Internal(fmt.Sprintf("resolve team size: %v", err))
-	}
-	if len(discordIDs) > int(teamSize) {
-		return nil, apperr.InvalidArgument(fmt.Sprintf(
-			"party size %d exceeds team_size %d", len(discordIDs), teamSize,
-		))
-	}
-
-	elig, err := s.matchmaking.LoadEligibility(ctx, game, guildID)
-	if err != nil {
-		return nil, apperr.Internal(err.Error())
-	}
-	players, err := s.matchmaking.LoadPlayers(ctx, game, guildID, discordIDs)
-	if err != nil {
-		return nil, apperr.InvalidArgument(err.Error())
-	}
-	members := make([]repos.GuildMemberRow, 0, len(players))
-	for _, p := range players {
-		members = append(members, p.Member)
-	}
-	if err := s.matchmaking.CheckQueueEligibility(ctx, game, guildID, discordIDs, members, elig); err != nil {
-		return nil, apperr.FailedPrecondition(err.Error())
-	}
-	matchmakingRegion, err := s.matchmaking.ResolveQueueRegion(ctx, discordIDs)
-	if err != nil {
-		return nil, apperr.FailedPrecondition(err.Error())
-	}
-
-	queue, _, err := s.matchmaking.CreateStack(
-		ctx, game, guildID, channelID, captain, teamSize, matchmakingRegion, players,
-	)
-	if err != nil {
-		return nil, apperr.Internal(fmt.Sprintf("create stack: %v", err))
-	}
-
-	formed, err := s.matchmaking.TryFormMatchForQueue(
-		ctx, game, guildID, channelID, captain, teamSize, matchmakingRegion, elig,
-	)
-	if err != nil {
-		return nil, apperr.Internal(fmt.Sprintf("try form match: %v", err))
-	}
-	if formed != nil {
-		teamA, teamB := assignmentsFromPartition(formed.Players, formed.Partition.TeamA, formed.Partition.TeamB)
-		return connect.NewResponse(&matchv1.JoinQueueResponse{
-			Success:        true,
-			Status:         "matched",
-			QueueId:        queue.ID,
-			MatchId:        formed.MatchID,
-			TeamA:          teamA,
-			TeamB:          teamB,
-			WinProbability: formed.Partition.WinProbability,
-		}), nil
-	}
-
-	waiting, _, err := s.queue.PoolStats(ctx, game, guildID, teamSize, matchmakingRegion)
-	if err != nil {
-		return nil, apperr.Internal(fmt.Sprintf("pool stats: %v", err))
-	}
-	return connect.NewResponse(&matchv1.JoinQueueResponse{
-		Success:            true,
-		Status:             repos.QueueStatusWaiting,
-		QueueId:            queue.ID,
-		PoolWaitingPlayers: waiting,
-	}), nil
-}
-
-// --- LeaveQueue ---
-
-// LeaveQueue cancels a captain's active waiting stack. Mirrors
-// leave_queue_rpc in src/handlers/match_queue.rs.
-func (s *MatchService) LeaveQueue(
-	ctx context.Context,
-	req *connect.Request[matchv1.LeaveQueueRequest],
-) (*connect.Response[matchv1.LeaveQueueResponse], error) {
-	msg := req.Msg
-	game, cerr := requireR6Game(msg.GetGame())
-	if cerr != nil {
-		return nil, cerr
-	}
-	captain := strings.TrimSpace(msg.GetCaptainDiscordUserId())
-	if captain == "" {
-		return nil, apperr.InvalidArgument("captain_discord_user_id is required")
-	}
-	active, err := s.queue.FindActiveForCaptain(ctx, game, captain)
-	if err != nil {
-		return nil, apperr.Internal(fmt.Sprintf("lookup: %v", err))
-	}
-	if active == nil {
-		return nil, apperr.NotFound("no active queue")
-	}
-	cancelled, err := s.queue.Cancel(ctx, active.ID)
-	if err != nil {
-		return nil, apperr.Internal(fmt.Sprintf("cancel: %v", err))
-	}
-	if cancelled == nil {
-		return nil, apperr.NotFound("queue not found or not waiting")
-	}
-	return connect.NewResponse(&matchv1.LeaveQueueResponse{Success: true}), nil
-}
-
-// --- GetQueueStatus ---
-
-// GetQueueStatus reports the captain's active queue (if any) plus
-// the pool's current waiting player / stack counts. Mirrors
-// get_queue_status_rpc in src/handlers/match_queue.rs.
-func (s *MatchService) GetQueueStatus(
-	ctx context.Context,
-	req *connect.Request[matchv1.GetQueueStatusRequest],
-) (*connect.Response[matchv1.GetQueueStatusResponse], error) {
-	msg := req.Msg
-	game, cerr := requireR6Game(msg.GetGame())
-	if cerr != nil {
-		return nil, cerr
-	}
-	guildID := strings.TrimSpace(msg.GetGuildId())
-	discordID := strings.TrimSpace(msg.GetDiscordUserId())
-	if guildID == "" {
-		return nil, apperr.InvalidArgument("guild_id is required")
-	}
-	if discordID == "" {
-		return nil, apperr.InvalidArgument("discord_user_id is required")
-	}
-
-	teamSize, err := resolveTeamSize(ctx, s.guild, game, guildID, msg.GetTeamSize())
-	if err != nil {
-		return nil, apperr.Internal(fmt.Sprintf("resolve team size: %v", err))
-	}
-
-	active, err := s.queue.FindActiveForParticipant(ctx, game, discordID)
-	if err != nil {
-		return nil, apperr.Internal(fmt.Sprintf("lookup: %v", err))
-	}
-	matchmakingRegion := matchmaking.GlobalMatchmakingRegion
-	if active != nil {
-		matchmakingRegion = active.MatchmakingRegion
-	} else {
-		matchmakingRegion, err = s.matchmaking.ResolveQueueRegion(ctx, []string{discordID})
-		if err != nil {
-			return nil, apperr.FailedPrecondition(err.Error())
-		}
-	}
-	waitingPlayers, waitingStacks, err := s.queue.PoolStats(
-		ctx, game, guildID, teamSize, matchmakingRegion,
-	)
-	if err != nil {
-		return nil, apperr.Internal(fmt.Sprintf("pool stats: %v", err))
-	}
-
-	status := "idle"
-	queueID := int32(0)
-	matchID := int32(0)
-	if active != nil {
-		status = active.Status
-		queueID = active.ID
-		if active.MatchedMatchID != nil {
-			matchID = *active.MatchedMatchID
-		}
-	}
-	return connect.NewResponse(&matchv1.GetQueueStatusResponse{
-		Success:            true,
-		Status:             status,
-		QueueId:            queueID,
-		MatchId:            matchID,
-		PoolWaitingPlayers: waitingPlayers,
-		PoolWaitingStacks:  waitingStacks,
-	}), nil
-}
-
 // --- CreateCustomMatch ---
 
-// CreateCustomMatch bypasses the queue: it partitions the supplied
-// discord_user_ids into two balanced teams and persists the match.
-// Mirrors create_custom_match_rpc in src/handlers/match_queue.rs.
+// CreateCustomMatch partitions the supplied discord_user_ids into two
+// balanced teams and persists the match. Mirrors create_custom_match_rpc
+// in src/handlers/match_queue.rs.
 func (s *MatchService) CreateCustomMatch(
 	ctx context.Context,
 	req *connect.Request[matchv1.CreateCustomMatchRequest],
@@ -619,7 +387,7 @@ func (s *MatchService) CreateCustomMatch(
 	for _, p := range players {
 		members = append(members, p.Member)
 	}
-	if err := s.matchmaking.CheckQueueEligibility(ctx, game, guildID, msg.GetDiscordUserIds(), members, elig); err != nil {
+	if err := s.matchmaking.CheckEligibility(ctx, game, guildID, msg.GetDiscordUserIds(), members, elig); err != nil {
 		return nil, apperr.FailedPrecondition(err.Error())
 	}
 
