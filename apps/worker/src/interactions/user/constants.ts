@@ -3,7 +3,6 @@ import { UI_TOKENS } from "#/ui/tokens";
 export { ACCEPT_BUTTON as USER_ACCEPT_BUTTON } from "#/interactions/_shared/acceptance";
 export const USER_MATCHMAKING_PREFIX = "user/matchmaking/";
 export const USER_VISIBILITY_PREFIX = "user/visibility/";
-export const USER_REGION_PREFIX = "user/region/";
 export const USER_REFRESH_STATS = "user/refresh-stats";
 export const USER_DELETE_OPEN = "user/delete/open";
 export const USER_DELETE_MODAL = "user-delete-modal";
@@ -11,13 +10,5 @@ export const USER_CANCEL = "user/cancel";
 export const USER_PAGE_PREFIX = "user/page/";
 
 export const USER_SETTINGS_PAGE_COUNT = 2;
-
-export const MATCHMAKING_REGIONS = [
-  { value: 0, label: "Global" },
-  { value: 1, label: "Europe" },
-  { value: 2, label: "North America" },
-  { value: 3, label: "Asia-Pacific" },
-  { value: 4, label: "South America" },
-] as const;
 
 export const COLORS = UI_TOKENS;
