@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log/slog"
 	"os"
@@ -21,7 +20,6 @@ import (
 	"github.com/pactum-computers/parley/internal/stats/cache"
 	"github.com/pactum-computers/parley/internal/stats/fetch"
 	"github.com/pactum-computers/parley/internal/stats/persist"
-	"github.com/redis/go-redis/v9"
 )
 
 func main() {
@@ -64,7 +62,6 @@ func run() error {
 	identityRepo := repos.NewIdentityRepo(bunDB)
 	guildRepo := repos.NewGuildRepo(bunDB)
 	matchRepo := repos.NewMatchRepo(bunDB)
-	queueRepo := repos.NewMatchmakingQueueRepo(bunDB)
 	snapshotRepo := repos.NewPlayerStatSnapshotRepo(bunDB)
 	userRepo := repos.NewUserSettingsRepo(bunDB)
 	tournRepo := repos.NewTournamentRepo(bunDB)
@@ -72,20 +69,10 @@ func run() error {
 	rosterRepo := repos.NewTournamentRosterRepo(bunDB)
 	bracketRepo := repos.NewBracketMatchRepo(bunDB)
 
-	redisOpts, err := config.RedisOptions(cfg.RedisURL)
-	if err != nil {
-		return fmt.Errorf("redis config: %w", err)
-	}
-	rdb := redis.NewClient(redisOpts)
-	defer rdb.Close()
-	if err := rdb.Ping(ctx).Err(); err != nil {
-		return fmt.Errorf("redis ping: %w", err)
-	}
-
 	var statsConfigCache *api.ConfigCache
 	if cfg.StatsCCAPIKey != "" {
 		configTTL := time.Duration(cfg.StatsCCConfigCacheTTLMS) * time.Millisecond
-		statsConfigCache = api.NewConfigCache(rdb, configTTL)
+		statsConfigCache = api.NewConfigCache(configTTL)
 		slog.Info("stats.cc api enabled", "base", cfg.StatsCCAPIBaseURL)
 	} else {
 		slog.Warn("STATS_CC_API_KEY unset; stats fetches will fail until configured")
@@ -109,42 +96,30 @@ func run() error {
 	statsPersister := persist.NewStatsPersister(writer)
 
 	cacheCfg := cache.NewCacheConfigFromEnv(cfg)
-	redisStore := cache.NewRedisCacheStore(rdb, statsClient, cacheCfg)
-	cacheStore := persist.NewPersistingStatsCacheStore(redisStore, statsPersister)
+	snapshotStore := cache.NewSnapshotCacheStore(identityRepo, snapshotRepo, statsClient, cacheCfg)
+	cacheStore := persist.NewPersistingStatsCacheStore(snapshotStore, statsPersister)
 
-	mmService := matchmaking.NewService(guildRepo, matchRepo, queueRepo, snapshotRepo, userRepo)
+	mmService := matchmaking.NewService(guildRepo, matchRepo, snapshotRepo, userRepo)
 
 	identitySvc := services.NewIdentityService(identityRepo, guildRepo)
 	guildSvc := services.NewGuildService(guildRepo)
-	matchSvc := services.NewMatchService(matchRepo, queueRepo, guildRepo, mmService)
+	matchSvc := services.NewMatchService(matchRepo, guildRepo, mmService)
 	statsSvc := services.NewStatsService(cacheStore)
 	userSvc := services.NewUserSettingsService(userRepo, guildRepo, identityRepo)
-	leaderboardSvc := services.NewLeaderboardService(services.NewRedisStore(rdb))
 	tournSvc := services.NewTournamentService(bunDB, tournRepo, teamRepo, rosterRepo, bracketRepo, mmService)
 
 	deps := server.Deps{
-		Identity:    identitySvc,
-		Guild:       guildSvc,
-		User:        userSvc,
-		Leaderboard: leaderboardSvc,
-		Match:       matchSvc,
-		Tournament:  tournSvc,
-		Stats:       statsSvc,
+		Identity:   identitySvc,
+		Guild:      guildSvc,
+		User:       userSvc,
+		Match:      matchSvc,
+		Tournament: tournSvc,
+		Stats:      statsSvc,
 		ReadyCheck: func() error {
-			if err := db.Ping(ctx, bunDB); err != nil {
-				return err
-			}
-			return rdb.Ping(ctx).Err()
+			return db.Ping(ctx, bunDB)
 		},
 	}
 	app := server.New(deps)
-
-	go func() {
-		slog.Info("matchmaking sweeper started")
-		if err := mmService.Run(ctx, 5*time.Second); err != nil && !errors.Is(err, context.Canceled) {
-			slog.Error("sweeper exited with error", "error", err)
-		}
-	}()
 
 	go func() {
 		slog.Info("stats persister started")
