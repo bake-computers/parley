@@ -29,7 +29,6 @@ type UserSettings struct {
 	MatchmakingEnabled bool                   `protobuf:"varint,4,opt,name=matchmaking_enabled,json=matchmakingEnabled,proto3" json:"matchmaking_enabled,omitempty"`
 	TermsAcceptedAtMs  int64                  `protobuf:"varint,5,opt,name=terms_accepted_at_ms,json=termsAcceptedAtMs,proto3" json:"terms_accepted_at_ms,omitempty"`
 	ProfilePublic      bool                   `protobuf:"varint,6,opt,name=profile_public,json=profilePublic,proto3" json:"profile_public,omitempty"`
-	MatchmakingRegion  v1.Region              `protobuf:"varint,8,opt,name=matchmaking_region,json=matchmakingRegion,proto3,enum=parley.common.v1.Region" json:"matchmaking_region,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
 }
@@ -97,13 +96,6 @@ func (x *UserSettings) GetProfilePublic() bool {
 		return x.ProfilePublic
 	}
 	return false
-}
-
-func (x *UserSettings) GetMatchmakingRegion() v1.Region {
-	if x != nil {
-		return x.MatchmakingRegion
-	}
-	return v1.Region(0)
 }
 
 type GetUserSettingsRequest struct {
@@ -299,21 +291,19 @@ func (x *DeleteUserDataRequest) GetDiscordUserId() string {
 }
 
 type AnonymizationCounts struct {
-	state                        protoimpl.MessageState `protogen:"open.v1"`
-	Players                      int32                  `protobuf:"varint,1,opt,name=players,proto3" json:"players,omitempty"`
-	DiscordIdentities            int32                  `protobuf:"varint,2,opt,name=discord_identities,json=discordIdentities,proto3" json:"discord_identities,omitempty"`
-	GuildMemberships             int32                  `protobuf:"varint,3,opt,name=guild_memberships,json=guildMemberships,proto3" json:"guild_memberships,omitempty"`
-	Matches                      int32                  `protobuf:"varint,4,opt,name=matches,proto3" json:"matches,omitempty"`
-	MatchParticipants            int32                  `protobuf:"varint,5,opt,name=match_participants,json=matchParticipants,proto3" json:"match_participants,omitempty"`
-	MatchmakingQueues            int32                  `protobuf:"varint,6,opt,name=matchmaking_queues,json=matchmakingQueues,proto3" json:"matchmaking_queues,omitempty"`
-	MatchmakingQueueParticipants int32                  `protobuf:"varint,7,opt,name=matchmaking_queue_participants,json=matchmakingQueueParticipants,proto3" json:"matchmaking_queue_participants,omitempty"`
-	Tournaments                  int32                  `protobuf:"varint,8,opt,name=tournaments,proto3" json:"tournaments,omitempty"`
-	TournamentTeams              int32                  `protobuf:"varint,9,opt,name=tournament_teams,json=tournamentTeams,proto3" json:"tournament_teams,omitempty"`
-	TournamentTeamRosters        int32                  `protobuf:"varint,10,opt,name=tournament_team_rosters,json=tournamentTeamRosters,proto3" json:"tournament_team_rosters,omitempty"`
-	GuildSettingsAudit           int32                  `protobuf:"varint,11,opt,name=guild_settings_audit,json=guildSettingsAudit,proto3" json:"guild_settings_audit,omitempty"`
-	GuildMatchQuotasAudit        int32                  `protobuf:"varint,12,opt,name=guild_match_quotas_audit,json=guildMatchQuotasAudit,proto3" json:"guild_match_quotas_audit,omitempty"`
-	unknownFields                protoimpl.UnknownFields
-	sizeCache                    protoimpl.SizeCache
+	state                 protoimpl.MessageState `protogen:"open.v1"`
+	Players               int32                  `protobuf:"varint,1,opt,name=players,proto3" json:"players,omitempty"`
+	DiscordIdentities     int32                  `protobuf:"varint,2,opt,name=discord_identities,json=discordIdentities,proto3" json:"discord_identities,omitempty"`
+	GuildMemberships      int32                  `protobuf:"varint,3,opt,name=guild_memberships,json=guildMemberships,proto3" json:"guild_memberships,omitempty"`
+	Matches               int32                  `protobuf:"varint,4,opt,name=matches,proto3" json:"matches,omitempty"`
+	MatchParticipants     int32                  `protobuf:"varint,5,opt,name=match_participants,json=matchParticipants,proto3" json:"match_participants,omitempty"`
+	Tournaments           int32                  `protobuf:"varint,8,opt,name=tournaments,proto3" json:"tournaments,omitempty"`
+	TournamentTeams       int32                  `protobuf:"varint,9,opt,name=tournament_teams,json=tournamentTeams,proto3" json:"tournament_teams,omitempty"`
+	TournamentTeamRosters int32                  `protobuf:"varint,10,opt,name=tournament_team_rosters,json=tournamentTeamRosters,proto3" json:"tournament_team_rosters,omitempty"`
+	GuildSettingsAudit    int32                  `protobuf:"varint,11,opt,name=guild_settings_audit,json=guildSettingsAudit,proto3" json:"guild_settings_audit,omitempty"`
+	GuildMatchQuotasAudit int32                  `protobuf:"varint,12,opt,name=guild_match_quotas_audit,json=guildMatchQuotasAudit,proto3" json:"guild_match_quotas_audit,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *AnonymizationCounts) Reset() {
@@ -377,20 +367,6 @@ func (x *AnonymizationCounts) GetMatches() int32 {
 func (x *AnonymizationCounts) GetMatchParticipants() int32 {
 	if x != nil {
 		return x.MatchParticipants
-	}
-	return 0
-}
-
-func (x *AnonymizationCounts) GetMatchmakingQueues() int32 {
-	if x != nil {
-		return x.MatchmakingQueues
-	}
-	return 0
-}
-
-func (x *AnonymizationCounts) GetMatchmakingQueueParticipants() int32 {
-	if x != nil {
-		return x.MatchmakingQueueParticipants
 	}
 	return 0
 }
@@ -510,14 +486,13 @@ var File_user_v1_user_proto protoreflect.FileDescriptor
 
 const file_user_v1_user_proto_rawDesc = "" +
 	"\n" +
-	"\x12user/v1/user.proto\x12\x0eparley.user.v1\x1a\x15common/v1/types.proto\"\xcc\x02\n" +
+	"\x12user/v1/user.proto\x12\x0eparley.user.v1\x1a\x15common/v1/types.proto\"\x9d\x02\n" +
 	"\fUserSettings\x12&\n" +
 	"\x0fdiscord_user_id\x18\x01 \x01(\tR\rdiscordUserId\x12\"\n" +
 	"\rupdated_at_ms\x18\x03 \x01(\x03R\vupdatedAtMs\x12/\n" +
 	"\x13matchmaking_enabled\x18\x04 \x01(\bR\x12matchmakingEnabled\x12/\n" +
 	"\x14terms_accepted_at_ms\x18\x05 \x01(\x03R\x11termsAcceptedAtMs\x12%\n" +
-	"\x0eprofile_public\x18\x06 \x01(\bR\rprofilePublic\x12G\n" +
-	"\x12matchmaking_region\x18\b \x01(\x0e2\x18.parley.common.v1.RegionR\x11matchmakingRegionJ\x04\b\x02\x10\x03J\x04\b\a\x10\bR\blanguageR\btimezone\"@\n" +
+	"\x0eprofile_public\x18\x06 \x01(\bR\rprofilePublicJ\x04\b\x02\x10\x03J\x04\b\a\x10\bJ\x04\b\b\x10\tR\blanguageR\btimezoneR\x12matchmaking_region\"@\n" +
 	"\x16GetUserSettingsRequest\x12&\n" +
 	"\x0fdiscord_user_id\x18\x01 \x01(\tR\rdiscordUserId\"U\n" +
 	"\x19UpsertUserSettingsRequest\x128\n" +
@@ -527,21 +502,19 @@ const file_user_v1_user_proto_rawDesc = "" +
 	"\bsettings\x18\x02 \x01(\v2\x1c.parley.user.v1.UserSettingsR\bsettings\x12-\n" +
 	"\x05error\x18\x03 \x01(\v2\x17.parley.common.v1.ErrorR\x05error\"?\n" +
 	"\x15DeleteUserDataRequest\x12&\n" +
-	"\x0fdiscord_user_id\x18\x01 \x01(\tR\rdiscordUserId\"\xb9\x04\n" +
+	"\x0fdiscord_user_id\x18\x01 \x01(\tR\rdiscordUserId\"\x84\x04\n" +
 	"\x13AnonymizationCounts\x12\x18\n" +
 	"\aplayers\x18\x01 \x01(\x05R\aplayers\x12-\n" +
 	"\x12discord_identities\x18\x02 \x01(\x05R\x11discordIdentities\x12+\n" +
 	"\x11guild_memberships\x18\x03 \x01(\x05R\x10guildMemberships\x12\x18\n" +
 	"\amatches\x18\x04 \x01(\x05R\amatches\x12-\n" +
-	"\x12match_participants\x18\x05 \x01(\x05R\x11matchParticipants\x12-\n" +
-	"\x12matchmaking_queues\x18\x06 \x01(\x05R\x11matchmakingQueues\x12D\n" +
-	"\x1ematchmaking_queue_participants\x18\a \x01(\x05R\x1cmatchmakingQueueParticipants\x12 \n" +
+	"\x12match_participants\x18\x05 \x01(\x05R\x11matchParticipants\x12 \n" +
 	"\vtournaments\x18\b \x01(\x05R\vtournaments\x12)\n" +
 	"\x10tournament_teams\x18\t \x01(\x05R\x0ftournamentTeams\x126\n" +
 	"\x17tournament_team_rosters\x18\n" +
 	" \x01(\x05R\x15tournamentTeamRosters\x120\n" +
 	"\x14guild_settings_audit\x18\v \x01(\x05R\x12guildSettingsAudit\x127\n" +
-	"\x18guild_match_quotas_audit\x18\f \x01(\x05R\x15guildMatchQuotasAudit\"\x98\x02\n" +
+	"\x18guild_match_quotas_audit\x18\f \x01(\x05R\x15guildMatchQuotasAuditJ\x04\b\x06\x10\aJ\x04\b\a\x10\bR\x12matchmaking_queuesR\x1ematchmaking_queue_participants\"\x98\x02\n" +
 	"\x16DeleteUserDataResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12;\n" +
 	"\x1aanonymized_discord_user_id\x18\x02 \x01(\tR\x17anonymizedDiscordUserId\x12*\n" +
@@ -575,27 +548,25 @@ var file_user_v1_user_proto_goTypes = []any{
 	(*DeleteUserDataRequest)(nil),     // 4: parley.user.v1.DeleteUserDataRequest
 	(*AnonymizationCounts)(nil),       // 5: parley.user.v1.AnonymizationCounts
 	(*DeleteUserDataResponse)(nil),    // 6: parley.user.v1.DeleteUserDataResponse
-	(v1.Region)(0),                    // 7: parley.common.v1.Region
-	(*v1.Error)(nil),                  // 8: parley.common.v1.Error
+	(*v1.Error)(nil),                  // 7: parley.common.v1.Error
 }
 var file_user_v1_user_proto_depIdxs = []int32{
-	7, // 0: parley.user.v1.UserSettings.matchmaking_region:type_name -> parley.common.v1.Region
-	0, // 1: parley.user.v1.UpsertUserSettingsRequest.settings:type_name -> parley.user.v1.UserSettings
-	0, // 2: parley.user.v1.UserSettingsResponse.settings:type_name -> parley.user.v1.UserSettings
-	8, // 3: parley.user.v1.UserSettingsResponse.error:type_name -> parley.common.v1.Error
-	5, // 4: parley.user.v1.DeleteUserDataResponse.tables_affected:type_name -> parley.user.v1.AnonymizationCounts
-	8, // 5: parley.user.v1.DeleteUserDataResponse.error:type_name -> parley.common.v1.Error
-	1, // 6: parley.user.v1.UserSettingsService.GetUserSettings:input_type -> parley.user.v1.GetUserSettingsRequest
-	2, // 7: parley.user.v1.UserSettingsService.UpsertUserSettings:input_type -> parley.user.v1.UpsertUserSettingsRequest
-	4, // 8: parley.user.v1.UserSettingsService.DeleteUserData:input_type -> parley.user.v1.DeleteUserDataRequest
-	3, // 9: parley.user.v1.UserSettingsService.GetUserSettings:output_type -> parley.user.v1.UserSettingsResponse
-	3, // 10: parley.user.v1.UserSettingsService.UpsertUserSettings:output_type -> parley.user.v1.UserSettingsResponse
-	6, // 11: parley.user.v1.UserSettingsService.DeleteUserData:output_type -> parley.user.v1.DeleteUserDataResponse
-	9, // [9:12] is the sub-list for method output_type
-	6, // [6:9] is the sub-list for method input_type
-	6, // [6:6] is the sub-list for extension type_name
-	6, // [6:6] is the sub-list for extension extendee
-	0, // [0:6] is the sub-list for field type_name
+	0, // 0: parley.user.v1.UpsertUserSettingsRequest.settings:type_name -> parley.user.v1.UserSettings
+	0, // 1: parley.user.v1.UserSettingsResponse.settings:type_name -> parley.user.v1.UserSettings
+	7, // 2: parley.user.v1.UserSettingsResponse.error:type_name -> parley.common.v1.Error
+	5, // 3: parley.user.v1.DeleteUserDataResponse.tables_affected:type_name -> parley.user.v1.AnonymizationCounts
+	7, // 4: parley.user.v1.DeleteUserDataResponse.error:type_name -> parley.common.v1.Error
+	1, // 5: parley.user.v1.UserSettingsService.GetUserSettings:input_type -> parley.user.v1.GetUserSettingsRequest
+	2, // 6: parley.user.v1.UserSettingsService.UpsertUserSettings:input_type -> parley.user.v1.UpsertUserSettingsRequest
+	4, // 7: parley.user.v1.UserSettingsService.DeleteUserData:input_type -> parley.user.v1.DeleteUserDataRequest
+	3, // 8: parley.user.v1.UserSettingsService.GetUserSettings:output_type -> parley.user.v1.UserSettingsResponse
+	3, // 9: parley.user.v1.UserSettingsService.UpsertUserSettings:output_type -> parley.user.v1.UserSettingsResponse
+	6, // 10: parley.user.v1.UserSettingsService.DeleteUserData:output_type -> parley.user.v1.DeleteUserDataResponse
+	8, // [8:11] is the sub-list for method output_type
+	5, // [5:8] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_user_v1_user_proto_init() }

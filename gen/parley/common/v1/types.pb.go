@@ -158,61 +158,6 @@ func (BadgeCategory) EnumDescriptor() ([]byte, []int) {
 	return file_common_v1_types_proto_rawDescGZIP(), []int{1}
 }
 
-type Region int32
-
-const (
-	Region_REGION_UNSPECIFIED Region = 0
-	Region_REGION_EU          Region = 1
-	Region_REGION_NA          Region = 2
-	Region_REGION_APAC        Region = 3
-	Region_REGION_SA          Region = 4
-)
-
-// Enum value maps for Region.
-var (
-	Region_name = map[int32]string{
-		0: "REGION_UNSPECIFIED",
-		1: "REGION_EU",
-		2: "REGION_NA",
-		3: "REGION_APAC",
-		4: "REGION_SA",
-	}
-	Region_value = map[string]int32{
-		"REGION_UNSPECIFIED": 0,
-		"REGION_EU":          1,
-		"REGION_NA":          2,
-		"REGION_APAC":        3,
-		"REGION_SA":          4,
-	}
-)
-
-func (x Region) Enum() *Region {
-	p := new(Region)
-	*p = x
-	return p
-}
-
-func (x Region) String() string {
-	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
-}
-
-func (Region) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_v1_types_proto_enumTypes[2].Descriptor()
-}
-
-func (Region) Type() protoreflect.EnumType {
-	return &file_common_v1_types_proto_enumTypes[2]
-}
-
-func (x Region) Number() protoreflect.EnumNumber {
-	return protoreflect.EnumNumber(x)
-}
-
-// Deprecated: Use Region.Descriptor instead.
-func (Region) EnumDescriptor() ([]byte, []int) {
-	return file_common_v1_types_proto_rawDescGZIP(), []int{2}
-}
-
 type Game int32
 
 const (
@@ -243,11 +188,11 @@ func (x Game) String() string {
 }
 
 func (Game) Descriptor() protoreflect.EnumDescriptor {
-	return file_common_v1_types_proto_enumTypes[3].Descriptor()
+	return file_common_v1_types_proto_enumTypes[2].Descriptor()
 }
 
 func (Game) Type() protoreflect.EnumType {
-	return &file_common_v1_types_proto_enumTypes[3]
+	return &file_common_v1_types_proto_enumTypes[2]
 }
 
 func (x Game) Number() protoreflect.EnumNumber {
@@ -256,7 +201,7 @@ func (x Game) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use Game.Descriptor instead.
 func (Game) EnumDescriptor() ([]byte, []int) {
-	return file_common_v1_types_proto_rawDescGZIP(), []int{3}
+	return file_common_v1_types_proto_rawDescGZIP(), []int{2}
 }
 
 type Rank struct {
@@ -624,13 +569,7 @@ const file_common_v1_types_proto_rawDesc = "" +
 	"\x16BADGE_CATEGORY_PREMIUM\x10\x05\x12\x1b\n" +
 	"\x17BADGE_CATEGORY_SEASONAL\x10\x06\x12\x18\n" +
 	"\x14BADGE_CATEGORY_STAFF\x10\a\x12\x1c\n" +
-	"\x18BADGE_CATEGORY_DEVELOPER\x10\b*^\n" +
-	"\x06Region\x12\x16\n" +
-	"\x12REGION_UNSPECIFIED\x10\x00\x12\r\n" +
-	"\tREGION_EU\x10\x01\x12\r\n" +
-	"\tREGION_NA\x10\x02\x12\x0f\n" +
-	"\vREGION_APAC\x10\x03\x12\r\n" +
-	"\tREGION_SA\x10\x04*A\n" +
+	"\x18BADGE_CATEGORY_DEVELOPER\x10\b*A\n" +
 	"\x04Game\x12\x14\n" +
 	"\x10GAME_UNSPECIFIED\x10\x00\x12\v\n" +
 	"\aGAME_R6\x10\x01\"\x04\b\x02\x10\x02*\x10GAME_BRAWL_STARSBX\n" +
@@ -648,17 +587,16 @@ func file_common_v1_types_proto_rawDescGZIP() []byte {
 	return file_common_v1_types_proto_rawDescData
 }
 
-var file_common_v1_types_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
+var file_common_v1_types_proto_enumTypes = make([]protoimpl.EnumInfo, 3)
 var file_common_v1_types_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_common_v1_types_proto_goTypes = []any{
 	(RankTier)(0),       // 0: parley.common.v1.RankTier
 	(BadgeCategory)(0),  // 1: parley.common.v1.BadgeCategory
-	(Region)(0),         // 2: parley.common.v1.Region
-	(Game)(0),           // 3: parley.common.v1.Game
-	(*Rank)(nil),        // 4: parley.common.v1.Rank
-	(*Badge)(nil),       // 5: parley.common.v1.Badge
-	(*PlayerStats)(nil), // 6: parley.common.v1.PlayerStats
-	(*Error)(nil),       // 7: parley.common.v1.Error
+	(Game)(0),           // 2: parley.common.v1.Game
+	(*Rank)(nil),        // 3: parley.common.v1.Rank
+	(*Badge)(nil),       // 4: parley.common.v1.Badge
+	(*PlayerStats)(nil), // 5: parley.common.v1.PlayerStats
+	(*Error)(nil),       // 6: parley.common.v1.Error
 }
 var file_common_v1_types_proto_depIdxs = []int32{
 	0, // 0: parley.common.v1.Rank.tier:type_name -> parley.common.v1.RankTier
@@ -680,7 +618,7 @@ func file_common_v1_types_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_common_v1_types_proto_rawDesc), len(file_common_v1_types_proto_rawDesc)),
-			NumEnums:      4,
+			NumEnums:      3,
 			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
