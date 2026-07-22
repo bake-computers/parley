@@ -12,7 +12,6 @@ import (
 type Config struct {
 	EngineServiceAddr string
 	DatabaseURL       string
-	RedisURL          string
 	RunMigrations     bool
 
 	DBPoolMax             uint32
@@ -53,7 +52,6 @@ func Load() (*Config, error) {
 	cfg := &Config{
 		EngineServiceAddr: getenv("ENGINE_SERVICE_ADDR", "0.0.0.0:50051"),
 		DatabaseURL:       os.Getenv("DATABASE_URL"),
-		RedisURL:          os.Getenv("REDIS_URL"),
 		RunMigrations:     os.Getenv("RUN_MIGRATIONS") == "1",
 
 		DBPoolMax:             readUint32("DB_POOL_MAX", 32),
@@ -73,7 +71,7 @@ func Load() (*Config, error) {
 		// Keep the default coalescing window small: the stats fetch path issues one
 		// GetProfile per request, so a large delay would add that latency to every
 		// lookup (the size-based flush never triggers for a single request). 25ms is
-		// enough to coalesce concurrent bursts (e.g. team/leaderboard fanout) without
+		// enough to coalesce concurrent bursts (e.g. team fanout) without
 		// a noticeable per-request regression. Cap at 2s so a bad env value can't
 		// self-DoS profile lookups.
 		StatsCCProfileBatchDelayMS: clampUint64(readMinUint64("STATS_CC_PROFILE_BATCH_DELAY_MS", 25, 1), 1, 2000),
@@ -91,9 +89,6 @@ func Load() (*Config, error) {
 
 	if cfg.DatabaseURL == "" {
 		return nil, fmt.Errorf("DATABASE_URL is required")
-	}
-	if cfg.RedisURL == "" {
-		return nil, fmt.Errorf("REDIS_URL is required")
 	}
 
 	return cfg, nil
