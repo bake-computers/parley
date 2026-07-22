@@ -46,31 +46,30 @@ describe("buildHistoryCard", () => {
         ],
       }),
     );
-    const card = buildHistoryCard(matches, "guild-123");
+    const card = buildHistoryCard(matches);
     const json = JSON.stringify(card.toJSON());
 
     for (let i = 0; i < 5; i++) {
-      expect(json).toContain(`uuid-${i}`);
       expect(json).toContain(`Alice${i}`);
     }
     expect(json).toContain("Recent Matches");
   });
 
   test("empty state", () => {
-    const card = buildHistoryCard([], "guild-123");
+    const card = buildHistoryCard([]);
     const json = JSON.stringify(card.toJSON());
     expect(json).toContain("No matches played yet");
     expect(card.toJSON()["accent_color"]).toBe(0x8a8a8e);
   });
 
   test("uses graphite accent and separators", () => {
-    const card = buildHistoryCard([makeMatch()], "guild-123").toJSON();
+    const card = buildHistoryCard([makeMatch()]).toJSON();
     expect(card["accent_color"]).toBe(0x8a8a8e);
     expect(JSON.stringify(card)).toContain('"type":14');
   });
 
   test("handles missing participants without crashing", () => {
-    const card = buildHistoryCard([makeMatch({ participants: undefined })], "guild-123");
+    const card = buildHistoryCard([makeMatch({ participants: undefined })]);
     const json = JSON.stringify(card.toJSON());
     expect(json).toContain("vs —");
   });
@@ -82,18 +81,18 @@ describe("buildHistoryCard", () => {
         id: i,
         publicUuid: `uuid-${i}`,
         participants: [
-          makeParticipant("team_a", longName, `a-${i}`),
+          makeParticipant("team_a", `M${i}${longName}`, `a-${i}`),
           makeParticipant("team_b", longName, `b-${i}`),
         ],
       }),
     );
-    const card = buildHistoryCard(matches, "guild-123");
+    const card = buildHistoryCard(matches);
     const json = JSON.stringify(card.toJSON());
 
     // With 200-char usernames each match text is ~500 chars.
     // Header (~28) + 3 matches (~1500) fits; match 4 would exceed the 2000 budget.
-    expect(json).toContain("uuid-0");
-    expect(json).not.toContain("uuid-4");
+    expect(json).toContain("M0");
+    expect(json).not.toContain("M4");
   });
 
   test("uses mvpUserId field when present, no badge when absent", () => {
@@ -106,7 +105,7 @@ describe("buildHistoryCard", () => {
         makeParticipant("team_b", "Bob", "user-2"),
       ],
     });
-    const cardWithMvp = buildHistoryCard([matchWithMvp], "guild-123");
+    const cardWithMvp = buildHistoryCard([matchWithMvp]);
     const jsonWithMvp = JSON.stringify(cardWithMvp.toJSON());
     expect(jsonWithMvp).toContain("MVP");
     expect(jsonWithMvp).toContain("Alice");
@@ -120,7 +119,7 @@ describe("buildHistoryCard", () => {
         makeParticipant("team_b", "Dave", "user-4"),
       ],
     });
-    const cardWithoutMvp = buildHistoryCard([matchWithoutMvp], "guild-123");
+    const cardWithoutMvp = buildHistoryCard([matchWithoutMvp]);
     const jsonWithoutMvp = JSON.stringify(cardWithoutMvp.toJSON());
     expect(jsonWithoutMvp).not.toContain("MVP");
 
@@ -133,7 +132,7 @@ describe("buildHistoryCard", () => {
         makeParticipant("team_b", "Frank", "user-6"),
       ],
     });
-    const cardNullMvp = buildHistoryCard([matchNullMvp], "guild-123");
+    const cardNullMvp = buildHistoryCard([matchNullMvp]);
     const jsonNullMvp = JSON.stringify(cardNullMvp.toJSON());
     expect(jsonNullMvp).not.toContain("MVP");
   });

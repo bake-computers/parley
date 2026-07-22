@@ -1,4 +1,3 @@
-import type { KVNamespace } from "@cloudflare/workers-types";
 import {
   resolveApplicationEmojiCatalog,
   type ApplicationEmojiCatalog,
@@ -12,7 +11,7 @@ type EmojiInteraction = {
   applicationId?: string;
 };
 
-/** Resolves app emojis via the runtime: KV cache → Discord REST → normalized catalog. */
+/** Resolves app emojis via the runtime: Discord REST → normalized catalog. */
 export async function resolveEmojis(
   interaction: EmojiInteraction,
 ): Promise<ApplicationEmojiCatalog> {
@@ -27,7 +26,7 @@ export async function resolveEmojis(
   const catalog = await resolveApplicationEmojiCatalog({
     ...(applicationId !== undefined && { applicationId }),
     ...(botToken !== undefined && { botToken }),
-    cache: (env as { KV?: KVNamespace }).KV ?? null,
+    cache: null,
     network: true,
   });
 

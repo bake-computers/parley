@@ -36,7 +36,7 @@ export const historyCommand = new SlashCommand()
       cursor: "",
     });
     if (result.isOk()) {
-      const card = buildHistoryCard(result.value.matches, guildId);
+      const card = buildHistoryCard(result.value.matches);
       await editReplyV2(interaction, card);
     } else {
       await editReplyV2(

@@ -314,66 +314,6 @@ export function fetchStatsCollection(baseUrl: string, req: FetchStatsCollectionR
   );
 }
 
-const LEADERBOARD_ELO = 1;
-const LEADERBOARD_WIN_RATE = 2;
-const LEADERBOARD_RANK_POINTS = 3;
-
-type LeaderboardType =
-  | typeof LEADERBOARD_ELO
-  | typeof LEADERBOARD_WIN_RATE
-  | typeof LEADERBOARD_RANK_POINTS;
-
-export interface GetLeaderboardRequest {
-  game: Game;
-  guildId: string;
-  type: LeaderboardType;
-  limit: number;
-  offset: number;
-}
-
-export interface LeaderboardEntry {
-  playerId: string;
-  username: string;
-  rank: string;
-  score: number;
-  matches: number;
-  wins: number;
-  losses: number;
-  winRate: number;
-}
-
-export interface GetLeaderboardResponse {
-  entries: LeaderboardEntry[];
-  totalCount: string;
-}
-
-export function getLeaderboard(baseUrl: string, req: GetLeaderboardRequest) {
-  return call<GetLeaderboardResponse>(
-    baseUrl,
-    "/parley.leaderboard.v1.LeaderboardService/GetLeaderboard",
-    req,
-  );
-}
-
-export interface GetPlayerRankRequest {
-  game: Game;
-  guildId: string;
-  playerId: string;
-  type: LeaderboardType;
-}
-
-export interface GetPlayerRankResponse {
-  entry?: LeaderboardEntry;
-}
-
-export function getPlayerRank(baseUrl: string, req: GetPlayerRankRequest) {
-  return call<GetPlayerRankResponse>(
-    baseUrl,
-    "/parley.leaderboard.v1.LeaderboardService/GetPlayerRank",
-    req,
-  );
-}
-
 const TOP_PLAYERS = [
   "GriII",
   "Aiden.SSG",
@@ -843,33 +783,6 @@ async function main() {
   //   console.log("FetchStatsCollection (Shaiiko):", JSON.stringify(coll, null, 2));
   // } catch (e) {
   //   console.log("FetchStatsCollection (Shaiiko):", (e as Error).message);
-  // }
-
-  // console.log("\n--- LeaderboardService ---");
-
-  // try {
-  //   const lb = await getLeaderboard(baseUrl, {
-  //     game: GAME_R6,
-  //     guildId: "guild_123",
-  //     type: LEADERBOARD_ELO,
-  //     limit: 10,
-  //     offset: 0,
-  //   });
-  //   console.log("GetLeaderboard:", JSON.stringify(lb, null, 2));
-  // } catch (e) {
-  //   console.log("GetLeaderboard:", (e as Error).message);
-  // }
-
-  // try {
-  //   const pr = await getPlayerRank(baseUrl, {
-  //     game: GAME_R6,
-  //     guildId: "guild_123",
-  //     playerId: "42",
-  //     type: LEADERBOARD_ELO,
-  //   });
-  //   console.log("GetPlayerRank:", JSON.stringify(pr, null, 2));
-  // } catch (e) {
-  //   console.log("GetPlayerRank:", (e as Error).message);
   // }
 
   console.log(`\n--- Fetching stats for ${TOP_PLAYERS.length} top R6 players ---`);

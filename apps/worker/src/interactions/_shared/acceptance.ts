@@ -75,7 +75,7 @@ export function buildAcceptanceCard(
     .addComponents(
       new TextDisplayBuilder().setContent(title),
       new TextDisplayBuilder().setContent(
-        "To track your MMR, build your competitive stats, and power our ranked queues and tournaments, Parley needs to link your Discord to your Ubisoft account.",
+        "To track your MMR, build your competitive stats, and power our ranked matches and tournaments, Parley needs to link your Discord to your Ubisoft account.",
       ),
       new TextDisplayBuilder().setContent(
         "By clicking below, you agree to our [Terms of Service](https://parley.bot/terms) and [Privacy Policy](https://parley.bot/privacy).",

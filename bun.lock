@@ -15,20 +15,6 @@
         "wrangler": "^4.98.0",
       },
     },
-    "apps/bridge": {
-      "name": "@parley/bridge",
-      "version": "0.0.0",
-      "dependencies": {
-        "@parley/axiom": "workspace:*",
-        "@parley/proto": "workspace:*",
-        "hono": "^4.7.0",
-      },
-      "devDependencies": {
-        "@cloudflare/workers-types": "^4.20260506.1",
-        "@parley/tsconfig-base": "workspace:*",
-        "wrangler": "^4.98.0",
-      },
-    },
     "apps/landing": {
       "name": "landing",
       "dependencies": {
@@ -571,8 +557,6 @@
     "@oxlint/binding-win32-x64-msvc": ["@oxlint/binding-win32-x64-msvc@1.63.0", "", { "os": "win32", "cpu": "x64" }, "sha512-QeN/WELOfsXMeYwxvfgQrl6CbVftYUCZsGXHjXQd5Trccm8+i4gmtxaOui4xbJQaiDlviF8F3yLSBloQUeFsfA=="],
 
     "@parley/axiom": ["@parley/axiom@workspace:packages/axiom"],
-
-    "@parley/bridge": ["@parley/bridge@workspace:apps/bridge"],
 
     "@parley/proto": ["@parley/proto@workspace:packages/generated-ts"],
 

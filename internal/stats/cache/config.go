@@ -42,16 +42,12 @@ func platformKey(p fetch.StatsPlatform) string {
 	}
 }
 
-// FreshKey returns the Redis hash key for a fresh stats entry.
+// FreshKey returns the cache key identifying a fresh stats entry for a
+// username/platform/season triple.
 func FreshKey(username string, platform fetch.StatsPlatform, season *string) string {
 	s := ""
 	if season != nil {
 		s = *season
 	}
 	return fmt.Sprintf("stats:r6:%s:%s:%s", strings.ToLower(strings.TrimSpace(username)), platformKey(platform), s)
-}
-
-// CollectionKey returns the Redis hash key for a collection entry.
-func CollectionKey(username string, platform fetch.StatsPlatform) string {
-	return fmt.Sprintf("stats:collection:r6:%s:%s", strings.ToLower(strings.TrimSpace(username)), platformKey(platform))
 }

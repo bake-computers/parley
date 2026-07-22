@@ -16,7 +16,6 @@
     "./guild/v1/*": "./src/guild/v1/*",
     "./identity/v1/*": "./src/identity/v1/*",
     "./matchmaking/v1/*": "./src/matchmaking/v1/*",
-    "./leaderboard/v1/*": "./src/leaderboard/v1/*",
     "./user/v1/*": "./src/user/v1/*"
   },
   "scripts": {

@@ -3,14 +3,13 @@
 ## Architecture
 
 Parley is a competitive matchmaking and tournament platform — a **Go** engine-service
-with TypeScript edge apps (Discord bot, landing, leaderboard bridge) on Cloudflare
-Workers and Bun.
+with TypeScript edge apps (Discord bot, landing) on Cloudflare Workers and Bun.
 
 **The core is a monorepo of two halves** that share protobuf definitions:
 
 ```
 proto/                     ← single source of truth (protobuf)
-  ├── common/              → shared types (Game, Rank, Region, PlayerStats, Badge)
+  ├── common/              → shared types (Game, Rank, PlayerStats, Badge)
   ├── guild/               → guild settings RPCs
   ├── identity/            → account linking RPCs
   └── stats/               → player stats RPCs (stats.cc API)
@@ -24,18 +23,18 @@ TypeScript (Bun workspaces) ← buf generate → packages/generated-ts
   packages/tsconfig-base/  ← Shared TS strict-mode base config
 ```
 
-**Request flow**: Discord/Web → Cloudflare Worker (Hono) → ConnectRPC over HTTP → Go engine-service (Fiber v3) → Postgres (Bun/pgx) / Redis (optional) / external APIs.
+**Request flow**: Discord/Web → Cloudflare Worker (Hono) → ConnectRPC over HTTP → Go engine-service (Fiber v3) → Postgres (Bun/pgx) / external APIs.
 
 **Internal engine wiring** (`cmd/parley/main.go`):
 
 - Loads config from env (optional `.env` via godotenv), structured logging (slog + optional Axiom).
 - `internal/db` — pgx pool, embedded SQL migrations (`migrations/`), Bun ORM models/repos.
 - `internal/server` — Fiber v3 + connect-go handlers for all protobuf services; `GET /health`, `GET /ready`, `GET /stats/:username`.
-- `internal/matchmaking` — Glicko-2, CPR, queue + background sweeper.
-- `internal/stats` — backends, Redis cache, scrape/fetch, Postgres persistence.
-- Boot requires `DATABASE_URL` and `REDIS_URL` (fail fast if either is missing).
+- `internal/matchmaking` — Glicko-2, CPR, eligibility checks.
+- `internal/stats` — backends, snapshot-backed cache, scrape/fetch, Postgres persistence.
+- Boot requires `DATABASE_URL` (fail fast if missing).
 
-Subdirectory guides: [`proto/AGENTS.md`](proto/AGENTS.md) if present, [`apps/worker/AGENTS.md`](apps/worker/AGENTS.md), [`apps/landing/AGENTS.md`](apps/landing/AGENTS.md), [`apps/bridge/AGENTS.md`](apps/bridge/AGENTS.md), [`packages/runtime/AGENTS.md`](packages/runtime/AGENTS.md).
+Subdirectory guides: [`proto/AGENTS.md`](proto/AGENTS.md) if present, [`apps/worker/AGENTS.md`](apps/worker/AGENTS.md), [`apps/landing/AGENTS.md`](apps/landing/AGENTS.md), [`packages/runtime/AGENTS.md`](packages/runtime/AGENTS.md).
 
 ## Build & Run
 
@@ -86,9 +85,9 @@ RUN_MIGRATIONS=1 make run
 
 ### Environment setup
 
-Copy `.env.example` to `.env`. Both `DATABASE_URL` and `REDIS_URL` are required to boot. For production:
+Copy `.env.example` to `.env`. `DATABASE_URL` is required to boot. For production:
 
-- `DATABASE_URL`, `REDIS_URL` (use full `redis://` URLs; bare `host:port` also works)
+- `DATABASE_URL`
 - `RUN_MIGRATIONS=1` when you want boot-time migrate
 - `ENGINE_SERVICE_ADDR` (default `0.0.0.0:50051`)
 - `DB_TLS=system` for managed Postgres; `accept-invalid` only for local self-signed certs

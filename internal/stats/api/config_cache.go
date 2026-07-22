@@ -2,19 +2,13 @@ package api
 
 import (
 	"context"
-	"encoding/json"
 	"sync"
 	"time"
-
-	"github.com/redis/go-redis/v9"
 )
 
-const redisConfigKey = "stats:cc:v2:config"
-
-// ConfigCache caches /v2/config in Redis or memory.
+// ConfigCache caches the stats.cc /v2/config response in memory.
 type ConfigCache struct {
-	redis redis.Cmdable
-	ttl   time.Duration
+	ttl time.Duration
 
 	mu      sync.Mutex
 	mem     *Config
@@ -24,44 +18,23 @@ type ConfigCache struct {
 	waiters []chan struct{}
 }
 
-// NewConfigCache creates a cache. rdb may be nil (in-memory only).
-func NewConfigCache(rdb *redis.Client, ttl time.Duration) *ConfigCache {
+// NewConfigCache creates an in-memory config cache with the given TTL.
+// Non-positive TTLs fall back to 7 minutes.
+func NewConfigCache(ttl time.Duration) *ConfigCache {
 	if ttl <= 0 {
 		ttl = 7 * time.Minute
 	}
-	var cmd redis.Cmdable
-	if rdb != nil {
-		cmd = rdb
-	}
-	return &ConfigCache{redis: cmd, ttl: ttl}
+	return &ConfigCache{ttl: ttl}
 }
 
 type fetchConfigFn func(ctx context.Context) (*Config, error)
 
 // Get returns cached config or fetches via fn.
 func (c *ConfigCache) Get(ctx context.Context, fn fetchConfigFn) (*Config, error) {
-	if cfg, ok := c.loadRedis(ctx); ok {
-		return cfg, nil
-	}
 	if cfg, ok := c.loadMem(); ok {
 		return cfg, nil
 	}
 	return c.refresh(ctx, fn)
-}
-
-func (c *ConfigCache) loadRedis(ctx context.Context) (*Config, bool) {
-	if c == nil || c.redis == nil {
-		return nil, false
-	}
-	raw, err := c.redis.Get(ctx, redisConfigKey).Bytes()
-	if err != nil {
-		return nil, false
-	}
-	var cfg Config
-	if json.Unmarshal(raw, &cfg) != nil {
-		return nil, false
-	}
-	return &cfg, true
 }
 
 func (c *ConfigCache) loadMem() (*Config, bool) {
@@ -98,7 +71,7 @@ func (c *ConfigCache) refresh(ctx context.Context, fn fetchConfigFn) (*Config, e
 	c.loading = false
 	waiters := c.waiters
 	c.waiters = nil
-	c.store(ctx, cfg)
+	c.store(cfg)
 	c.flight.Unlock()
 	for _, ch := range waiters {
 		close(ch)
@@ -110,14 +83,7 @@ func (c *ConfigCache) refresh(ctx context.Context, fn fetchConfigFn) (*Config, e
 	return cfg, nil
 }
 
-func (c *ConfigCache) store(ctx context.Context, cfg *Config) {
-	raw, err := json.Marshal(cfg)
-	if err != nil {
-		return
-	}
-	if c.redis != nil {
-		_ = c.redis.Set(ctx, redisConfigKey, raw, c.ttl).Err()
-	}
+func (c *ConfigCache) store(cfg *Config) {
 	c.mu.Lock()
 	c.mem = cfg
 	c.memExp = time.Now().Add(c.ttl)

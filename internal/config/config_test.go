@@ -9,7 +9,6 @@ import (
 func TestLoad(t *testing.T) {
 	t.Setenv("ENGINE_SERVICE_ADDR", "127.0.0.1:9999")
 	t.Setenv("DATABASE_URL", "postgres://u:p@localhost/db")
-	t.Setenv("REDIS_URL", "redis://localhost:6379")
 	t.Setenv("RUN_MIGRATIONS", "1")
 	t.Setenv("DB_POOL_MAX", "16")
 	t.Setenv("DB_POOL_MIN_IDLE", "2")
@@ -38,9 +37,6 @@ func TestLoad(t *testing.T) {
 	}
 	if cfg.DatabaseURL != "postgres://u:p@localhost/db" {
 		t.Errorf("DatabaseURL = %q", cfg.DatabaseURL)
-	}
-	if cfg.RedisURL != "redis://localhost:6379" {
-		t.Errorf("RedisURL = %q", cfg.RedisURL)
 	}
 	if !cfg.RunMigrations {
 		t.Error("RunMigrations = false, want true")
@@ -112,7 +108,6 @@ func TestLoad_defaults(t *testing.T) {
 	}
 	// Required for boot; defaults tests still need them set.
 	t.Setenv("DATABASE_URL", "postgres://u:p@localhost/db")
-	t.Setenv("REDIS_URL", "redis://localhost:6379")
 
 	cfg, err := config.Load()
 	if err != nil {
@@ -148,23 +143,15 @@ func TestLoad_defaults(t *testing.T) {
 	}
 }
 
-func TestLoad_RequiresDatabaseAndRedis(t *testing.T) {
+func TestLoad_RequiresDatabase(t *testing.T) {
 	t.Setenv("DATABASE_URL", "")
-	t.Setenv("REDIS_URL", "redis://localhost:6379")
 	if _, err := config.Load(); err == nil {
 		t.Fatal("Load() with empty DATABASE_URL: want error")
-	}
-
-	t.Setenv("DATABASE_URL", "postgres://u:p@localhost/db")
-	t.Setenv("REDIS_URL", "")
-	if _, err := config.Load(); err == nil {
-		t.Fatal("Load() with empty REDIS_URL: want error")
 	}
 }
 
 func TestLoad_statsCCProfileBatchClamps(t *testing.T) {
 	t.Setenv("DATABASE_URL", "postgres://u:p@localhost/db")
-	t.Setenv("REDIS_URL", "redis://localhost:6379")
 	t.Setenv("STATS_CC_PROFILE_BATCH_SIZE", "99")
 	t.Setenv("STATS_CC_PROFILE_BATCH_DELAY_MS", "0")
 
@@ -210,7 +197,6 @@ func TestLoad_statsCCProfileBatchClamps(t *testing.T) {
 
 func TestLoad_rustLogFallback(t *testing.T) {
 	t.Setenv("DATABASE_URL", "postgres://u:p@localhost/db")
-	t.Setenv("REDIS_URL", "redis://localhost:6379")
 	t.Setenv("LOG_LEVEL", "")
 	t.Setenv("RUST_LOG", "parley=warn")
 

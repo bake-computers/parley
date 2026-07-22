@@ -9,7 +9,6 @@ import { historyCommand } from "#/interactions/history/slash";
 import { linkSlashCommand } from "#/interactions/link/slash";
 import { pingCommand } from "#/interactions/ping";
 import { profileCommand } from "#/interactions/profile";
-import { queueSlashCommand } from "#/interactions/queue/slash";
 import { tournamentSlashCommand } from "#/interactions/tournament/slash";
 import { userSlashCommand } from "#/interactions/user/index";
 
@@ -69,7 +68,6 @@ const commands = [
   historyCommand,
   linkSlashCommand,
   profileCommand,
-  queueSlashCommand,
   tournamentSlashCommand,
   userSlashCommand,
 ];

@@ -5,21 +5,17 @@ import (
 	"fmt"
 	"strings"
 
-	commonv1 "github.com/pactum-computers/parley/gen/parley/common/v1"
 	"github.com/pactum-computers/parley/internal/matchmaking/ovi"
 	"github.com/pactum-computers/parley/internal/models"
 	"github.com/pactum-computers/parley/internal/repos"
 )
 
 // Service is the matchmaking engine's DB-aware entry point. It bundles the
-// guild, match, queue, snapshot, and user-settings repositories the
-// engine needs to evaluate eligibility, load players, and form matches.
-// It mirrors the AppContext wiring in src/matchmaking/* but stays focused
-// on the matchmaking subsystem.
+// guild, match, snapshot, and user-settings repositories the engine needs
+// to evaluate eligibility, load players, and form matches.
 type Service struct {
 	guild               *repos.GuildRepo
 	match               *repos.MatchRepo
-	queue               *repos.MatchmakingQueueRepo
 	snapshot            *repos.PlayerStatSnapshotRepo
 	users               *repos.UserSettingsRepo
 	model               *ovi.Model
@@ -34,7 +30,6 @@ type Service struct {
 func NewService(
 	guild *repos.GuildRepo,
 	match *repos.MatchRepo,
-	queue *repos.MatchmakingQueueRepo,
 	snapshot *repos.PlayerStatSnapshotRepo,
 	users *repos.UserSettingsRepo,
 	model *ovi.Model,
@@ -44,7 +39,6 @@ func NewService(
 	return &Service{
 		guild:               guild,
 		match:               match,
-		queue:               queue,
 		snapshot:            snapshot,
 		users:               users,
 		model:               model,
@@ -59,13 +53,8 @@ func (s *Service) PartitionModelTeams(players []LoadedPlayer, teamSize int) *Tea
 	return PartitionModelTeams(players, teamSize, s.roleBalanceWeight, s.roleCollisionWeight)
 }
 
-// QueueExpiryMS is the default matchmaking queue lifetime (30 minutes).
-// Mirrors QUEUE_EXPIRY_MS in src/matchmaking/queue.rs.
-const QueueExpiryMS int64 = 30 * 60 * 1000
-
 // EligibilityContext bundles the per-guild settings consulted during
-// queue eligibility checks. Mirrors EligibilityContext in
-// src/matchmaking/eligibility.rs.
+// eligibility checks.
 type EligibilityContext struct {
 	GuildMatchmakingEnabled bool
 	Rules                   *models.GuildMatchmakingRules
@@ -74,8 +63,7 @@ type EligibilityContext struct {
 }
 
 // LoadEligibility gathers the guild settings, rules, quota, and today's
-// match count into a single EligibilityContext. Mirrors load_eligibility
-// in src/matchmaking/eligibility.rs.
+// match count into a single EligibilityContext.
 func (s *Service) LoadEligibility(
 	ctx context.Context,
 	game models.Game,
@@ -120,8 +108,7 @@ func (s *Service) LoadEligibility(
 
 // UserMatchmakingEnabled reports whether the given Discord user has
 // matchmaking enabled in their user settings. Defaults to true when no
-// settings row exists. Mirrors user_matchmaking_enabled in
-// src/matchmaking/eligibility.rs.
+// settings row exists.
 func (s *Service) UserMatchmakingEnabled(
 	ctx context.Context,
 	discordUserID string,
@@ -136,53 +123,12 @@ func (s *Service) UserMatchmakingEnabled(
 	return settings.MatchmakingEnabled, nil
 }
 
-// ResolveQueueRegion loads the party's saved matchmaking regions and requires
-// every participant to share one exact value. Missing settings default to the
-// global no-preference region.
-func (s *Service) ResolveQueueRegion(ctx context.Context, discordUserIDs []string) (int32, error) {
-	region := GlobalMatchmakingRegion
-	set := false
-	for _, discordUserID := range discordUserIDs {
-		settings, err := s.users.Get(ctx, discordUserID)
-		if err != nil {
-			return 0, fmt.Errorf("user settings: %w", err)
-		}
-		current := GlobalMatchmakingRegion
-		if settings != nil {
-			current = settings.MatchmakingRegion
-		}
-		if !isKnownMatchmakingRegion(current) {
-			return 0, fmt.Errorf("user %s has an invalid matchmaking region", discordUserID)
-		}
-		if set && current != region {
-			return 0, fmt.Errorf("party members must share the same matchmaking region")
-		}
-		region = current
-		set = true
-	}
-	return region, nil
-}
-
-func isKnownMatchmakingRegion(region int32) bool {
-	switch commonv1.Region(region) {
-	case commonv1.Region_REGION_UNSPECIFIED,
-		commonv1.Region_REGION_EU,
-		commonv1.Region_REGION_NA,
-		commonv1.Region_REGION_APAC,
-		commonv1.Region_REGION_SA:
-		return true
-	default:
-		return false
-	}
-}
-
-// CheckQueueEligibility applies all per-user, per-lobby, and per-guild
-// matchmaking rules to a candidate lobby. It is the Go analog of
-// check_queue_eligibility in src/matchmaking/eligibility.rs.
+// CheckEligibility applies all per-user, per-lobby, and per-guild
+// matchmaking rules to a candidate lobby.
 //
 // On the first violation it returns a descriptive error; a nil return
 // means the lobby is eligible.
-func (s *Service) CheckQueueEligibility(
+func (s *Service) CheckEligibility(
 	ctx context.Context,
 	game models.Game,
 	guildID string,
@@ -257,7 +203,7 @@ func (s *Service) CheckQueueEligibility(
 }
 
 // CheckLobbyEloGap is the synchronous (no-DB) variant of the lobby elo
-// gap check. Mirrors check_lobby_elo_gap in src/matchmaking/eligibility.rs.
+// gap check.
 func CheckLobbyEloGap(members []repos.GuildMemberRow, maxGap int32) error {
 	if maxGap <= 0 || len(members) == 0 {
 		return nil

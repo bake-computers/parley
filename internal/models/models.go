@@ -218,7 +218,6 @@ type UserSettings struct {
 	MatchmakingEnabled bool   `bun:"matchmaking_enabled,notnull"`
 	TermsAcceptedAtMs  int64  `bun:"terms_accepted_at_ms,notnull"`
 	ProfilePublic      bool   `bun:"profile_public,notnull"`
-	MatchmakingRegion  int32  `bun:"matchmaking_region,notnull"`
 }
 
 // NewUserSettings is the insert shape for user_settings.
@@ -231,7 +230,6 @@ type NewUserSettings struct {
 	MatchmakingEnabled bool   `bun:"matchmaking_enabled,notnull"`
 	TermsAcceptedAtMs  int64  `bun:"terms_accepted_at_ms,notnull"`
 	ProfilePublic      bool   `bun:"profile_public,notnull"`
-	MatchmakingRegion  int32  `bun:"matchmaking_region,notnull"`
 }
 
 // AccountDeletionCooldown maps to table account_deletion_cooldowns.
@@ -514,92 +512,6 @@ type MatchParticipantWithUsername struct {
 	UpdatedAt              int64   `bun:"updated_at"`
 	Username               *string `bun:"username"`
 	Platform               *string `bun:"platform"`
-}
-
-// MatchmakingQueue maps to table matchmaking_queues.
-type MatchmakingQueue struct {
-	bun.BaseModel `bun:"table:matchmaking_queues,alias:mq"`
-
-	ID                   int32   `bun:",pk,autoincrement"`
-	Game                 Game    `bun:",notnull"`
-	GuildID              string  `bun:"guild_id,notnull"`
-	ChannelID            string  `bun:"channel_id,notnull"`
-	CaptainDiscordUserID string  `bun:"captain_discord_user_id,notnull"`
-	Status               string  `bun:",notnull"`
-	PlayerCount          int32   `bun:"player_count,notnull"`
-	StackBalanceTotal    float64 `bun:"stack_balance_total,notnull"`
-	StackBalanceAverage  float64 `bun:"stack_balance_average,notnull"`
-	MatchedMatchID       *int32  `bun:"matched_match_id"`
-	ExpiresAt            int64   `bun:"expires_at,notnull"`
-	CreatedAt            int64   `bun:"created_at,notnull"`
-	UpdatedAt            int64   `bun:"updated_at,notnull"`
-	TeamSize             int32   `bun:"team_size,notnull"`
-	MatchmakingRegion    int32   `bun:"matchmaking_region,notnull"`
-}
-
-// NewMatchmakingQueue is the insert shape for matchmaking_queues.
-type NewMatchmakingQueue struct {
-	bun.BaseModel `bun:"table:matchmaking_queues,alias:mq"`
-
-	Game                 Game    `bun:",notnull"`
-	GuildID              string  `bun:"guild_id,notnull"`
-	ChannelID            string  `bun:"channel_id,notnull"`
-	CaptainDiscordUserID string  `bun:"captain_discord_user_id,notnull"`
-	Status               string  `bun:",notnull"`
-	PlayerCount          int32   `bun:"player_count,notnull"`
-	StackBalanceTotal    float64 `bun:"stack_balance_total,notnull"`
-	StackBalanceAverage  float64 `bun:"stack_balance_average,notnull"`
-	MatchedMatchID       *int32  `bun:"matched_match_id"`
-	ExpiresAt            int64   `bun:"expires_at,notnull"`
-	CreatedAt            int64   `bun:"created_at,notnull"`
-	UpdatedAt            int64   `bun:"updated_at,notnull"`
-	TeamSize             int32   `bun:"team_size,notnull"`
-	MatchmakingRegion    int32   `bun:"matchmaking_region,notnull"`
-}
-
-// MatchmakingQueueParticipant maps to table matchmaking_queue_participants.
-type MatchmakingQueueParticipant struct {
-	bun.BaseModel `bun:"table:matchmaking_queue_participants,alias:mqp"`
-
-	ID                     int32   `bun:",pk,autoincrement"`
-	Game                   Game    `bun:",notnull"`
-	QueueID                int32   `bun:"queue_id,notnull"`
-	DiscordUserID          string  `bun:"discord_user_id,notnull"`
-	PlayerID               int32   `bun:"player_id,notnull"`
-	Slot                   int32   `bun:",notnull"`
-	Username               string  `bun:",notnull"`
-	Platform               string  `bun:",notnull"`
-	BalanceRating          float64 `bun:"balance_rating,notnull"`
-	SeedRankPoints         int32   `bun:"seed_rank_points,notnull"`
-	SeedKDRatio            float64 `bun:"seed_kd_ratio,notnull"`
-	SeedKost               float64 `bun:"seed_kost,notnull"`
-	SeedKPR                float64 `bun:"seed_kpr,notnull"`
-	SeedHeadshotPercentage float64 `bun:"seed_headshot_percentage,notnull"`
-	SeedScore              float64 `bun:"seed_score,notnull"`
-	CreatedAt              int64   `bun:"created_at,notnull"`
-	UpdatedAt              int64   `bun:"updated_at,notnull"`
-}
-
-// NewMatchmakingQueueParticipant is the insert shape for matchmaking_queue_participants.
-type NewMatchmakingQueueParticipant struct {
-	bun.BaseModel `bun:"table:matchmaking_queue_participants,alias:mqp"`
-
-	Game                   Game    `bun:",notnull"`
-	QueueID                int32   `bun:"queue_id,notnull"`
-	DiscordUserID          string  `bun:"discord_user_id,notnull"`
-	PlayerID               int32   `bun:"player_id,notnull"`
-	Slot                   int32   `bun:",notnull"`
-	Username               string  `bun:",notnull"`
-	Platform               string  `bun:",notnull"`
-	BalanceRating          float64 `bun:"balance_rating,notnull"`
-	SeedRankPoints         int32   `bun:"seed_rank_points,notnull"`
-	SeedKDRatio            float64 `bun:"seed_kd_ratio,notnull"`
-	SeedKost               float64 `bun:"seed_kost,notnull"`
-	SeedKPR                float64 `bun:"seed_kpr,notnull"`
-	SeedHeadshotPercentage float64 `bun:"seed_headshot_percentage,notnull"`
-	SeedScore              float64 `bun:"seed_score,notnull"`
-	CreatedAt              int64   `bun:"created_at,notnull"`
-	UpdatedAt              int64   `bun:"updated_at,notnull"`
 }
 
 // Tournament maps to table tournaments.

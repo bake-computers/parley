@@ -21,20 +21,10 @@
     "TURNSTILE_SITE_KEY": "0x4AAAAAADp6daoSm0g2pBC_",
   },
 
-  "services": [{ "binding": "BRIDGE", "service": "parley-bridge" }],
-
   "vpc_services": [
     {
       "binding": "VPC_SERVICE",
       "service_id": "019e56b4-32d2-7843-bf2b-ec4b056d4400",
-      "remote": true,
-    },
-  ],
-
-  "kv_namespaces": [
-    {
-      "binding": "MATCH_KV",
-      "id": "d1811757b1204fd2ab1d0225c7bbb5e3",
       "remote": true,
     },
   ],

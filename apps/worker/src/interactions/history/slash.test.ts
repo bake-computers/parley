@@ -73,7 +73,7 @@ describe("historyCommand", () => {
     editReplyV2Spy.mockClear();
   });
 
-  test("returns 5 matches with masked links", async () => {
+  test("returns 5 matches", async () => {
     const matches = Array.from({ length: 5 }, (_, i) => makeMatch(i));
     listMatchesReturn = ok({ matches, nextCursor: "" });
 
@@ -85,9 +85,10 @@ describe("historyCommand", () => {
 
     const json = JSON.stringify(editReplyV2Calls[0]);
     for (let i = 0; i < 5; i++) {
-      expect(json).toContain(`uuid-${i}`);
-      expect(json).toContain("View Report");
+      expect(json).toContain(`Alice${i}`);
+      expect(json).toContain(`Bob${i}`);
     }
+    expect(json).not.toContain("View Report");
   });
 
   test("handles empty guild (no matches)", async () => {

@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 
-	commonv1 "github.com/pactum-computers/parley/gen/parley/common/v1"
 	userv1 "github.com/pactum-computers/parley/gen/parley/user/v1"
 	"github.com/pactum-computers/parley/internal/apperr"
 	"github.com/pactum-computers/parley/internal/models"
@@ -44,10 +43,6 @@ func (s *UserSettingsService) UpsertUserSettings(
 	settings *userv1.UserSettings,
 ) (*userv1.UserSettings, error) {
 	now := repos.NowMS()
-	region := settings.GetMatchmakingRegion()
-	if !isValidMatchmakingRegion(region) {
-		return nil, apperr.InvalidArgument("invalid matchmaking_region")
-	}
 
 	newRow := &models.NewUserSettings{
 		DiscordUserID:      settings.GetDiscordUserId(),
@@ -56,7 +51,6 @@ func (s *UserSettingsService) UpsertUserSettings(
 		MatchmakingEnabled: settings.GetMatchmakingEnabled(),
 		TermsAcceptedAtMs:  settings.GetTermsAcceptedAtMs(),
 		ProfilePublic:      settings.GetProfilePublic(),
-		MatchmakingRegion:  int32(region),
 	}
 
 	saved, err := s.users.Upsert(ctx, newRow)
@@ -111,7 +105,6 @@ func defaultSettings(discordUserID string) *userv1.UserSettings {
 		MatchmakingEnabled: true,
 		TermsAcceptedAtMs:  0,
 		ProfilePublic:      true,
-		MatchmakingRegion:  commonv1.Region_REGION_UNSPECIFIED,
 	}
 }
 
@@ -122,36 +115,20 @@ func rowToProto(row *models.UserSettings) *userv1.UserSettings {
 		MatchmakingEnabled: row.MatchmakingEnabled,
 		TermsAcceptedAtMs:  row.TermsAcceptedAtMs,
 		ProfilePublic:      row.ProfilePublic,
-		MatchmakingRegion:  commonv1.Region(row.MatchmakingRegion),
-	}
-}
-
-func isValidMatchmakingRegion(region commonv1.Region) bool {
-	switch region {
-	case commonv1.Region_REGION_UNSPECIFIED,
-		commonv1.Region_REGION_EU,
-		commonv1.Region_REGION_NA,
-		commonv1.Region_REGION_APAC,
-		commonv1.Region_REGION_SA:
-		return true
-	default:
-		return false
 	}
 }
 
 func reportToProto(report *repos.AnonymizationReport) *userv1.AnonymizationCounts {
 	return &userv1.AnonymizationCounts{
-		Players:                      int32(report.Players),
-		DiscordIdentities:            int32(report.DiscordIdentities),
-		GuildMemberships:             int32(report.GuildMemberships),
-		Matches:                      int32(report.Matches),
-		MatchParticipants:            int32(report.MatchParticipants),
-		MatchmakingQueues:            int32(report.MatchmakingQueues),
-		MatchmakingQueueParticipants: int32(report.MatchmakingQueueParticipants),
-		Tournaments:                  int32(report.Tournaments),
-		TournamentTeams:              int32(report.TournamentTeams),
-		TournamentTeamRosters:        int32(report.TournamentTeamRosters),
-		GuildSettingsAudit:           int32(report.GuildSettingsAudit),
-		GuildMatchQuotasAudit:        int32(report.GuildMatchQuotasAudit),
+		Players:               int32(report.Players),
+		DiscordIdentities:     int32(report.DiscordIdentities),
+		GuildMemberships:      int32(report.GuildMemberships),
+		Matches:               int32(report.Matches),
+		MatchParticipants:     int32(report.MatchParticipants),
+		Tournaments:           int32(report.Tournaments),
+		TournamentTeams:       int32(report.TournamentTeams),
+		TournamentTeamRosters: int32(report.TournamentTeamRosters),
+		GuildSettingsAudit:    int32(report.GuildSettingsAudit),
+		GuildMatchQuotasAudit: int32(report.GuildMatchQuotasAudit),
 	}
 }

@@ -12,7 +12,6 @@ const SETTINGS = {
   matchmakingEnabled: true,
   termsAcceptedAtMs: Date.now(),
   profilePublic: true,
-  matchmakingRegion: 1,
 } as never;
 
 describe("user/ui — settings card", () => {
@@ -21,7 +20,6 @@ describe("user/ui — settings card", () => {
     const text = JSON.stringify(card);
     expect(text).toContain("Matchmaking");
     expect(text).toContain("Visibility");
-    expect(text).toContain("Matchmaking region");
   });
 
   test("has no footer text", () => {
