@@ -15,7 +15,6 @@ export function SiteFooter() {
   const m = useMessages();
 
   const footerLinks: { label: string; path: SitePath }[] = [
-    { label: m.footer.leaderboard, path: "leaderboard" },
     { label: m.footer.legalNotice, path: "legal-notice" },
     { label: m.footer.privacy, path: "privacy" },
     { label: m.footer.terms, path: "terms" },

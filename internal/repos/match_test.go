@@ -6,10 +6,7 @@ import (
 	"github.com/pactum-computers/parley/internal/repos"
 )
 
-func TestMatchQueueStatusConstants(t *testing.T) {
-	if repos.QueueStatusWaiting != "waiting" {
-		t.Fatalf("QueueStatusWaiting = %q", repos.QueueStatusWaiting)
-	}
+func TestMatchStatusConstants(t *testing.T) {
 	if repos.MatchStatusPending != "pending" {
 		t.Fatalf("MatchStatusPending = %q", repos.MatchStatusPending)
 	}

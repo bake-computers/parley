@@ -42,39 +42,6 @@ func (h *MatchHandler) ListGuildMembers(
 	return resp, nil
 }
 
-func (h *MatchHandler) JoinQueue(
-	ctx context.Context,
-	req *connect.Request[matchv1.JoinQueueRequest],
-) (*connect.Response[matchv1.JoinQueueResponse], error) {
-	resp, err := h.svc.JoinQueue(ctx, req)
-	if err != nil {
-		return nil, mapErr(err)
-	}
-	return resp, nil
-}
-
-func (h *MatchHandler) LeaveQueue(
-	ctx context.Context,
-	req *connect.Request[matchv1.LeaveQueueRequest],
-) (*connect.Response[matchv1.LeaveQueueResponse], error) {
-	resp, err := h.svc.LeaveQueue(ctx, req)
-	if err != nil {
-		return nil, mapErr(err)
-	}
-	return resp, nil
-}
-
-func (h *MatchHandler) GetQueueStatus(
-	ctx context.Context,
-	req *connect.Request[matchv1.GetQueueStatusRequest],
-) (*connect.Response[matchv1.GetQueueStatusResponse], error) {
-	resp, err := h.svc.GetQueueStatus(ctx, req)
-	if err != nil {
-		return nil, mapErr(err)
-	}
-	return resp, nil
-}
-
 func (h *MatchHandler) CreateCustomMatch(
 	ctx context.Context,
 	req *connect.Request[matchv1.CreateCustomMatchRequest],

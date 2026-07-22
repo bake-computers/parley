@@ -14,7 +14,6 @@ import (
 
 	"github.com/pactum-computers/parley/gen/parley/guild/v1/guildv1connect"
 	"github.com/pactum-computers/parley/gen/parley/identity/v1/identityv1connect"
-	"github.com/pactum-computers/parley/gen/parley/leaderboard/v1/leaderboardv1connect"
 	"github.com/pactum-computers/parley/gen/parley/matchmaking/v1/matchmakingv1connect"
 	"github.com/pactum-computers/parley/gen/parley/stats/v1/statsv1connect"
 	"github.com/pactum-computers/parley/gen/parley/tournament/v1/tournamentv1connect"
@@ -25,13 +24,12 @@ import (
 
 // Deps holds all service dependencies for the Fiber app.
 type Deps struct {
-	Identity    *services.IdentityService
-	Guild       *services.GuildService
-	User        *services.UserSettingsService
-	Leaderboard *services.LeaderboardService
-	Match       *services.MatchService
-	Tournament  *services.TournamentService // nil = skip tournament routes
-	Stats       *services.StatsService
+	Identity   *services.IdentityService
+	Guild      *services.GuildService
+	User       *services.UserSettingsService
+	Match      *services.MatchService
+	Tournament *services.TournamentService // nil = skip tournament routes
+	Stats      *services.StatsService
 
 	// ReadyCheck is called by GET /ready. Return nil for READY, non-nil for NOT READY.
 	// If nil, /ready always returns 200.
@@ -78,9 +76,6 @@ func New(deps Deps) *fiber.App {
 	mountConnect(app, p, h)
 
 	p, h = userv1connect.NewUserSettingsServiceHandler(handlers.NewUserHandler(deps.User))
-	mountConnect(app, p, h)
-
-	p, h = leaderboardv1connect.NewLeaderboardServiceHandler(handlers.NewLeaderboardHandler(deps.Leaderboard))
 	mountConnect(app, p, h)
 
 	p, h = matchmakingv1connect.NewMatchmakingServiceHandler(handlers.NewMatchHandler(deps.Match))

@@ -12,7 +12,6 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "dev:worker": "bun run --filter @parley/worker dev",
-    "dev:bridge": "bun run --filter @parley/bridge dev",
     "dev:landing": "bun run --filter landing dev",
     "lint": "turbo run lint",
     "lint:root": "oxlint . -c oxlint.config.ts",
@@ -22,7 +21,6 @@
     "test": "turbo run test",
     "deploy": "turbo run deploy",
     "deploy:worker": "bun run --filter @parley/worker deploy",
-    "deploy:bridge": "bun run --filter @parley/bridge deploy",
     "deploy:landing": "bun run --filter landing deploy"
   },
   "devDependencies": {

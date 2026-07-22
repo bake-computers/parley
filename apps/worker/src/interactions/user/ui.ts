@@ -11,19 +11,13 @@ import {
   type ApplicationEmojiCatalog,
   type AppEmojiName,
 } from "@parley/runtime";
-import {
-  Region,
-  type AnonymizationCounts,
-  type UserSettings as ProtoUserSettings,
-} from "@parley/proto";
+import { type AnonymizationCounts, type UserSettings as ProtoUserSettings } from "@parley/proto";
 import {
   COLORS,
-  MATCHMAKING_REGIONS,
   USER_DELETE_OPEN,
   USER_MATCHMAKING_PREFIX,
   USER_PAGE_PREFIX,
   USER_REFRESH_STATS,
-  USER_REGION_PREFIX,
   USER_SETTINGS_PAGE_COUNT,
   USER_VISIBILITY_PREFIX,
 } from "#/interactions/user/constants";
@@ -36,10 +30,6 @@ function separator(): SeparatorBuilder {
 
 function visibilityLabel(public_: boolean): string {
   return public_ ? "Public" : "Hidden";
-}
-
-function regionLabel(region: Region): string {
-  return MATCHMAKING_REGIONS.find((option) => option.value === region)?.label ?? "Global";
 }
 
 function titleWith(
@@ -140,25 +130,6 @@ function buildPreferencesPage(
       }),
     ),
     separator(),
-    new TextDisplayBuilder().setContent(
-      `**Matchmaking region** · ${regionLabel(settings.matchmakingRegion)}`,
-    ),
-    new TextDisplayBuilder().setContent("Applies to new queue entries."),
-  );
-  container.addComponents(
-    new ActionRowBuilder().addComponents(
-      ...MATCHMAKING_REGIONS.map((region) => {
-        const args = {
-          customId: `${USER_REGION_PREFIX}${region.value}`,
-          label: region.label,
-          active: settings.matchmakingRegion === region.value,
-        };
-        return region.value === Region.UNSPECIFIED
-          ? choiceButton(emojis, { ...args, emojiName: "global" })
-          : choiceButton(emojis, args);
-      }),
-    ),
-    separator(),
     pageNav(emojis, page),
   );
   return container;
@@ -223,7 +194,7 @@ function buildPrivacyPage(
         .setAccessory(deleteBtn),
       separator(),
       new SectionBuilder()
-        .addText(new TextDisplayBuilder().setContent("Return to matchmaking & region."))
+        .addText(new TextDisplayBuilder().setContent("Return to preferences."))
         .setAccessory(backBtn),
     );
 }
@@ -287,8 +258,6 @@ export function buildDeleteResultCard(
     `Guild memberships: ${t.guildMemberships}`,
     `Matches: ${t.matches}`,
     `Match participants: ${t.matchParticipants}`,
-    `Queues: ${t.matchmakingQueues}`,
-    `Queue participants: ${t.matchmakingQueueParticipants}`,
     `Tournaments: ${t.tournaments}`,
     `Tournament teams: ${t.tournamentTeams}`,
     `Tournament rosters: ${t.tournamentTeamRosters}`,

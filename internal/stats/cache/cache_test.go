@@ -22,9 +22,6 @@ func TestR6CacheKeys(t *testing.T) {
 	if got := FreshKey("Player1", fetch.StatsPlatformAuto, nil); got != "stats:r6:player1:auto:" {
 		t.Fatalf("fresh auto key = %q", got)
 	}
-	if got := CollectionKey("player1", fetch.StatsPlatformAuto); got != "stats:collection:r6:player1:auto" {
-		t.Fatalf("collection key = %q", got)
-	}
 }
 
 func strPtr(s string) *string { return &s }

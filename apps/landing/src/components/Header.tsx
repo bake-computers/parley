@@ -287,7 +287,6 @@ export function SiteHeader() {
   const resourceNav: NavLink[] = [
     { label: m.nav.problem, href: homeSectionHref("problem"), sectionId: null },
     { label: m.nav.story, href: homeSectionHref("story"), sectionId: null },
-    { label: m.nav.leaderboard, href: siteHref("leaderboard"), sectionId: null },
     { label: m.nav.faq, href: homeSectionHref("faq"), sectionId: null },
     { label: m.footer.terms, href: siteHref("terms"), sectionId: null },
     { label: m.footer.privacy, href: siteHref("privacy"), sectionId: null },

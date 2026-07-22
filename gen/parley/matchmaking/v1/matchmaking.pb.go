@@ -486,462 +486,6 @@ func (x *ListGuildMembersResponse) GetError() *v1.Error {
 	return nil
 }
 
-type JoinQueueRequest struct {
-	state                protoimpl.MessageState `protogen:"open.v1"`
-	GuildId              string                 `protobuf:"bytes,1,opt,name=guild_id,json=guildId,proto3" json:"guild_id,omitempty"`
-	ChannelId            string                 `protobuf:"bytes,2,opt,name=channel_id,json=channelId,proto3" json:"channel_id,omitempty"`
-	CaptainDiscordUserId string                 `protobuf:"bytes,3,opt,name=captain_discord_user_id,json=captainDiscordUserId,proto3" json:"captain_discord_user_id,omitempty"`
-	Game                 v1.Game                `protobuf:"varint,4,opt,name=game,proto3,enum=parley.common.v1.Game" json:"game,omitempty"`
-	DiscordUserIds       []string               `protobuf:"bytes,5,rep,name=discord_user_ids,json=discordUserIds,proto3" json:"discord_user_ids,omitempty"`
-	TeamSize             int32                  `protobuf:"varint,6,opt,name=team_size,json=teamSize,proto3" json:"team_size,omitempty"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
-}
-
-func (x *JoinQueueRequest) Reset() {
-	*x = JoinQueueRequest{}
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[6]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *JoinQueueRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*JoinQueueRequest) ProtoMessage() {}
-
-func (x *JoinQueueRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[6]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use JoinQueueRequest.ProtoReflect.Descriptor instead.
-func (*JoinQueueRequest) Descriptor() ([]byte, []int) {
-	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{6}
-}
-
-func (x *JoinQueueRequest) GetGuildId() string {
-	if x != nil {
-		return x.GuildId
-	}
-	return ""
-}
-
-func (x *JoinQueueRequest) GetChannelId() string {
-	if x != nil {
-		return x.ChannelId
-	}
-	return ""
-}
-
-func (x *JoinQueueRequest) GetCaptainDiscordUserId() string {
-	if x != nil {
-		return x.CaptainDiscordUserId
-	}
-	return ""
-}
-
-func (x *JoinQueueRequest) GetGame() v1.Game {
-	if x != nil {
-		return x.Game
-	}
-	return v1.Game(0)
-}
-
-func (x *JoinQueueRequest) GetDiscordUserIds() []string {
-	if x != nil {
-		return x.DiscordUserIds
-	}
-	return nil
-}
-
-func (x *JoinQueueRequest) GetTeamSize() int32 {
-	if x != nil {
-		return x.TeamSize
-	}
-	return 0
-}
-
-type JoinQueueResponse struct {
-	state              protoimpl.MessageState `protogen:"open.v1"`
-	Success            bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
-	Status             string                 `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
-	QueueId            int32                  `protobuf:"varint,3,opt,name=queue_id,json=queueId,proto3" json:"queue_id,omitempty"`
-	MatchId            int32                  `protobuf:"varint,4,opt,name=match_id,json=matchId,proto3" json:"match_id,omitempty"`
-	TeamA              []*TeamAssignment      `protobuf:"bytes,5,rep,name=team_a,json=teamA,proto3" json:"team_a,omitempty"`
-	TeamB              []*TeamAssignment      `protobuf:"bytes,6,rep,name=team_b,json=teamB,proto3" json:"team_b,omitempty"`
-	WinProbability     float64                `protobuf:"fixed64,7,opt,name=win_probability,json=winProbability,proto3" json:"win_probability,omitempty"`
-	PoolWaitingPlayers int32                  `protobuf:"varint,8,opt,name=pool_waiting_players,json=poolWaitingPlayers,proto3" json:"pool_waiting_players,omitempty"`
-	Error              *v1.Error              `protobuf:"bytes,9,opt,name=error,proto3" json:"error,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
-}
-
-func (x *JoinQueueResponse) Reset() {
-	*x = JoinQueueResponse{}
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[7]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *JoinQueueResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*JoinQueueResponse) ProtoMessage() {}
-
-func (x *JoinQueueResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[7]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use JoinQueueResponse.ProtoReflect.Descriptor instead.
-func (*JoinQueueResponse) Descriptor() ([]byte, []int) {
-	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{7}
-}
-
-func (x *JoinQueueResponse) GetSuccess() bool {
-	if x != nil {
-		return x.Success
-	}
-	return false
-}
-
-func (x *JoinQueueResponse) GetStatus() string {
-	if x != nil {
-		return x.Status
-	}
-	return ""
-}
-
-func (x *JoinQueueResponse) GetQueueId() int32 {
-	if x != nil {
-		return x.QueueId
-	}
-	return 0
-}
-
-func (x *JoinQueueResponse) GetMatchId() int32 {
-	if x != nil {
-		return x.MatchId
-	}
-	return 0
-}
-
-func (x *JoinQueueResponse) GetTeamA() []*TeamAssignment {
-	if x != nil {
-		return x.TeamA
-	}
-	return nil
-}
-
-func (x *JoinQueueResponse) GetTeamB() []*TeamAssignment {
-	if x != nil {
-		return x.TeamB
-	}
-	return nil
-}
-
-func (x *JoinQueueResponse) GetWinProbability() float64 {
-	if x != nil {
-		return x.WinProbability
-	}
-	return 0
-}
-
-func (x *JoinQueueResponse) GetPoolWaitingPlayers() int32 {
-	if x != nil {
-		return x.PoolWaitingPlayers
-	}
-	return 0
-}
-
-func (x *JoinQueueResponse) GetError() *v1.Error {
-	if x != nil {
-		return x.Error
-	}
-	return nil
-}
-
-type LeaveQueueRequest struct {
-	state                protoimpl.MessageState `protogen:"open.v1"`
-	CaptainDiscordUserId string                 `protobuf:"bytes,1,opt,name=captain_discord_user_id,json=captainDiscordUserId,proto3" json:"captain_discord_user_id,omitempty"`
-	Game                 v1.Game                `protobuf:"varint,2,opt,name=game,proto3,enum=parley.common.v1.Game" json:"game,omitempty"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
-}
-
-func (x *LeaveQueueRequest) Reset() {
-	*x = LeaveQueueRequest{}
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[8]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *LeaveQueueRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*LeaveQueueRequest) ProtoMessage() {}
-
-func (x *LeaveQueueRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[8]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use LeaveQueueRequest.ProtoReflect.Descriptor instead.
-func (*LeaveQueueRequest) Descriptor() ([]byte, []int) {
-	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{8}
-}
-
-func (x *LeaveQueueRequest) GetCaptainDiscordUserId() string {
-	if x != nil {
-		return x.CaptainDiscordUserId
-	}
-	return ""
-}
-
-func (x *LeaveQueueRequest) GetGame() v1.Game {
-	if x != nil {
-		return x.Game
-	}
-	return v1.Game(0)
-}
-
-type LeaveQueueResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
-	Error         *v1.Error              `protobuf:"bytes,2,opt,name=error,proto3" json:"error,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *LeaveQueueResponse) Reset() {
-	*x = LeaveQueueResponse{}
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[9]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *LeaveQueueResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*LeaveQueueResponse) ProtoMessage() {}
-
-func (x *LeaveQueueResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[9]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use LeaveQueueResponse.ProtoReflect.Descriptor instead.
-func (*LeaveQueueResponse) Descriptor() ([]byte, []int) {
-	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{9}
-}
-
-func (x *LeaveQueueResponse) GetSuccess() bool {
-	if x != nil {
-		return x.Success
-	}
-	return false
-}
-
-func (x *LeaveQueueResponse) GetError() *v1.Error {
-	if x != nil {
-		return x.Error
-	}
-	return nil
-}
-
-type GetQueueStatusRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	DiscordUserId string                 `protobuf:"bytes,1,opt,name=discord_user_id,json=discordUserId,proto3" json:"discord_user_id,omitempty"`
-	GuildId       string                 `protobuf:"bytes,2,opt,name=guild_id,json=guildId,proto3" json:"guild_id,omitempty"`
-	Game          v1.Game                `protobuf:"varint,3,opt,name=game,proto3,enum=parley.common.v1.Game" json:"game,omitempty"`
-	TeamSize      int32                  `protobuf:"varint,4,opt,name=team_size,json=teamSize,proto3" json:"team_size,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetQueueStatusRequest) Reset() {
-	*x = GetQueueStatusRequest{}
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[10]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetQueueStatusRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetQueueStatusRequest) ProtoMessage() {}
-
-func (x *GetQueueStatusRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[10]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetQueueStatusRequest.ProtoReflect.Descriptor instead.
-func (*GetQueueStatusRequest) Descriptor() ([]byte, []int) {
-	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{10}
-}
-
-func (x *GetQueueStatusRequest) GetDiscordUserId() string {
-	if x != nil {
-		return x.DiscordUserId
-	}
-	return ""
-}
-
-func (x *GetQueueStatusRequest) GetGuildId() string {
-	if x != nil {
-		return x.GuildId
-	}
-	return ""
-}
-
-func (x *GetQueueStatusRequest) GetGame() v1.Game {
-	if x != nil {
-		return x.Game
-	}
-	return v1.Game(0)
-}
-
-func (x *GetQueueStatusRequest) GetTeamSize() int32 {
-	if x != nil {
-		return x.TeamSize
-	}
-	return 0
-}
-
-type GetQueueStatusResponse struct {
-	state              protoimpl.MessageState `protogen:"open.v1"`
-	Success            bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
-	Status             string                 `protobuf:"bytes,2,opt,name=status,proto3" json:"status,omitempty"`
-	QueueId            int32                  `protobuf:"varint,3,opt,name=queue_id,json=queueId,proto3" json:"queue_id,omitempty"`
-	MatchId            int32                  `protobuf:"varint,4,opt,name=match_id,json=matchId,proto3" json:"match_id,omitempty"`
-	PoolWaitingPlayers int32                  `protobuf:"varint,5,opt,name=pool_waiting_players,json=poolWaitingPlayers,proto3" json:"pool_waiting_players,omitempty"`
-	PoolWaitingStacks  int32                  `protobuf:"varint,6,opt,name=pool_waiting_stacks,json=poolWaitingStacks,proto3" json:"pool_waiting_stacks,omitempty"`
-	Error              *v1.Error              `protobuf:"bytes,7,opt,name=error,proto3" json:"error,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
-}
-
-func (x *GetQueueStatusResponse) Reset() {
-	*x = GetQueueStatusResponse{}
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[11]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetQueueStatusResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetQueueStatusResponse) ProtoMessage() {}
-
-func (x *GetQueueStatusResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[11]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetQueueStatusResponse.ProtoReflect.Descriptor instead.
-func (*GetQueueStatusResponse) Descriptor() ([]byte, []int) {
-	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{11}
-}
-
-func (x *GetQueueStatusResponse) GetSuccess() bool {
-	if x != nil {
-		return x.Success
-	}
-	return false
-}
-
-func (x *GetQueueStatusResponse) GetStatus() string {
-	if x != nil {
-		return x.Status
-	}
-	return ""
-}
-
-func (x *GetQueueStatusResponse) GetQueueId() int32 {
-	if x != nil {
-		return x.QueueId
-	}
-	return 0
-}
-
-func (x *GetQueueStatusResponse) GetMatchId() int32 {
-	if x != nil {
-		return x.MatchId
-	}
-	return 0
-}
-
-func (x *GetQueueStatusResponse) GetPoolWaitingPlayers() int32 {
-	if x != nil {
-		return x.PoolWaitingPlayers
-	}
-	return 0
-}
-
-func (x *GetQueueStatusResponse) GetPoolWaitingStacks() int32 {
-	if x != nil {
-		return x.PoolWaitingStacks
-	}
-	return 0
-}
-
-func (x *GetQueueStatusResponse) GetError() *v1.Error {
-	if x != nil {
-		return x.Error
-	}
-	return nil
-}
-
 type CreateCustomMatchRequest struct {
 	state                  protoimpl.MessageState `protogen:"open.v1"`
 	GuildId                string                 `protobuf:"bytes,1,opt,name=guild_id,json=guildId,proto3" json:"guild_id,omitempty"`
@@ -956,7 +500,7 @@ type CreateCustomMatchRequest struct {
 
 func (x *CreateCustomMatchRequest) Reset() {
 	*x = CreateCustomMatchRequest{}
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[12]
+	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -968,7 +512,7 @@ func (x *CreateCustomMatchRequest) String() string {
 func (*CreateCustomMatchRequest) ProtoMessage() {}
 
 func (x *CreateCustomMatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[12]
+	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -981,7 +525,7 @@ func (x *CreateCustomMatchRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateCustomMatchRequest.ProtoReflect.Descriptor instead.
 func (*CreateCustomMatchRequest) Descriptor() ([]byte, []int) {
-	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{12}
+	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *CreateCustomMatchRequest) GetGuildId() string {
@@ -1041,7 +585,7 @@ type CreateCustomMatchResponse struct {
 
 func (x *CreateCustomMatchResponse) Reset() {
 	*x = CreateCustomMatchResponse{}
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[13]
+	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1053,7 +597,7 @@ func (x *CreateCustomMatchResponse) String() string {
 func (*CreateCustomMatchResponse) ProtoMessage() {}
 
 func (x *CreateCustomMatchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[13]
+	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1066,7 +610,7 @@ func (x *CreateCustomMatchResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateCustomMatchResponse.ProtoReflect.Descriptor instead.
 func (*CreateCustomMatchResponse) Descriptor() ([]byte, []int) {
-	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{13}
+	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *CreateCustomMatchResponse) GetSuccess() bool {
@@ -1136,7 +680,7 @@ type MatchParticipant struct {
 
 func (x *MatchParticipant) Reset() {
 	*x = MatchParticipant{}
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[14]
+	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1148,7 +692,7 @@ func (x *MatchParticipant) String() string {
 func (*MatchParticipant) ProtoMessage() {}
 
 func (x *MatchParticipant) ProtoReflect() protoreflect.Message {
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[14]
+	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1161,7 +705,7 @@ func (x *MatchParticipant) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MatchParticipant.ProtoReflect.Descriptor instead.
 func (*MatchParticipant) Descriptor() ([]byte, []int) {
-	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{14}
+	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *MatchParticipant) GetDiscordUserId() string {
@@ -1253,7 +797,7 @@ type Match struct {
 
 func (x *Match) Reset() {
 	*x = Match{}
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[15]
+	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1265,7 +809,7 @@ func (x *Match) String() string {
 func (*Match) ProtoMessage() {}
 
 func (x *Match) ProtoReflect() protoreflect.Message {
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[15]
+	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1278,7 +822,7 @@ func (x *Match) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Match.ProtoReflect.Descriptor instead.
 func (*Match) Descriptor() ([]byte, []int) {
-	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{15}
+	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *Match) GetId() int32 {
@@ -1370,7 +914,7 @@ type ReportMatchResultRequest struct {
 
 func (x *ReportMatchResultRequest) Reset() {
 	*x = ReportMatchResultRequest{}
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[16]
+	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1382,7 +926,7 @@ func (x *ReportMatchResultRequest) String() string {
 func (*ReportMatchResultRequest) ProtoMessage() {}
 
 func (x *ReportMatchResultRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[16]
+	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1395,7 +939,7 @@ func (x *ReportMatchResultRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReportMatchResultRequest.ProtoReflect.Descriptor instead.
 func (*ReportMatchResultRequest) Descriptor() ([]byte, []int) {
-	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{16}
+	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *ReportMatchResultRequest) GetMatchId() int32 {
@@ -1437,7 +981,7 @@ type ReportMatchResultResponse struct {
 
 func (x *ReportMatchResultResponse) Reset() {
 	*x = ReportMatchResultResponse{}
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[17]
+	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1449,7 +993,7 @@ func (x *ReportMatchResultResponse) String() string {
 func (*ReportMatchResultResponse) ProtoMessage() {}
 
 func (x *ReportMatchResultResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[17]
+	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1462,7 +1006,7 @@ func (x *ReportMatchResultResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ReportMatchResultResponse.ProtoReflect.Descriptor instead.
 func (*ReportMatchResultResponse) Descriptor() ([]byte, []int) {
-	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{17}
+	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *ReportMatchResultResponse) GetSuccess() bool {
@@ -1496,7 +1040,7 @@ type GetMatchRequest struct {
 
 func (x *GetMatchRequest) Reset() {
 	*x = GetMatchRequest{}
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[18]
+	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1508,7 +1052,7 @@ func (x *GetMatchRequest) String() string {
 func (*GetMatchRequest) ProtoMessage() {}
 
 func (x *GetMatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[18]
+	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1521,7 +1065,7 @@ func (x *GetMatchRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMatchRequest.ProtoReflect.Descriptor instead.
 func (*GetMatchRequest) Descriptor() ([]byte, []int) {
-	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{18}
+	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *GetMatchRequest) GetMatchId() int32 {
@@ -1549,7 +1093,7 @@ type GetMatchResponse struct {
 
 func (x *GetMatchResponse) Reset() {
 	*x = GetMatchResponse{}
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[19]
+	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1561,7 +1105,7 @@ func (x *GetMatchResponse) String() string {
 func (*GetMatchResponse) ProtoMessage() {}
 
 func (x *GetMatchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[19]
+	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1574,7 +1118,7 @@ func (x *GetMatchResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMatchResponse.ProtoReflect.Descriptor instead.
 func (*GetMatchResponse) Descriptor() ([]byte, []int) {
-	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{19}
+	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *GetMatchResponse) GetSuccess() bool {
@@ -1611,7 +1155,7 @@ type ListMatchesRequest struct {
 
 func (x *ListMatchesRequest) Reset() {
 	*x = ListMatchesRequest{}
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[20]
+	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1623,7 +1167,7 @@ func (x *ListMatchesRequest) String() string {
 func (*ListMatchesRequest) ProtoMessage() {}
 
 func (x *ListMatchesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[20]
+	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1636,7 +1180,7 @@ func (x *ListMatchesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListMatchesRequest.ProtoReflect.Descriptor instead.
 func (*ListMatchesRequest) Descriptor() ([]byte, []int) {
-	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{20}
+	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *ListMatchesRequest) GetGuildId() string {
@@ -1685,7 +1229,7 @@ type ListMatchesResponse struct {
 
 func (x *ListMatchesResponse) Reset() {
 	*x = ListMatchesResponse{}
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[21]
+	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1697,7 +1241,7 @@ func (x *ListMatchesResponse) String() string {
 func (*ListMatchesResponse) ProtoMessage() {}
 
 func (x *ListMatchesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[21]
+	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1710,7 +1254,7 @@ func (x *ListMatchesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListMatchesResponse.ProtoReflect.Descriptor instead.
 func (*ListMatchesResponse) Descriptor() ([]byte, []int) {
-	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{21}
+	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *ListMatchesResponse) GetMatches() []*Match {
@@ -1744,7 +1288,7 @@ type GetMatchByUuidRequest struct {
 
 func (x *GetMatchByUuidRequest) Reset() {
 	*x = GetMatchByUuidRequest{}
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[22]
+	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1756,7 +1300,7 @@ func (x *GetMatchByUuidRequest) String() string {
 func (*GetMatchByUuidRequest) ProtoMessage() {}
 
 func (x *GetMatchByUuidRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[22]
+	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1769,7 +1313,7 @@ func (x *GetMatchByUuidRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMatchByUuidRequest.ProtoReflect.Descriptor instead.
 func (*GetMatchByUuidRequest) Descriptor() ([]byte, []int) {
-	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{22}
+	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *GetMatchByUuidRequest) GetPublicUuid() string {
@@ -1797,7 +1341,7 @@ type GetMatchByUuidResponse struct {
 
 func (x *GetMatchByUuidResponse) Reset() {
 	*x = GetMatchByUuidResponse{}
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[23]
+	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1809,7 +1353,7 @@ func (x *GetMatchByUuidResponse) String() string {
 func (*GetMatchByUuidResponse) ProtoMessage() {}
 
 func (x *GetMatchByUuidResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[23]
+	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1822,7 +1366,7 @@ func (x *GetMatchByUuidResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMatchByUuidResponse.ProtoReflect.Descriptor instead.
 func (*GetMatchByUuidResponse) Descriptor() ([]byte, []int) {
-	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{23}
+	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *GetMatchByUuidResponse) GetSuccess() bool {
@@ -1888,44 +1432,7 @@ const file_matchmaking_v1_matchmaking_proto_rawDesc = "" +
 	"\x18ListGuildMembersResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x12<\n" +
 	"\amembers\x18\x02 \x03(\v2\".parley.matchmaking.v1.GuildMemberR\amembers\x12-\n" +
-	"\x05error\x18\x03 \x01(\v2\x17.parley.common.v1.ErrorR\x05error\"\xf6\x01\n" +
-	"\x10JoinQueueRequest\x12\x19\n" +
-	"\bguild_id\x18\x01 \x01(\tR\aguildId\x12\x1d\n" +
-	"\n" +
-	"channel_id\x18\x02 \x01(\tR\tchannelId\x125\n" +
-	"\x17captain_discord_user_id\x18\x03 \x01(\tR\x14captainDiscordUserId\x12*\n" +
-	"\x04game\x18\x04 \x01(\x0e2\x16.parley.common.v1.GameR\x04game\x12(\n" +
-	"\x10discord_user_ids\x18\x05 \x03(\tR\x0ediscordUserIds\x12\x1b\n" +
-	"\tteam_size\x18\x06 \x01(\x05R\bteamSize\"\x81\x03\n" +
-	"\x11JoinQueueResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x16\n" +
-	"\x06status\x18\x02 \x01(\tR\x06status\x12\x19\n" +
-	"\bqueue_id\x18\x03 \x01(\x05R\aqueueId\x12\x19\n" +
-	"\bmatch_id\x18\x04 \x01(\x05R\amatchId\x12<\n" +
-	"\x06team_a\x18\x05 \x03(\v2%.parley.matchmaking.v1.TeamAssignmentR\x05teamA\x12<\n" +
-	"\x06team_b\x18\x06 \x03(\v2%.parley.matchmaking.v1.TeamAssignmentR\x05teamB\x12'\n" +
-	"\x0fwin_probability\x18\a \x01(\x01R\x0ewinProbability\x120\n" +
-	"\x14pool_waiting_players\x18\b \x01(\x05R\x12poolWaitingPlayers\x12-\n" +
-	"\x05error\x18\t \x01(\v2\x17.parley.common.v1.ErrorR\x05error\"v\n" +
-	"\x11LeaveQueueRequest\x125\n" +
-	"\x17captain_discord_user_id\x18\x01 \x01(\tR\x14captainDiscordUserId\x12*\n" +
-	"\x04game\x18\x02 \x01(\x0e2\x16.parley.common.v1.GameR\x04game\"]\n" +
-	"\x12LeaveQueueResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess\x12-\n" +
-	"\x05error\x18\x02 \x01(\v2\x17.parley.common.v1.ErrorR\x05error\"\xa3\x01\n" +
-	"\x15GetQueueStatusRequest\x12&\n" +
-	"\x0fdiscord_user_id\x18\x01 \x01(\tR\rdiscordUserId\x12\x19\n" +
-	"\bguild_id\x18\x02 \x01(\tR\aguildId\x12*\n" +
-	"\x04game\x18\x03 \x01(\x0e2\x16.parley.common.v1.GameR\x04game\x12\x1b\n" +
-	"\tteam_size\x18\x04 \x01(\x05R\bteamSize\"\x91\x02\n" +
-	"\x16GetQueueStatusResponse\x12\x18\n" +
-	"\asuccess\x18\x01 \x01(\bR\asuccess\x12\x16\n" +
-	"\x06status\x18\x02 \x01(\tR\x06status\x12\x19\n" +
-	"\bqueue_id\x18\x03 \x01(\x05R\aqueueId\x12\x19\n" +
-	"\bmatch_id\x18\x04 \x01(\x05R\amatchId\x120\n" +
-	"\x14pool_waiting_players\x18\x05 \x01(\x05R\x12poolWaitingPlayers\x12.\n" +
-	"\x13pool_waiting_stacks\x18\x06 \x01(\x05R\x11poolWaitingStacks\x12-\n" +
-	"\x05error\x18\a \x01(\v2\x17.parley.common.v1.ErrorR\x05error\"\x83\x02\n" +
+	"\x05error\x18\x03 \x01(\v2\x17.parley.common.v1.ErrorR\x05error\"\x83\x02\n" +
 	"\x18CreateCustomMatchRequest\x12\x19\n" +
 	"\bguild_id\x18\x01 \x01(\tR\aguildId\x12\x1d\n" +
 	"\n" +
@@ -2007,15 +1514,11 @@ const file_matchmaking_v1_matchmaking_proto_rawDesc = "" +
 	"\x16GetMatchByUuidResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x122\n" +
 	"\x05match\x18\x02 \x01(\v2\x1c.parley.matchmaking.v1.MatchR\x05match\x12-\n" +
-	"\x05error\x18\x03 \x01(\v2\x17.parley.common.v1.ErrorR\x05error2\xc0\b\n" +
+	"\x05error\x18\x03 \x01(\v2\x17.parley.common.v1.ErrorR\x05error2\x8e\x06\n" +
 	"\x12MatchmakingService\x12a\n" +
 	"\n" +
 	"BuildTeams\x12(.parley.matchmaking.v1.BuildTeamsRequest\x1a).parley.matchmaking.v1.BuildTeamsResponse\x12s\n" +
-	"\x10ListGuildMembers\x12..parley.matchmaking.v1.ListGuildMembersRequest\x1a/.parley.matchmaking.v1.ListGuildMembersResponse\x12^\n" +
-	"\tJoinQueue\x12'.parley.matchmaking.v1.JoinQueueRequest\x1a(.parley.matchmaking.v1.JoinQueueResponse\x12a\n" +
-	"\n" +
-	"LeaveQueue\x12(.parley.matchmaking.v1.LeaveQueueRequest\x1a).parley.matchmaking.v1.LeaveQueueResponse\x12m\n" +
-	"\x0eGetQueueStatus\x12,.parley.matchmaking.v1.GetQueueStatusRequest\x1a-.parley.matchmaking.v1.GetQueueStatusResponse\x12v\n" +
+	"\x10ListGuildMembers\x12..parley.matchmaking.v1.ListGuildMembersRequest\x1a/.parley.matchmaking.v1.ListGuildMembersResponse\x12v\n" +
 	"\x11CreateCustomMatch\x12/.parley.matchmaking.v1.CreateCustomMatchRequest\x1a0.parley.matchmaking.v1.CreateCustomMatchResponse\x12v\n" +
 	"\x11ReportMatchResult\x12/.parley.matchmaking.v1.ReportMatchResultRequest\x1a0.parley.matchmaking.v1.ReportMatchResultResponse\x12[\n" +
 	"\bGetMatch\x12&.parley.matchmaking.v1.GetMatchRequest\x1a'.parley.matchmaking.v1.GetMatchResponse\x12d\n" +
@@ -2035,7 +1538,7 @@ func file_matchmaking_v1_matchmaking_proto_rawDescGZIP() []byte {
 	return file_matchmaking_v1_matchmaking_proto_rawDescData
 }
 
-var file_matchmaking_v1_matchmaking_proto_msgTypes = make([]protoimpl.MessageInfo, 24)
+var file_matchmaking_v1_matchmaking_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
 var file_matchmaking_v1_matchmaking_proto_goTypes = []any{
 	(*BuildTeamsRequest)(nil),         // 0: parley.matchmaking.v1.BuildTeamsRequest
 	(*TeamAssignment)(nil),            // 1: parley.matchmaking.v1.TeamAssignment
@@ -2043,85 +1546,65 @@ var file_matchmaking_v1_matchmaking_proto_goTypes = []any{
 	(*GuildMember)(nil),               // 3: parley.matchmaking.v1.GuildMember
 	(*ListGuildMembersRequest)(nil),   // 4: parley.matchmaking.v1.ListGuildMembersRequest
 	(*ListGuildMembersResponse)(nil),  // 5: parley.matchmaking.v1.ListGuildMembersResponse
-	(*JoinQueueRequest)(nil),          // 6: parley.matchmaking.v1.JoinQueueRequest
-	(*JoinQueueResponse)(nil),         // 7: parley.matchmaking.v1.JoinQueueResponse
-	(*LeaveQueueRequest)(nil),         // 8: parley.matchmaking.v1.LeaveQueueRequest
-	(*LeaveQueueResponse)(nil),        // 9: parley.matchmaking.v1.LeaveQueueResponse
-	(*GetQueueStatusRequest)(nil),     // 10: parley.matchmaking.v1.GetQueueStatusRequest
-	(*GetQueueStatusResponse)(nil),    // 11: parley.matchmaking.v1.GetQueueStatusResponse
-	(*CreateCustomMatchRequest)(nil),  // 12: parley.matchmaking.v1.CreateCustomMatchRequest
-	(*CreateCustomMatchResponse)(nil), // 13: parley.matchmaking.v1.CreateCustomMatchResponse
-	(*MatchParticipant)(nil),          // 14: parley.matchmaking.v1.MatchParticipant
-	(*Match)(nil),                     // 15: parley.matchmaking.v1.Match
-	(*ReportMatchResultRequest)(nil),  // 16: parley.matchmaking.v1.ReportMatchResultRequest
-	(*ReportMatchResultResponse)(nil), // 17: parley.matchmaking.v1.ReportMatchResultResponse
-	(*GetMatchRequest)(nil),           // 18: parley.matchmaking.v1.GetMatchRequest
-	(*GetMatchResponse)(nil),          // 19: parley.matchmaking.v1.GetMatchResponse
-	(*ListMatchesRequest)(nil),        // 20: parley.matchmaking.v1.ListMatchesRequest
-	(*ListMatchesResponse)(nil),       // 21: parley.matchmaking.v1.ListMatchesResponse
-	(*GetMatchByUuidRequest)(nil),     // 22: parley.matchmaking.v1.GetMatchByUuidRequest
-	(*GetMatchByUuidResponse)(nil),    // 23: parley.matchmaking.v1.GetMatchByUuidResponse
-	(v1.Game)(0),                      // 24: parley.common.v1.Game
-	(*v1.Error)(nil),                  // 25: parley.common.v1.Error
+	(*CreateCustomMatchRequest)(nil),  // 6: parley.matchmaking.v1.CreateCustomMatchRequest
+	(*CreateCustomMatchResponse)(nil), // 7: parley.matchmaking.v1.CreateCustomMatchResponse
+	(*MatchParticipant)(nil),          // 8: parley.matchmaking.v1.MatchParticipant
+	(*Match)(nil),                     // 9: parley.matchmaking.v1.Match
+	(*ReportMatchResultRequest)(nil),  // 10: parley.matchmaking.v1.ReportMatchResultRequest
+	(*ReportMatchResultResponse)(nil), // 11: parley.matchmaking.v1.ReportMatchResultResponse
+	(*GetMatchRequest)(nil),           // 12: parley.matchmaking.v1.GetMatchRequest
+	(*GetMatchResponse)(nil),          // 13: parley.matchmaking.v1.GetMatchResponse
+	(*ListMatchesRequest)(nil),        // 14: parley.matchmaking.v1.ListMatchesRequest
+	(*ListMatchesResponse)(nil),       // 15: parley.matchmaking.v1.ListMatchesResponse
+	(*GetMatchByUuidRequest)(nil),     // 16: parley.matchmaking.v1.GetMatchByUuidRequest
+	(*GetMatchByUuidResponse)(nil),    // 17: parley.matchmaking.v1.GetMatchByUuidResponse
+	(v1.Game)(0),                      // 18: parley.common.v1.Game
+	(*v1.Error)(nil),                  // 19: parley.common.v1.Error
 }
 var file_matchmaking_v1_matchmaking_proto_depIdxs = []int32{
-	24, // 0: parley.matchmaking.v1.BuildTeamsRequest.game:type_name -> parley.common.v1.Game
+	18, // 0: parley.matchmaking.v1.BuildTeamsRequest.game:type_name -> parley.common.v1.Game
 	1,  // 1: parley.matchmaking.v1.BuildTeamsResponse.team_a:type_name -> parley.matchmaking.v1.TeamAssignment
 	1,  // 2: parley.matchmaking.v1.BuildTeamsResponse.team_b:type_name -> parley.matchmaking.v1.TeamAssignment
-	25, // 3: parley.matchmaking.v1.BuildTeamsResponse.error:type_name -> parley.common.v1.Error
-	24, // 4: parley.matchmaking.v1.ListGuildMembersRequest.game:type_name -> parley.common.v1.Game
+	19, // 3: parley.matchmaking.v1.BuildTeamsResponse.error:type_name -> parley.common.v1.Error
+	18, // 4: parley.matchmaking.v1.ListGuildMembersRequest.game:type_name -> parley.common.v1.Game
 	3,  // 5: parley.matchmaking.v1.ListGuildMembersResponse.members:type_name -> parley.matchmaking.v1.GuildMember
-	25, // 6: parley.matchmaking.v1.ListGuildMembersResponse.error:type_name -> parley.common.v1.Error
-	24, // 7: parley.matchmaking.v1.JoinQueueRequest.game:type_name -> parley.common.v1.Game
-	1,  // 8: parley.matchmaking.v1.JoinQueueResponse.team_a:type_name -> parley.matchmaking.v1.TeamAssignment
-	1,  // 9: parley.matchmaking.v1.JoinQueueResponse.team_b:type_name -> parley.matchmaking.v1.TeamAssignment
-	25, // 10: parley.matchmaking.v1.JoinQueueResponse.error:type_name -> parley.common.v1.Error
-	24, // 11: parley.matchmaking.v1.LeaveQueueRequest.game:type_name -> parley.common.v1.Game
-	25, // 12: parley.matchmaking.v1.LeaveQueueResponse.error:type_name -> parley.common.v1.Error
-	24, // 13: parley.matchmaking.v1.GetQueueStatusRequest.game:type_name -> parley.common.v1.Game
-	25, // 14: parley.matchmaking.v1.GetQueueStatusResponse.error:type_name -> parley.common.v1.Error
-	24, // 15: parley.matchmaking.v1.CreateCustomMatchRequest.game:type_name -> parley.common.v1.Game
-	1,  // 16: parley.matchmaking.v1.CreateCustomMatchResponse.team_a:type_name -> parley.matchmaking.v1.TeamAssignment
-	1,  // 17: parley.matchmaking.v1.CreateCustomMatchResponse.team_b:type_name -> parley.matchmaking.v1.TeamAssignment
-	25, // 18: parley.matchmaking.v1.CreateCustomMatchResponse.error:type_name -> parley.common.v1.Error
-	14, // 19: parley.matchmaking.v1.Match.participants:type_name -> parley.matchmaking.v1.MatchParticipant
-	24, // 20: parley.matchmaking.v1.ReportMatchResultRequest.game:type_name -> parley.common.v1.Game
-	15, // 21: parley.matchmaking.v1.ReportMatchResultResponse.match:type_name -> parley.matchmaking.v1.Match
-	25, // 22: parley.matchmaking.v1.ReportMatchResultResponse.error:type_name -> parley.common.v1.Error
-	24, // 23: parley.matchmaking.v1.GetMatchRequest.game:type_name -> parley.common.v1.Game
-	15, // 24: parley.matchmaking.v1.GetMatchResponse.match:type_name -> parley.matchmaking.v1.Match
-	25, // 25: parley.matchmaking.v1.GetMatchResponse.error:type_name -> parley.common.v1.Error
-	24, // 26: parley.matchmaking.v1.ListMatchesRequest.game:type_name -> parley.common.v1.Game
-	15, // 27: parley.matchmaking.v1.ListMatchesResponse.matches:type_name -> parley.matchmaking.v1.Match
-	25, // 28: parley.matchmaking.v1.ListMatchesResponse.error:type_name -> parley.common.v1.Error
-	24, // 29: parley.matchmaking.v1.GetMatchByUuidRequest.game:type_name -> parley.common.v1.Game
-	15, // 30: parley.matchmaking.v1.GetMatchByUuidResponse.match:type_name -> parley.matchmaking.v1.Match
-	25, // 31: parley.matchmaking.v1.GetMatchByUuidResponse.error:type_name -> parley.common.v1.Error
-	0,  // 32: parley.matchmaking.v1.MatchmakingService.BuildTeams:input_type -> parley.matchmaking.v1.BuildTeamsRequest
-	4,  // 33: parley.matchmaking.v1.MatchmakingService.ListGuildMembers:input_type -> parley.matchmaking.v1.ListGuildMembersRequest
-	6,  // 34: parley.matchmaking.v1.MatchmakingService.JoinQueue:input_type -> parley.matchmaking.v1.JoinQueueRequest
-	8,  // 35: parley.matchmaking.v1.MatchmakingService.LeaveQueue:input_type -> parley.matchmaking.v1.LeaveQueueRequest
-	10, // 36: parley.matchmaking.v1.MatchmakingService.GetQueueStatus:input_type -> parley.matchmaking.v1.GetQueueStatusRequest
-	12, // 37: parley.matchmaking.v1.MatchmakingService.CreateCustomMatch:input_type -> parley.matchmaking.v1.CreateCustomMatchRequest
-	16, // 38: parley.matchmaking.v1.MatchmakingService.ReportMatchResult:input_type -> parley.matchmaking.v1.ReportMatchResultRequest
-	18, // 39: parley.matchmaking.v1.MatchmakingService.GetMatch:input_type -> parley.matchmaking.v1.GetMatchRequest
-	20, // 40: parley.matchmaking.v1.MatchmakingService.ListMatches:input_type -> parley.matchmaking.v1.ListMatchesRequest
-	22, // 41: parley.matchmaking.v1.MatchmakingService.GetMatchByUuid:input_type -> parley.matchmaking.v1.GetMatchByUuidRequest
-	2,  // 42: parley.matchmaking.v1.MatchmakingService.BuildTeams:output_type -> parley.matchmaking.v1.BuildTeamsResponse
-	5,  // 43: parley.matchmaking.v1.MatchmakingService.ListGuildMembers:output_type -> parley.matchmaking.v1.ListGuildMembersResponse
-	7,  // 44: parley.matchmaking.v1.MatchmakingService.JoinQueue:output_type -> parley.matchmaking.v1.JoinQueueResponse
-	9,  // 45: parley.matchmaking.v1.MatchmakingService.LeaveQueue:output_type -> parley.matchmaking.v1.LeaveQueueResponse
-	11, // 46: parley.matchmaking.v1.MatchmakingService.GetQueueStatus:output_type -> parley.matchmaking.v1.GetQueueStatusResponse
-	13, // 47: parley.matchmaking.v1.MatchmakingService.CreateCustomMatch:output_type -> parley.matchmaking.v1.CreateCustomMatchResponse
-	17, // 48: parley.matchmaking.v1.MatchmakingService.ReportMatchResult:output_type -> parley.matchmaking.v1.ReportMatchResultResponse
-	19, // 49: parley.matchmaking.v1.MatchmakingService.GetMatch:output_type -> parley.matchmaking.v1.GetMatchResponse
-	21, // 50: parley.matchmaking.v1.MatchmakingService.ListMatches:output_type -> parley.matchmaking.v1.ListMatchesResponse
-	23, // 51: parley.matchmaking.v1.MatchmakingService.GetMatchByUuid:output_type -> parley.matchmaking.v1.GetMatchByUuidResponse
-	42, // [42:52] is the sub-list for method output_type
-	32, // [32:42] is the sub-list for method input_type
-	32, // [32:32] is the sub-list for extension type_name
-	32, // [32:32] is the sub-list for extension extendee
-	0,  // [0:32] is the sub-list for field type_name
+	19, // 6: parley.matchmaking.v1.ListGuildMembersResponse.error:type_name -> parley.common.v1.Error
+	18, // 7: parley.matchmaking.v1.CreateCustomMatchRequest.game:type_name -> parley.common.v1.Game
+	1,  // 8: parley.matchmaking.v1.CreateCustomMatchResponse.team_a:type_name -> parley.matchmaking.v1.TeamAssignment
+	1,  // 9: parley.matchmaking.v1.CreateCustomMatchResponse.team_b:type_name -> parley.matchmaking.v1.TeamAssignment
+	19, // 10: parley.matchmaking.v1.CreateCustomMatchResponse.error:type_name -> parley.common.v1.Error
+	8,  // 11: parley.matchmaking.v1.Match.participants:type_name -> parley.matchmaking.v1.MatchParticipant
+	18, // 12: parley.matchmaking.v1.ReportMatchResultRequest.game:type_name -> parley.common.v1.Game
+	9,  // 13: parley.matchmaking.v1.ReportMatchResultResponse.match:type_name -> parley.matchmaking.v1.Match
+	19, // 14: parley.matchmaking.v1.ReportMatchResultResponse.error:type_name -> parley.common.v1.Error
+	18, // 15: parley.matchmaking.v1.GetMatchRequest.game:type_name -> parley.common.v1.Game
+	9,  // 16: parley.matchmaking.v1.GetMatchResponse.match:type_name -> parley.matchmaking.v1.Match
+	19, // 17: parley.matchmaking.v1.GetMatchResponse.error:type_name -> parley.common.v1.Error
+	18, // 18: parley.matchmaking.v1.ListMatchesRequest.game:type_name -> parley.common.v1.Game
+	9,  // 19: parley.matchmaking.v1.ListMatchesResponse.matches:type_name -> parley.matchmaking.v1.Match
+	19, // 20: parley.matchmaking.v1.ListMatchesResponse.error:type_name -> parley.common.v1.Error
+	18, // 21: parley.matchmaking.v1.GetMatchByUuidRequest.game:type_name -> parley.common.v1.Game
+	9,  // 22: parley.matchmaking.v1.GetMatchByUuidResponse.match:type_name -> parley.matchmaking.v1.Match
+	19, // 23: parley.matchmaking.v1.GetMatchByUuidResponse.error:type_name -> parley.common.v1.Error
+	0,  // 24: parley.matchmaking.v1.MatchmakingService.BuildTeams:input_type -> parley.matchmaking.v1.BuildTeamsRequest
+	4,  // 25: parley.matchmaking.v1.MatchmakingService.ListGuildMembers:input_type -> parley.matchmaking.v1.ListGuildMembersRequest
+	6,  // 26: parley.matchmaking.v1.MatchmakingService.CreateCustomMatch:input_type -> parley.matchmaking.v1.CreateCustomMatchRequest
+	10, // 27: parley.matchmaking.v1.MatchmakingService.ReportMatchResult:input_type -> parley.matchmaking.v1.ReportMatchResultRequest
+	12, // 28: parley.matchmaking.v1.MatchmakingService.GetMatch:input_type -> parley.matchmaking.v1.GetMatchRequest
+	14, // 29: parley.matchmaking.v1.MatchmakingService.ListMatches:input_type -> parley.matchmaking.v1.ListMatchesRequest
+	16, // 30: parley.matchmaking.v1.MatchmakingService.GetMatchByUuid:input_type -> parley.matchmaking.v1.GetMatchByUuidRequest
+	2,  // 31: parley.matchmaking.v1.MatchmakingService.BuildTeams:output_type -> parley.matchmaking.v1.BuildTeamsResponse
+	5,  // 32: parley.matchmaking.v1.MatchmakingService.ListGuildMembers:output_type -> parley.matchmaking.v1.ListGuildMembersResponse
+	7,  // 33: parley.matchmaking.v1.MatchmakingService.CreateCustomMatch:output_type -> parley.matchmaking.v1.CreateCustomMatchResponse
+	11, // 34: parley.matchmaking.v1.MatchmakingService.ReportMatchResult:output_type -> parley.matchmaking.v1.ReportMatchResultResponse
+	13, // 35: parley.matchmaking.v1.MatchmakingService.GetMatch:output_type -> parley.matchmaking.v1.GetMatchResponse
+	15, // 36: parley.matchmaking.v1.MatchmakingService.ListMatches:output_type -> parley.matchmaking.v1.ListMatchesResponse
+	17, // 37: parley.matchmaking.v1.MatchmakingService.GetMatchByUuid:output_type -> parley.matchmaking.v1.GetMatchByUuidResponse
+	31, // [31:38] is the sub-list for method output_type
+	24, // [24:31] is the sub-list for method input_type
+	24, // [24:24] is the sub-list for extension type_name
+	24, // [24:24] is the sub-list for extension extendee
+	0,  // [0:24] is the sub-list for field type_name
 }
 
 func init() { file_matchmaking_v1_matchmaking_proto_init() }
@@ -2129,15 +1612,15 @@ func file_matchmaking_v1_matchmaking_proto_init() {
 	if File_matchmaking_v1_matchmaking_proto != nil {
 		return
 	}
-	file_matchmaking_v1_matchmaking_proto_msgTypes[15].OneofWrappers = []any{}
-	file_matchmaking_v1_matchmaking_proto_msgTypes[20].OneofWrappers = []any{}
+	file_matchmaking_v1_matchmaking_proto_msgTypes[9].OneofWrappers = []any{}
+	file_matchmaking_v1_matchmaking_proto_msgTypes[14].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_matchmaking_v1_matchmaking_proto_rawDesc), len(file_matchmaking_v1_matchmaking_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   24,
+			NumMessages:   18,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

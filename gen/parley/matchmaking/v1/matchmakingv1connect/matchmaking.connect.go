@@ -39,15 +39,6 @@ const (
 	// MatchmakingServiceListGuildMembersProcedure is the fully-qualified name of the
 	// MatchmakingService's ListGuildMembers RPC.
 	MatchmakingServiceListGuildMembersProcedure = "/parley.matchmaking.v1.MatchmakingService/ListGuildMembers"
-	// MatchmakingServiceJoinQueueProcedure is the fully-qualified name of the MatchmakingService's
-	// JoinQueue RPC.
-	MatchmakingServiceJoinQueueProcedure = "/parley.matchmaking.v1.MatchmakingService/JoinQueue"
-	// MatchmakingServiceLeaveQueueProcedure is the fully-qualified name of the MatchmakingService's
-	// LeaveQueue RPC.
-	MatchmakingServiceLeaveQueueProcedure = "/parley.matchmaking.v1.MatchmakingService/LeaveQueue"
-	// MatchmakingServiceGetQueueStatusProcedure is the fully-qualified name of the MatchmakingService's
-	// GetQueueStatus RPC.
-	MatchmakingServiceGetQueueStatusProcedure = "/parley.matchmaking.v1.MatchmakingService/GetQueueStatus"
 	// MatchmakingServiceCreateCustomMatchProcedure is the fully-qualified name of the
 	// MatchmakingService's CreateCustomMatch RPC.
 	MatchmakingServiceCreateCustomMatchProcedure = "/parley.matchmaking.v1.MatchmakingService/CreateCustomMatch"
@@ -69,9 +60,6 @@ const (
 type MatchmakingServiceClient interface {
 	BuildTeams(context.Context, *connect.Request[v1.BuildTeamsRequest]) (*connect.Response[v1.BuildTeamsResponse], error)
 	ListGuildMembers(context.Context, *connect.Request[v1.ListGuildMembersRequest]) (*connect.Response[v1.ListGuildMembersResponse], error)
-	JoinQueue(context.Context, *connect.Request[v1.JoinQueueRequest]) (*connect.Response[v1.JoinQueueResponse], error)
-	LeaveQueue(context.Context, *connect.Request[v1.LeaveQueueRequest]) (*connect.Response[v1.LeaveQueueResponse], error)
-	GetQueueStatus(context.Context, *connect.Request[v1.GetQueueStatusRequest]) (*connect.Response[v1.GetQueueStatusResponse], error)
 	CreateCustomMatch(context.Context, *connect.Request[v1.CreateCustomMatchRequest]) (*connect.Response[v1.CreateCustomMatchResponse], error)
 	ReportMatchResult(context.Context, *connect.Request[v1.ReportMatchResultRequest]) (*connect.Response[v1.ReportMatchResultResponse], error)
 	GetMatch(context.Context, *connect.Request[v1.GetMatchRequest]) (*connect.Response[v1.GetMatchResponse], error)
@@ -100,24 +88,6 @@ func NewMatchmakingServiceClient(httpClient connect.HTTPClient, baseURL string, 
 			httpClient,
 			baseURL+MatchmakingServiceListGuildMembersProcedure,
 			connect.WithSchema(matchmakingServiceMethods.ByName("ListGuildMembers")),
-			connect.WithClientOptions(opts...),
-		),
-		joinQueue: connect.NewClient[v1.JoinQueueRequest, v1.JoinQueueResponse](
-			httpClient,
-			baseURL+MatchmakingServiceJoinQueueProcedure,
-			connect.WithSchema(matchmakingServiceMethods.ByName("JoinQueue")),
-			connect.WithClientOptions(opts...),
-		),
-		leaveQueue: connect.NewClient[v1.LeaveQueueRequest, v1.LeaveQueueResponse](
-			httpClient,
-			baseURL+MatchmakingServiceLeaveQueueProcedure,
-			connect.WithSchema(matchmakingServiceMethods.ByName("LeaveQueue")),
-			connect.WithClientOptions(opts...),
-		),
-		getQueueStatus: connect.NewClient[v1.GetQueueStatusRequest, v1.GetQueueStatusResponse](
-			httpClient,
-			baseURL+MatchmakingServiceGetQueueStatusProcedure,
-			connect.WithSchema(matchmakingServiceMethods.ByName("GetQueueStatus")),
 			connect.WithClientOptions(opts...),
 		),
 		createCustomMatch: connect.NewClient[v1.CreateCustomMatchRequest, v1.CreateCustomMatchResponse](
@@ -157,9 +127,6 @@ func NewMatchmakingServiceClient(httpClient connect.HTTPClient, baseURL string, 
 type matchmakingServiceClient struct {
 	buildTeams        *connect.Client[v1.BuildTeamsRequest, v1.BuildTeamsResponse]
 	listGuildMembers  *connect.Client[v1.ListGuildMembersRequest, v1.ListGuildMembersResponse]
-	joinQueue         *connect.Client[v1.JoinQueueRequest, v1.JoinQueueResponse]
-	leaveQueue        *connect.Client[v1.LeaveQueueRequest, v1.LeaveQueueResponse]
-	getQueueStatus    *connect.Client[v1.GetQueueStatusRequest, v1.GetQueueStatusResponse]
 	createCustomMatch *connect.Client[v1.CreateCustomMatchRequest, v1.CreateCustomMatchResponse]
 	reportMatchResult *connect.Client[v1.ReportMatchResultRequest, v1.ReportMatchResultResponse]
 	getMatch          *connect.Client[v1.GetMatchRequest, v1.GetMatchResponse]
@@ -175,21 +142,6 @@ func (c *matchmakingServiceClient) BuildTeams(ctx context.Context, req *connect.
 // ListGuildMembers calls parley.matchmaking.v1.MatchmakingService.ListGuildMembers.
 func (c *matchmakingServiceClient) ListGuildMembers(ctx context.Context, req *connect.Request[v1.ListGuildMembersRequest]) (*connect.Response[v1.ListGuildMembersResponse], error) {
 	return c.listGuildMembers.CallUnary(ctx, req)
-}
-
-// JoinQueue calls parley.matchmaking.v1.MatchmakingService.JoinQueue.
-func (c *matchmakingServiceClient) JoinQueue(ctx context.Context, req *connect.Request[v1.JoinQueueRequest]) (*connect.Response[v1.JoinQueueResponse], error) {
-	return c.joinQueue.CallUnary(ctx, req)
-}
-
-// LeaveQueue calls parley.matchmaking.v1.MatchmakingService.LeaveQueue.
-func (c *matchmakingServiceClient) LeaveQueue(ctx context.Context, req *connect.Request[v1.LeaveQueueRequest]) (*connect.Response[v1.LeaveQueueResponse], error) {
-	return c.leaveQueue.CallUnary(ctx, req)
-}
-
-// GetQueueStatus calls parley.matchmaking.v1.MatchmakingService.GetQueueStatus.
-func (c *matchmakingServiceClient) GetQueueStatus(ctx context.Context, req *connect.Request[v1.GetQueueStatusRequest]) (*connect.Response[v1.GetQueueStatusResponse], error) {
-	return c.getQueueStatus.CallUnary(ctx, req)
 }
 
 // CreateCustomMatch calls parley.matchmaking.v1.MatchmakingService.CreateCustomMatch.
@@ -222,9 +174,6 @@ func (c *matchmakingServiceClient) GetMatchByUuid(ctx context.Context, req *conn
 type MatchmakingServiceHandler interface {
 	BuildTeams(context.Context, *connect.Request[v1.BuildTeamsRequest]) (*connect.Response[v1.BuildTeamsResponse], error)
 	ListGuildMembers(context.Context, *connect.Request[v1.ListGuildMembersRequest]) (*connect.Response[v1.ListGuildMembersResponse], error)
-	JoinQueue(context.Context, *connect.Request[v1.JoinQueueRequest]) (*connect.Response[v1.JoinQueueResponse], error)
-	LeaveQueue(context.Context, *connect.Request[v1.LeaveQueueRequest]) (*connect.Response[v1.LeaveQueueResponse], error)
-	GetQueueStatus(context.Context, *connect.Request[v1.GetQueueStatusRequest]) (*connect.Response[v1.GetQueueStatusResponse], error)
 	CreateCustomMatch(context.Context, *connect.Request[v1.CreateCustomMatchRequest]) (*connect.Response[v1.CreateCustomMatchResponse], error)
 	ReportMatchResult(context.Context, *connect.Request[v1.ReportMatchResultRequest]) (*connect.Response[v1.ReportMatchResultResponse], error)
 	GetMatch(context.Context, *connect.Request[v1.GetMatchRequest]) (*connect.Response[v1.GetMatchResponse], error)
@@ -249,24 +198,6 @@ func NewMatchmakingServiceHandler(svc MatchmakingServiceHandler, opts ...connect
 		MatchmakingServiceListGuildMembersProcedure,
 		svc.ListGuildMembers,
 		connect.WithSchema(matchmakingServiceMethods.ByName("ListGuildMembers")),
-		connect.WithHandlerOptions(opts...),
-	)
-	matchmakingServiceJoinQueueHandler := connect.NewUnaryHandler(
-		MatchmakingServiceJoinQueueProcedure,
-		svc.JoinQueue,
-		connect.WithSchema(matchmakingServiceMethods.ByName("JoinQueue")),
-		connect.WithHandlerOptions(opts...),
-	)
-	matchmakingServiceLeaveQueueHandler := connect.NewUnaryHandler(
-		MatchmakingServiceLeaveQueueProcedure,
-		svc.LeaveQueue,
-		connect.WithSchema(matchmakingServiceMethods.ByName("LeaveQueue")),
-		connect.WithHandlerOptions(opts...),
-	)
-	matchmakingServiceGetQueueStatusHandler := connect.NewUnaryHandler(
-		MatchmakingServiceGetQueueStatusProcedure,
-		svc.GetQueueStatus,
-		connect.WithSchema(matchmakingServiceMethods.ByName("GetQueueStatus")),
 		connect.WithHandlerOptions(opts...),
 	)
 	matchmakingServiceCreateCustomMatchHandler := connect.NewUnaryHandler(
@@ -305,12 +236,6 @@ func NewMatchmakingServiceHandler(svc MatchmakingServiceHandler, opts ...connect
 			matchmakingServiceBuildTeamsHandler.ServeHTTP(w, r)
 		case MatchmakingServiceListGuildMembersProcedure:
 			matchmakingServiceListGuildMembersHandler.ServeHTTP(w, r)
-		case MatchmakingServiceJoinQueueProcedure:
-			matchmakingServiceJoinQueueHandler.ServeHTTP(w, r)
-		case MatchmakingServiceLeaveQueueProcedure:
-			matchmakingServiceLeaveQueueHandler.ServeHTTP(w, r)
-		case MatchmakingServiceGetQueueStatusProcedure:
-			matchmakingServiceGetQueueStatusHandler.ServeHTTP(w, r)
 		case MatchmakingServiceCreateCustomMatchProcedure:
 			matchmakingServiceCreateCustomMatchHandler.ServeHTTP(w, r)
 		case MatchmakingServiceReportMatchResultProcedure:
@@ -336,18 +261,6 @@ func (UnimplementedMatchmakingServiceHandler) BuildTeams(context.Context, *conne
 
 func (UnimplementedMatchmakingServiceHandler) ListGuildMembers(context.Context, *connect.Request[v1.ListGuildMembersRequest]) (*connect.Response[v1.ListGuildMembersResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("parley.matchmaking.v1.MatchmakingService.ListGuildMembers is not implemented"))
-}
-
-func (UnimplementedMatchmakingServiceHandler) JoinQueue(context.Context, *connect.Request[v1.JoinQueueRequest]) (*connect.Response[v1.JoinQueueResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("parley.matchmaking.v1.MatchmakingService.JoinQueue is not implemented"))
-}
-
-func (UnimplementedMatchmakingServiceHandler) LeaveQueue(context.Context, *connect.Request[v1.LeaveQueueRequest]) (*connect.Response[v1.LeaveQueueResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("parley.matchmaking.v1.MatchmakingService.LeaveQueue is not implemented"))
-}
-
-func (UnimplementedMatchmakingServiceHandler) GetQueueStatus(context.Context, *connect.Request[v1.GetQueueStatusRequest]) (*connect.Response[v1.GetQueueStatusResponse], error) {
-	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("parley.matchmaking.v1.MatchmakingService.GetQueueStatus is not implemented"))
 }
 
 func (UnimplementedMatchmakingServiceHandler) CreateCustomMatch(context.Context, *connect.Request[v1.CreateCustomMatchRequest]) (*connect.Response[v1.CreateCustomMatchResponse], error) {

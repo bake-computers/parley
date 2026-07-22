@@ -27,14 +27,6 @@
     "USE_LOCAL_ENGINE": "0",
   },
 
-  "kv_namespaces": [
-    {
-      "binding": "KV",
-      "id": "d1811757b1204fd2ab1d0225c7bbb5e3",
-      "remote": true,
-    },
-  ],
-
   "vpc_services": [
     {
       "binding": "VPC_SERVICE",
@@ -53,12 +45,6 @@
         "ENGINE_SERVICE_URL": "http://127.0.0.1:50051",
         "ENGINE_INTERNAL_URL": "http://127.0.0.1:50051",
       },
-      "kv_namespaces": [
-        {
-          "binding": "KV",
-          "id": "d1811757b1204fd2ab1d0225c7bbb5e3",
-        },
-      ],
     },
   },
 }

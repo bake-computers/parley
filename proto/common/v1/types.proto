@@ -60,14 +60,6 @@ message PlayerStats {
   string game          = 8;
 }
 
-enum Region {
-  REGION_UNSPECIFIED = 0;
-  REGION_EU          = 1;
-  REGION_NA          = 2;
-  REGION_APAC        = 3;
-  REGION_SA          = 4;
-}
-
 enum Game {
   GAME_UNSPECIFIED = 0;
   GAME_R6          = 1;

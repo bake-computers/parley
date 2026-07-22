@@ -4,5 +4,4 @@ export type UserSettingsJson = {
   matchmakingEnabled: boolean;
   termsAcceptedAtMs: number;
   profilePublic: boolean;
-  matchmakingRegion: number;
 };

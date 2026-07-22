@@ -1,8 +1,5 @@
 declare namespace Cloudflare {
   interface Env {
-    BRIDGE: Fetcher;
-    KV: KVNamespace;
-    MATCH_KV: KVNamespace;
     DISCORD_APPLICATION_ID: string;
     DISCORD_CLIENT_SECRET: string;
     DISCORD_BOT_TOKEN?: string;
