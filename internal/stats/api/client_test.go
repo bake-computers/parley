@@ -556,7 +556,7 @@ func TestConfigCache_AvoidsRepeatFetch(t *testing.T) {
 	srv := httptest.NewServer(mux)
 	defer srv.Close()
 
-	cache := api.NewConfigCache(nil, 0)
+	cache := api.NewConfigCache(0)
 	client := api.NewClient(api.Options{BaseURL: srv.URL, APIKey: "k", ConfigCache: cache})
 	ctx := context.Background()
 
