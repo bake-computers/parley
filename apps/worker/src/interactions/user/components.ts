@@ -5,7 +5,7 @@ import {
   type ModalInteraction,
   logger,
 } from "@parley/runtime";
-import { Region, type UserSettings as ProtoUserSettings } from "@parley/proto";
+import { type UserSettings as ProtoUserSettings } from "@parley/proto";
 import { getUserSettingsClient } from "#/transport";
 import { editReplyV2, updateV2 } from "#/ui/discord";
 import { resolveEmojis } from "#/ui/emojis";
@@ -16,7 +16,6 @@ import {
   USER_DELETE_OPEN,
   USER_MATCHMAKING_PREFIX,
   USER_REFRESH_STATS,
-  USER_REGION_PREFIX,
   USER_VISIBILITY_PREFIX,
   USER_ACCEPT_BUTTON,
   USER_PAGE_PREFIX,
@@ -48,7 +47,6 @@ function baseSettings(discordUserId: string): ProtoUserSettings {
     matchmakingEnabled: true,
     termsAcceptedAtMs: 0,
     profilePublic: true,
-    matchmakingRegion: Region.UNSPECIFIED,
   } as unknown as ProtoUserSettings;
 }
 
@@ -100,17 +98,6 @@ function parseUserPageCustomId(customId: string): UserSettingsView | undefined {
     }
   }
   return undefined;
-}
-
-function parseRegionCustomId(customId: string): Region | undefined {
-  if (!customId.startsWith(USER_REGION_PREFIX)) {
-    return undefined;
-  }
-  const region = Number(customId.slice(USER_REGION_PREFIX.length));
-  if (!Number.isInteger(region) || region < Region.UNSPECIFIED || region > Region.SA) {
-    return undefined;
-  }
-  return region as Region;
 }
 
 export const userButtonHandler = new ComponentHandler("user", COMPONENT_BUTTON).addHandler(
@@ -196,15 +183,6 @@ export const userButtonHandler = new ComponentHandler("user", COMPONENT_BUTTON).
           profilePublic: v === "public",
           updatedAtMs: nowMs(),
         },
-        DEFAULT_VIEW,
-      );
-      return;
-    }
-    const regionSelection = parseRegionCustomId(customId);
-    if (regionSelection !== undefined) {
-      await applyUpdate(
-        interaction,
-        { ...current, matchmakingRegion: regionSelection, updatedAtMs: nowMs() },
         DEFAULT_VIEW,
       );
       return;
