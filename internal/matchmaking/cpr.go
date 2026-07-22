@@ -1,9 +1,8 @@
 // Package matchmaking implements the Parley matchmaking engine: Composite
-// Performance Rating (CPR), Glicko-2 team balancing, eligibility rules, queue
-// matching, and a background sweeper. The package mirrors src/matchmaking/*
-// in the Rust engine-service and is split into pure-logic files (cpr.go,
-// glicko.go) and DB-aware files (eligibility.go, players.go, queue.go,
-// sweeper.go) that use the bun repositories under internal/repos.
+// Performance Rating (CPR), Glicko-2 team balancing, and eligibility rules.
+// It is split into pure-logic files (cpr.go, glicko.go) and DB-aware files
+// (eligibility.go, players.go) that use the bun repositories under
+// internal/repos.
 package matchmaking
 
 import "math"
