@@ -110,7 +110,7 @@ func newTestBunDB(t *testing.T) (bdb *bun.DB, cleanup func()) {
 // engineTestRig wires up a minimal but functional engine stack behind an
 // httptest.Server: identity + guild settings + user settings (the RPC
 // surfaces we exercise in tests/identity_link_test.go) plus the /health and
-// /ready probes from cmd/parley/main.go. Stats/match/tournament/leaderboard
+// /ready probes from cmd/parley/main.go. Stats/match/tournament
 // are intentionally not wired — keeping the rig small avoids dragging in
 // Redis and the stats pipeline for the round-trip tests.
 //
