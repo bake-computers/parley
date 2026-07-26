@@ -3,8 +3,6 @@ import { UI_TOKENS } from "#/ui/tokens";
 export { ACCEPT_BUTTON as USER_ACCEPT_BUTTON } from "#/interactions/_shared/acceptance";
 export const USER_MATCHMAKING_SELECT = "user/matchmaking";
 export const USER_VISIBILITY_SELECT = "user/visibility";
-export const USER_MATCHMAKING_PREFIX = "user/matchmaking/";
-export const USER_VISIBILITY_PREFIX = "user/visibility/";
 export const USER_REFRESH_STATS = "user/refresh-stats";
 export const USER_DELETE_OPEN = "user/delete/open";
 export const USER_DELETE_MODAL = "user-delete-modal";
