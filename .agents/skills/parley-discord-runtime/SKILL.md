@@ -11,18 +11,18 @@ description: Use when adding/editing Discord slash commands, components, or moda
 
 ## Quick reference
 
-| Action                   | Location / function                                                                                               |
-| ------------------------ | ----------------------------------------------------------------------------------------------------------------- |
-| Define a slash command   | `apps/worker/src/interactions/<name>/` (slash, components, modals as needed; simple cmds may be a single file)    |
-| Runtime handler list     | `apps/worker/src/handlers.ts` — export `workerHandlers`                                                           |
-| Mount handlers           | `apps/worker/src/app.ts` — thin `createApp()`: `client.loadHandlers(...workerHandlers)`                           |
-| Register with Discord    | `apps/worker/src/register-commands.ts` — slash list + `registerApplicationCommands` from `@parley/runtime`        |
-| Components v2 top-level  | `ContainerBuilder` (`packages/runtime/src/builders/container.ts`)                                                 |
-| Send a v2 message        | `replyV2(interaction, container, ephemeral)` from `apps/worker/src/ui/discord.ts`                                 |
-| Outbound Discord REST    | `DiscordRestClient` from `@parley/runtime`; token `env.DISCORD_BOT_TOKEN ?? env.DISCORD_TOKEN`                    |
-| Signature verification   | Automatic in `ParleyClient.fetch` via `verifyDiscordRequest` (Ed25519)                                            |
-| Push commands to Discord | `bun run register-commands` from `apps/worker` (needs `DISCORD_BOT_TOKEN` + `DISCORD_APPLICATION_ID`)             |
-| Deploy the worker        | `cd apps/worker && bun run deploy` (Wrangler)                                                                     |
+| Action                   | Location / function                                                                                            |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------- |
+| Define a slash command   | `apps/worker/src/interactions/<name>/` (slash, components, modals as needed; simple cmds may be a single file) |
+| Runtime handler list     | `apps/worker/src/handlers.ts` — export `workerHandlers`                                                        |
+| Mount handlers           | `apps/worker/src/app.ts` — thin `createApp()`: `client.loadHandlers(...workerHandlers)`                        |
+| Register with Discord    | `apps/worker/src/register-commands.ts` — slash list + `registerApplicationCommands` from `@parley/runtime`     |
+| Components v2 top-level  | `ContainerBuilder` (`packages/runtime/src/builders/container.ts`)                                              |
+| Send a v2 message        | `replyV2(interaction, container, ephemeral)` from `apps/worker/src/ui/discord.ts`                              |
+| Outbound Discord REST    | `DiscordRestClient` from `@parley/runtime`; token `env.DISCORD_BOT_TOKEN ?? env.DISCORD_TOKEN`                 |
+| Signature verification   | Automatic in `ParleyClient.fetch` via `verifyDiscordRequest` (Ed25519)                                         |
+| Push commands to Discord | `bun run register-commands` from `apps/worker` (needs `DISCORD_BOT_TOKEN` + `DISCORD_APPLICATION_ID`)          |
+| Deploy the worker        | `cd apps/worker && bun run deploy` (Wrangler)                                                                  |
 
 ## Critical patterns
 
