@@ -2,6 +2,7 @@
 package server
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -11,6 +12,10 @@ import (
 	"github.com/gofiber/fiber/v3/middleware/logger"
 	"github.com/gofiber/fiber/v3/middleware/recover"
 	"github.com/gofiber/fiber/v3/middleware/requestid"
+
+	"connectrpc.com/connect"
+	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/proto"
 
 	"github.com/pactum-computers/parley/gen/parley/guild/v1/guildv1connect"
 	"github.com/pactum-computers/parley/gen/parley/identity/v1/identityv1connect"
@@ -69,28 +74,74 @@ func New(deps Deps) *fiber.App {
 	app.Get("/stats/:username", statsREST)
 
 	// ConnectRPC services
-	p, h := identityv1connect.NewIdentityServiceHandler(handlers.NewIdentityHandler(deps.Identity))
+	p, h := identityv1connect.NewIdentityServiceHandler(handlers.NewIdentityHandler(deps.Identity), connectOptions...)
 	mountConnect(app, p, h)
 
-	p, h = guildv1connect.NewGuildSettingsServiceHandler(handlers.NewGuildHandler(deps.Guild))
+	p, h = guildv1connect.NewGuildSettingsServiceHandler(handlers.NewGuildHandler(deps.Guild), connectOptions...)
 	mountConnect(app, p, h)
 
-	p, h = userv1connect.NewUserSettingsServiceHandler(handlers.NewUserHandler(deps.User))
+	p, h = userv1connect.NewUserSettingsServiceHandler(handlers.NewUserHandler(deps.User), connectOptions...)
 	mountConnect(app, p, h)
 
-	p, h = matchmakingv1connect.NewMatchmakingServiceHandler(handlers.NewMatchHandler(deps.Match))
+	p, h = matchmakingv1connect.NewMatchmakingServiceHandler(handlers.NewMatchHandler(deps.Match), connectOptions...)
 	mountConnect(app, p, h)
 
-	p, h = statsv1connect.NewStatsServiceHandler(handlers.NewStatsHandler(deps.Stats))
+	p, h = statsv1connect.NewStatsServiceHandler(handlers.NewStatsHandler(deps.Stats), connectOptions...)
 	mountConnect(app, p, h)
 
 	if deps.Tournament != nil {
-		p, h = tournamentv1connect.NewTournamentServiceHandler(handlers.NewTournamentHandler(deps.Tournament))
+		p, h = tournamentv1connect.NewTournamentServiceHandler(handlers.NewTournamentHandler(deps.Tournament), connectOptions...)
 		mountConnect(app, p, h)
 	}
 
 	return app
 }
+
+// connectOptions are shared across all ConnectRPC handlers. The custom JSON codec
+// sets EmitUnpopulated so protojson serializes zero values (false booleans, 0
+// numbers) instead of omitting them; the web worker cannot otherwise tell a saved
+// `false` from an absent field and would fall back to its own default, reverting
+// the user's change. Only JSON requests use this codec — binary protobuf is untouched.
+var connectOptions = []connect.HandlerOption{
+	connect.WithCodec(&emitDefaultJSONCodec{name: "json"}),
+	connect.WithCodec(&emitDefaultJSONCodec{name: "json; charset=utf-8"}),
+}
+
+// emitDefaultJSONCodec mirrors connect's protoJSONCodec but emits unpopulated fields.
+type emitDefaultJSONCodec struct {
+	name string
+}
+
+func (c *emitDefaultJSONCodec) Name() string { return c.name }
+
+func (c *emitDefaultJSONCodec) Marshal(message any) ([]byte, error) {
+	protoMessage, ok := message.(proto.Message)
+	if !ok {
+		return nil, fmt.Errorf("expected proto.Message, got %T", message)
+	}
+	return protojson.MarshalOptions{EmitUnpopulated: true}.Marshal(protoMessage)
+}
+
+func (c *emitDefaultJSONCodec) MarshalAppend(dst []byte, message any) ([]byte, error) {
+	protoMessage, ok := message.(proto.Message)
+	if !ok {
+		return nil, fmt.Errorf("expected proto.Message, got %T", message)
+	}
+	return protojson.MarshalOptions{EmitUnpopulated: true}.MarshalAppend(dst, protoMessage)
+}
+
+func (c *emitDefaultJSONCodec) Unmarshal(data []byte, message any) error {
+	protoMessage, ok := message.(proto.Message)
+	if !ok {
+		return fmt.Errorf("expected proto.Message, got %T", message)
+	}
+	if len(data) == 0 {
+		return fmt.Errorf("zero-length payload is not a valid JSON object")
+	}
+	return protojson.UnmarshalOptions{DiscardUnknown: true}.Unmarshal(data, protoMessage)
+}
+
+func (c *emitDefaultJSONCodec) IsBinary() bool { return false }
 
 // mountConnect registers all routes under a connect service prefix.
 // path is e.g. "/parley.identity.v1.IdentityService/".
