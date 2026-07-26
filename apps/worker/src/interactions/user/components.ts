@@ -236,15 +236,18 @@ export const userSelectHandler = new ComponentHandler("user", COMPONENT_STRING_S
       );
       return;
     }
-    await applyUpdate(
-      interaction,
-      {
-        ...current,
-        profilePublic: selected === "public",
-        updatedAtMs: nowMs(),
-      },
-      DEFAULT_VIEW,
-    );
+    if (customId === USER_VISIBILITY_SELECT) {
+      await applyUpdate(
+        interaction,
+        {
+          ...current,
+          profilePublic: selected === "public",
+          updatedAtMs: nowMs(),
+        },
+        DEFAULT_VIEW,
+      );
+      return;
+    }
   },
 );
 
