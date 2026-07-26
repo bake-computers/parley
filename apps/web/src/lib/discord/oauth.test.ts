@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { cacheClearMemoryForTests } from "./discord-cache.js";
+import { canManageCookieGuild } from "./permissions.js";
 import {
   buildDiscordAuthorizeUrl,
   cookieUsesSecure,
@@ -65,6 +66,27 @@ describe("discord oauth", () => {
 
     const expired = await sealSession({ ...session, expiresAtMs: Date.now() - 1 }, secret);
     expect(await unsealSession(expired, secret)).toBeNull();
+  });
+
+  test("guild with missing permissions fails closed (no manage access)", async () => {
+    const secret = "test-secret-at-least-32-chars-long!!";
+    // Simulate a legacy/partial guild payload where permissions was never populated.
+    const session = {
+      user: {
+        id: "1",
+        username: "u",
+        global_name: null,
+        avatar: null,
+        discriminator: "0",
+      },
+      guilds: [{ id: "99", name: "NoPerms", icon: null, owner: false }],
+      expiresAtMs: Date.now() + 60_000,
+    } as unknown as CookieSession;
+
+    const token = await sealSession(session, secret);
+    const unsealed = await unsealSession(token, secret);
+    expect(unsealed?.guilds?.[0]?.permissions).toBe("0");
+    expect(canManageCookieGuild(unsealed!.guilds![0])).toBe(false);
   });
 });
 

@@ -273,10 +273,7 @@ export async function unsealSession(token: string, secret: string): Promise<Cook
       return null;
     }
     if (Array.isArray(parsed.guilds)) {
-      parsed.guilds = parsed.guilds.map((g) => ({
-        ...g,
-        permissions: typeof g.permissions === "string" ? g.permissions : String(1n << 5n),
-      }));
+      parsed.guilds = normalizeCookieGuilds(parsed.guilds);
     }
     return parsed;
   } catch {
@@ -342,7 +339,9 @@ export function toPublicSession(session: CookieSession, guilds: PublicGuild[]) {
 function normalizeCookieGuilds(guilds: CookieGuild[]): CookieGuild[] {
   return guilds.map((g) => ({
     ...g,
-    permissions: typeof g.permissions === "string" ? g.permissions : String(1n << 5n),
+    // Missing/invalid permissions fail closed to "0" (no access). Defaulting to a
+    // manage bit here would offer "Add Parley" on servers the user cannot manage.
+    permissions: typeof g.permissions === "string" ? g.permissions : "0",
   }));
 }
 
