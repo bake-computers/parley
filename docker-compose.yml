@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   postgres:
     image: postgres:18
@@ -9,6 +7,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-parley}
       POSTGRES_DB: ${POSTGRES_DB:-parley}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGDATA: /var/lib/postgresql/data
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
@@ -21,21 +20,42 @@ services:
     container_name: parley-backend
     restart: always
     environment:
-      - ENGINE_SERVICE_ADDR=${ENGINE_SERVICE_ADDR}
-      - LOG_LEVEL=${LOG_LEVEL}
-      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
-      - RUN_MIGRATIONS=${RUN_MIGRATIONS}
-      - DB_TLS=${DB_TLS}
+      - ENGINE_SERVICE_ADDR=${ENGINE_SERVICE_ADDR:-0.0.0.0:50051}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - DATABASE_URL=postgres://${POSTGRES_USER:-parley}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-parley}
+      - RUN_MIGRATIONS=${RUN_MIGRATIONS:-1}
+      - DB_TLS=${DB_TLS:-disable}
+      - DB_POOL_MAX=${DB_POOL_MAX:-}
+      - DB_POOL_MIN_IDLE=${DB_POOL_MIN_IDLE:-}
+      - STATS_CC_API_KEY=${STATS_CC_API_KEY:-}
+      - STATS_CC_API_BASE_URL=${STATS_CC_API_BASE_URL:-}
+      - STATS_CC_PROFILE_BATCH_SIZE=${STATS_CC_PROFILE_BATCH_SIZE:-}
+      - STATS_CC_PROFILE_BATCH_DELAY_MS=${STATS_CC_PROFILE_BATCH_DELAY_MS:-}
       - ACCOUNT_DELETION_HMAC_SECRET=${ACCOUNT_DELETION_HMAC_SECRET}
+      - MATCHMAKING_MODEL_R2_ACCOUNT_ID=${MATCHMAKING_MODEL_R2_ACCOUNT_ID:-}
+      - MATCHMAKING_MODEL_R2_ACCESS_KEY_ID=${MATCHMAKING_MODEL_R2_ACCESS_KEY_ID:-}
+      - MATCHMAKING_MODEL_R2_SECRET_ACCESS_KEY=${MATCHMAKING_MODEL_R2_SECRET_ACCESS_KEY:-}
+      - MATCHMAKING_MODEL_R2_BUCKET=${MATCHMAKING_MODEL_R2_BUCKET:-}
+      - MATCHMAKING_MODEL_R2_KEY=${MATCHMAKING_MODEL_R2_KEY:-}
+      - MATCHMAKING_MODEL_R2_JURISDICTION=${MATCHMAKING_MODEL_R2_JURISDICTION:-}
+      - MATCHMAKING_MIN_SEASON_MATCHES=${MATCHMAKING_MIN_SEASON_MATCHES:-}
+      - MATCHMAKING_ROLE_BALANCE_WEIGHT=${MATCHMAKING_ROLE_BALANCE_WEIGHT:-}
+      - MATCHMAKING_ROLE_COLLISION_WEIGHT=${MATCHMAKING_ROLE_COLLISION_WEIGHT:-}
+      - AXIOM_TOKEN=${AXIOM_TOKEN:-}
+      - AXIOM_DATASET=${AXIOM_DATASET:-}
+      - AXIOM_ORG_ID=${AXIOM_ORG_ID:-}
+      - AXIOM_EDGE=${AXIOM_EDGE:-}
     ports:
       - "127.0.0.1:50051:50051"
     networks:
       - internal-net
-    labels:
-      - "com.centurylinklabs.watchtower.enable=true"
+    depends_on:
+      - postgres
 
 volumes:
   pgdata:
+    external: true
+    name: core-infra_pgdata
 
 networks:
   internal-net:
