@@ -145,7 +145,7 @@ function DashboardIndex() {
                 ? "No servers on this account. Join a Discord server first, then sign in again."
                 : primary.length === 0
                   ? `${counts.locked} server${counts.locked === 1 ? "" : "s"} without manage access.`
-                  : `${primary.length} server${primary.length === 1 ? "" : "s"} you can manage — ${counts.needsBot} need Parley, ${counts.ready} ready.`}
+                  : `${primary.length} server${primary.length === 1 ? "" : "s"} you can manage: ${counts.needsBot} need Parley, ${counts.ready} ready.`}
             </p>
           </div>
           {counts.total > 0 ? (
@@ -184,7 +184,7 @@ function DashboardIndex() {
                   <span>
                     Other servers ({other.length})
                     <span className="mt-0.5 block text-xs font-normal opacity-80">
-                      View only — no manage access
+                      View only (no manage access)
                     </span>
                   </span>
                   <ChevronDown

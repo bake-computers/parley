@@ -131,7 +131,7 @@ export function AuthLoginPage({
 
         <div className="relative flex h-full flex-col justify-between p-12 xl:p-16">
           <p className="max-w-sm text-sm leading-relaxed text-white/65">
-            Competitive matchmaking and tournaments for Rainbow Six Siege — built for Discord
+            Competitive matchmaking and tournaments for Rainbow Six Siege, built for Discord
             communities.
           </p>
           <div>

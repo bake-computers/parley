@@ -115,7 +115,7 @@ export async function exchangeDiscordCode(params: {
     let hint = "";
     if (text.includes("invalid_grant")) {
       hint =
-        " Common causes: redirect_uri must match authorize exactly (use one host: localhost OR 127.0.0.1), code already used (do not refresh callback — start fresh from /auth/discord), or wrong client secret.";
+        " Common causes: redirect_uri must match authorize exactly (use one host: localhost OR 127.0.0.1), code already used (do not refresh callback; start fresh from /auth/discord), or wrong client secret.";
     }
     throw new Error(
       `Discord token exchange failed (${res.status}): ${text}.${hint} redirect_uri sent: ${params.redirectUri}`,

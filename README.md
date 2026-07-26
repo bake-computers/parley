@@ -107,10 +107,10 @@ The `parley` binary is a Go HTTP server (Fiber + connect-go) exposing ConnectRPC
 
 ### 5.3 Edge Applications
 
-| Application    | Runtime                      | Role                                                                   |
-| -------------- | ---------------------------- | ---------------------------------------------------------------------- |
-| `apps/worker`  | Cloudflare Worker (Hono)     | Discord bot: slash commands, interaction verification, embed rendering |
-| `apps/web` | TanStack Start on Cloudflare | Public website, dashboard, legal pages                                 |
+| Application   | Runtime                      | Role                                                                   |
+| ------------- | ---------------------------- | ---------------------------------------------------------------------- |
+| `apps/worker` | Cloudflare Worker (Hono)     | Discord bot: slash commands, interaction verification, embed rendering |
+| `apps/web`    | TanStack Start on Cloudflare | Public website, dashboard, legal pages                                 |
 
 The Discord Worker uses `@parley/runtime` — a type-safe wrapper over Discord's API for Embeds and Components v2 — and `@parley/proto` ConnectRPC clients to call the engine.
 
@@ -159,10 +159,10 @@ Team-building and custom-match flows follow the same path through the Worker to 
 
 Infrastructure is provisioned with **Wrangler**. Each app owns its `wrangler.jsonc` (bindings, routes, observability, secrets), and `bun run deploy` fans out `wrangler deploy` across both via Turbo:
 
-| Worker         | Config                        | Domain           |
-| -------------- | ----------------------------- | ---------------- |
-| Discord Worker | `apps/worker/wrangler.jsonc`  | `app.parley.bot` |
-| Web App    | `apps/web/wrangler.jsonc` | `parley.bot`     |
+| Worker         | Config                       | Domain           |
+| -------------- | ---------------------------- | ---------------- |
+| Discord Worker | `apps/worker/wrangler.jsonc` | `app.parley.bot` |
+| Web App        | `apps/web/wrangler.jsonc`    | `parley.bot`     |
 
 Local secrets live in each app's `.dev.vars` (gitignored); production secrets are managed with `wrangler secret put <NAME>` (run from the app directory).
 

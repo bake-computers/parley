@@ -174,7 +174,7 @@ async function handleDiscordCallbackImpl(
 
   const statePayload = await unsealOAuthState(stateParam, cfg.AUTH_SECRET);
   if (!statePayload) {
-    return new Response("Invalid or expired OAuth state — start again from /auth/discord", {
+    return new Response("Invalid or expired OAuth state. Start again from /auth/discord", {
       status: 400,
     });
   }
