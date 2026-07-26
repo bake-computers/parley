@@ -81,7 +81,7 @@ export function Hero() {
         <div className="hero-fade-tail absolute inset-x-0 bottom-0" />
       </div>
 
-      <div className="relative z-10 mx-auto flex min-h-[100dvh] w-full max-w-6xl flex-col justify-end px-6 pb-28 pt-24">
+      <div className="relative z-10 mx-auto flex min-h-[100dvh] w-full max-w-6xl flex-col justify-end px-6 pb-28 pt-24 md:justify-center md:pb-[20vh]">
         <div className="max-w-2xl">
           <h1 className="max-w-xl text-balance text-4xl font-semibold leading-[1.08] tracking-tight text-foreground animate-in fade-in slide-in-from-bottom-4 duration-1000 md:text-5xl lg:text-6xl">
             {h.titleBefore}
