@@ -205,6 +205,14 @@ export const userSelectHandler = new ComponentHandler("user", COMPONENT_STRING_S
     const customId = interaction.customId;
     const discordUserId = interaction.user?.id ?? "";
 
+    if (customId !== USER_MATCHMAKING_SELECT && customId !== USER_VISIBILITY_SELECT) {
+      logger.warn("user.unknown_select", "Select interaction had no recognised customId", {
+        interactionId: interaction.id,
+        customId,
+      });
+      return;
+    }
+
     if (!(await deferComponent(interaction))) {
       return;
     }
@@ -228,17 +236,15 @@ export const userSelectHandler = new ComponentHandler("user", COMPONENT_STRING_S
       );
       return;
     }
-    if (customId === USER_VISIBILITY_SELECT) {
-      await applyUpdate(
-        interaction,
-        {
-          ...current,
-          profilePublic: selected === "public",
-          updatedAtMs: nowMs(),
-        },
-        DEFAULT_VIEW,
-      );
-    }
+    await applyUpdate(
+      interaction,
+      {
+        ...current,
+        profilePublic: selected === "public",
+        updatedAtMs: nowMs(),
+      },
+      DEFAULT_VIEW,
+    );
   },
 );
 
