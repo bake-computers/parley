@@ -1,2 +1,6 @@
 export { userSlashCommand } from "#/interactions/user/slash";
-export { userButtonHandler, userModalHandler } from "#/interactions/user/components";
+export {
+  userButtonHandler,
+  userModalHandler,
+  userSelectHandler,
+} from "#/interactions/user/components";

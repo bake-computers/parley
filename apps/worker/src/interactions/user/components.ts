@@ -1,6 +1,7 @@
 import {
   ComponentHandler,
   ModalHandler,
+  StringSelectInteraction,
   type MessageComponentInteraction,
   type ModalInteraction,
   logger,
@@ -14,9 +15,9 @@ import {
   USER_CANCEL,
   USER_DELETE_MODAL,
   USER_DELETE_OPEN,
-  USER_MATCHMAKING_PREFIX,
+  USER_MATCHMAKING_SELECT,
   USER_REFRESH_STATS,
-  USER_VISIBILITY_PREFIX,
+  USER_VISIBILITY_SELECT,
   USER_ACCEPT_BUTTON,
   USER_PAGE_PREFIX,
 } from "#/interactions/user/constants";
@@ -34,7 +35,9 @@ import {
   invokeGetUserSettings,
   invokeUpsertUserSettings,
 } from "#/interactions/user/rpc";
+
 const COMPONENT_BUTTON = 2;
+const COMPONENT_STRING_SELECT = 3;
 
 function getClient(env: unknown) {
   return getUserSettingsClient(env as never);
@@ -64,6 +67,14 @@ async function deferComponent(interaction: MessageComponentInteraction): Promise
     return false;
   }
   return true;
+}
+
+function selectValues(interaction: MessageComponentInteraction): string[] {
+  if (interaction instanceof StringSelectInteraction) {
+    return [...interaction.values];
+  }
+  const data = interaction.raw.data as { values?: string[] };
+  return Array.isArray(data.values) ? data.values : [];
 }
 
 async function applyUpdate(
@@ -98,6 +109,20 @@ function parseUserPageCustomId(customId: string): UserSettingsView | undefined {
     }
   }
   return undefined;
+}
+
+async function loadCurrentSettings(
+  interaction: MessageComponentInteraction,
+  discordUserId: string,
+): Promise<ProtoUserSettings | undefined> {
+  const env = interaction.context.env;
+  const settingsResult = await invokeGetUserSettings(getClient(env) as never, discordUserId);
+  if (settingsResult.isErr() || !settingsResult.value.success || !settingsResult.value.settings) {
+    const emojis = await resolveEmojis(interaction);
+    await editReplyV2(interaction, buildErrorCard("Could not load your settings.", emojis));
+    return undefined;
+  }
+  return settingsResult.value.settings;
 }
 
 export const userButtonHandler = new ComponentHandler("user", COMPONENT_BUTTON).addHandler(
@@ -146,13 +171,10 @@ export const userButtonHandler = new ComponentHandler("user", COMPONENT_BUTTON).
       return;
     }
 
-    const settingsResult = await invokeGetUserSettings(getClient(env) as never, discordUserId);
-    if (settingsResult.isErr() || !settingsResult.value.success || !settingsResult.value.settings) {
-      const emojis = await resolveEmojis(interaction);
-      await editReplyV2(interaction, buildErrorCard("Could not load your settings.", emojis));
+    const current = await loadCurrentSettings(interaction, discordUserId);
+    if (!current) {
       return;
     }
-    const current = settingsResult.value.settings;
 
     const pageView = parseUserPageCustomId(customId);
     if (pageView) {
@@ -161,32 +183,6 @@ export const userButtonHandler = new ComponentHandler("user", COMPONENT_BUTTON).
       return;
     }
 
-    if (customId.startsWith(USER_MATCHMAKING_PREFIX)) {
-      const v = customId.slice(USER_MATCHMAKING_PREFIX.length);
-      await applyUpdate(
-        interaction,
-        {
-          ...current,
-          matchmakingEnabled: v === "on",
-          updatedAtMs: nowMs(),
-        },
-        DEFAULT_VIEW,
-      );
-      return;
-    }
-    if (customId.startsWith(USER_VISIBILITY_PREFIX)) {
-      const v = customId.slice(USER_VISIBILITY_PREFIX.length);
-      await applyUpdate(
-        interaction,
-        {
-          ...current,
-          profilePublic: v === "public",
-          updatedAtMs: nowMs(),
-        },
-        DEFAULT_VIEW,
-      );
-      return;
-    }
     if (customId === USER_REFRESH_STATS) {
       await editReplyV2(
         interaction,
@@ -199,6 +195,57 @@ export const userButtonHandler = new ComponentHandler("user", COMPONENT_BUTTON).
     if (customId === USER_CANCEL) {
       const emojis = await resolveEmojis(interaction);
       await editReplyV2(interaction, buildSettingsCard(current, emojis, DEFAULT_VIEW));
+      return;
+    }
+  },
+);
+
+export const userSelectHandler = new ComponentHandler("user", COMPONENT_STRING_SELECT).addHandler(
+  async (interaction: MessageComponentInteraction) => {
+    const customId = interaction.customId;
+    const discordUserId = interaction.user?.id ?? "";
+
+    if (customId !== USER_MATCHMAKING_SELECT && customId !== USER_VISIBILITY_SELECT) {
+      logger.warn("user.unknown_select", "Select interaction had no recognised customId", {
+        interactionId: interaction.id,
+        customId,
+      });
+      return;
+    }
+
+    if (!(await deferComponent(interaction))) {
+      return;
+    }
+
+    const current = await loadCurrentSettings(interaction, discordUserId);
+    if (!current) {
+      return;
+    }
+
+    const selected = selectValues(interaction)[0] ?? "";
+
+    if (customId === USER_MATCHMAKING_SELECT) {
+      await applyUpdate(
+        interaction,
+        {
+          ...current,
+          matchmakingEnabled: selected === "on",
+          updatedAtMs: nowMs(),
+        },
+        DEFAULT_VIEW,
+      );
+      return;
+    }
+    if (customId === USER_VISIBILITY_SELECT) {
+      await applyUpdate(
+        interaction,
+        {
+          ...current,
+          profilePublic: selected === "public",
+          updatedAtMs: nowMs(),
+        },
+        DEFAULT_VIEW,
+      );
       return;
     }
   },
