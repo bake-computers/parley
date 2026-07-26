@@ -4,9 +4,9 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const landingRoot = join(__dirname, "..");
-const foundersDir = join(landingRoot, "public/assets/founders");
-const foundersConfigPath = join(landingRoot, "src/lib/founders.ts");
+const webRoot = join(__dirname, "..");
+const foundersDir = join(webRoot, "public/assets/founders");
+const foundersConfigPath = join(webRoot, "src/lib/shared/founders.ts");
 
 const FOUNDER_ENTRIES = [
   { id: "980859238630948886", slug: "ryzm", role: "Founder" as const },
@@ -21,7 +21,7 @@ type DiscordUser = {
 };
 
 async function loadBotToken(): Promise<string> {
-  const envPath = join(landingRoot, "../../.env");
+  const envPath = join(webRoot, "../../.env");
   const envContents = await readFile(envPath, "utf8");
   const match = envContents.match(/^DISCORD_BOT_TOKEN="?([^"\n]+)"?/m);
   if (!match?.[1]) {
@@ -137,7 +137,7 @@ ${resolved
 `;
 
   await writeFile(foundersConfigPath, configSource);
-  console.log("Updated src/lib/founders.ts");
+  console.log("Updated src/lib/shared/founders.ts");
 }
 
 main().catch((error: unknown) => {

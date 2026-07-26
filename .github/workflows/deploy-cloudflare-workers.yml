@@ -27,7 +27,7 @@ env:
   TURBO_TELEMETRY_DISABLED: 1
 
 jobs:
-  landing-and-worker:
+  web-and-worker:
     name: Deploy ${{ matrix.app.name }}
     runs-on: blacksmith-2vcpu-ubuntu-2404
     environment:
@@ -37,8 +37,8 @@ jobs:
       fail-fast: false
       matrix:
         app:
-          - name: landing
-            cwd: apps/landing
+          - name: web
+            cwd: apps/web
             env: production-landing
             url: https://parley.bot
           - name: worker
