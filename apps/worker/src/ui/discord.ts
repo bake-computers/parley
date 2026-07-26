@@ -1,12 +1,16 @@
 import { InteractionResponseType } from "discord-api-types/v10";
-import type { ContainerBuilder, DiscordApiError, JsonValue } from "@parley/runtime";
+import type { DiscordApiError, JSONEncodable, JsonObject, JsonValue } from "@parley/runtime";
 import { type Result } from "neverthrow";
 
 // discord-api-types/v10: Ephemeral (64) | IsComponentsV2 (32768)
 export const COMPONENTS_V2_ONLY = 32768;
 export const COMPONENTS_V2_EPHEMERAL = 64 | COMPONENTS_V2_ONLY;
 
-type V2Payload = { components: ContainerBuilder[]; flags?: number };
+// A top-level Components V2 message component: a container (the bordered card) or
+// an action row (a button row rendered outside any container).
+type V2Component = JSONEncodable<JsonObject>;
+
+type V2Payload = { components: V2Component[]; flags?: number };
 
 type ReplyableInteraction = {
   reply: (
@@ -26,14 +30,18 @@ type EditableInteraction = {
   ) => Promise<Result<JsonValue, DiscordApiError>>;
 };
 
+function asComponents(components: V2Component | V2Component[]): V2Component[] {
+  return Array.isArray(components) ? components : [components];
+}
+
 export async function replyV2(
   interaction: ReplyableInteraction,
-  container: ContainerBuilder,
+  components: V2Component | V2Component[],
   forceEphemeral = true,
 ): Promise<Result<JsonValue, DiscordApiError>> {
   return interaction.reply(
     {
-      components: [container],
+      components: asComponents(components),
       flags: forceEphemeral ? COMPONENTS_V2_EPHEMERAL : COMPONENTS_V2_ONLY,
     },
     forceEphemeral,
@@ -50,10 +58,10 @@ export async function replyV2(
  */
 export async function updateV2(
   interaction: UpdatableInteraction,
-  container: ContainerBuilder,
+  components: V2Component | V2Component[],
 ): Promise<Result<JsonValue, DiscordApiError>> {
   const result = await interaction.update({
-    components: [container],
+    components: asComponents(components),
     flags: COMPONENTS_V2_EPHEMERAL,
   });
   if (result.isOk()) {
@@ -74,12 +82,12 @@ export async function updateV2(
 
 export async function editReplyV2(
   interaction: EditableInteraction,
-  container: ContainerBuilder,
+  components: V2Component | V2Component[],
   messageId = "@original",
 ): Promise<Result<JsonValue, DiscordApiError>> {
   return interaction.editReply(
     {
-      components: [container],
+      components: asComponents(components),
       flags: COMPONENTS_V2_EPHEMERAL,
     },
     messageId,
