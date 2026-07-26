@@ -8,7 +8,12 @@ import {
 import { pingCommand } from "#/interactions/ping";
 import { profileCommand } from "#/interactions/profile";
 import { tournamentSlashCommand } from "#/interactions/tournament/slash";
-import { userButtonHandler, userModalHandler, userSlashCommand } from "#/interactions/user/index";
+import {
+  userButtonHandler,
+  userModalHandler,
+  userSelectHandler,
+  userSlashCommand,
+} from "#/interactions/user/index";
 
 export const workerHandlers = [
   helpCommand,
@@ -20,6 +25,7 @@ export const workerHandlers = [
   tournamentSlashCommand,
   userButtonHandler,
   userModalHandler,
+  userSelectHandler,
   userSlashCommand,
   usernameModalHandler,
 ] as const;
