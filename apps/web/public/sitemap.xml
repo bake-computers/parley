@@ -7,12 +7,6 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://parley.bot/leaderboard</loc>
-    <lastmod>2026-06-23</lastmod>
-    <changefreq>hourly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
     <loc>https://parley.bot/terms</loc>
     <lastmod>2026-06-23</lastmod>
     <changefreq>yearly</changefreq>
