@@ -12,7 +12,7 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "dev:worker": "bun run --filter @parley/worker dev",
-    "dev:landing": "bun run --filter landing dev",
+    "dev:web": "bun run --filter web dev",
     "lint": "turbo run lint",
     "lint:root": "oxlint . -c oxlint.config.ts",
     "format": "oxfmt --write . -c oxfmt.config.ts",
@@ -21,7 +21,7 @@
     "test": "turbo run test",
     "deploy": "turbo run deploy",
     "deploy:worker": "bun run --filter @parley/worker deploy",
-    "deploy:landing": "bun run --filter landing deploy"
+    "deploy:web": "bun run --filter web deploy"
   },
   "devDependencies": {
     "@total-typescript/ts-reset": "^0.6.1",

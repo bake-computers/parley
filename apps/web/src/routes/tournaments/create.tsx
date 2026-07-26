@@ -54,7 +54,7 @@ function CreateTournamentPage() {
                 Create a <span className="text-accent-silver">tournament</span>
               </>
             }
-            description="Host a structured R6 event for your Discord server — brackets, check-ins, and team registration handled by Parley."
+            description="Host a structured R6 event for your Discord server: brackets, check-ins, and team registration handled by Parley."
           />
         }
       >
@@ -146,7 +146,7 @@ function CreateTournamentPage() {
             <TournamentField
               label="Rules and event details"
               htmlFor="tournament-rules"
-              hint="Maps, check-in windows, prize info — shown to registering teams"
+              hint="Maps, check-in windows, prize info (shown to registering teams)"
             >
               <TournamentTextarea
                 id="tournament-rules"

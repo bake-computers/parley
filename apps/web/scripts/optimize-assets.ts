@@ -4,9 +4,9 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const landingRoot = join(__dirname, "..");
-const heroDir = join(landingRoot, "public/assets/hero");
-const foundersDir = join(landingRoot, "public/assets/founders");
+const webRoot = join(__dirname, "..");
+const heroDir = join(webRoot, "public/assets/hero");
+const foundersDir = join(webRoot, "public/assets/founders");
 
 function cwebp(args: string[]): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -46,7 +46,7 @@ async function optimizeHero(source: string) {
     "720",
     source,
     "-o",
-    join(landingRoot, "public/assets/hero-cinematic.webp"),
+    join(webRoot, "public/assets/hero-cinematic.webp"),
   ]);
 }
 
@@ -75,7 +75,7 @@ async function optimizeFounder(slug: string) {
 }
 
 async function main() {
-  const heroSource = process.argv[2] ?? join(landingRoot, "public/assets/hero-cinematic.webp");
+  const heroSource = process.argv[2] ?? join(webRoot, "public/assets/hero-cinematic.webp");
   await optimizeHero(heroSource);
   for (const slug of ["ryzm", "co-founder"]) {
     await optimizeFounder(slug);

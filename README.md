@@ -29,7 +29,7 @@ Parley delivers three primary capabilities:
 
 3. **Structured competition** — Custom matches and single-elimination tournaments share a common match record model. Guild administrators configure matchmaking rules and quotas per game.
 
-The platform is **Discord-first**: the primary interaction surface is a Cloudflare Worker hosting the bot. A TanStack Start landing application provides marketing, legal pages, and a player dashboard. Both edge applications communicate with the engine exclusively through ConnectRPC over HTTP.
+The platform is **Discord-first**: the primary interaction surface is a Cloudflare Worker hosting the bot. A TanStack Start web application provides marketing, legal pages, and a player dashboard. Both edge applications communicate with the engine exclusively through ConnectRPC over HTTP.
 
 ---
 
@@ -57,7 +57,7 @@ Parley divides into four logical tiers:
                              │
 ┌────────────────────────────▼────────────────────────────────────┐
 │  Edge (Cloudflare Workers)                                      │
-│  Discord Worker · Landing App                                   │
+│  Discord Worker · Web App                                   │
 └────────────────────────────┬────────────────────────────────────┘
                              │ ConnectRPC / HTTP
 ┌────────────────────────────▼────────────────────────────────────┐
@@ -107,10 +107,10 @@ The `parley` binary is a Go HTTP server (Fiber + connect-go) exposing ConnectRPC
 
 ### 5.3 Edge Applications
 
-| Application    | Runtime                      | Role                                                                   |
-| -------------- | ---------------------------- | ---------------------------------------------------------------------- |
-| `apps/worker`  | Cloudflare Worker (Hono)     | Discord bot: slash commands, interaction verification, embed rendering |
-| `apps/landing` | TanStack Start on Cloudflare | Public website, dashboard, legal pages                                 |
+| Application   | Runtime                      | Role                                                                   |
+| ------------- | ---------------------------- | ---------------------------------------------------------------------- |
+| `apps/worker` | Cloudflare Worker (Hono)     | Discord bot: slash commands, interaction verification, embed rendering |
+| `apps/web`    | TanStack Start on Cloudflare | Public website, dashboard, legal pages                                 |
 
 The Discord Worker uses `@parley/runtime` — a type-safe wrapper over Discord's API for Embeds and Components v2 — and `@parley/proto` ConnectRPC clients to call the engine.
 
@@ -159,10 +159,10 @@ Team-building and custom-match flows follow the same path through the Worker to 
 
 Infrastructure is provisioned with **Wrangler**. Each app owns its `wrangler.jsonc` (bindings, routes, observability, secrets), and `bun run deploy` fans out `wrangler deploy` across both via Turbo:
 
-| Worker         | Config                        | Domain           |
-| -------------- | ----------------------------- | ---------------- |
-| Discord Worker | `apps/worker/wrangler.jsonc`  | `app.parley.bot` |
-| Landing App    | `apps/landing/wrangler.jsonc` | `parley.bot`     |
+| Worker         | Config                       | Domain           |
+| -------------- | ---------------------------- | ---------------- |
+| Discord Worker | `apps/worker/wrangler.jsonc` | `app.parley.bot` |
+| Web App        | `apps/web/wrangler.jsonc`    | `parley.bot`     |
 
 Local secrets live in each app's `.dev.vars` (gitignored); production secrets are managed with `wrangler secret put <NAME>` (run from the app directory).
 
@@ -195,7 +195,7 @@ flowchart TB
             embed_renderer["Embed and Component Renderer"]
         end
 
-        subgraph landing_app["Landing Application"]
+        subgraph web_app["Web Application"]
             tanstack_start["TanStack Start SSR"]
             dashboard_ui["Dashboard UI"]
         end
@@ -343,7 +343,7 @@ make build
 # Run engine-service (requires DATABASE_URL for full functionality)
 make run
 
-# Start all Cloudflare Workers and landing dev servers
+# Start all Cloudflare Workers and web dev servers
 bun run dev
 ```
 
@@ -386,7 +386,7 @@ parley/
 ├── migrations/             Postgres SQL migrations
 ├── apps/
 │   ├── worker/             Discord bot Worker
-│   └── landing/            TanStack Start web application
+│   └── web/            TanStack Start web application
 ├── packages/
 │   ├── generated-ts/       @parley/proto — generated clients
 │   ├── runtime/            @parley/runtime — Discord framework

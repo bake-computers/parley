@@ -3,7 +3,7 @@
 ## Architecture
 
 Parley is a competitive matchmaking and tournament platform — a **Go** engine-service
-with TypeScript edge apps (Discord bot, landing) on Cloudflare Workers and Bun.
+with TypeScript edge apps (Discord bot, web) on Cloudflare Workers and Bun.
 
 **The core is a monorepo of two halves** that share protobuf definitions:
 
@@ -34,7 +34,7 @@ TypeScript (Bun workspaces) ← buf generate → packages/generated-ts
 - `internal/stats` — backends, snapshot-backed cache, scrape/fetch, Postgres persistence.
 - Boot requires `DATABASE_URL` (fail fast if missing).
 
-Subdirectory guides: [`proto/AGENTS.md`](proto/AGENTS.md) if present, [`apps/worker/AGENTS.md`](apps/worker/AGENTS.md), [`apps/landing/AGENTS.md`](apps/landing/AGENTS.md), [`packages/runtime/AGENTS.md`](packages/runtime/AGENTS.md).
+Subdirectory guides: [`proto/AGENTS.md`](proto/AGENTS.md) if present, [`apps/worker/AGENTS.md`](apps/worker/AGENTS.md), [`packages/runtime/AGENTS.md`](packages/runtime/AGENTS.md).
 
 ## Build & Run
 
@@ -131,7 +131,7 @@ Game-scoped tables use Postgres `games` enum (`r6` only in product scope). Domai
 ## Testing
 
 - **Go**: `go test ./...`; integration `go test -tags=integration ./...` (Docker).
-- **TypeScript**: `bun run test`; landing may use vitest for hooks.
+- **TypeScript**: `bun run test`; web may use vitest for hooks.
 
 ## Companion Documents
 

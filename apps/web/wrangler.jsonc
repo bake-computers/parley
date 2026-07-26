@@ -13,7 +13,7 @@
   "observability": { "enabled": true },
 
   "vars": {
-    "SERVICE_NAME": "landing",
+    "SERVICE_NAME": "web",
     "AXIOM_DATASET": "parley",
     "AXIOM_ENABLED": "true",
     "DISCORD_APPLICATION_ID": "1495122091165618358",
