@@ -15,12 +15,12 @@ import (
 
 	"connectrpc.com/connect"
 	"github.com/google/uuid"
-	commonv1 "github.com/pactum-computers/parley/gen/parley/common/v1"
-	matchv1 "github.com/pactum-computers/parley/gen/parley/matchmaking/v1"
-	"github.com/pactum-computers/parley/internal/apperr"
-	"github.com/pactum-computers/parley/internal/matchmaking"
-	"github.com/pactum-computers/parley/internal/models"
-	"github.com/pactum-computers/parley/internal/repos"
+	commonv1 "github.com/bake-computers/parley/gen/parley/common/v1"
+	matchv1 "github.com/bake-computers/parley/gen/parley/matchmaking/v1"
+	"github.com/bake-computers/parley/internal/apperr"
+	"github.com/bake-computers/parley/internal/matchmaking"
+	"github.com/bake-computers/parley/internal/models"
+	"github.com/bake-computers/parley/internal/repos"
 )
 
 // MatchService orchestrates the MatchmakingService RPCs.
