@@ -8,11 +8,11 @@ import (
 	"strings"
 
 	"connectrpc.com/connect"
-	statsv1 "github.com/pactum-computers/parley/gen/parley/stats/v1"
-	"github.com/pactum-computers/parley/gen/parley/stats/v1/statsv1connect"
-	"github.com/pactum-computers/parley/internal/apperr"
-	"github.com/pactum-computers/parley/internal/services"
-	"github.com/pactum-computers/parley/internal/stats/fetch"
+	statsv1 "github.com/bake-computers/parley/gen/parley/stats/v1"
+	"github.com/bake-computers/parley/gen/parley/stats/v1/statsv1connect"
+	"github.com/bake-computers/parley/internal/apperr"
+	"github.com/bake-computers/parley/internal/services"
+	"github.com/bake-computers/parley/internal/stats/fetch"
 )
 
 // StatsHandler serves parley.stats.v1.StatsService via ConnectRPC.
