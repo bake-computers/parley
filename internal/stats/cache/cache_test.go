@@ -1,7 +1,7 @@
 package cache
 
 import (
-	"github.com/pactum-computers/parley/internal/stats/fetch"
+	"github.com/bake-computers/parley/internal/stats/fetch"
 	"testing"
 	"time"
 )
