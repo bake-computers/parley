@@ -3,7 +3,7 @@ package tourney_test
 import (
 	"testing"
 
-	"github.com/pactum-computers/parley/internal/tourney"
+	"github.com/bake-computers/parley/internal/tourney"
 )
 
 // fakeTeam is a minimal Seeder for testing SeedTeams in isolation from the
