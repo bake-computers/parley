@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/pactum-computers/parley/internal/matchmaking/ovi"
-	"github.com/pactum-computers/parley/internal/models"
-	"github.com/pactum-computers/parley/internal/repos"
+	"github.com/bake-computers/parley/internal/matchmaking/ovi"
+	"github.com/bake-computers/parley/internal/models"
+	"github.com/bake-computers/parley/internal/repos"
 )
 
 // Service is the matchmaking engine's DB-aware entry point. It bundles the
