@@ -1,0 +1,50 @@
+---
+title: Matchmaking
+description: How Parley builds balanced teams and keeps lobbies fair.
+sidebar:
+  order: 4
+  group:
+    label: Matchmaking
+---
+
+Parley exists because stacking teams by hand is slow and rarely fair. When
+your server runs Parley matches, the teams come pre-balanced from everyone's
+real skill data, so lobbies are decided before the argument starts.
+
+## What balanced means here
+
+<CardGrid>
+  <Card title="Even win odds" icon="ph:scales">
+    Parley compares full rosters, not averages, and picks the split where
+    both sides have the closest shot at winning.
+  </Card>
+  <Card title="Form over reputation" icon="ph:trend-up">
+    Ratings lean on recent performance. A player climbing fast is matched at
+    their current level, not an old one.
+  </Card>
+  <Card title="Ranks that move" icon="ph:medal">
+    Every reported match updates your [Parley Rank](/ranks-and-stats/parley-rank),
+    so the balance keeps improving as your server plays.
+  </Card>
+</CardGrid>
+
+## What you see as a player
+
+- **The match itself**, with teams that were built for even odds.
+- **An MVP**, picked from the match when one player clearly carried.
+- **The record** in [/history](/commands/history), with winners bolded and
+  relative timestamps.
+- **Rating movement** on your [Parley Rank](/ranks-and-stats/parley-rank)
+  after the result lands.
+
+<Aside type="note" title="Opt out any time">
+  Matchmaking respects your settings. Turn matchmaking off in
+  [/user](/commands/user) and Parley leaves you out of team building until
+  you turn it back on.
+</Aside>
+
+## When you cannot play
+
+Servers can set limits on who joins their matches, and Parley enforces them
+before teams are built. If you are left out, the
+[eligibility page](/matchmaking/eligibility) lists every reason and the fix.
