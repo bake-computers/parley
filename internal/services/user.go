@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 
-	userv1 "github.com/pactum-computers/parley/gen/parley/user/v1"
-	"github.com/pactum-computers/parley/internal/apperr"
-	"github.com/pactum-computers/parley/internal/models"
-	"github.com/pactum-computers/parley/internal/repos"
+	userv1 "github.com/bake-computers/parley/gen/parley/user/v1"
+	"github.com/bake-computers/parley/internal/apperr"
+	"github.com/bake-computers/parley/internal/models"
+	"github.com/bake-computers/parley/internal/repos"
 )
 
 type UserSettingsService struct {
