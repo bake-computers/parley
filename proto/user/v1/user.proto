@@ -5,7 +5,7 @@ package parley.user.v1;
 import "common/v1/types.proto";
 
 option java_package = "bot.parley.user.v1";
-option go_package = "github.com/pactum-computers/parley/gen/parley/user/v1;userv1";
+option go_package = "github.com/bake-computers/parley/gen/parley/user/v1;userv1";
 
 // Per-Discord-user preferences (global, not per-game).
 service UserSettingsService {
