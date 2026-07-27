@@ -24,8 +24,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/pactum-computers/parley/internal/models"
-	"github.com/pactum-computers/parley/internal/repos"
+	"github.com/bake-computers/parley/internal/models"
+	"github.com/bake-computers/parley/internal/repos"
 )
 
 // TestUserSettings_DeleteAnonymizesAndBlocksRelink mirrors the Rust
