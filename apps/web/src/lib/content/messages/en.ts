@@ -21,6 +21,7 @@ export const messagesEn: Messages = {
     legalNotice: "Legal notice",
     privacy: "Privacy policy",
     terms: "Terms of service",
+    docs: "Docs",
     poweredBy: "Powered by",
     notUbisoft: "Not affiliated with Ubisoft",
     notDiscord: "Not affiliated with Discord Inc.",
