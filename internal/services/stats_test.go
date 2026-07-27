@@ -4,10 +4,10 @@ import (
 	"context"
 	"testing"
 
-	statsv1 "github.com/pactum-computers/parley/gen/parley/stats/v1"
-	"github.com/pactum-computers/parley/internal/stats/cache"
-	"github.com/pactum-computers/parley/internal/stats/fetch"
-	"github.com/pactum-computers/parley/internal/stats/scrape"
+	statsv1 "github.com/bake-computers/parley/gen/parley/stats/v1"
+	"github.com/bake-computers/parley/internal/stats/cache"
+	"github.com/bake-computers/parley/internal/stats/fetch"
+	"github.com/bake-computers/parley/internal/stats/scrape"
 )
 
 type fakeCacheStore struct {
