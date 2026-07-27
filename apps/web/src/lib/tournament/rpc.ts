@@ -3,6 +3,17 @@ import { resolveEngineTransport } from "../engine/transport.js";
 
 type RpcError = { code?: string; message?: string };
 
+export type BracketMatchJson = {
+  id: number;
+  bracket: string;
+  roundNumber: number;
+  matchNumber: number;
+  status: string;
+  teamAId?: number;
+  teamBId?: number;
+  winnerTeamId?: number;
+};
+
 export type TournamentJson = {
   id: number;
   name: string;
@@ -15,10 +26,15 @@ export type TournamentJson = {
   createdByChannelId: string;
   createdByDiscordUserId: string;
   teams: Array<{ id: number; teamName: string; captainDiscordUserId: string; status: string }>;
+  bracketMatches: BracketMatchJson[];
 };
 
 function normalizeTournament(tournament: TournamentJson): TournamentJson {
-  return { ...tournament, teams: tournament.teams ?? [] };
+  return {
+    ...tournament,
+    teams: tournament.teams ?? [],
+    bracketMatches: tournament.bracketMatches ?? [],
+  };
 }
 
 export type CreateTournamentRpcRequest = {

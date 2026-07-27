@@ -6,3 +6,4 @@ export {
   TournamentTextarea,
 } from "./TournamentFields";
 export { TournamentHero, TournamentShell } from "./TournamentShell";
+export { TournamentBracket } from "./TournamentBracket";

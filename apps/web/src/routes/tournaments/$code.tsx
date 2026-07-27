@@ -1,13 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Users } from "lucide-react";
+import { ArrowRight, Brackets, Users } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
 import { DashboardLoader } from "#/components/dashboard/DashboardLoader";
-import { TournamentHero, TournamentShell } from "#/components/tournaments";
+import { TournamentBracket, TournamentHero, TournamentShell } from "#/components/tournaments";
 import { Button, buttonVariants } from "#/components/ui/button";
 import { GlassPanel } from "#/components/ui/glass-panel";
 import { Reveal } from "#/components/ui/reveal";
 import { useAuthMe } from "#/hooks/useAuthMe";
 import { cn } from "#/lib/shared/cn";
+import type { BracketMatchJson } from "#/lib/tournament/rpc";
 
 export const Route = createFileRoute("/tournaments/$code")({ component: TournamentPage });
 
@@ -20,6 +21,7 @@ type Tournament = {
   teamCap: number;
   createdByDiscordUserId: string;
   teams: Array<{ id: number; teamName: string; status: string }>;
+  bracketMatches?: BracketMatchJson[];
 };
 
 function TournamentPage() {
@@ -88,6 +90,22 @@ function TournamentPage() {
         />
       }
     >
+      {tournament.bracketMatches?.length ? (
+        <Reveal className="mb-6">
+          <GlassPanel as="section" className="p-6 md:p-8">
+            <div className="mb-6 flex items-center gap-3">
+              <div className="bg-accent-silver/15 flex size-10 items-center justify-center rounded-2xl">
+                <Brackets className="text-accent-silver size-5" aria-hidden />
+              </div>
+              <div>
+                <p className="text-foreground text-sm font-medium">Bracket</p>
+                <p className="text-muted-foreground text-xs">Who plays whom, updated live</p>
+              </div>
+            </div>
+            <TournamentBracket matches={tournament.bracketMatches} teams={tournament.teams} />
+          </GlassPanel>
+        </Reveal>
+      ) : null}
       <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
         <Reveal>
           <GlassPanel className="p-6 md:p-8">
