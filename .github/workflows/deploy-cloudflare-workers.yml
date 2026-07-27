@@ -27,8 +27,50 @@ env:
   TURBO_TELEMETRY_DISABLED: 1
 
 jobs:
+  changes:
+    name: Detect changed apps
+    runs-on: blacksmith-2vcpu-ubuntu-2404
+    outputs:
+      web: ${{ steps.filter.outputs.web }}
+      worker: ${{ steps.filter.outputs.worker }}
+      docs: ${{ steps.filter.outputs.docs }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            web:
+              - 'apps/web/**'
+              - 'packages/**'
+              - 'proto/**'
+              - 'package.json'
+              - 'bun.lock'
+              - 'bun.lockb'
+              - 'tsconfig.base.json'
+              - 'turbo.json'
+            worker:
+              - 'apps/worker/**'
+              - 'packages/**'
+              - 'proto/**'
+              - 'package.json'
+              - 'bun.lock'
+              - 'bun.lockb'
+              - 'tsconfig.base.json'
+              - 'turbo.json'
+            docs:
+              - 'apps/docs/**'
+              - 'package.json'
+              - 'bun.lock'
+              - 'bun.lockb'
+              - 'turbo.json'
+
   web-and-worker:
     name: Deploy ${{ matrix.app.name }}
+    needs: changes
+    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs[matrix.app.name] == 'true'
     runs-on: blacksmith-2vcpu-ubuntu-2404
     environment:
       name: ${{ matrix.app.env }}
