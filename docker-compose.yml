@@ -16,7 +16,7 @@ services:
       - internal-net
 
   parley:
-    image: ghcr.io/pactum-computer/parley-engine:latest
+    image: ghcr.io/bake-computers/parley-engine:latest
     container_name: parley-backend
     restart: always
     environment:
