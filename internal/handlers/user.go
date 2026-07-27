@@ -6,10 +6,10 @@ import (
 	"strings"
 
 	"connectrpc.com/connect"
-	userv1 "github.com/pactum-computers/parley/gen/parley/user/v1"
-	"github.com/pactum-computers/parley/gen/parley/user/v1/userv1connect"
-	"github.com/pactum-computers/parley/internal/apperr"
-	"github.com/pactum-computers/parley/internal/services"
+	userv1 "github.com/bake-computers/parley/gen/parley/user/v1"
+	"github.com/bake-computers/parley/gen/parley/user/v1/userv1connect"
+	"github.com/bake-computers/parley/internal/apperr"
+	"github.com/bake-computers/parley/internal/services"
 )
 
 type UserHandler struct {
