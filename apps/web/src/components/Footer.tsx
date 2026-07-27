@@ -42,6 +42,14 @@ export function SiteFooter() {
             </div>
 
             <nav className="flex flex-wrap gap-x-5 gap-y-2">
+              <a
+                href="https://docs.parley.bot"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="parley-footer-link text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {m.footer.docs}
+              </a>
               {footerLinks.map((link) => (
                 <a
                   key={link.path}
