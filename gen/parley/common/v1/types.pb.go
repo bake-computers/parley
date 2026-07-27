@@ -572,8 +572,8 @@ const file_common_v1_types_proto_rawDesc = "" +
 	"\x18BADGE_CATEGORY_DEVELOPER\x10\b*A\n" +
 	"\x04Game\x12\x14\n" +
 	"\x10GAME_UNSPECIFIED\x10\x00\x12\v\n" +
-	"\aGAME_R6\x10\x01\"\x04\b\x02\x10\x02*\x10GAME_BRAWL_STARSBX\n" +
-	"\x14bot.parley.common.v1Z@github.com/pactum-computers/parley/gen/parley/common/v1;commonv1b\x06proto3"
+	"\aGAME_R6\x10\x01\"\x04\b\x02\x10\x02*\x10GAME_BRAWL_STARSBV\n" +
+	"\x14bot.parley.common.v1Z>github.com/bake-computers/parley/gen/parley/common/v1;commonv1b\x06proto3"
 
 var (
 	file_common_v1_types_proto_rawDescOnce sync.Once
