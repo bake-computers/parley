@@ -12,7 +12,7 @@ type GuildSettingsNavProps = {
   layout?: "tabs" | "sidebar";
 };
 
-function sectionTo(guildId: string, slug: (typeof SECTIONS)[number]["slug"]) {
+function sectionTo(slug: (typeof SECTIONS)[number]["slug"]) {
   return slug === "general"
     ? "/dashboard/guilds/$guildId/general"
     : slug === "rules"
@@ -35,7 +35,7 @@ export function GuildSettingsNav({ guildId, layout = "tabs" }: GuildSettingsNavP
         return (
           <Link
             key={section.slug}
-            to={sectionTo(guildId, section.slug)}
+            to={sectionTo(section.slug)}
             params={{ guildId }}
             className={cn(
               "text-sm font-medium transition-colors",
