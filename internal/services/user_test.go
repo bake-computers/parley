@@ -3,9 +3,9 @@ package services
 import (
 	"testing"
 
-	commonv1 "github.com/pactum-computers/parley/gen/parley/common/v1"
-	"github.com/pactum-computers/parley/internal/models"
-	"github.com/pactum-computers/parley/internal/repos"
+	commonv1 "github.com/bake-computers/parley/gen/parley/common/v1"
+	"github.com/bake-computers/parley/internal/models"
+	"github.com/bake-computers/parley/internal/repos"
 )
 
 func TestDefaultSettings(t *testing.T) {
