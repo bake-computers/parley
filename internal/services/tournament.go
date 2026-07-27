@@ -16,14 +16,14 @@ import (
 	"time"
 
 	"connectrpc.com/connect"
-	commonv1 "github.com/pactum-computers/parley/gen/parley/common/v1"
-	matchv1 "github.com/pactum-computers/parley/gen/parley/matchmaking/v1"
-	tournamentv1 "github.com/pactum-computers/parley/gen/parley/tournament/v1"
-	"github.com/pactum-computers/parley/internal/apperr"
-	"github.com/pactum-computers/parley/internal/matchmaking"
-	"github.com/pactum-computers/parley/internal/models"
-	"github.com/pactum-computers/parley/internal/repos"
-	"github.com/pactum-computers/parley/internal/tourney"
+	commonv1 "github.com/bake-computers/parley/gen/parley/common/v1"
+	matchv1 "github.com/bake-computers/parley/gen/parley/matchmaking/v1"
+	tournamentv1 "github.com/bake-computers/parley/gen/parley/tournament/v1"
+	"github.com/bake-computers/parley/internal/apperr"
+	"github.com/bake-computers/parley/internal/matchmaking"
+	"github.com/bake-computers/parley/internal/models"
+	"github.com/bake-computers/parley/internal/repos"
+	"github.com/bake-computers/parley/internal/tourney"
 	"github.com/uptrace/bun"
 )
 
