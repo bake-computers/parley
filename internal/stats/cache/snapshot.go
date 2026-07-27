@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/pactum-computers/parley/internal/models"
-	"github.com/pactum-computers/parley/internal/stats/fetch"
-	"github.com/pactum-computers/parley/internal/stats/scrape"
+	"github.com/bake-computers/parley/internal/models"
+	"github.com/bake-computers/parley/internal/stats/fetch"
+	"github.com/bake-computers/parley/internal/stats/scrape"
 )
 
 // IdentityReader resolves players by normalized username.
