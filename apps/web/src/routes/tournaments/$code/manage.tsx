@@ -15,6 +15,7 @@ import { Reveal } from "#/components/ui/reveal";
 import { useAuthMe } from "#/hooks/useAuthMe";
 import { cn } from "#/lib/shared/cn";
 import type { BracketMatchJson } from "#/lib/tournament/rpc";
+import { getTournament, tournamentAction } from "#/lib/tournament/server";
 
 export const Route = createFileRoute("/tournaments/$code/manage")({
   component: ManageTournamentPage,
@@ -43,12 +44,8 @@ function ManageTournamentPage() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch(`/api/tournaments/${encodeURIComponent(displayCode)}`, { credentials: "include" })
-      .then(async (res) => {
-        const data = (await res.json()) as { tournament?: Tournament; error?: string };
-        if (!res.ok || !data.tournament) throw new Error(data.error ?? "Could not load tournament");
-        if (!cancelled) setTournament(data.tournament);
-      })
+    getTournament({ data: displayCode })
+      .then((tournament) => !cancelled && setTournament(tournament))
       .catch(
         (reason) =>
           !cancelled &&
@@ -301,15 +298,10 @@ function ManageTournamentPage() {
     setBusy(`report:${bracketMatchId}`);
     setError(null);
     try {
-      const res = await fetch(`/api/tournaments/${encodeURIComponent(displayCode)}`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ action: "report", bracketMatchId, winnerTeamId }),
+      const updated = await tournamentAction({
+        data: { code: displayCode, action: "report", bracketMatchId, winnerTeamId },
       });
-      const data = (await res.json()) as { tournament?: Tournament; error?: string };
-      if (!res.ok || !data.tournament) throw new Error(data.error ?? "Result report failed");
-      setTournament(data.tournament);
+      if (updated) setTournament(updated);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Result report failed");
     } finally {
@@ -323,15 +315,8 @@ function ManageTournamentPage() {
     setBusy(action);
     setError(null);
     try {
-      const res = await fetch(`/api/tournaments/${encodeURIComponent(displayCode)}`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ action }),
-      });
-      const data = (await res.json()) as { tournament?: Tournament; error?: string };
-      if (!res.ok || !data.tournament) throw new Error(data.error ?? "Tournament update failed");
-      setTournament(data.tournament);
+      const updated = await tournamentAction({ data: { code: displayCode, action } });
+      if (updated) setTournament(updated);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Tournament update failed");
     } finally {

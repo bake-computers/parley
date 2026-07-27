@@ -1,12 +1,8 @@
 import { Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import type { GuildMember } from "#/lib/discord/bot";
+import { listTournamentMembers } from "#/lib/tournament/server";
 import { cn } from "#/lib/shared/cn";
-
-export type PickableMember = {
-  id: string;
-  name: string;
-  avatarUrl: string;
-};
 
 type PlayerPickerProps = {
   code: string;
@@ -24,19 +20,15 @@ export function PlayerPicker({
   onChange,
   rosterSize,
 }: PlayerPickerProps) {
-  const [members, setMembers] = useState<PickableMember[] | null>(null);
+  const [members, setMembers] = useState<GuildMember[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
 
   useEffect(() => {
     let cancelled = false;
     setError(null);
-    fetch(`/api/tournaments/${encodeURIComponent(code)}/members`, { credentials: "include" })
-      .then(async (res) => {
-        const data = (await res.json()) as { members?: PickableMember[]; error?: string };
-        if (!res.ok || !data.members) throw new Error(data.error ?? "Could not load members");
-        if (!cancelled) setMembers(data.members);
-      })
+    listTournamentMembers({ data: code })
+      .then((list) => !cancelled && setMembers(list))
       .catch(
         (reason) =>
           !cancelled &&

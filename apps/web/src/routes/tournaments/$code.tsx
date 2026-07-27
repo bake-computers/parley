@@ -14,6 +14,7 @@ import { Reveal } from "#/components/ui/reveal";
 import { useAuthMe } from "#/hooks/useAuthMe";
 import { cn } from "#/lib/shared/cn";
 import type { BracketMatchJson } from "#/lib/tournament/rpc";
+import { getTournament, tournamentAction } from "#/lib/tournament/server";
 
 export const Route = createFileRoute("/tournaments/$code")({ component: TournamentPage });
 
@@ -43,12 +44,8 @@ function TournamentPage() {
 
   useEffect(() => {
     let cancelled = false;
-    fetch(`/api/tournaments/${encodeURIComponent(displayCode)}`, { credentials: "include" })
-      .then(async (res) => {
-        const data = (await res.json()) as { tournament?: Tournament; error?: string };
-        if (!res.ok || !data.tournament) throw new Error(data.error ?? "Could not load tournament");
-        if (!cancelled) setTournament(data.tournament);
-      })
+    getTournament({ data: displayCode })
+      .then((tournament) => !cancelled && setTournament(tournament))
       .catch(
         (reason) =>
           !cancelled &&
@@ -255,18 +252,14 @@ function TournamentPage() {
     setSubmitting(true);
     setError(null);
     try {
-      const res = await fetch(`/api/tournaments/${encodeURIComponent(displayCode)}`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
+      await tournamentAction({
+        data: {
+          code: displayCode,
           action: "register",
-          teamName: form.get("teamName"),
+          teamName: String(form.get("teamName") ?? ""),
           discordUserIds: rosterIds,
-        }),
+        },
       });
-      const data = (await res.json()) as { error?: string };
-      if (!res.ok) throw new Error(data.error ?? "Team registration failed");
       window.location.reload();
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Team registration failed");
