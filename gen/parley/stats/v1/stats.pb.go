@@ -7,7 +7,7 @@
 package statsv1
 
 import (
-	v1 "github.com/pactum-computers/parley/gen/parley/common/v1"
+	v1 "github.com/bake-computers/parley/gen/parley/common/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -1074,8 +1074,8 @@ const file_stats_v1_stats_proto_rawDesc = "" +
 	"\fStatsService\x12U\n" +
 	"\n" +
 	"FetchStats\x12\".parley.stats.v1.FetchStatsRequest\x1a#.parley.stats.v1.FetchStatsResponse\x12s\n" +
-	"\x14FetchStatsCollection\x12,.parley.stats.v1.FetchStatsCollectionRequest\x1a-.parley.stats.v1.FetchStatsCollectionResponseBU\n" +
-	"\x13bot.parley.stats.v1Z>github.com/pactum-computers/parley/gen/parley/stats/v1;statsv1b\x06proto3"
+	"\x14FetchStatsCollection\x12,.parley.stats.v1.FetchStatsCollectionRequest\x1a-.parley.stats.v1.FetchStatsCollectionResponseBS\n" +
+	"\x13bot.parley.stats.v1Z<github.com/bake-computers/parley/gen/parley/stats/v1;statsv1b\x06proto3"
 
 var (
 	file_stats_v1_stats_proto_rawDescOnce sync.Once
