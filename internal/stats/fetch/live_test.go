@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pactum-computers/parley/internal/stats/api"
+	"github.com/bake-computers/parley/internal/stats/api"
 )
 
 func TestLiveStatsCCAPI_Avqny(t *testing.T) {
