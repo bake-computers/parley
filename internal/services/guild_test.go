@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"connectrpc.com/connect"
-	commonv1 "github.com/pactum-computers/parley/gen/parley/common/v1"
-	guildv1 "github.com/pactum-computers/parley/gen/parley/guild/v1"
-	"github.com/pactum-computers/parley/internal/services"
+	commonv1 "github.com/bake-computers/parley/gen/parley/common/v1"
+	guildv1 "github.com/bake-computers/parley/gen/parley/guild/v1"
+	"github.com/bake-computers/parley/internal/services"
 )
 
 func newNilDBService() *services.GuildService {
