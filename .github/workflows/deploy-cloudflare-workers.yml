@@ -45,6 +45,10 @@ jobs:
             cwd: apps/worker
             env: production-worker
             url: https://app.parley.bot
+          - name: docs
+            cwd: apps/docs
+            env: production-docs
+            url: https://docs.parley.bot
     steps:
       - name: Checkout
         uses: actions/checkout@v4
