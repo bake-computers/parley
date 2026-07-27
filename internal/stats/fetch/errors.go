@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/pactum-computers/parley/internal/stats/scrape"
+	"github.com/bake-computers/parley/internal/stats/scrape"
 )
 
 // StatsPlatform is the canonical platform value for stats.cc queries.
