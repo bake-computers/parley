@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"connectrpc.com/connect"
-	commonv1 "github.com/pactum-computers/parley/gen/parley/common/v1"
-	matchv1 "github.com/pactum-computers/parley/gen/parley/matchmaking/v1"
-	"github.com/pactum-computers/parley/internal/services"
+	commonv1 "github.com/bake-computers/parley/gen/parley/common/v1"
+	matchv1 "github.com/bake-computers/parley/gen/parley/matchmaking/v1"
+	"github.com/bake-computers/parley/internal/services"
 )
 
 func newNilDBMatchService() *services.MatchService {
