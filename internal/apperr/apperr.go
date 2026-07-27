@@ -4,7 +4,7 @@ package apperr
 
 import (
 	"connectrpc.com/connect"
-	commonv1 "github.com/pactum-computers/parley/gen/parley/common/v1"
+	commonv1 "github.com/bake-computers/parley/gen/parley/common/v1"
 )
 
 // Domain error codes matching the Rust handler conventions.
