@@ -94,7 +94,7 @@ export async function rpcRegisterTeam(
 
 export async function rpcTournamentAction(
   env: EngineTransportEnv,
-  method: "StartTournament" | "CancelTournament",
+  method: "StartTournament" | "CancelTournament" | "ReportBracketResult",
   body: Record<string, unknown>,
 ): Promise<TournamentJson> {
   const json = await tournamentCall<{ success?: boolean; tournament?: TournamentJson }>(

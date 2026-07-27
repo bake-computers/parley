@@ -1,13 +1,20 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, Play, Shield, XCircle } from "lucide-react";
+import { ArrowLeft, Play, Shield, Swords, XCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { DashboardLoader } from "#/components/dashboard/DashboardLoader";
-import { TournamentAuthGate, TournamentHero, TournamentShell } from "#/components/tournaments";
+import {
+  bracketLabel,
+  groupBracket,
+  TournamentAuthGate,
+  TournamentHero,
+  TournamentShell,
+} from "#/components/tournaments";
 import { Button, buttonVariants } from "#/components/ui/button";
 import { GlassPanel } from "#/components/ui/glass-panel";
 import { Reveal } from "#/components/ui/reveal";
 import { useAuthMe } from "#/hooks/useAuthMe";
 import { cn } from "#/lib/shared/cn";
+import type { BracketMatchJson } from "#/lib/tournament/rpc";
 
 export const Route = createFileRoute("/tournaments/$code/manage")({
   component: ManageTournamentPage,
@@ -21,6 +28,7 @@ type Tournament = {
   minTeams: number;
   createdByDiscordUserId: string;
   teams: Array<{ id: number; teamName: string; status: string }>;
+  bracketMatches?: BracketMatchJson[];
 };
 
 function ManageTournamentPage() {
@@ -28,7 +36,7 @@ function ManageTournamentPage() {
   const { me } = useAuthMe();
   const [tournament, setTournament] = useState<Tournament | null>(null);
   const [loading, setLoading] = useState(true);
-  const [busy, setBusy] = useState<"start" | "cancel" | null>(null);
+  const [busy, setBusy] = useState<"start" | "cancel" | `report:${number}` | null>(null);
   const [error, setError] = useState<string | null>(null);
   const displayCode = code.toUpperCase();
   const loginRedirect = `/tournaments/${code}/manage`;
@@ -97,6 +105,13 @@ function ManageTournamentPage() {
       </TournamentShell>
     );
   const canStart = tournament.status === "open" && tournament.teams.length >= tournament.minTeams;
+  const teamNames = new Map(tournament.teams.map((team) => [team.id, team.teamName]));
+  const actionable =
+    tournament.status === "in_progress"
+      ? groupBracket(tournament.bracketMatches ?? [])
+          .flatMap((group) => group.rounds.flatMap((round) => round.matches))
+          .filter((match) => !match.winnerTeamId && match.teamAId && match.teamBId)
+      : [];
 
   return (
     <TournamentShell
@@ -131,41 +146,91 @@ function ManageTournamentPage() {
       </div>
       <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
         <Reveal>
-          <GlassPanel as="section" className="p-6 md:p-8">
-            <div className="mb-6 flex items-center gap-3">
-              <div className="flex size-10 items-center justify-center rounded-2xl bg-accent-silver/15">
-                <Shield className="size-5 text-accent-silver" aria-hidden />
+          <div className="space-y-6">
+            <GlassPanel as="section" className="p-6 md:p-8">
+              <div className="mb-6 flex items-center gap-3">
+                <div className="flex size-10 items-center justify-center rounded-2xl bg-accent-silver/15">
+                  <Shield className="size-5 text-accent-silver" aria-hidden />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-foreground">Confirmed teams</p>
+                  <p className="text-xs text-muted-foreground">Roster check before start</p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm font-medium text-foreground">Confirmed teams</p>
-                <p className="text-xs text-muted-foreground">Roster check before start</p>
-              </div>
-            </div>
-            {tournament.teams.length ? (
-              <div className="space-y-2">
-                {tournament.teams.map((team) => (
-                  <div key={team.id} className="rounded-xl bg-muted/30 px-4 py-3 text-sm">
-                    <span className="font-medium">{team.teamName}</span>
-                    <span className="ml-2 text-muted-foreground">{team.status}</span>
+              {tournament.teams.length ? (
+                <div className="space-y-2">
+                  {tournament.teams.map((team) => (
+                    <div key={team.id} className="rounded-xl bg-muted/30 px-4 py-3 text-sm">
+                      <span className="font-medium">{team.teamName}</span>
+                      <span className="ml-2 text-muted-foreground">{team.status}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-2xl border border-dashed border-border/60 bg-muted/20 px-5 py-10 text-center">
+                  <p className="text-sm font-medium text-foreground">No teams confirmed yet</p>
+                  <Link
+                    to="/tournaments/$code"
+                    params={{ code }}
+                    className={cn(
+                      buttonVariants({ variant: "outline", size: "sm" }),
+                      "mt-5 rounded-full",
+                    )}
+                  >
+                    Open registration page
+                  </Link>
+                </div>
+              )}
+            </GlassPanel>
+            {actionable.length ? (
+              <GlassPanel as="section" className="p-6 md:p-8">
+                <div className="mb-6 flex items-center gap-3">
+                  <div className="flex size-10 items-center justify-center rounded-2xl bg-accent-silver/15">
+                    <Swords className="size-5 text-accent-silver" aria-hidden />
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="rounded-2xl border border-dashed border-border/60 bg-muted/20 px-5 py-10 text-center">
-                <p className="text-sm font-medium text-foreground">No teams confirmed yet</p>
-                <Link
-                  to="/tournaments/$code"
-                  params={{ code }}
-                  className={cn(
-                    buttonVariants({ variant: "outline", size: "sm" }),
-                    "mt-5 rounded-full",
-                  )}
-                >
-                  Open registration page
-                </Link>
-              </div>
-            )}
-          </GlassPanel>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Report results</p>
+                    <p className="text-xs text-muted-foreground">
+                      Pick the winner to advance the bracket
+                    </p>
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  {actionable.map((match) => (
+                    <div key={match.id} className="rounded-xl bg-muted/30 px-4 py-3">
+                      <p className="text-xs text-muted-foreground">
+                        {bracketLabel(match.bracket)} · Round {match.roundNumber} · Match{" "}
+                        {match.matchNumber}
+                      </p>
+                      <div className="mt-2 grid grid-cols-[1fr_auto_1fr] items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={busy !== null}
+                          onClick={() => reportResult(match.id, match.teamAId!)}
+                          className="rounded-full"
+                        >
+                          {teamNames.get(match.teamAId!) ?? `Team ${match.teamAId}`}
+                        </Button>
+                        <span className="text-xs text-muted-foreground">vs</span>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          disabled={busy !== null}
+                          onClick={() => reportResult(match.id, match.teamBId!)}
+                          className="rounded-full"
+                        >
+                          {teamNames.get(match.teamBId!) ?? `Team ${match.teamBId}`}
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </GlassPanel>
+            ) : null}
+          </div>
         </Reveal>
         <Reveal delay={80}>
           <div className="space-y-4">
@@ -230,6 +295,27 @@ function ManageTournamentPage() {
       </div>
     </TournamentShell>
   );
+
+  async function reportResult(bracketMatchId: number, winnerTeamId: number) {
+    if (busy) return;
+    setBusy(`report:${bracketMatchId}`);
+    setError(null);
+    try {
+      const res = await fetch(`/api/tournaments/${encodeURIComponent(displayCode)}`, {
+        method: "POST",
+        credentials: "include",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ action: "report", bracketMatchId, winnerTeamId }),
+      });
+      const data = (await res.json()) as { tournament?: Tournament; error?: string };
+      if (!res.ok || !data.tournament) throw new Error(data.error ?? "Result report failed");
+      setTournament(data.tournament);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Result report failed");
+    } finally {
+      setBusy(null);
+    }
+  }
 
   async function runAction(action: "start" | "cancel") {
     if (busy) return;

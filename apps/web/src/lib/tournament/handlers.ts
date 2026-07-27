@@ -83,16 +83,31 @@ export async function handleGetTournament(
 }
 
 type TournamentActionBody = {
-  action: "register" | "start" | "cancel";
+  action: "register" | "start" | "cancel" | "report";
   teamName?: string;
   discordUserIds?: string[];
+  bracketMatchId?: number;
+  winnerTeamId?: number;
 };
+
+function isPositiveInt(value: unknown): value is number {
+  return typeof value === "number" && Number.isInteger(value) && value > 0;
+}
 
 function parseActionBody(value: unknown): TournamentActionBody | null {
   if (!value || typeof value !== "object") return null;
   const body = value as Record<string, unknown>;
-  if (body.action !== "register" && body.action !== "start" && body.action !== "cancel")
+  if (
+    body.action !== "register" &&
+    body.action !== "start" &&
+    body.action !== "cancel" &&
+    body.action !== "report"
+  )
     return null;
+  if (body.action === "report")
+    return isPositiveInt(body.bracketMatchId) && isPositiveInt(body.winnerTeamId)
+      ? { action: "report", bracketMatchId: body.bracketMatchId, winnerTeamId: body.winnerTeamId }
+      : null;
   if (body.action !== "register") return { action: body.action };
   if (
     typeof body.teamName !== "string" ||
@@ -153,6 +168,25 @@ export async function handleTournamentAction(
         { error: "Only the tournament host can manage this event" },
         { status: 403 },
       );
+    }
+    if (body.action === "report") {
+      const match = tournament.bracketMatches.find((m) => m.id === body.bracketMatchId);
+      if (!match || match.winnerTeamId) {
+        return Response.json({ error: "Bracket match is not reportable" }, { status: 409 });
+      }
+      if (match.teamAId !== body.winnerTeamId && match.teamBId !== body.winnerTeamId) {
+        return Response.json(
+          { error: "Winner must be one of the two teams in the match" },
+          { status: 400 },
+        );
+      }
+      const updated = await rpcTournamentAction(engine, "ReportBracketResult", {
+        bracketMatchId: body.bracketMatchId,
+        game: 1,
+        winnerTeamId: body.winnerTeamId,
+        createdByDiscordUserId: auth.session.user.id,
+      });
+      return Response.json({ tournament: updated });
     }
     const updated = await rpcTournamentAction(
       engine,
