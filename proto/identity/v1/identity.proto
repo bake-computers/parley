@@ -5,7 +5,7 @@ package parley.identity.v1;
 import "common/v1/types.proto";
 
 option java_package = "bot.parley.identity.v1";
-option go_package = "github.com/pactum-computers/parley/gen/parley/identity/v1;identityv1";
+option go_package = "github.com/bake-computers/parley/gen/parley/identity/v1;identityv1";
 
 // Identity & account-linking service.
 //
