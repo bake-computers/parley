@@ -1,8 +1,7 @@
 ---
 /**
- * Parley mark: a speech bubble on a graphite tile. Parley is a negotiation,
- * so the bubble carries the brand. Colors invert with the theme through the
- * foreground/background tokens.
+ * The Parley mark — the faceted isometric P, shared with the web app
+ * (apps/web/public/parley-logo.svg). Keep the two assets in sync.
  */
 interface Props {
   size?: number;
@@ -11,10 +10,4 @@ interface Props {
 const { size = 20 } = Astro.props;
 ---
 
-<svg width={size} height={size} viewBox="0 0 24 24" fill="none" aria-hidden="true">
-  <rect x="1.5" y="1.5" width="21" height="21" rx="6.5" class="fill-foreground" />
-  <path
-    d="M16.9 7H9.6a2.6 2.6 0 0 0-2.6 2.6v2.9a2.6 2.6 0 0 0 2.6 2.6h1.1v2.5l3.3-2.5h2.9a2.6 2.6 0 0 0 2.6-2.6V9.6A2.6 2.6 0 0 0 16.9 7Z"
-    class="fill-background"
-  />
-</svg>
+<img src="/parley-logo.svg" width={size} height={size} alt="" aria-hidden="true" />
