@@ -18,6 +18,7 @@ Go (cmd/parley + internal/) ← buf generate → gen/parley (pb + connect)
 
 TypeScript (Bun workspaces) ← buf generate → packages/generated-ts
   apps/worker/             ← Cloudflare Worker: Hono, @parley/proto clients
+  apps/docs/               ← Nimbus (Astro) user docs, served at docs.parley.bot
   packages/runtime/        ← Discord API wrapper (Embeds & Components v2)
   packages/generated-ts/   ← @parley/proto: buf-generated TS + ConnectRPC clients
   packages/tsconfig-base/  ← Shared TS strict-mode base config
@@ -63,6 +64,7 @@ Subdirectory guides: [`proto/AGENTS.md`](proto/AGENTS.md) if present, [`apps/wor
 | `bun run test`                  | Per-package tests               |
 | `bun run dev`                   | Dev servers                     |
 | `cd apps/worker && bun run dev` | Wrangler dev for Discord worker |
+| `cd apps/docs && bun run dev`   | Astro dev server for user docs  |
 
 ### Proto generation
 
@@ -96,6 +98,7 @@ Copy `.env.example` to `.env`. `DATABASE_URL` is required to boot. For productio
 
 - **Engine**: `.github/workflows/deploy-engine.yml` builds the [`Dockerfile`](Dockerfile) and pushes `ghcr.io/<owner>/parley-engine` on `main`. Runtime pull/restart is outside CI.
 - **Workers**: `.github/workflows/deploy-cloudflare-workers.yml` on `main`, or `bun run deploy` (Wrangler per app) locally.
+- **Docs**: same workflow deploys `apps/docs` as static assets to `docs.parley.bot` (custom domain).
 
 ## Linting & Formatting
 
