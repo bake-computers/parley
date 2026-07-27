@@ -2,8 +2,8 @@ package handlers
 
 import (
 	"connectrpc.com/connect"
-	commonv1 "github.com/pactum-computers/parley/gen/parley/common/v1"
-	"github.com/pactum-computers/parley/internal/apperr"
+	commonv1 "github.com/bake-computers/parley/gen/parley/common/v1"
+	"github.com/bake-computers/parley/internal/apperr"
 )
 
 func errProto(code, msg string) *commonv1.Error {
