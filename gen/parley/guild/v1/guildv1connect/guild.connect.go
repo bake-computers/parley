@@ -8,7 +8,7 @@ import (
 	connect "connectrpc.com/connect"
 	context "context"
 	errors "errors"
-	v1 "github.com/pactum-computers/parley/gen/parley/guild/v1"
+	v1 "github.com/bake-computers/parley/gen/parley/guild/v1"
 	http "net/http"
 	strings "strings"
 )
