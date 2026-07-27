@@ -17,14 +17,14 @@ import (
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/pactum-computers/parley/gen/parley/guild/v1/guildv1connect"
-	"github.com/pactum-computers/parley/gen/parley/identity/v1/identityv1connect"
-	"github.com/pactum-computers/parley/gen/parley/matchmaking/v1/matchmakingv1connect"
-	"github.com/pactum-computers/parley/gen/parley/stats/v1/statsv1connect"
-	"github.com/pactum-computers/parley/gen/parley/tournament/v1/tournamentv1connect"
-	"github.com/pactum-computers/parley/gen/parley/user/v1/userv1connect"
-	"github.com/pactum-computers/parley/internal/handlers"
-	"github.com/pactum-computers/parley/internal/services"
+	"github.com/bake-computers/parley/gen/parley/guild/v1/guildv1connect"
+	"github.com/bake-computers/parley/gen/parley/identity/v1/identityv1connect"
+	"github.com/bake-computers/parley/gen/parley/matchmaking/v1/matchmakingv1connect"
+	"github.com/bake-computers/parley/gen/parley/stats/v1/statsv1connect"
+	"github.com/bake-computers/parley/gen/parley/tournament/v1/tournamentv1connect"
+	"github.com/bake-computers/parley/gen/parley/user/v1/userv1connect"
+	"github.com/bake-computers/parley/internal/handlers"
+	"github.com/bake-computers/parley/internal/services"
 )
 
 // Deps holds all service dependencies for the Fiber app.
