@@ -5,7 +5,7 @@ import (
 	"math"
 	"testing"
 
-	"github.com/pactum-computers/parley/internal/models"
+	"github.com/bake-computers/parley/internal/models"
 )
 
 func TestPartitionModelTeamsBalancesRoles(t *testing.T) {
