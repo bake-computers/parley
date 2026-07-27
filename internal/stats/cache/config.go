@@ -5,8 +5,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pactum-computers/parley/internal/config"
-	"github.com/pactum-computers/parley/internal/stats/fetch"
+	"github.com/bake-computers/parley/internal/config"
+	"github.com/bake-computers/parley/internal/stats/fetch"
 )
 
 // CacheConfig holds the R6 stats TTL.
