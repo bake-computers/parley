@@ -6,9 +6,9 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/pactum-computers/parley/internal/models"
-	"github.com/pactum-computers/parley/internal/repos"
-	"github.com/pactum-computers/parley/internal/stats/scrape"
+	"github.com/bake-computers/parley/internal/models"
+	"github.com/bake-computers/parley/internal/repos"
+	"github.com/bake-computers/parley/internal/stats/scrape"
 )
 
 const cacheVersion = 1
