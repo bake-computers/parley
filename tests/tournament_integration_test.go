@@ -18,8 +18,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/pactum-computers/parley/internal/models"
-	"github.com/pactum-computers/parley/internal/repos"
+	"github.com/bake-computers/parley/internal/models"
+	"github.com/bake-computers/parley/internal/repos"
 )
 
 // TestTournament_CreateAndList mirrors the Rust
