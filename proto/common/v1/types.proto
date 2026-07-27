@@ -3,7 +3,7 @@ syntax = "proto3";
 package parley.common.v1;
 
 option java_package = "bot.parley.common.v1";
-option go_package = "github.com/pactum-computers/parley/gen/parley/common/v1;commonv1";
+option go_package = "github.com/bake-computers/parley/gen/parley/common/v1;commonv1";
 
 enum RankTier {
     RANK_TIER_UNSPECIFIED = 0;
