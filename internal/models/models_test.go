@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
-	"github.com/pactum-computers/parley/internal/models"
+	"github.com/bake-computers/parley/internal/models"
 )
 
 func TestGameValueScan(t *testing.T) {
