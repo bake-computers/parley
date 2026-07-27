@@ -3,7 +3,7 @@ package config_test
 import (
 	"testing"
 
-	"github.com/pactum-computers/parley/internal/config"
+	"github.com/bake-computers/parley/internal/config"
 )
 
 func TestLoad(t *testing.T) {
