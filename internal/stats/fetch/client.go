@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/pactum-computers/parley/internal/stats/api"
+	"github.com/bake-computers/parley/internal/stats/api"
 )
 
 // ClientOptions configures StatsClient (API-only).
