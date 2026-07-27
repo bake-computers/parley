@@ -17,9 +17,9 @@ import (
 	"testing"
 
 	"connectrpc.com/connect"
-	commonv1 "github.com/pactum-computers/parley/gen/parley/common/v1"
-	identityv1 "github.com/pactum-computers/parley/gen/parley/identity/v1"
-	userv1 "github.com/pactum-computers/parley/gen/parley/user/v1"
+	commonv1 "github.com/bake-computers/parley/gen/parley/common/v1"
+	identityv1 "github.com/bake-computers/parley/gen/parley/identity/v1"
+	userv1 "github.com/bake-computers/parley/gen/parley/user/v1"
 )
 
 // TestIdentityLink_RoundTrip exercises the four-step lifecycle that every
