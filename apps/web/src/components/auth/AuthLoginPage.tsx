@@ -14,7 +14,7 @@ type TurnstileApi = {
       callback?: (token: string) => void;
       "expired-callback"?: () => void;
       "error-callback"?: () => void;
-      size?: "normal" | "compact";
+      size?: "normal" | "compact" | "flexible";
       theme?: "auto" | "light" | "dark";
       action?: string;
     },
