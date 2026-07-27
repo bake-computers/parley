@@ -7,7 +7,7 @@
 package userv1
 
 import (
-	v1 "github.com/pactum-computers/parley/gen/parley/common/v1"
+	v1 "github.com/bake-computers/parley/gen/parley/common/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -524,8 +524,8 @@ const file_user_v1_user_proto_rawDesc = "" +
 	"\x13UserSettingsService\x12_\n" +
 	"\x0fGetUserSettings\x12&.parley.user.v1.GetUserSettingsRequest\x1a$.parley.user.v1.UserSettingsResponse\x12e\n" +
 	"\x12UpsertUserSettings\x12).parley.user.v1.UpsertUserSettingsRequest\x1a$.parley.user.v1.UserSettingsResponse\x12_\n" +
-	"\x0eDeleteUserData\x12%.parley.user.v1.DeleteUserDataRequest\x1a&.parley.user.v1.DeleteUserDataResponseBR\n" +
-	"\x12bot.parley.user.v1Z<github.com/pactum-computers/parley/gen/parley/user/v1;userv1b\x06proto3"
+	"\x0eDeleteUserData\x12%.parley.user.v1.DeleteUserDataRequest\x1a&.parley.user.v1.DeleteUserDataResponseBP\n" +
+	"\x12bot.parley.user.v1Z:github.com/bake-computers/parley/gen/parley/user/v1;userv1b\x06proto3"
 
 var (
 	file_user_v1_user_proto_rawDescOnce sync.Once
