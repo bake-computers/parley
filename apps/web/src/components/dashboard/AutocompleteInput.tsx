@@ -85,7 +85,7 @@ export function AutocompleteInput({
   }, [open]);
 
   const pick = (option: string) => {
-    onChange(applySelection(value, option, multi));
+    onChange(applySelection(text, option, multi));
     setOpen(false);
   };
 
