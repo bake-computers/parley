@@ -7,9 +7,9 @@ import (
 	"math"
 	"sort"
 
-	"github.com/pactum-computers/parley/internal/matchmaking/ovi"
-	"github.com/pactum-computers/parley/internal/models"
-	"github.com/pactum-computers/parley/internal/repos"
+	"github.com/bake-computers/parley/internal/matchmaking/ovi"
+	"github.com/bake-computers/parley/internal/models"
+	"github.com/bake-computers/parley/internal/repos"
 )
 
 // PlayerSeedData is the subset of stats persisted on a
