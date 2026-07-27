@@ -10,8 +10,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/pactum-computers/parley/internal/server"
-	"github.com/pactum-computers/parley/internal/services"
+	"github.com/bake-computers/parley/internal/server"
+	"github.com/bake-computers/parley/internal/services"
 )
 
 func newTestApp(t *testing.T) *server.Deps {
