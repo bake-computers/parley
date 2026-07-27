@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pactum-computers/parley/internal/logging"
+	"github.com/bake-computers/parley/internal/logging"
 )
 
 func TestResolveIngestURL_DefaultUS(t *testing.T) {
