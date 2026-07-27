@@ -17,6 +17,7 @@ on:
       - "tsconfig.base.json"
       - "packages/tsconfig-base/**"
       - ".github/workflows/deploy-cloudflare-workers.yml"
+      - ".github/workflows/deploy-app.yml"
   workflow_dispatch:
 
 concurrency:
@@ -67,69 +68,35 @@ jobs:
               - 'bun.lockb'
               - 'turbo.json'
 
-  web-and-worker:
-    name: Deploy ${{ matrix.app.name }}
+  web:
     needs: changes
-    if: >-
-      github.event_name == 'workflow_dispatch'
-      || (matrix.app.name == 'web' && needs.changes.outputs.web == 'true')
-      || (matrix.app.name == 'worker' && needs.changes.outputs.worker == 'true')
-      || (matrix.app.name == 'docs' && needs.changes.outputs.docs == 'true')
-    runs-on: blacksmith-2vcpu-ubuntu-2404
-    environment:
-      name: ${{ matrix.app.env }}
-      url: ${{ matrix.app.url }}
-    strategy:
-      fail-fast: false
-      matrix:
-        app:
-          - name: web
-            cwd: apps/web
-            env: production-landing
-            url: https://parley.bot
-          - name: worker
-            cwd: apps/worker
-            env: production-worker
-            url: https://app.parley.bot
-          - name: docs
-            cwd: apps/docs
-            env: production-docs
-            url: https://docs.parley.bot
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.web == 'true'
+    uses: ./.github/workflows/deploy-app.yml
+    with:
+      app-name: web
+      cwd: apps/web
+      environment: production-landing
+      url: https://parley.bot
+    secrets: inherit
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: 1.3.14
+  worker:
+    needs: changes
+    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.worker == 'true'
+    uses: ./.github/workflows/deploy-app.yml
+    with:
+      app-name: worker
+      cwd: apps/worker
+      environment: production-worker
+      url: https://app.parley.bot
+    secrets: inherit
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Cache Bun Install
-        uses: actions/cache@v5
-        with:
-          path: |
-            ~/.bun/install/cache
-            node_modules
-            apps/*/node_modules
-            packages/*/node_modules
-          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock', 'bun.lockb', 'package.json', 'apps/*/package.json', 'packages/*/package.json') }}
-          restore-keys: |
-            ${{ runner.os }}-bun-
-
-      - name: Install Dependencies
-        run: bun install --frozen-lockfile
-
-      - name: Build
-        run: bun run build
-
-      - name: Deploy ${{ matrix.app.name }} Worker
-        working-directory: ${{ matrix.app.cwd }}
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: npx wrangler deploy
+  docs:
+    needs: changes
+    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs.docs == 'true'
+    uses: ./.github/workflows/deploy-app.yml
+    with:
+      app-name: docs
+      cwd: apps/docs
+      environment: production-docs
+      url: https://docs.parley.bot
+    secrets: inherit
