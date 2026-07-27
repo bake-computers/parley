@@ -7,7 +7,7 @@
 package guildv1
 
 import (
-	v1 "github.com/pactum-computers/parley/gen/parley/common/v1"
+	v1 "github.com/bake-computers/parley/gen/parley/common/v1"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -828,8 +828,8 @@ const file_guild_v1_guild_proto_rawDesc = "" +
 	"\x13GetMatchmakingRules\x12+.parley.guild.v1.GetMatchmakingRulesRequest\x1a..parley.guild.v1.GuildMatchmakingRulesResponse\x12x\n" +
 	"\x16UpsertMatchmakingRules\x12..parley.guild.v1.UpsertMatchmakingRulesRequest\x1a..parley.guild.v1.GuildMatchmakingRulesResponse\x12c\n" +
 	"\x0eGetMatchQuotas\x12&.parley.guild.v1.GetMatchQuotasRequest\x1a).parley.guild.v1.GuildMatchQuotasResponse\x12i\n" +
-	"\x11UpsertMatchQuotas\x12).parley.guild.v1.UpsertMatchQuotasRequest\x1a).parley.guild.v1.GuildMatchQuotasResponseBU\n" +
-	"\x13bot.parley.guild.v1Z>github.com/pactum-computers/parley/gen/parley/guild/v1;guildv1b\x06proto3"
+	"\x11UpsertMatchQuotas\x12).parley.guild.v1.UpsertMatchQuotasRequest\x1a).parley.guild.v1.GuildMatchQuotasResponseBS\n" +
+	"\x13bot.parley.guild.v1Z<github.com/bake-computers/parley/gen/parley/guild/v1;guildv1b\x06proto3"
 
 var (
 	file_guild_v1_guild_proto_rawDescOnce sync.Once
