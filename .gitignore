@@ -64,6 +64,6 @@ coverage.out
 
 .superpowers
 .omo
-docs/
+/docs/
 **/routeTree.gen.ts
 
