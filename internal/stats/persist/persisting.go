@@ -3,9 +3,9 @@ package persist
 import (
 	"context"
 
-	"github.com/pactum-computers/parley/internal/stats/cache"
-	"github.com/pactum-computers/parley/internal/stats/fetch"
-	"github.com/pactum-computers/parley/internal/stats/scrape"
+	"github.com/bake-computers/parley/internal/stats/cache"
+	"github.com/bake-computers/parley/internal/stats/fetch"
+	"github.com/bake-computers/parley/internal/stats/scrape"
 )
 
 // PersistingStatsCacheStore wraps a CacheStore and enqueues snapshot persistence
