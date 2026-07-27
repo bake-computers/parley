@@ -4,6 +4,7 @@ import {
   cacheGetJson,
   cachePutJson,
 } from "./discord-cache.js";
+import { discordAvatarUrl } from "./oauth.js";
 
 const DISCORD_API = "https://discord.com/api/v10";
 
@@ -69,6 +70,78 @@ export async function botIsInGuild(
   } catch {
     return false;
   }
+}
+
+export type GuildMember = {
+  id: string;
+  name: string;
+  avatarUrl: string;
+};
+
+type RawGuildMember = {
+  nick?: string | null;
+  user?: {
+    id?: string;
+    username?: string;
+    global_name?: string | null;
+    avatar?: string | null;
+    bot?: boolean;
+  };
+};
+
+function memberDisplayName(member: RawGuildMember): string | null {
+  const user = member.user;
+  if (!user?.id || user.bot) {
+    return null;
+  }
+  return member.nick?.trim() || user.global_name?.trim() || user.username?.trim() || null;
+}
+
+/**
+ * Lists non-bot guild members for roster selection. Bot tokens need no
+ * privileged intent for the REST members endpoint.
+ */
+export async function fetchGuildMembers(botToken: string, guildId: string): Promise<GuildMember[]> {
+  const headers = { Authorization: `Bot ${botToken}` };
+  const members: GuildMember[] = [];
+  let after: string | undefined;
+
+  for (let page = 0; page < 5; page++) {
+    const url = new URL(`${DISCORD_API}/guilds/${guildId}/members`);
+    url.searchParams.set("limit", "1000");
+    if (after) {
+      url.searchParams.set("after", after);
+    }
+    const res = await fetch(url.href, { headers });
+    if (!res.ok) {
+      throw new Error(`Discord guild members failed (${res.status})`);
+    }
+    const batch = (await res.json()) as RawGuildMember[];
+    if (!Array.isArray(batch) || batch.length === 0) {
+      break;
+    }
+    for (const member of batch) {
+      const name = memberDisplayName(member);
+      const id = member.user?.id;
+      if (name && id) {
+        members.push({
+          id,
+          name,
+          avatarUrl: discordAvatarUrl(id, member.user?.avatar ?? null),
+        });
+      }
+    }
+    if (batch.length < 1000) {
+      break;
+    }
+    const last = batch[batch.length - 1]?.user?.id;
+    if (!last) {
+      break;
+    }
+    after = last;
+  }
+
+  return members.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
 }
 
 /** One Discord list call instead of N per-guild membership probes. */

@@ -7,3 +7,4 @@ export {
 } from "./TournamentFields";
 export { TournamentHero, TournamentShell } from "./TournamentShell";
 export { TournamentBracket, bracketLabel, groupBracket } from "./TournamentBracket";
+export { PlayerPicker } from "./PlayerPicker";

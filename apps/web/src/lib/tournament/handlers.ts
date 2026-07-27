@@ -1,7 +1,14 @@
 import type { OAuthEnvSource } from "../discord/env.js";
 import type { EngineEnvSource } from "../engine/env.js";
 import { engineEnvFromCloudflare } from "../engine/env.js";
-import { requireDashboardSession, sessionCanManageGuild } from "../dashboard/auth.js";
+import {
+  requireDashboardSession,
+  sessionCanManageGuild,
+  type DashboardSession,
+} from "../dashboard/auth.js";
+import { fetchGuildMembers, type GuildMember } from "../discord/bot.js";
+import { cacheGetJson, cachePutJson } from "../discord/discord-cache.js";
+import { resolveBotToken } from "../discord/env.js";
 import { resolveSessionGuilds } from "../discord/oauth.js";
 import { verifyTournamentHandoff } from "./handoff.js";
 import {
@@ -82,6 +89,49 @@ export async function handleGetTournament(
   }
 }
 
+const GUILD_MEMBERS_TTL_SEC = 120;
+
+async function sessionIsGuildMember(session: DashboardSession, guildId: string): Promise<boolean> {
+  const guilds = await resolveSessionGuilds(session);
+  return guilds.some((guild) => guild.id === guildId);
+}
+
+/** Lists the host guild's members so registrants can build a roster by name. */
+export async function handleListTournamentMembers(
+  request: Request,
+  env: TournamentEnvSource,
+): Promise<Response> {
+  const auth = await requireDashboardSession(request, env);
+  if (auth instanceof Response) return auth;
+  const botToken = resolveBotToken(env);
+  if (!botToken) {
+    return Response.json({ error: "Member lookup is not configured" }, { status: 503 });
+  }
+  try {
+    const tournament = await loadTournament(request, env);
+    if (!(await sessionIsGuildMember(auth.session, tournament.createdByGuildId))) {
+      return Response.json(
+        { error: "You must be a member of the host server to view members" },
+        { status: 403 },
+      );
+    }
+    const cacheKey = `guild-members:v1:${tournament.createdByGuildId}`;
+    const cached = await cacheGetJson<GuildMember[]>(cacheKey);
+    if (cached) {
+      return Response.json({ members: cached, cached: true });
+    }
+    const members = await fetchGuildMembers(botToken, tournament.createdByGuildId);
+    await cachePutJson(cacheKey, members, GUILD_MEMBERS_TTL_SEC);
+    return Response.json({ members });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Member lookup failed";
+    return Response.json(
+      { error: message },
+      { status: message === "Tournament not found" ? 404 : 502 },
+    );
+  }
+}
+
 type TournamentActionBody = {
   action: "register" | "start" | "cancel" | "report";
   teamName?: string;
@@ -139,8 +189,7 @@ export async function handleTournamentAction(
     const tournament = await loadTournament(request, env);
     const engine = engineEnvFromCloudflare(env);
     if (body.action === "register") {
-      const guilds = await resolveSessionGuilds(auth.session);
-      if (!guilds.some((guild) => guild.id === tournament.createdByGuildId)) {
+      if (!(await sessionIsGuildMember(auth.session, tournament.createdByGuildId))) {
         return Response.json(
           { error: "You must be a member of the host server to register" },
           { status: 403 },

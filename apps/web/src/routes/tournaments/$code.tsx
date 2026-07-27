@@ -2,7 +2,12 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Brackets, Users } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
 import { DashboardLoader } from "#/components/dashboard/DashboardLoader";
-import { TournamentBracket, TournamentHero, TournamentShell } from "#/components/tournaments";
+import {
+  PlayerPicker,
+  TournamentBracket,
+  TournamentHero,
+  TournamentShell,
+} from "#/components/tournaments";
 import { Button, buttonVariants } from "#/components/ui/button";
 import { GlassPanel } from "#/components/ui/glass-panel";
 import { Reveal } from "#/components/ui/reveal";
@@ -32,6 +37,7 @@ function TournamentPage() {
   const [showRegistration, setShowRegistration] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [rosterIds, setRosterIds] = useState<string[]>([]);
   const displayCode = code.toUpperCase();
   const loginRedirect = `/tournaments/${code}`;
 
@@ -53,6 +59,10 @@ function TournamentPage() {
       cancelled = true;
     };
   }, [displayCode]);
+
+  useEffect(() => {
+    if (me) setRosterIds((ids) => (ids.length ? ids : [me.user.id]));
+  }, [me]);
 
   if (me === undefined || loading)
     return (
@@ -147,19 +157,15 @@ function TournamentPage() {
                       placeholder="Team name"
                       className="h-10 rounded-lg border border-border bg-background px-3 text-sm"
                     />
-                    <textarea
-                      required
-                      name="discordUserIds"
-                      defaultValue={me.user.id}
-                      rows={3}
-                      placeholder="Discord user IDs, separated by commas"
-                      className="rounded-lg border border-border bg-background p-3 text-sm"
+                    <PlayerPicker
+                      code={displayCode}
+                      currentUserId={me.user.id}
+                      selectedIds={rosterIds}
+                      onChange={setRosterIds}
+                      rosterSize={rosterSizeFromFormat(tournament.format)}
                     />
-                    <p className="text-xs text-muted-foreground">
-                      Include yourself. The roster must match the event format.
-                    </p>
                     <div className="flex gap-2">
-                      <Button type="submit" disabled={submitting}>
+                      <Button type="submit" disabled={submitting || rosterIds.length === 0}>
                         {submitting ? "Registering…" : "Register team"}
                       </Button>
                       <Button
@@ -246,10 +252,6 @@ function TournamentPage() {
     event.preventDefault();
     if (submitting) return;
     const form = new FormData(event.currentTarget);
-    const discordUserIds = String(form.get("discordUserIds") ?? "")
-      .split(",")
-      .map((id) => id.trim())
-      .filter(Boolean);
     setSubmitting(true);
     setError(null);
     try {
@@ -260,7 +262,7 @@ function TournamentPage() {
         body: JSON.stringify({
           action: "register",
           teamName: form.get("teamName"),
-          discordUserIds,
+          discordUserIds: rosterIds,
         }),
       });
       const data = (await res.json()) as { error?: string };
@@ -271,4 +273,10 @@ function TournamentPage() {
       setSubmitting(false);
     }
   }
+}
+
+/** "5v5_single_elimination" → 5. */
+function rosterSizeFromFormat(format: string): number | undefined {
+  const size = Number(format.match(/^(\d+)v\d+/)?.[1]);
+  return size > 0 ? size : undefined;
 }
