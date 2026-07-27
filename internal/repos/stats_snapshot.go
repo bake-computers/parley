@@ -5,7 +5,7 @@ import (
 	"database/sql"
 	"errors"
 
-	"github.com/pactum-computers/parley/internal/models"
+	"github.com/bake-computers/parley/internal/models"
 	"github.com/uptrace/bun"
 )
 
