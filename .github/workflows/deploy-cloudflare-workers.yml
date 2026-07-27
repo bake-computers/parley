@@ -70,7 +70,11 @@ jobs:
   web-and-worker:
     name: Deploy ${{ matrix.app.name }}
     needs: changes
-    if: github.event_name == 'workflow_dispatch' || needs.changes.outputs[matrix.app.name] == 'true'
+    if: >-
+      github.event_name == 'workflow_dispatch'
+      || (matrix.app.name == 'web' && needs.changes.outputs.web == 'true')
+      || (matrix.app.name == 'worker' && needs.changes.outputs.worker == 'true')
+      || (matrix.app.name == 'docs' && needs.changes.outputs.docs == 'true')
     runs-on: blacksmith-2vcpu-ubuntu-2404
     environment:
       name: ${{ matrix.app.env }}
