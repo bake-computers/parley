@@ -19,6 +19,7 @@ export type Messages = {
     legalNotice: string;
     privacy: string;
     terms: string;
+    docs: string;
     poweredBy: string;
     notUbisoft: string;
     notDiscord: string;
