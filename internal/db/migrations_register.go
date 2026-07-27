@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	parleymigrations "github.com/pactum-computers/parley/migrations"
+	parleymigrations "github.com/bake-computers/parley/migrations"
 	"github.com/uptrace/bun/migrate"
 )
 
