@@ -13,7 +13,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pactum-computers/parley/internal/stats/api"
+	"github.com/bake-computers/parley/internal/stats/api"
 )
 
 func TestClient_HeadersAndEndpoints(t *testing.T) {
