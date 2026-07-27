@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/pactum-computers/parley/internal/config"
-	"github.com/pactum-computers/parley/internal/db"
+	"github.com/bake-computers/parley/internal/config"
+	"github.com/bake-computers/parley/internal/db"
 )
 
 func TestNew_RequiresDatabaseURL(t *testing.T) {
