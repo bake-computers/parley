@@ -3,6 +3,13 @@
  * Memory (isolate) + Cache API (colo) so hot requests skip Discord.
  */
 
+declare global {
+  /** Cloudflare Workers add a bucketless default cache to the DOM CacheStorage. */
+  interface CacheStorage {
+    default: Cache;
+  }
+}
+
 const memory = new Map<string, { exp: number; body: string }>();
 const MEMORY_MAX = 200;
 
