@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	userv1 "github.com/pactum-computers/parley/gen/parley/user/v1"
+	userv1 "github.com/bake-computers/parley/gen/parley/user/v1"
 )
 
 // The web worker cannot distinguish a saved `false` from an omitted field, so the
