@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pactum-computers/parley/internal/stats/scrape"
+	"github.com/bake-computers/parley/internal/stats/scrape"
 )
 
 // FetchStatsCollection fetches the full multi-season collection with retry.
