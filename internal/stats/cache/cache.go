@@ -3,8 +3,8 @@ package cache
 import (
 	"context"
 
-	"github.com/pactum-computers/parley/internal/stats/fetch"
-	"github.com/pactum-computers/parley/internal/stats/scrape"
+	"github.com/bake-computers/parley/internal/stats/fetch"
+	"github.com/bake-computers/parley/internal/stats/scrape"
 )
 
 // CacheStore is the R6 cache-or-fetch facade.
