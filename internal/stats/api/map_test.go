@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/pactum-computers/parley/internal/stats/api"
+	"github.com/bake-computers/parley/internal/stats/api"
 )
 
 func loadFixture[T any](t *testing.T, name string) T {
