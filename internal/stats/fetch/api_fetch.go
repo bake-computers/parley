@@ -5,8 +5,8 @@ import (
 	"log/slog"
 	"strings"
 
-	"github.com/pactum-computers/parley/internal/stats/api"
-	"github.com/pactum-computers/parley/internal/stats/scrape"
+	"github.com/bake-computers/parley/internal/stats/api"
+	"github.com/bake-computers/parley/internal/stats/scrape"
 )
 
 type apiResolvedProfile struct {
