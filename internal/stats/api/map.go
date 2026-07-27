@@ -6,7 +6,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/pactum-computers/parley/internal/stats/scrape"
+	"github.com/bake-computers/parley/internal/stats/scrape"
 )
 
 // MapInput holds everything needed to build a ScrapedStatsCollection.
