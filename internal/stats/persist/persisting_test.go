@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/pactum-computers/parley/internal/stats/fetch"
-	"github.com/pactum-computers/parley/internal/stats/scrape"
+	"github.com/bake-computers/parley/internal/stats/fetch"
+	"github.com/bake-computers/parley/internal/stats/scrape"
 )
 
 type mockCacheStore struct {
