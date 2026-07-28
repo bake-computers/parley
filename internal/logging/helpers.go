@@ -1,6 +1,6 @@
 package logging
 
-// LogHTTP enqueues an HTTP lifecycle event (mirrors src/logging.rs log_http).
+// LogHTTP enqueues an HTTP lifecycle event with status-derived level.
 func LogHTTP(h *AxiomHandler, method, path string, status uint16, durationMS float64, userAgent, contentType, origin *string) {
 	if h == nil || !h.EnabledForHelpers() {
 		return
@@ -8,7 +8,7 @@ func LogHTTP(h *AxiomHandler, method, path string, status uint16, durationMS flo
 	h.enqueueDomain(encodeHTTPEvent(method, path, status, durationMS, userAgent, contentType, origin))
 }
 
-// LogDB enqueues a database query event.
+// LogDB enqueues a database query event (error level when errMsg is set).
 func LogDB(h *AxiomHandler, operation, table string, durationMS float64, errMsg *string) {
 	if h == nil || !h.EnabledForHelpers() {
 		return
@@ -16,7 +16,7 @@ func LogDB(h *AxiomHandler, operation, table string, durationMS float64, errMsg 
 	h.enqueueDomain(encodeDBEvent(operation, table, durationMS, errMsg))
 }
 
-// LogCache enqueues a cache hit/miss/stale event.
+// LogCache enqueues a cache hit/miss/stale event at debug level.
 func LogCache(h *AxiomHandler, action, game string, usernameHash *string) {
 	if h == nil || !h.EnabledForHelpers() {
 		return
@@ -24,7 +24,7 @@ func LogCache(h *AxiomHandler, action, game string, usernameHash *string) {
 	h.enqueueDomain(encodeCacheEvent(action, game, usernameHash))
 }
 
-// LogError enqueues a handler-level error event.
+// LogError enqueues a handler-level error event at error severity.
 func LogError(h *AxiomHandler, service, code, message string, path *string) {
 	if h == nil || !h.EnabledForHelpers() {
 		return

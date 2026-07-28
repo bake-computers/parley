@@ -2,6 +2,7 @@ export type AxiomEvent =
   | {
       event: "http";
       service: string;
+      level: "info" | "warn" | "error";
       method: string;
       path: string;
       status: number;
@@ -13,6 +14,7 @@ export type AxiomEvent =
   | {
       event: "error";
       service: string;
+      level: "error";
       code: string;
       message: string;
       path?: string;
@@ -20,6 +22,7 @@ export type AxiomEvent =
   | {
       event: "ws";
       service: string;
+      level: "info" | "warn" | "error";
       action: "connect" | "disconnect" | "broadcast" | "rate_limited";
       metric?: string;
       client_ip?: string;
@@ -28,6 +31,7 @@ export type AxiomEvent =
   | {
       event: "do";
       service: string;
+      level: "info" | "warn" | "error" | "debug";
       action: string;
       metric?: string;
       duration_ms?: number;
@@ -35,9 +39,11 @@ export type AxiomEvent =
       error?: string;
     }
   | {
-      event: "info";
+      event: "log";
       service: string;
+      level: "debug" | "info" | "warn" | "error";
       message: string;
+      discord_event?: string;
       [key: string]: string | number | boolean | undefined;
     }
   | {

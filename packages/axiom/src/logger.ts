@@ -1,6 +1,16 @@
 import { type AxiomConfig, isAxiomConfigured } from "#/config";
 import type { AxiomEvent } from "#/events";
 
+function httpLevel(status: number): "info" | "warn" | "error" {
+  if (status >= 500) {
+    return "error";
+  }
+  if (status >= 400) {
+    return "warn";
+  }
+  return "info";
+}
+
 export class AxiomLogger {
   private readonly config: AxiomConfig;
   private readonly pending: AxiomEvent[] = [];
@@ -37,6 +47,7 @@ export class AxiomLogger {
     this.log({
       event: "http",
       service: this.config.service,
+      level: httpLevel(fields.status),
       ...fields,
     });
   }
@@ -45,6 +56,7 @@ export class AxiomLogger {
     this.log({
       event: "error",
       service: this.config.service,
+      level: "error",
       code,
       message,
       ...(path ? { path } : {}),
@@ -57,9 +69,11 @@ export class AxiomLogger {
     client_ip?: string;
     connection_count?: number;
   }): void {
+    const level = fields.action === "rate_limited" ? "warn" : "info";
     this.log({
       event: "ws",
       service: this.config.service,
+      level,
       ...fields,
     });
   }
@@ -74,6 +88,22 @@ export class AxiomLogger {
     this.log({
       event: "do",
       service: this.config.service,
+      level: fields.error ? "error" : "info",
+      ...fields,
+    });
+  }
+
+  // Explicit level so Axiom severity is not defaulted to info.
+  logAt(
+    level: "debug" | "info" | "warn" | "error",
+    message: string,
+    fields: Record<string, string | number | boolean | undefined> = {},
+  ): void {
+    this.log({
+      event: "log",
+      service: this.config.service,
+      level,
+      message,
       ...fields,
     });
   }
@@ -82,12 +112,7 @@ export class AxiomLogger {
     message: string,
     fields: Record<string, string | number | boolean | undefined> = {},
   ): void {
-    this.log({
-      event: "info",
-      service: this.config.service,
-      message,
-      ...fields,
-    });
+    this.logAt("info", message, fields);
   }
 
   async flush(): Promise<void> {

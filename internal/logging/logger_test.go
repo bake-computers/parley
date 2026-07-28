@@ -42,16 +42,20 @@ func TestResolveIngestURL_EdgeURL(t *testing.T) {
 	}
 }
 
-func TestNew_DebugUsesTextHandler(t *testing.T) {
+func TestNew_AlwaysJSONIncludingDebug(t *testing.T) {
 	t.Parallel()
 	var buf bytes.Buffer
 	log := logging.NewWithWriter("debug", &buf, logging.AxiomOptions{Enabled: false})
 	log.Debug("hello")
-	if !strings.Contains(buf.String(), "hello") {
-		t.Fatalf("expected debug output containing 'hello', got %q", buf.String())
+	line := strings.TrimSpace(buf.String())
+	if !strings.Contains(line, `"msg"`) || !strings.Contains(line, "hello") {
+		t.Fatalf("expected JSON debug line, got %q", line)
 	}
-	if !strings.Contains(buf.String(), "DEBUG") {
-		t.Fatalf("expected text debug output with DEBUG level, got %q", buf.String())
+	if !strings.Contains(line, `"level":"debug"`) {
+		t.Fatalf("expected lowercase debug level for Axiom, got %q", line)
+	}
+	if !strings.Contains(line, `"service":"engine"`) {
+		t.Fatalf("expected service=engine, got %q", line)
 	}
 }
 
@@ -63,6 +67,9 @@ func TestNew_InfoUsesJSONHandler(t *testing.T) {
 	line := strings.TrimSpace(buf.String())
 	if !strings.Contains(line, `"msg"`) || !strings.Contains(line, "hello") {
 		t.Fatalf("expected JSON log line, got %q", line)
+	}
+	if !strings.Contains(line, `"level":"info"`) {
+		t.Fatalf("expected lowercase info level, got %q", line)
 	}
 }
 
@@ -153,6 +160,110 @@ func TestAxiomHandler_FlushesBatchOnShutdown(t *testing.T) {
 	}
 	if batch[0]["event"] != "http" {
 		t.Fatalf("event %v", batch[0]["event"])
+	}
+	if batch[0]["level"] != "info" {
+		t.Fatalf("http 200 should be level info, got %v", batch[0]["level"])
+	}
+}
+
+func TestAxiomHandler_SlogLevelsLowercase(t *testing.T) {
+	t.Parallel()
+	var mu sync.Mutex
+	var bodies [][]byte
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		b, _ := io.ReadAll(r.Body)
+		mu.Lock()
+		bodies = append(bodies, b)
+		mu.Unlock()
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer srv.Close()
+
+	h, err := logging.NewAxiomHandler(logging.AxiomOptions{
+		Token:     "tok",
+		Enabled:   true,
+		Level:     "debug",
+		BatchSize: 1,
+		IngestURL: srv.URL,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	log := logging.NewWithAxiom("debug", h)
+	log.Debug("dbg")
+	log.Error("err")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	if err := h.Shutdown(ctx); err != nil {
+		t.Fatal(err)
+	}
+
+	mu.Lock()
+	defer mu.Unlock()
+	if len(bodies) < 2 {
+		t.Fatalf("expected >=2 posts, got %d", len(bodies))
+	}
+	levels := map[string]bool{}
+	for _, body := range bodies {
+		var batch []map[string]any
+		if err := json.Unmarshal(body, &batch); err != nil {
+			t.Fatal(err)
+		}
+		for _, ev := range batch {
+			if lv, ok := ev["level"].(string); ok {
+				levels[lv] = true
+			}
+		}
+	}
+	if !levels["debug"] || !levels["error"] {
+		t.Fatalf("want debug+error levels, got %v", levels)
+	}
+}
+
+func TestDomainEvents_ErrorLevel(t *testing.T) {
+	t.Parallel()
+	var mu sync.Mutex
+	var body []byte
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		b, _ := io.ReadAll(r.Body)
+		mu.Lock()
+		body = b
+		mu.Unlock()
+		w.WriteHeader(http.StatusOK)
+	}))
+	defer srv.Close()
+
+	h, err := logging.NewAxiomHandler(logging.AxiomOptions{
+		Token:     "tok",
+		Enabled:   true,
+		BatchSize: 1,
+		IngestURL: srv.URL,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	path := "/rpc"
+	logging.LogError(h, "MatchService", "FAILED_PRECONDITION", "bad input", &path)
+	logging.LogHTTP(h, "POST", "/x", 500, 1, nil, nil, nil)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	_ = h.Shutdown(ctx)
+
+	mu.Lock()
+	defer mu.Unlock()
+	// Last flush may be either event; parse all by reusing helper path via second call
+	// Shutdown already flushed; body is last batch (size 1).
+	var batch []map[string]any
+	if err := json.Unmarshal(body, &batch); err != nil {
+		t.Fatal(err)
+	}
+	if len(batch) != 1 {
+		t.Fatalf("batch %d", len(batch))
+	}
+	if batch[0]["level"] != "error" {
+		t.Fatalf("expected error level on domain events, got %v", batch[0])
 	}
 }
 

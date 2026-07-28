@@ -1,6 +1,9 @@
 package logging
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"time"
+)
 
 func encodeEvent(fields map[string]any) []byte {
 	b, err := json.Marshal(fields)
@@ -10,19 +13,37 @@ func encodeEvent(fields map[string]any) []byte {
 	return b
 }
 
+func baseDomain(event, level string) map[string]any {
+	return map[string]any{
+		"event":   event,
+		"level":   level,
+		"service": ServiceEngine,
+		"time":    time.Now().UTC().Format(time.RFC3339Nano),
+	}
+}
+
+func httpLevel(status uint16) string {
+	switch {
+	case status >= 500:
+		return "error"
+	case status >= 400:
+		return "warn"
+	default:
+		return "info"
+	}
+}
+
 func encodeHTTPEvent(
 	method, path string,
 	status uint16,
 	durationMS float64,
 	userAgent, contentType, origin *string,
 ) []byte {
-	m := map[string]any{
-		"event":       "http",
-		"method":      method,
-		"path":        path,
-		"status":      status,
-		"duration_ms": durationMS,
-	}
+	m := baseDomain("http", httpLevel(status))
+	m["method"] = method
+	m["path"] = path
+	m["status"] = status
+	m["duration_ms"] = durationMS
 	if userAgent != nil {
 		m["user_agent"] = *userAgent
 	}
@@ -36,12 +57,14 @@ func encodeHTTPEvent(
 }
 
 func encodeDBEvent(operation, table string, durationMS float64, errMsg *string) []byte {
-	m := map[string]any{
-		"event":       "db",
-		"operation":   operation,
-		"table":       table,
-		"duration_ms": durationMS,
+	level := "info"
+	if errMsg != nil {
+		level = "error"
 	}
+	m := baseDomain("db", level)
+	m["operation"] = operation
+	m["table"] = table
+	m["duration_ms"] = durationMS
 	if errMsg != nil {
 		m["error"] = *errMsg
 	}
@@ -49,11 +72,10 @@ func encodeDBEvent(operation, table string, durationMS float64, errMsg *string) 
 }
 
 func encodeCacheEvent(action, game string, usernameHash *string) []byte {
-	m := map[string]any{
-		"event":  "cache",
-		"action": action,
-		"game":   game,
-	}
+	// Cache hit/miss noise: debug so Axiom filters don't treat every hit as info.
+	m := baseDomain("cache", "debug")
+	m["action"] = action
+	m["game"] = game
 	if usernameHash != nil {
 		m["username_hash"] = *usernameHash
 	}
@@ -61,12 +83,11 @@ func encodeCacheEvent(action, game string, usernameHash *string) []byte {
 }
 
 func encodeErrorEvent(service, code, message string, path *string) []byte {
-	m := map[string]any{
-		"event":   "error",
-		"service": service,
-		"code":    code,
-		"message": message,
-	}
+	m := baseDomain("error", "error")
+	// Domain "service" is the RPC/handler name; keep engine as source service.
+	m["handler"] = service
+	m["code"] = code
+	m["message"] = message
 	if path != nil {
 		m["path"] = *path
 	}

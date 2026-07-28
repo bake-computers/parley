@@ -3,13 +3,13 @@ package server
 
 import (
 	"fmt"
+	"log/slog"
 	"net/http"
 	"time"
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/adaptor"
 	"github.com/gofiber/fiber/v3/middleware/compress"
-	"github.com/gofiber/fiber/v3/middleware/logger"
 	"github.com/gofiber/fiber/v3/middleware/recover"
 	"github.com/gofiber/fiber/v3/middleware/requestid"
 
@@ -51,9 +51,9 @@ func New(deps Deps) *fiber.App {
 
 	// Middleware
 	app.Use(recover.New())
-	app.Use(logger.New())
-	app.Use(compress.New())
 	app.Use(requestid.New())
+	app.Use(requestLogMiddleware())
+	app.Use(compress.New())
 
 	// Health and readiness
 	app.Get("/health", func(c fiber.Ctx) error {
@@ -149,4 +149,58 @@ func (c *emitDefaultJSONCodec) IsBinary() bool { return false }
 func mountConnect(app *fiber.App, path string, handler http.Handler) {
 	h := adaptor.HTTPHandler(handler)
 	app.Post(path+"*", h)
+}
+
+// requestLogMiddleware emits structured JSON request logs via slog (tees to Axiom).
+// Status drives level so 5xx/4xx are not misread as info in Axiom.
+func requestLogMiddleware() fiber.Handler {
+	return func(c fiber.Ctx) error {
+		start := time.Now()
+		err := c.Next()
+
+		status := c.Response().StatusCode()
+		if err != nil {
+			if fe, ok := err.(*fiber.Error); ok {
+				status = fe.Code
+			} else if status < 400 {
+				status = fiber.StatusInternalServerError
+			}
+		}
+
+		durationMS := float64(time.Since(start).Microseconds()) / 1000
+		attrs := []any{
+			"event", "http",
+			"method", c.Method(),
+			"path", c.Path(),
+			"status", status,
+			"duration_ms", durationMS,
+			"request_id", c.GetRespHeader(fiber.HeaderXRequestID),
+			"bytes_out", len(c.Response().Body()),
+		}
+		if ip := c.IP(); ip != "" {
+			attrs = append(attrs, "client_ip", ip)
+		}
+		if ua := c.Get(fiber.HeaderUserAgent); ua != "" {
+			attrs = append(attrs, "user_agent", ua)
+		}
+		if err != nil {
+			attrs = append(attrs, "error", err.Error())
+		}
+
+		msg := "http request"
+		switch {
+		case status >= 500:
+			slog.Error(msg, attrs...)
+		case status >= 400:
+			slog.Warn(msg, attrs...)
+		default:
+			// Health probes stay quiet at debug so info is usable for RPC traffic.
+			if c.Path() == "/health" || c.Path() == "/ready" {
+				slog.Debug(msg, attrs...)
+			} else {
+				slog.Info(msg, attrs...)
+			}
+		}
+		return err
+	}
 }
