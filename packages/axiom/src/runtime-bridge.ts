@@ -30,20 +30,46 @@ function pickDiscordFields(
   return fields;
 }
 
+function normalizeLevel(level: string): "debug" | "info" | "warn" | "error" {
+  switch (level) {
+    case "debug":
+    case "info":
+    case "warn":
+    case "error":
+      return level;
+    case "warning":
+      return "warn";
+    case "trace":
+      return "debug";
+    default:
+      return "info";
+  }
+}
+
 export function createRuntimeLogSink(axiom: AxiomLogger): (record: RuntimeLogRecord) => void {
   return (record) => {
     const fields = pickDiscordFields(record);
+    const level = normalizeLevel(record.level);
 
-    if (record.level === "error") {
-      axiom.logError(
-        record.event,
-        record.message,
-        typeof fields["path"] === "string" ? fields["path"] : undefined,
-      );
+    const isDiscordish =
+      record.event.startsWith("discord.") ||
+      record.event.startsWith("link.") ||
+      typeof fields["commandName"] === "string" ||
+      typeof fields["interactionId"] === "string";
+
+    if (isDiscordish) {
+      // Keep event:"error" rows for dashboards that filter on that shape.
+      if (level === "error") {
+        axiom.logError(
+          record.event,
+          record.message,
+          typeof fields["path"] === "string" ? fields["path"] : undefined,
+        );
+      }
       axiom.log({
         event: "discord",
         service: axiom.service,
-        level: record.level,
+        level,
         discord_event: record.event,
         message: record.message,
         ...fields,
@@ -51,27 +77,10 @@ export function createRuntimeLogSink(axiom: AxiomLogger): (record: RuntimeLogRec
       return;
     }
 
-    if (record.level === "warn") {
-      axiom.log({
-        event: "discord",
-        service: axiom.service,
-        level: record.level,
-        discord_event: record.event,
-        message: record.message,
-        ...fields,
-      });
-      return;
-    }
-
-    if (record.event.startsWith("discord.") || record.event.startsWith("link.")) {
-      axiom.log({
-        event: "discord",
-        service: axiom.service,
-        level: record.level,
-        discord_event: record.event,
-        message: record.message,
-        ...fields,
-      });
-    }
+    // Explicit level so Axiom never defaults severity to info.
+    axiom.logAt(level, record.message, {
+      discord_event: record.event,
+      ...fields,
+    });
   };
 }

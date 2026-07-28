@@ -42,11 +42,13 @@ func run() error {
 		OrgID:   cfg.AxiomOrgID,
 		Edge:    cfg.AxiomEdge,
 		Enabled: cfg.AxiomEnabled,
+		Level:   cfg.LogLevel,
 	}
-	logger := logging.New(cfg.LogLevel, axiomOpts)
-	slog.SetDefault(logger)
-
+	// One Axiom handler shared by slog + domain helpers; previously New() and
+	// NewAxiomHandler each created a flusher, so slog never reached the shutdown path.
 	axiomHandler, err := logging.NewAxiomHandler(axiomOpts)
+	logger := logging.NewWithAxiom(cfg.LogLevel, axiomHandler)
+	slog.SetDefault(logger)
 	if err != nil {
 		slog.Warn("axiom handler init failed", "error", err)
 	}

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
 	"io"
 	"log/slog"
 	"net/http"
@@ -20,12 +19,14 @@ const (
 
 // AxiomOptions configures batched HTTP ingest to Axiom (no official SDK).
 type AxiomOptions struct {
-	Token         string
-	Dataset       string
-	OrgID         string
-	Edge          string
-	EdgeURL       string
-	Enabled       bool
+	Token   string
+	Dataset string
+	OrgID   string
+	Edge    string
+	EdgeURL string
+	Enabled bool
+	// Level is the minimum slog level to ship (debug/info/warn/error). Empty = info.
+	Level         string
 	BatchSize     int
 	FlushInterval time.Duration
 	BufferSize    int
@@ -77,7 +78,7 @@ func NewAxiomHandler(opts AxiomOptions) (*AxiomHandler, error) {
 	opts = opts.withDefaults()
 	h := &AxiomHandler{
 		enabled: opts.configured(),
-		level:   slog.LevelInfo,
+		level:   parseLevel(opts.Level),
 	}
 	if !h.enabled {
 		h.enqueue = func([]byte) {}
@@ -217,9 +218,11 @@ func (h *AxiomHandler) Handle(_ context.Context, r slog.Record) error {
 
 func (h *AxiomHandler) recordJSON(r slog.Record) []byte {
 	m := map[string]any{
-		"event": "log",
-		"time":  r.Time.UTC().Format(time.RFC3339Nano),
-		"level": r.Level.String(),
+		"event":   "log",
+		"service": ServiceEngine,
+		"time":    r.Time.UTC().Format(time.RFC3339Nano),
+		// Lowercase: Axiom severity UI treats unknown/missing as info.
+		"level": levelString(r.Level),
 		"msg":   r.Message,
 	}
 	if h.group != "" {
@@ -233,6 +236,14 @@ func (h *AxiomHandler) recordJSON(r slog.Record) []byte {
 		return true
 	})
 	return encodeEvent(m)
+}
+
+// setMinLevel updates the minimum level for shipping (used by NewWithAxiom).
+func (h *AxiomHandler) setMinLevel(level slog.Level) {
+	if h == nil {
+		return
+	}
+	h.level = level
 }
 
 func putAttr(m map[string]any, a slog.Attr) {
@@ -328,6 +339,3 @@ func (h *AxiomHandler) EnqueueRaw(b []byte) {
 }
 
 var _ slog.Handler = (*AxiomHandler)(nil)
-
-// noop helper for fmt in case of future debug
-var _ = fmt.Sprintf
