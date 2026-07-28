@@ -45,6 +45,9 @@ const (
 	// MatchmakingServiceReportMatchResultProcedure is the fully-qualified name of the
 	// MatchmakingService's ReportMatchResult RPC.
 	MatchmakingServiceReportMatchResultProcedure = "/parley.matchmaking.v1.MatchmakingService/ReportMatchResult"
+	// MatchmakingServiceReportPlayerRoundStatsProcedure is the fully-qualified name of the
+	// MatchmakingService's ReportPlayerRoundStats RPC.
+	MatchmakingServiceReportPlayerRoundStatsProcedure = "/parley.matchmaking.v1.MatchmakingService/ReportPlayerRoundStats"
 	// MatchmakingServiceGetMatchProcedure is the fully-qualified name of the MatchmakingService's
 	// GetMatch RPC.
 	MatchmakingServiceGetMatchProcedure = "/parley.matchmaking.v1.MatchmakingService/GetMatch"
@@ -62,6 +65,7 @@ type MatchmakingServiceClient interface {
 	ListGuildMembers(context.Context, *connect.Request[v1.ListGuildMembersRequest]) (*connect.Response[v1.ListGuildMembersResponse], error)
 	CreateCustomMatch(context.Context, *connect.Request[v1.CreateCustomMatchRequest]) (*connect.Response[v1.CreateCustomMatchResponse], error)
 	ReportMatchResult(context.Context, *connect.Request[v1.ReportMatchResultRequest]) (*connect.Response[v1.ReportMatchResultResponse], error)
+	ReportPlayerRoundStats(context.Context, *connect.Request[v1.ReportPlayerRoundStatsRequest]) (*connect.Response[v1.ReportPlayerRoundStatsResponse], error)
 	GetMatch(context.Context, *connect.Request[v1.GetMatchRequest]) (*connect.Response[v1.GetMatchResponse], error)
 	ListMatches(context.Context, *connect.Request[v1.ListMatchesRequest]) (*connect.Response[v1.ListMatchesResponse], error)
 	GetMatchByUuid(context.Context, *connect.Request[v1.GetMatchByUuidRequest]) (*connect.Response[v1.GetMatchByUuidResponse], error)
@@ -102,6 +106,12 @@ func NewMatchmakingServiceClient(httpClient connect.HTTPClient, baseURL string, 
 			connect.WithSchema(matchmakingServiceMethods.ByName("ReportMatchResult")),
 			connect.WithClientOptions(opts...),
 		),
+		reportPlayerRoundStats: connect.NewClient[v1.ReportPlayerRoundStatsRequest, v1.ReportPlayerRoundStatsResponse](
+			httpClient,
+			baseURL+MatchmakingServiceReportPlayerRoundStatsProcedure,
+			connect.WithSchema(matchmakingServiceMethods.ByName("ReportPlayerRoundStats")),
+			connect.WithClientOptions(opts...),
+		),
 		getMatch: connect.NewClient[v1.GetMatchRequest, v1.GetMatchResponse](
 			httpClient,
 			baseURL+MatchmakingServiceGetMatchProcedure,
@@ -125,13 +135,14 @@ func NewMatchmakingServiceClient(httpClient connect.HTTPClient, baseURL string, 
 
 // matchmakingServiceClient implements MatchmakingServiceClient.
 type matchmakingServiceClient struct {
-	buildTeams        *connect.Client[v1.BuildTeamsRequest, v1.BuildTeamsResponse]
-	listGuildMembers  *connect.Client[v1.ListGuildMembersRequest, v1.ListGuildMembersResponse]
-	createCustomMatch *connect.Client[v1.CreateCustomMatchRequest, v1.CreateCustomMatchResponse]
-	reportMatchResult *connect.Client[v1.ReportMatchResultRequest, v1.ReportMatchResultResponse]
-	getMatch          *connect.Client[v1.GetMatchRequest, v1.GetMatchResponse]
-	listMatches       *connect.Client[v1.ListMatchesRequest, v1.ListMatchesResponse]
-	getMatchByUuid    *connect.Client[v1.GetMatchByUuidRequest, v1.GetMatchByUuidResponse]
+	buildTeams             *connect.Client[v1.BuildTeamsRequest, v1.BuildTeamsResponse]
+	listGuildMembers       *connect.Client[v1.ListGuildMembersRequest, v1.ListGuildMembersResponse]
+	createCustomMatch      *connect.Client[v1.CreateCustomMatchRequest, v1.CreateCustomMatchResponse]
+	reportMatchResult      *connect.Client[v1.ReportMatchResultRequest, v1.ReportMatchResultResponse]
+	reportPlayerRoundStats *connect.Client[v1.ReportPlayerRoundStatsRequest, v1.ReportPlayerRoundStatsResponse]
+	getMatch               *connect.Client[v1.GetMatchRequest, v1.GetMatchResponse]
+	listMatches            *connect.Client[v1.ListMatchesRequest, v1.ListMatchesResponse]
+	getMatchByUuid         *connect.Client[v1.GetMatchByUuidRequest, v1.GetMatchByUuidResponse]
 }
 
 // BuildTeams calls parley.matchmaking.v1.MatchmakingService.BuildTeams.
@@ -152,6 +163,11 @@ func (c *matchmakingServiceClient) CreateCustomMatch(ctx context.Context, req *c
 // ReportMatchResult calls parley.matchmaking.v1.MatchmakingService.ReportMatchResult.
 func (c *matchmakingServiceClient) ReportMatchResult(ctx context.Context, req *connect.Request[v1.ReportMatchResultRequest]) (*connect.Response[v1.ReportMatchResultResponse], error) {
 	return c.reportMatchResult.CallUnary(ctx, req)
+}
+
+// ReportPlayerRoundStats calls parley.matchmaking.v1.MatchmakingService.ReportPlayerRoundStats.
+func (c *matchmakingServiceClient) ReportPlayerRoundStats(ctx context.Context, req *connect.Request[v1.ReportPlayerRoundStatsRequest]) (*connect.Response[v1.ReportPlayerRoundStatsResponse], error) {
+	return c.reportPlayerRoundStats.CallUnary(ctx, req)
 }
 
 // GetMatch calls parley.matchmaking.v1.MatchmakingService.GetMatch.
@@ -176,6 +192,7 @@ type MatchmakingServiceHandler interface {
 	ListGuildMembers(context.Context, *connect.Request[v1.ListGuildMembersRequest]) (*connect.Response[v1.ListGuildMembersResponse], error)
 	CreateCustomMatch(context.Context, *connect.Request[v1.CreateCustomMatchRequest]) (*connect.Response[v1.CreateCustomMatchResponse], error)
 	ReportMatchResult(context.Context, *connect.Request[v1.ReportMatchResultRequest]) (*connect.Response[v1.ReportMatchResultResponse], error)
+	ReportPlayerRoundStats(context.Context, *connect.Request[v1.ReportPlayerRoundStatsRequest]) (*connect.Response[v1.ReportPlayerRoundStatsResponse], error)
 	GetMatch(context.Context, *connect.Request[v1.GetMatchRequest]) (*connect.Response[v1.GetMatchResponse], error)
 	ListMatches(context.Context, *connect.Request[v1.ListMatchesRequest]) (*connect.Response[v1.ListMatchesResponse], error)
 	GetMatchByUuid(context.Context, *connect.Request[v1.GetMatchByUuidRequest]) (*connect.Response[v1.GetMatchByUuidResponse], error)
@@ -212,6 +229,12 @@ func NewMatchmakingServiceHandler(svc MatchmakingServiceHandler, opts ...connect
 		connect.WithSchema(matchmakingServiceMethods.ByName("ReportMatchResult")),
 		connect.WithHandlerOptions(opts...),
 	)
+	matchmakingServiceReportPlayerRoundStatsHandler := connect.NewUnaryHandler(
+		MatchmakingServiceReportPlayerRoundStatsProcedure,
+		svc.ReportPlayerRoundStats,
+		connect.WithSchema(matchmakingServiceMethods.ByName("ReportPlayerRoundStats")),
+		connect.WithHandlerOptions(opts...),
+	)
 	matchmakingServiceGetMatchHandler := connect.NewUnaryHandler(
 		MatchmakingServiceGetMatchProcedure,
 		svc.GetMatch,
@@ -240,6 +263,8 @@ func NewMatchmakingServiceHandler(svc MatchmakingServiceHandler, opts ...connect
 			matchmakingServiceCreateCustomMatchHandler.ServeHTTP(w, r)
 		case MatchmakingServiceReportMatchResultProcedure:
 			matchmakingServiceReportMatchResultHandler.ServeHTTP(w, r)
+		case MatchmakingServiceReportPlayerRoundStatsProcedure:
+			matchmakingServiceReportPlayerRoundStatsHandler.ServeHTTP(w, r)
 		case MatchmakingServiceGetMatchProcedure:
 			matchmakingServiceGetMatchHandler.ServeHTTP(w, r)
 		case MatchmakingServiceListMatchesProcedure:
@@ -269,6 +294,10 @@ func (UnimplementedMatchmakingServiceHandler) CreateCustomMatch(context.Context,
 
 func (UnimplementedMatchmakingServiceHandler) ReportMatchResult(context.Context, *connect.Request[v1.ReportMatchResultRequest]) (*connect.Response[v1.ReportMatchResultResponse], error) {
 	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("parley.matchmaking.v1.MatchmakingService.ReportMatchResult is not implemented"))
+}
+
+func (UnimplementedMatchmakingServiceHandler) ReportPlayerRoundStats(context.Context, *connect.Request[v1.ReportPlayerRoundStatsRequest]) (*connect.Response[v1.ReportPlayerRoundStatsResponse], error) {
+	return nil, connect.NewError(connect.CodeUnimplemented, errors.New("parley.matchmaking.v1.MatchmakingService.ReportPlayerRoundStats is not implemented"))
 }
 
 func (UnimplementedMatchmakingServiceHandler) GetMatch(context.Context, *connect.Request[v1.GetMatchRequest]) (*connect.Response[v1.GetMatchResponse], error) {

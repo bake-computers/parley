@@ -7,8 +7,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/bake-computers/parley/internal/models"
+	"github.com/google/uuid"
 	"github.com/uptrace/bun"
 )
 
@@ -112,6 +112,7 @@ func (r *MatchRepo) Participants(
 		ColumnExpr("mp.balance_rating").
 		ColumnExpr("mp.kills").
 		ColumnExpr("mp.deaths").
+		ColumnExpr("mp.assists").
 		ColumnExpr("mp.created_at").
 		ColumnExpr("mp.updated_at").
 		ColumnExpr("p.username").
@@ -122,6 +123,52 @@ func (r *MatchRepo) Participants(
 		Order("mp.team ASC", "mp.slot ASC").
 		Scan(ctx, &rows)
 	return rows, err
+}
+
+// ParticipantRoundDelta is one player's K/D/A contribution for a round.
+type ParticipantRoundDelta struct {
+	DiscordUserID string
+	Kills         int32
+	Deaths        int32
+	Assists       int32
+}
+
+// AddRoundStats accumulates per-player K/D/A deltas onto match participants
+// in a single transaction, so a round is either applied in full or not at
+// all. NULL columns are treated as zero via COALESCE.
+func (r *MatchRepo) AddRoundStats(
+	ctx context.Context,
+	matchID int32,
+	deltas []ParticipantRoundDelta,
+) error {
+	if len(deltas) == 0 {
+		return nil
+	}
+	now := NowMS()
+	return r.db.RunInTx(ctx, nil, func(ctx context.Context, tx bun.Tx) error {
+		for _, d := range deltas {
+			res, err := tx.NewUpdate().
+				Model((*models.MatchParticipant)(nil)).
+				Set("kills = COALESCE(kills, 0) + ?", d.Kills).
+				Set("deaths = COALESCE(deaths, 0) + ?", d.Deaths).
+				Set("assists = COALESCE(assists, 0) + ?", d.Assists).
+				Set("updated_at = ?", now).
+				Where("match_id = ?", matchID).
+				Where("discord_user_id = ?", d.DiscordUserID).
+				Exec(ctx)
+			if err != nil {
+				return err
+			}
+			n, err := res.RowsAffected()
+			if err != nil {
+				return err
+			}
+			if n == 0 {
+				return fmt.Errorf("participant %s not found in match %d", d.DiscordUserID, matchID)
+			}
+		}
+		return nil
+	})
 }
 
 // ParticipantGuildIDsForMatch returns the distinct set of guild IDs

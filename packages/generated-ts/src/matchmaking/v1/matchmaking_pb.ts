@@ -11,8 +11,10 @@ import type { Message } from "@bufbuild/protobuf";
 /**
  * Describes the file matchmaking/v1/matchmaking.proto.
  */
-export const file_matchmaking_v1_matchmaking: GenFile = /*@__PURE__*/
-  fileDesc("CiBtYXRjaG1ha2luZy92MS9tYXRjaG1ha2luZy5wcm90bxIVcGFybGV5Lm1hdGNobWFraW5nLnYxIngKEUJ1aWxkVGVhbXNSZXF1ZXN0EhAKCGd1aWxkX2lkGAEgASgJEiQKBGdhbWUYAiABKA4yFi5wYXJsZXkuY29tbW9uLnYxLkdhbWUSGAoQZGlzY29yZF91c2VyX2lkcxgDIAMoCRIRCgl0ZWFtX3NpemUYBCABKAUingEKDlRlYW1Bc3NpZ25tZW50EhcKD2Rpc2NvcmRfdXNlcl9pZBgBIAEoCRIRCglwbGF5ZXJfaWQYAiABKAUSEAoIdXNlcm5hbWUYAyABKAkSEAoIcGxhdGZvcm0YBCABKAkSFgoOYmFsYW5jZV9yYXRpbmcYBSABKAESCgoCbXUYBiABKAESCwoDcGhpGAcgASgBEgsKA2NwchgIIAEoASKFAgoSQnVpbGRUZWFtc1Jlc3BvbnNlEg8KB3N1Y2Nlc3MYASABKAgSNQoGdGVhbV9hGAIgAygLMiUucGFybGV5Lm1hdGNobWFraW5nLnYxLlRlYW1Bc3NpZ25tZW50EjUKBnRlYW1fYhgDIAMoCzIlLnBhcmxleS5tYXRjaG1ha2luZy52MS5UZWFtQXNzaWdubWVudBIXCg93aW5fcHJvYmFiaWxpdHkYBCABKAESEwoLYmFsYW5jZV9nYXAYBSABKAESGgoSZXhwZWN0ZWRfbG9iYnlfY3ByGAYgASgBEiYKBWVycm9yGAcgASgLMhcucGFybGV5LmNvbW1vbi52MS5FcnJvciJzCgtHdWlsZE1lbWJlchIXCg9kaXNjb3JkX3VzZXJfaWQYASABKAkSEQoJcGxheWVyX2lkGAIgASgFEhAKCHVzZXJuYW1lGAMgASgJEhAKCHBsYXRmb3JtGAQgASgJEhQKDGludGVybmFsX2VsbxgFIAEoASJvChdMaXN0R3VpbGRNZW1iZXJzUmVxdWVzdBIQCghndWlsZF9pZBgBIAEoCRIkCgRnYW1lGAIgASgOMhYucGFybGV5LmNvbW1vbi52MS5HYW1lEg0KBXF1ZXJ5GAMgASgJEg0KBWxpbWl0GAQgASgFIogBChhMaXN0R3VpbGRNZW1iZXJzUmVzcG9uc2USDwoHc3VjY2VzcxgBIAEoCBIzCgdtZW1iZXJzGAIgAygLMiIucGFybGV5Lm1hdGNobWFraW5nLnYxLkd1aWxkTWVtYmVyEiYKBWVycm9yGAMgASgLMhcucGFybGV5LmNvbW1vbi52MS5FcnJvciK3AQoYQ3JlYXRlQ3VzdG9tTWF0Y2hSZXF1ZXN0EhAKCGd1aWxkX2lkGAEgASgJEhIKCmNoYW5uZWxfaWQYAiABKAkSIgoaY3JlYXRlZF9ieV9kaXNjb3JkX3VzZXJfaWQYAyABKAkSJAoEZ2FtZRgEIAEoDjIWLnBhcmxleS5jb21tb24udjEuR2FtZRIYChBkaXNjb3JkX3VzZXJfaWRzGAUgAygJEhEKCXRlYW1fc2l6ZRgGIAEoBSKCAgoZQ3JlYXRlQ3VzdG9tTWF0Y2hSZXNwb25zZRIPCgdzdWNjZXNzGAEgASgIEhAKCG1hdGNoX2lkGAIgASgFEjUKBnRlYW1fYRgDIAMoCzIlLnBhcmxleS5tYXRjaG1ha2luZy52MS5UZWFtQXNzaWdubWVudBI1CgZ0ZWFtX2IYBCADKAsyJS5wYXJsZXkubWF0Y2htYWtpbmcudjEuVGVhbUFzc2lnbm1lbnQSFwoPd2luX3Byb2JhYmlsaXR5GAUgASgBEhMKC2JhbGFuY2VfZ2FwGAYgASgBEiYKBWVycm9yGAcgASgLMhcucGFybGV5LmNvbW1vbi52MS5FcnJvciK8AQoQTWF0Y2hQYXJ0aWNpcGFudBIXCg9kaXNjb3JkX3VzZXJfaWQYASABKAkSEQoJcGxheWVyX2lkGAIgASgFEgwKBHRlYW0YAyABKAkSDAoEc2xvdBgEIAEoBRIQCgh1c2VybmFtZRgFIAEoCRIWCg5iYWxhbmNlX3JhdGluZxgGIAEoARILCgNjcHIYByABKAESCgoCbXUYCCABKAESCwoDcGhpGAkgASgBEhAKCHBsYXRmb3JtGAogASgJIp0CCgVNYXRjaBIKCgJpZBgBIAEoBRIQCghndWlsZF9pZBgCIAEoCRISCgpjaGFubmVsX2lkGAMgASgJEg4KBnN0YXR1cxgEIAEoCRISCgptYXRjaF90eXBlGAUgASgJEhQKDHdpbm5pbmdfdGVhbRgGIAEoCRITCgtiYWxhbmNlX2dhcBgHIAEoARIVCg1jcmVhdGVkX2F0X21zGAggASgDEj0KDHBhcnRpY2lwYW50cxgJIAMoCzInLnBhcmxleS5tYXRjaG1ha2luZy52MS5NYXRjaFBhcnRpY2lwYW50EhMKC3B1YmxpY191dWlkGAsgASgJEhgKC212cF91c2VyX2lkGAwgASgJSACIAQFCDgoMX212cF91c2VyX2lkIo0BChhSZXBvcnRNYXRjaFJlc3VsdFJlcXVlc3QSEAoIbWF0Y2hfaWQYASABKAUSJAoEZ2FtZRgCIAEoDjIWLnBhcmxleS5jb21tb24udjEuR2FtZRIUCgx3aW5uaW5nX3RlYW0YAyABKAkSIwobcmVwb3J0ZWRfYnlfZGlzY29yZF91c2VyX2lkGAQgASgJIoEBChlSZXBvcnRNYXRjaFJlc3VsdFJlc3BvbnNlEg8KB3N1Y2Nlc3MYASABKAgSKwoFbWF0Y2gYAiABKAsyHC5wYXJsZXkubWF0Y2htYWtpbmcudjEuTWF0Y2gSJgoFZXJyb3IYAyABKAsyFy5wYXJsZXkuY29tbW9uLnYxLkVycm9yIkkKD0dldE1hdGNoUmVxdWVzdBIQCghtYXRjaF9pZBgBIAEoBRIkCgRnYW1lGAIgASgOMhYucGFybGV5LmNvbW1vbi52MS5HYW1lIngKEEdldE1hdGNoUmVzcG9uc2USDwoHc3VjY2VzcxgBIAEoCBIrCgVtYXRjaBgCIAEoCzIcLnBhcmxleS5tYXRjaG1ha2luZy52MS5NYXRjaBImCgVlcnJvchgDIAEoCzIXLnBhcmxleS5jb21tb24udjEuRXJyb3IinQEKEkxpc3RNYXRjaGVzUmVxdWVzdBIQCghndWlsZF9pZBgBIAEoCRIkCgRnYW1lGAIgASgOMhYucGFybGV5LmNvbW1vbi52MS5HYW1lEhwKD2Rpc2NvcmRfdXNlcl9pZBgDIAEoCUgAiAEBEg0KBWxpbWl0GAQgASgFEg4KBmN1cnNvchgFIAEoCUISChBfZGlzY29yZF91c2VyX2lkIoEBChNMaXN0TWF0Y2hlc1Jlc3BvbnNlEi0KB21hdGNoZXMYASADKAsyHC5wYXJsZXkubWF0Y2htYWtpbmcudjEuTWF0Y2gSEwoLbmV4dF9jdXJzb3IYAiABKAkSJgoFZXJyb3IYAyABKAsyFy5wYXJsZXkuY29tbW9uLnYxLkVycm9yIlIKFUdldE1hdGNoQnlVdWlkUmVxdWVzdBITCgtwdWJsaWNfdXVpZBgBIAEoCRIkCgRnYW1lGAIgASgOMhYucGFybGV5LmNvbW1vbi52MS5HYW1lIn4KFkdldE1hdGNoQnlVdWlkUmVzcG9uc2USDwoHc3VjY2VzcxgBIAEoCBIrCgVtYXRjaBgCIAEoCzIcLnBhcmxleS5tYXRjaG1ha2luZy52MS5NYXRjaBImCgVlcnJvchgDIAEoCzIXLnBhcmxleS5jb21tb24udjEuRXJyb3IyjgYKEk1hdGNobWFraW5nU2VydmljZRJhCgpCdWlsZFRlYW1zEigucGFybGV5Lm1hdGNobWFraW5nLnYxLkJ1aWxkVGVhbXNSZXF1ZXN0GikucGFybGV5Lm1hdGNobWFraW5nLnYxLkJ1aWxkVGVhbXNSZXNwb25zZRJzChBMaXN0R3VpbGRNZW1iZXJzEi4ucGFybGV5Lm1hdGNobWFraW5nLnYxLkxpc3RHdWlsZE1lbWJlcnNSZXF1ZXN0Gi8ucGFybGV5Lm1hdGNobWFraW5nLnYxLkxpc3RHdWlsZE1lbWJlcnNSZXNwb25zZRJ2ChFDcmVhdGVDdXN0b21NYXRjaBIvLnBhcmxleS5tYXRjaG1ha2luZy52MS5DcmVhdGVDdXN0b21NYXRjaFJlcXVlc3QaMC5wYXJsZXkubWF0Y2htYWtpbmcudjEuQ3JlYXRlQ3VzdG9tTWF0Y2hSZXNwb25zZRJ2ChFSZXBvcnRNYXRjaFJlc3VsdBIvLnBhcmxleS5tYXRjaG1ha2luZy52MS5SZXBvcnRNYXRjaFJlc3VsdFJlcXVlc3QaMC5wYXJsZXkubWF0Y2htYWtpbmcudjEuUmVwb3J0TWF0Y2hSZXN1bHRSZXNwb25zZRJbCghHZXRNYXRjaBImLnBhcmxleS5tYXRjaG1ha2luZy52MS5HZXRNYXRjaFJlcXVlc3QaJy5wYXJsZXkubWF0Y2htYWtpbmcudjEuR2V0TWF0Y2hSZXNwb25zZRJkCgtMaXN0TWF0Y2hlcxIpLnBhcmxleS5tYXRjaG1ha2luZy52MS5MaXN0TWF0Y2hlc1JlcXVlc3QaKi5wYXJsZXkubWF0Y2htYWtpbmcudjEuTGlzdE1hdGNoZXNSZXNwb25zZRJtCg5HZXRNYXRjaEJ5VXVpZBIsLnBhcmxleS5tYXRjaG1ha2luZy52MS5HZXRNYXRjaEJ5VXVpZFJlcXVlc3QaLS5wYXJsZXkubWF0Y2htYWtpbmcudjEuR2V0TWF0Y2hCeVV1aWRSZXNwb25zZUJlChlib3QucGFybGV5Lm1hdGNobWFraW5nLnYxWkhnaXRodWIuY29tL2Jha2UtY29tcHV0ZXJzL3BhcmxleS9nZW4vcGFybGV5L21hdGNobWFraW5nL3YxO21hdGNobWFraW5ndjFiBnByb3RvMw", [file_common_v1_types]);
+export const file_matchmaking_v1_matchmaking: GenFile /*@__PURE__*/ = fileDesc(
+  "CiBtYXRjaG1ha2luZy92MS9tYXRjaG1ha2luZy5wcm90bxIVcGFybGV5Lm1hdGNobWFraW5nLnYxIngKEUJ1aWxkVGVhbXNSZXF1ZXN0EhAKCGd1aWxkX2lkGAEgASgJEiQKBGdhbWUYAiABKA4yFi5wYXJsZXkuY29tbW9uLnYxLkdhbWUSGAoQZGlzY29yZF91c2VyX2lkcxgDIAMoCRIRCgl0ZWFtX3NpemUYBCABKAUingEKDlRlYW1Bc3NpZ25tZW50EhcKD2Rpc2NvcmRfdXNlcl9pZBgBIAEoCRIRCglwbGF5ZXJfaWQYAiABKAUSEAoIdXNlcm5hbWUYAyABKAkSEAoIcGxhdGZvcm0YBCABKAkSFgoOYmFsYW5jZV9yYXRpbmcYBSABKAESCgoCbXUYBiABKAESCwoDcGhpGAcgASgBEgsKA2NwchgIIAEoASKFAgoSQnVpbGRUZWFtc1Jlc3BvbnNlEg8KB3N1Y2Nlc3MYASABKAgSNQoGdGVhbV9hGAIgAygLMiUucGFybGV5Lm1hdGNobWFraW5nLnYxLlRlYW1Bc3NpZ25tZW50EjUKBnRlYW1fYhgDIAMoCzIlLnBhcmxleS5tYXRjaG1ha2luZy52MS5UZWFtQXNzaWdubWVudBIXCg93aW5fcHJvYmFiaWxpdHkYBCABKAESEwoLYmFsYW5jZV9nYXAYBSABKAESGgoSZXhwZWN0ZWRfbG9iYnlfY3ByGAYgASgBEiYKBWVycm9yGAcgASgLMhcucGFybGV5LmNvbW1vbi52MS5FcnJvciJzCgtHdWlsZE1lbWJlchIXCg9kaXNjb3JkX3VzZXJfaWQYASABKAkSEQoJcGxheWVyX2lkGAIgASgFEhAKCHVzZXJuYW1lGAMgASgJEhAKCHBsYXRmb3JtGAQgASgJEhQKDGludGVybmFsX2VsbxgFIAEoASJvChdMaXN0R3VpbGRNZW1iZXJzUmVxdWVzdBIQCghndWlsZF9pZBgBIAEoCRIkCgRnYW1lGAIgASgOMhYucGFybGV5LmNvbW1vbi52MS5HYW1lEg0KBXF1ZXJ5GAMgASgJEg0KBWxpbWl0GAQgASgFIogBChhMaXN0R3VpbGRNZW1iZXJzUmVzcG9uc2USDwoHc3VjY2VzcxgBIAEoCBIzCgdtZW1iZXJzGAIgAygLMiIucGFybGV5Lm1hdGNobWFraW5nLnYxLkd1aWxkTWVtYmVyEiYKBWVycm9yGAMgASgLMhcucGFybGV5LmNvbW1vbi52MS5FcnJvciK3AQoYQ3JlYXRlQ3VzdG9tTWF0Y2hSZXF1ZXN0EhAKCGd1aWxkX2lkGAEgASgJEhIKCmNoYW5uZWxfaWQYAiABKAkSIgoaY3JlYXRlZF9ieV9kaXNjb3JkX3VzZXJfaWQYAyABKAkSJAoEZ2FtZRgEIAEoDjIWLnBhcmxleS5jb21tb24udjEuR2FtZRIYChBkaXNjb3JkX3VzZXJfaWRzGAUgAygJEhEKCXRlYW1fc2l6ZRgGIAEoBSKCAgoZQ3JlYXRlQ3VzdG9tTWF0Y2hSZXNwb25zZRIPCgdzdWNjZXNzGAEgASgIEhAKCG1hdGNoX2lkGAIgASgFEjUKBnRlYW1fYRgDIAMoCzIlLnBhcmxleS5tYXRjaG1ha2luZy52MS5UZWFtQXNzaWdubWVudBI1CgZ0ZWFtX2IYBCADKAsyJS5wYXJsZXkubWF0Y2htYWtpbmcudjEuVGVhbUFzc2lnbm1lbnQSFwoPd2luX3Byb2JhYmlsaXR5GAUgASgBEhMKC2JhbGFuY2VfZ2FwGAYgASgBEiYKBWVycm9yGAcgASgLMhcucGFybGV5LmNvbW1vbi52MS5FcnJvciKcAgoQTWF0Y2hQYXJ0aWNpcGFudBIXCg9kaXNjb3JkX3VzZXJfaWQYASABKAkSEQoJcGxheWVyX2lkGAIgASgFEgwKBHRlYW0YAyABKAkSDAoEc2xvdBgEIAEoBRIQCgh1c2VybmFtZRgFIAEoCRIWCg5iYWxhbmNlX3JhdGluZxgGIAEoARILCgNjcHIYByABKAESCgoCbXUYCCABKAESCwoDcGhpGAkgASgBEhAKCHBsYXRmb3JtGAogASgJEhIKBWtpbGxzGAsgASgFSACIAQESEwoGZGVhdGhzGAwgASgFSAGIAQESFAoHYXNzaXN0cxgNIAEoBUgCiAEBQggKBl9raWxsc0IJCgdfZGVhdGhzQgoKCF9hc3Npc3RzIp0CCgVNYXRjaBIKCgJpZBgBIAEoBRIQCghndWlsZF9pZBgCIAEoCRISCgpjaGFubmVsX2lkGAMgASgJEg4KBnN0YXR1cxgEIAEoCRISCgptYXRjaF90eXBlGAUgASgJEhQKDHdpbm5pbmdfdGVhbRgGIAEoCRITCgtiYWxhbmNlX2dhcBgHIAEoARIVCg1jcmVhdGVkX2F0X21zGAggASgDEj0KDHBhcnRpY2lwYW50cxgJIAMoCzInLnBhcmxleS5tYXRjaG1ha2luZy52MS5NYXRjaFBhcnRpY2lwYW50EhMKC3B1YmxpY191dWlkGAsgASgJEhgKC212cF91c2VyX2lkGAwgASgJSACIAQFCDgoMX212cF91c2VyX2lkIo0BChhSZXBvcnRNYXRjaFJlc3VsdFJlcXVlc3QSEAoIbWF0Y2hfaWQYASABKAUSJAoEZ2FtZRgCIAEoDjIWLnBhcmxleS5jb21tb24udjEuR2FtZRIUCgx3aW5uaW5nX3RlYW0YAyABKAkSIwobcmVwb3J0ZWRfYnlfZGlzY29yZF91c2VyX2lkGAQgASgJIoEBChlSZXBvcnRNYXRjaFJlc3VsdFJlc3BvbnNlEg8KB3N1Y2Nlc3MYASABKAgSKwoFbWF0Y2gYAiABKAsyHC5wYXJsZXkubWF0Y2htYWtpbmcudjEuTWF0Y2gSJgoFZXJyb3IYAyABKAsyFy5wYXJsZXkuY29tbW9uLnYxLkVycm9yIloKD1BsYXllclJvdW5kU3RhdBIXCg9kaXNjb3JkX3VzZXJfaWQYASABKAkSDQoFa2lsbHMYAiABKAUSDgoGZGVhdGhzGAMgASgFEg8KB2Fzc2lzdHMYBCABKAUiswEKHVJlcG9ydFBsYXllclJvdW5kU3RhdHNSZXF1ZXN0EhAKCG1hdGNoX2lkGAEgASgFEiQKBGdhbWUYAiABKA4yFi5wYXJsZXkuY29tbW9uLnYxLkdhbWUSNQoFc3RhdHMYAyADKAsyJi5wYXJsZXkubWF0Y2htYWtpbmcudjEuUGxheWVyUm91bmRTdGF0EiMKG3JlcG9ydGVkX2J5X2Rpc2NvcmRfdXNlcl9pZBgEIAEoCSKGAQoeUmVwb3J0UGxheWVyUm91bmRTdGF0c1Jlc3BvbnNlEg8KB3N1Y2Nlc3MYASABKAgSKwoFbWF0Y2gYAiABKAsyHC5wYXJsZXkubWF0Y2htYWtpbmcudjEuTWF0Y2gSJgoFZXJyb3IYAyABKAsyFy5wYXJsZXkuY29tbW9uLnYxLkVycm9yIkkKD0dldE1hdGNoUmVxdWVzdBIQCghtYXRjaF9pZBgBIAEoBRIkCgRnYW1lGAIgASgOMhYucGFybGV5LmNvbW1vbi52MS5HYW1lIngKEEdldE1hdGNoUmVzcG9uc2USDwoHc3VjY2VzcxgBIAEoCBIrCgVtYXRjaBgCIAEoCzIcLnBhcmxleS5tYXRjaG1ha2luZy52MS5NYXRjaBImCgVlcnJvchgDIAEoCzIXLnBhcmxleS5jb21tb24udjEuRXJyb3IinQEKEkxpc3RNYXRjaGVzUmVxdWVzdBIQCghndWlsZF9pZBgBIAEoCRIkCgRnYW1lGAIgASgOMhYucGFybGV5LmNvbW1vbi52MS5HYW1lEhwKD2Rpc2NvcmRfdXNlcl9pZBgDIAEoCUgAiAEBEg0KBWxpbWl0GAQgASgFEg4KBmN1cnNvchgFIAEoCUISChBfZGlzY29yZF91c2VyX2lkIoEBChNMaXN0TWF0Y2hlc1Jlc3BvbnNlEi0KB21hdGNoZXMYASADKAsyHC5wYXJsZXkubWF0Y2htYWtpbmcudjEuTWF0Y2gSEwoLbmV4dF9jdXJzb3IYAiABKAkSJgoFZXJyb3IYAyABKAsyFy5wYXJsZXkuY29tbW9uLnYxLkVycm9yIlIKFUdldE1hdGNoQnlVdWlkUmVxdWVzdBITCgtwdWJsaWNfdXVpZBgBIAEoCRIkCgRnYW1lGAIgASgOMhYucGFybGV5LmNvbW1vbi52MS5HYW1lIn4KFkdldE1hdGNoQnlVdWlkUmVzcG9uc2USDwoHc3VjY2VzcxgBIAEoCBIrCgVtYXRjaBgCIAEoCzIcLnBhcmxleS5tYXRjaG1ha2luZy52MS5NYXRjaBImCgVlcnJvchgDIAEoCzIXLnBhcmxleS5jb21tb24udjEuRXJyb3IylgcKEk1hdGNobWFraW5nU2VydmljZRJhCgpCdWlsZFRlYW1zEigucGFybGV5Lm1hdGNobWFraW5nLnYxLkJ1aWxkVGVhbXNSZXF1ZXN0GikucGFybGV5Lm1hdGNobWFraW5nLnYxLkJ1aWxkVGVhbXNSZXNwb25zZRJzChBMaXN0R3VpbGRNZW1iZXJzEi4ucGFybGV5Lm1hdGNobWFraW5nLnYxLkxpc3RHdWlsZE1lbWJlcnNSZXF1ZXN0Gi8ucGFybGV5Lm1hdGNobWFraW5nLnYxLkxpc3RHdWlsZE1lbWJlcnNSZXNwb25zZRJ2ChFDcmVhdGVDdXN0b21NYXRjaBIvLnBhcmxleS5tYXRjaG1ha2luZy52MS5DcmVhdGVDdXN0b21NYXRjaFJlcXVlc3QaMC5wYXJsZXkubWF0Y2htYWtpbmcudjEuQ3JlYXRlQ3VzdG9tTWF0Y2hSZXNwb25zZRJ2ChFSZXBvcnRNYXRjaFJlc3VsdBIvLnBhcmxleS5tYXRjaG1ha2luZy52MS5SZXBvcnRNYXRjaFJlc3VsdFJlcXVlc3QaMC5wYXJsZXkubWF0Y2htYWtpbmcudjEuUmVwb3J0TWF0Y2hSZXN1bHRSZXNwb25zZRKFAQoWUmVwb3J0UGxheWVyUm91bmRTdGF0cxI0LnBhcmxleS5tYXRjaG1ha2luZy52MS5SZXBvcnRQbGF5ZXJSb3VuZFN0YXRzUmVxdWVzdBo1LnBhcmxleS5tYXRjaG1ha2luZy52MS5SZXBvcnRQbGF5ZXJSb3VuZFN0YXRzUmVzcG9uc2USWwoIR2V0TWF0Y2gSJi5wYXJsZXkubWF0Y2htYWtpbmcudjEuR2V0TWF0Y2hSZXF1ZXN0GicucGFybGV5Lm1hdGNobWFraW5nLnYxLkdldE1hdGNoUmVzcG9uc2USZAoLTGlzdE1hdGNoZXMSKS5wYXJsZXkubWF0Y2htYWtpbmcudjEuTGlzdE1hdGNoZXNSZXF1ZXN0GioucGFybGV5Lm1hdGNobWFraW5nLnYxLkxpc3RNYXRjaGVzUmVzcG9uc2USbQoOR2V0TWF0Y2hCeVV1aWQSLC5wYXJsZXkubWF0Y2htYWtpbmcudjEuR2V0TWF0Y2hCeVV1aWRSZXF1ZXN0Gi0ucGFybGV5Lm1hdGNobWFraW5nLnYxLkdldE1hdGNoQnlVdWlkUmVzcG9uc2VCZQoZYm90LnBhcmxleS5tYXRjaG1ha2luZy52MVpIZ2l0aHViLmNvbS9iYWtlLWNvbXB1dGVycy9wYXJsZXkvZ2VuL3BhcmxleS9tYXRjaG1ha2luZy92MTttYXRjaG1ha2luZ3YxYgZwcm90bzM",
+  [file_common_v1_types],
+);
 
 /**
  * @generated from message parley.matchmaking.v1.BuildTeamsRequest
@@ -43,8 +45,10 @@ export type BuildTeamsRequest = Message<"parley.matchmaking.v1.BuildTeamsRequest
  * Describes the message parley.matchmaking.v1.BuildTeamsRequest.
  * Use `create(BuildTeamsRequestSchema)` to create a new message.
  */
-export const BuildTeamsRequestSchema: GenMessage<BuildTeamsRequest> = /*@__PURE__*/
-  messageDesc(file_matchmaking_v1_matchmaking, 0);
+export const BuildTeamsRequestSchema: GenMessage<BuildTeamsRequest> /*@__PURE__*/ = messageDesc(
+  file_matchmaking_v1_matchmaking,
+  0,
+);
 
 /**
  * @generated from message parley.matchmaking.v1.TeamAssignment
@@ -95,8 +99,10 @@ export type TeamAssignment = Message<"parley.matchmaking.v1.TeamAssignment"> & {
  * Describes the message parley.matchmaking.v1.TeamAssignment.
  * Use `create(TeamAssignmentSchema)` to create a new message.
  */
-export const TeamAssignmentSchema: GenMessage<TeamAssignment> = /*@__PURE__*/
-  messageDesc(file_matchmaking_v1_matchmaking, 1);
+export const TeamAssignmentSchema: GenMessage<TeamAssignment> /*@__PURE__*/ = messageDesc(
+  file_matchmaking_v1_matchmaking,
+  1,
+);
 
 /**
  * @generated from message parley.matchmaking.v1.BuildTeamsResponse
@@ -142,8 +148,10 @@ export type BuildTeamsResponse = Message<"parley.matchmaking.v1.BuildTeamsRespon
  * Describes the message parley.matchmaking.v1.BuildTeamsResponse.
  * Use `create(BuildTeamsResponseSchema)` to create a new message.
  */
-export const BuildTeamsResponseSchema: GenMessage<BuildTeamsResponse> = /*@__PURE__*/
-  messageDesc(file_matchmaking_v1_matchmaking, 2);
+export const BuildTeamsResponseSchema: GenMessage<BuildTeamsResponse> /*@__PURE__*/ = messageDesc(
+  file_matchmaking_v1_matchmaking,
+  2,
+);
 
 /**
  * @generated from message parley.matchmaking.v1.GuildMember
@@ -179,8 +187,10 @@ export type GuildMember = Message<"parley.matchmaking.v1.GuildMember"> & {
  * Describes the message parley.matchmaking.v1.GuildMember.
  * Use `create(GuildMemberSchema)` to create a new message.
  */
-export const GuildMemberSchema: GenMessage<GuildMember> = /*@__PURE__*/
-  messageDesc(file_matchmaking_v1_matchmaking, 3);
+export const GuildMemberSchema: GenMessage<GuildMember> /*@__PURE__*/ = messageDesc(
+  file_matchmaking_v1_matchmaking,
+  3,
+);
 
 /**
  * @generated from message parley.matchmaking.v1.ListGuildMembersRequest
@@ -211,7 +221,7 @@ export type ListGuildMembersRequest = Message<"parley.matchmaking.v1.ListGuildMe
  * Describes the message parley.matchmaking.v1.ListGuildMembersRequest.
  * Use `create(ListGuildMembersRequestSchema)` to create a new message.
  */
-export const ListGuildMembersRequestSchema: GenMessage<ListGuildMembersRequest> = /*@__PURE__*/
+export const ListGuildMembersRequestSchema: GenMessage<ListGuildMembersRequest> /*@__PURE__*/ =
   messageDesc(file_matchmaking_v1_matchmaking, 4);
 
 /**
@@ -238,7 +248,7 @@ export type ListGuildMembersResponse = Message<"parley.matchmaking.v1.ListGuildM
  * Describes the message parley.matchmaking.v1.ListGuildMembersResponse.
  * Use `create(ListGuildMembersResponseSchema)` to create a new message.
  */
-export const ListGuildMembersResponseSchema: GenMessage<ListGuildMembersResponse> = /*@__PURE__*/
+export const ListGuildMembersResponseSchema: GenMessage<ListGuildMembersResponse> /*@__PURE__*/ =
   messageDesc(file_matchmaking_v1_matchmaking, 5);
 
 /**
@@ -280,54 +290,55 @@ export type CreateCustomMatchRequest = Message<"parley.matchmaking.v1.CreateCust
  * Describes the message parley.matchmaking.v1.CreateCustomMatchRequest.
  * Use `create(CreateCustomMatchRequestSchema)` to create a new message.
  */
-export const CreateCustomMatchRequestSchema: GenMessage<CreateCustomMatchRequest> = /*@__PURE__*/
+export const CreateCustomMatchRequestSchema: GenMessage<CreateCustomMatchRequest> /*@__PURE__*/ =
   messageDesc(file_matchmaking_v1_matchmaking, 6);
 
 /**
  * @generated from message parley.matchmaking.v1.CreateCustomMatchResponse
  */
-export type CreateCustomMatchResponse = Message<"parley.matchmaking.v1.CreateCustomMatchResponse"> & {
-  /**
-   * @generated from field: bool success = 1;
-   */
-  success: boolean;
+export type CreateCustomMatchResponse =
+  Message<"parley.matchmaking.v1.CreateCustomMatchResponse"> & {
+    /**
+     * @generated from field: bool success = 1;
+     */
+    success: boolean;
 
-  /**
-   * @generated from field: int32 match_id = 2;
-   */
-  matchId: number;
+    /**
+     * @generated from field: int32 match_id = 2;
+     */
+    matchId: number;
 
-  /**
-   * @generated from field: repeated parley.matchmaking.v1.TeamAssignment team_a = 3;
-   */
-  teamA: TeamAssignment[];
+    /**
+     * @generated from field: repeated parley.matchmaking.v1.TeamAssignment team_a = 3;
+     */
+    teamA: TeamAssignment[];
 
-  /**
-   * @generated from field: repeated parley.matchmaking.v1.TeamAssignment team_b = 4;
-   */
-  teamB: TeamAssignment[];
+    /**
+     * @generated from field: repeated parley.matchmaking.v1.TeamAssignment team_b = 4;
+     */
+    teamB: TeamAssignment[];
 
-  /**
-   * @generated from field: double win_probability = 5;
-   */
-  winProbability: number;
+    /**
+     * @generated from field: double win_probability = 5;
+     */
+    winProbability: number;
 
-  /**
-   * @generated from field: double balance_gap = 6;
-   */
-  balanceGap: number;
+    /**
+     * @generated from field: double balance_gap = 6;
+     */
+    balanceGap: number;
 
-  /**
-   * @generated from field: parley.common.v1.Error error = 7;
-   */
-  error?: Error | undefined;
-};
+    /**
+     * @generated from field: parley.common.v1.Error error = 7;
+     */
+    error?: Error | undefined;
+  };
 
 /**
  * Describes the message parley.matchmaking.v1.CreateCustomMatchResponse.
  * Use `create(CreateCustomMatchResponseSchema)` to create a new message.
  */
-export const CreateCustomMatchResponseSchema: GenMessage<CreateCustomMatchResponse> = /*@__PURE__*/
+export const CreateCustomMatchResponseSchema: GenMessage<CreateCustomMatchResponse> /*@__PURE__*/ =
   messageDesc(file_matchmaking_v1_matchmaking, 7);
 
 /**
@@ -383,14 +394,31 @@ export type MatchParticipant = Message<"parley.matchmaking.v1.MatchParticipant">
    * @generated from field: string platform = 10;
    */
   platform: string;
+
+  /**
+   * @generated from field: optional int32 kills = 11;
+   */
+  kills?: number | undefined;
+
+  /**
+   * @generated from field: optional int32 deaths = 12;
+   */
+  deaths?: number | undefined;
+
+  /**
+   * @generated from field: optional int32 assists = 13;
+   */
+  assists?: number | undefined;
 };
 
 /**
  * Describes the message parley.matchmaking.v1.MatchParticipant.
  * Use `create(MatchParticipantSchema)` to create a new message.
  */
-export const MatchParticipantSchema: GenMessage<MatchParticipant> = /*@__PURE__*/
-  messageDesc(file_matchmaking_v1_matchmaking, 8);
+export const MatchParticipantSchema: GenMessage<MatchParticipant> /*@__PURE__*/ = messageDesc(
+  file_matchmaking_v1_matchmaking,
+  8,
+);
 
 /**
  * @generated from message parley.matchmaking.v1.Match
@@ -456,8 +484,10 @@ export type Match = Message<"parley.matchmaking.v1.Match"> & {
  * Describes the message parley.matchmaking.v1.Match.
  * Use `create(MatchSchema)` to create a new message.
  */
-export const MatchSchema: GenMessage<Match> = /*@__PURE__*/
-  messageDesc(file_matchmaking_v1_matchmaking, 9);
+export const MatchSchema: GenMessage<Match> /*@__PURE__*/ = messageDesc(
+  file_matchmaking_v1_matchmaking,
+  9,
+);
 
 /**
  * @generated from message parley.matchmaking.v1.ReportMatchResultRequest
@@ -488,35 +518,131 @@ export type ReportMatchResultRequest = Message<"parley.matchmaking.v1.ReportMatc
  * Describes the message parley.matchmaking.v1.ReportMatchResultRequest.
  * Use `create(ReportMatchResultRequestSchema)` to create a new message.
  */
-export const ReportMatchResultRequestSchema: GenMessage<ReportMatchResultRequest> = /*@__PURE__*/
+export const ReportMatchResultRequestSchema: GenMessage<ReportMatchResultRequest> /*@__PURE__*/ =
   messageDesc(file_matchmaking_v1_matchmaking, 10);
 
 /**
  * @generated from message parley.matchmaking.v1.ReportMatchResultResponse
  */
-export type ReportMatchResultResponse = Message<"parley.matchmaking.v1.ReportMatchResultResponse"> & {
-  /**
-   * @generated from field: bool success = 1;
-   */
-  success: boolean;
+export type ReportMatchResultResponse =
+  Message<"parley.matchmaking.v1.ReportMatchResultResponse"> & {
+    /**
+     * @generated from field: bool success = 1;
+     */
+    success: boolean;
 
-  /**
-   * @generated from field: parley.matchmaking.v1.Match match = 2;
-   */
-  match?: Match | undefined;
+    /**
+     * @generated from field: parley.matchmaking.v1.Match match = 2;
+     */
+    match?: Match | undefined;
 
-  /**
-   * @generated from field: parley.common.v1.Error error = 3;
-   */
-  error?: Error | undefined;
-};
+    /**
+     * @generated from field: parley.common.v1.Error error = 3;
+     */
+    error?: Error | undefined;
+  };
 
 /**
  * Describes the message parley.matchmaking.v1.ReportMatchResultResponse.
  * Use `create(ReportMatchResultResponseSchema)` to create a new message.
  */
-export const ReportMatchResultResponseSchema: GenMessage<ReportMatchResultResponse> = /*@__PURE__*/
+export const ReportMatchResultResponseSchema: GenMessage<ReportMatchResultResponse> /*@__PURE__*/ =
   messageDesc(file_matchmaking_v1_matchmaking, 11);
+
+/**
+ * @generated from message parley.matchmaking.v1.PlayerRoundStat
+ */
+export type PlayerRoundStat = Message<"parley.matchmaking.v1.PlayerRoundStat"> & {
+  /**
+   * @generated from field: string discord_user_id = 1;
+   */
+  discordUserId: string;
+
+  /**
+   * @generated from field: int32 kills = 2;
+   */
+  kills: number;
+
+  /**
+   * @generated from field: int32 deaths = 3;
+   */
+  deaths: number;
+
+  /**
+   * @generated from field: int32 assists = 4;
+   */
+  assists: number;
+};
+
+/**
+ * Describes the message parley.matchmaking.v1.PlayerRoundStat.
+ * Use `create(PlayerRoundStatSchema)` to create a new message.
+ */
+export const PlayerRoundStatSchema: GenMessage<PlayerRoundStat> /*@__PURE__*/ = messageDesc(
+  file_matchmaking_v1_matchmaking,
+  12,
+);
+
+/**
+ * @generated from message parley.matchmaking.v1.ReportPlayerRoundStatsRequest
+ */
+export type ReportPlayerRoundStatsRequest =
+  Message<"parley.matchmaking.v1.ReportPlayerRoundStatsRequest"> & {
+    /**
+     * @generated from field: int32 match_id = 1;
+     */
+    matchId: number;
+
+    /**
+     * @generated from field: parley.common.v1.Game game = 2;
+     */
+    game: Game;
+
+    /**
+     * @generated from field: repeated parley.matchmaking.v1.PlayerRoundStat stats = 3;
+     */
+    stats: PlayerRoundStat[];
+
+    /**
+     * @generated from field: string reported_by_discord_user_id = 4;
+     */
+    reportedByDiscordUserId: string;
+  };
+
+/**
+ * Describes the message parley.matchmaking.v1.ReportPlayerRoundStatsRequest.
+ * Use `create(ReportPlayerRoundStatsRequestSchema)` to create a new message.
+ */
+export const ReportPlayerRoundStatsRequestSchema: GenMessage<ReportPlayerRoundStatsRequest> /*@__PURE__*/ =
+  messageDesc(file_matchmaking_v1_matchmaking, 13);
+
+/**
+ * @generated from message parley.matchmaking.v1.ReportPlayerRoundStatsResponse
+ */
+export type ReportPlayerRoundStatsResponse =
+  Message<"parley.matchmaking.v1.ReportPlayerRoundStatsResponse"> & {
+    /**
+     * @generated from field: bool success = 1;
+     */
+    success: boolean;
+
+    /**
+     * @generated from field: parley.matchmaking.v1.Match match = 2;
+     */
+    match?: Match | undefined;
+
+    /**
+     * @generated from field: parley.common.v1.Error error = 3;
+     */
+    error?: Error | undefined;
+  };
+
+/**
+ * Describes the message parley.matchmaking.v1.ReportPlayerRoundStatsResponse.
+ * Use `create(ReportPlayerRoundStatsResponseSchema)` to create a new message.
+ */
+export const ReportPlayerRoundStatsResponseSchema: GenMessage<ReportPlayerRoundStatsResponse> /*@__PURE__*/ =
+  messageDesc(file_matchmaking_v1_matchmaking, 14);
 
 /**
  * @generated from message parley.matchmaking.v1.GetMatchRequest
@@ -537,8 +663,10 @@ export type GetMatchRequest = Message<"parley.matchmaking.v1.GetMatchRequest"> &
  * Describes the message parley.matchmaking.v1.GetMatchRequest.
  * Use `create(GetMatchRequestSchema)` to create a new message.
  */
-export const GetMatchRequestSchema: GenMessage<GetMatchRequest> = /*@__PURE__*/
-  messageDesc(file_matchmaking_v1_matchmaking, 12);
+export const GetMatchRequestSchema: GenMessage<GetMatchRequest> /*@__PURE__*/ = messageDesc(
+  file_matchmaking_v1_matchmaking,
+  15,
+);
 
 /**
  * @generated from message parley.matchmaking.v1.GetMatchResponse
@@ -564,8 +692,10 @@ export type GetMatchResponse = Message<"parley.matchmaking.v1.GetMatchResponse">
  * Describes the message parley.matchmaking.v1.GetMatchResponse.
  * Use `create(GetMatchResponseSchema)` to create a new message.
  */
-export const GetMatchResponseSchema: GenMessage<GetMatchResponse> = /*@__PURE__*/
-  messageDesc(file_matchmaking_v1_matchmaking, 13);
+export const GetMatchResponseSchema: GenMessage<GetMatchResponse> /*@__PURE__*/ = messageDesc(
+  file_matchmaking_v1_matchmaking,
+  16,
+);
 
 /**
  * @generated from message parley.matchmaking.v1.ListMatchesRequest
@@ -601,8 +731,10 @@ export type ListMatchesRequest = Message<"parley.matchmaking.v1.ListMatchesReque
  * Describes the message parley.matchmaking.v1.ListMatchesRequest.
  * Use `create(ListMatchesRequestSchema)` to create a new message.
  */
-export const ListMatchesRequestSchema: GenMessage<ListMatchesRequest> = /*@__PURE__*/
-  messageDesc(file_matchmaking_v1_matchmaking, 14);
+export const ListMatchesRequestSchema: GenMessage<ListMatchesRequest> /*@__PURE__*/ = messageDesc(
+  file_matchmaking_v1_matchmaking,
+  17,
+);
 
 /**
  * @generated from message parley.matchmaking.v1.ListMatchesResponse
@@ -628,8 +760,10 @@ export type ListMatchesResponse = Message<"parley.matchmaking.v1.ListMatchesResp
  * Describes the message parley.matchmaking.v1.ListMatchesResponse.
  * Use `create(ListMatchesResponseSchema)` to create a new message.
  */
-export const ListMatchesResponseSchema: GenMessage<ListMatchesResponse> = /*@__PURE__*/
-  messageDesc(file_matchmaking_v1_matchmaking, 15);
+export const ListMatchesResponseSchema: GenMessage<ListMatchesResponse> /*@__PURE__*/ = messageDesc(
+  file_matchmaking_v1_matchmaking,
+  18,
+);
 
 /**
  * @generated from message parley.matchmaking.v1.GetMatchByUuidRequest
@@ -650,8 +784,8 @@ export type GetMatchByUuidRequest = Message<"parley.matchmaking.v1.GetMatchByUui
  * Describes the message parley.matchmaking.v1.GetMatchByUuidRequest.
  * Use `create(GetMatchByUuidRequestSchema)` to create a new message.
  */
-export const GetMatchByUuidRequestSchema: GenMessage<GetMatchByUuidRequest> = /*@__PURE__*/
-  messageDesc(file_matchmaking_v1_matchmaking, 16);
+export const GetMatchByUuidRequestSchema: GenMessage<GetMatchByUuidRequest> /*@__PURE__*/ =
+  messageDesc(file_matchmaking_v1_matchmaking, 19);
 
 /**
  * @generated from message parley.matchmaking.v1.GetMatchByUuidResponse
@@ -677,8 +811,8 @@ export type GetMatchByUuidResponse = Message<"parley.matchmaking.v1.GetMatchByUu
  * Describes the message parley.matchmaking.v1.GetMatchByUuidResponse.
  * Use `create(GetMatchByUuidResponseSchema)` to create a new message.
  */
-export const GetMatchByUuidResponseSchema: GenMessage<GetMatchByUuidResponse> = /*@__PURE__*/
-  messageDesc(file_matchmaking_v1_matchmaking, 17);
+export const GetMatchByUuidResponseSchema: GenMessage<GetMatchByUuidResponse> /*@__PURE__*/ =
+  messageDesc(file_matchmaking_v1_matchmaking, 20);
 
 /**
  * @generated from service parley.matchmaking.v1.MatchmakingService
@@ -691,7 +825,7 @@ export const MatchmakingService: GenService<{
     methodKind: "unary";
     input: typeof BuildTeamsRequestSchema;
     output: typeof BuildTeamsResponseSchema;
-  },
+  };
   /**
    * @generated from rpc parley.matchmaking.v1.MatchmakingService.ListGuildMembers
    */
@@ -699,7 +833,7 @@ export const MatchmakingService: GenService<{
     methodKind: "unary";
     input: typeof ListGuildMembersRequestSchema;
     output: typeof ListGuildMembersResponseSchema;
-  },
+  };
   /**
    * @generated from rpc parley.matchmaking.v1.MatchmakingService.CreateCustomMatch
    */
@@ -707,7 +841,7 @@ export const MatchmakingService: GenService<{
     methodKind: "unary";
     input: typeof CreateCustomMatchRequestSchema;
     output: typeof CreateCustomMatchResponseSchema;
-  },
+  };
   /**
    * @generated from rpc parley.matchmaking.v1.MatchmakingService.ReportMatchResult
    */
@@ -715,7 +849,15 @@ export const MatchmakingService: GenService<{
     methodKind: "unary";
     input: typeof ReportMatchResultRequestSchema;
     output: typeof ReportMatchResultResponseSchema;
-  },
+  };
+  /**
+   * @generated from rpc parley.matchmaking.v1.MatchmakingService.ReportPlayerRoundStats
+   */
+  reportPlayerRoundStats: {
+    methodKind: "unary";
+    input: typeof ReportPlayerRoundStatsRequestSchema;
+    output: typeof ReportPlayerRoundStatsResponseSchema;
+  };
   /**
    * @generated from rpc parley.matchmaking.v1.MatchmakingService.GetMatch
    */
@@ -723,7 +865,7 @@ export const MatchmakingService: GenService<{
     methodKind: "unary";
     input: typeof GetMatchRequestSchema;
     output: typeof GetMatchResponseSchema;
-  },
+  };
   /**
    * @generated from rpc parley.matchmaking.v1.MatchmakingService.ListMatches
    */
@@ -731,7 +873,7 @@ export const MatchmakingService: GenService<{
     methodKind: "unary";
     input: typeof ListMatchesRequestSchema;
     output: typeof ListMatchesResponseSchema;
-  },
+  };
   /**
    * @generated from rpc parley.matchmaking.v1.MatchmakingService.GetMatchByUuid
    */
@@ -739,7 +881,5 @@ export const MatchmakingService: GenService<{
     methodKind: "unary";
     input: typeof GetMatchByUuidRequestSchema;
     output: typeof GetMatchByUuidResponseSchema;
-  },
-}> = /*@__PURE__*/
-  serviceDesc(file_matchmaking_v1_matchmaking, 0);
-
+  };
+}> /*@__PURE__*/ = serviceDesc(file_matchmaking_v1_matchmaking, 0);

@@ -144,6 +144,48 @@ func TestMatchReportMatchResult_EmptyWinningTeam(t *testing.T) {
 	assertConnectCode(t, err, connect.CodeInvalidArgument)
 }
 
+// --- ReportPlayerRoundStats ---
+
+func TestMatchReportPlayerRoundStats_UnspecifiedGame(t *testing.T) {
+	svc := newNilDBMatchService()
+	_, err := svc.ReportPlayerRoundStats(context.Background(), connect.NewRequest(&matchv1.ReportPlayerRoundStatsRequest{
+		MatchId: 1,
+		Game:    commonv1.Game_GAME_UNSPECIFIED,
+		Stats:   []*matchv1.PlayerRoundStat{{DiscordUserId: "u1", Kills: 1}},
+	}))
+	assertConnectCode(t, err, connect.CodeInvalidArgument)
+}
+
+func TestMatchReportPlayerRoundStats_EmptyStats(t *testing.T) {
+	svc := newNilDBMatchService()
+	_, err := svc.ReportPlayerRoundStats(context.Background(), connect.NewRequest(&matchv1.ReportPlayerRoundStatsRequest{
+		MatchId: 1,
+		Game:    commonv1.Game_GAME_R6,
+		Stats:   nil,
+	}))
+	assertConnectCode(t, err, connect.CodeInvalidArgument)
+}
+
+func TestMatchReportPlayerRoundStats_NegativeValue(t *testing.T) {
+	svc := newNilDBMatchService()
+	_, err := svc.ReportPlayerRoundStats(context.Background(), connect.NewRequest(&matchv1.ReportPlayerRoundStatsRequest{
+		MatchId: 1,
+		Game:    commonv1.Game_GAME_R6,
+		Stats:   []*matchv1.PlayerRoundStat{{DiscordUserId: "u1", Kills: -1}},
+	}))
+	assertConnectCode(t, err, connect.CodeInvalidArgument)
+}
+
+func TestMatchReportPlayerRoundStats_EmptyDiscordUserID(t *testing.T) {
+	svc := newNilDBMatchService()
+	_, err := svc.ReportPlayerRoundStats(context.Background(), connect.NewRequest(&matchv1.ReportPlayerRoundStatsRequest{
+		MatchId: 1,
+		Game:    commonv1.Game_GAME_R6,
+		Stats:   []*matchv1.PlayerRoundStat{{DiscordUserId: "  ", Kills: 1}},
+	}))
+	assertConnectCode(t, err, connect.CodeInvalidArgument)
+}
+
 // --- GetMatch ---
 
 func TestMatchGetMatch_UnspecifiedGame(t *testing.T) {
