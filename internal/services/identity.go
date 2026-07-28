@@ -92,7 +92,9 @@ func (s *IdentityService) LinkAccount(
 	}
 
 	// Deletion cooldown check (mirrors Rust ACCOUNT_DELETION_HMAC_SECRET path).
-	if secret := os.Getenv("ACCOUNT_DELETION_HMAC_SECRET"); secret != "" {
+	// The bot owner is exempt, for testing and support; discordUserID is
+	// validated non-empty above so an unset BOT_OWNER_DISCORD_ID never matches.
+	if secret := os.Getenv("ACCOUNT_DELETION_HMAC_SECRET"); secret != "" && discordUserID != os.Getenv("BOT_OWNER_DISCORD_ID") {
 		until, err := s.guildRepo.IsDeletionBlocked(ctx, discordUserID, secret)
 		if err != nil {
 			// Non-fatal: log and continue (mirrors Rust tracing::warn).
