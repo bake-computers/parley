@@ -463,6 +463,7 @@ type MatchParticipant struct {
 	BalanceRating          float64 `bun:"balance_rating,notnull"`
 	Kills                  *int32  `bun:"kills"`
 	Deaths                 *int32  `bun:"deaths"`
+	Assists                *int32  `bun:"assists"`
 	CreatedAt              int64   `bun:"created_at,notnull"`
 	UpdatedAt              int64   `bun:"updated_at,notnull"`
 }
@@ -486,6 +487,7 @@ type NewMatchParticipant struct {
 	BalanceRating          float64 `bun:"balance_rating,notnull"`
 	Kills                  *int32  `bun:"kills"`
 	Deaths                 *int32  `bun:"deaths"`
+	Assists                *int32  `bun:"assists"`
 	CreatedAt              int64   `bun:"created_at,notnull"`
 	UpdatedAt              int64   `bun:"updated_at,notnull"`
 }
@@ -508,6 +510,7 @@ type MatchParticipantWithUsername struct {
 	BalanceRating          float64 `bun:"balance_rating"`
 	Kills                  *int32  `bun:"kills"`
 	Deaths                 *int32  `bun:"deaths"`
+	Assists                *int32  `bun:"assists"`
 	CreatedAt              int64   `bun:"created_at"`
 	UpdatedAt              int64   `bun:"updated_at"`
 	Username               *string `bun:"username"`
