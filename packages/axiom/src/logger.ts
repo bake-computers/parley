@@ -93,12 +93,7 @@ export class AxiomLogger {
     });
   }
 
-  /**
-   * Structured application log with explicit severity for Axiom.
-   * @param level - Severity text Axiom uses for filtering
-   * @param message - Human-readable log body
-   * @param fields - Optional structured context fields
-   */
+  // Explicit level so Axiom severity is not defaulted to info.
   logAt(
     level: "debug" | "info" | "warn" | "error",
     message: string,
