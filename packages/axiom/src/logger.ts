@@ -2,8 +2,12 @@ import { type AxiomConfig, isAxiomConfigured } from "#/config";
 import type { AxiomEvent } from "#/events";
 
 function httpLevel(status: number): "info" | "warn" | "error" {
-  if (status >= 500) return "error";
-  if (status >= 400) return "warn";
+  if (status >= 500) {
+    return "error";
+  }
+  if (status >= 400) {
+    return "warn";
+  }
   return "info";
 }
 
@@ -89,7 +93,12 @@ export class AxiomLogger {
     });
   }
 
-  /** Structured application log with explicit severity for Axiom. */
+  /**
+   * Structured application log with explicit severity for Axiom.
+   * @param level - Severity text Axiom uses for filtering
+   * @param message - Human-readable log body
+   * @param fields - Optional structured context fields
+   */
   logAt(
     level: "debug" | "info" | "warn" | "error",
     message: string,
