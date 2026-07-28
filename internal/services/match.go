@@ -14,13 +14,13 @@ import (
 	"strings"
 
 	"connectrpc.com/connect"
-	"github.com/google/uuid"
 	commonv1 "github.com/bake-computers/parley/gen/parley/common/v1"
 	matchv1 "github.com/bake-computers/parley/gen/parley/matchmaking/v1"
 	"github.com/bake-computers/parley/internal/apperr"
 	"github.com/bake-computers/parley/internal/matchmaking"
 	"github.com/bake-computers/parley/internal/models"
 	"github.com/bake-computers/parley/internal/repos"
+	"github.com/google/uuid"
 )
 
 // MatchService orchestrates the MatchmakingService RPCs.
@@ -152,6 +152,9 @@ func matchToProto(
 			BalanceRating: p.BalanceRating,
 			Cpr:           p.BalanceRating,
 			Platform:      platform,
+			Kills:         p.Kills,
+			Deaths:        p.Deaths,
+			Assists:       p.Assists,
 		})
 	}
 	return out
@@ -613,6 +616,83 @@ func opponentMu(team []models.MatchParticipantWithUsername) float64 {
 		return 1000.0
 	}
 	return float64(len(team)) * 1000.0 / float64(len(team))
+}
+
+// --- ReportPlayerRoundStats ---
+
+// ReportPlayerRoundStats accumulates one round's K/D/A onto each named
+// participant. Totals are only mutable while the match is active; once
+// ReportMatchResult completes the match, stats are frozen. Input is
+// validated at the edge before any database access.
+func (s *MatchService) ReportPlayerRoundStats(
+	ctx context.Context,
+	req *connect.Request[matchv1.ReportPlayerRoundStatsRequest],
+) (*connect.Response[matchv1.ReportPlayerRoundStatsResponse], error) {
+	msg := req.Msg
+	game, cerr := requireR6Game(msg.GetGame())
+	if cerr != nil {
+		return nil, cerr
+	}
+	stats := msg.GetStats()
+	if len(stats) == 0 {
+		return nil, apperr.InvalidArgument("stats must not be empty")
+	}
+	for _, stat := range stats {
+		if strings.TrimSpace(stat.GetDiscordUserId()) == "" {
+			return nil, apperr.InvalidArgument("discord_user_id is required for each stat line")
+		}
+		if stat.GetKills() < 0 || stat.GetDeaths() < 0 || stat.GetAssists() < 0 {
+			return nil, apperr.InvalidArgument("kills, deaths, and assists must be non-negative")
+		}
+	}
+
+	row, err := s.match.Get(ctx, game, msg.GetMatchId())
+	if err != nil {
+		return nil, apperr.Internal(fmt.Sprintf("get match: %v", err))
+	}
+	if row == nil {
+		return nil, apperr.NotFound("match not found")
+	}
+	if row.Status != repos.MatchStatusActive {
+		return nil, apperr.FailedPrecondition("match is not active")
+	}
+
+	parts, err := s.match.Participants(ctx, row.ID)
+	if err != nil {
+		return nil, apperr.Internal(fmt.Sprintf("participants: %v", err))
+	}
+	participantSet := make(map[string]struct{}, len(parts))
+	for _, p := range parts {
+		participantSet[p.DiscordUserID] = struct{}{}
+	}
+	deltas := make([]repos.ParticipantRoundDelta, 0, len(stats))
+	for _, stat := range stats {
+		userID := strings.TrimSpace(stat.GetDiscordUserId())
+		if _, ok := participantSet[userID]; !ok {
+			return nil, apperr.InvalidArgument(
+				fmt.Sprintf("user %s is not a participant in this match", userID),
+			)
+		}
+		deltas = append(deltas, repos.ParticipantRoundDelta{
+			DiscordUserID: userID,
+			Kills:         stat.GetKills(),
+			Deaths:        stat.GetDeaths(),
+			Assists:       stat.GetAssists(),
+		})
+	}
+
+	if err := s.match.AddRoundStats(ctx, row.ID, deltas); err != nil {
+		return nil, apperr.Internal(fmt.Sprintf("add round stats: %v", err))
+	}
+
+	updated, err := s.match.Participants(ctx, row.ID)
+	if err != nil {
+		return nil, apperr.Internal(fmt.Sprintf("participants: %v", err))
+	}
+	return connect.NewResponse(&matchv1.ReportPlayerRoundStatsResponse{
+		Success: true,
+		Match:   matchToProto(row, updated),
+	}), nil
 }
 
 // --- GetMatch ---

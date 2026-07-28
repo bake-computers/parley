@@ -64,6 +64,17 @@ func (h *MatchHandler) ReportMatchResult(
 	return resp, nil
 }
 
+func (h *MatchHandler) ReportPlayerRoundStats(
+	ctx context.Context,
+	req *connect.Request[matchv1.ReportPlayerRoundStatsRequest],
+) (*connect.Response[matchv1.ReportPlayerRoundStatsResponse], error) {
+	resp, err := h.svc.ReportPlayerRoundStats(ctx, req)
+	if err != nil {
+		return nil, mapErr(err)
+	}
+	return resp, nil
+}
+
 func (h *MatchHandler) GetMatch(
 	ctx context.Context,
 	req *connect.Request[matchv1.GetMatchRequest],
