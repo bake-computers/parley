@@ -169,6 +169,173 @@ func TestMatchmaking_BuildTeamsDataLayerLoadsSnapshotsAndMemberships(t *testing.
 	}
 }
 
+// TestMatchmaking_CustomMatchRoundStatsAccumulate exercises the custom
+// match persistence path end to end at the repo layer: create an active
+// match with participants, accumulate two rounds of K/D/A via
+// AddRoundStats, then complete the match and verify the totals survive
+// into the history listing.
+func TestMatchmaking_CustomMatchRoundStatsAccumulate(t *testing.T) {
+	bdb, cleanup := newTestBunDB(t)
+	defer cleanup()
+
+	ctx := context.Background()
+	identityRepo := repos.NewIdentityRepo(bdb)
+	guildRepo := repos.NewGuildRepo(bdb)
+	matchRepo := repos.NewMatchRepo(bdb)
+
+	guildID := fmt.Sprintf("mm_custom_%s", randomSuffix())
+	discordIDs := make([]string, 4)
+	playerIDs := make([]int32, 4)
+	for i := 0; i < 4; i++ {
+		discordID := fmt.Sprintf("mm_custom_user_%d_%s", i, randomSuffix())
+		username := fmt.Sprintf("CustomPlayer%d", i)
+		player, err := identityRepo.UpsertPlayerByIdentity(ctx, models.GameR6, username, "pc", nil, nil)
+		if err != nil {
+			t.Fatalf("UpsertPlayerByIdentity(%s): %v", username, err)
+		}
+		if _, err := identityRepo.LinkDiscordIdentity(ctx, models.GameR6, discordID, player.ID); err != nil {
+			t.Fatalf("LinkDiscordIdentity(%s): %v", discordID, err)
+		}
+		if _, err := guildRepo.UpsertMembership(ctx, models.GameR6, guildID, discordID, player.ID); err != nil {
+			t.Fatalf("UpsertMembership(%s): %v", discordID, err)
+		}
+		discordIDs[i] = discordID
+		playerIDs[i] = player.ID
+	}
+
+	now := repos.NowMS()
+	newMatch := &models.NewMatch{
+		Game:                   models.GameR6,
+		GuildID:                guildID,
+		ChannelID:              "channel-1",
+		MessageID:              "pending",
+		CreatedByDiscordUserID: discordIDs[0],
+		Status:                 repos.MatchStatusActive,
+		MatchType:              "internal",
+		ResolutionType:         "played",
+		CreatedAt:              now,
+		UpdatedAt:              now,
+	}
+	teams := []string{"a", "a", "b", "b"}
+	participants := make([]models.NewMatchParticipant, 0, 4)
+	for i := 0; i < 4; i++ {
+		participants = append(participants, models.NewMatchParticipant{
+			Game:          models.GameR6,
+			DiscordUserID: discordIDs[i],
+			PlayerID:      playerIDs[i],
+			Team:          teams[i],
+			Slot:          int32(i % 2),
+			CreatedAt:     now,
+			UpdatedAt:     now,
+		})
+	}
+	saved, _, err := matchRepo.Create(ctx, newMatch, participants)
+	if err != nil {
+		t.Fatalf("Create match: %v", err)
+	}
+
+	find := func(rows []models.MatchParticipantWithUsername, discordID string) models.MatchParticipantWithUsername {
+		t.Helper()
+		for _, p := range rows {
+			if p.DiscordUserID == discordID {
+				return p
+			}
+		}
+		t.Fatalf("participant %s not found", discordID)
+		return models.MatchParticipantWithUsername{}
+	}
+	kda := func(p models.MatchParticipantWithUsername) (int32, int32, int32) {
+		t.Helper()
+		if p.Kills == nil || p.Deaths == nil || p.Assists == nil {
+			t.Fatalf("participant %s has nil K/D/A", p.DiscordUserID)
+		}
+		return *p.Kills, *p.Deaths, *p.Assists
+	}
+
+	// Fresh participants carry NULL K/D/A.
+	rows, err := matchRepo.Participants(ctx, saved.ID)
+	if err != nil {
+		t.Fatalf("Participants: %v", err)
+	}
+	if got := len(rows); got != 4 {
+		t.Fatalf("participants len = %d, want 4", got)
+	}
+	if p := find(rows, discordIDs[0]); p.Kills != nil || p.Deaths != nil || p.Assists != nil {
+		t.Fatalf("expected nil K/D/A before any round, got %v/%v/%v", p.Kills, p.Deaths, p.Assists)
+	}
+
+	// Round 1.
+	round1 := []repos.ParticipantRoundDelta{
+		{DiscordUserID: discordIDs[0], Kills: 4, Deaths: 5, Assists: 2},
+		{DiscordUserID: discordIDs[1], Kills: 0, Deaths: 3, Assists: 1},
+		{DiscordUserID: discordIDs[2], Kills: 7, Deaths: 2, Assists: 0},
+		{DiscordUserID: discordIDs[3], Kills: 1, Deaths: 4, Assists: 3},
+	}
+	if err := matchRepo.AddRoundStats(ctx, saved.ID, round1); err != nil {
+		t.Fatalf("AddRoundStats(round 1): %v", err)
+	}
+	// Round 2.
+	round2 := []repos.ParticipantRoundDelta{
+		{DiscordUserID: discordIDs[0], Kills: 2, Deaths: 1, Assists: 0},
+		{DiscordUserID: discordIDs[1], Kills: 5, Deaths: 0, Assists: 4},
+		{DiscordUserID: discordIDs[2], Kills: 0, Deaths: 6, Assists: 1},
+		{DiscordUserID: discordIDs[3], Kills: 3, Deaths: 3, Assists: 2},
+	}
+	if err := matchRepo.AddRoundStats(ctx, saved.ID, round2); err != nil {
+		t.Fatalf("AddRoundStats(round 2): %v", err)
+	}
+
+	// Totals are the sum of both rounds, including zero-assist lines.
+	rows, err = matchRepo.Participants(ctx, saved.ID)
+	if err != nil {
+		t.Fatalf("Participants: %v", err)
+	}
+	want := map[string][3]int32{
+		discordIDs[0]: {6, 6, 2},
+		discordIDs[1]: {5, 3, 5},
+		discordIDs[2]: {7, 8, 1},
+		discordIDs[3]: {4, 7, 5},
+	}
+	for discordID, w := range want {
+		if k, d, a := kda(find(rows, discordID)); k != w[0] || d != w[1] || a != w[2] {
+			t.Fatalf("%s totals = %d/%d/%d, want %d/%d/%d", discordID, k, d, a, w[0], w[1], w[2])
+		}
+	}
+
+	// A delta for a non-participant rolls back the whole round.
+	bogus := append([]repos.ParticipantRoundDelta{}, round1...)
+	bogus = append(bogus, repos.ParticipantRoundDelta{DiscordUserID: "not-in-match", Kills: 9})
+	if err := matchRepo.AddRoundStats(ctx, saved.ID, bogus); err == nil {
+		t.Fatal("AddRoundStats with unknown participant: expected error, got nil")
+	}
+	rows, err = matchRepo.Participants(ctx, saved.ID)
+	if err != nil {
+		t.Fatalf("Participants: %v", err)
+	}
+	if k, d, a := kda(find(rows, discordIDs[0])); k != 6 || d != 6 || a != 2 {
+		t.Fatalf("failed round was partially applied: %d/%d/%d", k, d, a)
+	}
+
+	// Complete and verify the match lands in guild history with stats intact.
+	completed, err := matchRepo.Complete(ctx, models.GameR6, saved.ID, "a")
+	if err != nil || completed == nil {
+		t.Fatalf("Complete: %v (row %v)", err, completed)
+	}
+	if completed.Status != repos.MatchStatusCompleted || completed.WinningTeam == nil || *completed.WinningTeam != "a" {
+		t.Fatalf("completed match state = %s/%v, want completed/a", completed.Status, completed.WinningTeam)
+	}
+	history, err := matchRepo.ListForGuild(ctx, models.GameR6, guildID, 10, nil)
+	if err != nil {
+		t.Fatalf("ListForGuild: %v", err)
+	}
+	if got := len(history); got != 1 {
+		t.Fatalf("history len = %d, want 1", got)
+	}
+	if history[0].ID != saved.ID {
+		t.Fatalf("history match = %d, want %d", history[0].ID, saved.ID)
+	}
+}
+
 func strPtr(s string) *string { return &s }
 
 func randomSuffix() string {
