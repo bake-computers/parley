@@ -412,6 +412,47 @@ func TestIdentityLink_DeleteAnonymizes(t *testing.T) {
 	}
 }
 
+// TestIdentityLink_OwnerBypassesRelinkCooldown verifies that the Discord
+// user in BOT_OWNER_DISCORD_ID can re-link while the deletion cooldown is
+// active, while other users remain blocked.
+func TestIdentityLink_OwnerBypassesRelinkCooldown(t *testing.T) {
+	rig := newEngineWithDB(t)
+	ctx := context.Background()
+
+	discordID := "980859238630948886"
+
+	link := func() error {
+		_, err := rig.IdentityClient.LinkAccount(ctx, connect.NewRequest(&identityv1.LinkAccountRequest{
+			DiscordUserId: discordID,
+			Game:          commonv1.Game_GAME_R6,
+			Username:      "OwnerBypass",
+			Platform:      "uplay",
+		}))
+		return err
+	}
+	if err := link(); err != nil {
+		t.Fatalf("initial LinkAccount: %v", err)
+	}
+
+	// Anonymize, which records the re-link cooldown.
+	if _, err := rig.UserClient.DeleteUserData(ctx, connect.NewRequest(&userv1.DeleteUserDataRequest{
+		DiscordUserId: discordID,
+	})); err != nil {
+		t.Fatalf("DeleteUserData: %v", err)
+	}
+
+	if err := link(); err == nil {
+		t.Fatal("re-link during cooldown succeeded without owner bypass")
+	} else if got := connectErrCode(err); got != connect.CodeFailedPrecondition {
+		t.Fatalf("re-link code = %v, want FailedPrecondition (err = %v)", got, err)
+	}
+
+	t.Setenv("BOT_OWNER_DISCORD_ID", discordID)
+	if err := link(); err != nil {
+		t.Fatalf("owner re-link during cooldown: %v", err)
+	}
+}
+
 // verifyPlayerAnonymized asserts the player row's username was scrubbed
 // to "Deleted User" and the username_normalized was replaced with a
 // "deleted_<id>" sentinel. This catches partial-anonymization regressions
