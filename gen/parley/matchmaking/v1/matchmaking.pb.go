@@ -674,6 +674,9 @@ type MatchParticipant struct {
 	Mu            float64                `protobuf:"fixed64,8,opt,name=mu,proto3" json:"mu,omitempty"`
 	Phi           float64                `protobuf:"fixed64,9,opt,name=phi,proto3" json:"phi,omitempty"`
 	Platform      string                 `protobuf:"bytes,10,opt,name=platform,proto3" json:"platform,omitempty"`
+	Kills         *int32                 `protobuf:"varint,11,opt,name=kills,proto3,oneof" json:"kills,omitempty"`
+	Deaths        *int32                 `protobuf:"varint,12,opt,name=deaths,proto3,oneof" json:"deaths,omitempty"`
+	Assists       *int32                 `protobuf:"varint,13,opt,name=assists,proto3,oneof" json:"assists,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -776,6 +779,27 @@ func (x *MatchParticipant) GetPlatform() string {
 		return x.Platform
 	}
 	return ""
+}
+
+func (x *MatchParticipant) GetKills() int32 {
+	if x != nil && x.Kills != nil {
+		return *x.Kills
+	}
+	return 0
+}
+
+func (x *MatchParticipant) GetDeaths() int32 {
+	if x != nil && x.Deaths != nil {
+		return *x.Deaths
+	}
+	return 0
+}
+
+func (x *MatchParticipant) GetAssists() int32 {
+	if x != nil && x.Assists != nil {
+		return *x.Assists
+	}
+	return 0
 }
 
 type Match struct {
@@ -1030,6 +1054,202 @@ func (x *ReportMatchResultResponse) GetError() *v1.Error {
 	return nil
 }
 
+type PlayerRoundStat struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	DiscordUserId string                 `protobuf:"bytes,1,opt,name=discord_user_id,json=discordUserId,proto3" json:"discord_user_id,omitempty"`
+	Kills         int32                  `protobuf:"varint,2,opt,name=kills,proto3" json:"kills,omitempty"`
+	Deaths        int32                  `protobuf:"varint,3,opt,name=deaths,proto3" json:"deaths,omitempty"`
+	Assists       int32                  `protobuf:"varint,4,opt,name=assists,proto3" json:"assists,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PlayerRoundStat) Reset() {
+	*x = PlayerRoundStat{}
+	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PlayerRoundStat) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PlayerRoundStat) ProtoMessage() {}
+
+func (x *PlayerRoundStat) ProtoReflect() protoreflect.Message {
+	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PlayerRoundStat.ProtoReflect.Descriptor instead.
+func (*PlayerRoundStat) Descriptor() ([]byte, []int) {
+	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *PlayerRoundStat) GetDiscordUserId() string {
+	if x != nil {
+		return x.DiscordUserId
+	}
+	return ""
+}
+
+func (x *PlayerRoundStat) GetKills() int32 {
+	if x != nil {
+		return x.Kills
+	}
+	return 0
+}
+
+func (x *PlayerRoundStat) GetDeaths() int32 {
+	if x != nil {
+		return x.Deaths
+	}
+	return 0
+}
+
+func (x *PlayerRoundStat) GetAssists() int32 {
+	if x != nil {
+		return x.Assists
+	}
+	return 0
+}
+
+type ReportPlayerRoundStatsRequest struct {
+	state                   protoimpl.MessageState `protogen:"open.v1"`
+	MatchId                 int32                  `protobuf:"varint,1,opt,name=match_id,json=matchId,proto3" json:"match_id,omitempty"`
+	Game                    v1.Game                `protobuf:"varint,2,opt,name=game,proto3,enum=parley.common.v1.Game" json:"game,omitempty"`
+	Stats                   []*PlayerRoundStat     `protobuf:"bytes,3,rep,name=stats,proto3" json:"stats,omitempty"`
+	ReportedByDiscordUserId string                 `protobuf:"bytes,4,opt,name=reported_by_discord_user_id,json=reportedByDiscordUserId,proto3" json:"reported_by_discord_user_id,omitempty"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
+}
+
+func (x *ReportPlayerRoundStatsRequest) Reset() {
+	*x = ReportPlayerRoundStatsRequest{}
+	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReportPlayerRoundStatsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReportPlayerRoundStatsRequest) ProtoMessage() {}
+
+func (x *ReportPlayerRoundStatsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReportPlayerRoundStatsRequest.ProtoReflect.Descriptor instead.
+func (*ReportPlayerRoundStatsRequest) Descriptor() ([]byte, []int) {
+	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *ReportPlayerRoundStatsRequest) GetMatchId() int32 {
+	if x != nil {
+		return x.MatchId
+	}
+	return 0
+}
+
+func (x *ReportPlayerRoundStatsRequest) GetGame() v1.Game {
+	if x != nil {
+		return x.Game
+	}
+	return v1.Game(0)
+}
+
+func (x *ReportPlayerRoundStatsRequest) GetStats() []*PlayerRoundStat {
+	if x != nil {
+		return x.Stats
+	}
+	return nil
+}
+
+func (x *ReportPlayerRoundStatsRequest) GetReportedByDiscordUserId() string {
+	if x != nil {
+		return x.ReportedByDiscordUserId
+	}
+	return ""
+}
+
+type ReportPlayerRoundStatsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Success       bool                   `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"`
+	Match         *Match                 `protobuf:"bytes,2,opt,name=match,proto3" json:"match,omitempty"`
+	Error         *v1.Error              `protobuf:"bytes,3,opt,name=error,proto3" json:"error,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ReportPlayerRoundStatsResponse) Reset() {
+	*x = ReportPlayerRoundStatsResponse{}
+	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ReportPlayerRoundStatsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ReportPlayerRoundStatsResponse) ProtoMessage() {}
+
+func (x *ReportPlayerRoundStatsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ReportPlayerRoundStatsResponse.ProtoReflect.Descriptor instead.
+func (*ReportPlayerRoundStatsResponse) Descriptor() ([]byte, []int) {
+	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *ReportPlayerRoundStatsResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+func (x *ReportPlayerRoundStatsResponse) GetMatch() *Match {
+	if x != nil {
+		return x.Match
+	}
+	return nil
+}
+
+func (x *ReportPlayerRoundStatsResponse) GetError() *v1.Error {
+	if x != nil {
+		return x.Error
+	}
+	return nil
+}
+
 type GetMatchRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	MatchId       int32                  `protobuf:"varint,1,opt,name=match_id,json=matchId,proto3" json:"match_id,omitempty"`
@@ -1040,7 +1260,7 @@ type GetMatchRequest struct {
 
 func (x *GetMatchRequest) Reset() {
 	*x = GetMatchRequest{}
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[12]
+	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1052,7 +1272,7 @@ func (x *GetMatchRequest) String() string {
 func (*GetMatchRequest) ProtoMessage() {}
 
 func (x *GetMatchRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[12]
+	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1065,7 +1285,7 @@ func (x *GetMatchRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMatchRequest.ProtoReflect.Descriptor instead.
 func (*GetMatchRequest) Descriptor() ([]byte, []int) {
-	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{12}
+	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *GetMatchRequest) GetMatchId() int32 {
@@ -1093,7 +1313,7 @@ type GetMatchResponse struct {
 
 func (x *GetMatchResponse) Reset() {
 	*x = GetMatchResponse{}
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[13]
+	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1105,7 +1325,7 @@ func (x *GetMatchResponse) String() string {
 func (*GetMatchResponse) ProtoMessage() {}
 
 func (x *GetMatchResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[13]
+	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1118,7 +1338,7 @@ func (x *GetMatchResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMatchResponse.ProtoReflect.Descriptor instead.
 func (*GetMatchResponse) Descriptor() ([]byte, []int) {
-	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{13}
+	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *GetMatchResponse) GetSuccess() bool {
@@ -1155,7 +1375,7 @@ type ListMatchesRequest struct {
 
 func (x *ListMatchesRequest) Reset() {
 	*x = ListMatchesRequest{}
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[14]
+	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1167,7 +1387,7 @@ func (x *ListMatchesRequest) String() string {
 func (*ListMatchesRequest) ProtoMessage() {}
 
 func (x *ListMatchesRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[14]
+	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1180,7 +1400,7 @@ func (x *ListMatchesRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListMatchesRequest.ProtoReflect.Descriptor instead.
 func (*ListMatchesRequest) Descriptor() ([]byte, []int) {
-	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{14}
+	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *ListMatchesRequest) GetGuildId() string {
@@ -1229,7 +1449,7 @@ type ListMatchesResponse struct {
 
 func (x *ListMatchesResponse) Reset() {
 	*x = ListMatchesResponse{}
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[15]
+	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1241,7 +1461,7 @@ func (x *ListMatchesResponse) String() string {
 func (*ListMatchesResponse) ProtoMessage() {}
 
 func (x *ListMatchesResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[15]
+	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1254,7 +1474,7 @@ func (x *ListMatchesResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ListMatchesResponse.ProtoReflect.Descriptor instead.
 func (*ListMatchesResponse) Descriptor() ([]byte, []int) {
-	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{15}
+	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *ListMatchesResponse) GetMatches() []*Match {
@@ -1288,7 +1508,7 @@ type GetMatchByUuidRequest struct {
 
 func (x *GetMatchByUuidRequest) Reset() {
 	*x = GetMatchByUuidRequest{}
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[16]
+	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1300,7 +1520,7 @@ func (x *GetMatchByUuidRequest) String() string {
 func (*GetMatchByUuidRequest) ProtoMessage() {}
 
 func (x *GetMatchByUuidRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[16]
+	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1313,7 +1533,7 @@ func (x *GetMatchByUuidRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMatchByUuidRequest.ProtoReflect.Descriptor instead.
 func (*GetMatchByUuidRequest) Descriptor() ([]byte, []int) {
-	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{16}
+	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *GetMatchByUuidRequest) GetPublicUuid() string {
@@ -1341,7 +1561,7 @@ type GetMatchByUuidResponse struct {
 
 func (x *GetMatchByUuidResponse) Reset() {
 	*x = GetMatchByUuidResponse{}
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[17]
+	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1353,7 +1573,7 @@ func (x *GetMatchByUuidResponse) String() string {
 func (*GetMatchByUuidResponse) ProtoMessage() {}
 
 func (x *GetMatchByUuidResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[17]
+	mi := &file_matchmaking_v1_matchmaking_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1366,7 +1586,7 @@ func (x *GetMatchByUuidResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetMatchByUuidResponse.ProtoReflect.Descriptor instead.
 func (*GetMatchByUuidResponse) Descriptor() ([]byte, []int) {
-	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{17}
+	return file_matchmaking_v1_matchmaking_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *GetMatchByUuidResponse) GetSuccess() bool {
@@ -1449,7 +1669,7 @@ const file_matchmaking_v1_matchmaking_proto_rawDesc = "" +
 	"\x0fwin_probability\x18\x05 \x01(\x01R\x0ewinProbability\x12\x1f\n" +
 	"\vbalance_gap\x18\x06 \x01(\x01R\n" +
 	"balanceGap\x12-\n" +
-	"\x05error\x18\a \x01(\v2\x17.parley.common.v1.ErrorR\x05error\"\x92\x02\n" +
+	"\x05error\x18\a \x01(\v2\x17.parley.common.v1.ErrorR\x05error\"\x8a\x03\n" +
 	"\x10MatchParticipant\x12&\n" +
 	"\x0fdiscord_user_id\x18\x01 \x01(\tR\rdiscordUserId\x12\x1b\n" +
 	"\tplayer_id\x18\x02 \x01(\x05R\bplayerId\x12\x12\n" +
@@ -1461,7 +1681,14 @@ const file_matchmaking_v1_matchmaking_proto_rawDesc = "" +
 	"\x02mu\x18\b \x01(\x01R\x02mu\x12\x10\n" +
 	"\x03phi\x18\t \x01(\x01R\x03phi\x12\x1a\n" +
 	"\bplatform\x18\n" +
-	" \x01(\tR\bplatform\"\x93\x03\n" +
+	" \x01(\tR\bplatform\x12\x19\n" +
+	"\x05kills\x18\v \x01(\x05H\x00R\x05kills\x88\x01\x01\x12\x1b\n" +
+	"\x06deaths\x18\f \x01(\x05H\x01R\x06deaths\x88\x01\x01\x12\x1d\n" +
+	"\aassists\x18\r \x01(\x05H\x02R\aassists\x88\x01\x01B\b\n" +
+	"\x06_killsB\t\n" +
+	"\a_deathsB\n" +
+	"\n" +
+	"\b_assists\"\x93\x03\n" +
 	"\x05Match\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x05R\x02id\x12\x19\n" +
 	"\bguild_id\x18\x02 \x01(\tR\aguildId\x12\x1d\n" +
@@ -1485,6 +1712,20 @@ const file_matchmaking_v1_matchmaking_proto_rawDesc = "" +
 	"\fwinning_team\x18\x03 \x01(\tR\vwinningTeam\x12<\n" +
 	"\x1breported_by_discord_user_id\x18\x04 \x01(\tR\x17reportedByDiscordUserId\"\x98\x01\n" +
 	"\x19ReportMatchResultResponse\x12\x18\n" +
+	"\asuccess\x18\x01 \x01(\bR\asuccess\x122\n" +
+	"\x05match\x18\x02 \x01(\v2\x1c.parley.matchmaking.v1.MatchR\x05match\x12-\n" +
+	"\x05error\x18\x03 \x01(\v2\x17.parley.common.v1.ErrorR\x05error\"\x81\x01\n" +
+	"\x0fPlayerRoundStat\x12&\n" +
+	"\x0fdiscord_user_id\x18\x01 \x01(\tR\rdiscordUserId\x12\x14\n" +
+	"\x05kills\x18\x02 \x01(\x05R\x05kills\x12\x16\n" +
+	"\x06deaths\x18\x03 \x01(\x05R\x06deaths\x12\x18\n" +
+	"\aassists\x18\x04 \x01(\x05R\aassists\"\xe2\x01\n" +
+	"\x1dReportPlayerRoundStatsRequest\x12\x19\n" +
+	"\bmatch_id\x18\x01 \x01(\x05R\amatchId\x12*\n" +
+	"\x04game\x18\x02 \x01(\x0e2\x16.parley.common.v1.GameR\x04game\x12<\n" +
+	"\x05stats\x18\x03 \x03(\v2&.parley.matchmaking.v1.PlayerRoundStatR\x05stats\x12<\n" +
+	"\x1breported_by_discord_user_id\x18\x04 \x01(\tR\x17reportedByDiscordUserId\"\x9d\x01\n" +
+	"\x1eReportPlayerRoundStatsResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x122\n" +
 	"\x05match\x18\x02 \x01(\v2\x1c.parley.matchmaking.v1.MatchR\x05match\x12-\n" +
 	"\x05error\x18\x03 \x01(\v2\x17.parley.common.v1.ErrorR\x05error\"X\n" +
@@ -1514,13 +1755,14 @@ const file_matchmaking_v1_matchmaking_proto_rawDesc = "" +
 	"\x16GetMatchByUuidResponse\x12\x18\n" +
 	"\asuccess\x18\x01 \x01(\bR\asuccess\x122\n" +
 	"\x05match\x18\x02 \x01(\v2\x1c.parley.matchmaking.v1.MatchR\x05match\x12-\n" +
-	"\x05error\x18\x03 \x01(\v2\x17.parley.common.v1.ErrorR\x05error2\x8e\x06\n" +
+	"\x05error\x18\x03 \x01(\v2\x17.parley.common.v1.ErrorR\x05error2\x96\a\n" +
 	"\x12MatchmakingService\x12a\n" +
 	"\n" +
 	"BuildTeams\x12(.parley.matchmaking.v1.BuildTeamsRequest\x1a).parley.matchmaking.v1.BuildTeamsResponse\x12s\n" +
 	"\x10ListGuildMembers\x12..parley.matchmaking.v1.ListGuildMembersRequest\x1a/.parley.matchmaking.v1.ListGuildMembersResponse\x12v\n" +
 	"\x11CreateCustomMatch\x12/.parley.matchmaking.v1.CreateCustomMatchRequest\x1a0.parley.matchmaking.v1.CreateCustomMatchResponse\x12v\n" +
-	"\x11ReportMatchResult\x12/.parley.matchmaking.v1.ReportMatchResultRequest\x1a0.parley.matchmaking.v1.ReportMatchResultResponse\x12[\n" +
+	"\x11ReportMatchResult\x12/.parley.matchmaking.v1.ReportMatchResultRequest\x1a0.parley.matchmaking.v1.ReportMatchResultResponse\x12\x85\x01\n" +
+	"\x16ReportPlayerRoundStats\x124.parley.matchmaking.v1.ReportPlayerRoundStatsRequest\x1a5.parley.matchmaking.v1.ReportPlayerRoundStatsResponse\x12[\n" +
 	"\bGetMatch\x12&.parley.matchmaking.v1.GetMatchRequest\x1a'.parley.matchmaking.v1.GetMatchResponse\x12d\n" +
 	"\vListMatches\x12).parley.matchmaking.v1.ListMatchesRequest\x1a*.parley.matchmaking.v1.ListMatchesResponse\x12m\n" +
 	"\x0eGetMatchByUuid\x12,.parley.matchmaking.v1.GetMatchByUuidRequest\x1a-.parley.matchmaking.v1.GetMatchByUuidResponseBe\n" +
@@ -1538,73 +1780,82 @@ func file_matchmaking_v1_matchmaking_proto_rawDescGZIP() []byte {
 	return file_matchmaking_v1_matchmaking_proto_rawDescData
 }
 
-var file_matchmaking_v1_matchmaking_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
+var file_matchmaking_v1_matchmaking_proto_msgTypes = make([]protoimpl.MessageInfo, 21)
 var file_matchmaking_v1_matchmaking_proto_goTypes = []any{
-	(*BuildTeamsRequest)(nil),         // 0: parley.matchmaking.v1.BuildTeamsRequest
-	(*TeamAssignment)(nil),            // 1: parley.matchmaking.v1.TeamAssignment
-	(*BuildTeamsResponse)(nil),        // 2: parley.matchmaking.v1.BuildTeamsResponse
-	(*GuildMember)(nil),               // 3: parley.matchmaking.v1.GuildMember
-	(*ListGuildMembersRequest)(nil),   // 4: parley.matchmaking.v1.ListGuildMembersRequest
-	(*ListGuildMembersResponse)(nil),  // 5: parley.matchmaking.v1.ListGuildMembersResponse
-	(*CreateCustomMatchRequest)(nil),  // 6: parley.matchmaking.v1.CreateCustomMatchRequest
-	(*CreateCustomMatchResponse)(nil), // 7: parley.matchmaking.v1.CreateCustomMatchResponse
-	(*MatchParticipant)(nil),          // 8: parley.matchmaking.v1.MatchParticipant
-	(*Match)(nil),                     // 9: parley.matchmaking.v1.Match
-	(*ReportMatchResultRequest)(nil),  // 10: parley.matchmaking.v1.ReportMatchResultRequest
-	(*ReportMatchResultResponse)(nil), // 11: parley.matchmaking.v1.ReportMatchResultResponse
-	(*GetMatchRequest)(nil),           // 12: parley.matchmaking.v1.GetMatchRequest
-	(*GetMatchResponse)(nil),          // 13: parley.matchmaking.v1.GetMatchResponse
-	(*ListMatchesRequest)(nil),        // 14: parley.matchmaking.v1.ListMatchesRequest
-	(*ListMatchesResponse)(nil),       // 15: parley.matchmaking.v1.ListMatchesResponse
-	(*GetMatchByUuidRequest)(nil),     // 16: parley.matchmaking.v1.GetMatchByUuidRequest
-	(*GetMatchByUuidResponse)(nil),    // 17: parley.matchmaking.v1.GetMatchByUuidResponse
-	(v1.Game)(0),                      // 18: parley.common.v1.Game
-	(*v1.Error)(nil),                  // 19: parley.common.v1.Error
+	(*BuildTeamsRequest)(nil),              // 0: parley.matchmaking.v1.BuildTeamsRequest
+	(*TeamAssignment)(nil),                 // 1: parley.matchmaking.v1.TeamAssignment
+	(*BuildTeamsResponse)(nil),             // 2: parley.matchmaking.v1.BuildTeamsResponse
+	(*GuildMember)(nil),                    // 3: parley.matchmaking.v1.GuildMember
+	(*ListGuildMembersRequest)(nil),        // 4: parley.matchmaking.v1.ListGuildMembersRequest
+	(*ListGuildMembersResponse)(nil),       // 5: parley.matchmaking.v1.ListGuildMembersResponse
+	(*CreateCustomMatchRequest)(nil),       // 6: parley.matchmaking.v1.CreateCustomMatchRequest
+	(*CreateCustomMatchResponse)(nil),      // 7: parley.matchmaking.v1.CreateCustomMatchResponse
+	(*MatchParticipant)(nil),               // 8: parley.matchmaking.v1.MatchParticipant
+	(*Match)(nil),                          // 9: parley.matchmaking.v1.Match
+	(*ReportMatchResultRequest)(nil),       // 10: parley.matchmaking.v1.ReportMatchResultRequest
+	(*ReportMatchResultResponse)(nil),      // 11: parley.matchmaking.v1.ReportMatchResultResponse
+	(*PlayerRoundStat)(nil),                // 12: parley.matchmaking.v1.PlayerRoundStat
+	(*ReportPlayerRoundStatsRequest)(nil),  // 13: parley.matchmaking.v1.ReportPlayerRoundStatsRequest
+	(*ReportPlayerRoundStatsResponse)(nil), // 14: parley.matchmaking.v1.ReportPlayerRoundStatsResponse
+	(*GetMatchRequest)(nil),                // 15: parley.matchmaking.v1.GetMatchRequest
+	(*GetMatchResponse)(nil),               // 16: parley.matchmaking.v1.GetMatchResponse
+	(*ListMatchesRequest)(nil),             // 17: parley.matchmaking.v1.ListMatchesRequest
+	(*ListMatchesResponse)(nil),            // 18: parley.matchmaking.v1.ListMatchesResponse
+	(*GetMatchByUuidRequest)(nil),          // 19: parley.matchmaking.v1.GetMatchByUuidRequest
+	(*GetMatchByUuidResponse)(nil),         // 20: parley.matchmaking.v1.GetMatchByUuidResponse
+	(v1.Game)(0),                           // 21: parley.common.v1.Game
+	(*v1.Error)(nil),                       // 22: parley.common.v1.Error
 }
 var file_matchmaking_v1_matchmaking_proto_depIdxs = []int32{
-	18, // 0: parley.matchmaking.v1.BuildTeamsRequest.game:type_name -> parley.common.v1.Game
+	21, // 0: parley.matchmaking.v1.BuildTeamsRequest.game:type_name -> parley.common.v1.Game
 	1,  // 1: parley.matchmaking.v1.BuildTeamsResponse.team_a:type_name -> parley.matchmaking.v1.TeamAssignment
 	1,  // 2: parley.matchmaking.v1.BuildTeamsResponse.team_b:type_name -> parley.matchmaking.v1.TeamAssignment
-	19, // 3: parley.matchmaking.v1.BuildTeamsResponse.error:type_name -> parley.common.v1.Error
-	18, // 4: parley.matchmaking.v1.ListGuildMembersRequest.game:type_name -> parley.common.v1.Game
+	22, // 3: parley.matchmaking.v1.BuildTeamsResponse.error:type_name -> parley.common.v1.Error
+	21, // 4: parley.matchmaking.v1.ListGuildMembersRequest.game:type_name -> parley.common.v1.Game
 	3,  // 5: parley.matchmaking.v1.ListGuildMembersResponse.members:type_name -> parley.matchmaking.v1.GuildMember
-	19, // 6: parley.matchmaking.v1.ListGuildMembersResponse.error:type_name -> parley.common.v1.Error
-	18, // 7: parley.matchmaking.v1.CreateCustomMatchRequest.game:type_name -> parley.common.v1.Game
+	22, // 6: parley.matchmaking.v1.ListGuildMembersResponse.error:type_name -> parley.common.v1.Error
+	21, // 7: parley.matchmaking.v1.CreateCustomMatchRequest.game:type_name -> parley.common.v1.Game
 	1,  // 8: parley.matchmaking.v1.CreateCustomMatchResponse.team_a:type_name -> parley.matchmaking.v1.TeamAssignment
 	1,  // 9: parley.matchmaking.v1.CreateCustomMatchResponse.team_b:type_name -> parley.matchmaking.v1.TeamAssignment
-	19, // 10: parley.matchmaking.v1.CreateCustomMatchResponse.error:type_name -> parley.common.v1.Error
+	22, // 10: parley.matchmaking.v1.CreateCustomMatchResponse.error:type_name -> parley.common.v1.Error
 	8,  // 11: parley.matchmaking.v1.Match.participants:type_name -> parley.matchmaking.v1.MatchParticipant
-	18, // 12: parley.matchmaking.v1.ReportMatchResultRequest.game:type_name -> parley.common.v1.Game
+	21, // 12: parley.matchmaking.v1.ReportMatchResultRequest.game:type_name -> parley.common.v1.Game
 	9,  // 13: parley.matchmaking.v1.ReportMatchResultResponse.match:type_name -> parley.matchmaking.v1.Match
-	19, // 14: parley.matchmaking.v1.ReportMatchResultResponse.error:type_name -> parley.common.v1.Error
-	18, // 15: parley.matchmaking.v1.GetMatchRequest.game:type_name -> parley.common.v1.Game
-	9,  // 16: parley.matchmaking.v1.GetMatchResponse.match:type_name -> parley.matchmaking.v1.Match
-	19, // 17: parley.matchmaking.v1.GetMatchResponse.error:type_name -> parley.common.v1.Error
-	18, // 18: parley.matchmaking.v1.ListMatchesRequest.game:type_name -> parley.common.v1.Game
-	9,  // 19: parley.matchmaking.v1.ListMatchesResponse.matches:type_name -> parley.matchmaking.v1.Match
-	19, // 20: parley.matchmaking.v1.ListMatchesResponse.error:type_name -> parley.common.v1.Error
-	18, // 21: parley.matchmaking.v1.GetMatchByUuidRequest.game:type_name -> parley.common.v1.Game
-	9,  // 22: parley.matchmaking.v1.GetMatchByUuidResponse.match:type_name -> parley.matchmaking.v1.Match
-	19, // 23: parley.matchmaking.v1.GetMatchByUuidResponse.error:type_name -> parley.common.v1.Error
-	0,  // 24: parley.matchmaking.v1.MatchmakingService.BuildTeams:input_type -> parley.matchmaking.v1.BuildTeamsRequest
-	4,  // 25: parley.matchmaking.v1.MatchmakingService.ListGuildMembers:input_type -> parley.matchmaking.v1.ListGuildMembersRequest
-	6,  // 26: parley.matchmaking.v1.MatchmakingService.CreateCustomMatch:input_type -> parley.matchmaking.v1.CreateCustomMatchRequest
-	10, // 27: parley.matchmaking.v1.MatchmakingService.ReportMatchResult:input_type -> parley.matchmaking.v1.ReportMatchResultRequest
-	12, // 28: parley.matchmaking.v1.MatchmakingService.GetMatch:input_type -> parley.matchmaking.v1.GetMatchRequest
-	14, // 29: parley.matchmaking.v1.MatchmakingService.ListMatches:input_type -> parley.matchmaking.v1.ListMatchesRequest
-	16, // 30: parley.matchmaking.v1.MatchmakingService.GetMatchByUuid:input_type -> parley.matchmaking.v1.GetMatchByUuidRequest
-	2,  // 31: parley.matchmaking.v1.MatchmakingService.BuildTeams:output_type -> parley.matchmaking.v1.BuildTeamsResponse
-	5,  // 32: parley.matchmaking.v1.MatchmakingService.ListGuildMembers:output_type -> parley.matchmaking.v1.ListGuildMembersResponse
-	7,  // 33: parley.matchmaking.v1.MatchmakingService.CreateCustomMatch:output_type -> parley.matchmaking.v1.CreateCustomMatchResponse
-	11, // 34: parley.matchmaking.v1.MatchmakingService.ReportMatchResult:output_type -> parley.matchmaking.v1.ReportMatchResultResponse
-	13, // 35: parley.matchmaking.v1.MatchmakingService.GetMatch:output_type -> parley.matchmaking.v1.GetMatchResponse
-	15, // 36: parley.matchmaking.v1.MatchmakingService.ListMatches:output_type -> parley.matchmaking.v1.ListMatchesResponse
-	17, // 37: parley.matchmaking.v1.MatchmakingService.GetMatchByUuid:output_type -> parley.matchmaking.v1.GetMatchByUuidResponse
-	31, // [31:38] is the sub-list for method output_type
-	24, // [24:31] is the sub-list for method input_type
-	24, // [24:24] is the sub-list for extension type_name
-	24, // [24:24] is the sub-list for extension extendee
-	0,  // [0:24] is the sub-list for field type_name
+	22, // 14: parley.matchmaking.v1.ReportMatchResultResponse.error:type_name -> parley.common.v1.Error
+	21, // 15: parley.matchmaking.v1.ReportPlayerRoundStatsRequest.game:type_name -> parley.common.v1.Game
+	12, // 16: parley.matchmaking.v1.ReportPlayerRoundStatsRequest.stats:type_name -> parley.matchmaking.v1.PlayerRoundStat
+	9,  // 17: parley.matchmaking.v1.ReportPlayerRoundStatsResponse.match:type_name -> parley.matchmaking.v1.Match
+	22, // 18: parley.matchmaking.v1.ReportPlayerRoundStatsResponse.error:type_name -> parley.common.v1.Error
+	21, // 19: parley.matchmaking.v1.GetMatchRequest.game:type_name -> parley.common.v1.Game
+	9,  // 20: parley.matchmaking.v1.GetMatchResponse.match:type_name -> parley.matchmaking.v1.Match
+	22, // 21: parley.matchmaking.v1.GetMatchResponse.error:type_name -> parley.common.v1.Error
+	21, // 22: parley.matchmaking.v1.ListMatchesRequest.game:type_name -> parley.common.v1.Game
+	9,  // 23: parley.matchmaking.v1.ListMatchesResponse.matches:type_name -> parley.matchmaking.v1.Match
+	22, // 24: parley.matchmaking.v1.ListMatchesResponse.error:type_name -> parley.common.v1.Error
+	21, // 25: parley.matchmaking.v1.GetMatchByUuidRequest.game:type_name -> parley.common.v1.Game
+	9,  // 26: parley.matchmaking.v1.GetMatchByUuidResponse.match:type_name -> parley.matchmaking.v1.Match
+	22, // 27: parley.matchmaking.v1.GetMatchByUuidResponse.error:type_name -> parley.common.v1.Error
+	0,  // 28: parley.matchmaking.v1.MatchmakingService.BuildTeams:input_type -> parley.matchmaking.v1.BuildTeamsRequest
+	4,  // 29: parley.matchmaking.v1.MatchmakingService.ListGuildMembers:input_type -> parley.matchmaking.v1.ListGuildMembersRequest
+	6,  // 30: parley.matchmaking.v1.MatchmakingService.CreateCustomMatch:input_type -> parley.matchmaking.v1.CreateCustomMatchRequest
+	10, // 31: parley.matchmaking.v1.MatchmakingService.ReportMatchResult:input_type -> parley.matchmaking.v1.ReportMatchResultRequest
+	13, // 32: parley.matchmaking.v1.MatchmakingService.ReportPlayerRoundStats:input_type -> parley.matchmaking.v1.ReportPlayerRoundStatsRequest
+	15, // 33: parley.matchmaking.v1.MatchmakingService.GetMatch:input_type -> parley.matchmaking.v1.GetMatchRequest
+	17, // 34: parley.matchmaking.v1.MatchmakingService.ListMatches:input_type -> parley.matchmaking.v1.ListMatchesRequest
+	19, // 35: parley.matchmaking.v1.MatchmakingService.GetMatchByUuid:input_type -> parley.matchmaking.v1.GetMatchByUuidRequest
+	2,  // 36: parley.matchmaking.v1.MatchmakingService.BuildTeams:output_type -> parley.matchmaking.v1.BuildTeamsResponse
+	5,  // 37: parley.matchmaking.v1.MatchmakingService.ListGuildMembers:output_type -> parley.matchmaking.v1.ListGuildMembersResponse
+	7,  // 38: parley.matchmaking.v1.MatchmakingService.CreateCustomMatch:output_type -> parley.matchmaking.v1.CreateCustomMatchResponse
+	11, // 39: parley.matchmaking.v1.MatchmakingService.ReportMatchResult:output_type -> parley.matchmaking.v1.ReportMatchResultResponse
+	14, // 40: parley.matchmaking.v1.MatchmakingService.ReportPlayerRoundStats:output_type -> parley.matchmaking.v1.ReportPlayerRoundStatsResponse
+	16, // 41: parley.matchmaking.v1.MatchmakingService.GetMatch:output_type -> parley.matchmaking.v1.GetMatchResponse
+	18, // 42: parley.matchmaking.v1.MatchmakingService.ListMatches:output_type -> parley.matchmaking.v1.ListMatchesResponse
+	20, // 43: parley.matchmaking.v1.MatchmakingService.GetMatchByUuid:output_type -> parley.matchmaking.v1.GetMatchByUuidResponse
+	36, // [36:44] is the sub-list for method output_type
+	28, // [28:36] is the sub-list for method input_type
+	28, // [28:28] is the sub-list for extension type_name
+	28, // [28:28] is the sub-list for extension extendee
+	0,  // [0:28] is the sub-list for field type_name
 }
 
 func init() { file_matchmaking_v1_matchmaking_proto_init() }
@@ -1612,15 +1863,16 @@ func file_matchmaking_v1_matchmaking_proto_init() {
 	if File_matchmaking_v1_matchmaking_proto != nil {
 		return
 	}
+	file_matchmaking_v1_matchmaking_proto_msgTypes[8].OneofWrappers = []any{}
 	file_matchmaking_v1_matchmaking_proto_msgTypes[9].OneofWrappers = []any{}
-	file_matchmaking_v1_matchmaking_proto_msgTypes[14].OneofWrappers = []any{}
+	file_matchmaking_v1_matchmaking_proto_msgTypes[17].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_matchmaking_v1_matchmaking_proto_rawDesc), len(file_matchmaking_v1_matchmaking_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   18,
+			NumMessages:   21,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

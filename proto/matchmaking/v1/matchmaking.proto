@@ -12,6 +12,7 @@ service MatchmakingService {
   rpc ListGuildMembers(ListGuildMembersRequest) returns (ListGuildMembersResponse);
   rpc CreateCustomMatch(CreateCustomMatchRequest) returns (CreateCustomMatchResponse);
   rpc ReportMatchResult(ReportMatchResultRequest) returns (ReportMatchResultResponse);
+  rpc ReportPlayerRoundStats(ReportPlayerRoundStatsRequest) returns (ReportPlayerRoundStatsResponse);
   rpc GetMatch(GetMatchRequest) returns (GetMatchResponse);
   rpc ListMatches(ListMatchesRequest) returns (ListMatchesResponse);
   rpc GetMatchByUuid(GetMatchByUuidRequest) returns (GetMatchByUuidResponse);
@@ -96,6 +97,9 @@ message MatchParticipant {
   double mu = 8;
   double phi = 9;
   string platform = 10;
+  optional int32 kills = 11;
+  optional int32 deaths = 12;
+  optional int32 assists = 13;
 }
 
 message Match {
@@ -120,6 +124,26 @@ message ReportMatchResultRequest {
 }
 
 message ReportMatchResultResponse {
+  bool success = 1;
+  Match match = 2;
+  parley.common.v1.Error error = 3;
+}
+
+message PlayerRoundStat {
+  string discord_user_id = 1;
+  int32  kills = 2;
+  int32  deaths = 3;
+  int32  assists = 4;
+}
+
+message ReportPlayerRoundStatsRequest {
+  int32  match_id = 1;
+  parley.common.v1.Game game = 2;
+  repeated PlayerRoundStat stats = 3;
+  string reported_by_discord_user_id = 4;
+}
+
+message ReportPlayerRoundStatsResponse {
   bool success = 1;
   Match match = 2;
   parley.common.v1.Error error = 3;
