@@ -140,6 +140,11 @@ export const messagesEn: Messages = {
       button: "Join the beta",
       note: "Open to every server now. No account required.",
     },
+    midCta: {
+      title: "Balanced teams, before round one.",
+      body: "Add the bot to your server and skip the lobby argument forever.",
+      button: "Join the beta",
+    },
     faq: {
       title: "Questions, answered.",
       subtitle: "Everything you need to know about the Discord beta.",

@@ -85,6 +85,7 @@ export type Messages = {
       steps: { title: string; body: string; detail: string[] }[];
     };
     discordCta: { title: string; body: string; button: string; note: string };
+    midCta: { title: string; body: string; button: string };
     faq: { title: string; subtitle: string; items: { q: string; a: string }[] };
   };
   theme: {
