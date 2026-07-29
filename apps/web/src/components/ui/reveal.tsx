@@ -58,7 +58,24 @@ export function Reveal({
     );
 
     observer.observe(node);
-    return () => observer.disconnect();
+
+    // In bundled/SSR builds the observer can be created before first layout and
+    // report an already-visible element as not intersecting, then never fire
+    // again (nothing scrolls). Reveal anything already in view so content can
+    // never get stuck hidden; below-fold elements still animate on scroll.
+    const revealIfInView = () => {
+      const rect = node.getBoundingClientRect();
+      if (rect.top < window.innerHeight * 0.9 && rect.bottom > 0) {
+        setVisible(true);
+        observer.disconnect();
+      }
+    };
+    const raf = requestAnimationFrame(() => requestAnimationFrame(revealIfInView));
+
+    return () => {
+      cancelAnimationFrame(raf);
+      observer.disconnect();
+    };
   }, []);
 
   const hidden =
