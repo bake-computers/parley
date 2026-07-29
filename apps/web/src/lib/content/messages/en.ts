@@ -43,7 +43,7 @@ export const messagesEn: Messages = {
       titleHighlight: "skill-matched",
       titleAfter: " Rainbow Six Siege.",
       subtitle:
-        "A Discord app that builds balanced teams from real skill and telemetry, then automates scrims and tournaments.",
+        "The Rainbow Six Siege Discord bot for balanced lobbies, scrims, and tournaments, run on real telemetry.",
       ctaDiscord: "Join the beta",
       ctaHow: "See how it works",
       explore: "Explore",
