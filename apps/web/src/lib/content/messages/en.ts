@@ -38,7 +38,6 @@ export const messagesEn: Messages = {
   legal: { lastUpdated: "Last updated:" },
   home: {
     hero: {
-      betaBadge: "Open beta",
       titleBefore: "Fair, ",
       titleHighlight: "skill-matched",
       titleAfter: " Rainbow Six Siege.",

@@ -36,7 +36,6 @@ export type Messages = {
   legal: { lastUpdated: string };
   home: {
     hero: {
-      betaBadge: string;
       titleBefore: string;
       titleHighlight: string;
       titleAfter: string;
