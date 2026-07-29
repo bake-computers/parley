@@ -51,6 +51,13 @@ function Home() {
               <Matchmaking />
             </Suspense>
           </PageSection>
+          <section className="px-4 py-12 md:px-6 md:py-20">
+            <div className="mx-auto w-full max-w-6xl">
+              <Suspense fallback={<SectionSkeleton />}>
+                <DiscordCta variant="band" />
+              </Suspense>
+            </div>
+          </section>
           <PageSection id="experience">
             <Suspense fallback={<SectionSkeleton />}>
               <Experience />

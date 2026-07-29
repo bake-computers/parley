@@ -7,7 +7,7 @@ export const messagesEn: Messages = {
     matchmaking: "Matchmaking",
     experience: "How it works",
     faq: "FAQ",
-    joinDiscord: "Join Discord",
+    joinDiscord: "Join the beta",
     resources: "Resources",
     authorize: "Authorize",
     dashboard: "Dashboard",
@@ -37,12 +37,13 @@ export const messagesEn: Messages = {
   legal: { lastUpdated: "Last updated:" },
   home: {
     hero: {
+      betaBadge: "Open beta",
       titleBefore: "Fair, ",
       titleHighlight: "skill-matched",
       titleAfter: " Rainbow Six Siege.",
       subtitle:
         "A Discord app that builds balanced teams from real skill and telemetry, then automates scrims and tournaments.",
-      ctaDiscord: "Join Discord",
+      ctaDiscord: "Join the beta",
       ctaHow: "See how it works",
       explore: "Explore",
     },
@@ -50,9 +51,6 @@ export const messagesEn: Messages = {
       titleBefore: "The ranked grind is ",
       titleHighlight: "broken by design.",
       subtitle: "Take Siege seriously and public matchmaking fights you every round.",
-      costLabel: "What it costs you",
-      costSuffix: "recurring failures Parley is built to remove before the Discord app launches.",
-      costFootnote: "Match report / public matchmaking",
       symptoms: [
         {
           title: "Lopsided lobbies",
@@ -113,11 +111,11 @@ export const messagesEn: Messages = {
       playersAria: "players",
       balanceScore: "Balance score",
       rebalance: "Rebalance lobby",
-      footnote: "Illustrative preview. Live matchmaking runs inside the Discord app at launch.",
+      footnote: "Illustrative preview. Live matchmaking runs inside the Discord beta.",
     },
     experience: {
       title: "From lobby to trophy, handled for you.",
-      previewNote: "Interactive preview. The Discord app is not live yet.",
+      previewNote: "Interactive preview. The live beta runs inside Discord.",
       steps: [
         {
           title: "Automated team formation",
@@ -137,26 +135,26 @@ export const messagesEn: Messages = {
       ],
     },
     discordCta: {
-      title: "Join the Discord for launch updates.",
-      body: "Parley launches as a Discord app first. Hop into the server to get notified the moment the bot goes live.",
-      button: "Join the Discord",
-      note: "Launch announcements drop in the server first. No account required.",
+      title: "The beta is open.",
+      body: "Parley runs as a Discord app. Join the server, add the bot, and run your first balanced lobby tonight.",
+      button: "Join the beta",
+      note: "Open to every server now. No account required.",
     },
     faq: {
       title: "Questions, answered.",
-      subtitle: "Everything you need to know before the Discord app launches.",
+      subtitle: "Everything you need to know about the Discord beta.",
       items: [
         {
-          q: "Is Parley live yet?",
-          a: "Not yet. Parley is in pre-launch. Join the Discord to be notified the moment the app goes live.",
+          q: "Is Parley live?",
+          a: "Parley is in open beta on Discord. Join the server, add the bot, and it runs for your community tonight.",
         },
         {
-          q: "How will I use Parley at launch?",
-          a: "Parley launches as a Discord app first. Form teams, run scrims, and join tournaments directly through Discord.",
+          q: "How do I use Parley in the beta?",
+          a: "Parley runs as a Discord app. Form teams, run scrims, and join tournaments directly through Discord.",
         },
         {
           q: "Will there be a web app?",
-          a: "Yes. A full web experience is planned after the Discord launch, with backward compatibility for your Discord setup.",
+          a: "Yes. A full web experience is planned after the Discord beta, with backward compatibility for your Discord setup.",
         },
         {
           q: "What makes the matchmaking different?",
@@ -164,7 +162,7 @@ export const messagesEn: Messages = {
         },
         {
           q: "Does it cost anything to join?",
-          a: "No. Joining the Discord is free and only signs you up for launch updates.",
+          a: "No. The beta is free. Add the bot from the Discord server and you're set.",
         },
       ],
     },

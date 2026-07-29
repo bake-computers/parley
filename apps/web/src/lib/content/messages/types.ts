@@ -35,6 +35,7 @@ export type Messages = {
   legal: { lastUpdated: string };
   home: {
     hero: {
+      betaBadge: string;
       titleBefore: string;
       titleHighlight: string;
       titleAfter: string;
@@ -47,9 +48,6 @@ export type Messages = {
       titleBefore: string;
       titleHighlight: string;
       subtitle: string;
-      costLabel: string;
-      costSuffix: string;
-      costFootnote: string;
       symptoms: { title: string; body: string }[];
     };
     story: {
