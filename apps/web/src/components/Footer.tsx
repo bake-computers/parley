@@ -20,59 +20,70 @@ export function SiteFooter() {
     { label: m.footer.terms, path: "terms" },
   ];
 
+  const linkClass =
+    "parley-footer-link text-sm text-muted-foreground transition-colors duration-200 hover:text-foreground";
+
   return (
-    <footer className="px-6 pb-12 pt-8">
-      <Reveal direction="up" className="mx-auto w-full max-w-6xl border-t border-border/30 pt-8">
-        <div className="flex flex-col gap-6">
-          <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+    <footer className="px-6 pb-12 pt-16 md:pt-20">
+      <Reveal direction="up" className="mx-auto w-full max-w-6xl border-t border-border/40 pt-12">
+        <div className="grid gap-10 md:grid-cols-[1.4fr_1fr] md:gap-8">
+          <div className="max-w-sm">
             <div className="flex items-center gap-3">
               <Image
                 src="/parley-logo.svg"
                 alt="Parley logo"
-                width={28}
-                height={28}
-                className="size-7"
+                width={32}
+                height={32}
+                className="size-8"
               />
-              <div>
-                <p className="text-sm font-semibold text-foreground">{m.nav.brand}</p>
-                <p className="text-xs text-muted-foreground">{m.footer.notUbisoft}</p>
-                <p className="text-xs text-muted-foreground">{m.footer.notDiscord}</p>
-                <p className="text-xs text-muted-foreground">{m.footer.projectOf}</p>
-              </div>
+              <span className="text-lg font-semibold tracking-tight text-foreground">
+                {m.nav.brand}
+              </span>
             </div>
+            <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+              {m.footer.notUbisoft}
+              <br />
+              {m.footer.notDiscord}
+            </p>
+          </div>
 
-            <nav className="flex flex-wrap gap-x-5 gap-y-2">
+          <div className="grid grid-cols-2 gap-8 sm:gap-10">
+            <nav aria-label={m.nav.resources} className="flex flex-col gap-3">
+              <span className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground/60">
+                {m.nav.resources}
+              </span>
               <a
                 href="https://docs.parley.bot"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="parley-footer-link text-sm text-muted-foreground transition-colors hover:text-foreground"
+                className={linkClass}
               >
                 {m.footer.docs}
               </a>
+            </nav>
+            <nav aria-label={m.footer.legalGroup} className="flex flex-col gap-3">
+              <span className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground/60">
+                {m.footer.legalGroup}
+              </span>
               {footerLinks.map((link) => (
-                <a
-                  key={link.path}
-                  href={siteHref(link.path)}
-                  className="parley-footer-link text-sm text-muted-foreground transition-colors hover:text-foreground"
-                >
+                <a key={link.path} href={siteHref(link.path)} className={linkClass}>
                   {link.label}
                 </a>
               ))}
             </nav>
           </div>
+        </div>
 
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-t border-border/20 pt-6">
-            <span className="text-xs font-medium text-muted-foreground/70">
-              {m.footer.poweredBy}
-            </span>
+        <div className="mt-12 flex flex-col gap-5 border-t border-border/30 pt-7 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2.5">
+            <span className="text-xs text-muted-foreground/70">{m.footer.poweredBy}</span>
             {poweredBy.map((partner) => (
               <a
                 key={partner.href}
                 href={partner.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="glass-chip inline-flex items-center gap-2 px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                className="glass-chip inline-flex items-center gap-2 px-3 py-1.5 text-sm text-muted-foreground transition-colors duration-200 hover:text-foreground"
               >
                 <img
                   src={partner.icon}
@@ -86,8 +97,13 @@ export function SiteFooter() {
               </a>
             ))}
           </div>
-
-          <p className="text-xs text-muted-foreground/60">© {new Date().getFullYear()} Parley</p>
+          <p className="text-xs text-muted-foreground/60">
+            © {new Date().getFullYear()} {m.nav.brand}
+            <span className="mx-2 text-border" aria-hidden="true">
+              /
+            </span>
+            {m.footer.projectOf}
+          </p>
         </div>
       </Reveal>
     </footer>

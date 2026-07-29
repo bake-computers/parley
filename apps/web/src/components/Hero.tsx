@@ -83,6 +83,10 @@ export function Hero() {
 
       <div className="relative z-10 mx-auto flex min-h-[100dvh] w-full max-w-6xl flex-col justify-end px-6 pb-28 pt-24 md:justify-center md:pb-[20vh]">
         <div className="max-w-2xl">
+          {/* <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/50 px-3.5 py-1.5 text-xs font-medium text-muted-foreground backdrop-blur-sm animate-in fade-in slide-in-from-bottom-4 duration-1000">
+            <span className="size-1.5 rounded-full bg-accent-silver" aria-hidden="true" />
+            {h.betaBadge}
+          </p> */}
           <h1 className="max-w-xl text-balance text-4xl font-semibold leading-[1.08] tracking-tight text-foreground animate-in fade-in slide-in-from-bottom-4 duration-1000 md:text-5xl lg:text-6xl">
             {h.titleBefore}
             <span className="text-accent-silver">{h.titleHighlight}</span>

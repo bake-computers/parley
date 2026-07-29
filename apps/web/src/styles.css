@@ -328,16 +328,6 @@
     animation: parley-line-grow 0.6s ease-out forwards;
   }
 
-  .parley-icon-pop {
-    transition: transform 0.25s ease-out;
-  }
-
-  .group:hover .parley-icon-pop,
-  .group:focus-visible .parley-icon-pop,
-  .parley-icon-pop-active {
-    transform: scale(1.08);
-  }
-
   @keyframes parley-bell-ring {
     0%,
     100% {
@@ -359,6 +349,59 @@
 
   .parley-bell-ring {
     animation: parley-bell-ring 0.8s ease-out 1;
+  }
+
+  .problem-card {
+    --mx: 50%;
+    --my: 0%;
+  }
+
+  .problem-spotlight {
+    background: radial-gradient(
+      420px circle at var(--mx) var(--my),
+      color-mix(in srgb, var(--accent-silver) 13%, transparent),
+      transparent 65%
+    );
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .problem-card {
+      background-image: radial-gradient(
+        130% 90% at 88% -25%,
+        color-mix(in srgb, var(--accent-silver) 7%, transparent),
+        transparent 60%
+      );
+    }
+  }
+
+  @keyframes parley-panel-rail {
+    from {
+      transform: scaleY(0);
+      opacity: 0;
+    }
+    to {
+      transform: scaleY(1);
+      opacity: 1;
+    }
+  }
+
+  .parley-panel-rail {
+    animation: parley-panel-rail 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  @keyframes parley-arrow-nudge {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    50% {
+      transform: translateX(4px);
+    }
+  }
+
+  .group:hover .parley-arrow-nudge,
+  .group:focus-visible .parley-arrow-nudge {
+    animation: parley-arrow-nudge 0.7s ease-in-out infinite;
   }
 
   .parley-nav-link {
@@ -505,9 +548,17 @@
       animation: none;
     }
 
-    .parley-icon-pop,
-    .parley-icon-pop-active {
-      transform: none;
+    .group:hover .parley-arrow-nudge,
+    .group:focus-visible .parley-arrow-nudge {
+      animation: none;
+    }
+
+    .problem-rail {
+      transition: none;
+    }
+
+    .parley-panel-rail {
+      animation: none;
     }
 
     .glass-panel,

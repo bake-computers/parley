@@ -9,7 +9,7 @@ import criticalCss from "../critical.css?raw";
 
 const SITE_TITLE = "Parley | Competitive Matchmaking & Tournaments for Rainbow Six Siege";
 const SITE_DESCRIPTION =
-  "Parley is a competitive matchmaking and tournament platform for Rainbow Six Siege. Skill-and-telemetry-based matchmaking, automated team formation, scrims, and brackets. Discord app first. Join the waitlist.";
+  "Parley is the Rainbow Six Siege Discord bot for fair, skill-matched lobbies, automated scrims, and tournaments. Telemetry-driven matchmaking with Glicko-2 balancing. Open beta.";
 const SITE_URL = "https://parley.bot";
 const OG_IMAGE = "/assets/parley-banner.png";
 const GEIST_SANS = "/assets/fonts/Geist-Variable.woff2";
@@ -22,6 +22,8 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "robots", content: "index, follow, max-image-preview:large" },
+      { rel: "canonical", href: SITE_URL },
       { title: SITE_TITLE },
       { name: "description", content: SITE_DESCRIPTION },
       { property: "og:title", content: SITE_TITLE },

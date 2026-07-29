@@ -20,6 +20,7 @@ export type Messages = {
     privacy: string;
     terms: string;
     docs: string;
+    legalGroup: string;
     poweredBy: string;
     notUbisoft: string;
     notDiscord: string;
@@ -35,6 +36,7 @@ export type Messages = {
   legal: { lastUpdated: string };
   home: {
     hero: {
+      betaBadge: string;
       titleBefore: string;
       titleHighlight: string;
       titleAfter: string;
@@ -47,9 +49,6 @@ export type Messages = {
       titleBefore: string;
       titleHighlight: string;
       subtitle: string;
-      costLabel: string;
-      costSuffix: string;
-      costFootnote: string;
       symptoms: { title: string; body: string }[];
     };
     story: {
@@ -87,6 +86,7 @@ export type Messages = {
       steps: { title: string; body: string; detail: string[] }[];
     };
     discordCta: { title: string; body: string; button: string; note: string };
+    midCta: { title: string; body: string; button: string };
     faq: { title: string; subtitle: string; items: { q: string; a: string }[] };
   };
   theme: {
