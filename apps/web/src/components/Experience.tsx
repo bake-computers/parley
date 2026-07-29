@@ -18,7 +18,9 @@ export function Experience() {
 
   const setPos = (e: React.PointerEvent<HTMLDivElement>) => {
     const node = panelRef.current;
-    if (!node) return;
+    if (!node) {
+      return;
+    }
     const rect = node.getBoundingClientRect();
     node.style.setProperty("--mx", `${e.clientX - rect.left}px`);
     node.style.setProperty("--my", `${e.clientY - rect.top}px`);
@@ -55,7 +57,9 @@ export function Experience() {
                 onClick={() => setActive(index)}
                 className={cn(
                   "group relative shrink-0 overflow-hidden rounded-xl py-3 pl-5 pr-4 text-left transition-colors duration-300 lg:w-full",
-                  isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground",
+                  isActive
+                    ? "text-foreground"
+                    : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 <span
@@ -69,7 +73,9 @@ export function Experience() {
                   <StepIcon
                     className={cn(
                       "size-4 shrink-0 transition-colors duration-300",
-                      isActive ? "text-accent-silver" : "text-muted-foreground/60",
+                      isActive
+                        ? "text-accent-silver"
+                        : "text-muted-foreground/60",
                     )}
                     aria-hidden="true"
                   />
@@ -111,7 +117,6 @@ export function Experience() {
               ))}
             </ul>
           </Reveal>
-          <p className="relative mt-8 text-xs text-muted-foreground/70">{ex.previewNote}</p>
         </div>
       </div>
     </div>

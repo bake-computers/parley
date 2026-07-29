@@ -1,20 +1,24 @@
 "use client";
 
-import type { RefObject } from "react";
-import { ArrowRight, Bell } from "lucide-react";
-import { useInView } from "#/hooks/useInView";
+import { ArrowRight } from "lucide-react";
 import { Reveal } from "#/components/ui/reveal";
 import { useMessages } from "#/lib/content/messages/use-messages";
-import { cn } from "#/lib/shared/cn";
 
-const DISCORD_URL = "https://discord.gg/parley";
+const DISCORD_URL =
+  "https://discord.com/oauth2/authorize?client_id=1495122091165618358&permissions=379968&integration_type=0&scope=bot+applications.commands";
 
 const ctaButton =
   "group inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-foreground px-7 text-sm font-medium text-background transition-all hover:scale-[1.02] hover:bg-foreground/90 active:scale-[0.98]";
 
-const ctaArrow = <ArrowRight className="parley-arrow-nudge size-4" aria-hidden="true" />;
+const ctaArrow = (
+  <ArrowRight className="parley-arrow-nudge size-4" aria-hidden="true" />
+);
 
-export function DiscordCta({ variant = "panel" }: { variant?: "panel" | "band" }) {
+export function DiscordCta({
+  variant = "panel",
+}: {
+  variant?: "panel" | "band";
+}) {
   const m = useMessages();
 
   if (variant === "band") {
@@ -25,9 +29,16 @@ export function DiscordCta({ variant = "panel" }: { variant?: "panel" | "band" }
           <h2 className="text-balance text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
             {c.title}
           </h2>
-          <p className="mt-3 max-w-md text-pretty text-muted-foreground">{c.body}</p>
+          <p className="mt-3 max-w-md text-pretty text-muted-foreground">
+            {c.body}
+          </p>
         </div>
-        <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer" className={ctaButton}>
+        <a
+          href={DISCORD_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={ctaButton}
+        >
           {c.button}
           {ctaArrow}
         </a>
@@ -56,31 +67,17 @@ export function DiscordCta({ variant = "panel" }: { variant?: "panel" | "band" }
           </p>
         </div>
         <div className="flex flex-col gap-5 md:items-end">
-          <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer" className={ctaButton}>
+          <a
+            href={DISCORD_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={ctaButton}
+          >
             {c.button}
             {ctaArrow}
           </a>
-          <NoteCard>{c.note}</NoteCard>
         </div>
       </div>
     </Reveal>
-  );
-}
-
-function NoteCard({ children }: { children: React.ReactNode }) {
-  const { ref, inView } = useInView();
-  return (
-    <div
-      ref={ref as RefObject<HTMLDivElement>}
-      className={cn(
-        "flex items-center gap-2.5 rounded-2xl bg-muted/40 px-4 py-3 md:max-w-xs",
-      )}
-    >
-      <Bell
-        className={cn("size-4 shrink-0 text-accent-silver", inView && "parley-bell-ring")}
-        aria-hidden="true"
-      />
-      <p className="text-sm text-muted-foreground">{children}</p>
-    </div>
   );
 }

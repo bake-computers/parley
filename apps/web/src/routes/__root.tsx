@@ -7,7 +7,8 @@ import appCss from "../styles.css?url";
 
 import criticalCss from "../critical.css?raw";
 
-const SITE_TITLE = "Parley | Competitive Matchmaking & Tournaments for Rainbow Six Siege";
+const SITE_TITLE =
+  "Parley — Competitive Matchmaking & Tournaments for Rainbow Six Siege";
 const SITE_DESCRIPTION =
   "Parley is the Rainbow Six Siege Discord bot for fair, skill-matched lobbies, automated scrims, and tournaments. Telemetry-driven matchmaking with Glicko-2 balancing. Open beta.";
 const SITE_URL = "https://parley.bot";
@@ -38,14 +39,37 @@ export const Route = createRootRoute({
       { name: "twitter:title", content: SITE_TITLE },
       { name: "twitter:description", content: SITE_DESCRIPTION },
       { name: "twitter:image", content: OG_IMAGE },
+      { name: "twitter:url", content: SITE_URL },
     ],
     links: [
       { rel: "icon", href: "/favicon.ico", sizes: "48x48" },
-      { rel: "icon", type: "image/png", sizes: "32x32", href: "/favicon-32x32.png" },
-      { rel: "icon", type: "image/png", sizes: "16x16", href: "/favicon-16x16.png" },
-      { rel: "apple-touch-icon", sizes: "180x180", href: "/apple-icon-180x180.png" },
-      { rel: "apple-touch-icon", sizes: "152x152", href: "/apple-icon-152x152.png" },
-      { rel: "apple-touch-icon", sizes: "120x120", href: "/apple-icon-120x120.png" },
+      {
+        rel: "icon",
+        type: "image/png",
+        sizes: "32x32",
+        href: "/favicon-32x32.png",
+      },
+      {
+        rel: "icon",
+        type: "image/png",
+        sizes: "16x16",
+        href: "/favicon-16x16.png",
+      },
+      {
+        rel: "apple-touch-icon",
+        sizes: "180x180",
+        href: "/apple-icon-180x180.png",
+      },
+      {
+        rel: "apple-touch-icon",
+        sizes: "152x152",
+        href: "/apple-icon-152x152.png",
+      },
+      {
+        rel: "apple-touch-icon",
+        sizes: "120x120",
+        href: "/apple-icon-120x120.png",
+      },
       { rel: "manifest", href: "/manifest.json" },
     ],
   }),
@@ -58,7 +82,13 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
         <style dangerouslySetInnerHTML={{ __html: criticalCss }} />
-        <link rel="preload" href={GEIST_SANS} as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link
+          rel="preload"
+          href={GEIST_SANS}
+          as="font"
+          type="font/woff2"
+          crossOrigin="anonymous"
+        />
         <link
           rel="preload"
           href={HERO_PRELOAD}

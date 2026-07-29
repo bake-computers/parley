@@ -111,11 +111,9 @@ export const messagesEn: Messages = {
       playersAria: "players",
       balanceScore: "Balance score",
       rebalance: "Rebalance lobby",
-      footnote: "Illustrative preview. Live matchmaking runs inside the Discord beta.",
     },
     experience: {
       title: "From lobby to trophy, handled for you.",
-      previewNote: "Interactive preview. The live beta runs inside Discord.",
       steps: [
         {
           title: "Automated team formation",
@@ -138,7 +136,6 @@ export const messagesEn: Messages = {
       title: "The beta is open.",
       body: "Parley runs as a Discord app. Join the server, add the bot, and run your first balanced lobby tonight.",
       button: "Join the beta",
-      note: "Open to every server now. No account required.",
     },
     midCta: {
       title: "Balanced teams, before round one.",
