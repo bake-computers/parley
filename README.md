@@ -1,403 +1,311 @@
 # Parley
 
+**A technical overview of Parley's competitive matchmaking system.**
+Parley Systems · 2026
+
+Parley runs competitive matchmaking and tournaments for Discord communities.
+It links Discord identities to in-game accounts, ingests ranked-season
+telemetry, scores every player with a learned model, and assembles balanced
+lobbies from the result. A Go engine owns the domain and the database;
+stateless TypeScript applications on Cloudflare Workers provide the Discord
+bot and the web surface; a shared protobuf contract sits between them.
+
+This document describes the system as it is built today, with emphasis on
+OVI, the matchmaking model at its center.
+
 ## Abstract
 
-Parley is a competitive matchmaking and tournament platform for Discord communities. It links Discord identities to in-game player profiles, ingests performance telemetry from external stat providers, and uses a skill-rating engine to assemble balanced teams and operate bracket tournaments. The system is implemented as a polyglot monorepo: a Go engine-service owns domain logic and persistence, while TypeScript applications on Cloudflare Workers provide the Discord bot and public web presence. A shared Protocol Buffers contract defines the service boundary between the edge and the engine, enabling independent deployment, strict typing, and consistent evolution across languages.
+Community-run competitive play is degraded less by a lack of features than by
+a lack of measurement. Lobbies are balanced by reputation, rankings freeze
+between seasons, and tournament administration lives outside the tools
+players already use. Parley treats matchmaking as a measurement problem: link
+identities authoritatively, fetch current-season telemetry from upstream
+providers, reduce each player to six playstyle signals, and score them with a
+model small enough to be audited by hand. That model — OVI — is a single
+linear regressor served from object storage. Its entire serving stack is a
+strict validator and a dot product. On top of these scores, an exhaustive
+role-aware partitioner builds teams, and a Glicko-2 layer carries persistent
+ratings forward across matches. The surrounding platform (identity, stats
+pipeline, tournaments, Discord and web edges) exists to keep those numbers
+honest and to put them in front of players where they already are.
 
----
+## 1. Introduction
 
-## 1. Problem Statement
+A Discord community that plays competitively eventually builds the same
+machinery by hand: a spreadsheet of ranks, an admin who knows everyone's
+skill, a bracket drawn in a chat message. Each of these degrades in the same
+way. The spreadsheet goes stale the day a new season starts. The admin's
+estimates lag real form by weeks. The bracket is someone's unpaid labor.
 
-Competitive gaming communities on Discord face a recurring set of operational failures:
+Tracker sites do not fix this. They report statistics; they do not act on
+them. A player's K/D is visible everywhere, and yet the lobby they get placed
+into tonight is still decided by who happened to react to a message first.
 
-- **Manual team balancing** relies on subjective rank estimates and produces lopsided lobbies.
-- **Identity fragmentation** separates Discord users from their actual in-game accounts across platforms.
-- **Tournament administration** demands bracket management, roster tracking, and result reporting outside the tools players already use.
-- **Stale performance data** decouples matchmaking from how players are actually performing in the current season.
+Parley's position is that the missing piece is not display but modeling. The
+data exists upstream. What is missing is a system that fetches it on
+authority — the player *is* this account, verified by a link — reduces it to
+an honest estimate of current ability, and spends that estimate on the
+matchmaking and tournament decisions a community otherwise does by feel.
 
-Parley addresses these failures by centralizing identity resolution, telemetry ingestion, skill modeling, and match lifecycle management behind a single engine, exposed to Discord and the web through a thin, stateless edge layer.
+Three consequences follow from that position, and they shape everything else
+in this document:
 
----
+1. **Telemetry quality is the product.** A score computed from stale or
+   partial data is worse than no score, because it is trusted. Parley refuses
+   to rank players whose telemetry fails validation rather than guessing.
+2. **The model must be legible.** A matchmaking model decides who plays with
+   whom; players deserve a system its operators can fully explain. We
+   therefore ship the smallest model that does the job, and no larger.
+3. **The engine owns the truth.** Edge applications are disposable and
+   stateless. Every authoritative fact — links, ratings, match records,
+   brackets — lives in one Postgres database behind one Go service.
 
-## 2. Solution Overview
+## 2. OVI: the matchmaking model
 
-Parley delivers three primary capabilities:
+OVI is the system's estimate of a player's current contribution to a team,
+derived from current-season play. It is the input to team selection and the
+single most important number in the platform. This section describes what it
+is, how it is fed, and why its implementation is as small as it is.
 
-1. **Account linking** — A Discord user may link exactly one Rainbow Six Siege profile. Links are authoritative for all downstream matchmaking and stats lookups.
+### 2.1 A model is seven numbers
 
-2. **Telemetry-driven matchmaking** — The engine fetches ranked-season statistics from upstream providers, normalizes them into a Composite Performance Rating (CPR), and applies Glicko-2 team-balancing heuristics to minimize expected skill gaps across both sides of a lobby.
+An OVI model is six coefficients and an intercept. Scoring a player is a dot
+product plus an addition. There is no feature store at inference time, no
+graph executor, no accelerator, no model server process. The engine holds the
+seven `float64`s in memory and evaluates them in a loop that a reader can
+verify in ten seconds.
 
-3. **Structured competition** — Custom matches and single-elimination tournaments share a common match record model. Guild administrators configure matchmaking rules and quotas per game.
+This is the central bet of the system, and it is a deliberate one: for the
+question Parley asks — *relative to this lobby pool, how strong is this
+player right now* — a linear function over well-chosen signals is sufficient,
+and every parameter of complexity beyond linearity is a parameter of
+opacity. Seven numbers can be printed in a log, diffed between releases, and
+argued with. A gradient-boosted forest cannot. When the data eventually
+demands more expressiveness, the contract below is designed so that the model
+grows without the serving path changing; until then, we take the legibility.
 
-The platform is **Discord-first**: the primary interaction surface is a Cloudflare Worker hosting the bot. A TanStack Start web application provides marketing, legal pages, and a player dashboard. Both edge applications communicate with the engine exclusively through ConnectRPC over HTTP.
+### 2.2 The narrow ONNX contract
 
----
+Models are exchanged in ONNX so that training stays a completely separate
+concern from serving — any toolchain that can emit ONNX can produce a Parley
+model. But Parley does not embed an ONNX runtime. Instead it accepts exactly
+one shape of graph and rejects everything else at load time:
 
-## 3. Architectural Principles
+- precisely one node, op `LinearRegressor` in domain `ai.onnx.ml`, with
+  `post_transform = NONE`;
+- one input tensor named `playstyle_features`, rank 2, final dimension 6;
+- one output tensor named `variable`, final dimension 1;
+- exactly six finite coefficients and one finite intercept.
 
-| Principle                                | Rationale                                                                                                                                       |
-| ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Single source of truth for contracts** | All RPC messages and service definitions live in `proto/`. Go and TypeScript clients are generated via `buf`; the engine consumes `gen/parley`. |
-| **Engine owns state**                    | Postgres is the system of record. The engine keeps an in-process snapshot cache for stats reads. Edge workers remain fully stateless.           |
-| **Game-scoped multi-tenancy**            | Every domain table carries a `game` discriminator (`r6`). Composite unique indexes include `game` for forward-compatible schema evolution.      |
-| **Required data plane**                  | Engine boot requires `DATABASE_URL` (Postgres). Missing it fails startup.                                                                       |
-| **Edge locality**                        | Discord interactions and web traffic terminate at Cloudflare Workers globally. Only RPC calls to the engine cross into the origin network.      |
+The parser is hand-rolled against the protobuf wire format — a few hundred
+lines with no third-party dependency — and it fails closed. A graph with an
+extra node, a renamed tensor, or a non-finite weight does not load, and the
+engine does not boot with a model it cannot fully validate. The blob is
+capped at 1 MiB (a conforming model measures in the low hundreds of bytes),
+and its SHA-256 is logged at startup alongside the storage ETag, so the exact
+model serving in production is a matter of record.
 
----
+The result is that "ML infrastructure" collapses into an object download and
+a validator. There is nothing to page on, nothing to scale, and nothing
+between the model and the arithmetic that uses it.
 
-## 4. System Topology
+### 2.3 Six playstyle signals
 
-Parley divides into four logical tiers:
+The model's quality lives in its features, and Parley takes some care here.
+Each player's current snapshot is reduced to six signals:
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  Clients                                                        │
-│  Discord users · Web browsers                                   │
-└────────────────────────────┬────────────────────────────────────┘
-                             │
-┌────────────────────────────▼────────────────────────────────────┐
-│  Edge (Cloudflare Workers)                                      │
-│  Discord Worker · Web App                                   │
-└────────────────────────────┬────────────────────────────────────┘
-                             │ ConnectRPC / HTTP
-┌────────────────────────────▼────────────────────────────────────┐
-│  Engine (Go / Fiber + connect-go)                               │
-│  ConnectRPC handlers · Matchmaking engine · Stats pipeline      │
-└────────────┬────────────────────────────────────────────────────┘
-             │
-┌────────────▼──────────┐
-│  Postgres             │
-│  pgx + Bun ORM        │
-└───────────────────────┘
-             │
-┌────────────▼──────────────────────────────────────────────────┐
-│  External providers                                           │
-│  stats.cc · Discord API                                       │
-└───────────────────────────────────────────────────────────────┘
-```
+| # | Signal      | Construction                                                                 |
+| - | ----------- | ---------------------------------------------------------------------------- |
+| 1 | Fragging    | K/D, blended between the season aggregate and a round-level rollup           |
+| 2 | Entry       | opening-kill rounds ÷ (opening-kill + opening-death rounds)                  |
+| 3 | Trading     | traded rounds ÷ deaths                                                       |
+| 4 | Clutching   | (1v1 + 2·1v2 + 3·1v3 wins) ÷ rounds played                                   |
+| 5 | Execution   | headshot percentage, blended with headshot-only rounds per round             |
+| 6 | Winning     | win rate                                                                     |
 
----
+Two notes on construction. First, signals 1 and 5 are *blended*: for players
+with few current-season matches the round-level rollup dominates, and the
+season aggregate takes over as matches accrue (fully weighted at 20 games).
+This keeps a player who has played three matches this season from being
+defined by them. Second, every input is derived from telemetry that must be
+present and finite — if any underlying counter is missing from the snapshot
+metadata, Parley declines to score the player at all. Earlier versions of
+this pipeline scored missing data as zero and silently mis-ranked players as
+a result; the current design fails loudly instead.
 
-## 5. Component Reference
+Features 2–5 double as a role profile: normalized, they describe whether a
+player's contribution comes from entrying, trading, clutching, or executing.
+The model scores strength; the same signals, read sideways, describe shape.
 
-### 5.1 Protocol Contract (`proto/`)
+### 2.4 Role-aware team partitioning
 
-Protobuf definitions are the canonical API surface. Six services are defined:
+Team selection minimizes, over every valid split of the lobby,
 
-| Service                | Responsibility                                                  |
-| ---------------------- | --------------------------------------------------------------- |
-| `IdentityService`      | Link, unlink, and resolve Discord-to-player mappings            |
-| `StatsService`         | Fetch single-season or full-season-collection player statistics |
-| `GuildSettingsService` | Per-guild configuration: settings, matchmaking rules, quotas    |
-| `UserSettingsService`  | Per-user preferences within a guild context                     |
-| `MatchmakingService`   | Team building, custom matches, result reporting                 |
-| `TournamentService`    | Tournament creation, registration, bracket progression          |
+    |strength(A) − strength(B)| + α·roleΔ + β·roleCollision
 
-Shared types (`Game`, `Rank`, `PlayerStats`, `Badge`, `Region`, `Language`) reside in `common/v1/types.proto`.
+where team strength is the sum of its players' clamped model scores, `roleΔ`
+is the divergence of the two teams' aggregate role profiles, and
+`roleCollision` penalizes stacking redundant roles onto one side. `α` and `β`
+are per-guild configuration, so a community can decide for itself how much it
+cares about composition versus raw balance. The search is exhaustive over
+combinations and ties break lexicographically — balance first, then roles —
+so the partition returned is a genuine optimum of the stated objective, not a
+heuristic approximation of one.
 
-### 5.2 Engine Service (`cmd/parley`, `internal/`)
+Ratings ride alongside: every player carries a persistent Glicko-2 rating
+(μ, φ), and match results update it with an outcome modulated by how the
+player's score compared to the lobby's expected level. OVI decides tonight's
+teams; Glicko-2 remembers how tonight went.
 
-The `parley` binary is a Go HTTP server (Fiber + connect-go) exposing ConnectRPC endpoints. Internal packages include:
+### 2.5 Deployment is an object upload
 
-- **Handlers** — One module per protobuf service; Connect-RPC handlers invoke services and repositories.
-- **Matchmaking engine** — Pure-logic CPR and Glicko-2 team balancer with eligibility checks and custom-match creation.
-- **Tournament engine** — Bracket generation, seeding, and progression logic.
-- **Stats pipeline** — R6 stats flow through an in-process snapshot cache to the stats.cc API, map into domain types, and are persisted to Postgres asynchronously.
-- **Database layer** — Bun ORM over pgxpool, embedded SQL migrations, and repository modules for players, identities, matches, tournaments, and guild configuration.
+A new model is trained offline, exported to the narrow ONNX contract, and
+uploaded to an R2 bucket. The engine fetches it at startup by its bucket and
+key, validates it, hashes it, and serves. There is no model registry, no
+canary deployment machinery, no version skew: the configuration names a key,
+the key names a model, and the startup log names its hash. Rolling forward
+and rolling back are the same operation — put an object, restart the
+process — which is as much model-deployment ceremony as seven numbers
+warrant.
 
-### 5.3 Edge Applications
+### 2.6 What we did not build
 
-| Application   | Runtime                      | Role                                                                   |
-| ------------- | ---------------------------- | ---------------------------------------------------------------------- |
-| `apps/worker` | Cloudflare Worker (Hono)     | Discord bot: slash commands, interaction verification, embed rendering |
-| `apps/web`    | TanStack Start on Cloudflare | Public website, dashboard, legal pages                                 |
+For the record: no embedding service, no feature store, no online training,
+no GPU path, no model-version table. Each was considered and each would have
+answered a question the system does not have. The day a second game or a
+non-linear model arrives, the narrow contract is the seam: widen the feature
+dimension or the accepted op set, and nothing downstream of `Score` changes.
 
-The Discord Worker uses `@parley/runtime` — a type-safe wrapper over Discord's API for Embeds and Components v2 — and `@parley/proto` ConnectRPC clients to call the engine.
+## 3. System architecture
 
-### 5.4 Shared TypeScript Packages
-
-| Package                 | Purpose                                                           |
-| ----------------------- | ----------------------------------------------------------------- |
-| `@parley/proto`         | Buf-generated message types and Connect service descriptors       |
-| `@parley/runtime`       | Discord interaction framework, embed builders, component builders |
-| `@parley/axiom`         | Structured logging middleware shared across Workers               |
-| `@parley/tsconfig-base` | Strict TypeScript compiler defaults for all workspaces            |
-
-### 5.5 Data Stores
-
-**Postgres** holds all durable domain state: players, discord identities, guild memberships, match records, tournament brackets, stat snapshots, and configuration rows. Migrations live in `/migrations` and are applied via Bun migrate when `RUN_MIGRATIONS=1`.
-
----
-
-## 6. Matchmaking Engine
-
-The matchmaking subsystem is implemented as pure Go with no I/O dependencies in the core algorithms, making it fully unit-testable.
-
-1. **Eligibility** — Players must be linked, meet guild-configured rank gates, and satisfy quota limits. Per-user opt-out is respected.
-2. **Signal extraction** — Raw stats (K/D, win rate, KPR, KOST, headshot percentage, survival rate, MMR) are z-score normalized against population samples drawn from the guild roster.
-3. **CPR computation** — Normalized signals combine into a Composite Performance Rating used for team assignment and win-probability estimation.
-4. **Glicko-2 balancing** — Team permutations are evaluated to minimize the balance gap and expected lobby CPR while respecting team-size constraints.
-5. **Match lifecycle** — `BuildTeams` assembles balanced sides from a guild's eligible roster. `CreateCustomMatch` records ad-hoc games. `ReportMatchResult` writes outcomes and triggers Glicko-2 rating updates.
-
----
-
-## 7. Request Lifecycle
-
-A typical Discord slash command (e.g., `/link`) follows this path:
-
-1. Discord delivers an interaction payload to the Worker.
-2. The Worker verifies the Ed25519 signature, dispatches to the registered command handler.
-3. The handler constructs a ConnectRPC request and POSTs it to the engine's `IdentityService`.
-4. The engine handler validates input, writes to Postgres via Bun repositories, and returns a typed response.
-5. The Worker renders the result as a Discord embed via `@parley/runtime` builders and responds to the interaction.
-
-Team-building and custom-match flows follow the same path through the Worker to `MatchmakingService`: `BuildTeams` runs the CPR/Glicko-2 balancer against the guild's eligible roster, while `CreateCustomMatch` records an ad-hoc game. Both persist the match and participants to Postgres before returning.
-
----
-
-## 8. Deployment
-
-Infrastructure is provisioned with **Wrangler**. Each app owns its `wrangler.jsonc` (bindings, routes, observability, secrets), and `bun run deploy` fans out `wrangler deploy` across both via Turbo:
-
-| Worker         | Config                       | Domain           |
-| -------------- | ---------------------------- | ---------------- |
-| Discord Worker | `apps/worker/wrangler.jsonc` | `app.parley.bot` |
-| Web App        | `apps/web/wrangler.jsonc`    | `parley.bot`     |
-
-Local secrets live in each app's `.dev.vars` (gitignored); production secrets are managed with `wrangler secret put <NAME>` (run from the app directory).
-
-The engine-service runs as a standalone process (default listen address `0.0.0.0:50051`) on origin infrastructure with `DATABASE_URL`. Workers receive `ENGINE_SERVICE_URL` as a binding.
-
-Observability is unified through Axiom: engine-service and Workers both emit structured logs to a shared dataset when `AXIOM_TOKEN` is configured.
-
----
-
-## 9. Architecture Diagram
-
-The diagram below represents Parley at the service and subsystem level. Individual HTTP paths and RPC method names are omitted; arrows denote dependency and data flow between components.
+Parley divides into four tiers. Only the engine touches the database; only
+`proto/` defines the wire.
 
 ```mermaid
 flowchart TB
-    subgraph clients["Client Layer"]
-        discord_users["Discord Users"]
-        web_users["Web Browsers"]
+    clients["Discord users · Web browsers"]
+
+    subgraph edge["Edge · Cloudflare Workers — stateless, global"]
+        bot["Discord bot (Hono)<br/>app.parley.bot"]
+        web["Web (TanStack Start)<br/>parley.bot · docs.parley.bot"]
     end
 
-    subgraph discord_platform["Discord Platform"]
-        discord_api["Discord API"]
+    subgraph engine["Engine · Go (Fiber v3 + connect-go) — all domain logic"]
+        rpc["RPC handlers"]
+        mm["OVI matchmaking · Glicko-2"]
+        stats["Stats pipeline + snapshot cache"]
+        tourney["Tournaments"]
     end
 
-    subgraph edge["Edge Layer — Cloudflare Workers"]
-        subgraph discord_worker["Discord Worker"]
-            hono_worker["Hono HTTP Server"]
-            parley_client["ParleyClient"]
-            slash_handlers["Slash Command Handlers"]
-            embed_renderer["Embed and Component Renderer"]
-        end
+    db[("Postgres<br/>pgx + Bun, embedded migrations")]
+    ext["External: stats.cc · Discord API · R2 (model storage)"]
 
-        subgraph web_app["Web Application"]
-            tanstack_start["TanStack Start SSR"]
-            dashboard_ui["Dashboard UI"]
-        end
-
-        axiom_edge["Axiom Logging Middleware"]
-    end
-
-    subgraph shared_ts["Shared TypeScript Packages"]
-        proto_ts["@parley/proto"]
-        runtime_pkg["@parley/runtime"]
-        axiom_pkg["@parley/axiom"]
-    end
-
-    subgraph engine["Engine Layer — Go parley Binary"]
-        fiber_server["Fiber v3 HTTP Server"]
-        connect_rpc["ConnectRPC (connect-go)"]
-
-        subgraph rpc_services["RPC Service Handlers"]
-            identity_svc["IdentityService"]
-            stats_svc["StatsService"]
-            guild_svc["GuildSettingsService"]
-            user_svc["UserSettingsService"]
-            match_svc["MatchmakingService"]
-            tournament_svc["TournamentService"]
-        end
-
-        subgraph domain_logic["Domain Subsystems"]
-            matchmaking_engine["Matchmaking Engine\nCPR and Glicko-2 Balancer"]
-            tournament_engine["Tournament Engine\nBracket and Seeding"]
-            snapshot_cache["Snapshot Cache Store"]
-            stats_api["stats.cc API Client"]
-            stats_persister["Stats Persister"]
-        end
-
-        subgraph data_access["Data Access Layer"]
-            bun_repos["Bun Repositories"]
-            pgx_pool["pgx Pool"]
-        end
-
-        axiom_engine["slog + Axiom"]
-    end
-
-    subgraph persistence["Persistence Layer"]
-        postgres["PostgreSQL"]
-    end
-
-    subgraph external["External Providers"]
-        stats_cc["stats.cc"]
-    end
-
-    subgraph contract["Contract Layer"]
-        proto_defs["Protocol Buffers\nproto/"]
-        buf_gen["Buf Code Generation"]
-    end
-
-    discord_users -->|"interactions"| discord_api
-    discord_api -->|"webhook"| hono_worker
-    web_users -->|"HTTPS"| tanstack_start
-
-    hono_worker --> parley_client
-    parley_client --> slash_handlers
-    slash_handlers --> embed_renderer
-    embed_renderer -->|"responses"| discord_api
-
-    parley_client --> runtime_pkg
-    parley_client --> proto_ts
-    hono_worker --> axiom_edge
-    axiom_edge --> axiom_pkg
-
-    tanstack_start --> dashboard_ui
-
-    parley_client -->|"ConnectRPC"| connect_rpc
-
-    fiber_server --> connect_rpc
-    connect_rpc --> identity_svc
-    connect_rpc --> stats_svc
-    connect_rpc --> guild_svc
-    connect_rpc --> user_svc
-    connect_rpc --> match_svc
-    connect_rpc --> tournament_svc
-
-    identity_svc --> bun_repos
-    guild_svc --> bun_repos
-    user_svc --> bun_repos
-    match_svc --> matchmaking_engine
-    match_svc --> bun_repos
-    tournament_svc --> tournament_engine
-    tournament_svc --> bun_repos
-    stats_svc --> snapshot_cache
-    tournament_engine --> bun_repos
-
-    snapshot_cache --> stats_api
-    stats_api --> stats_cc
-    stats_persister --> bun_repos
-
-    bun_repos --> pgx_pool
-    pgx_pool --> postgres
-
-    proto_defs --> buf_gen
-    buf_gen --> proto_ts
-    proto_defs -->|"buf generate"| connect_rpc
-
-    fiber_server --> axiom_engine
+    clients --> edge
+    edge -->|"ConnectRPC / HTTP"| engine
+    engine --> db
+    engine --> ext
 ```
 
----
+**The contract.** Every RPC and message is defined in `proto/` and generated
+by `buf` into both Go (`gen/parley`) and TypeScript
+(`packages/generated-ts`). The engine and the edges never share a struct;
+they share a schema, and it is wire-compatible or it does not merge.
 
-## 10. Data Model Summary
+**A request, end to end.** Discord posts a signed interaction to the Worker;
+the Worker verifies the Ed25519 signature and dispatches to a command
+handler; the handler calls the engine over ConnectRPC (`/link` →
+`IdentityService`, team build → `MatchmakingService`); the engine validates,
+reads and writes through its repositories, returns a typed response; the
+Worker renders it as an embed via `@parley/runtime`. The edge holds nothing
+between requests.
 
-The Postgres schema is organized around game-scoped entities:
+**The stats pipeline.** Player statistics flow from stats.cc through an
+in-process snapshot cache into domain types, and are persisted to Postgres
+asynchronously. Reads are served from the cache; history accumulates in the
+database. The snapshot metadata carries the round-level counters OVI's
+features are built from — the pipeline's job, ultimately, is to keep that
+telemetry current enough to score.
 
-- **Identity** — `players`, `discord_identities`, `guild_memberships`
-- **Performance** — `player_stat_snapshots`, `external_match_history`
-- **Matchmaking** — `matches`, `match_participants`
-- **Tournaments** — `tournaments`, `tournament_teams`, `bracket_matches`
-- **Configuration** — `guild_settings`, `guild_matchmaking_rules`, `guild_match_quotas`, `user_settings`
+## 4. The engine service
 
-Domain timestamps use `bigint` epoch milliseconds. Auth-adjacent tables (managed by better-auth conventions) use `timestamptz`.
+The `parley` binary (Fiber v3 + connect-go) exposes six services:
 
----
+| Service                | Responsibility                                              |
+| ---------------------- | ----------------------------------------------------------- |
+| `IdentityService`      | Link, unlink, and resolve Discord-to-player mappings        |
+| `StatsService`         | Single-season and full-collection player statistics         |
+| `GuildSettingsService` | Per-guild settings, matchmaking rules, quotas               |
+| `UserSettingsService`  | Per-user preferences within a guild                         |
+| `MatchmakingService`   | OVI team building, custom matches, result reporting         |
+| `TournamentService`    | Creation, registration, single-elimination bracket play     |
 
-## 11. Supported Games
+Custom matches and tournaments share one match-record model, so a ranked
+night and a bracket run through the same lifecycle. Eligibility — link
+required, guild rank gates, quotas, per-user opt-out, minimum current-season
+matches — is enforced before a player is ever scored.
 
-| Game              | Proto enum | Stats source | Matchmaking     |
-| ----------------- | ---------- | ------------ | --------------- |
-| Rainbow Six Siege | `GAME_R6`  | stats.cc API | Full CPR engine |
+Postgres is the system of record for identities, snapshots, matches,
+tournaments, and configuration. All domain tables are scoped by a `games`
+enum (`r6` today) with composite uniqueness including the game, so adding a
+title is a migration, not a rewrite. Domain timestamps are `bigint` epoch
+milliseconds. The engine fails fast at boot without `DATABASE_URL`, and
+migrations are embedded and applied in-process when `RUN_MIGRATIONS=1`.
 
-Adding a stats-enabled title requires a Postgres migration (`ALTER TYPE games ADD VALUE`), a provider/client and API mapping, and a proto enum extension. The currently R6-only cache and service boundary must be generalized when a second stats source is introduced.
+## 5. Operations
 
----
+| Component        | Runtime                    | Domain           |
+| ---------------- | -------------------------- | ---------------- |
+| Discord Worker   | Cloudflare Worker (Hono)   | `app.parley.bot` |
+| Web              | TanStack Start, Cloudflare | `parley.bot`     |
+| Docs             | Static (Astro), Cloudflare | `docs.parley.bot`|
+| Engine           | Container image, `ghcr.io` | origin, `:50051` |
 
-## 12. Local Development
+Workers deploy via Wrangler (per-app `wrangler.jsonc`, secrets via
+`wrangler secret put`). The engine image is built by CI from `main` on engine
+path changes and pushed to GHCR; runtime rollout is outside CI. When
+`AXIOM_TOKEN` is set, engine and edges emit structured logs to a shared Axiom
+dataset.
+
+## 6. Development
 
 ```bash
-# Install TypeScript dependencies
-bun install
-
-# Copy environment template
-cp .env.example .env
-
-# Generate protobuf (Go + TypeScript) and build engine
-make proto
-make build
-
-# Run engine-service (requires DATABASE_URL for full functionality)
-make run
-
-# Start all Cloudflare Workers and web dev servers
-bun run dev
+bun install                 # workspace dependencies
+cp .env.example .env        # DATABASE_URL required to boot the engine
+make proto && make build    # regenerate clients, build the engine
+RUN_MIGRATIONS=1 make run   # boot with boot-time migrations
+bun run dev                 # edge dev servers
 ```
 
-| Command                      | Scope                                        |
-| ---------------------------- | -------------------------------------------- |
-| `make test`                  | Go unit tests (`go test ./...`)              |
-| `make test-integration`      | Go integration tests (Docker/testcontainers) |
-| `make fmt` / `make vet`      | Go format and vet                            |
-| `make lint`                  | golangci-lint (when installed)               |
-| `bun run typecheck`          | TypeScript strict checking                   |
-| `bun run lint`               | Oxlint across workspaces                     |
-| `make fmt && bun run format` | Format Go and TypeScript                     |
+| Task                    | Command                                |
+| ----------------------- | -------------------------------------- |
+| Go unit tests           | `make test`                            |
+| Go integration tests    | `make test-integration` (Docker)       |
+| TypeScript typecheck    | `bun run typecheck`                    |
+| Lint (Go / TS)          | `make lint` / `bun run lint`           |
+| Format (Go / TS)        | `make fmt` / `bun run format`          |
+| Regenerate protobuf     | `make proto`                           |
 
-Generate protobuf after modifying `.proto` files:
+Contributor conventions — code style, testing expectations, migration rules,
+PR checklist — live in [`AGENTS.md`](AGENTS.md). Protocol notes live in
+`proto/` comments; user-facing docs live in `apps/docs`.
 
-```bash
-make proto
-# TypeScript clients also land in packages/generated-ts via the same buf.gen.yaml
-cd packages/generated-ts && bun run generate   # if you only need TS refresh
-```
-
-Production engine binary (Linux amd64, static):
-
-```bash
-CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o parley ./cmd/parley
-```
-
-Deploy uses the same bare-metal flow: GitHub Actions builds the Go binary, `scp` to the host, and `deploy.sh` activates the release. See `deploy/systemd/parley.service` for the systemd unit template.
-
----
-
-## 13. Repository Layout
+## Appendix A. Repository layout
 
 ```
-parley/
-├── proto/                  Protocol Buffer definitions (source of truth)
-├── cmd/parley/             Go engine entrypoint
-├── internal/               Go domain logic, handlers, repos
-├── gen/parley/             buf-generated Go protobuf + connect
-├── migrations/             Postgres SQL migrations
-├── apps/
-│   ├── worker/             Discord bot Worker
-│   └── web/            TanStack Start web application
-├── packages/
-│   ├── generated-ts/       @parley/proto — generated clients
-│   ├── runtime/            @parley/runtime — Discord framework
-│   ├── axiom/              @parley/axiom — logging middleware
-│   └── tsconfig-base/      Shared TypeScript config
-├── apps/                   Cloudflare Workers, each with its own wrangler.jsonc
-└── AGENTS.md               Contributor and agent reference
+proto/                  Protobuf definitions — the wire contract
+cmd/parley/             Engine entrypoint
+internal/               Domain logic: matchmaking (OVI, Glicko-2), stats,
+                        services, repos, tournament brackets
+gen/parley/             buf-generated Go (do not edit)
+migrations/             Postgres SQL migrations
+apps/worker/            Discord bot Worker
+apps/web/               TanStack Start web app
+apps/docs/              User documentation
+packages/generated-ts/  @parley/proto — generated TS clients
+packages/runtime/       @parley/runtime — Discord embeds & components v2
 ```
 
----
+## License
 
-## 14. License
-
-The engine-service is dual-licensed under MIT OR Apache-2.0. See repository license files for details.
+The engine service is dual-licensed under MIT OR Apache-2.0. See the
+repository license files for details.
