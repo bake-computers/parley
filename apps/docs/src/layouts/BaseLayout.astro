@@ -66,8 +66,8 @@ const llmsUrl = Astro.site
         const applyTheme = () => {
           const root = document.documentElement;
           const mode = resolveMode();
-          if (mode === "dark") root.dataset.mode = "dark";
-          else delete root.dataset.mode;
+          if (mode === "dark") {root.dataset.mode = "dark";}
+          else { delete root.dataset.mode;}
           root.style.colorScheme = mode;
           document.querySelectorAll("[data-nb-theme-toggle]").forEach((b) => {
             b.dataset.nbState = mode;
