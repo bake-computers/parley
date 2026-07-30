@@ -95,13 +95,15 @@ function initMobileToc(root: HTMLElement): () => void {
     // Nothing in the band — clamp to the first or last heading based on where
     // the boundary headings sit relative to the band; otherwise keep the
     // current value (we're mid-section between two headings).
+    const last = headings.at(-1);
+    if (!last) {return;}
     const bandTop = window.innerHeight * BAND_TOP;
     const firstTop = headings[0].el.getBoundingClientRect().top;
-    const lastTop = headings.at(-1).el.getBoundingClientRect().top;
+    const lastTop = last.el.getBoundingClientRect().top;
     if (firstTop > bandTop) {
       setActive("_top");
     } else if (lastTop < bandTop) {
-      setActive(headings.at(-1).slug);
+      setActive(last.slug);
     }
   }
 

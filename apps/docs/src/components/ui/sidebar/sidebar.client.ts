@@ -139,7 +139,7 @@ function initPersistence(root: HTMLElement): (() => void) | null {
     const open: boolean[] = [];
     groups.forEach((group) => {
       const trigger = group.querySelector<HTMLElement>("[data-nb-collapsible-trigger]");
-      open.push(trigger.dataset.nbState === "open");
+      open.push(trigger?.dataset.nbState === "open");
     });
     return { hash, open, scroll: scrollHost.scrollTop };
   }
