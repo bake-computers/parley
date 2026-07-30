@@ -10,9 +10,9 @@ const HeroShaderOverlay = lazy(() =>
 );
 
 const ctaPrimary =
-  "inline-flex h-12 min-h-12 w-full items-center justify-center rounded-full bg-foreground px-8 text-sm font-medium text-background transition-all hover:scale-[1.02] hover:bg-foreground/90 active:scale-[0.98] sm:w-auto";
+  "inline-flex h-12 min-h-12 w-full items-center justify-center rounded-full bg-zinc-50 px-8 text-sm font-medium text-zinc-900 transition-all hover:scale-[1.02] hover:bg-white active:scale-[0.98] sm:w-auto";
 const ctaOutline =
-  "inline-flex h-12 min-h-12 w-full items-center justify-center rounded-full border border-border/70 bg-background/40 px-8 text-sm font-medium text-foreground backdrop-blur-sm transition-all hover:scale-[1.02] hover:bg-secondary/50 active:scale-[0.98] sm:w-auto";
+  "inline-flex h-12 min-h-12 w-full items-center justify-center rounded-full border border-white/25 bg-white/10 px-8 text-sm font-medium text-zinc-100 backdrop-blur-sm transition-all hover:scale-[1.02] hover:bg-white/15 active:scale-[0.98] sm:w-auto";
 
 function useDeferredShader() {
   const [ready, setReady] = useState(false);
@@ -70,8 +70,8 @@ export function Hero() {
             className="hero-drift h-full w-full object-cover object-[62%_38%]"
           />
         </picture>
-        <div className="absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-background/70 via-background/25 to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/45 to-transparent" />
+        <div className="absolute inset-x-0 top-0 h-36 bg-gradient-to-b from-black/55 via-black/20 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/40 to-transparent" />
         <div className="hero-chrome absolute inset-0 opacity-70" />
         {shaderReady ? (
           <Suspense fallback={null}>
@@ -87,13 +87,13 @@ export function Hero() {
             <span className="size-1.5 rounded-full bg-accent-silver" aria-hidden="true" />
             {h.betaBadge}
           </p> */}
-          <h1 className="max-w-xl text-balance text-4xl font-semibold leading-[1.08] tracking-tight text-foreground animate-in fade-in slide-in-from-bottom-4 duration-1000 md:text-5xl lg:text-6xl">
+          <h1 className="max-w-xl text-balance text-4xl font-semibold leading-[1.08] tracking-tight text-zinc-50 animate-in fade-in slide-in-from-bottom-4 duration-1000 md:text-5xl lg:text-6xl">
             {h.titleBefore}
             <span className="text-accent-silver">{h.titleHighlight}</span>
             {h.titleAfter}
           </h1>
 
-          <p className="mt-5 max-w-md text-pretty text-base leading-relaxed text-muted-foreground animate-in fade-in slide-in-from-bottom-4 duration-1000 md:text-lg">
+          <p className="mt-5 max-w-md text-pretty text-base leading-relaxed text-zinc-300 animate-in fade-in slide-in-from-bottom-4 duration-1000 md:text-lg">
             {h.subtitle}
           </p>
 
@@ -111,7 +111,7 @@ export function Hero() {
       <button
         type="button"
         onClick={() => smoothScrollTo("#problem", 1800)}
-        className="absolute bottom-8 left-1/2 z-10 flex min-h-12 -translate-x-1/2 items-center gap-2 rounded-full border border-border/50 bg-background/50 px-5 py-3 text-xs font-medium text-muted-foreground backdrop-blur-md transition-colors hover:bg-muted/50 hover:text-foreground focus-visible:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+        className="absolute bottom-8 left-1/2 z-10 flex min-h-12 -translate-x-1/2 items-center gap-2 rounded-full border border-white/20 bg-black/35 px-5 py-3 text-xs font-medium text-zinc-300 backdrop-blur-md transition-colors hover:bg-black/45 hover:text-zinc-50 focus-visible:text-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
       >
         <ArrowDown className="size-3.5" aria-hidden="true" />
         {h.explore}
