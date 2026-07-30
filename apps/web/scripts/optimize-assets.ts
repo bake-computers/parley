@@ -1,7 +1,6 @@
 import { spawn } from "node:child_process";
 import { mkdir } from "node:fs/promises";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 
 const __dirname = import.meta.dirname;
 const webRoot = join(__dirname, "..");

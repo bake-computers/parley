@@ -141,7 +141,7 @@ export async function fetchGuildMembers(botToken: string, guildId: string): Prom
     after = last;
   }
 
-  return members.toSorted((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
+  return members.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
 }
 
 /** One Discord list call instead of N per-guild membership probes. */

@@ -44,7 +44,7 @@ function guildSortKey(g: PublicGuild): number {
 }
 
 export function sortDashboardGuilds(guilds: PublicGuild[]): PublicGuild[] {
-  return [...guilds].toSorted(
+  return [...guilds].sort(
     (a, b) => guildSortKey(a) - guildSortKey(b) || a.name.localeCompare(b.name),
   );
 }

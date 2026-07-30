@@ -172,7 +172,7 @@ function base64UrlToBytes(value: string): Uint8Array {
   const binary = atob(padded + pad);
   const out = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i++) {
-    out[i] = binary.codePointAt(i);
+    out[i] = binary.charCodeAt(i);
   }
   return out;
 }
@@ -404,7 +404,7 @@ export function cookieGuildsFromOAuth(guilds: DiscordOAuthGuild[]): CookieGuild[
       owner: g.owner,
       permissions: g.permissions,
     }))
-    .toSorted((a, b) => a.name.localeCompare(b.name));
+    .sort((a, b) => a.name.localeCompare(b.name));
 }
 
 export type PublicGuild = {

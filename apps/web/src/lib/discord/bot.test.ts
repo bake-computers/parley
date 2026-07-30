@@ -36,7 +36,7 @@ describe("botInstalledGuildIds", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const installed = await botInstalledGuildIds("bot-token", ["g1", "g2", "g3"]);
-    expect([...installed].toSorted()).toEqual(["g1", "g3"]);
+    expect([...installed].sort()).toEqual(["g1", "g3"]);
     expect(fetchMock).toHaveBeenCalledTimes(1);
     expect(String(fetchMock.mock.calls[0]?.[0])).toContain("/users/@me/guilds");
   });
