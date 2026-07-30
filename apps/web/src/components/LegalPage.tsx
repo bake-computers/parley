@@ -22,7 +22,7 @@ export function LegalPage({ label, title, lastUpdated, children }: LegalPageProp
             <h1 className="mt-4 text-balance text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
               {title}
             </h1>
-            {lastUpdated != null && (
+            {lastUpdated !== null && (
               <p className="mt-3 text-xs text-muted-foreground/60">
                 {m.legal.lastUpdated} {lastUpdated}
               </p>
