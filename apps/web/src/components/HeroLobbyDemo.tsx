@@ -38,8 +38,7 @@ type Phase = "imbalanced" | "balancing" | "balanced";
 
 function avgRating(players: Player[], balanced: boolean) {
   const total = players.reduce(
-    (sum, player) =>
-      sum + (balanced ? player.ratingBalanced : player.ratingImbalanced),
+    (sum, player) => sum + (balanced ? player.ratingBalanced : player.ratingImbalanced),
     0,
   );
 
@@ -68,9 +67,7 @@ function TeamColumn({
   return (
     <div className="flex h-full flex-col gap-5">
       <div className="flex items-center justify-between gap-4">
-        <span className="font-sans text-sm font-medium text-zinc-400">
-          {label}
-        </span>
+        <span className="font-sans text-sm font-medium text-zinc-400">{label}</span>
 
         <span className="font-sans text-sm tabular-nums text-zinc-200">
           {avgRating(players, balanced).toLocaleString()}
@@ -82,16 +79,12 @@ function TeamColumn({
         aria-label={`${label} ${playersAria}`}
       >
         {players.map((player) => {
-          const rating = balanced
-            ? player.ratingBalanced
-            : player.ratingImbalanced;
+          const rating = balanced ? player.ratingBalanced : player.ratingImbalanced;
 
           return (
             <li key={player.callsign}>
               <div className="flex items-center justify-between gap-3 text-sm">
-                <span className="font-sans text-zinc-400">
-                  {player.callsign}
-                </span>
+                <span className="font-sans text-zinc-400">{player.callsign}</span>
 
                 <span
                   className={cn(
@@ -110,9 +103,7 @@ function TeamColumn({
                     "shadow-[0_0_8px_rgba(212,212,216,0.12)]",
                     "transition-[width] duration-700 ease-out",
                     "motion-reduce:transition-none",
-                    animating &&
-                      balanced &&
-                      "animate-[parley-bar_0.7s_ease-out_forwards]",
+                    animating && balanced && "animate-[parley-bar_0.7s_ease-out_forwards]",
                   )}
                   style={{ width: `${ratingToPct(rating)}%` }}
                 />
@@ -177,9 +168,7 @@ export function HeroLobbyDemo() {
   }, [isAnimating, resetToImbalanced, runBalanceSequence]);
 
   useEffect(() => {
-    const prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     setReducedMotion(prefersReducedMotion);
 
@@ -230,9 +219,7 @@ export function HeroLobbyDemo() {
           "bg-white/[0.015] px-5 py-4 md:px-6",
         )}
       >
-        <span className="text-sm font-medium text-zinc-400">
-          {lb.statusHeader}
-        </span>
+        <span className="text-sm font-medium text-zinc-400">{lb.statusHeader}</span>
 
         <span className="flex items-center gap-2 font-sans text-xs">
           <span
@@ -299,17 +286,10 @@ export function HeroLobbyDemo() {
         </div>
       </div>
 
-      <div
-        className={cn(
-          "space-y-5 border-t border-white/[0.07]",
-          "bg-black/[0.08] p-5 md:p-6",
-        )}
-      >
+      <div className={cn("space-y-5 border-t border-white/[0.07]", "bg-black/[0.08] p-5 md:p-6")}>
         <div>
           <div className="flex items-center justify-between gap-4">
-            <span className="font-sans text-sm font-medium text-zinc-400">
-              {lb.balanceScore}
-            </span>
+            <span className="font-sans text-sm font-medium text-zinc-400">{lb.balanceScore}</span>
 
             <span
               className={cn(

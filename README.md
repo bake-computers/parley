@@ -43,7 +43,7 @@ into tonight is still decided by who happened to react to a message first.
 
 Parley's position is that the missing piece is not display but modeling. The
 data exists upstream. What is missing is a system that fetches it on
-authority — the player *is* this account, verified by a link — reduces it to
+authority — the player _is_ this account, verified by a link — reduces it to
 an honest estimate of current ability, and spends that estimate on the
 matchmaking and tournament decisions a community otherwise does by feel.
 
@@ -76,8 +76,8 @@ seven `float64`s in memory and evaluates them in a loop that a reader can
 verify in ten seconds.
 
 This is the central bet of the system, and it is a deliberate one: for the
-question Parley asks — *relative to this lobby pool, how strong is this
-player right now* — a linear function over well-chosen signals is sufficient,
+question Parley asks — _relative to this lobby pool, how strong is this
+player right now_ — a linear function over well-chosen signals is sufficient,
 and every parameter of complexity beyond linearity is a parameter of
 opacity. Seven numbers can be printed in a log, diffed between releases, and
 argued with. A gradient-boosted forest cannot. When the data eventually
@@ -114,16 +114,16 @@ between the model and the arithmetic that uses it.
 The model's quality lives in its features, and Parley takes some care here.
 Each player's current snapshot is reduced to six signals:
 
-| # | Signal      | Construction                                                                 |
-| - | ----------- | ---------------------------------------------------------------------------- |
-| 1 | Fragging    | K/D, blended between the season aggregate and a round-level rollup           |
-| 2 | Entry       | opening-kill rounds ÷ (opening-kill + opening-death rounds)                  |
-| 3 | Trading     | traded rounds ÷ deaths                                                       |
-| 4 | Clutching   | (1v1 + 2·1v2 + 3·1v3 wins) ÷ rounds played                                   |
-| 5 | Execution   | headshot percentage, blended with headshot-only rounds per round             |
-| 6 | Winning     | win rate                                                                     |
+| #   | Signal    | Construction                                                       |
+| --- | --------- | ------------------------------------------------------------------ |
+| 1   | Fragging  | K/D, blended between the season aggregate and a round-level rollup |
+| 2   | Entry     | opening-kill rounds ÷ (opening-kill + opening-death rounds)        |
+| 3   | Trading   | traded rounds ÷ deaths                                             |
+| 4   | Clutching | (1v1 + 2·1v2 + 3·1v3 wins) ÷ rounds played                         |
+| 5   | Execution | headshot percentage, blended with headshot-only rounds per round   |
+| 6   | Winning   | win rate                                                           |
 
-Two notes on construction. First, signals 1 and 5 are *blended*: for players
+Two notes on construction. First, signals 1 and 5 are _blended_: for players
 with few current-season matches the round-level rollup dominates, and the
 season aggregate takes over as matches accrue (fully weighted at 20 games).
 This keeps a player who has played three matches this season from being
@@ -230,14 +230,14 @@ telemetry current enough to score.
 
 The `parley` binary (Fiber v3 + connect-go) exposes six services:
 
-| Service                | Responsibility                                              |
-| ---------------------- | ----------------------------------------------------------- |
-| `IdentityService`      | Link, unlink, and resolve Discord-to-player mappings        |
-| `StatsService`         | Single-season and full-collection player statistics         |
-| `GuildSettingsService` | Per-guild settings, matchmaking rules, quotas               |
-| `UserSettingsService`  | Per-user preferences within a guild                         |
-| `MatchmakingService`   | OVI team building, custom matches, result reporting         |
-| `TournamentService`    | Creation, registration, single-elimination bracket play     |
+| Service                | Responsibility                                          |
+| ---------------------- | ------------------------------------------------------- |
+| `IdentityService`      | Link, unlink, and resolve Discord-to-player mappings    |
+| `StatsService`         | Single-season and full-collection player statistics     |
+| `GuildSettingsService` | Per-guild settings, matchmaking rules, quotas           |
+| `UserSettingsService`  | Per-user preferences within a guild                     |
+| `MatchmakingService`   | OVI team building, custom matches, result reporting     |
+| `TournamentService`    | Creation, registration, single-elimination bracket play |
 
 Custom matches and tournaments share one match-record model, so a ranked
 night and a bracket run through the same lifecycle. Eligibility — link
@@ -253,12 +253,12 @@ migrations are embedded and applied in-process when `RUN_MIGRATIONS=1`.
 
 ## 5. Operations
 
-| Component        | Runtime                    | Domain           |
-| ---------------- | -------------------------- | ---------------- |
-| Discord Worker   | Cloudflare Worker (Hono)   | `app.parley.bot` |
-| Web              | TanStack Start, Cloudflare | `parley.bot`     |
-| Docs             | Static (Astro), Cloudflare | `docs.parley.bot`|
-| Engine           | Container image, `ghcr.io` | origin, `:50051` |
+| Component      | Runtime                    | Domain            |
+| -------------- | -------------------------- | ----------------- |
+| Discord Worker | Cloudflare Worker (Hono)   | `app.parley.bot`  |
+| Web            | TanStack Start, Cloudflare | `parley.bot`      |
+| Docs           | Static (Astro), Cloudflare | `docs.parley.bot` |
+| Engine         | Container image, `ghcr.io` | origin, `:50051`  |
 
 Workers deploy via Wrangler (per-app `wrangler.jsonc`, secrets via
 `wrangler secret put`). The engine image is built by CI from `main` on engine
@@ -273,17 +273,17 @@ bun install                 # workspace dependencies
 cp .env.example .env        # DATABASE_URL required to boot the engine
 make proto && make build    # regenerate clients, build the engine
 RUN_MIGRATIONS=1 make run   # boot with boot-time migrations
-bun run dev                 # edge dev servers
+vp run dev                  # edge dev servers (or bun run dev)
 ```
 
-| Task                    | Command                                |
-| ----------------------- | -------------------------------------- |
-| Go unit tests           | `make test`                            |
-| Go integration tests    | `make test-integration` (Docker)       |
-| TypeScript typecheck    | `bun run typecheck`                    |
-| Lint (Go / TS)          | `make lint` / `bun run lint`           |
-| Format (Go / TS)        | `make fmt` / `bun run format`          |
-| Regenerate protobuf     | `make proto`                           |
+| Task                 | Command                          |
+| -------------------- | -------------------------------- |
+| Go unit tests        | `make test`                      |
+| Go integration tests | `make test-integration` (Docker) |
+| TypeScript typecheck | `bun run typecheck`              |
+| Lint (Go / TS)       | `make lint` / `bun run lint`     |
+| Format (Go / TS)     | `make fmt` / `bun run format`    |
+| Regenerate protobuf  | `make proto`                     |
 
 Contributor conventions — code style, testing expectations, migration rules,
 PR checklist — live in [`AGENTS.md`](AGENTS.md). Protocol notes live in

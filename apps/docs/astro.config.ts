@@ -30,7 +30,8 @@ export default defineConfig({
   site: "https://docs.parley.bot",
   output: "static",
   vite: {
-    plugins: [tailwindcss()],
+    // vite-plus catalog override widens Plugin types past Astro's PluginOption.
+    plugins: [tailwindcss() as never],
   },
   prefetch: {
     prefetchAll: true,

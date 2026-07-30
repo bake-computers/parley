@@ -7,8 +7,7 @@ import appCss from "../styles.css?url";
 
 import criticalCss from "../critical.css?raw";
 
-const SITE_TITLE =
-  "Parley — Competitive Matchmaking & Tournaments for Rainbow Six Siege";
+const SITE_TITLE = "Parley — Competitive Matchmaking & Tournaments for Rainbow Six Siege";
 const SITE_DESCRIPTION =
   "Parley is the Rainbow Six Siege Discord bot for fair, skill-matched lobbies, automated scrims, and tournaments. Telemetry-driven matchmaking with Glicko-2 balancing. Open beta.";
 const SITE_URL = "https://parley.bot";
@@ -82,13 +81,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
         <style dangerouslySetInnerHTML={{ __html: criticalCss }} />
-        <link
-          rel="preload"
-          href={GEIST_SANS}
-          as="font"
-          type="font/woff2"
-          crossOrigin="anonymous"
-        />
+        <link rel="preload" href={GEIST_SANS} as="font" type="font/woff2" crossOrigin="anonymous" />
         <link
           rel="preload"
           href={HERO_PRELOAD}

@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, test, vi } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vite-plus/test";
 import { cacheClearMemoryForTests } from "./discord-cache.js";
 import { canManageCookieGuild } from "./permissions.js";
 import {

@@ -44,8 +44,9 @@ coverage
 .temp
 tmp
 
-# Turbo
+# Vite+ / Vite Task local cache (if present)
 .turbo
+.vite
 
 # Cloudflare Workers
 .wrangler

@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "vite-plus/test";
 import { canManageGuild, filterManageableGuilds } from "./permissions.js";
 import type { DiscordOAuthGuild } from "./oauth.js";
 

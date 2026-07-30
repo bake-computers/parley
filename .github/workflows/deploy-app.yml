@@ -16,9 +16,6 @@ on:
         required: true
         type: string
 
-env:
-  TURBO_TELEMETRY_DISABLED: 1
-
 jobs:
   deploy:
     name: Deploy ${{ inputs.app-name }}
