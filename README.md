@@ -307,5 +307,9 @@ packages/runtime/       @parley/runtime — Discord embeds & components v2
 
 ## License
 
-The engine service is dual-licensed under MIT OR Apache-2.0. See the
-repository license files for details.
+Parley is proprietary software licensed under the **Parley Proprietary License** (see [`LICENSE`](./LICENSE)).
+
+- **Allowed:** private, personal, non-commercial use on systems you control.
+- **Prohibited:** commercial / for-profit use, modification, redistribution, hosting for others, and competing products built from the Software.
+
+Commercial licensing: `hi@ryzm.cc`.
