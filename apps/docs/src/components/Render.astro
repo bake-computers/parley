@@ -10,6 +10,7 @@
  * fail at build time, optional use a `?` suffix.
  */
 import { getCollection, getEntry, render } from "astro:content";
+// oxlint-disable-next-line import/no-cycle
 import { components } from "../components";
 
 interface Props {
@@ -78,8 +79,9 @@ function distance(a: string, b: string): number {
   if (a === b) {return 0;}
   if (a.length === 0) {return b.length;}
   if (b.length === 0) {return a.length;}
-  const v0 = new Array<number>(b.length + 1);
-  const v1 = new Array<number>(b.length + 1);
+  // this is a hack to get around the fact that Array.from doesn't support generic types
+  const v0 = Array.from({ length: b.length + 1 }) as number[];
+  const v1 = Array.from({ length: b.length + 1 }) as number[];
   for (let i = 0; i <= b.length; i++) {v0[i] = i;}
   for (let i = 0; i < a.length; i++) {
     v1[0] = i + 1;
