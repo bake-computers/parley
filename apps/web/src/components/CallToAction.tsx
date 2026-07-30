@@ -10,15 +10,9 @@ const DISCORD_URL =
 const ctaButton =
   "group inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-foreground px-7 text-sm font-medium text-background transition-all hover:scale-[1.02] hover:bg-foreground/90 active:scale-[0.98]";
 
-const ctaArrow = (
-  <ArrowRight className="parley-arrow-nudge size-4" aria-hidden="true" />
-);
+const ctaArrow = <ArrowRight className="parley-arrow-nudge size-4" aria-hidden="true" />;
 
-export function DiscordCta({
-  variant = "panel",
-}: {
-  variant?: "panel" | "band";
-}) {
+export function DiscordCta({ variant = "panel" }: { variant?: "panel" | "band" }) {
   const m = useMessages();
 
   if (variant === "band") {
@@ -29,16 +23,9 @@ export function DiscordCta({
           <h2 className="text-balance text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
             {c.title}
           </h2>
-          <p className="mt-3 max-w-md text-pretty text-muted-foreground">
-            {c.body}
-          </p>
+          <p className="mt-3 max-w-md text-pretty text-muted-foreground">{c.body}</p>
         </div>
-        <a
-          href={DISCORD_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={ctaButton}
-        >
+        <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer" className={ctaButton}>
           {c.button}
           {ctaArrow}
         </a>
@@ -67,12 +54,7 @@ export function DiscordCta({
           </p>
         </div>
         <div className="flex flex-col gap-5 md:items-end">
-          <a
-            href={DISCORD_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={ctaButton}
-          >
+          <a href={DISCORD_URL} target="_blank" rel="noopener noreferrer" className={ctaButton}>
             {c.button}
             {ctaArrow}
           </a>

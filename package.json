@@ -9,31 +9,39 @@
   ],
   "type": "module",
   "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev",
-    "dev:worker": "bun run --filter @parley/worker dev",
-    "dev:web": "bun run --filter web dev",
-    "dev:docs": "bun run --filter @parley/docs dev",
-    "lint": "turbo run lint",
-    "lint:root": "oxlint . -c oxlint.config.ts",
-    "format": "oxfmt --write . -c oxfmt.config.ts",
-    "format:check": "oxfmt --check . -c oxfmt.config.ts",
-    "typecheck": "turbo run typecheck",
-    "test": "turbo run test",
-    "deploy": "turbo run deploy",
-    "deploy:worker": "bun run --filter @parley/worker deploy",
-    "deploy:web": "bun run --filter web deploy",
-    "deploy:docs": "bun run --filter @parley/docs deploy"
+    "build": "vp run -r --cache build",
+    "dev": "vp run -r --parallel --no-cache dev",
+    "dev:worker": "vp run --filter @parley/worker --no-cache dev",
+    "dev:web": "vp run --filter web --no-cache dev",
+    "dev:docs": "vp run --filter @parley/docs --no-cache dev",
+    "lint": "vp run -r lint",
+    "lint:root": "vp lint",
+    "format": "vp fmt --write .",
+    "format:check": "vp fmt --check .",
+    "typecheck": "vp run --filter @parley/runtime --filter @parley/axiom --cache build && vp run -r typecheck",
+    "test": "vp run --filter @parley/runtime --filter @parley/axiom --cache build && vp run -r test",
+    "deploy": "vp run -r --cache build && vp run -r --no-cache deploy",
+    "deploy:worker": "vp run --filter @parley/worker --no-cache deploy",
+    "deploy:web": "vp run --filter web --no-cache deploy",
+    "deploy:docs": "vp run --filter @parley/docs --no-cache deploy"
   },
   "devDependencies": {
     "@total-typescript/ts-reset": "^0.6.1",
     "@types/bun": "^1.3.14",
     "bun-types": "^1.3.13",
-    "oxfmt": "^0.51.0",
-    "oxlint": "^1.63.0",
-    "turbo": "^2.10.3",
     "typescript": "^7.0.1-rc",
+    "vite": "catalog:",
+    "vite-plus": "catalog:",
     "wrangler": "^4.98.0"
   },
-  "packageManager": "bun@1.3.12"
+  "overrides": {
+    "vite": "catalog:",
+    "vitest": "catalog:"
+  },
+  "packageManager": "bun@1.3.12",
+  "catalog": {
+    "vite": "npm:@voidzero-dev/vite-plus-core@0.2.6",
+    "vitest": "4.1.10",
+    "vite-plus": "0.2.6"
+  }
 }

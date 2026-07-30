@@ -61,19 +61,20 @@ TS side: `apps/worker` route handlers stay thin — logic belongs in `packages/`
 | `make proto` / `buf generate`                    | Regenerate `gen/parley` and TS clients                         |
 | `make run`                                       | Build and run locally                                          |
 
-### TypeScript (Turborepo, managed via `bun`)
+### TypeScript (Vite+, managed via `bun` / `vp`)
 
-| Command                         | What it does                    |
-| ------------------------------- | ------------------------------- |
-| `bun install`                   | Install workspace dependencies  |
-| `bun run build`                 | `turbo run build`               |
-| `bun run typecheck`             | Strict typecheck                |
-| `bun run lint`                  | oxlint                          |
-| `bun run format`                | oxfmt                           |
-| `bun run test`                  | Per-package tests               |
-| `bun run dev`                   | Dev servers                     |
-| `cd apps/worker && bun run dev` | Wrangler dev for Discord worker |
-| `cd apps/docs && bun run dev`   | Astro dev server for user docs  |
+| Command                        | What it does                              |
+| ------------------------------ | ----------------------------------------- |
+| `bun install` / `vp install`   | Install workspace dependencies            |
+| `vp run build`                 | `vp run -r --cache build` across packages |
+| `vp run typecheck`             | Build deps then typecheck all packages    |
+| `vp run lint` / `vp lint`      | Package lint / repo-wide Oxlint           |
+| `vp run format` / `vp fmt`     | Format with Oxfmt                         |
+| `vp run test`                  | Build deps then run package tests         |
+| `vp run dev`                   | Parallel package dev servers              |
+| `vp dev apps/web`              | Vite+ dev server for the web app only     |
+| `cd apps/worker && vp run dev` | Wrangler dev for Discord worker           |
+| `cd apps/docs && vp run dev`   | Astro dev server for user docs            |
 
 ### Proto generation
 
@@ -112,7 +113,7 @@ Copy `.env.example` to `.env`. `DATABASE_URL` is required to boot. Any new env v
 ## Linting & Formatting
 
 - **Go**: `make fmt`, `make vet`, `make lint`
-- **TypeScript**: `oxfmt .`, `oxlint`
+- **TypeScript**: `vp fmt`, `vp lint` / `vp check`
 
 ## Code Style & Conventions
 

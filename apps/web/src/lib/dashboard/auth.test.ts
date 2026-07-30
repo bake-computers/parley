@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "vite-plus/test";
 import type { DiscordUser } from "../discord/oauth.js";
 import { sessionCanManageGuild } from "./auth.js";
 

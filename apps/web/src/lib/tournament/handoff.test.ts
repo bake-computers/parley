@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test } from "vite-plus/test";
 import { verifyTournamentHandoff } from "./handoff.js";
 
 function base64Url(value: string): string {

@@ -11,9 +11,7 @@ on:
       - "package.json"
       - "bun.lock"
       - "bun.lockb"
-      - "turbo.json"
-      - "oxfmt.config.ts"
-      - "oxlint.config.ts"
+      - "vite.config.ts"
       - "tsconfig.base.json"
       - "packages/tsconfig-base/**"
       - ".github/workflows/deploy-cloudflare-workers.yml"
@@ -23,9 +21,6 @@ on:
 concurrency:
   group: deploy-cloudflare-workers-${{ github.ref }}
   cancel-in-progress: false
-
-env:
-  TURBO_TELEMETRY_DISABLED: 1
 
 jobs:
   changes:
@@ -51,7 +46,7 @@ jobs:
               - 'bun.lock'
               - 'bun.lockb'
               - 'tsconfig.base.json'
-              - 'turbo.json'
+              - 'vite.config.ts'
             worker:
               - 'apps/worker/**'
               - 'packages/**'
@@ -60,13 +55,13 @@ jobs:
               - 'bun.lock'
               - 'bun.lockb'
               - 'tsconfig.base.json'
-              - 'turbo.json'
+              - 'vite.config.ts'
             docs:
               - 'apps/docs/**'
               - 'package.json'
               - 'bun.lock'
               - 'bun.lockb'
-              - 'turbo.json'
+              - 'vite.config.ts'
 
   web:
     needs: changes

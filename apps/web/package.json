@@ -6,10 +6,10 @@
     "#/*": "./src/*"
   },
   "scripts": {
-    "dev": "vite dev --port 3000 --strictPort",
-    "build": "vite build",
-    "preview": "bun run build && vite preview",
-    "test": "vitest run",
+    "dev": "vp dev --port 3000 --strictPort",
+    "build": "vp build",
+    "preview": "bun run build && vp preview",
+    "test": "vp test run",
     "typecheck": "tsc --noEmit",
     "cache:founders": "bun run scripts/cache-founder-avatars.ts",
     "optimize:assets": "bun run scripts/optimize-assets.ts",
@@ -46,8 +46,9 @@
     "@vitejs/plugin-react": "^6.0.1",
     "@webgpu/types": "^0.1.71",
     "jsdom": "^28.1.0",
-    "vite": "^8.1.0",
-    "vitest": "^4.1.5",
+    "vite": "catalog:",
+    "vite-plus": "catalog:",
+    "vitest": "catalog:",
     "wrangler": "^4.98.0"
   },
   "pnpm": {

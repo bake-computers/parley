@@ -57,9 +57,7 @@ export function Experience() {
                 onClick={() => setActive(index)}
                 className={cn(
                   "group relative shrink-0 overflow-hidden rounded-xl py-3 pl-5 pr-4 text-left transition-colors duration-300 lg:w-full",
-                  isActive
-                    ? "text-foreground"
-                    : "text-muted-foreground hover:text-foreground",
+                  isActive ? "text-foreground" : "text-muted-foreground hover:text-foreground",
                 )}
               >
                 <span
@@ -73,9 +71,7 @@ export function Experience() {
                   <StepIcon
                     className={cn(
                       "size-4 shrink-0 transition-colors duration-300",
-                      isActive
-                        ? "text-accent-silver"
-                        : "text-muted-foreground/60",
+                      isActive ? "text-accent-silver" : "text-muted-foreground/60",
                     )}
                     aria-hidden="true"
                   />
