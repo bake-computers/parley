@@ -122,7 +122,7 @@ const hasPagination = Astro.slots.has("pagination");
                   trigger.dataset.nbState = state;
                   trigger.setAttribute("aria-expanded", String(open));
                 }
-                if (panel) panel.dataset.nbState = state;
+                if (panel) {panel.dataset.nbState = state;}
               }
 
               const raw = sessionStorage.getItem("sidebar-state");
