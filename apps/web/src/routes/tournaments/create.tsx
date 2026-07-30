@@ -188,7 +188,7 @@ function CreateTournamentPage() {
 
   async function submitTournament(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!handoff || creating) return;
+    if (!handoff || creating) {return;}
     const form = new FormData(event.currentTarget);
     setCreating(true);
     setError(null);

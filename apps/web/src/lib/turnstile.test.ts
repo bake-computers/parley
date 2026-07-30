@@ -8,7 +8,7 @@ describe("turnstile", () => {
 
   test("turnstileEnabled requires both keys", () => {
     expect(turnstileEnabled("site", "secret")).toBe(true);
-    expect(turnstileEnabled("site", undefined)).toBe(false);
+    expect(turnstileEnabled("site")).toBe(false);
     expect(turnstileEnabled(undefined, "secret")).toBe(false);
   });
 

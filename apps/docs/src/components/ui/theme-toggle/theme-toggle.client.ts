@@ -14,7 +14,7 @@ declare global {
 
 function initThemeToggle(button: HTMLElement): () => void {
   function handleClick() {
-    const isDark = document.documentElement.getAttribute("data-mode") === "dark";
+    const isDark = document.documentElement.dataset.mode === "dark";
     try {
       localStorage.setItem("ui-mode", isDark ? "light" : "dark");
     } catch {

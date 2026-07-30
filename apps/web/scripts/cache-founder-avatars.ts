@@ -3,7 +3,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
+const __dirname = import.meta.dirname;
 const webRoot = join(__dirname, "..");
 const foundersDir = join(webRoot, "public/assets/founders");
 const foundersConfigPath = join(webRoot, "src/lib/shared/founders.ts");

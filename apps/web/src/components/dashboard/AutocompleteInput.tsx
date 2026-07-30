@@ -109,7 +109,7 @@ export function AutocompleteInput({
             setOpen(false);
             return;
           }
-          if (!suggestions.length) {
+          if (suggestions.length === 0) {
             return;
           }
           if (e.key === "ArrowDown") {

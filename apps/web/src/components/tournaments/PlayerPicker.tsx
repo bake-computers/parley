@@ -42,12 +42,12 @@ export function PlayerPicker({
   const selected = useMemo(() => new Set(selectedIds), [selectedIds]);
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!members) return [];
+    if (!members) {return [];}
     return q ? members.filter((member) => member.name.toLowerCase().includes(q)) : members;
   }, [members, query]);
 
   function toggle(id: string) {
-    if (id === currentUserId) return;
+    if (id === currentUserId) {return;}
     onChange(
       selected.has(id) ? selectedIds.filter((existing) => existing !== id) : [...selectedIds, id],
     );

@@ -107,22 +107,22 @@ const hasPagination = Astro.slots.has("pagination");
           <script is:inline aria-hidden="true">
           (function () {
             try {
-              if (!matchMedia("(min-width: 64rem)").matches) return;
-              const sidebar = document.getElementById("desktop-sidebar");
-              if (!sidebar) return;
+              if (!matchMedia("(min-width: 64rem)").matches) {return;}
+              const sidebar = document.querySelector("#desktop-sidebar");
+              if (!sidebar) {return;}
               const content = sidebar.querySelector("[data-nb-sidebar]");
-              if (!content) return;
+              if (!content) {return;}
 
               function setGroupOpen(group, open) {
-                group.setAttribute("data-nb-default-open", open ? "true" : "false");
+                group.dataset.nbDefaultOpen = open ? "true" : "false";
                 const trigger = group.querySelector("[data-nb-collapsible-trigger]");
                 const panel = group.querySelector("[data-nb-collapsible-content]");
                 const state = open ? "open" : "closed";
                 if (trigger) {
-                  trigger.setAttribute("data-nb-state", state);
+                  trigger.dataset.nbState = state;
                   trigger.setAttribute("aria-expanded", String(open));
                 }
-                if (panel) panel.setAttribute("data-nb-state", state);
+                if (panel) panel.dataset.nbState = state;
               }
 
               const raw = sessionStorage.getItem("sidebar-state");
@@ -276,7 +276,7 @@ const hasPagination = Astro.slots.has("pagination");
     // (a one-shot module script would go dead after the first swap).
     mount("[data-mobile-sidebar]", (root) => {
       const menuBtn = document.querySelector<HTMLElement>("[data-menu-btn]");
-      if (!(root instanceof HTMLDialogElement) || !menuBtn) return () => {};
+      if (!(root instanceof HTMLDialogElement) || !menuBtn) {return () => {};}
       const dialog = root;
 
       const controller = new AbortController();
@@ -288,7 +288,7 @@ const hasPagination = Astro.slots.has("pagination");
           clearTimeout(closeTimer);
           closeTimer = undefined;
         }
-        if (dialog.open) return;
+        if (dialog.open) {return;}
 
         dialog.showModal();
         dialog.dataset.state = "closed";
@@ -304,7 +304,7 @@ const hasPagination = Astro.slots.has("pagination");
       };
 
       const closeSidebar = () => {
-        if (!dialog.open || dialog.dataset.state === "closing") return;
+        if (!dialog.open || dialog.dataset.state === "closing") {return;}
 
         dialog.dataset.state = "closing";
         closeTimer = setTimeout(() => {
@@ -335,14 +335,14 @@ const hasPagination = Astro.slots.has("pagination");
         ?.addEventListener("click", closeSidebar, { signal });
 
       dialog.addEventListener("click", (e) => {
-        if (e.target === dialog) closeSidebar();
+        if (e.target === dialog) {closeSidebar();}
       }, { signal });
 
       return () => {
         controller.abort();
-        if (closeTimer) clearTimeout(closeTimer);
+        if (closeTimer) {clearTimeout(closeTimer);}
         // A swap while open never fires `close`; balance the scroll lock.
-        if (dialog.open) unlockScroll();
+        if (dialog.open) {unlockScroll();}
       };
     });
   </script>

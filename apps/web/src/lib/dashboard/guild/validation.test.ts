@@ -26,7 +26,7 @@ describe("suggestTeamFormats", () => {
   test("filters by prefix", () => {
     expect(suggestTeamFormats("5")).toEqual(["5v5"]);
     expect(suggestTeamFormats("")).toHaveLength(5);
-    expect(suggestTeamFormats(undefined)).toHaveLength(5);
+    expect(suggestTeamFormats()).toHaveLength(5);
   });
 });
 

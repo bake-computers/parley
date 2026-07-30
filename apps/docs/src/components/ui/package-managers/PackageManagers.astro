@@ -43,20 +43,20 @@ const uid =
       class extends HTMLElement {
         connectedCallback() {
           const card = this.closest("[data-nb-pm]");
-          if (!card) return;
+          if (!card) {return;}
           let saved;
           try {
             saved = sessionStorage.getItem("ui-pm-tab");
           } catch {
             return;
           }
-          if (!saved) return;
+          if (!saved) {return;}
           const tabs = card.querySelectorAll("[data-nb-pm-tab]");
           let idx = -1;
           tabs.forEach(function (t, i) {
-            if (t.textContent.trim() === saved) idx = i;
+            if (t.textContent.trim() === saved) {idx = i;}
           });
-          if (idx < 1) return;
+          if (idx < 1) {return;}
           tabs.forEach(function (t, i) {
             t.setAttribute("aria-selected", String(i === idx));
           });

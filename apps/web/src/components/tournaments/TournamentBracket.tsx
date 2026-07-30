@@ -45,13 +45,13 @@ export function groupBracket(matches: BracketMatchJson[]): BracketGroup[] {
     .map(([bracket, rounds]) => ({
       bracket,
       rounds: [...rounds.entries()]
-        .sort(([a], [b]) => a - b)
+        .toSorted(([a], [b]) => a - b)
         .map(([roundNumber, roundMatches]) => ({
           roundNumber,
-          matches: [...roundMatches].sort((a, b) => a.matchNumber - b.matchNumber),
+          matches: [...roundMatches].toSorted((a, b) => a.matchNumber - b.matchNumber),
         })),
     }))
-    .sort((a, b) => bracketRank(a.bracket) - bracketRank(b.bracket));
+    .toSorted((a, b) => bracketRank(a.bracket) - bracketRank(b.bracket));
 }
 
 export function TournamentBracket({
@@ -62,7 +62,7 @@ export function TournamentBracket({
   teams: BracketTeam[];
 }) {
   const groups = groupBracket(matches);
-  if (!groups.length) return null;
+  if (groups.length === 0) {return null;}
   const teamNames = new Map(teams.map((team) => [team.id, team.teamName]));
 
   return (

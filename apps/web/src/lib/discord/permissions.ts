@@ -27,5 +27,5 @@ export function canManageCookieGuild(guild: CookieGuild): boolean {
 }
 
 export function filterManageableGuilds(guilds: DiscordOAuthGuild[]): DiscordOAuthGuild[] {
-  return guilds.filter(canManageGuild).sort((a, b) => a.name.localeCompare(b.name));
+  return guilds.filter(canManageGuild).toSorted((a, b) => a.name.localeCompare(b.name));
 }

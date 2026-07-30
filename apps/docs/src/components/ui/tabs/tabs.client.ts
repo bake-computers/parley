@@ -34,7 +34,7 @@ function initTabContainer(container: HTMLElement): () => void {
       btn.type = "button";
       btn.className = TRIGGER_CLASS;
       btn.textContent = label;
-      btn.setAttribute("data-nb-tabs-trigger", "");
+      btn.dataset.nbTabsTrigger = "";
 
       const panelId = `${id}-panel-${i}`;
       const tabId = `${id}-tab-${i}`;
@@ -46,7 +46,7 @@ function initTabContainer(container: HTMLElement): () => void {
       if (indicator) {
         tablist.insertBefore(btn, indicator);
       } else {
-        tablist.appendChild(btn);
+        tablist.append(btn);
       }
     });
   }
@@ -64,9 +64,9 @@ function initTabContainer(container: HTMLElement): () => void {
     // render off-screen with no affordance. scrollLeft directly (not
     // scrollIntoView, which would also scroll the page vertically).
     onActivate: (index) => {
-      if (!tablist) return;
+      if (!tablist) {return;}
       const trigger = tablist.querySelectorAll<HTMLElement>("[data-nb-tabs-trigger]")[index];
-      if (!trigger) return;
+      if (!trigger) {return;}
       const left = trigger.offsetLeft;
       const right = left + trigger.offsetWidth;
       if (left < tablist.scrollLeft) {
@@ -84,7 +84,7 @@ function initTabContainer(container: HTMLElement): () => void {
       .filter((t) => t.closest("[data-nb-tabs]") === container)
       .map((t) => (t.textContent ?? "").trim());
     const dupes = [...new Set(labels.filter((l, i) => labels.indexOf(l) !== i))];
-    if (dupes.length) {
+    if (dupes.length > 0) {
       console.warn(
         `[nimbus] <Tabs syncKey="${syncKey}"> has duplicate tab labels (${dupes
           .map((d) => `"${d}"`)

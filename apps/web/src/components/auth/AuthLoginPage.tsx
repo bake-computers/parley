@@ -97,7 +97,7 @@ export function AuthLoginPage({
       script.async = true;
       script.defer = true;
       script.addEventListener("load", mount, { once: true });
-      document.head.appendChild(script);
+      document.head.append(script);
     }
 
     return () => {

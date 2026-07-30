@@ -58,13 +58,13 @@ function ManageTournamentPage() {
   }, [displayCode]);
 
   if (me === undefined || loading)
-    return (
+    {return (
       <TournamentShell>
         <DashboardLoader label="Loading tournament…" />
       </TournamentShell>
-    );
+    );}
   if (!me)
-    return (
+    {return (
       <TournamentShell
         hero={
           <TournamentHero
@@ -85,9 +85,9 @@ function ManageTournamentPage() {
           redirectTo={loginRedirect}
         />
       </TournamentShell>
-    );
+    );}
   if (!tournament || tournament.createdByDiscordUserId !== me.user.id)
-    return (
+    {return (
       <TournamentShell>
         <GlassPanel className="p-8">
           <p role="alert">{error ?? "Only the tournament host can manage this event."}</p>
@@ -100,7 +100,7 @@ function ManageTournamentPage() {
           </Link>
         </GlassPanel>
       </TournamentShell>
-    );
+    );}
   const canStart = tournament.status === "open" && tournament.teams.length >= tournament.minTeams;
   const teamNames = new Map(tournament.teams.map((team) => [team.id, team.teamName]));
   const actionable =
@@ -154,7 +154,7 @@ function ManageTournamentPage() {
                   <p className="text-xs text-muted-foreground">Roster check before start</p>
                 </div>
               </div>
-              {tournament.teams.length ? (
+              {tournament.teams.length > 0 ? (
                 <div className="space-y-2">
                   {tournament.teams.map((team) => (
                     <div key={team.id} className="rounded-xl bg-muted/30 px-4 py-3 text-sm">
@@ -179,7 +179,7 @@ function ManageTournamentPage() {
                 </div>
               )}
             </GlassPanel>
-            {actionable.length ? (
+            {actionable.length > 0 ? (
               <GlassPanel as="section" className="p-6 md:p-8">
                 <div className="mb-6 flex items-center gap-3">
                   <div className="flex size-10 items-center justify-center rounded-2xl bg-accent-silver/15">
@@ -294,14 +294,14 @@ function ManageTournamentPage() {
   );
 
   async function reportResult(bracketMatchId: number, winnerTeamId: number) {
-    if (busy) return;
+    if (busy) {return;}
     setBusy(`report:${bracketMatchId}`);
     setError(null);
     try {
       const updated = await tournamentAction({
         data: { code: displayCode, action: "report", bracketMatchId, winnerTeamId },
       });
-      if (updated) setTournament(updated);
+      if (updated) {setTournament(updated);}
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Result report failed");
     } finally {
@@ -310,13 +310,13 @@ function ManageTournamentPage() {
   }
 
   async function runAction(action: "start" | "cancel") {
-    if (busy) return;
-    if (action === "cancel" && !window.confirm("Cancel this tournament?")) return;
+    if (busy) {return;}
+    if (action === "cancel" && !window.confirm("Cancel this tournament?")) {return;}
     setBusy(action);
     setError(null);
     try {
       const updated = await tournamentAction({ data: { code: displayCode, action } });
-      if (updated) setTournament(updated);
+      if (updated) {setTournament(updated);}
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Tournament update failed");
     } finally {

@@ -25,5 +25,5 @@ export async function fetchGuildTextChannels(
     .filter((ch) => ch.type === 0 || ch.type === 5)
     .filter((ch) => typeof ch.id === "string" && typeof ch.name === "string")
     .map((ch) => ({ id: ch.id!, name: ch.name! }))
-    .sort((a, b) => a.name.localeCompare(b.name));
+    .toSorted((a, b) => a.name.localeCompare(b.name));
 }
