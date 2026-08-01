@@ -492,3 +492,94 @@ func TestMatchmaking_ReportPlayerRoundStats_Authorization(t *testing.T) {
 		t.Fatalf("over match cap: code = %v, want InvalidArgument (err = %v)", connectErrCode(err), err)
 	}
 }
+
+// TestMatchmaking_ReportMatchResult_Authorization verifies that a match
+// result can only be reported by a participant of an active match, and
+// that a completed match cannot be re-reported — repeated reports would
+// re-apply the Glicko deltas and farm ratings (F3/F8/F22).
+func TestMatchmaking_ReportMatchResult_Authorization(t *testing.T) {
+	bdb, cleanup := newTestBunDB(t)
+	defer cleanup()
+
+	ctx := context.Background()
+	identityRepo := repos.NewIdentityRepo(bdb)
+	guildRepo := repos.NewGuildRepo(bdb)
+	matchRepo := repos.NewMatchRepo(bdb)
+	svc := services.NewMatchService(matchRepo, guildRepo, nil)
+
+	guildID := fmt.Sprintf("mm_report_%s", randomSuffix())
+	discordIDs := make([]string, 4)
+	playerIDs := make([]int32, 4)
+	for i := 0; i < 4; i++ {
+		discordID := fmt.Sprintf("mm_report_user_%d_%s", i, randomSuffix())
+		username := fmt.Sprintf("ReportPlayer%d", i)
+		player, err := identityRepo.UpsertPlayerByIdentity(ctx, models.GameR6, username, "pc", nil, nil)
+		if err != nil {
+			t.Fatalf("UpsertPlayerByIdentity(%s): %v", username, err)
+		}
+		if _, err := identityRepo.LinkDiscordIdentity(ctx, models.GameR6, discordID, player.ID); err != nil {
+			t.Fatalf("LinkDiscordIdentity(%s): %v", discordID, err)
+		}
+		if _, err := guildRepo.UpsertMembership(ctx, models.GameR6, guildID, discordID, player.ID); err != nil {
+			t.Fatalf("UpsertMembership(%s): %v", discordID, err)
+		}
+		discordIDs[i] = discordID
+		playerIDs[i] = player.ID
+	}
+
+	now := repos.NowMS()
+	teams := []string{"a", "a", "b", "b"}
+	participants := make([]models.NewMatchParticipant, 0, 4)
+	for i := 0; i < 4; i++ {
+		participants = append(participants, models.NewMatchParticipant{
+			Game:          models.GameR6,
+			DiscordUserID: discordIDs[i],
+			PlayerID:      playerIDs[i],
+			Team:          teams[i],
+			Slot:          int32(i % 2),
+			CreatedAt:     now,
+			UpdatedAt:     now,
+		})
+	}
+	saved, _, err := matchRepo.Create(ctx, &models.NewMatch{
+		Game:                   models.GameR6,
+		GuildID:                guildID,
+		ChannelID:              "channel-1",
+		MessageID:              "pending",
+		CreatedByDiscordUserID: discordIDs[0],
+		Status:                 repos.MatchStatusActive,
+		MatchType:              "internal",
+		ResolutionType:         "played",
+		CreatedAt:              now,
+		UpdatedAt:              now,
+	}, participants)
+	if err != nil {
+		t.Fatalf("Create match: %v", err)
+	}
+
+	report := func(acting string) error {
+		req := connect.NewRequest(&matchv1.ReportMatchResultRequest{
+			MatchId:     saved.ID,
+			Game:        commonv1.Game_GAME_R6,
+			WinningTeam: "a",
+		})
+		if acting != "" {
+			req.Header().Set(services.ActingUserIDHeader, acting)
+		}
+		_, err := svc.ReportMatchResult(ctx, req)
+		return err
+	}
+
+	if err := report(""); connectErrCode(err) != connect.CodePermissionDenied {
+		t.Fatalf("no acting identity: code = %v, want PermissionDenied (err = %v)", connectErrCode(err), err)
+	}
+	if err := report("mm_outsider"); connectErrCode(err) != connect.CodePermissionDenied {
+		t.Fatalf("non-participant: code = %v, want PermissionDenied (err = %v)", connectErrCode(err), err)
+	}
+	if err := report(discordIDs[0]); err != nil {
+		t.Fatalf("participant report: %v", err)
+	}
+	if err := report(discordIDs[0]); connectErrCode(err) != connect.CodeFailedPrecondition {
+		t.Fatalf("re-report completed match: code = %v, want FailedPrecondition (err = %v)", connectErrCode(err), err)
+	}
+}
