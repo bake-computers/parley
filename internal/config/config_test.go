@@ -25,6 +25,7 @@ func TestLoad(t *testing.T) {
 	t.Setenv("AXIOM_EDGE", "eu-central-1.aws.edge.axiom.co")
 	t.Setenv("AXIOM_ENABLED", "false")
 	t.Setenv("ACCOUNT_DELETION_HMAC_SECRET", "secret")
+	t.Setenv("MATCHMAKING_MODEL_R2_SHA256", "0af3")
 	t.Setenv("LOG_LEVEL", "debug")
 
 	cfg, err := config.Load()
@@ -86,6 +87,9 @@ func TestLoad(t *testing.T) {
 	if cfg.AccountDeletionHMACSecret != "secret" {
 		t.Errorf("AccountDeletionHMACSecret = %q", cfg.AccountDeletionHMACSecret)
 	}
+	if cfg.MatchmakingModelR2SHA256 != "0af3" {
+		t.Errorf("MatchmakingModelR2SHA256 = %q, want 0af3", cfg.MatchmakingModelR2SHA256)
+	}
 	if cfg.LogLevel != "debug" {
 		t.Errorf("LogLevel = %q, want debug", cfg.LogLevel)
 	}
@@ -108,6 +112,7 @@ func TestLoad_defaults(t *testing.T) {
 	}
 	// Required for boot; defaults tests still need them set.
 	t.Setenv("DATABASE_URL", "postgres://u:p@localhost/db")
+	t.Setenv("MATCHMAKING_MODEL_R2_SHA256", "0af3")
 
 	cfg, err := config.Load()
 	if err != nil {
@@ -150,8 +155,17 @@ func TestLoad_RequiresDatabase(t *testing.T) {
 	}
 }
 
+func TestLoad_RequiresModelSHA256(t *testing.T) {
+	t.Setenv("DATABASE_URL", "postgres://u:p@localhost/db")
+	t.Setenv("MATCHMAKING_MODEL_R2_SHA256", "")
+	if _, err := config.Load(); err == nil {
+		t.Fatal("Load() with empty MATCHMAKING_MODEL_R2_SHA256: want error")
+	}
+}
+
 func TestLoad_statsCCProfileBatchClamps(t *testing.T) {
 	t.Setenv("DATABASE_URL", "postgres://u:p@localhost/db")
+	t.Setenv("MATCHMAKING_MODEL_R2_SHA256", "0af3")
 	t.Setenv("STATS_CC_PROFILE_BATCH_SIZE", "99")
 	t.Setenv("STATS_CC_PROFILE_BATCH_DELAY_MS", "0")
 
@@ -197,6 +211,7 @@ func TestLoad_statsCCProfileBatchClamps(t *testing.T) {
 
 func TestLoad_rustLogFallback(t *testing.T) {
 	t.Setenv("DATABASE_URL", "postgres://u:p@localhost/db")
+	t.Setenv("MATCHMAKING_MODEL_R2_SHA256", "0af3")
 	t.Setenv("LOG_LEVEL", "")
 	t.Setenv("RUST_LOG", "parley=warn")
 

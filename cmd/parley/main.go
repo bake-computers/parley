@@ -106,7 +106,7 @@ func run() error {
 	if err != nil {
 		return fmt.Errorf("matchmaking model client: %w", err)
 	}
-	model, etag, err := ovi.Load(ctx, modelClient, cfg.MatchmakingModelR2Bucket, cfg.MatchmakingModelR2Key)
+	model, etag, err := ovi.Load(ctx, modelClient, cfg.MatchmakingModelR2Bucket, cfg.MatchmakingModelR2Key, cfg.MatchmakingModelR2SHA256)
 	if err != nil {
 		return fmt.Errorf("load matchmaking model: %w", err)
 	}

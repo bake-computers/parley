@@ -1,25 +1,33 @@
 package ovi
 
 import (
+	"bytes"
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
+	"io"
 	"math"
 	"os"
+	"strings"
 	"testing"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"google.golang.org/protobuf/encoding/protowire"
 )
 
 // TestLiveArtifact is intentionally opt-in: regular tests never require R2.
 func TestLiveArtifact(t *testing.T) {
 	account, key, secret := os.Getenv("MATCHMAKING_MODEL_R2_ACCOUNT_ID"), os.Getenv("MATCHMAKING_MODEL_R2_ACCESS_KEY_ID"), os.Getenv("MATCHMAKING_MODEL_R2_SECRET_ACCESS_KEY")
-	if account == "" || key == "" || secret == "" {
+	pin := os.Getenv("MATCHMAKING_MODEL_R2_SHA256")
+	if account == "" || key == "" || secret == "" || pin == "" {
 		t.Skip("R2 model credentials not configured")
 	}
 	c, err := NewR2Client(context.Background(), account, key, secret, os.Getenv("MATCHMAKING_MODEL_R2_JURISDICTION"))
 	if err != nil {
 		t.Fatal(err)
 	}
-	m, _, err := Load(context.Background(), c, "ovi", "ovi_model.onnx")
+	m, _, err := Load(context.Background(), c, "ovi", "ovi_model.onnx", pin)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -50,6 +58,29 @@ func TestParseRejectsWrongInput(t *testing.T) {
 	b = replaceFirst(b, []byte("playstyle_features"), []byte("wrong______________"))
 	if _, err := Parse(b); err == nil {
 		t.Fatal("expected validation failure")
+	}
+}
+
+type stubObjectGetter struct{ body []byte }
+
+func (s stubObjectGetter) GetObject(context.Context, *s3.GetObjectInput, ...func(*s3.Options)) (*s3.GetObjectOutput, error) {
+	return &s3.GetObjectOutput{Body: io.NopCloser(bytes.NewReader(s.body)), ETag: aws.String("etag")}, nil
+}
+
+func TestLoadRejectsDigestMismatch(t *testing.T) {
+	stub := stubObjectGetter{body: testModel()}
+	_, _, err := Load(context.Background(), stub, "b", "k", strings.Repeat("0", 64))
+	if err == nil || !strings.Contains(err.Error(), "sha256 mismatch") {
+		t.Fatalf("expected sha256 mismatch error, got %v", err)
+	}
+}
+
+func TestLoadAcceptsPinnedDigest(t *testing.T) {
+	body := testModel()
+	sum := sha256.Sum256(body)
+	stub := stubObjectGetter{body: body}
+	if _, _, err := Load(context.Background(), stub, "b", "k", hex.EncodeToString(sum[:])); err != nil {
+		t.Fatal(err)
 	}
 }
 

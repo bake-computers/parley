@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	awsconfig "github.com/aws/aws-sdk-go-v2/config"
@@ -34,7 +35,10 @@ func NewR2Client(ctx context.Context, accountID, accessKeyID, secretAccessKey, j
 	}), nil
 }
 
-func Load(ctx context.Context, client ObjectGetter, bucket, key string) (*Model, string, error) {
+// Load downloads and parses the model, rejecting it unless its SHA256
+// matches expectSHA. The pin keeps an R2 write-access holder from
+// silently swapping the scoring function; it fails closed on mismatch.
+func Load(ctx context.Context, client ObjectGetter, bucket, key, expectSHA string) (*Model, string, error) {
 	out, err := client.GetObject(ctx, &s3.GetObjectInput{Bucket: aws.String(bucket), Key: aws.String(key)})
 	if err != nil {
 		return nil, "", fmt.Errorf("download matchmaking model: %w", err)
@@ -50,6 +54,9 @@ func Load(ctx context.Context, client ObjectGetter, bucket, key string) (*Model,
 	m, err := Parse(b)
 	if err != nil {
 		return nil, "", err
+	}
+	if !strings.EqualFold(m.SHA256, expectSHA) {
+		return nil, "", fmt.Errorf("matchmaking model sha256 mismatch: got %s, pinned %s", m.SHA256, expectSHA)
 	}
 	return m, aws.ToString(out.ETag), nil
 }
