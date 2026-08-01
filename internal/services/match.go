@@ -628,6 +628,28 @@ func opponentMu(team []models.MatchParticipantWithUsername) float64 {
 
 // --- ReportPlayerRoundStats ---
 
+// Per-round stat ceilings for R6: a player dies once per round and can
+// take at most five kills (an ace). The per-match ceilings bound what a
+// participant can legitimately accumulate across every round of a match,
+// so resubmitting the round log cannot inflate totals without limit.
+const (
+	maxRoundKills   = 5
+	maxRoundDeaths  = 1
+	maxRoundAssists = 5
+
+	maxMatchKills   = 100
+	maxMatchDeaths  = 30
+	maxMatchAssists = 100
+)
+
+// statTotal adds a round delta onto a possibly-unset accumulated column.
+func statTotal(current *int32, delta int32) int32 {
+	if current == nil {
+		return delta
+	}
+	return *current + delta
+}
+
 // ReportPlayerRoundStats accumulates one round's K/D/A onto each named
 // participant. Totals are only mutable while the match is active; once
 // ReportMatchResult completes the match, stats are frozen. Input is
@@ -652,6 +674,9 @@ func (s *MatchService) ReportPlayerRoundStats(
 		if stat.GetKills() < 0 || stat.GetDeaths() < 0 || stat.GetAssists() < 0 {
 			return nil, apperr.InvalidArgument("kills, deaths, and assists must be non-negative")
 		}
+		if stat.GetKills() > maxRoundKills || stat.GetDeaths() > maxRoundDeaths || stat.GetAssists() > maxRoundAssists {
+			return nil, apperr.InvalidArgument("round stats exceed per-round limits")
+		}
 	}
 
 	row, err := s.match.Get(ctx, game, msg.GetMatchId())
@@ -669,16 +694,35 @@ func (s *MatchService) ReportPlayerRoundStats(
 	if err != nil {
 		return nil, apperr.Internal(fmt.Sprintf("participants: %v", err))
 	}
-	participantSet := make(map[string]struct{}, len(parts))
+	byID := make(map[string]models.MatchParticipantWithUsername, len(parts))
 	for _, p := range parts {
-		participantSet[p.DiscordUserID] = struct{}{}
+		byID[p.DiscordUserID] = p
 	}
+
+	// Only a participant may submit the round log. The acting identity
+	// comes from the authenticated edge, not the (ignored) request body.
+	acting := ActingDiscordUserID(req.Header())
+	if acting == "" {
+		return nil, apperr.PermissionDenied("verified caller identity required")
+	}
+	if _, ok := byID[acting]; !ok {
+		return nil, apperr.PermissionDenied("only a participant can report round stats")
+	}
+
 	deltas := make([]repos.ParticipantRoundDelta, 0, len(stats))
 	for _, stat := range stats {
 		userID := strings.TrimSpace(stat.GetDiscordUserId())
-		if _, ok := participantSet[userID]; !ok {
+		prev, ok := byID[userID]
+		if !ok {
 			return nil, apperr.InvalidArgument(
 				fmt.Sprintf("user %s is not a participant in this match", userID),
+			)
+		}
+		if statTotal(prev.Kills, stat.GetKills()) > maxMatchKills ||
+			statTotal(prev.Deaths, stat.GetDeaths()) > maxMatchDeaths ||
+			statTotal(prev.Assists, stat.GetAssists()) > maxMatchAssists {
+			return nil, apperr.InvalidArgument(
+				fmt.Sprintf("round stats for %s exceed match limits", userID),
 			)
 		}
 		deltas = append(deltas, repos.ParticipantRoundDelta{
