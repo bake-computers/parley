@@ -220,7 +220,7 @@ export async function handlePatchGuildSettingsBundle(
         if (!settings) {
           return Response.json({ error: "invalid_payload" }, { status: 400 });
         }
-        const res = await rpcUpsertGuildSettings(env, settings);
+        const res = await rpcUpsertGuildSettings(env, settings, userId);
         if (!res.success || !res.settings) {
           return Response.json({ error: res.error?.message ?? "Update failed" }, { status: 502 });
         }
@@ -231,7 +231,7 @@ export async function handlePatchGuildSettingsBundle(
         if (!rules) {
           return Response.json({ error: "invalid_payload" }, { status: 400 });
         }
-        const res = await rpcUpsertMatchmakingRules(env, rules);
+        const res = await rpcUpsertMatchmakingRules(env, rules, userId);
         if (!res.success || !res.rules) {
           return Response.json({ error: res.error?.message ?? "Update failed" }, { status: 502 });
         }
@@ -242,7 +242,7 @@ export async function handlePatchGuildSettingsBundle(
         if (!quota) {
           return Response.json({ error: "invalid_payload" }, { status: 400 });
         }
-        const res = await rpcUpsertMatchQuotas(env, quota);
+        const res = await rpcUpsertMatchQuotas(env, quota, userId);
         if (!res.success || !res.quota) {
           return Response.json({ error: res.error?.message ?? "Update failed" }, { status: 502 });
         }

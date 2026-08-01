@@ -62,7 +62,7 @@ func (h *GuildHandler) UpsertGuildSettings(
 		}), nil
 	}
 
-	saved, err := h.svc.UpsertGuildSettings(ctx, msg.GetSettings())
+	saved, err := h.svc.UpsertGuildSettings(ctx, msg.GetSettings(), services.ActingDiscordUserID(req.Header()))
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +114,7 @@ func (h *GuildHandler) UpsertMatchmakingRules(
 		}), nil
 	}
 
-	saved, err := h.svc.UpsertMatchmakingRules(ctx, msg.GetRules())
+	saved, err := h.svc.UpsertMatchmakingRules(ctx, msg.GetRules(), services.ActingDiscordUserID(req.Header()))
 	if err != nil {
 		return nil, err
 	}
@@ -166,7 +166,7 @@ func (h *GuildHandler) UpsertMatchQuotas(
 		}), nil
 	}
 
-	saved, err := h.svc.UpsertMatchQuota(ctx, msg.GetQuota())
+	saved, err := h.svc.UpsertMatchQuota(ctx, msg.GetQuota(), services.ActingDiscordUserID(req.Header()))
 	if err != nil {
 		return nil, err
 	}
