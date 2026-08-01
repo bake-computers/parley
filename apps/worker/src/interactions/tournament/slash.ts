@@ -100,10 +100,11 @@ export const tournamentSlashCommand = new SlashCommand()
     const code = String(interaction.options.getString("code") ?? "")
       .trim()
       .toUpperCase();
-    if (!/^[A-Z2-9]{6}$/u.test(code)) {
+    // 10 chars since the entropy bump; 6-char legacy codes stay resolvable.
+    if (!/^(?:[A-Z2-9]{6}|[A-Z2-9]{10})$/u.test(code)) {
       await replyV2(
         interaction,
-        card("Tournament not found", "Use the six-character code shared by the organizer."),
+        card("Tournament not found", "Use the code shared by the organizer."),
       );
       return;
     }

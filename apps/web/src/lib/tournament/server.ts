@@ -18,7 +18,9 @@ const GUILD_MEMBERS_TTL_SEC = 120;
 
 function validateTournamentCode(code: string): string {
   const normalized = code.trim().toUpperCase();
-  if (!/^[A-Z2-9]{6}$/u.test(normalized)) {throw new Error("Invalid tournament code");}
+  // 10 chars since the entropy bump; 6-char legacy codes stay resolvable.
+  if (!/^(?:[A-Z2-9]{6}|[A-Z2-9]{10})$/u.test(normalized))
+    {throw new Error("Invalid tournament code");}
   return normalized;
 }
 
