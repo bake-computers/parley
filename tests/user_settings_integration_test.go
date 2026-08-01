@@ -24,8 +24,11 @@ import (
 	"strings"
 	"testing"
 
+	"connectrpc.com/connect"
+	userv1 "github.com/bake-computers/parley/gen/parley/user/v1"
 	"github.com/bake-computers/parley/internal/models"
 	"github.com/bake-computers/parley/internal/repos"
+	"github.com/bake-computers/parley/internal/services"
 )
 
 // TestUserSettings_DeleteAnonymizesAndBlocksRelink mirrors the Rust
@@ -103,5 +106,55 @@ func TestUserSettings_DeleteAnonymizesAndBlocksRelink(t *testing.T) {
 	}
 	if *blocked <= repos.NowMS() {
 		t.Errorf("cooldown_until = %d, want > now (%d)", *blocked, repos.NowMS())
+	}
+}
+
+// TestUserSettings_OnlyOwnerCanAccess verifies that user settings can
+// only be read or written under the verified owner identity — an IDOR
+// here let any caller read preferences and flip matchmaking_enabled for
+// a victim (F20).
+func TestUserSettings_OnlyOwnerCanAccess(t *testing.T) {
+	rig := newEngineWithDB(t)
+	ctx := context.Background()
+
+	victim := fmt.Sprintf("us_victim_%s", randomSuffix())
+	attacker := fmt.Sprintf("us_attacker_%s", randomSuffix())
+
+	get := func(acting, target string) error {
+		req := connect.NewRequest(&userv1.GetUserSettingsRequest{DiscordUserId: target})
+		if acting != "" {
+			req.Header().Set(services.ActingUserIDHeader, acting)
+		}
+		_, err := rig.UserClient.GetUserSettings(ctx, req)
+		return err
+	}
+	upsert := func(acting, target string) error {
+		req := connect.NewRequest(&userv1.UpsertUserSettingsRequest{
+			Settings: &userv1.UserSettings{
+				DiscordUserId:      target,
+				MatchmakingEnabled: false,
+			},
+		})
+		if acting != "" {
+			req.Header().Set(services.ActingUserIDHeader, acting)
+		}
+		_, err := rig.UserClient.UpsertUserSettings(ctx, req)
+		return err
+	}
+
+	if err := get("", victim); connectErrCode(err) != connect.CodePermissionDenied {
+		t.Fatalf("get with no acting identity: code = %v, want PermissionDenied (err = %v)", connectErrCode(err), err)
+	}
+	if err := get(attacker, victim); connectErrCode(err) != connect.CodePermissionDenied {
+		t.Fatalf("get as another user: code = %v, want PermissionDenied", connectErrCode(err))
+	}
+	if err := upsert(attacker, victim); connectErrCode(err) != connect.CodePermissionDenied {
+		t.Fatalf("upsert as another user: code = %v, want PermissionDenied", connectErrCode(err))
+	}
+	if err := get(victim, victim); err != nil {
+		t.Fatalf("get own settings: %v", err)
+	}
+	if err := upsert(victim, victim); err != nil {
+		t.Fatalf("upsert own settings: %v", err)
 	}
 }

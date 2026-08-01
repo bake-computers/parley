@@ -36,9 +36,9 @@ func (h *UserHandler) GetUserSettings(
 		}), nil
 	}
 
-	settings, err := h.svc.GetUserSettings(ctx, discordUserID)
+	settings, err := h.svc.GetUserSettings(ctx, discordUserID, services.ActingDiscordUserID(req.Header()))
 	if err != nil {
-		return nil, apperr.Internal(err.Error())
+		return nil, err
 	}
 
 	return connect.NewResponse(&userv1.UserSettingsResponse{
@@ -65,7 +65,7 @@ func (h *UserHandler) UpsertUserSettings(
 		}), nil
 	}
 
-	saved, err := h.svc.UpsertUserSettings(ctx, s)
+	saved, err := h.svc.UpsertUserSettings(ctx, s, services.ActingDiscordUserID(req.Header()))
 	if err != nil {
 		return nil, err
 	}

@@ -33,12 +33,26 @@ export const ACTING_USER_HEADER = "X-Parley-Acting-Discord-User-Id";
 
 const actingUserInterceptor: Interceptor = (next) => async (req) => {
   const message = req.message as Record<string, unknown>;
+  let acting: string | undefined;
   for (const field of ACTING_USER_FIELDS) {
     const value = message[field];
     if (typeof value === "string" && value.trim() !== "") {
-      req.header.set(ACTING_USER_HEADER, value.trim());
+      acting = value.trim();
       break;
     }
+  }
+  // UpsertUserSettings nests the target id inside `settings`.
+  if (acting === undefined) {
+    const settings = message["settings"];
+    if (settings !== null && typeof settings === "object") {
+      const value = (settings as Record<string, unknown>)["discordUserId"];
+      if (typeof value === "string" && value.trim() !== "") {
+        acting = value.trim();
+      }
+    }
+  }
+  if (acting !== undefined) {
+    req.header.set(ACTING_USER_HEADER, acting);
   }
   return next(req);
 };
