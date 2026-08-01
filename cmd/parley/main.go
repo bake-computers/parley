@@ -121,12 +121,13 @@ func run() error {
 	tournSvc := services.NewTournamentService(bunDB, tournRepo, teamRepo, rosterRepo, bracketRepo, mmService)
 
 	deps := server.Deps{
-		Identity:   identitySvc,
-		Guild:      guildSvc,
-		User:       userSvc,
-		Match:      matchSvc,
-		Tournament: tournSvc,
-		Stats:      statsSvc,
+		Identity:     identitySvc,
+		Guild:        guildSvc,
+		User:         userSvc,
+		Match:        matchSvc,
+		Tournament:   tournSvc,
+		Stats:        statsSvc,
+		SharedSecret: cfg.EngineSharedSecret,
 		ReadyCheck: func() error {
 			return db.Ping(ctx, bunDB)
 		},

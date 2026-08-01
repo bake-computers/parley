@@ -36,6 +36,10 @@ type Deps struct {
 	Tournament *services.TournamentService // nil = skip tournament routes
 	Stats      *services.StatsService
 
+	// SharedSecret authenticates edge callers (worker/web) on every
+	// non-probe route. Empty fails closed: all requests get 401.
+	SharedSecret string
+
 	// ReadyCheck is called by GET /ready. Return nil for READY, non-nil for NOT READY.
 	// If nil, /ready always returns 200.
 	ReadyCheck func() error
@@ -54,6 +58,7 @@ func New(deps Deps) *fiber.App {
 	app.Use(requestid.New())
 	app.Use(requestLogMiddleware())
 	app.Use(compress.New())
+	app.Use(requireEngineAuth(deps.SharedSecret))
 
 	// Health and readiness
 	app.Get("/health", func(c fiber.Ctx) error {

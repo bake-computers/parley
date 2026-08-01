@@ -8,6 +8,7 @@ import (
 
 func TestLoad(t *testing.T) {
 	t.Setenv("ENGINE_SERVICE_ADDR", "127.0.0.1:9999")
+	t.Setenv("ENGINE_SHARED_SECRET", "s3cret")
 	t.Setenv("DATABASE_URL", "postgres://u:p@localhost/db")
 	t.Setenv("RUN_MIGRATIONS", "1")
 	t.Setenv("DB_POOL_MAX", "16")
@@ -35,6 +36,9 @@ func TestLoad(t *testing.T) {
 
 	if cfg.EngineServiceAddr != "127.0.0.1:9999" {
 		t.Errorf("EngineServiceAddr = %q, want 127.0.0.1:9999", cfg.EngineServiceAddr)
+	}
+	if cfg.EngineSharedSecret != "s3cret" {
+		t.Errorf("EngineSharedSecret = %q, want s3cret", cfg.EngineSharedSecret)
 	}
 	if cfg.DatabaseURL != "postgres://u:p@localhost/db" {
 		t.Errorf("DatabaseURL = %q", cfg.DatabaseURL)
@@ -113,6 +117,7 @@ func TestLoad_defaults(t *testing.T) {
 	// Required for boot; defaults tests still need them set.
 	t.Setenv("DATABASE_URL", "postgres://u:p@localhost/db")
 	t.Setenv("MATCHMAKING_MODEL_R2_SHA256", "0af3")
+	t.Setenv("ENGINE_SHARED_SECRET", "s3cret")
 
 	cfg, err := config.Load()
 	if err != nil {
@@ -157,6 +162,7 @@ func TestLoad_RequiresDatabase(t *testing.T) {
 
 func TestLoad_RequiresModelSHA256(t *testing.T) {
 	t.Setenv("DATABASE_URL", "postgres://u:p@localhost/db")
+	t.Setenv("ENGINE_SHARED_SECRET", "s3cret")
 	t.Setenv("MATCHMAKING_MODEL_R2_SHA256", "")
 	if _, err := config.Load(); err == nil {
 		t.Fatal("Load() with empty MATCHMAKING_MODEL_R2_SHA256: want error")
@@ -167,9 +173,19 @@ func TestLoad_RequiresModelSHA256(t *testing.T) {
 	}
 }
 
+func TestLoad_RequiresEngineSharedSecret(t *testing.T) {
+	t.Setenv("DATABASE_URL", "postgres://u:p@localhost/db")
+	t.Setenv("MATCHMAKING_MODEL_R2_SHA256", "0af3")
+	t.Setenv("ENGINE_SHARED_SECRET", "")
+	if _, err := config.Load(); err == nil {
+		t.Fatal("Load() with empty ENGINE_SHARED_SECRET: want error")
+	}
+}
+
 func TestLoad_statsCCProfileBatchClamps(t *testing.T) {
 	t.Setenv("DATABASE_URL", "postgres://u:p@localhost/db")
 	t.Setenv("MATCHMAKING_MODEL_R2_SHA256", "0af3")
+	t.Setenv("ENGINE_SHARED_SECRET", "s3cret")
 	t.Setenv("STATS_CC_PROFILE_BATCH_SIZE", "99")
 	t.Setenv("STATS_CC_PROFILE_BATCH_DELAY_MS", "0")
 
@@ -216,6 +232,7 @@ func TestLoad_statsCCProfileBatchClamps(t *testing.T) {
 func TestLoad_rustLogFallback(t *testing.T) {
 	t.Setenv("DATABASE_URL", "postgres://u:p@localhost/db")
 	t.Setenv("MATCHMAKING_MODEL_R2_SHA256", "0af3")
+	t.Setenv("ENGINE_SHARED_SECRET", "s3cret")
 	t.Setenv("LOG_LEVEL", "")
 	t.Setenv("RUST_LOG", "parley=warn")
 

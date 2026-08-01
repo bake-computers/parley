@@ -11,6 +11,7 @@ declare namespace Cloudflare {
     TURNSTILE_SECRET_KEY?: string;
     VPC_SERVICE?: Fetcher;
     ENGINE_INTERNAL_URL?: string;
+    ENGINE_SHARED_SECRET?: string;
   }
 }
 
