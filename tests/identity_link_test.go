@@ -20,6 +20,7 @@ import (
 	commonv1 "github.com/bake-computers/parley/gen/parley/common/v1"
 	identityv1 "github.com/bake-computers/parley/gen/parley/identity/v1"
 	userv1 "github.com/bake-computers/parley/gen/parley/user/v1"
+	"github.com/bake-computers/parley/internal/services"
 )
 
 // TestIdentityLink_RoundTrip exercises the four-step lifecycle that every
@@ -48,6 +49,7 @@ func TestIdentityLink_RoundTrip(t *testing.T) {
 		Username:      username,
 		Platform:      platform,
 	})
+	linkReq.Header().Set(services.ActingUserIDHeader, discordID)
 	linkResp, err := rig.IdentityClient.LinkAccount(ctx, linkReq)
 	if err != nil {
 		t.Fatalf("LinkAccount: %v", err)
@@ -96,6 +98,7 @@ func TestIdentityLink_RoundTrip(t *testing.T) {
 		DiscordUserId: discordID,
 		Game:          commonv1.Game_GAME_R6,
 	})
+	unlinkReq.Header().Set(services.ActingUserIDHeader, discordID)
 	unlinkResp, err := rig.IdentityClient.UnlinkAccount(ctx, unlinkReq)
 	if err != nil {
 		t.Fatalf("UnlinkAccount: %v", err)
@@ -136,6 +139,7 @@ func TestIdentityLink_MultiPlatform(t *testing.T) {
 		Username:      pcUser,
 		Platform:      "pc",
 	})
+	pcReq.Header().Set(services.ActingUserIDHeader, discordID)
 	if _, err := rig.IdentityClient.LinkAccount(ctx, pcReq); err != nil {
 		t.Fatalf("LinkAccount(pc): %v", err)
 	}
@@ -146,6 +150,7 @@ func TestIdentityLink_MultiPlatform(t *testing.T) {
 		Username:      consoleUser,
 		Platform:      "playstation",
 	})
+	psReq.Header().Set(services.ActingUserIDHeader, discordID)
 	if _, err := rig.IdentityClient.LinkAccount(ctx, psReq); err != nil {
 		t.Fatalf("LinkAccount(playstation): %v", err)
 	}
@@ -168,6 +173,7 @@ func TestIdentityLink_MultiPlatform(t *testing.T) {
 		Username:      "OtherPc",
 		Platform:      "pc",
 	})
+	dupReq.Header().Set(services.ActingUserIDHeader, discordID)
 	if _, err := rig.IdentityClient.LinkAccount(ctx, dupReq); err == nil {
 		t.Fatal("expected duplicate pc link to fail")
 	} else if got := connectErrCode(err); got != connect.CodeFailedPrecondition {
@@ -179,6 +185,7 @@ func TestIdentityLink_MultiPlatform(t *testing.T) {
 		Game:          commonv1.Game_GAME_R6,
 		Platform:      "pc",
 	})
+	unlinkReq.Header().Set(services.ActingUserIDHeader, discordID)
 	unlinkResp, err := rig.IdentityClient.UnlinkAccount(ctx, unlinkReq)
 	if err != nil {
 		t.Fatalf("UnlinkAccount(pc): %v", err)
@@ -221,6 +228,7 @@ func TestIdentityLink_LookupByUsername(t *testing.T) {
 		Username:      username,
 		Platform:      platform,
 	})
+	linkReq.Header().Set(services.ActingUserIDHeader, discordID)
 	if _, err := rig.IdentityClient.LinkAccount(ctx, linkReq); err != nil {
 		t.Fatalf("LinkAccount: %v", err)
 	}
@@ -343,6 +351,7 @@ func TestIdentityLink_DeleteAnonymizes(t *testing.T) {
 		Username:      username,
 		Platform:      platform,
 	})
+	linkReq.Header().Set(services.ActingUserIDHeader, discordID)
 	if _, err := rig.IdentityClient.LinkAccount(ctx, linkReq); err != nil {
 		t.Fatalf("LinkAccount: %v", err)
 	}
@@ -422,12 +431,14 @@ func TestIdentityLink_OwnerBypassesRelinkCooldown(t *testing.T) {
 	discordID := "980859238630948886"
 
 	link := func() error {
-		_, err := rig.IdentityClient.LinkAccount(ctx, connect.NewRequest(&identityv1.LinkAccountRequest{
+		req := connect.NewRequest(&identityv1.LinkAccountRequest{
 			DiscordUserId: discordID,
 			Game:          commonv1.Game_GAME_R6,
 			Username:      "OwnerBypass",
 			Platform:      "uplay",
-		}))
+		})
+		req.Header().Set(services.ActingUserIDHeader, discordID)
+		_, err := rig.IdentityClient.LinkAccount(ctx, req)
 		return err
 	}
 	if err := link(); err != nil {
@@ -470,5 +481,36 @@ func verifyPlayerAnonymized(t *testing.T, rig *engineTestRig, playerID int32) {
 	}
 	if username != "Deleted User" {
 		t.Errorf("player.username = %q, want 'Deleted User'", username)
+	}
+}
+
+// TestIdentityLink_OnlyOwnerCanLink verifies that an account can only be
+// linked or unlinked under the verified caller's own Discord id — a
+// mismatched acting identity is rejected (F7/F18/F27).
+func TestIdentityLink_OnlyOwnerCanLink(t *testing.T) {
+	rig := newEngineWithDB(t)
+	ctx := context.Background()
+
+	victim := "300400500600700800"
+	attacker := "900800700600500400"
+
+	linkReq := connect.NewRequest(&identityv1.LinkAccountRequest{
+		DiscordUserId: victim,
+		Game:          commonv1.Game_GAME_R6,
+		Username:      "Victim",
+		Platform:      "uplay",
+	})
+	linkReq.Header().Set(services.ActingUserIDHeader, attacker)
+	if _, err := rig.IdentityClient.LinkAccount(ctx, linkReq); connectErrCode(err) != connect.CodePermissionDenied {
+		t.Fatalf("link under another user's id: code = %v, want PermissionDenied (err = %v)", connectErrCode(err), err)
+	}
+
+	unlinkReq := connect.NewRequest(&identityv1.UnlinkAccountRequest{
+		DiscordUserId: victim,
+		Game:          commonv1.Game_GAME_R6,
+	})
+	unlinkReq.Header().Set(services.ActingUserIDHeader, attacker)
+	if _, err := rig.IdentityClient.UnlinkAccount(ctx, unlinkReq); connectErrCode(err) != connect.CodePermissionDenied {
+		t.Fatalf("unlink under another user's id: code = %v, want PermissionDenied (err = %v)", connectErrCode(err), err)
 	}
 }
