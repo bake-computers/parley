@@ -744,7 +744,14 @@ func (s *MatchService) ListMatches(
 	}
 	limit := int64(5)
 	if msg.GetLimit() > 0 {
-		limit = int64(msg.GetLimit())
+		l := msg.GetLimit()
+		// Each returned row fans out into a Participants() query, so an
+		// unclamped int32 limit is a DB/CPU exhaustion primitive. Mirrors
+		// the clamps in ListTournaments and ListGuildMembers.
+		if l > 100 {
+			l = 100
+		}
+		limit = int64(l)
 	}
 	cursor, err := repos.KeysetCursorFromString(msg.GetCursor())
 	if err != nil {
