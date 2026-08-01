@@ -4,12 +4,21 @@ import type { UserSettingsJson } from "./types.js";
 
 type RpcError = { code?: string; message?: string };
 
-async function engineCall<T>(env: EngineTransportEnv, path: string, body: unknown): Promise<T> {
+async function engineCall<T>(
+  env: EngineTransportEnv,
+  path: string,
+  body: unknown,
+  actingUserId: string,
+): Promise<T> {
   const { baseUrl, fetchImpl } = resolveEngineTransport(env);
   const url = new URL(path, baseUrl).href;
   const res = await fetchImpl(url, {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers: {
+      "content-type": "application/json",
+      // The engine authorizes against this verified session identity.
+      "x-parley-acting-discord-user-id": actingUserId,
+    },
     body: JSON.stringify(body),
   });
   const json = (await res.json()) as T & { error?: RpcError };
@@ -27,7 +36,7 @@ export async function rpcGetUserSettings(env: EngineTransportEnv, discordUserId:
     success: boolean;
     settings?: UserSettingsJson;
     error?: RpcError;
-  }>(env, `${SVC}/GetUserSettings`, { discordUserId });
+  }>(env, `${SVC}/GetUserSettings`, { discordUserId }, discordUserId);
 }
 
 export async function rpcUpsertUserSettings(env: EngineTransportEnv, settings: UserSettingsJson) {
@@ -35,5 +44,5 @@ export async function rpcUpsertUserSettings(env: EngineTransportEnv, settings: U
     success: boolean;
     settings?: UserSettingsJson;
     error?: RpcError;
-  }>(env, `${SVC}/UpsertUserSettings`, { settings });
+  }>(env, `${SVC}/UpsertUserSettings`, { settings }, settings.discordUserId);
 }

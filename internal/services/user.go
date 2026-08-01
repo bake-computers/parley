@@ -26,8 +26,13 @@ func NewUserSettingsService(
 
 func (s *UserSettingsService) GetUserSettings(
 	ctx context.Context,
-	discordUserID string,
+	discordUserID, actingUserID string,
 ) (*userv1.UserSettings, error) {
+	// Settings are per-user private state (terms acceptance, matchmaking
+	// opt-out): only the verified owner may read them.
+	if actingUserID == "" || actingUserID != discordUserID {
+		return nil, apperr.PermissionDenied("can only read your own settings")
+	}
 	row, err := s.users.Get(ctx, discordUserID)
 	if err != nil {
 		return nil, err
@@ -41,7 +46,14 @@ func (s *UserSettingsService) GetUserSettings(
 func (s *UserSettingsService) UpsertUserSettings(
 	ctx context.Context,
 	settings *userv1.UserSettings,
+	actingUserID string,
 ) (*userv1.UserSettings, error) {
+	// Only the verified owner may write their settings row; otherwise any
+	// caller could flip matchmaking_enabled for a victim and exclude them
+	// from matchmaking.
+	if actingUserID == "" || actingUserID != settings.GetDiscordUserId() {
+		return nil, apperr.PermissionDenied("can only update your own settings")
+	}
 	now := repos.NowMS()
 
 	newRow := &models.NewUserSettings{
