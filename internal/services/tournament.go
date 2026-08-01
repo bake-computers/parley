@@ -29,8 +29,13 @@ import (
 
 const tournamentCodeAlphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
 
+// tournamentCodeLength gives 32^10 = 2^50 distinct codes. The previous
+// 6-char codes (~2^30) were brute-forceable through the unthrottled
+// GetTournamentByCode oracle to harvest tournament rosters.
+const tournamentCodeLength = 10
+
 func newTournamentCode() (string, error) {
-	b := make([]byte, 6)
+	b := make([]byte, tournamentCodeLength)
 	if _, err := rand.Read(b); err != nil {
 		return "", err
 	}
@@ -421,7 +426,8 @@ func (s *TournamentService) GetTournamentByCode(ctx context.Context, req *connec
 		return nil, cerr
 	}
 	code := strings.ToUpper(strings.TrimSpace(req.Msg.GetPublicCode()))
-	if len(code) != 6 {
+	// 6 chars for tournaments created before the entropy bump, 10 after.
+	if len(code) != 6 && len(code) != tournamentCodeLength {
 		return nil, apperr.InvalidArgument("invalid tournament code")
 	}
 	t, err := s.tourn.GetByPublicCode(ctx, game, code)

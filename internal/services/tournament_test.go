@@ -122,3 +122,17 @@ func TestCancelTournament_UnspecifiedGame(t *testing.T) {
 	_, err := svc.CancelTournament(context.Background(), req)
 	assertConnectCode(t, err, connect.CodeInvalidArgument)
 }
+
+// Codes are 10 chars (2^50) now; 6-char legacy codes stay resolvable.
+// Anything else is rejected at the edge before any DB access.
+func TestGetTournamentByCode_BadLength(t *testing.T) {
+	svc := newNilDBTournamentService()
+	for _, code := range []string{"ABCDE", "ABCDEFG", "ABCDEFGHIJK"} {
+		req := connect.NewRequest(&tournamentv1.GetTournamentByCodeRequest{
+			Game:       commonv1.Game_GAME_R6,
+			PublicCode: code,
+		})
+		_, err := svc.GetTournamentByCode(context.Background(), req)
+		assertConnectCode(t, err, connect.CodeInvalidArgument)
+	}
+}
