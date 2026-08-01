@@ -55,6 +55,12 @@ func New(ctx context.Context, cfg *config.Config) (*bun.DB, error) {
 			tlsCfg.ServerName = host
 		}
 		poolCfg.ConnConfig.TLSConfig = tlsCfg
+		// sslmode=prefer/allow synthesizes plaintext fallback configs
+		// (TLSConfig=nil); point them at the same verifying config so a
+		// failed handshake can never silently downgrade to cleartext.
+		for _, fb := range poolCfg.ConnConfig.Fallbacks {
+			fb.TLSConfig = tlsCfg
+		}
 	}
 
 	pool, err := pgxpool.NewWithConfig(ctx, poolCfg)
