@@ -6,12 +6,6 @@ import (
 	"github.com/gofiber/fiber/v3"
 )
 
-// ActingUserIDHeader carries the Discord user id the authenticated edge
-// (worker/web) verified for the request. It is trustworthy only because
-// the request already passed the shared-secret gate; handlers use it to
-// authorize destructive and self-targeting RPCs.
-const ActingUserIDHeader = "X-Parley-Acting-Discord-User-Id"
-
 // requireEngineAuth rejects every request that does not present
 // "Authorization: Bearer <secret>", except operational probes. The engine
 // previously relied on network topology (the Cloudflare VPC binding) as its
