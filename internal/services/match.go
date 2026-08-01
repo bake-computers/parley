@@ -57,8 +57,9 @@ func requireR6Game(g commonv1.Game) (models.Game, *connect.Error) {
 
 // resolveTeamSize returns the requested team size, falling back to
 // the guild's default_team_format and finally the matchmaking
-// default of 5. Both the requested size and the guild default are
-// bounded by matchmaking.MaxTeamSize. Mirrors `resolve_team_size`
+// default of 5. A resolved size outside 1..matchmaking.MaxTeamSize is
+// rejected with InvalidArgument rather than clamped, so a caller never
+// gets teams of a size it did not ask for. Mirrors `resolve_team_size`
 // in src/handlers/match_queue.rs.
 func resolveTeamSize(
 	ctx context.Context,
