@@ -91,6 +91,13 @@ func (s *IdentityService) LinkAccount(
 		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("discord_user_id, username and platform are required"))
 	}
 
+	// Only the owner of a Discord id may link it. The acting identity
+	// comes from the authenticated edge, so a caller can no longer bind
+	// a victim's id to a player they control.
+	if ActingDiscordUserID(req.Header()) != discordUserID {
+		return nil, connect.NewError(connect.CodePermissionDenied, fmt.Errorf("can only link your own Discord account"))
+	}
+
 	// Deletion cooldown check (mirrors Rust ACCOUNT_DELETION_HMAC_SECRET path).
 	// The bot owner is exempt, for testing and support; discordUserID is
 	// validated non-empty above so an unset BOT_OWNER_DISCORD_ID never matches.
@@ -159,6 +166,12 @@ func (s *IdentityService) UnlinkAccount(
 	discordUserID := strings.TrimSpace(msg.GetDiscordUserId())
 	if discordUserID == "" {
 		return nil, connect.NewError(connect.CodeInvalidArgument, fmt.Errorf("discord_user_id is required"))
+	}
+
+	// Only the owner of a Discord id may unlink it; otherwise any caller
+	// could sever a victim's link and lock them out of re-linking for 24h.
+	if ActingDiscordUserID(req.Header()) != discordUserID {
+		return nil, connect.NewError(connect.CodePermissionDenied, fmt.Errorf("can only unlink your own Discord account"))
 	}
 
 	platform := strings.TrimSpace(msg.GetPlatform())
