@@ -535,10 +535,32 @@ func (s *MatchService) ReportMatchResult(
 	if row == nil {
 		return nil, apperr.NotFound("match not found")
 	}
+	// Completed matches are immutable: reporting again would re-apply
+	// the Glicko deltas and re-count the match for every participant.
+	if row.Status != repos.MatchStatusActive {
+		return nil, apperr.FailedPrecondition("match is not active")
+	}
 
 	parts, err := s.match.Participants(ctx, row.ID)
 	if err != nil {
 		return nil, apperr.Internal(fmt.Sprintf("participants: %v", err))
+	}
+
+	// Only a participant of the match may report it. The acting identity
+	// comes from the authenticated edge, not the (ignored) request body.
+	acting := ActingDiscordUserID(req.Header())
+	if acting == "" {
+		return nil, apperr.PermissionDenied("verified caller identity required")
+	}
+	isParticipant := false
+	for _, p := range parts {
+		if p.DiscordUserID == acting {
+			isParticipant = true
+			break
+		}
+	}
+	if !isParticipant {
+		return nil, apperr.PermissionDenied("only a participant can report this match")
 	}
 
 	lobbyCPR := 0.0
