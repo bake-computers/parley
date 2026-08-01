@@ -84,6 +84,15 @@ func TestLoadAcceptsPinnedDigest(t *testing.T) {
 	}
 }
 
+func TestLoadAcceptsPinnedDigestWithWhitespace(t *testing.T) {
+	body := testModel()
+	sum := sha256.Sum256(body)
+	stub := stubObjectGetter{body: body}
+	if _, _, err := Load(context.Background(), stub, "b", "k", " "+hex.EncodeToString(sum[:])+"\n"); err != nil {
+		t.Fatal(err)
+	}
+}
+
 func testModel() []byte {
 	attr := func(name string, values []float32) []byte {
 		var raw []byte

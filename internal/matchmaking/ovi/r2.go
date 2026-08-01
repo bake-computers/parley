@@ -55,6 +55,8 @@ func Load(ctx context.Context, client ObjectGetter, bucket, key, expectSHA strin
 	if err != nil {
 		return nil, "", err
 	}
+	// The pin comes from an env var, so tolerate surrounding whitespace.
+	expectSHA = strings.TrimSpace(expectSHA)
 	if !strings.EqualFold(m.SHA256, expectSHA) {
 		return nil, "", fmt.Errorf("matchmaking model sha256 mismatch: got %s, pinned %s", m.SHA256, expectSHA)
 	}

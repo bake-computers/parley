@@ -161,6 +161,10 @@ func TestLoad_RequiresModelSHA256(t *testing.T) {
 	if _, err := config.Load(); err == nil {
 		t.Fatal("Load() with empty MATCHMAKING_MODEL_R2_SHA256: want error")
 	}
+	t.Setenv("MATCHMAKING_MODEL_R2_SHA256", "  \n")
+	if _, err := config.Load(); err == nil {
+		t.Fatal("Load() with blank MATCHMAKING_MODEL_R2_SHA256: want error")
+	}
 }
 
 func TestLoad_statsCCProfileBatchClamps(t *testing.T) {

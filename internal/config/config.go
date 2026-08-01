@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
@@ -101,7 +102,7 @@ func Load() (*Config, error) {
 		MatchmakingModelR2Bucket:          getenv("MATCHMAKING_MODEL_R2_BUCKET", "ovi"),
 		MatchmakingModelR2Key:             getenv("MATCHMAKING_MODEL_R2_KEY", "ovi_model.onnx"),
 		MatchmakingModelR2Jurisdiction:    getenv("MATCHMAKING_MODEL_R2_JURISDICTION", "eu"),
-		MatchmakingModelR2SHA256:          os.Getenv("MATCHMAKING_MODEL_R2_SHA256"),
+		MatchmakingModelR2SHA256:          strings.TrimSpace(os.Getenv("MATCHMAKING_MODEL_R2_SHA256")),
 		MatchmakingModelMinSeasonMatches:  int32(readUint64("MATCHMAKING_MODEL_MIN_SEASON_MATCHES", 3)),
 		MatchmakingRoleBalanceWeight:      readFloat64("MATCHMAKING_ROLE_BALANCE_WEIGHT", 0.10),
 		MatchmakingRoleCollisionWeight:    readFloat64("MATCHMAKING_ROLE_COLLISION_WEIGHT", 0.05),
