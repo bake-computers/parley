@@ -62,10 +62,16 @@ func (s *UserSettingsService) UpsertUserSettings(
 
 func (s *UserSettingsService) DeleteUserData(
 	ctx context.Context,
-	discordUserID, hmacSecret string,
+	discordUserID, actingUserID, hmacSecret string,
 ) (*userv1.DeleteUserDataResponse, error) {
 	if hmacSecret == "" {
 		return nil, apperr.FailedPrecondition("ACCOUNT_DELETION_HMAC_SECRET not configured")
+	}
+	// The HMAC secret only keys the cooldown hash; it never proved the
+	// caller owned the target id. Only the verified caller (asserted by
+	// the authenticated edge) may anonymize their own account.
+	if actingUserID == "" || actingUserID != discordUserID {
+		return nil, apperr.PermissionDenied("can only delete your own account")
 	}
 
 	blocked, err := s.guilds.IsDeletionBlocked(ctx, discordUserID, hmacSecret)
