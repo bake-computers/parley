@@ -390,3 +390,105 @@ func strPtr(s string) *string { return &s }
 func randomSuffix() string {
 	return fmt.Sprintf("%d", repos.NowMS())
 }
+
+// TestMatchmaking_ReportPlayerRoundStats_Authorization verifies that only
+// a participant may submit the round log, and that per-round and
+// per-match K/D/A ceilings stop unbounded stat inflation (F16/F25).
+func TestMatchmaking_ReportPlayerRoundStats_Authorization(t *testing.T) {
+	bdb, cleanup := newTestBunDB(t)
+	defer cleanup()
+
+	ctx := context.Background()
+	identityRepo := repos.NewIdentityRepo(bdb)
+	guildRepo := repos.NewGuildRepo(bdb)
+	matchRepo := repos.NewMatchRepo(bdb)
+	svc := services.NewMatchService(matchRepo, guildRepo, nil)
+
+	guildID := fmt.Sprintf("mm_round_%s", randomSuffix())
+	discordIDs := make([]string, 4)
+	playerIDs := make([]int32, 4)
+	for i := 0; i < 4; i++ {
+		discordID := fmt.Sprintf("mm_round_user_%d_%s", i, randomSuffix())
+		username := fmt.Sprintf("RoundPlayer%d", i)
+		player, err := identityRepo.UpsertPlayerByIdentity(ctx, models.GameR6, username, "pc", nil, nil)
+		if err != nil {
+			t.Fatalf("UpsertPlayerByIdentity(%s): %v", username, err)
+		}
+		if _, err := identityRepo.LinkDiscordIdentity(ctx, models.GameR6, discordID, player.ID); err != nil {
+			t.Fatalf("LinkDiscordIdentity(%s): %v", discordID, err)
+		}
+		discordIDs[i] = discordID
+		playerIDs[i] = player.ID
+	}
+
+	now := repos.NowMS()
+	teams := []string{"a", "a", "b", "b"}
+	participants := make([]models.NewMatchParticipant, 0, 4)
+	for i := 0; i < 4; i++ {
+		participants = append(participants, models.NewMatchParticipant{
+			Game:          models.GameR6,
+			DiscordUserID: discordIDs[i],
+			PlayerID:      playerIDs[i],
+			Team:          teams[i],
+			Slot:          int32(i % 2),
+			CreatedAt:     now,
+			UpdatedAt:     now,
+		})
+	}
+	saved, _, err := matchRepo.Create(ctx, &models.NewMatch{
+		Game:                   models.GameR6,
+		GuildID:                guildID,
+		ChannelID:              "channel-1",
+		MessageID:              "pending",
+		CreatedByDiscordUserID: discordIDs[0],
+		Status:                 repos.MatchStatusActive,
+		MatchType:              "internal",
+		ResolutionType:         "played",
+		CreatedAt:              now,
+		UpdatedAt:              now,
+	}, participants)
+	if err != nil {
+		t.Fatalf("Create match: %v", err)
+	}
+
+	report := func(acting string, kills, deaths, assists int32) error {
+		req := connect.NewRequest(&matchv1.ReportPlayerRoundStatsRequest{
+			MatchId: saved.ID,
+			Game:    commonv1.Game_GAME_R6,
+			Stats: []*matchv1.PlayerRoundStat{
+				{DiscordUserId: discordIDs[0], Kills: kills, Deaths: deaths, Assists: assists},
+			},
+		})
+		if acting != "" {
+			req.Header().Set(services.ActingUserIDHeader, acting)
+		}
+		_, err := svc.ReportPlayerRoundStats(ctx, req)
+		return err
+	}
+
+	if err := report("", 1, 1, 0); connectErrCode(err) != connect.CodePermissionDenied {
+		t.Fatalf("no acting identity: code = %v, want PermissionDenied", connectErrCode(err))
+	}
+	if err := report("mm_outsider", 1, 1, 0); connectErrCode(err) != connect.CodePermissionDenied {
+		t.Fatalf("non-participant: code = %v, want PermissionDenied", connectErrCode(err))
+	}
+	if err := report(discordIDs[1], 6, 0, 0); connectErrCode(err) != connect.CodeInvalidArgument {
+		t.Fatalf("6 kills in one round: code = %v, want InvalidArgument", connectErrCode(err))
+	}
+	if err := report(discordIDs[1], 3, 1, 2); err != nil {
+		t.Fatalf("valid round report: %v", err)
+	}
+
+	// Push the participant near the match ceiling, then confirm the
+	// next submission that would exceed it is rejected.
+	if _, err := bdb.NewUpdate().
+		TableExpr("match_participants").
+		Set("kills = 99").
+		Where("match_id = ? AND discord_user_id = ?", saved.ID, discordIDs[0]).
+		Exec(ctx); err != nil {
+		t.Fatalf("preset kills: %v", err)
+	}
+	if err := report(discordIDs[1], 2, 0, 0); connectErrCode(err) != connect.CodeInvalidArgument {
+		t.Fatalf("over match cap: code = %v, want InvalidArgument (err = %v)", connectErrCode(err), err)
+	}
+}
