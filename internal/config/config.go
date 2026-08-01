@@ -11,9 +11,10 @@ import (
 
 // Config holds engine-service runtime settings from the process environment.
 type Config struct {
-	EngineServiceAddr string
-	DatabaseURL       string
-	RunMigrations     bool
+	EngineServiceAddr  string
+	EngineSharedSecret string
+	DatabaseURL        string
+	RunMigrations      bool
 
 	DBPoolMax             uint32
 	DBPoolMinIdle         uint32
@@ -62,9 +63,10 @@ func Load() (*Config, error) {
 	}
 
 	cfg := &Config{
-		EngineServiceAddr: getenv("ENGINE_SERVICE_ADDR", "0.0.0.0:50051"),
-		DatabaseURL:       os.Getenv("DATABASE_URL"),
-		RunMigrations:     os.Getenv("RUN_MIGRATIONS") == "1",
+		EngineServiceAddr:  getenv("ENGINE_SERVICE_ADDR", "0.0.0.0:50051"),
+		EngineSharedSecret: os.Getenv("ENGINE_SHARED_SECRET"),
+		DatabaseURL:        os.Getenv("DATABASE_URL"),
+		RunMigrations:      os.Getenv("RUN_MIGRATIONS") == "1",
 
 		DBPoolMax:             readUint32("DB_POOL_MAX", 32),
 		DBPoolMinIdle:         readUint32("DB_POOL_MIN_IDLE", 0),
@@ -115,6 +117,9 @@ func Load() (*Config, error) {
 	}
 	if cfg.MatchmakingModelR2SHA256 == "" {
 		return nil, fmt.Errorf("MATCHMAKING_MODEL_R2_SHA256 is required to pin the matchmaking model digest")
+	}
+	if cfg.EngineSharedSecret == "" {
+		return nil, fmt.Errorf("ENGINE_SHARED_SECRET is required to authenticate edge callers")
 	}
 
 	return cfg, nil

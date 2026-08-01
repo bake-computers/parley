@@ -5,6 +5,12 @@ export type EngineTransportEnv = {
   ENGINE_INTERNAL_URL?: string;
   ENGINE_SERVICE_URL?: string;
   /**
+   * Shared secret the engine requires on every non-probe route
+   * (`Authorization: Bearer <secret>`). Must match the engine's
+   * ENGINE_SHARED_SECRET.
+   */
+  ENGINE_SHARED_SECRET?: string;
+  /**
    * When set to `"1"` or `"true"`, force the local engine at
    * `ENGINE_SERVICE_URL ?? http://localhost:50051` even if a VPC binding is
    * configured. Use this for `wrangler dev` against `cargo run` so requests
@@ -29,6 +35,14 @@ function isTruthy(value: string | undefined): boolean {
   return normalized === "1" || normalized === "true" || normalized === "yes" || normalized === "on";
 }
 
+function withEngineAuth(fetchImpl: EngineFetch, secret: string | undefined): EngineFetch {
+  return (input, init) => {
+    const headers = new Headers(init?.headers);
+    headers.set("authorization", `Bearer ${secret ?? ""}`);
+    return fetchImpl(input, { ...init, headers });
+  };
+}
+
 export function resolveEngineTransport(env: EngineTransportEnv): EngineTransportConfig {
   if (!isTruthy(env.USE_LOCAL_ENGINE) && env.VPC_SERVICE && env.ENGINE_INTERNAL_URL) {
     const baseUrl = env.ENGINE_INTERNAL_URL;
@@ -36,12 +50,15 @@ export function resolveEngineTransport(env: EngineTransportEnv): EngineTransport
     return {
       baseUrl,
       cacheKey: `vpc:${baseUrl}`,
-      fetchImpl: ((input: string | URL | Request, init?: RequestInit) => {
-        const url =
-          typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
-        const resolved = url.startsWith("http") ? url : new URL(url, baseUrl).href;
-        return vpc.fetch(resolved, (init ?? {}) as Parameters<Fetcher["fetch"]>[1]);
-      }) as unknown as EngineFetch,
+      fetchImpl: withEngineAuth(
+        ((input: string | URL | Request, init?: RequestInit) => {
+          const url =
+            typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+          const resolved = url.startsWith("http") ? url : new URL(url, baseUrl).href;
+          return vpc.fetch(resolved, (init ?? {}) as Parameters<Fetcher["fetch"]>[1]);
+        }) as unknown as EngineFetch,
+        env.ENGINE_SHARED_SECRET,
+      ),
     };
   }
 
@@ -49,6 +66,6 @@ export function resolveEngineTransport(env: EngineTransportEnv): EngineTransport
   return {
     baseUrl,
     cacheKey: `local:${baseUrl}`,
-    fetchImpl: (input, init) => fetch(input, init),
+    fetchImpl: withEngineAuth((input, init) => fetch(input, init), env.ENGINE_SHARED_SECRET),
   };
 }

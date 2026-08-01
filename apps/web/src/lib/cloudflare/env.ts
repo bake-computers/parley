@@ -7,6 +7,7 @@ export function cloudflareEngineEnv(): EngineEnvSource {
   return {
     VPC_SERVICE: env.VPC_SERVICE as EngineEnvSource["VPC_SERVICE"],
     ENGINE_INTERNAL_URL: env.ENGINE_INTERNAL_URL,
+    ENGINE_SHARED_SECRET: env.ENGINE_SHARED_SECRET,
   };
 }
 

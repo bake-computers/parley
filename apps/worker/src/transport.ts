@@ -1,4 +1,4 @@
-import { createClient } from "@connectrpc/connect";
+import { createClient, type Interceptor } from "@connectrpc/connect";
 import { createConnectTransport } from "@connectrpc/connect-web";
 import {
   GuildSettingsService,
@@ -13,6 +13,35 @@ import { resolveEngineTransport, type EngineTransportEnv } from "#/engine-transp
 export type { EngineTransportEnv } from "#/engine-transport";
 
 const clientCache = new Map<string, unknown>();
+
+/**
+ * Request-body fields that carry the Discord user the interaction
+ * verified. Mirrored into the acting-user header so the engine can
+ * authorize against a caller identity it did not receive from an
+ * attacker-controlled body alone.
+ */
+const ACTING_USER_FIELDS = [
+  "discordUserId",
+  "createdByDiscordUserId",
+  "cancelledByDiscordUserId",
+  "captainDiscordUserId",
+  "reportedByDiscordUserId",
+  "updatedByDiscordUserId",
+] as const;
+
+export const ACTING_USER_HEADER = "X-Parley-Acting-Discord-User-Id";
+
+const actingUserInterceptor: Interceptor = (next) => async (req) => {
+  const message = req.message as Record<string, unknown>;
+  for (const field of ACTING_USER_FIELDS) {
+    const value = message[field];
+    if (typeof value === "string" && value.trim() !== "") {
+      req.header.set(ACTING_USER_HEADER, value.trim());
+      break;
+    }
+  }
+  return next(req);
+};
 
 /**
  * Wraps a fetch implementation to force `redirect: "follow"`.
@@ -45,6 +74,7 @@ function getOrCreateClient(service: { typeName: string }, env: EngineTransportEn
     baseUrl,
     fetch: withFollowRedirect(fetchImpl as typeof fetch),
     jsonOptions: { enumAsInteger: true },
+    interceptors: [actingUserInterceptor],
   });
   const client = createClient(service as never, transport);
   clientCache.set(key, client);
