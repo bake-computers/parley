@@ -1,6 +1,6 @@
 ---
 title: /tournament
-description: Create a tournament on the Parley website or open one with its six-character code.
+description: Create a tournament on the Parley website or open one with its share code.
 sidebar:
   order: 5
 ---
@@ -29,10 +29,11 @@ you log in and choose the format, schedule, rules, and prizes.
 Takes one argument: the tournament code.
 
 ```text
-/tournament join code: ABC123
+/tournament join code: ABC123XYZ4
 ```
 
-The code is six characters, letters A through Z and digits 2 through 9.
+The code is ten characters, letters A through Z and digits 2 through 9
+(tournaments created before the code length changed use six).
 Lowercase input is uppercased for you. On success, Parley shows the
 tournament name and status with a link to its page, where you log in with
 Discord and pick your team.

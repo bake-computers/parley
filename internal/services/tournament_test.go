@@ -124,7 +124,7 @@ func TestCancelTournament_UnspecifiedGame(t *testing.T) {
 }
 
 // Codes are 10 chars (2^50) now; 6-char legacy codes stay resolvable.
-// Anything else is rejected at the edge before any DB access.
+// Any other length is rejected at the edge before any DB access.
 func TestGetTournamentByCode_BadLength(t *testing.T) {
 	svc := newNilDBTournamentService()
 	for _, code := range []string{"ABCDE", "ABCDEFG", "ABCDEFGHIJK"} {
