@@ -2,6 +2,7 @@ package services_test
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"connectrpc.com/connect"
@@ -42,6 +43,42 @@ func TestMatchBuildTeams_EmptyDiscordIDs(t *testing.T) {
 		GuildId:        "guild-1",
 		Game:           commonv1.Game_GAME_R6,
 		DiscordUserIds: nil,
+	}))
+	assertConnectCode(t, err, connect.CodeInvalidArgument)
+}
+
+// An attacker-supplied team_size must be rejected before it reaches the
+// C(2t-1, t-1) subset enumeration in PartitionModelTeams (OOM DoS).
+func TestMatchBuildTeams_TeamSizeTooLarge(t *testing.T) {
+	svc := newNilDBMatchService()
+	ids := make([]string, 32)
+	for i := range ids {
+		ids[i] = fmt.Sprintf("u%d", i)
+	}
+	_, err := svc.BuildTeams(context.Background(), connect.NewRequest(&matchv1.BuildTeamsRequest{
+		GuildId:        "guild-1",
+		Game:           commonv1.Game_GAME_R6,
+		TeamSize:       16,
+		DiscordUserIds: ids,
+	}))
+	assertConnectCode(t, err, connect.CodeInvalidArgument)
+}
+
+func TestMatchCreateCustomMatch_TeamSizeTooLarge(t *testing.T) {
+	svc := newNilDBMatchService()
+	// Correctly sized for team_size=11 so the only invalid input is the
+	// team size itself.
+	ids := make([]string, 22)
+	for i := range ids {
+		ids[i] = fmt.Sprintf("u%d", i)
+	}
+	_, err := svc.CreateCustomMatch(context.Background(), connect.NewRequest(&matchv1.CreateCustomMatchRequest{
+		GuildId:                "guild-1",
+		ChannelId:              "chan-1",
+		CreatedByDiscordUserId: "u1",
+		Game:                   commonv1.Game_GAME_R6,
+		TeamSize:               11,
+		DiscordUserIds:         ids,
 	}))
 	assertConnectCode(t, err, connect.CodeInvalidArgument)
 }

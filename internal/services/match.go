@@ -57,27 +57,35 @@ func requireR6Game(g commonv1.Game) (models.Game, *connect.Error) {
 
 // resolveTeamSize returns the requested team size, falling back to
 // the guild's default_team_format and finally the matchmaking
-// default of 5. Mirrors `resolve_team_size` in
-// src/handlers/match_queue.rs.
+// default of 5. A resolved size outside 1..matchmaking.MaxTeamSize is
+// rejected with InvalidArgument rather than clamped, so a caller never
+// gets teams of a size it did not ask for. Mirrors `resolve_team_size`
+// in src/handlers/match_queue.rs.
 func resolveTeamSize(
 	ctx context.Context,
 	guild *repos.GuildRepo,
 	game models.Game,
 	guildID string,
 	requested int32,
-) (int32, error) {
-	if requested > 0 {
-		return requested, nil
+) (int32, *connect.Error) {
+	size := requested
+	if size <= 0 {
+		settings, err := guild.GetSettings(ctx, guildID, game)
+		if err != nil {
+			return 0, apperr.Internal(fmt.Sprintf("resolve team size: %v", err))
+		}
+		var format *string
+		if settings != nil {
+			format = settings.DefaultTeamFormat
+		}
+		size = int32(matchmaking.ParseTeamSize(format))
 	}
-	settings, err := guild.GetSettings(ctx, guildID, game)
-	if err != nil {
-		return 0, err
+	if size < 1 || size > matchmaking.MaxTeamSize {
+		return 0, apperr.InvalidArgument(fmt.Sprintf(
+			"team_size must be between 1 and %d", matchmaking.MaxTeamSize,
+		))
 	}
-	var format *string
-	if settings != nil {
-		format = settings.DefaultTeamFormat
-	}
-	return int32(matchmaking.ParseTeamSize(format)), nil
+	return size, nil
 }
 
 // assignmentsFromPartition converts a `*matchmaking.TeamPartition` and
@@ -184,9 +192,9 @@ func (s *MatchService) BuildTeams(
 		return nil, apperr.InvalidArgument("discord_user_ids must not be empty")
 	}
 
-	teamSize, err := resolveTeamSize(ctx, s.guild, game, guildID, msg.GetTeamSize())
-	if err != nil {
-		return nil, apperr.Internal(fmt.Sprintf("resolve team size: %v", err))
+	teamSize, cerr := resolveTeamSize(ctx, s.guild, game, guildID, msg.GetTeamSize())
+	if cerr != nil {
+		return nil, cerr
 	}
 	expected := int(teamSize) * 2
 	if len(discordIDs) != expected {
@@ -363,9 +371,9 @@ func (s *MatchService) CreateCustomMatch(
 		return nil, apperr.InvalidArgument("created_by_discord_user_id is required")
 	}
 
-	teamSize, err := resolveTeamSize(ctx, s.guild, game, guildID, msg.GetTeamSize())
-	if err != nil {
-		return nil, apperr.Internal(fmt.Sprintf("resolve team size: %v", err))
+	teamSize, cerr := resolveTeamSize(ctx, s.guild, game, guildID, msg.GetTeamSize())
+	if cerr != nil {
+		return nil, cerr
 	}
 	expected := int(teamSize) * 2
 	if len(msg.GetDiscordUserIds()) != expected {

@@ -25,8 +25,12 @@ import (
 	"fmt"
 	"testing"
 
+	"connectrpc.com/connect"
+	commonv1 "github.com/bake-computers/parley/gen/parley/common/v1"
+	matchv1 "github.com/bake-computers/parley/gen/parley/matchmaking/v1"
 	"github.com/bake-computers/parley/internal/models"
 	"github.com/bake-computers/parley/internal/repos"
+	"github.com/bake-computers/parley/internal/services"
 )
 
 // TestMatchmaking_ListGuildMembersReturnsRegisteredRoster mirrors the
@@ -333,6 +337,51 @@ func TestMatchmaking_CustomMatchRoundStatsAccumulate(t *testing.T) {
 	}
 	if history[0].ID != saved.ID {
 		t.Fatalf("history match = %d, want %d", history[0].ID, saved.ID)
+	}
+}
+
+// TestMatchmaking_GuildDefaultTeamFormatIsBounded covers the fallback
+// half of the team_size bound: when the request omits team_size, the
+// size comes from the guild's default_team_format, which is equally
+// attacker-influenced (a guild admin can set "16v16"). An oversized
+// default must be rejected before it reaches PartitionModelTeams'
+// C(2t-1, t-1) subset enumeration.
+func TestMatchmaking_GuildDefaultTeamFormatIsBounded(t *testing.T) {
+	bdb, cleanup := newTestBunDB(t)
+	defer cleanup()
+
+	ctx := context.Background()
+	guildRepo := repos.NewGuildRepo(bdb)
+	guildID := fmt.Sprintf("mm_default_%s", randomSuffix())
+
+	if _, err := guildRepo.UpsertSettings(ctx, &models.GuildSettings{
+		GuildID:                guildID,
+		Game:                   models.GameR6,
+		DefaultTeamFormat:      strPtr("16v16"),
+		AutoBalance:            true,
+		UpdatedAt:              repos.NowMS(),
+		UpdatedByDiscordUserID: "mm_default_admin",
+		MatchmakingEnabled:     true,
+	}); err != nil {
+		t.Fatalf("UpsertSettings: %v", err)
+	}
+
+	// 32 ids so the request is correctly sized for the 16v16 default:
+	// the only rejectable input is the resolved team size.
+	ids := make([]string, 32)
+	for i := range ids {
+		ids[i] = fmt.Sprintf("u%d", i)
+	}
+
+	svc := services.NewMatchService(nil, guildRepo, nil)
+	_, err := svc.BuildTeams(ctx, connect.NewRequest(&matchv1.BuildTeamsRequest{
+		GuildId:        guildID,
+		Game:           commonv1.Game_GAME_R6,
+		TeamSize:       0, // force the guild-default fallback
+		DiscordUserIds: ids,
+	}))
+	if connect.CodeOf(err) != connect.CodeInvalidArgument {
+		t.Fatalf("BuildTeams error = %v, want CodeInvalidArgument", err)
 	}
 }
 
