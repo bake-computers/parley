@@ -20,6 +20,7 @@ import (
 	commonv1 "github.com/bake-computers/parley/gen/parley/common/v1"
 	identityv1 "github.com/bake-computers/parley/gen/parley/identity/v1"
 	userv1 "github.com/bake-computers/parley/gen/parley/user/v1"
+	"github.com/bake-computers/parley/internal/services"
 )
 
 // TestIdentityLink_RoundTrip exercises the four-step lifecycle that every
@@ -361,10 +362,22 @@ func TestIdentityLink_DeleteAnonymizes(t *testing.T) {
 	}
 	playerID := pre.Msg.GetIdentities()[0].GetPlayerId()
 
-	// Delete (anonymize + cooldown).
+	// Delete (anonymize + cooldown). Only the verified caller may
+	// anonymize their own account: a mismatched acting identity is
+	// rejected before any rows are touched.
 	delReq := connect.NewRequest(&userv1.DeleteUserDataRequest{
 		DiscordUserId: discordID,
 	})
+	delReq.Header().Set(services.ActingUserIDHeader, discordID)
+
+	mismatched := connect.NewRequest(&userv1.DeleteUserDataRequest{
+		DiscordUserId: discordID,
+	})
+	mismatched.Header().Set(services.ActingUserIDHeader, "not-the-owner")
+	if _, err := rig.UserClient.DeleteUserData(ctx, mismatched); connectErrCode(err) != connect.CodePermissionDenied {
+		t.Fatalf("DeleteUserData as another user: code = %v, want PermissionDenied", connectErrCode(err))
+	}
+
 	delResp, err := rig.UserClient.DeleteUserData(ctx, delReq)
 	if err != nil {
 		t.Fatalf("DeleteUserData: %v", err)
@@ -435,9 +448,11 @@ func TestIdentityLink_OwnerBypassesRelinkCooldown(t *testing.T) {
 	}
 
 	// Anonymize, which records the re-link cooldown.
-	if _, err := rig.UserClient.DeleteUserData(ctx, connect.NewRequest(&userv1.DeleteUserDataRequest{
+	delReq := connect.NewRequest(&userv1.DeleteUserDataRequest{
 		DiscordUserId: discordID,
-	})); err != nil {
+	})
+	delReq.Header().Set(services.ActingUserIDHeader, discordID)
+	if _, err := rig.UserClient.DeleteUserData(ctx, delReq); err != nil {
 		t.Fatalf("DeleteUserData: %v", err)
 	}
 

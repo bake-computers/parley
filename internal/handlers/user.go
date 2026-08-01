@@ -88,7 +88,7 @@ func (h *UserHandler) DeleteUserData(
 		}), nil
 	}
 
-	resp, err := h.svc.DeleteUserData(ctx, discordUserID, h.hmacSecret)
+	resp, err := h.svc.DeleteUserData(ctx, discordUserID, services.ActingDiscordUserID(req.Header()), h.hmacSecret)
 	if err != nil {
 		return nil, err
 	}
