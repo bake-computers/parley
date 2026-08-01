@@ -306,6 +306,12 @@ func extendCombo(current []int, start, n, k int, out *[][]int) {
 // src/matchmaking/mod.rs.
 const DefaultTeamSize = 5
 
+// MaxTeamSize bounds the partition search: PartitionModelTeams materializes
+// every C(2t-1, t-1) subset of the lobby before iterating, so an unbounded
+// team size is a memory-exhaustion DoS (t=16 is ~3e8 subsets). t=10 keeps
+// the worst case at C(19,9) = 92,378 subsets.
+const MaxTeamSize = 10
+
 // ParseTeamSize extracts the team size from a "XvX" format string.
 // Examples: "5v5" -> 5, "3v3" -> 3. Returns DefaultTeamSize when
 // format is nil, empty, or doesn't begin with a positive integer.
