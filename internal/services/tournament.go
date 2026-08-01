@@ -664,8 +664,10 @@ func (s *TournamentService) UpdateTeamRoster(
 	if team == nil {
 		return nil, apperr.NotFound("team not found")
 	}
-	if team.CaptainDiscordUserID != strings.TrimSpace(msg.GetCaptainDiscordUserId()) {
-		return nil, apperr.FailedPrecondition("only captain can update roster")
+	// Captain identity comes from the authenticated edge; the
+	// request-body field is attacker-controlled and ignored.
+	if team.CaptainDiscordUserID != ActingDiscordUserID(req.Header()) {
+		return nil, apperr.PermissionDenied("only captain can update roster")
 	}
 
 	tournament, err := s.tourn.Get(ctx, game, msg.GetTournamentId())
@@ -741,8 +743,8 @@ func (s *TournamentService) UnregisterTeam(
 	if team == nil {
 		return nil, apperr.NotFound("team not found")
 	}
-	if team.CaptainDiscordUserID != strings.TrimSpace(msg.GetCaptainDiscordUserId()) {
-		return nil, apperr.FailedPrecondition("only captain can unregister")
+	if team.CaptainDiscordUserID != ActingDiscordUserID(req.Header()) {
+		return nil, apperr.PermissionDenied("only captain can unregister")
 	}
 
 	tournament, err := s.tourn.Get(ctx, game, msg.GetTournamentId())
@@ -794,6 +796,9 @@ func (s *TournamentService) StartTournament(
 	}
 	if tournament == nil {
 		return nil, apperr.NotFound("tournament not found")
+	}
+	if tournament.CreatedByDiscordUserID != ActingDiscordUserID(req.Header()) {
+		return nil, apperr.PermissionDenied("only creator can start")
 	}
 	if tournament.Status != repos.TournamentStatusOpen {
 		return nil, apperr.FailedPrecondition("tournament not open")
@@ -881,6 +886,19 @@ func (s *TournamentService) ReportBracketResult(
 		return nil, apperr.NotFound("bracket match not found")
 	}
 
+	// Authorize against the tournament creator before any mutation:
+	// reporting eliminates the loser and advances the bracket.
+	tournament, err := s.tourn.Get(ctx, game, bm.TournamentID)
+	if err != nil {
+		return nil, apperr.Internal(fmt.Sprintf("get tournament: %v", err))
+	}
+	if tournament == nil {
+		return nil, apperr.NotFound("tournament not found")
+	}
+	if tournament.CreatedByDiscordUserID != ActingDiscordUserID(req.Header()) {
+		return nil, apperr.PermissionDenied("only creator can report bracket results")
+	}
+
 	loserID := int32(0)
 	if bm.TeamAID != nil && *bm.TeamAID == msg.GetWinnerTeamId() {
 		if bm.TeamBID != nil {
@@ -925,14 +943,6 @@ func (s *TournamentService) ReportBracketResult(
 		}
 		_ = s.brackets.SetTeamSlot(ctx, *updatedBM.LoserToMatchID, slot, loserID)
 		_ = s.brackets.MarkReadyWhenBothTeams(ctx, *updatedBM.LoserToMatchID)
-	}
-
-	tournament, err := s.tourn.Get(ctx, game, bm.TournamentID)
-	if err != nil {
-		return nil, apperr.Internal(fmt.Sprintf("get tournament: %v", err))
-	}
-	if tournament == nil {
-		return nil, apperr.NotFound("tournament not found")
 	}
 
 	if updatedBM.WinnerToMatchID == nil && updatedBM.Bracket == "grand_final" {
@@ -1008,8 +1018,8 @@ func (s *TournamentService) CancelTournament(
 	if tournament == nil {
 		return nil, apperr.NotFound("tournament not found")
 	}
-	if tournament.CreatedByDiscordUserID != strings.TrimSpace(msg.GetCancelledByDiscordUserId()) {
-		return nil, apperr.FailedPrecondition("only creator can cancel")
+	if tournament.CreatedByDiscordUserID != ActingDiscordUserID(req.Header()) {
+		return nil, apperr.PermissionDenied("only creator can cancel")
 	}
 
 	updated, err := s.tourn.UpdateStatus(
