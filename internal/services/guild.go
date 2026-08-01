@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"connectrpc.com/connect"
 	commonv1 "github.com/bake-computers/parley/gen/parley/common/v1"
 	guildv1 "github.com/bake-computers/parley/gen/parley/guild/v1"
 	"github.com/bake-computers/parley/internal/apperr"
@@ -17,6 +18,24 @@ type GuildService struct {
 
 func NewGuildService(repo *repos.GuildRepo) *GuildService {
 	return &GuildService{repo: repo}
+}
+
+// requireGuildMember rejects callers whose verified identity is not a
+// member of the guild being configured. Admin-level verification stays at
+// the Discord edge (worker); the engine enforces membership so no caller
+// can rewrite another guild's settings, rules, or quotas.
+func (s *GuildService) requireGuildMember(ctx context.Context, game models.Game, guildID, actingUserID string) *connect.Error {
+	if actingUserID == "" {
+		return apperr.PermissionDenied("verified caller identity required")
+	}
+	members, err := s.repo.FindMembersByDiscordIDs(ctx, game, guildID, []string{actingUserID})
+	if err != nil {
+		return apperr.Internal(fmt.Sprintf("check membership: %v", err))
+	}
+	if len(members) == 0 {
+		return apperr.PermissionDenied("not a member of this guild")
+	}
+	return nil
 }
 
 func (s *GuildService) GetGuildSettings(
@@ -50,6 +69,7 @@ func (s *GuildService) GetGuildSettings(
 func (s *GuildService) UpsertGuildSettings(
 	ctx context.Context,
 	settings *guildv1.GuildSettings,
+	actingUserID string,
 ) (*guildv1.GuildSettings, error) {
 	if settings == nil {
 		return nil, apperr.InvalidArgument("settings is required")
@@ -57,6 +77,9 @@ func (s *GuildService) UpsertGuildSettings(
 	g, err := protoGameToModel(settings.Game)
 	if err != nil {
 		return nil, apperr.InvalidArgument("game must be specified")
+	}
+	if cerr := s.requireGuildMember(ctx, g, settings.GuildId, actingUserID); cerr != nil {
+		return nil, cerr
 	}
 
 	now := NowMS()
@@ -73,7 +96,7 @@ func (s *GuildService) UpsertGuildSettings(
 		AutoBalance:            settings.AutoBalance,
 		CrossGuildMatchmaking:  settings.CrossGuildMatchmaking,
 		UpdatedAt:              now,
-		UpdatedByDiscordUserID: settings.UpdatedByDiscordUserId,
+		UpdatedByDiscordUserID: actingUserID,
 		MatchmakingEnabled:     settings.MatchmakingEnabled,
 	}
 
@@ -114,6 +137,7 @@ func (s *GuildService) GetMatchmakingRules(
 func (s *GuildService) UpsertMatchmakingRules(
 	ctx context.Context,
 	rules *guildv1.GuildMatchmakingRules,
+	actingUserID string,
 ) (*guildv1.GuildMatchmakingRules, error) {
 	if rules == nil {
 		return nil, apperr.InvalidArgument("rules is required")
@@ -121,6 +145,9 @@ func (s *GuildService) UpsertMatchmakingRules(
 	g, err := protoGameToModel(rules.Game)
 	if err != nil {
 		return nil, apperr.InvalidArgument("game must be specified")
+	}
+	if cerr := s.requireGuildMember(ctx, g, rules.GuildId, actingUserID); cerr != nil {
+		return nil, cerr
 	}
 
 	now := NowMS()
@@ -189,6 +216,7 @@ func (s *GuildService) GetMatchQuota(
 func (s *GuildService) UpsertMatchQuota(
 	ctx context.Context,
 	quota *guildv1.GuildMatchQuota,
+	actingUserID string,
 ) (*guildv1.GuildMatchQuota, error) {
 	if quota == nil {
 		return nil, apperr.InvalidArgument("quota is required")
@@ -197,13 +225,16 @@ func (s *GuildService) UpsertMatchQuota(
 	if err != nil {
 		return nil, apperr.InvalidArgument("game must be specified")
 	}
+	if cerr := s.requireGuildMember(ctx, g, quota.GuildId, actingUserID); cerr != nil {
+		return nil, cerr
+	}
 
 	now := NowMS()
 	row := &models.GuildMatchQuota{
 		Game:                   g,
 		GuildID:                quota.GuildId,
 		DailyMatchLimit:        quota.DailyMatchLimit,
-		UpdatedByDiscordUserID: quota.UpdatedByDiscordUserId,
+		UpdatedByDiscordUserID: actingUserID,
 		CreatedAt:              now,
 		UpdatedAt:              now,
 	}
