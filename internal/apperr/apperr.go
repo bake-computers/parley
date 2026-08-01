@@ -13,6 +13,7 @@ const (
 	CodeNotFound           = "NotFound"
 	CodeAlreadyExists      = "AlreadyExists"
 	CodeFailedPrecondition = "FailedPrecondition"
+	CodePermissionDenied   = "PermissionDenied"
 	CodeInternal           = "Internal"
 )
 
@@ -27,6 +28,8 @@ func DomainCodeToConnect(code string) connect.Code {
 		return connect.CodeAlreadyExists
 	case CodeFailedPrecondition:
 		return connect.CodeFailedPrecondition
+	case CodePermissionDenied:
+		return connect.CodePermissionDenied
 	case CodeInternal:
 		return connect.CodeInternal
 	default:
@@ -66,6 +69,11 @@ func NotFound(msg string) *connect.Error {
 // AlreadyExists is a shorthand for New(CodeAlreadyExists, msg).
 func AlreadyExists(msg string) *connect.Error {
 	return New(CodeAlreadyExists, msg)
+}
+
+// PermissionDenied is a shorthand for New(CodePermissionDenied, msg).
+func PermissionDenied(msg string) *connect.Error {
+	return New(CodePermissionDenied, msg)
 }
 
 // Internal is a shorthand for New(CodeInternal, msg).
