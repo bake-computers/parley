@@ -66,20 +66,20 @@ const llmsUrl = Astro.site
         const applyTheme = () => {
           const root = document.documentElement;
           const mode = resolveMode();
-          if (mode === "dark") root.setAttribute("data-mode", "dark");
-          else root.removeAttribute("data-mode");
+          if (mode === "dark") {root.dataset.mode = "dark";}
+          else { delete root.dataset.mode;}
           root.style.colorScheme = mode;
           document.querySelectorAll("[data-nb-theme-toggle]").forEach((b) => {
-            b.setAttribute("data-nb-state", mode);
+            b.dataset.nbState = mode;
           });
         };
 
         applyTheme();
         media.addEventListener("change", () => {
-          if (!readPref()) applyTheme();
+          if (!readPref()) {applyTheme();}
         });
         window.addEventListener("storage", (e) => {
-          if (e.key === KEY) applyTheme();
+          if (e.key === KEY) {applyTheme();}
         });
 
         window.__nbApplyTheme = applyTheme;

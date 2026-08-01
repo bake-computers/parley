@@ -23,7 +23,8 @@
     "deploy": "vp run -r --cache build && vp run -r --no-cache deploy",
     "deploy:worker": "vp run --filter @parley/worker --no-cache deploy",
     "deploy:web": "vp run --filter web --no-cache deploy",
-    "deploy:docs": "vp run --filter @parley/docs --no-cache deploy"
+    "deploy:docs": "vp run --filter @parley/docs --no-cache deploy",
+    "lint:fix": "vp lint --fix"
   },
   "devDependencies": {
     "@total-typescript/ts-reset": "^0.6.1",

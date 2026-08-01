@@ -58,23 +58,23 @@ function TournamentPage() {
   }, [displayCode]);
 
   useEffect(() => {
-    if (me) setRosterIds((ids) => (ids.length ? ids : [me.user.id]));
+    if (me) {setRosterIds((ids) => (ids.length ? ids : [me.user.id]));}
   }, [me]);
 
   if (me === undefined || loading)
-    return (
+    {return (
       <TournamentShell>
         <DashboardLoader label="Loading tournament…" />
       </TournamentShell>
-    );
+    );}
   if (!tournament)
-    return (
+    {return (
       <TournamentShell>
         <GlassPanel className="p-8">
           <p role="alert">{error ?? "Tournament not found"}</p>
         </GlassPanel>
       </TournamentShell>
-    );
+    );}
   const isHost = me?.user.id === tournament.createdByDiscordUserId;
 
   return (
@@ -125,7 +125,7 @@ function TournamentPage() {
                 <p className="text-xs text-muted-foreground">Host-server members only</p>
               </div>
             </div>
-            {tournament.teams.length ? (
+            {tournament.teams.length > 0 ? (
               <div className="mb-5 space-y-2">
                 {tournament.teams.map((team) => (
                   <p
@@ -247,7 +247,7 @@ function TournamentPage() {
 
   async function registerTeam(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (submitting) return;
+    if (submitting) {return;}
     const form = new FormData(event.currentTarget);
     setSubmitting(true);
     setError(null);

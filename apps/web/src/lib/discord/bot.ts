@@ -134,7 +134,7 @@ export async function fetchGuildMembers(botToken: string, guildId: string): Prom
     if (batch.length < 1000) {
       break;
     }
-    const last = batch[batch.length - 1]?.user?.id;
+    const last = batch.at(-1)?.user?.id;
     if (!last) {
       break;
     }
@@ -172,7 +172,7 @@ export async function fetchBotGuildIds(botToken: string): Promise<string[]> {
     if (batch.length < 200) {
       break;
     }
-    const last = batch[batch.length - 1]?.id;
+    const last = batch.at(-1)?.id;
     if (!last) {
       break;
     }

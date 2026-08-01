@@ -14,7 +14,7 @@ export function SpotlightCard({ title, body, className }: SpotlightCardProps) {
 
   const setPos = (e: React.PointerEvent<HTMLDivElement>) => {
     const node = ref.current;
-    if (!node) return;
+    if (!node) {return;}
     const rect = node.getBoundingClientRect();
     node.style.setProperty("--mx", `${e.clientX - rect.left}px`);
     node.style.setProperty("--my", `${e.clientY - rect.top}px`);

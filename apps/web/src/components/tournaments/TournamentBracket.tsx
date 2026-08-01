@@ -62,7 +62,7 @@ export function TournamentBracket({
   teams: BracketTeam[];
 }) {
   const groups = groupBracket(matches);
-  if (!groups.length) return null;
+  if (groups.length === 0) {return null;}
   const teamNames = new Map(teams.map((team) => [team.id, team.teamName]));
 
   return (

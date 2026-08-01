@@ -30,14 +30,14 @@ function prefersReducedMotion(): boolean {
 
 function initMobileToc(root: HTMLElement): () => void {
   const select = root.querySelector<HTMLSelectElement>("[data-nb-mobile-toc-select]");
-  if (!select) return () => {};
+  if (!select) {return () => {};}
 
   // Paired so slug/element indices stay aligned; `inBand` indexes into this.
   type Heading = { slug: string; el: HTMLElement };
   const headings: Heading[] = Array.from(select.options)
     .map((o) => o.value)
     .filter((v) => v !== "_top")
-    .map((slug) => ({ slug, el: document.getElementById(slug) }))
+    .map((slug) => ({ slug, el: document.querySelector(`#${slug}`) }))
     .filter((h): h is Heading => h.el !== null);
 
   const controller = new AbortController();
@@ -48,7 +48,7 @@ function initMobileToc(root: HTMLElement): () => void {
   let suppressTimer: ReturnType<typeof setTimeout> | undefined;
 
   function setActive(slug: string) {
-    if (select!.value !== slug) select!.value = slug;
+    if (select!.value !== slug) {select!.value = slug;}
   }
 
   // select → page
@@ -67,7 +67,7 @@ function initMobileToc(root: HTMLElement): () => void {
         window.scrollTo({ top: 0, behavior });
         return;
       }
-      document.getElementById(slug)?.scrollIntoView({ behavior });
+      document.querySelector(`#${slug}`)?.scrollIntoView({ behavior });
     },
     { signal: controller.signal },
   );
@@ -84,7 +84,7 @@ function initMobileToc(root: HTMLElement): () => void {
   const inBand = new Set<number>();
 
   function resolve() {
-    if (suppress) return;
+    if (suppress) {return;}
 
     if (inBand.size > 0) {
       // Topmost in-band heading (smallest document-order index).
@@ -95,13 +95,15 @@ function initMobileToc(root: HTMLElement): () => void {
     // Nothing in the band — clamp to the first or last heading based on where
     // the boundary headings sit relative to the band; otherwise keep the
     // current value (we're mid-section between two headings).
+    const last = headings.at(-1);
+    if (!last) {return;}
     const bandTop = window.innerHeight * BAND_TOP;
     const firstTop = headings[0].el.getBoundingClientRect().top;
-    const lastTop = headings[headings.length - 1].el.getBoundingClientRect().top;
+    const lastTop = last.el.getBoundingClientRect().top;
     if (firstTop > bandTop) {
       setActive("_top");
     } else if (lastTop < bandTop) {
-      setActive(headings[headings.length - 1].slug);
+      setActive(last.slug);
     }
   }
 
@@ -109,16 +111,16 @@ function initMobileToc(root: HTMLElement): () => void {
     (entries) => {
       for (const entry of entries) {
         const i = headings.findIndex((h) => h.el === entry.target);
-        if (i === -1) continue;
-        if (entry.isIntersecting) inBand.add(i);
-        else inBand.delete(i);
+        if (i === -1) {continue;}
+        if (entry.isIntersecting) {inBand.add(i);}
+        else {inBand.delete(i);}
       }
       resolve();
     },
     { rootMargin: ROOT_MARGIN, threshold: 0 },
   );
 
-  for (const { el } of headings) observer.observe(el);
+  for (const { el } of headings) {observer.observe(el);}
   resolve(); // initial sync before the observer's first async callback
 
   return () => {

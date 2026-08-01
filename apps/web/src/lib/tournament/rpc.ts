@@ -80,7 +80,7 @@ export async function rpcGetTournamentByCode(
     "GetTournamentByCode",
     { publicCode, game: 1 },
   );
-  if (!json.success || !json.tournament) throw new Error("Tournament not found");
+  if (!json.success || !json.tournament) {throw new Error("Tournament not found");}
   return normalizeTournament(json.tournament);
 }
 
@@ -89,7 +89,7 @@ export async function rpcRegisterTeam(
   body: Record<string, unknown>,
 ): Promise<void> {
   const json = await tournamentCall<{ success?: boolean }>(env, "RegisterTeam", body);
-  if (!json.success) throw new Error("Team registration failed");
+  if (!json.success) {throw new Error("Team registration failed");}
 }
 
 export async function rpcTournamentAction(
@@ -102,7 +102,7 @@ export async function rpcTournamentAction(
     method,
     body,
   );
-  if (!json.success || !json.tournament) throw new Error("Tournament update failed");
+  if (!json.success || !json.tournament) {throw new Error("Tournament update failed");}
   return normalizeTournament(json.tournament);
 }
 

@@ -46,7 +46,7 @@ export async function getStaticPaths() {
   );
 }
 
-export async function GET({ props }: { props: SectionProps }) {
+export function GET({ props }: { props: SectionProps }) {
   const { label, members } = props;
 
   const lines = [`# ${label}`, "", "## Pages", ""];

@@ -18,15 +18,15 @@ const GUILD_MEMBERS_TTL_SEC = 120;
 
 function validateTournamentCode(code: string): string {
   const normalized = code.trim().toUpperCase();
-  if (!/^[A-Z2-9]{6}$/u.test(normalized)) throw new Error("Invalid tournament code");
+  if (!/^[A-Z2-9]{6}$/u.test(normalized)) {throw new Error("Invalid tournament code");}
   return normalized;
 }
 
 async function requireSession(): Promise<DashboardSession> {
   const request = getRequest();
-  if (!request) throw new Error("No active request");
+  if (!request) {throw new Error("No active request");}
   const auth = await requireDashboardSession(request, env);
-  if (auth instanceof Response) throw new Error("Log in with Discord to continue");
+  if (auth instanceof Response) {throw new Error("Log in with Discord to continue");}
   return auth.session;
 }
 
@@ -69,7 +69,7 @@ function validateActionInput(input: TournamentActionInput): TournamentActionBody
   const code = validateTournamentCode(input.code);
   if (input.action === "report") {
     if (!isPositiveInt(input.bracketMatchId) || !isPositiveInt(input.winnerTeamId))
-      throw new Error("Invalid tournament action");
+      {throw new Error("Invalid tournament action");}
     return {
       action: "report",
       code,
@@ -77,14 +77,14 @@ function validateActionInput(input: TournamentActionInput): TournamentActionBody
       winnerTeamId: input.winnerTeamId,
     };
   }
-  if (input.action === "start" || input.action === "cancel") return { action: input.action, code };
-  if (input.action !== "register") throw new Error("Invalid tournament action");
+  if (input.action === "start" || input.action === "cancel") {return { action: input.action, code };}
+  if (input.action !== "register") {throw new Error("Invalid tournament action");}
   const teamName = typeof input.teamName === "string" ? input.teamName.trim() : "";
   const discordUserIds = Array.isArray(input.discordUserIds)
     ? [...new Set(input.discordUserIds.filter((id) => typeof id === "string" && id.trim()))]
     : [];
-  if (!teamName || teamName.length > 120 || !discordUserIds.length)
-    throw new Error("Invalid tournament action");
+  if (!teamName || teamName.length > 120 || discordUserIds.length === 0)
+    {throw new Error("Invalid tournament action");}
   return { action: "register", code, teamName, discordUserIds };
 }
 
@@ -97,9 +97,9 @@ export const tournamentAction = createServerFn({ method: "POST" })
     const tournament = await rpcGetTournamentByCode(engine, body.code);
     if (body.action === "register") {
       if (!(await sessionIsGuildMember(session, tournament.createdByGuildId)))
-        throw new Error("You must be a member of the host server to register");
+        {throw new Error("You must be a member of the host server to register");}
       if (!body.discordUserIds!.includes(session.user.id))
-        throw new Error("Your Discord account must be included in your roster");
+        {throw new Error("Your Discord account must be included in your roster");}
       await rpcRegisterTeam(engine, {
         tournamentId: tournament.id,
         game: 1,
@@ -112,12 +112,12 @@ export const tournamentAction = createServerFn({ method: "POST" })
       return undefined;
     }
     if (tournament.createdByDiscordUserId !== session.user.id)
-      throw new Error("Only the tournament host can manage this event");
+      {throw new Error("Only the tournament host can manage this event");}
     if (body.action === "report") {
       const match = tournament.bracketMatches.find((m) => m.id === body.bracketMatchId);
-      if (!match || match.winnerTeamId) throw new Error("Bracket match is not reportable");
+      if (!match || match.winnerTeamId) {throw new Error("Bracket match is not reportable");}
       if (match.teamAId !== body.winnerTeamId && match.teamBId !== body.winnerTeamId)
-        throw new Error("Winner must be one of the two teams in the match");
+        {throw new Error("Winner must be one of the two teams in the match");}
       return rpcTournamentAction(engine, "ReportBracketResult", {
         bracketMatchId: body.bracketMatchId,
         game: 1,
@@ -140,13 +140,13 @@ export const listTournamentMembers = createServerFn({ method: "POST" })
   .handler(async ({ data: code }): Promise<GuildMember[]> => {
     const session = await requireSession();
     const botToken = resolveBotToken(env);
-    if (!botToken) throw new Error("Member lookup is not configured");
+    if (!botToken) {throw new Error("Member lookup is not configured");}
     const tournament = await rpcGetTournamentByCode(engineEnvFromCloudflare(env), code);
     if (!(await sessionIsGuildMember(session, tournament.createdByGuildId)))
-      throw new Error("You must be a member of the host server to view members");
+      {throw new Error("You must be a member of the host server to view members");}
     const cacheKey = `guild-members:v1:${tournament.createdByGuildId}`;
     const cached = await cacheGetJson<GuildMember[]>(cacheKey);
-    if (cached) return cached;
+    if (cached) {return cached;}
     const members = await fetchGuildMembers(botToken, tournament.createdByGuildId);
     await cachePutJson(cacheKey, members, GUILD_MEMBERS_TTL_SEC);
     return members;

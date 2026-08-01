@@ -16,7 +16,7 @@ async function signedHandoff(payload: object, secret = "test-secret"): Promise<s
   );
   const signature = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(body));
   let binary = "";
-  for (const byte of new Uint8Array(signature)) binary += String.fromCodePoint(byte);
+  for (const byte of new Uint8Array(signature)) {binary += String.fromCodePoint(byte);}
   return `${base64Url(binary)}.${body}`;
 }
 

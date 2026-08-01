@@ -32,7 +32,7 @@ function AccountSettingsSkeleton() {
 
 function AccountSettingsPage() {
   const { me, error, retry } = useAuthMeContext();
-  const [settings, setSettings] = useState<UserSettingsJson | null | undefined>(undefined);
+  const [settings, setSettings] = useState<UserSettingsJson | null | undefined>();
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const patchSettings = useCallback((next: UserSettingsJson) => {

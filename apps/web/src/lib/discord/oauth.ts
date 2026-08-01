@@ -106,7 +106,7 @@ export async function exchangeDiscordCode(params: {
   } catch (e) {
     const hint = e instanceof Error ? e.message : "network error";
     throw new Error(
-      `Discord token request failed (${hint}). If this is local Vite dev, outbound fetch from Miniflare can fail; try again or test on a deployed worker.`,
+      `Discord token request failed (${hint}). If this is local Vite dev, outbound fetch from Miniflare can fail; try again or test on a deployed worker.`, { cause: e },
     );
   }
 
@@ -161,13 +161,13 @@ async function fetchDiscordGuildsResilient(accessToken: string): Promise<Discord
 function bytesToBase64Url(bytes: Uint8Array): string {
   let binary = "";
   for (const b of bytes) {
-    binary += String.fromCharCode(b);
+    binary += String.fromCodePoint(b);
   }
-  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+  return btoa(binary).replaceAll(/\+/g, "-").replaceAll(/\//g, "_").replaceAll(/=+$/g, "");
 }
 
 function base64UrlToBytes(value: string): Uint8Array {
-  const padded = value.replace(/-/g, "+").replace(/_/g, "/");
+  const padded = value.replaceAll(/-/g, "+").replaceAll(/_/g, "/");
   const pad = padded.length % 4 === 0 ? "" : "=".repeat(4 - (padded.length % 4));
   const binary = atob(padded + pad);
   const out = new Uint8Array(binary.length);
