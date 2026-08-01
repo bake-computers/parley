@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"log/slog"
+	"strings"
 	"time"
 
 	"github.com/bake-computers/parley/internal/models"
@@ -42,7 +43,19 @@ type DBSnapshotWriter struct {
 func (w *DBSnapshotWriter) PersistSnapshot(ctx context.Context, stats *scrape.ScrapedStats) error {
 	dbGame := models.GameR6
 
-	player, err := w.Identity.FindPlayerByUsernameNormalized(ctx, dbGame, stats.Profile.Username)
+	// Resolve by (username, platform): the fetch layer canonicalizes
+	// Profile.Platform to the stored platform token. Username-only
+	// resolution let a fetched profile on one platform write snapshots
+	// and seed internal_elo onto another platform's player row.
+	platform := strings.ToLower(strings.TrimSpace(stats.Profile.Platform))
+	if platform == "" {
+		slog.Warn("skipping snapshot persist: profile platform unknown",
+			"username", stats.Profile.Username,
+		)
+		return nil
+	}
+
+	player, err := w.Identity.FindPlayerByIdentity(ctx, dbGame, stats.Profile.Username, platform)
 	if err != nil {
 		return err
 	}

@@ -140,10 +140,18 @@ func (r *IdentityRepo) FindPlayerByUsernameNormalized(
 	return &row, nil
 }
 
+// maxSeedRankPoints caps upstream rank_points before they seed internal_elo:
+// the live R6 band tops out around 10k (Champions), and stats.cc values are
+// untrusted input at the DB boundary.
+const maxSeedRankPoints = 10000
+
 // SeedEloIfUnrated sets internal_elo from rank_points when the player has no Parley matches.
 func (r *IdentityRepo) SeedEloIfUnrated(ctx context.Context, playerID int32, rankPoints int32) error {
 	if rankPoints <= 0 {
 		return nil
+	}
+	if rankPoints > maxSeedRankPoints {
+		rankPoints = maxSeedRankPoints
 	}
 	elo := float64(rankPoints)
 	now := NowMS()
