@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
@@ -43,6 +44,7 @@ type Config struct {
 	MatchmakingModelR2Bucket          string
 	MatchmakingModelR2Key             string
 	MatchmakingModelR2Jurisdiction    string
+	MatchmakingModelR2SHA256          string
 	MatchmakingModelMinSeasonMatches  int32
 	MatchmakingRoleBalanceWeight      float64
 	MatchmakingRoleCollisionWeight    float64
@@ -100,6 +102,7 @@ func Load() (*Config, error) {
 		MatchmakingModelR2Bucket:          getenv("MATCHMAKING_MODEL_R2_BUCKET", "ovi"),
 		MatchmakingModelR2Key:             getenv("MATCHMAKING_MODEL_R2_KEY", "ovi_model.onnx"),
 		MatchmakingModelR2Jurisdiction:    getenv("MATCHMAKING_MODEL_R2_JURISDICTION", "eu"),
+		MatchmakingModelR2SHA256:          strings.TrimSpace(os.Getenv("MATCHMAKING_MODEL_R2_SHA256")),
 		MatchmakingModelMinSeasonMatches:  int32(readUint64("MATCHMAKING_MODEL_MIN_SEASON_MATCHES", 3)),
 		MatchmakingRoleBalanceWeight:      readFloat64("MATCHMAKING_ROLE_BALANCE_WEIGHT", 0.10),
 		MatchmakingRoleCollisionWeight:    readFloat64("MATCHMAKING_ROLE_COLLISION_WEIGHT", 0.05),
@@ -109,6 +112,9 @@ func Load() (*Config, error) {
 
 	if cfg.DatabaseURL == "" {
 		return nil, fmt.Errorf("DATABASE_URL is required")
+	}
+	if cfg.MatchmakingModelR2SHA256 == "" {
+		return nil, fmt.Errorf("MATCHMAKING_MODEL_R2_SHA256 is required to pin the matchmaking model digest")
 	}
 
 	return cfg, nil
