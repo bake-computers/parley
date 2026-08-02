@@ -32,6 +32,7 @@ export {
   ButtonBuilder,
   TextDisplayBuilder,
   SectionBuilder,
+  MediaGalleryBuilder,
   SeparatorBuilder,
   ContainerBuilder,
   StringSelectMenuOptionBuilder,

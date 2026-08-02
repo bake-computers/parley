@@ -4,9 +4,9 @@
  * states use the main accent.
  */
 export const UI_TOKENS = {
-  main: 0x8a8a8e,
-  warning: 0xf59e0b,
-  error: 0xef4444,
+  main: 0xb8b8bd,
+  warning: 0xffb020,
+  error: 0xff4d4d,
 } as const;
 
 export type UiToken = keyof typeof UI_TOKENS;
