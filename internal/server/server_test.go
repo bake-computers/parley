@@ -81,6 +81,40 @@ func TestMetricsEndpoint(t *testing.T) {
 	}
 }
 
+func TestMetricsTracksRequests(t *testing.T) {
+	deps := newTestApp(t)
+	deps.SharedSecret = "test-secret"
+	app := server.New(*deps)
+
+	// Authenticated request reaches the route; the handler errors on the
+	// zero-value service, but the metrics middleware records it either way.
+	req := httptest.NewRequest(http.MethodGet, "/stats/someuser", nil)
+	req.Header.Set("Authorization", "Bearer test-secret")
+	resp, err := app.Test(req)
+	if err != nil {
+		t.Fatalf("request failed: %v", err)
+	}
+	_ = resp.Body.Close()
+
+	scrape := httptest.NewRequest(http.MethodGet, "/metrics", nil)
+	mresp, err := app.Test(scrape)
+	if err != nil {
+		t.Fatalf("scrape failed: %v", err)
+	}
+	defer func() { _ = mresp.Body.Close() }()
+	body, _ := io.ReadAll(mresp.Body)
+
+	want := []string{
+		`parley_http_requests_total{method="GET",route="/stats/:username",status="`,
+		`parley_http_request_duration_seconds_bucket{method="GET",route="/stats/:username"`,
+	}
+	for _, w := range want {
+		if !strings.Contains(string(body), w) {
+			t.Errorf("metrics output missing %q", w)
+		}
+	}
+}
+
 func TestReadyEndpointWithFailure(t *testing.T) {
 	deps := newTestApp(t)
 	deps.ReadyCheck = func() error {
