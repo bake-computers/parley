@@ -6,6 +6,8 @@ import (
 
 	"github.com/bake-computers/parley/internal/config"
 	"github.com/bake-computers/parley/internal/db"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/stretchr/testify/require"
 )
 
 func TestNew_RequiresDatabaseURL(t *testing.T) {
@@ -27,5 +29,18 @@ func TestEmbeddedMigrationCount(t *testing.T) {
 	n := len(db.Migrations.Sorted())
 	if n != 21 {
 		t.Fatalf("registered migrations = %d, want 21", n)
+	}
+}
+
+func TestSSLModeDisableDoesNotEnableTLS(t *testing.T) {
+	poolCfg, err := pgxpool.ParseConfig(
+		"postgresql://user:password@postgres.host:5432/parley?sslmode=disable",
+	)
+	require.NoError(t, err)
+
+	require.Nil(t, poolCfg.ConnConfig.TLSConfig)
+
+	for _, fallback := range poolCfg.ConnConfig.Fallbacks {
+		require.Nil(t, fallback.TLSConfig)
 	}
 }

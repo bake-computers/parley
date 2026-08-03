@@ -2,15 +2,14 @@ package db
 
 import (
 	"context"
-	"crypto/tls"
 	"errors"
 	"fmt"
 	"time"
 
+	"github.com/bake-computers/parley/internal/config"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jackc/pgx/v5/stdlib"
-	"github.com/bake-computers/parley/internal/config"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/pgdialect"
 )
@@ -46,21 +45,63 @@ func New(ctx context.Context, cfg *config.Config) (*bun.DB, error) {
 
 	poolCfg.ConnConfig.DefaultQueryExecMode = pgx.QueryExecModeSimpleProtocol
 
-	if normalizeDBTLS(cfg.DBTLS) != "none" {
-		tlsCfg := &tls.Config{MinVersion: tls.VersionTLS12}
+	// This is a test of fixing the TLS issue on the prod server.
+
+	// if normalizeDBTLS(cfg.DBTLS) != "none" {
+	// 	tlsCfg := &tls.Config{MinVersion: tls.VersionTLS12}
+	// 	if err := applyTLS(cfg, tlsCfg); err != nil {
+	// 		return nil, err
+	// 	}
+	// 	if host := poolCfg.ConnConfig.Host; host != "" {
+	// 		tlsCfg.ServerName = host
+	// 	}
+	// 	poolCfg.ConnConfig.TLSConfig = tlsCfg
+	// 	// sslmode=prefer/allow synthesizes plaintext fallback configs
+	// 	// (TLSConfig=nil); point them at the same verifying config so a
+	// 	// failed handshake can never silently downgrade to cleartext.
+	// 	for _, fb := range poolCfg.ConnConfig.Fallbacks {
+	// 		fb.TLSConfig = tlsCfg
+	// 	}
+	// }
+
+	// Respect sslmode from DATABASE_URL.
+	// A nil TLSConfig means sslmode=disable.
+	if poolCfg.ConnConfig.TLSConfig != nil {
+		tlsCfg := poolCfg.ConnConfig.TLSConfig.Clone()
+
 		if err := applyTLS(cfg, tlsCfg); err != nil {
-			return nil, err
+			return nil, fmt.Errorf("configure database TLS: %w", err)
 		}
+
 		if host := poolCfg.ConnConfig.Host; host != "" {
 			tlsCfg.ServerName = host
 		}
+
 		poolCfg.ConnConfig.TLSConfig = tlsCfg
-		// sslmode=prefer/allow synthesizes plaintext fallback configs
-		// (TLSConfig=nil); point them at the same verifying config so a
-		// failed handshake can never silently downgrade to cleartext.
-		for _, fb := range poolCfg.ConnConfig.Fallbacks {
-			fb.TLSConfig = tlsCfg
+	}
+
+	// Preserve the TLS decision for every fallback.
+	// Do not create TLSConfig when pgx disabled TLS for that fallback.
+	for _, fallback := range poolCfg.ConnConfig.Fallbacks {
+		if fallback.TLSConfig == nil {
+			continue
 		}
+
+		tlsCfg := fallback.TLSConfig.Clone()
+
+		if err := applyTLS(cfg, tlsCfg); err != nil {
+			return nil, fmt.Errorf(
+				"configure database fallback TLS for %s: %w",
+				fallback.Host,
+				err,
+			)
+		}
+
+		if fallback.Host != "" {
+			tlsCfg.ServerName = fallback.Host
+		}
+
+		fallback.TLSConfig = tlsCfg
 	}
 
 	pool, err := pgxpool.NewWithConfig(ctx, poolCfg)
