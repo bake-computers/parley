@@ -1,0 +1,15 @@
+prometheus.scrape "backend" {
+  targets    = [{ "__address__" = "backend:9090" }]
+  forward_to = [prometheus.remote_write.grafana.receiver]
+}
+
+prometheus.remote_write "grafana" {
+  endpoint {
+    url = env("GRAFANA_PROMETHEUS_URL")
+
+    basic_auth {
+      username      = env("GRAFANA_PROMETHEUS_USERNAME")
+      password_file = "/run/secrets/grafana_prometheus_token"
+    }
+  }
+}

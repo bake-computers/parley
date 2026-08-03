@@ -1,33 +1,10 @@
 services:
-  postgres:
-    image: postgres:18
-    container_name: parley_postgres
-    restart: always
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-parley}
-      POSTGRES_DB: ${POSTGRES_DB:-parley}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      PGDATA: /var/lib/postgresql/data
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    ports:
-      - "127.0.0.1:5432:5432"
-    networks:
-      - internal-net
-
-  parley:
+  backend:
     image: ghcr.io/bake-computers/parley-engine:latest
     container_name: parley-backend
     restart: always
+
     environment:
-      - ENGINE_SERVICE_ADDR=${ENGINE_SERVICE_ADDR:-0.0.0.0:50051}
-      - LOG_LEVEL=${LOG_LEVEL:-info}
-      - DATABASE_URL=postgres://${POSTGRES_USER:-parley}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-parley}
-      - RUN_MIGRATIONS=${RUN_MIGRATIONS:-1}
-      - DB_TLS=${DB_TLS:-disable}
-      - DB_POOL_MAX=${DB_POOL_MAX:-}
-      - DB_POOL_MIN_IDLE=${DB_POOL_MIN_IDLE:-}
-      - STATS_CC_API_KEY=${STATS_CC_API_KEY:-}
       - STATS_CC_API_BASE_URL=${STATS_CC_API_BASE_URL:-}
       - STATS_CC_PROFILE_BATCH_SIZE=${STATS_CC_PROFILE_BATCH_SIZE:-}
       - STATS_CC_PROFILE_BATCH_DELAY_MS=${STATS_CC_PROFILE_BATCH_DELAY_MS:-}
@@ -45,17 +22,65 @@ services:
       - AXIOM_DATASET=${AXIOM_DATASET:-}
       - AXIOM_ORG_ID=${AXIOM_ORG_ID:-}
       - AXIOM_EDGE=${AXIOM_EDGE:-}
+      - BOT_OWNER_DISCORD_ID=${BOT_OWNER_DISCORD_ID:-}
+      - MATCHMAKING_MODEL_R2_SHA256=${MATCHMAKING_MODEL_R2_SHA256:-}
+
     ports:
       - "127.0.0.1:50051:50051"
+
+    expose:
+      - "9090"
+
     networks:
       - internal-net
+
     depends_on:
       - postgres
+
+  alloy:
+    image: grafana/alloy:v1.10.0
+    container_name: parley-alloy
+    restart: unless-stopped
+
+    command:
+      - run
+      - --storage.path=/var/lib/alloy/data
+      - --server.http.listen-addr=127.0.0.1:12345
+      - /etc/alloy/config.alloy
+
+    environment:
+      GRAFANA_PROMETHEUS_URL: ${GRAFANA_PROMETHEUS_URL}
+      GRAFANA_PROMETHEUS_USERNAME: ${GRAFANA_PROMETHEUS_USERNAME}
+
+    secrets:
+      - grafana_prometheus_token
+
+    volumes:
+      - ./observability/config.alloy:/etc/alloy/config.alloy:ro
+      - alloy-data:/var/lib/alloy/data
+
+    networks:
+      - internal-net
+
+    depends_on:
+      - backend
+
+    security_opt:
+      - no-new-privileges:true
+
+    cap_drop:
+      - ALL
 
 volumes:
   pgdata:
     external: true
     name: core-infra_pgdata
+
+  alloy-data:
+
+secrets:
+  grafana_prometheus_token:
+    file: ./secrets/grafana-prometheus-token
 
 networks:
   internal-net:
