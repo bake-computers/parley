@@ -1,10 +1,20 @@
+name: parley
+
 services:
   backend:
     image: ghcr.io/bake-computers/parley-engine:latest
     container_name: parley-backend
-    restart: always
+
+    restart: unless-stopped
+    pull_policy: always
+    init: true
+
+    env_file:
+      - ./.env
 
     environment:
+      - DATABASE_URL=${DATABASE_URL:?DATABASE_URL must be set in .env}
+      - RUN_MIGRATIONS=${RUN_MIGRATIONS:-}
       - STATS_CC_API_BASE_URL=${STATS_CC_API_BASE_URL:-}
       - STATS_CC_PROFILE_BATCH_SIZE=${STATS_CC_PROFILE_BATCH_SIZE:-}
       - STATS_CC_PROFILE_BATCH_DELAY_MS=${STATS_CC_PROFILE_BATCH_DELAY_MS:-}
@@ -27,43 +37,19 @@ services:
 
     ports:
       - "127.0.0.1:50051:50051"
+      - "127.0.0.1:9090:9090"
 
-    expose:
-      - "9090"
-
-    networks:
-      - internal-net
-
-    depends_on:
-      - postgres
-
-  alloy:
-    image: grafana/alloy:v1.10.0
-    container_name: parley-alloy
-    restart: unless-stopped
-
-    command:
-      - run
-      - --storage.path=/var/lib/alloy/data
-      - --server.http.listen-addr=127.0.0.1:12345
-      - /etc/alloy/config.alloy
-
-    environment:
-      GRAFANA_PROMETHEUS_URL: ${GRAFANA_PROMETHEUS_URL}
-      GRAFANA_PROMETHEUS_USERNAME: ${GRAFANA_PROMETHEUS_USERNAME}
-
-    secrets:
-      - grafana_prometheus_token
-
-    volumes:
-      - ./observability/config.alloy:/etc/alloy/config.alloy:ro
-      - alloy-data:/var/lib/alloy/data
+    extra_hosts:
+      - "postgres.host:host-gateway"
 
     networks:
-      - internal-net
+      - postgres-clients
 
-    depends_on:
-      - backend
+    mem_limit: 768m
+    cpus: 2.0
+    pids_limit: 256
+
+    stop_grace_period: 30s
 
     security_opt:
       - no-new-privileges:true
@@ -71,17 +57,13 @@ services:
     cap_drop:
       - ALL
 
-volumes:
-  pgdata:
-    external: true
-    name: core-infra_pgdata
-
-  alloy-data:
-
-secrets:
-  grafana_prometheus_token:
-    file: ./secrets/grafana-prometheus-token
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
 
 networks:
-  internal-net:
-    driver: bridge
+  postgres-clients:
+    external: true
+    name: postgres-clients
