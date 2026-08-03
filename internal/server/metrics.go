@@ -29,8 +29,13 @@ func init() {
 	prometheus.MustRegister(httpRequestsTotal, httpRequestDurationSeconds)
 }
 
-func mountMetrics(app *fiber.App) {
+// NewMetricsApp returns a standalone app serving /metrics on its own listener
+// (METRICS_ADDR), so the scrape endpoint stays Docker-internal instead of
+// riding along with authenticated application traffic on the service port.
+func NewMetricsApp() *fiber.App {
+	app := fiber.New()
 	app.Get("/metrics", adaptor.HTTPHandler(promhttp.Handler()))
+	return app
 }
 
 // metricsMiddleware records request counts and latency per route template.
@@ -43,7 +48,7 @@ func metricsMiddleware() fiber.Handler {
 		// Skip operational probes: load-balancer health checks and
 		// Prometheus scrapes would otherwise dominate the counters.
 		switch c.Path() {
-		case "/metrics", "/health", "/ready":
+		case "/health", "/ready":
 			return c.Next()
 		}
 

@@ -8,6 +8,7 @@ import (
 
 func TestLoad(t *testing.T) {
 	t.Setenv("ENGINE_SERVICE_ADDR", "127.0.0.1:9999")
+	t.Setenv("METRICS_ADDR", "127.0.0.1:9091")
 	t.Setenv("ENGINE_SHARED_SECRET", "s3cret")
 	t.Setenv("DATABASE_URL", "postgres://u:p@localhost/db")
 	t.Setenv("RUN_MIGRATIONS", "1")
@@ -36,6 +37,9 @@ func TestLoad(t *testing.T) {
 
 	if cfg.EngineServiceAddr != "127.0.0.1:9999" {
 		t.Errorf("EngineServiceAddr = %q, want 127.0.0.1:9999", cfg.EngineServiceAddr)
+	}
+	if cfg.MetricsAddr != "127.0.0.1:9091" {
+		t.Errorf("MetricsAddr = %q, want 127.0.0.1:9091", cfg.MetricsAddr)
 	}
 	if cfg.EngineSharedSecret != "s3cret" {
 		t.Errorf("EngineSharedSecret = %q, want s3cret", cfg.EngineSharedSecret)
@@ -102,6 +106,7 @@ func TestLoad(t *testing.T) {
 func TestLoad_defaults(t *testing.T) {
 	for _, key := range []string{
 		"ENGINE_SERVICE_ADDR",
+		"METRICS_ADDR",
 		"RUN_MIGRATIONS",
 		"DB_POOL_MAX",
 		"STATS_TTL_R6_MS",
@@ -126,6 +131,9 @@ func TestLoad_defaults(t *testing.T) {
 
 	if cfg.EngineServiceAddr != "0.0.0.0:50051" {
 		t.Errorf("EngineServiceAddr = %q", cfg.EngineServiceAddr)
+	}
+	if cfg.MetricsAddr != "0.0.0.0:9090" {
+		t.Errorf("MetricsAddr = %q", cfg.MetricsAddr)
 	}
 	if cfg.RunMigrations {
 		t.Error("RunMigrations should be false by default")

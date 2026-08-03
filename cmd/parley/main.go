@@ -133,6 +133,7 @@ func run() error {
 		},
 	}
 	app := server.New(deps)
+	metricsApp := server.NewMetricsApp()
 
 	go func() {
 		slog.Info("stats persister started")
@@ -141,10 +142,16 @@ func run() error {
 
 	go statsClient.Warmup(context.Background())
 
-	serverErr := make(chan error, 1)
+	serverErr := make(chan error, 2)
 	go func() {
 		slog.Info("engine-service listening", "addr", cfg.EngineServiceAddr)
 		if err := app.Listen(cfg.EngineServiceAddr); err != nil {
+			serverErr <- err
+		}
+	}()
+	go func() {
+		slog.Info("metrics listening", "addr", cfg.MetricsAddr)
+		if err := metricsApp.Listen(cfg.MetricsAddr); err != nil {
 			serverErr <- err
 		}
 	}()
@@ -161,6 +168,9 @@ func run() error {
 
 	if err := app.ShutdownWithContext(shutdownCtx); err != nil {
 		slog.Error("server shutdown error", "error", err)
+	}
+	if err := metricsApp.ShutdownWithContext(shutdownCtx); err != nil {
+		slog.Error("metrics shutdown error", "error", err)
 	}
 
 	if axiomHandler != nil {

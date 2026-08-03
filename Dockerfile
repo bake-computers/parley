@@ -16,5 +16,5 @@ RUN CGO_ENABLED=0 go build -ldflags="-s -w" -o /out/parley ./cmd/parley
 
 FROM gcr.io/distroless/static-debian12:latest
 COPY --from=build /out/parley /parley
-EXPOSE 50051
+EXPOSE 50051 9090
 ENTRYPOINT ["/parley"]

@@ -14,7 +14,7 @@ func requireEngineAuth(secret string) fiber.Handler {
 	want := []byte("Bearer " + secret)
 	return func(c fiber.Ctx) error {
 		switch c.Path() {
-		case "/health", "/ready", "/metrics":
+		case "/health", "/ready":
 			return c.Next()
 		}
 		got := c.Get(fiber.HeaderAuthorization)

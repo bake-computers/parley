@@ -12,6 +12,7 @@ import (
 // Config holds engine-service runtime settings from the process environment.
 type Config struct {
 	EngineServiceAddr  string
+	MetricsAddr        string
 	EngineSharedSecret string
 	DatabaseURL        string
 	RunMigrations      bool
@@ -64,6 +65,7 @@ func Load() (*Config, error) {
 
 	cfg := &Config{
 		EngineServiceAddr:  getenv("ENGINE_SERVICE_ADDR", "0.0.0.0:50051"),
+		MetricsAddr:        getenv("METRICS_ADDR", "0.0.0.0:9090"),
 		EngineSharedSecret: os.Getenv("ENGINE_SHARED_SECRET"),
 		DatabaseURL:        os.Getenv("DATABASE_URL"),
 		RunMigrations:      os.Getenv("RUN_MIGRATIONS") == "1",

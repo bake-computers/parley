@@ -27,7 +27,7 @@ func doRequest(t *testing.T, secret string, method, target string, authHeader *s
 func strp(s string) *string { return &s }
 
 func TestAuth_ProbesBypass(t *testing.T) {
-	for _, path := range []string{"/health", "/ready", "/metrics"} {
+	for _, path := range []string{"/health", "/ready"} {
 		if got := doRequest(t, testSecret, http.MethodGet, path, nil); got != http.StatusOK {
 			t.Errorf("GET %s without auth = %d, want 200", path, got)
 		}

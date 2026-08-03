@@ -62,8 +62,7 @@ func TestReadyEndpoint(t *testing.T) {
 }
 
 func TestMetricsEndpoint(t *testing.T) {
-	deps := newTestApp(t)
-	app := server.New(*deps)
+	app := server.NewMetricsApp()
 
 	req := httptest.NewRequest(http.MethodGet, "/metrics", nil)
 	resp, err := app.Test(req)
@@ -97,7 +96,7 @@ func TestMetricsTracksRequests(t *testing.T) {
 	_ = resp.Body.Close()
 
 	scrape := httptest.NewRequest(http.MethodGet, "/metrics", nil)
-	mresp, err := app.Test(scrape)
+	mresp, err := server.NewMetricsApp().Test(scrape)
 	if err != nil {
 		t.Fatalf("scrape failed: %v", err)
 	}
