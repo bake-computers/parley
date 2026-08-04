@@ -75,8 +75,6 @@ export type Messages = {
       teamAlpha: string;
       teamBeta: string;
       playersAria: string;
-      balanceScore: string;
-      rebalance: string;
     };
     experience: {
       title: string;

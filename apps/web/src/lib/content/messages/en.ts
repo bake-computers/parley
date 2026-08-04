@@ -106,11 +106,9 @@ export const messagesEn: Messages = {
       liveBalanced: "Lobby balanced. Teams are skill-matched.",
       liveBalancing: "Balancing teams by skill rating.",
       liveUnbalanced: "Lobby unbalanced. High skill delta detected.",
-      teamAlpha: "Team α",
-      teamBeta: "Team β",
+      teamAlpha: "Team Alpha",
+      teamBeta: "Team Bravo",
       playersAria: "players",
-      balanceScore: "Balance score",
-      rebalance: "Rebalance lobby",
     },
     experience: {
       title: "From lobby to trophy, handled for you.",
