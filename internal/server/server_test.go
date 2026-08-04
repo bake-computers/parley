@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -12,6 +13,7 @@ import (
 
 	"github.com/bake-computers/parley/internal/server"
 	"github.com/bake-computers/parley/internal/services"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 func newTestApp(t *testing.T) *server.Deps {
@@ -187,5 +189,91 @@ func TestIdentityServiceSmoke(t *testing.T) {
 	// Should get a response (not 404) — the handler processes it.
 	if resp.StatusCode == http.StatusNotFound {
 		t.Error("route not found — connect service not mounted")
+	}
+}
+
+// Metric label values must stay valid after the request ends. Unless Fiber is
+// configured Immutable, c.Path() returns a zero-copy view into the pooled
+// request context's path buffer, which the next request served by that pooled
+// context overwrites in place. Labels stored in the prometheus registry then
+// mutate after the fact: values come back corrupted, and two series can
+// collapse onto one label set, which makes the registry reject every scrape.
+// This test drives enough keep-alive traffic that the pooled contexts are
+// reused (see production incident: /metrics returning 500 with "collected
+// metric ... was collected before with the same name and label values").
+func TestMetricsLabelsSurviveConnectionReuse(t *testing.T) {
+	deps := newTestApp(t)
+	deps.SharedSecret = "test-secret"
+	app := server.New(*deps)
+
+	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatalf("listen failed: %v", err)
+	}
+	go func() { _ = app.Listener(ln) }()
+	t.Cleanup(func() { _ = app.Shutdown() })
+
+	// Two procedures on one service so both share the route label, and of
+	// equal length so a reused buffer overwrites the earlier label exactly.
+	first := "/parley.guild.v1.GuildSettingsService/UpsertGuildSettings"
+	second := "/parley.guild.v1.GuildSettingsService/GetMatchmakingRules"
+	if len(first) != len(second) {
+		t.Fatalf("repro requires equal-length procedures, got %d and %d", len(first), len(second))
+	}
+
+	const rounds = 100
+	client := &http.Client{} // default transport reuses the keep-alive connection
+	for i := 0; i < rounds; i++ {
+		for _, procedure := range []string{first, second} {
+			req, err := http.NewRequest(http.MethodPost, "http://"+ln.Addr().String()+procedure, strings.NewReader("{}"))
+			if err != nil {
+				t.Fatalf("build request failed: %v", err)
+			}
+			req.Header.Set("Authorization", "Bearer test-secret")
+			req.Header.Set("Content-Type", "application/json")
+			resp, err := client.Do(req)
+			if err != nil {
+				t.Fatalf("request %s failed: %v", procedure, err)
+			}
+			_, _ = io.Copy(io.Discard, resp.Body)
+			_ = resp.Body.Close()
+		}
+	}
+
+	families, err := prometheus.DefaultGatherer.Gather()
+	if err != nil {
+		t.Fatalf("metric registry inconsistent after keep-alive buffer reuse: %v", err)
+	}
+
+	counts := map[string]uint64{}
+	for _, mf := range families {
+		if mf.GetName() != "parley_http_request_duration_seconds" {
+			continue
+		}
+		for _, m := range mf.GetMetric() {
+			var route, procedure string
+			for _, lp := range m.GetLabel() {
+				switch lp.GetName() {
+				case "route":
+					route = lp.GetValue()
+				case "procedure":
+					procedure = lp.GetValue()
+				}
+			}
+			if route == "/parley.guild.v1.GuildSettingsService/*" {
+				counts[procedure] += m.GetHistogram().GetSampleCount()
+			}
+		}
+	}
+	want := map[string]uint64{first: rounds, second: rounds}
+	if len(counts) != len(want) {
+		t.Fatalf("expected series for exactly %v procedures, got %v", len(want), counts)
+	}
+	// >= because the registry is global and accumulates across repeated runs
+	// in the same process; the exact-series check above catches garbage labels.
+	for procedure, n := range want {
+		if counts[procedure] < n {
+			t.Errorf("procedure %s: expected at least %d samples, got %d", procedure, n, counts[procedure])
+		}
 	}
 }

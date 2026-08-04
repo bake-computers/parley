@@ -51,6 +51,11 @@ func New(deps Deps) *fiber.App {
 		ReadTimeout:  30 * time.Second,
 		WriteTimeout: 30 * time.Second,
 		IdleTimeout:  120 * time.Second,
+		// Copy path/method strings out of the reused request buffers. Metrics
+		// and the async Axiom log handler keep these values past the request
+		// lifetime; the zero-copy default corrupts them once the buffer is
+		// recycled.
+		Immutable: true,
 	})
 
 	// Middleware

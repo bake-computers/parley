@@ -133,8 +133,9 @@ func requestMetricLabels(c fiber.Ctx) (route, procedure string) {
 	// A known procedure is safe to use even when authentication rejected the
 	// request before Fiber matched the Connect wildcard route. Unknown method
 	// names collapse to one bounded value instead of becoming label values.
-	if _, ok := rpcProcedures[c.Path()]; ok {
-		return route, c.Path()
+	path := c.Path()
+	if _, ok := rpcProcedures[path]; ok {
+		return route, path
 	}
 	if strings.HasPrefix(route, "/parley.") && strings.HasSuffix(route, "/*") {
 		return route, "unknown"
