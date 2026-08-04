@@ -6,6 +6,10 @@
 
 - [Parley — Competitive Matchmaking and Tournaments for Discord](https://parley.bot/): The home of Parley — R6 Discord bot, R6 Discord matchmaking, and R6 Discord tournament hosting for Siege players and Discord communities.
 
+## Blog
+
+- [Why Parley is built the way it is](https://parley.bot/blog/why-parley-is-built-the-way-it-is): The reasoning behind Parley's stack: one Go engine that owns the truth, a protobuf wire contract, Cloudflare Workers at the edge, and a matchmaking model you can audit. ([Markdown version](https://parley.bot/blog/why-parley-is-built-the-way-it-is.md))
+
 ## Legal
 
 - [Terms of Service](https://parley.bot/terms)

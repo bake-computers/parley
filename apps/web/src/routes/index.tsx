@@ -97,6 +97,9 @@ const STRUCTURED_DATA = {
 export const Route = createFileRoute("/")({
   // Marketing shell changes rarely; SWR keeps hits after max-age.
   headers: () => publicCache(300, 3600, "page:home"),
+  head: () => ({
+    links: [{ rel: "canonical", href: "https://parley.bot/" }],
+  }),
   component: Home,
 });
 

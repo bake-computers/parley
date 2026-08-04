@@ -22,6 +22,7 @@ export const messagesEn: Messages = {
     privacy: "Privacy policy",
     terms: "Terms of service",
     docs: "Docs",
+    blog: "Blog",
     legalGroup: "Legal",
     poweredBy: "Powered by",
     notUbisoft: "Not affiliated with Ubisoft",

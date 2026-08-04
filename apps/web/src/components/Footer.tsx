@@ -60,6 +60,9 @@ export function SiteFooter() {
               >
                 {m.footer.docs}
               </a>
+              <a href={siteHref("blog")} className={linkClass}>
+                {m.footer.blog}
+              </a>
             </nav>
             <nav aria-label={m.footer.legalGroup} className="flex flex-col gap-3">
               <span className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground/60">

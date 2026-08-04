@@ -20,6 +20,7 @@ export type Messages = {
     privacy: string;
     terms: string;
     docs: string;
+    blog: string;
     legalGroup: string;
     poweredBy: string;
     notUbisoft: string;
