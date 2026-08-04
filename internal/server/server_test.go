@@ -85,6 +85,16 @@ func TestMetricsTracksRequests(t *testing.T) {
 	deps.SharedSecret = "test-secret"
 	app := server.New(*deps)
 
+	// Rejected application traffic is still traffic worth measuring. It has no
+	// matched endpoint because auth stops the middleware chain, so it uses the
+	// bounded "unmatched" route label.
+	unauthenticated := httptest.NewRequest(http.MethodGet, "/stats/rejected", nil)
+	unauthenticatedResp, err := app.Test(unauthenticated)
+	if err != nil {
+		t.Fatalf("unauthenticated request failed: %v", err)
+	}
+	_ = unauthenticatedResp.Body.Close()
+
 	// Authenticated request reaches the route; the handler errors on the
 	// zero-value service, but the metrics middleware records it either way.
 	req := httptest.NewRequest(http.MethodGet, "/stats/someuser", nil)
@@ -104,6 +114,7 @@ func TestMetricsTracksRequests(t *testing.T) {
 	body, _ := io.ReadAll(mresp.Body)
 
 	want := []string{
+		`parley_http_requests_total{method="GET",route="unmatched",status="401"} `,
 		`parley_http_requests_total{method="GET",route="/stats/:username",status="`,
 		`parley_http_request_duration_seconds_bucket{method="GET",route="/stats/:username"`,
 	}

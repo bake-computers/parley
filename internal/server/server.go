@@ -58,10 +58,10 @@ func New(deps Deps) *fiber.App {
 	app.Use(requestid.New())
 	app.Use(requestLogMiddleware())
 	app.Use(compress.New())
-	app.Use(requireEngineAuth(deps.SharedSecret))
-	// Metrics runs after auth so c.Route() is the matched endpoint, not
-	// the middleware catch-all; rejected requests keep labels bounded.
+	// Record all application traffic, including authentication failures. The
+	// middleware maps requests rejected before route matching to "unmatched".
 	app.Use(metricsMiddleware())
+	app.Use(requireEngineAuth(deps.SharedSecret))
 
 	// Health and readiness
 	app.Get("/health", func(c fiber.Ctx) error {

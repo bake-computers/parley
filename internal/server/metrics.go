@@ -38,11 +38,11 @@ func NewMetricsApp() *fiber.App {
 	return app
 }
 
-// metricsMiddleware records request counts and latency per route template.
+// metricsMiddleware records request counts and latency for application traffic.
 // Labels use the registered route pattern (e.g. /stats/:username), not the
-// raw path, so label cardinality stays bounded. It is registered after the
-// auth middleware so c.Route() resolves to the matched endpoint, and records
-// panics as 500 before re-raising them for the recover middleware.
+// raw path, so label cardinality stays bounded. It runs before authentication
+// so rejected API requests are visible too; those requests have no matched
+// endpoint and use the bounded "unmatched" route label.
 func metricsMiddleware() fiber.Handler {
 	return func(c fiber.Ctx) (err error) {
 		// Skip operational probes: load-balancer health checks and
@@ -68,7 +68,7 @@ func metricsMiddleware() fiber.Handler {
 			}
 
 			route := c.Route().Path
-			if route == "" {
+			if route == "" || route == "/" {
 				route = "unmatched"
 			}
 			httpRequestsTotal.WithLabelValues(c.Method(), route, strconv.Itoa(status)).Inc()
