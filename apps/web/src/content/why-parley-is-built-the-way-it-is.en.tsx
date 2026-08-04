@@ -53,8 +53,8 @@ export function WhyParleyIsBuiltTheWayItIsContentEn() {
             does not merge.
           </p>
           <p>
-            The alternatives are a library shared across two languages — one build system serving
-            both — or handwritten JSON types kept in sync by review. Both fail the same way
+            The alternatives are a library shared across two languages (one build system serving
+            both) or handwritten JSON types kept in sync by review. Both fail the same way
             eventually: one side drifts, and the bug surfaces mid-lobby at runtime instead of at
             build time. Generating from one source lets each language&apos;s compiler do the
             checking.
@@ -69,7 +69,7 @@ export function WhyParleyIsBuiltTheWayItIsContentEn() {
           </p>
           <p>
             The rejected alternative was hosting the bot beside the engine on one box. It would
-            have worked — but Discord interactions are latency-bound and players are everywhere,
+            have worked, but Discord interactions are latency-bound and players are everywhere,
             so answering from a single region trades reach for a machine to patch and keep alive.
           </p>
         </Section>
@@ -77,7 +77,7 @@ export function WhyParleyIsBuiltTheWayItIsContentEn() {
         <Section title="RPC over plain HTTP.">
           <p>
             ConnectRPC gives us typed RPCs as ordinary HTTP requests. Native gRPC is built on
-            HTTP/2 end to end, and Workers cannot speak it from fetch — running gRPC at the edge
+            HTTP/2 end to end, and Workers cannot speak it from fetch. Running gRPC at the edge
             would mean proxies and protocol translation. The Connect protocol is a standard POST
             with a JSON or protobuf body: HTTP/1.1-compatible, readable with curl, and callable
             from anything that can fetch.
@@ -92,7 +92,7 @@ export function WhyParleyIsBuiltTheWayItIsContentEn() {
           <p>
             We prefer additive, backwards-compatible migrations so deployments do not require
             synchronized cutovers: old code keeps serving against the new schema while new code
-            rolls out. Renames, backfills, constraints, and removals still happen — they happen in
+            rolls out. Renames, backfills, constraints, and removals still happen. They happen in
             stages, never in one coordinated flag day.
           </p>
           <p>
@@ -106,15 +106,15 @@ export function WhyParleyIsBuiltTheWayItIsContentEn() {
         <Section title="A model you can audit.">
           <p>
             The matchmaking score is a single linear model: six weights, one per dimension of each
-            player&apos;s dual-anchor playstyle vector — K/D, entry, trade, clutch, exec, and
-            season win rate. It decides who plays with whom, so we chose something that can be
+            player&apos;s dual-anchor playstyle vector (K/D, entry, trade, clutch, exec, and
+            season win rate). It decides who plays with whom, so we chose something that can be
             printed, diffed, and argued with over a black box that must be trusted. Every
             parameter of complexity beyond linearity is a parameter of opacity.
           </p>
           <p>
             A nonlinear model would likely predict a touch better. The cost is that when someone
             asks why their lobby looks the way it does, the honest answer becomes “the model said
-            so” — and a matchmaking system that cannot explain itself cannot be fixed when it is
+            so,” and a matchmaking system that cannot explain itself cannot be fixed when it is
             wrong.
           </p>
         </Section>
@@ -123,7 +123,7 @@ export function WhyParleyIsBuiltTheWayItIsContentEn() {
           <p>
             Models arrive as objects and are strictly validated at startup, so anything unexpected
             fails to load. A new engine instance does not become ready unless it can fully
-            validate and load its model — a bad upload leaves the healthy deployment serving
+            validate and load its model; a bad upload leaves the healthy deployment serving
             instead of taking it down. No registry, no canary machinery; rolling back is uploading
             the previous object.
           </p>
