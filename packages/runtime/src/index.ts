@@ -32,6 +32,7 @@ export {
   ButtonBuilder,
   TextDisplayBuilder,
   SectionBuilder,
+  ThumbnailBuilder,
   MediaGalleryBuilder,
   SeparatorBuilder,
   ContainerBuilder,
