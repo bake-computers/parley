@@ -105,6 +105,21 @@ func TestMetricsTracksRequests(t *testing.T) {
 	}
 	_ = resp.Body.Close()
 
+	// Connect routes are mounted as service wildcards in Fiber. The metrics
+	// collector must still expose the concrete generated RPC procedure.
+	rpcReq := httptest.NewRequest(
+		http.MethodPost,
+		"/parley.identity.v1.IdentityService/LookupByUsername",
+		strings.NewReader(`{"username":"test"}`),
+	)
+	rpcReq.Header.Set("Authorization", "Bearer test-secret")
+	rpcReq.Header.Set("Content-Type", "application/json")
+	rpcResp, err := app.Test(rpcReq)
+	if err != nil {
+		t.Fatalf("RPC request failed: %v", err)
+	}
+	_ = rpcResp.Body.Close()
+
 	scrape := httptest.NewRequest(http.MethodGet, "/metrics", nil)
 	mresp, err := server.NewMetricsApp().Test(scrape)
 	if err != nil {
@@ -114,9 +129,12 @@ func TestMetricsTracksRequests(t *testing.T) {
 	body, _ := io.ReadAll(mresp.Body)
 
 	want := []string{
-		`parley_http_requests_total{method="GET",route="unmatched",status="401"} `,
-		`parley_http_requests_total{method="GET",route="/stats/:username",status="`,
-		`parley_http_request_duration_seconds_bucket{method="GET",route="/stats/:username"`,
+		`parley_http_requests_total{method="GET",procedure="none",route="unmatched",status="401"} `,
+		`parley_http_requests_total{method="GET",procedure="none",route="/stats/:username",status="`,
+		`parley_http_request_duration_seconds_bucket{method="GET",procedure="none",route="/stats/:username"`,
+		`parley_http_requests_total{method="POST",procedure="/parley.identity.v1.IdentityService/LookupByUsername",route="/parley.identity.v1.IdentityService/*",status="`,
+		`parley_http_request_duration_seconds_bucket{method="POST",procedure="/parley.identity.v1.IdentityService/LookupByUsername",route="/parley.identity.v1.IdentityService/*"`,
+		"parley_http_requests_in_flight 0",
 	}
 	for _, w := range want {
 		if !strings.Contains(string(body), w) {
