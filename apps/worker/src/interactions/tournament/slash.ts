@@ -1,12 +1,16 @@
 import { Game } from "@parley/proto";
 import {
   ContainerBuilder,
+  SectionBuilder,
   SlashCommand,
   TextDisplayBuilder,
+  ThumbnailBuilder,
   type ChatInputCommandInteraction,
 } from "@parley/runtime";
 import { getTournamentClient, type EngineTransportEnv } from "#/transport";
+import { UI_TOKENS } from "#/ui/tokens";
 import { replyV2 } from "#/ui/discord";
+import { buildTournamentQrUrl } from "./qr";
 
 const BASE_URL = "https://parley.bot/tournaments";
 
@@ -14,6 +18,24 @@ function card(title: string, text: string): ContainerBuilder {
   return new ContainerBuilder().addComponents(
     new TextDisplayBuilder().setContent(`**${title}**\n${text}`),
   );
+}
+
+export function buildTournamentCreateCard(url: string): ContainerBuilder {
+  return new ContainerBuilder()
+    .setAccentColor(UI_TOKENS.main)
+    .addComponents(
+      new SectionBuilder()
+        .addText(
+          new TextDisplayBuilder().setContent(
+            `**Create a tournament**\nScan the QR code or use the [Parley website](${url}). Log in to choose the format, schedule, rules, and prizes.`,
+          ),
+        )
+        .setAccessory(
+          new ThumbnailBuilder()
+            .setURL(buildTournamentQrUrl(url))
+            .setDescription("Scan to create a tournament"),
+        ),
+    );
 }
 
 function toBase64Url(value: string): string {
@@ -90,10 +112,7 @@ export const tournamentSlashCommand = new SlashCommand()
       }
       await replyV2(
         interaction,
-        card(
-          "Create a tournament",
-          `Tournament setup lives on the [Parley website](${BASE_URL}/create?handoff=${encodeURIComponent(payload)}). Log in to choose the format, schedule, rules, and prizes.`,
-        ),
+        buildTournamentCreateCard(`${BASE_URL}/create?handoff=${encodeURIComponent(payload)}`),
       );
       return;
     }
