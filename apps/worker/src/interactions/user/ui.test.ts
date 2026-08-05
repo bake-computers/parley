@@ -6,6 +6,7 @@ import {
   buildInfoCard,
   buildRefreshErrorCard,
 } from "#/interactions/user/ui";
+import { UI_TOKENS } from "#/ui/tokens";
 
 const SETTINGS = {
   discordUserId: "u1",
@@ -78,7 +79,7 @@ describe("user/ui — settings card (preferences)", () => {
 
   test("uses the graphite main accent on the container", () => {
     const [container] = render();
-    expect(container["accent_color"]).toBe(0x8a8a8e);
+    expect(container["accent_color"]).toBe(UI_TOKENS.main);
   });
 
   test("has no footer text", () => {
@@ -131,13 +132,13 @@ describe("user/ui — privacy page", () => {
 describe("user/ui — result cards", () => {
   test("error card uses the error color", () => {
     const card = buildErrorCard("oops", {} as never).toJSON();
-    expect(card["accent_color"]).toBe(0xef4444);
+    expect(card["accent_color"]).toBe(UI_TOKENS.error);
     expect(JSON.stringify(card)).toContain("oops");
   });
 
   test("info card uses the main color", () => {
     const card = buildInfoCard("hello").toJSON();
-    expect(card["accent_color"]).toBe(0x8a8a8e);
+    expect(card["accent_color"]).toBe(UI_TOKENS.main);
   });
 
   test("delete result card shows cooldown_until_ms as a Discord timestamp", () => {
@@ -159,7 +160,7 @@ describe("user/ui — result cards", () => {
 
   test("refresh error card uses the warning color", () => {
     const card = buildRefreshErrorCard("timeout", {} as never).toJSON();
-    expect(card["accent_color"]).toBe(0xf59e0b);
+    expect(card["accent_color"]).toBe(UI_TOKENS.warning);
     expect(JSON.stringify(card)).toContain("timeout");
   });
 });
