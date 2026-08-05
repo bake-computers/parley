@@ -340,6 +340,120 @@ func TestMatchmaking_CustomMatchRoundStatsAccumulate(t *testing.T) {
 	}
 }
 
+// TestMatchmaking_ReportMatchResultUpdatesVisiblePlayerRating ensures a
+// completed custom match updates the player row consumed by /profile as well
+// as the guild membership consumed by matchmaking.
+func TestMatchmaking_ReportMatchResultUpdatesVisiblePlayerRating(t *testing.T) {
+	bdb, cleanup := newTestBunDB(t)
+	defer cleanup()
+
+	ctx := context.Background()
+	identityRepo := repos.NewIdentityRepo(bdb)
+	guildRepo := repos.NewGuildRepo(bdb)
+	matchRepo := repos.NewMatchRepo(bdb)
+
+	guildID := fmt.Sprintf("mm_rating_%s", randomSuffix())
+	discordIDs := []string{
+		fmt.Sprintf("mm_rating_a_%s", randomSuffix()),
+		fmt.Sprintf("mm_rating_b_%s", randomSuffix()),
+	}
+	playerIDs := make([]int32, len(discordIDs))
+	for i, discordID := range discordIDs {
+		player, err := identityRepo.UpsertPlayerByIdentity(
+			ctx,
+			models.GameR6,
+			fmt.Sprintf("RatingPlayer%d", i),
+			"pc",
+			nil,
+			nil,
+		)
+		if err != nil {
+			t.Fatalf("UpsertPlayerByIdentity(%s): %v", discordID, err)
+		}
+		if _, err := guildRepo.UpsertMembership(ctx, models.GameR6, guildID, discordID, player.ID); err != nil {
+			t.Fatalf("UpsertMembership(%s): %v", discordID, err)
+		}
+		playerIDs[i] = player.ID
+	}
+
+	now := repos.NowMS()
+	saved, _, err := matchRepo.Create(ctx, &models.NewMatch{
+		Game:                   models.GameR6,
+		GuildID:                guildID,
+		ChannelID:              "channel-1",
+		MessageID:              "pending",
+		CreatedByDiscordUserID: discordIDs[0],
+		Status:                 repos.MatchStatusActive,
+		MatchType:              "internal",
+		ResolutionType:         "played",
+		CreatedAt:              now,
+		UpdatedAt:              now,
+	}, []models.NewMatchParticipant{
+		{
+			Game:          models.GameR6,
+			DiscordUserID: discordIDs[0],
+			PlayerID:      playerIDs[0],
+			Team:          "a",
+			Slot:          0,
+			BalanceRating: 1,
+			CreatedAt:     now,
+			UpdatedAt:     now,
+		},
+		{
+			Game:          models.GameR6,
+			DiscordUserID: discordIDs[1],
+			PlayerID:      playerIDs[1],
+			Team:          "b",
+			Slot:          0,
+			BalanceRating: 1,
+			CreatedAt:     now,
+			UpdatedAt:     now,
+		},
+	})
+	if err != nil {
+		t.Fatalf("Create match: %v", err)
+	}
+
+	svc := services.NewMatchService(matchRepo, guildRepo, nil)
+	result, err := svc.ReportMatchResult(ctx, connect.NewRequest(&matchv1.ReportMatchResultRequest{
+		MatchId:     saved.ID,
+		Game:        commonv1.Game_GAME_R6,
+		WinningTeam: "a",
+	}))
+	if err != nil {
+		t.Fatalf("ReportMatchResult: %v", err)
+	}
+	if !result.Msg.Success || result.Msg.Match == nil || result.Msg.Match.Status != repos.MatchStatusCompleted {
+		t.Fatalf("result = %+v, want completed match", result.Msg)
+	}
+
+	winner, err := identityRepo.FindPlayer(ctx, playerIDs[0])
+	if err != nil {
+		t.Fatalf("FindPlayer(winner): %v", err)
+	}
+	loser, err := identityRepo.FindPlayer(ctx, playerIDs[1])
+	if err != nil {
+		t.Fatalf("FindPlayer(loser): %v", err)
+	}
+	if winner.InternalElo <= 1000 || loser.InternalElo >= 1000 {
+		t.Fatalf("visible ratings = winner %.2f, loser %.2f; want winner > 1000 and loser < 1000", winner.InternalElo, loser.InternalElo)
+	}
+	if winner.InternalMatches != 1 || winner.InternalWins != 1 || winner.InternalLosses != 0 {
+		t.Fatalf("winner record = matches %d, wins %d, losses %d", winner.InternalMatches, winner.InternalWins, winner.InternalLosses)
+	}
+	if loser.InternalMatches != 1 || loser.InternalWins != 0 || loser.InternalLosses != 1 {
+		t.Fatalf("loser record = matches %d, wins %d, losses %d", loser.InternalMatches, loser.InternalWins, loser.InternalLosses)
+	}
+
+	members, err := guildRepo.FindMembersByDiscordIDs(ctx, models.GameR6, guildID, discordIDs)
+	if err != nil {
+		t.Fatalf("FindMembersByDiscordIDs: %v", err)
+	}
+	if len(members) != 2 || members[0].InternalElo == 1000 || members[1].InternalElo == 1000 {
+		t.Fatalf("membership ratings = %+v, want both updated", members)
+	}
+}
+
 // TestMatchmaking_GuildDefaultTeamFormatIsBounded covers the fallback
 // half of the team_size bound: when the request omits team_size, the
 // size comes from the guild's default_team_format, which is equally
