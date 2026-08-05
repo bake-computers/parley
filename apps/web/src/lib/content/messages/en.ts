@@ -31,7 +31,7 @@ export const messagesEn: Messages = {
     poweredBy: "Powered by",
     notUbisoft: "Not affiliated with Ubisoft",
     notDiscord: "Not affiliated with Discord Inc.",
-    projectOf: "A project of bake computers",
+    projectOf: "Baked by bake computers",
   },
   notFound: {
     label: "Error 404",
