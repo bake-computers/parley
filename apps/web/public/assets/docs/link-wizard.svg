@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 400" role="img" aria-labelledby="link-wizard-title">
+  <title id="link-wizard-title">The Parley link wizard in Discord, choosing a platform and entering an in-game name</title>
+  <rect width="720" height="400" rx="14" fill="#1e1f22"/>
+  <circle cx="38" cy="36" r="14" fill="#5865f2"/>
+  <text x="38" y="41" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="800" fill="#ffffff" text-anchor="middle">P</text>
+  <text x="62" y="41" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="700" fill="#f2f3f5">Parley</text>
+  <rect x="118" y="27" width="36" height="17" rx="4" fill="#5865f2"/>
+  <text x="136" y="39" font-family="system-ui, -apple-system, sans-serif" font-size="9" font-weight="700" fill="#ffffff" text-anchor="middle">APP</text>
+  <text x="164" y="41" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#949ba4">used /link</text>
+  <rect x="22" y="62" width="676" height="316" rx="10" fill="#2b2d31"/>
+  <text x="46" y="102" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="700" fill="#f2f3f5">Link Your Accounts</text>
+  <text x="46" y="126" font-family="system-ui, -apple-system, sans-serif" font-size="13" fill="#949ba4">Pick a platform, then enter your in-game name. Replies are only visible to you.</text>
+  <text x="46" y="168" font-family="system-ui, -apple-system, sans-serif" font-size="10" font-weight="700" letter-spacing="1" fill="#949ba4">PLATFORM</text>
+  <rect x="46" y="180" width="140" height="44" rx="8" fill="#232428" stroke="#5865f2" stroke-width="2"/>
+  <text x="116" y="207" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#f2f3f5" text-anchor="middle">PC</text>
+  <rect x="198" y="180" width="140" height="44" rx="8" fill="#1e1f22" stroke="#3f4147" stroke-width="1.5"/>
+  <text x="268" y="207" font-family="system-ui, -apple-system, sans-serif" font-size="13" fill="#b5bac1" text-anchor="middle">Xbox</text>
+  <rect x="350" y="180" width="140" height="44" rx="8" fill="#1e1f22" stroke="#3f4147" stroke-width="1.5"/>
+  <text x="420" y="207" font-family="system-ui, -apple-system, sans-serif" font-size="13" fill="#b5bac1" text-anchor="middle">PlayStation</text>
+  <text x="46" y="262" font-family="system-ui, -apple-system, sans-serif" font-size="10" font-weight="700" letter-spacing="1" fill="#949ba4">IN-GAME NAME</text>
+  <rect x="46" y="274" width="628" height="44" rx="8" fill="#1e1f22" stroke="#3f4147" stroke-width="1.5"/>
+  <text x="62" y="301" font-family="system-ui, -apple-system, sans-serif" font-size="13" fill="#dbdfe4">Your in-game name</text>
+  <rect x="46" y="334" width="112" height="38" rx="8" fill="#5865f2"/>
+  <text x="102" y="357" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="600" fill="#ffffff" text-anchor="middle">Continue</text>
+  <rect x="170" y="334" width="112" height="38" rx="8" fill="none" stroke="#3f4147" stroke-width="1.5"/>
+  <text x="226" y="357" font-family="system-ui, -apple-system, sans-serif" font-size="13" fill="#b5bac1" text-anchor="middle">Go back</text>
+</svg>

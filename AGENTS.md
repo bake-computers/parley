@@ -18,7 +18,8 @@ Go (cmd/parley + internal/) ← buf generate → gen/parley (pb + connect)
 
 TypeScript (Bun workspaces) ← buf generate → packages/generated-ts
   apps/worker/             ← Cloudflare Worker: Hono, @parley/proto clients
-  apps/docs/               ← Nimbus (Astro) user docs, served at docs.parley.bot
+  apps/web/                ← landing + user docs at parley.bot/docs
+  apps/docs/               ← 301 redirect worker: docs.parley.bot → parley.bot/docs
   packages/runtime/        ← Discord API wrapper (Embeds & Components v2)
   packages/generated-ts/   ← @parley/proto: buf-generated TS + ConnectRPC clients
   packages/tsconfig-base/  ← Shared TS strict-mode base config
@@ -72,9 +73,9 @@ TS side: `apps/worker` route handlers stay thin — logic belongs in `packages/`
 | `vp run format` / `vp fmt`     | Format with Oxfmt                         |
 | `vp run test`                  | Build deps then run package tests         |
 | `vp run dev`                   | Parallel package dev servers              |
-| `vp dev apps/web`              | Vite+ dev server for the web app only     |
+| `vp dev apps/web`              | Vite+ dev server (landing + /docs)        |
 | `cd apps/worker && vp run dev` | Wrangler dev for Discord worker           |
-| `cd apps/docs && vp run dev`   | Astro dev server for user docs            |
+| `cd apps/docs && bun run deploy` | Deploy docs.parley.bot → /docs 301 worker |
 
 ### Proto generation
 
@@ -108,7 +109,7 @@ Copy `.env.example` to `.env`. `DATABASE_URL` is required to boot. Any new env v
 
 - **Engine**: `.github/workflows/deploy-engine.yml` builds the [`Dockerfile`](Dockerfile) and pushes `ghcr.io/<owner>/parley-engine` on `main`. Runtime pull/restart is outside CI.
 - **Workers**: `.github/workflows/deploy-cloudflare-workers.yml` on `main`, or `bun run deploy` (Wrangler per app) locally.
-- **Docs**: same workflow deploys `apps/docs` as static assets to `docs.parley.bot` (custom domain).
+- **Docs**: user docs ship with `apps/web` at `parley.bot/docs`. `apps/docs` is a 301 worker so `docs.parley.bot/*` redirects to `parley.bot/docs/*`.
 
 ## Linting & Formatting
 
@@ -177,7 +178,7 @@ Game-scoped tables use Postgres `games` enum (`r6` only in product scope). Domai
 ## Companion Documents
 
 - `DESIGN.md`, `SPEC.md`, migration SQL under `migrations/`
-- User-facing docs live in `apps/docs`; protocol/wire notes belong in `proto/` comments, not READMEs.
+- User-facing docs live in `apps/web` (`src/content/docs`, routes under `/docs`); protocol/wire notes belong in `proto/` comments, not READMEs.
 
 ## CI
 

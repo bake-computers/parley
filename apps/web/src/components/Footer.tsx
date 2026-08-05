@@ -52,12 +52,7 @@ export function SiteFooter() {
               <span className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground/60">
                 {m.nav.resources}
               </span>
-              <a
-                href="https://docs.parley.bot"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={linkClass}
-              >
+              <a href={siteHref("docs")} className={linkClass}>
                 {m.footer.docs}
               </a>
               <a href={siteHref("blog")} className={linkClass}>

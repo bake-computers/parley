@@ -19,6 +19,9 @@ import { Route as AuthLogoutRouteImport } from './routes/auth/logout'
 import { Route as BlogIndexRouteImport } from './routes/blog/index'
 import { Route as BlogWhyParleyIsBuiltTheWayItIsRouteImport } from './routes/blog/why-parley-is-built-the-way-it-is'
 import { Route as DashboardAccountRouteImport } from './routes/dashboard/account'
+import { Route as DocsIndexRouteImport } from './routes/docs/index'
+import { Route as DocsSplatRouteImport } from './routes/docs/$'
+import { Route as DocsDiscordGuideRouteImport } from './routes/docs/discord-guide'
 import { Route as TournamentsCodeRouteImport } from './routes/tournaments/$code'
 import { Route as TournamentsCreateRouteImport } from './routes/tournaments/create'
 import { Route as ApiAuthMeRouteImport } from './routes/api/auth/me'
@@ -84,6 +87,21 @@ const DashboardAccountRoute = DashboardAccountRouteImport.update({
   id: '/account',
   path: '/account',
   getParentRoute: () => DashboardRoute,
+} as any)
+const DocsIndexRoute = DocsIndexRouteImport.update({
+  id: '/docs/',
+  path: '/docs/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DocsSplatRoute = DocsSplatRouteImport.update({
+  id: '/docs/$',
+  path: '/docs/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DocsDiscordGuideRoute = DocsDiscordGuideRouteImport.update({
+  id: '/docs/discord-guide',
+  path: '/docs/discord-guide',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const TournamentsCodeRoute = TournamentsCodeRouteImport.update({
   id: '/tournaments/$code',
@@ -172,9 +190,12 @@ export interface FileRoutesByFullPath {
   '/auth/logout': typeof AuthLogoutRoute
   '/blog/why-parley-is-built-the-way-it-is': typeof BlogWhyParleyIsBuiltTheWayItIsRoute
   '/dashboard/account': typeof DashboardAccountRoute
+  '/docs/$': typeof DocsSplatRoute
+  '/docs/discord-guide': typeof DocsDiscordGuideRoute
   '/tournaments/$code': typeof TournamentsCodeRouteWithChildren
   '/tournaments/create': typeof TournamentsCreateRoute
   '/blog/': typeof BlogIndexRoute
+  '/docs/': typeof DocsIndexRoute
   '/api/auth/me': typeof ApiAuthMeRoute
   '/api/tournaments/create': typeof ApiTournamentsCreateRoute
   '/auth/discord/callback': typeof AuthDiscordCallbackRoute
@@ -198,9 +219,12 @@ export interface FileRoutesByTo {
   '/auth/logout': typeof AuthLogoutRoute
   '/blog/why-parley-is-built-the-way-it-is': typeof BlogWhyParleyIsBuiltTheWayItIsRoute
   '/dashboard/account': typeof DashboardAccountRoute
+  '/docs/$': typeof DocsSplatRoute
+  '/docs/discord-guide': typeof DocsDiscordGuideRoute
   '/tournaments/$code': typeof TournamentsCodeRouteWithChildren
   '/tournaments/create': typeof TournamentsCreateRoute
   '/blog': typeof BlogIndexRoute
+  '/docs': typeof DocsIndexRoute
   '/api/auth/me': typeof ApiAuthMeRoute
   '/api/tournaments/create': typeof ApiTournamentsCreateRoute
   '/auth/discord/callback': typeof AuthDiscordCallbackRoute
@@ -224,9 +248,12 @@ export interface FileRoutesById {
   '/auth/logout': typeof AuthLogoutRoute
   '/blog/why-parley-is-built-the-way-it-is': typeof BlogWhyParleyIsBuiltTheWayItIsRoute
   '/dashboard/account': typeof DashboardAccountRoute
+  '/docs/$': typeof DocsSplatRoute
+  '/docs/discord-guide': typeof DocsDiscordGuideRoute
   '/tournaments/$code': typeof TournamentsCodeRouteWithChildren
   '/tournaments/create': typeof TournamentsCreateRoute
   '/blog/': typeof BlogIndexRoute
+  '/docs/': typeof DocsIndexRoute
   '/api/auth/me': typeof ApiAuthMeRoute
   '/api/tournaments/create': typeof ApiTournamentsCreateRoute
   '/auth/discord/callback': typeof AuthDiscordCallbackRoute
@@ -252,9 +279,12 @@ export interface FileRouteTypes {
     | '/auth/logout'
     | '/blog/why-parley-is-built-the-way-it-is'
     | '/dashboard/account'
+    | '/docs/$'
+    | '/docs/discord-guide'
     | '/tournaments/$code'
     | '/tournaments/create'
     | '/blog/'
+    | '/docs/'
     | '/api/auth/me'
     | '/api/tournaments/create'
     | '/auth/discord/callback'
@@ -278,9 +308,12 @@ export interface FileRouteTypes {
     | '/auth/logout'
     | '/blog/why-parley-is-built-the-way-it-is'
     | '/dashboard/account'
+    | '/docs/$'
+    | '/docs/discord-guide'
     | '/tournaments/$code'
     | '/tournaments/create'
     | '/blog'
+    | '/docs'
     | '/api/auth/me'
     | '/api/tournaments/create'
     | '/auth/discord/callback'
@@ -303,9 +336,12 @@ export interface FileRouteTypes {
     | '/auth/logout'
     | '/blog/why-parley-is-built-the-way-it-is'
     | '/dashboard/account'
+    | '/docs/$'
+    | '/docs/discord-guide'
     | '/tournaments/$code'
     | '/tournaments/create'
     | '/blog/'
+    | '/docs/'
     | '/api/auth/me'
     | '/api/tournaments/create'
     | '/auth/discord/callback'
@@ -329,9 +365,12 @@ export interface RootRouteChildren {
   AuthLoginRoute: typeof AuthLoginRoute
   AuthLogoutRoute: typeof AuthLogoutRoute
   BlogWhyParleyIsBuiltTheWayItIsRoute: typeof BlogWhyParleyIsBuiltTheWayItIsRoute
+  DocsSplatRoute: typeof DocsSplatRoute
+  DocsDiscordGuideRoute: typeof DocsDiscordGuideRoute
   TournamentsCodeRoute: typeof TournamentsCodeRouteWithChildren
   TournamentsCreateRoute: typeof TournamentsCreateRoute
   BlogIndexRoute: typeof BlogIndexRoute
+  DocsIndexRoute: typeof DocsIndexRoute
   ApiAuthMeRoute: typeof ApiAuthMeRoute
   ApiTournamentsCreateRoute: typeof ApiTournamentsCreateRoute
   AuthDiscordCallbackRoute: typeof AuthDiscordCallbackRoute
@@ -411,6 +450,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/account'
       preLoaderRoute: typeof DashboardAccountRouteImport
       parentRoute: typeof DashboardRoute
+    }
+    '/docs/': {
+      id: '/docs/'
+      path: '/docs'
+      fullPath: '/docs/'
+      preLoaderRoute: typeof DocsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/docs/$': {
+      id: '/docs/$'
+      path: '/docs/$'
+      fullPath: '/docs/$'
+      preLoaderRoute: typeof DocsSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/docs/discord-guide': {
+      id: '/docs/discord-guide'
+      path: '/docs/discord-guide'
+      fullPath: '/docs/discord-guide'
+      preLoaderRoute: typeof DocsDiscordGuideRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/tournaments/$code': {
       id: '/tournaments/$code'
@@ -568,9 +628,12 @@ const rootRouteChildren: RootRouteChildren = {
   AuthLoginRoute: AuthLoginRoute,
   AuthLogoutRoute: AuthLogoutRoute,
   BlogWhyParleyIsBuiltTheWayItIsRoute: BlogWhyParleyIsBuiltTheWayItIsRoute,
+  DocsSplatRoute: DocsSplatRoute,
+  DocsDiscordGuideRoute: DocsDiscordGuideRoute,
   TournamentsCodeRoute: TournamentsCodeRouteWithChildren,
   TournamentsCreateRoute: TournamentsCreateRoute,
   BlogIndexRoute: BlogIndexRoute,
+  DocsIndexRoute: DocsIndexRoute,
   ApiAuthMeRoute: ApiAuthMeRoute,
   ApiTournamentsCreateRoute: ApiTournamentsCreateRoute,
   AuthDiscordCallbackRoute: AuthDiscordCallbackRoute,
