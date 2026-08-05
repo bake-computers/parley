@@ -107,7 +107,7 @@ export function Hero() {
       <button
         type="button"
         onClick={() => smoothScrollTo("#problem", 1800)}
-        className="absolute bottom-8 left-6 z-10 flex min-h-12 items-center gap-2 rounded-full border border-white/20 bg-black/70 px-5 py-3 text-xs font-medium text-zinc-300 transition-colors hover:bg-black/80 hover:text-zinc-50 focus-visible:text-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40 md:left-[max(1.5rem,calc((100%-72rem)/2+1.5rem))]"
+        className="absolute bottom-8 left-1/2 z-10 flex min-h-12 -translate-x-1/2 items-center gap-2 rounded-full border border-white/20 bg-black/70 px-5 py-3 text-xs font-medium text-zinc-300 transition-colors hover:bg-black/80 hover:text-zinc-50 focus-visible:text-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
       >
         <ArrowDown className="size-3.5" aria-hidden="true" />
         {h.explore}
