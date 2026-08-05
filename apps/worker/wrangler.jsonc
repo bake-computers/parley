@@ -35,7 +35,14 @@
     },
   ],
 
-  "routes": [{ "pattern": "app.parley.bot", "custom_domain": true }],
+  "r2_buckets": [
+    {
+      "binding": "PARLEY_CDN",
+      "bucket_name": "parley-cdn",
+    },
+  ],
+
+  "routes": [{ "pattern": "app.parley.bot", "custom_domain": true }, "cdn.parley.bot/qr/*"],
 
   "env": {
     "local": {
