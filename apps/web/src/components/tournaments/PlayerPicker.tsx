@@ -1,8 +1,13 @@
 import { Search } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import type { GuildMember } from "#/lib/discord/bot";
 import { listTournamentMembers } from "#/lib/tournament/server";
 import { cn } from "#/lib/shared/cn";
+
+type TournamentMember = {
+  id: string;
+  name: string;
+  avatarUrl: string;
+};
 
 type PlayerPickerProps = {
   code: string;
@@ -12,7 +17,7 @@ type PlayerPickerProps = {
   rosterSize?: number;
 };
 
-/** Searchable multi-select of host-guild members, replacing raw comma-separated Discord IDs. */
+/** Searchable multi-select of eligible linked players, replacing raw Discord IDs. */
 export function PlayerPicker({
   code,
   currentUserId,
@@ -20,7 +25,7 @@ export function PlayerPicker({
   onChange,
   rosterSize,
 }: PlayerPickerProps) {
-  const [members, setMembers] = useState<GuildMember[] | null>(null);
+  const [members, setMembers] = useState<TournamentMember[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
 
@@ -32,7 +37,7 @@ export function PlayerPicker({
       .catch(
         (reason) =>
           !cancelled &&
-          setError(reason instanceof Error ? reason.message : "Could not load members"),
+          setError(reason instanceof Error ? reason.message : "Could not load players"),
       );
     return () => {
       cancelled = true;
@@ -42,12 +47,16 @@ export function PlayerPicker({
   const selected = useMemo(() => new Set(selectedIds), [selectedIds]);
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!members) {return [];}
+    if (!members) {
+      return [];
+    }
     return q ? members.filter((member) => member.name.toLowerCase().includes(q)) : members;
   }, [members, query]);
 
   function toggle(id: string) {
-    if (id === currentUserId) {return;}
+    if (id === currentUserId) {
+      return;
+    }
     onChange(
       selected.has(id) ? selectedIds.filter((existing) => existing !== id) : [...selectedIds, id],
     );
@@ -64,18 +73,18 @@ export function PlayerPicker({
           type="search"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search server members…"
+          placeholder="Search eligible players…"
           className="border-input bg-background text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-ring/50 h-10 w-full rounded-lg border pl-9 pr-3 text-sm outline-none focus-visible:ring-3"
         />
       </div>
       {error ? (
         <p className="text-destructive text-xs">{error}</p>
       ) : members === null ? (
-        <p className="text-muted-foreground py-4 text-center text-xs">Loading members…</p>
+        <p className="text-muted-foreground py-4 text-center text-xs">Loading players…</p>
       ) : (
         <ul className="border-border/60 bg-background max-h-60 space-y-0.5 overflow-y-auto rounded-lg border p-1.5">
           {filtered.length === 0 ? (
-            <li className="text-muted-foreground py-4 text-center text-xs">No members match</li>
+            <li className="text-muted-foreground py-4 text-center text-xs">No players match</li>
           ) : (
             filtered.map((member) => {
               const isSelf = member.id === currentUserId;

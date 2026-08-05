@@ -2,6 +2,9 @@ import type { EngineTransportEnv } from "../engine/transport.js";
 import { resolveEngineTransport } from "../engine/transport.js";
 
 type RpcError = { code?: string; message?: string };
+const ACTING_USER_HEADER = "X-Parley-Acting-Discord-User-Id";
+const TOURNAMENT_SERVICE = "parley.tournament.v1.TournamentService";
+const MATCHMAKING_SERVICE = "parley.matchmaking.v1.MatchmakingService";
 
 export type BracketMatchJson = {
   id: number;
@@ -27,6 +30,12 @@ export type TournamentJson = {
   createdByDiscordUserId: string;
   teams: Array<{ id: number; teamName: string; captainDiscordUserId: string; status: string }>;
   bracketMatches: BracketMatchJson[];
+};
+
+export type GuildMemberJson = {
+  discordUserId: string;
+  username: string;
+  platform: string;
 };
 
 function normalizeTournament(tournament: TournamentJson): TournamentJson {
@@ -56,14 +65,22 @@ export type CreatedTournament = {
 
 async function tournamentCall<T>(
   env: EngineTransportEnv,
+  service: string,
   method: string,
   body: unknown,
+  actingDiscordUserId?: string,
 ): Promise<T> {
   const { baseUrl, fetchImpl } = resolveEngineTransport(env);
-  const res = await fetchImpl(
-    new URL(`/parley.tournament.v1.TournamentService/${method}`, baseUrl).href,
-    { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) },
-  );
+  const headers = new Headers({ "content-type": "application/json" });
+  const actingUserId = actingDiscordUserId?.trim();
+  if (actingUserId) {
+    headers.set(ACTING_USER_HEADER, actingUserId);
+  }
+  const res = await fetchImpl(new URL(`/${service}/${method}`, baseUrl).href, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(body),
+  });
   const json = (await res.json()) as T & RpcError & { error?: RpcError };
   if (!res.ok) {
     throw new Error(json.error?.message ?? json.message ?? `Engine ${res.status}`);
@@ -77,55 +94,82 @@ export async function rpcGetTournamentByCode(
 ): Promise<TournamentJson> {
   const json = await tournamentCall<{ success?: boolean; tournament?: TournamentJson }>(
     env,
+    TOURNAMENT_SERVICE,
     "GetTournamentByCode",
     { publicCode, game: 1 },
   );
-  if (!json.success || !json.tournament) {throw new Error("Tournament not found");}
+  if (!json.success || !json.tournament) {
+    throw new Error("Tournament not found");
+  }
   return normalizeTournament(json.tournament);
 }
 
 export async function rpcRegisterTeam(
   env: EngineTransportEnv,
   body: Record<string, unknown>,
+  actingDiscordUserId?: string,
 ): Promise<void> {
-  const json = await tournamentCall<{ success?: boolean }>(env, "RegisterTeam", body);
-  if (!json.success) {throw new Error("Team registration failed");}
+  const json = await tournamentCall<{ success?: boolean }>(
+    env,
+    TOURNAMENT_SERVICE,
+    "RegisterTeam",
+    body,
+    actingDiscordUserId,
+  );
+  if (!json.success) {
+    throw new Error("Team registration failed");
+  }
 }
 
 export async function rpcTournamentAction(
   env: EngineTransportEnv,
   method: "StartTournament" | "CancelTournament" | "ReportBracketResult",
   body: Record<string, unknown>,
+  actingDiscordUserId?: string,
 ): Promise<TournamentJson> {
   const json = await tournamentCall<{ success?: boolean; tournament?: TournamentJson }>(
     env,
+    TOURNAMENT_SERVICE,
     method,
     body,
+    actingDiscordUserId,
   );
-  if (!json.success || !json.tournament) {throw new Error("Tournament update failed");}
+  if (!json.success || !json.tournament) {
+    throw new Error("Tournament update failed");
+  }
   return normalizeTournament(json.tournament);
 }
 
 export async function rpcCreateTournament(
   env: EngineTransportEnv,
   request: CreateTournamentRpcRequest,
+  actingDiscordUserId?: string,
 ): Promise<CreatedTournament> {
-  const { baseUrl, fetchImpl } = resolveEngineTransport(env);
-  const res = await fetchImpl(
-    new URL("/parley.tournament.v1.TournamentService/CreateTournament", baseUrl).href,
-    {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(request),
-    },
-  );
-  const json = (await res.json()) as {
+  const json = await tournamentCall<{
     success?: boolean;
     tournament?: CreatedTournament;
     error?: RpcError;
-  };
-  if (!res.ok || !json.success || !json.tournament?.publicCode) {
-    throw new Error(json.error?.message ?? `Engine ${res.status}`);
+  }>(env, TOURNAMENT_SERVICE, "CreateTournament", request, actingDiscordUserId);
+  if (!json.success || !json.tournament?.publicCode) {
+    throw new Error(json.error?.message ?? "Tournament creation failed");
   }
   return json.tournament;
+}
+
+export async function rpcListGuildMembers(
+  env: EngineTransportEnv,
+  guildId: string,
+): Promise<GuildMemberJson[]> {
+  const json = await tournamentCall<{
+    success?: boolean;
+    members?: GuildMemberJson[];
+  }>(env, MATCHMAKING_SERVICE, "ListGuildMembers", {
+    guildId,
+    game: 1,
+    limit: 2000,
+  });
+  if (!json.success) {
+    throw new Error("Could not load eligible players");
+  }
+  return json.members ?? [];
 }
