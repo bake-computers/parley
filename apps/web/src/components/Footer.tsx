@@ -3,7 +3,8 @@ import { Reveal } from "#/components/ui/reveal";
 import { homeSectionHref, siteHref, type SitePath } from "#/lib/content/paths";
 import { useMessages } from "#/lib/content/messages/use-messages";
 
-const DISCORD_INVITE = "https://discord.gg/parley";
+// Our discord isnt finished yet, so we're not linking to it
+// const DISCORD_INVITE = "https://discord.gg/parley";
 const BOT_AUTHORIZE =
   "https://discord.com/oauth2/authorize?client_id=1495122091165618358&permissions=379968&integration_type=0&scope=bot+applications.commands";
 
@@ -38,7 +39,8 @@ export function SiteFooter() {
 
   const communityLinks: FooterLink[] = [
     { label: m.nav.joinDiscord, href: BOT_AUTHORIZE, external: true },
-    { label: m.footer.discordServer, href: DISCORD_INVITE, external: true },
+    // Our discord isnt finished yet, so we're not linking to it
+    // { label: m.footer.discordServer, href: DISCORD_INVITE, external: true },
   ];
 
   const legalLinks: { label: string; path: SitePath }[] = [
@@ -90,18 +92,14 @@ export function SiteFooter() {
           <div className="grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-4 sm:gap-x-6 lg:gap-x-10">
             {columns.map((column) => (
               <nav key={column.label} aria-label={column.label} className="flex flex-col gap-3.5">
-                <span className="text-xs font-medium text-muted-foreground/70">
-                  {column.label}
-                </span>
+                <span className="text-xs font-medium text-muted-foreground/70">{column.label}</span>
                 <ul className="flex flex-col gap-2.5">
                   {column.links.map((link) => (
                     <li key={link.href + link.label}>
                       <a
                         href={link.href}
                         className="parley-footer-link text-sm text-muted-foreground transition-colors duration-200 hover:text-foreground"
-                        {...(link.external
-                          ? { target: "_blank", rel: "noopener noreferrer" }
-                          : {})}
+                        {...(link.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
                       >
                         {link.label}
                       </a>
