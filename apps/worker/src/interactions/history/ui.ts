@@ -46,12 +46,23 @@ function ratingDeltaSuffix(delta: number | undefined): string {
   return ` (${rounded >= 0 ? "+" : ""}${rounded})`;
 }
 
+/** History treats fully unreported K/D/A as a dash, not fabricated zeros. */
+function historyKDA(p: MatchParticipant): string {
+  if (p.kills === undefined && p.deaths === undefined && p.assists === undefined) {
+    return "—";
+  }
+  return formatKDA(p);
+}
+
+function playerLabel(p: MatchParticipant): string {
+  return p.username === "" ? `<@${p.discordUserId}>` : p.username;
+}
+
 function renderTeam(participants: MatchParticipant[], label: string, won: boolean): string {
   const title = won ? `**${label} — winner**` : `**${label}**`;
-  const lines = participants.map((p) => {
-    const name = p.username === "" ? `<@${p.discordUserId}>` : p.username;
-    return `${name} — \`${formatKDA(p)}\`${ratingDeltaSuffix(p.ratingDelta)}`;
-  });
+  const lines = participants.map(
+    (p) => `${playerLabel(p)} — \`${historyKDA(p)}\`${ratingDeltaSuffix(p.ratingDelta)}`,
+  );
   return `${title}\n${lines.join("\n")}`;
 }
 
@@ -113,10 +124,10 @@ export function buildHistoryCard(matches: Match[], page: number): Card {
 
   if (match.mvpUserId) {
     const mvp = participants.find((p) => p.discordUserId === match.mvpUserId);
-    if (mvp && mvp.username !== "") {
+    if (mvp) {
       container.addComponents(
         separator(),
-        new TextDisplayBuilder().setContent(`-# **MVP** ${mvp.username}`),
+        new TextDisplayBuilder().setContent(`-# **MVP** ${playerLabel(mvp)}`),
       );
     }
   }

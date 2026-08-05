@@ -536,6 +536,12 @@ func (s *MatchService) ReportMatchResult(
 	if row == nil {
 		return nil, apperr.NotFound("match not found")
 	}
+	// Same guard as ReportPlayerRoundStats: a second report would re-apply
+	// Glicko and overwrite rating_delta with a second-hop movement that no
+	// longer represents this match's pre→post rating change.
+	if row.Status != repos.MatchStatusActive {
+		return nil, apperr.FailedPrecondition("match is not active")
+	}
 
 	parts, err := s.match.Participants(ctx, row.ID)
 	if err != nil {

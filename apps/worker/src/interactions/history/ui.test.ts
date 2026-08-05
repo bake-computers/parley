@@ -93,6 +93,19 @@ describe("buildHistoryCard", () => {
     expect(json).not.toContain("(-");
   });
 
+  test("renders a dash when K/D/A was never reported", () => {
+    const match = makeMatch(0, {
+      participants: [
+        makeParticipant("a", "Alice", "a-0"),
+        makeParticipant("b", "Bob", "b-0"),
+      ],
+    });
+    const json = JSON.stringify(buildHistoryCard([match], 0).map((c) => c.toJSON()));
+
+    expect(json).toContain("`—`");
+    expect(json).not.toContain("0/0/0");
+  });
+
   test("bolds the winning team", () => {
     const json = JSON.stringify(buildHistoryCard([makeMatch(0)], 0).map((c) => c.toJSON()));
     expect(json).toContain("**Team A — winner**");
@@ -145,5 +158,17 @@ describe("buildHistoryCard", () => {
     expect(JSON.stringify(buildHistoryCard([withoutMvp], 0).map((c) => c.toJSON()))).not.toContain(
       "MVP",
     );
+  });
+
+  test("MVP falls back to a mention when username is empty", () => {
+    const match = makeMatch(0, {
+      mvpUserId: "a-0",
+      participants: [
+        makeParticipant("a", "", "a-0", [1, 0, 0]),
+        makeParticipant("b", "Bob", "b-0", [0, 1, 0]),
+      ],
+    });
+    const json = JSON.stringify(buildHistoryCard([match], 0).map((c) => c.toJSON()));
+    expect(json).toContain("**MVP** <@a-0>");
   });
 });

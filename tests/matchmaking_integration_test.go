@@ -472,6 +472,30 @@ func TestMatchmaking_ReportMatchResultPersistsRatingDelta(t *testing.T) {
 	if moved := members[0].InternalElo - 1000; moved != stored {
 		t.Fatalf("membership moved %v, stored delta %v", moved, stored)
 	}
+
+	// A second report must not re-apply ratings or rewrite deltas.
+	_, err = svc.ReportMatchResult(ctx, connect.NewRequest(&matchv1.ReportMatchResultRequest{
+		MatchId:     saved.ID,
+		Game:        commonv1.Game_GAME_R6,
+		WinningTeam: "b",
+	}))
+	if err == nil {
+		t.Fatal("second ReportMatchResult succeeded, want FailedPrecondition")
+	}
+	if connect.CodeOf(err) != connect.CodeFailedPrecondition {
+		t.Fatalf("second ReportMatchResult code = %v, want FailedPrecondition (err=%v)", connect.CodeOf(err), err)
+	}
+	after, err := matchRepo.Participants(ctx, saved.ID)
+	if err != nil {
+		t.Fatalf("Participants after re-report: %v", err)
+	}
+	for _, p := range after {
+		if p.DiscordUserID == discordIDs[0] {
+			if p.RatingDelta == nil || *p.RatingDelta != stored {
+				t.Fatalf("re-report rewrote delta: got %v, want %v", p.RatingDelta, stored)
+			}
+		}
+	}
 }
 
 // TestMatchmaking_GuildDefaultTeamFormatIsBounded covers the fallback

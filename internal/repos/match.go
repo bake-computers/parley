@@ -179,14 +179,24 @@ func (r *MatchRepo) SetRatingDelta(
 	discordUserID string,
 	delta float64,
 ) error {
-	_, err := r.db.NewUpdate().
+	res, err := r.db.NewUpdate().
 		Model((*models.MatchParticipant)(nil)).
 		Set("rating_delta = ?", delta).
 		Set("updated_at = ?", NowMS()).
 		Where("match_id = ?", matchID).
 		Where("discord_user_id = ?", discordUserID).
 		Exec(ctx)
-	return err
+	if err != nil {
+		return err
+	}
+	n, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if n == 0 {
+		return fmt.Errorf("participant %s not found in match %d", discordUserID, matchID)
+	}
+	return nil
 }
 
 // ParticipantGuildIDsForMatch returns the distinct set of guild IDs
