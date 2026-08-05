@@ -16,7 +16,7 @@
     "neverthrow": "^8.2.0"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260506.1",
+    "@cloudflare/workers-types": "^5.20260801.1",
     "@parley/tsconfig-base": "workspace:*"
   }
 }
