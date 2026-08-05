@@ -447,25 +447,26 @@ type NewMatch struct {
 type MatchParticipant struct {
 	bun.BaseModel `bun:"table:match_participants,alias:mp"`
 
-	ID                     int32   `bun:",pk,autoincrement"`
-	Game                   Game    `bun:",notnull"`
-	MatchID                int32   `bun:"match_id,notnull"`
-	DiscordUserID          string  `bun:"discord_user_id,notnull"`
-	PlayerID               int32   `bun:"player_id,notnull"`
-	Team                   string  `bun:",notnull"`
-	Slot                   int32   `bun:",notnull"`
-	SeedRankPoints         int32   `bun:"seed_rank_points,notnull"`
-	SeedKDRatio            float64 `bun:"seed_kd_ratio,notnull"`
-	SeedKost               float64 `bun:"seed_kost,notnull"`
-	SeedKPR                float64 `bun:"seed_kpr,notnull"`
-	SeedHeadshotPercentage float64 `bun:"seed_headshot_percentage,notnull"`
-	SeedScore              float64 `bun:"seed_score,notnull"`
-	BalanceRating          float64 `bun:"balance_rating,notnull"`
-	Kills                  *int32  `bun:"kills"`
-	Deaths                 *int32  `bun:"deaths"`
-	Assists                *int32  `bun:"assists"`
-	CreatedAt              int64   `bun:"created_at,notnull"`
-	UpdatedAt              int64   `bun:"updated_at,notnull"`
+	ID                     int32    `bun:",pk,autoincrement"`
+	Game                   Game     `bun:",notnull"`
+	MatchID                int32    `bun:"match_id,notnull"`
+	DiscordUserID          string   `bun:"discord_user_id,notnull"`
+	PlayerID               int32    `bun:"player_id,notnull"`
+	Team                   string   `bun:",notnull"`
+	Slot                   int32    `bun:",notnull"`
+	SeedRankPoints         int32    `bun:"seed_rank_points,notnull"`
+	SeedKDRatio            float64  `bun:"seed_kd_ratio,notnull"`
+	SeedKost               float64  `bun:"seed_kost,notnull"`
+	SeedKPR                float64  `bun:"seed_kpr,notnull"`
+	SeedHeadshotPercentage float64  `bun:"seed_headshot_percentage,notnull"`
+	SeedScore              float64  `bun:"seed_score,notnull"`
+	BalanceRating          float64  `bun:"balance_rating,notnull"`
+	Kills                  *int32   `bun:"kills"`
+	Deaths                 *int32   `bun:"deaths"`
+	Assists                *int32   `bun:"assists"`
+	RatingDelta            *float64 `bun:"rating_delta"`
+	CreatedAt              int64    `bun:"created_at,notnull"`
+	UpdatedAt              int64    `bun:"updated_at,notnull"`
 }
 
 // NewMatchParticipant is the insert shape for match_participants.
@@ -494,27 +495,28 @@ type NewMatchParticipant struct {
 
 // MatchParticipantWithUsername is a join projection (not a table).
 type MatchParticipantWithUsername struct {
-	ID                     int32   `bun:"id"`
-	Game                   Game    `bun:"game"`
-	MatchID                int32   `bun:"match_id"`
-	DiscordUserID          string  `bun:"discord_user_id"`
-	PlayerID               int32   `bun:"player_id"`
-	Team                   string  `bun:"team"`
-	Slot                   int32   `bun:"slot"`
-	SeedRankPoints         int32   `bun:"seed_rank_points"`
-	SeedKDRatio            float64 `bun:"seed_kd_ratio"`
-	SeedKost               float64 `bun:"seed_kost"`
-	SeedKPR                float64 `bun:"seed_kpr"`
-	SeedHeadshotPercentage float64 `bun:"seed_headshot_percentage"`
-	SeedScore              float64 `bun:"seed_score"`
-	BalanceRating          float64 `bun:"balance_rating"`
-	Kills                  *int32  `bun:"kills"`
-	Deaths                 *int32  `bun:"deaths"`
-	Assists                *int32  `bun:"assists"`
-	CreatedAt              int64   `bun:"created_at"`
-	UpdatedAt              int64   `bun:"updated_at"`
-	Username               *string `bun:"username"`
-	Platform               *string `bun:"platform"`
+	ID                     int32    `bun:"id"`
+	Game                   Game     `bun:"game"`
+	MatchID                int32    `bun:"match_id"`
+	DiscordUserID          string   `bun:"discord_user_id"`
+	PlayerID               int32    `bun:"player_id"`
+	Team                   string   `bun:"team"`
+	Slot                   int32    `bun:"slot"`
+	SeedRankPoints         int32    `bun:"seed_rank_points"`
+	SeedKDRatio            float64  `bun:"seed_kd_ratio"`
+	SeedKost               float64  `bun:"seed_kost"`
+	SeedKPR                float64  `bun:"seed_kpr"`
+	SeedHeadshotPercentage float64  `bun:"seed_headshot_percentage"`
+	SeedScore              float64  `bun:"seed_score"`
+	BalanceRating          float64  `bun:"balance_rating"`
+	Kills                  *int32   `bun:"kills"`
+	Deaths                 *int32   `bun:"deaths"`
+	Assists                *int32   `bun:"assists"`
+	RatingDelta            *float64 `bun:"rating_delta"`
+	CreatedAt              int64    `bun:"created_at"`
+	UpdatedAt              int64    `bun:"updated_at"`
+	Username               *string  `bun:"username"`
+	Platform               *string  `bun:"platform"`
 }
 
 // Tournament maps to table tournaments.

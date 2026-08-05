@@ -113,6 +113,7 @@ func (r *MatchRepo) Participants(
 		ColumnExpr("mp.kills").
 		ColumnExpr("mp.deaths").
 		ColumnExpr("mp.assists").
+		ColumnExpr("mp.rating_delta").
 		ColumnExpr("mp.created_at").
 		ColumnExpr("mp.updated_at").
 		ColumnExpr("p.username").
@@ -169,6 +170,23 @@ func (r *MatchRepo) AddRoundStats(
 		}
 		return nil
 	})
+}
+
+// SetRatingDelta records the participant's post-match rating change.
+func (r *MatchRepo) SetRatingDelta(
+	ctx context.Context,
+	matchID int32,
+	discordUserID string,
+	delta float64,
+) error {
+	_, err := r.db.NewUpdate().
+		Model((*models.MatchParticipant)(nil)).
+		Set("rating_delta = ?", delta).
+		Set("updated_at = ?", NowMS()).
+		Where("match_id = ?", matchID).
+		Where("discord_user_id = ?", discordUserID).
+		Exec(ctx)
+	return err
 }
 
 // ParticipantGuildIDsForMatch returns the distinct set of guild IDs

@@ -163,6 +163,7 @@ func matchToProto(
 			Kills:         p.Kills,
 			Deaths:        p.Deaths,
 			Assists:       p.Assists,
+			RatingDelta:   p.RatingDelta,
 		})
 	}
 	return out
@@ -595,6 +596,10 @@ func (s *MatchService) ReportMatchResult(
 		if err := s.guild.UpdateMembershipRating(ctx, game, row.GuildID, p.DiscordUserID, newMu, newPhi, won); err != nil {
 			// Rating update is non-fatal in the Rust handler; the
 			// match still completes. Mirrors `let _ = ...await`.
+			continue
+		}
+		if err := s.match.SetRatingDelta(ctx, row.ID, p.DiscordUserID, newMu-member.InternalElo); err != nil {
+			// Non-fatal like the rating update above.
 			continue
 		}
 	}

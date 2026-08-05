@@ -340,6 +340,140 @@ func TestMatchmaking_CustomMatchRoundStatsAccumulate(t *testing.T) {
 	}
 }
 
+// TestMatchmaking_ReportMatchResultPersistsRatingDelta covers the data
+// path behind /history rating +/-: ReportMatchResult stores each
+// participant's membership movement on the match_participants row and
+// exposes it on the wire Match. A participant without a guild membership
+// gets no delta and does not block completion.
+func TestMatchmaking_ReportMatchResultPersistsRatingDelta(t *testing.T) {
+	bdb, cleanup := newTestBunDB(t)
+	defer cleanup()
+
+	ctx := context.Background()
+	identityRepo := repos.NewIdentityRepo(bdb)
+	guildRepo := repos.NewGuildRepo(bdb)
+	matchRepo := repos.NewMatchRepo(bdb)
+
+	guildID := fmt.Sprintf("mm_delta_%s", randomSuffix())
+	discordIDs := make([]string, 4)
+	playerIDs := make([]int32, 4)
+	for i := 0; i < 4; i++ {
+		discordID := fmt.Sprintf("mm_delta_user_%d_%s", i, randomSuffix())
+		username := fmt.Sprintf("DeltaPlayer%d", i)
+		player, err := identityRepo.UpsertPlayerByIdentity(ctx, models.GameR6, username, "pc", nil, nil)
+		if err != nil {
+			t.Fatalf("UpsertPlayerByIdentity(%s): %v", username, err)
+		}
+		if _, err := identityRepo.LinkDiscordIdentity(ctx, models.GameR6, discordID, player.ID); err != nil {
+			t.Fatalf("LinkDiscordIdentity(%s): %v", discordID, err)
+		}
+		// The last player never joins the guild: their rating update and
+		// delta must be skipped non-fatally.
+		if i < 3 {
+			if _, err := guildRepo.UpsertMembership(ctx, models.GameR6, guildID, discordID, player.ID); err != nil {
+				t.Fatalf("UpsertMembership(%s): %v", discordID, err)
+			}
+		}
+		discordIDs[i] = discordID
+		playerIDs[i] = player.ID
+	}
+
+	now := repos.NowMS()
+	newMatch := &models.NewMatch{
+		Game:                   models.GameR6,
+		GuildID:                guildID,
+		ChannelID:              "channel-1",
+		MessageID:              "pending",
+		CreatedByDiscordUserID: discordIDs[0],
+		Status:                 repos.MatchStatusActive,
+		MatchType:              "internal",
+		ResolutionType:         "played",
+		CreatedAt:              now,
+		UpdatedAt:              now,
+	}
+	teams := []string{"a", "a", "b", "b"}
+	participants := make([]models.NewMatchParticipant, 0, 4)
+	for i := 0; i < 4; i++ {
+		participants = append(participants, models.NewMatchParticipant{
+			Game:          models.GameR6,
+			DiscordUserID: discordIDs[i],
+			PlayerID:      playerIDs[i],
+			Team:          teams[i],
+			Slot:          int32(i % 2),
+			CreatedAt:     now,
+			UpdatedAt:     now,
+		})
+	}
+	saved, _, err := matchRepo.Create(ctx, newMatch, participants)
+	if err != nil {
+		t.Fatalf("Create match: %v", err)
+	}
+
+	svc := services.NewMatchService(matchRepo, guildRepo, nil)
+	resp, err := svc.ReportMatchResult(ctx, connect.NewRequest(&matchv1.ReportMatchResultRequest{
+		MatchId:     saved.ID,
+		Game:        commonv1.Game_GAME_R6,
+		WinningTeam: "a",
+	}))
+	if err != nil {
+		t.Fatalf("ReportMatchResult: %v", err)
+	}
+	if !resp.Msg.Success || resp.Msg.Match == nil {
+		t.Fatalf("ReportMatchResult response = %v", resp.Msg)
+	}
+
+	rows, err := matchRepo.Participants(ctx, saved.ID)
+	if err != nil {
+		t.Fatalf("Participants: %v", err)
+	}
+	wire := map[string]*matchv1.MatchParticipant{}
+	for _, p := range resp.Msg.Match.Participants {
+		wire[p.DiscordUserId] = p
+	}
+	for _, p := range rows {
+		wantSign := 0.0
+		if p.Team == "a" {
+			wantSign = 1.0 // winners gain
+		} else {
+			wantSign = -1.0 // losers drop
+		}
+		if p.DiscordUserID == discordIDs[3] {
+			if p.RatingDelta != nil {
+				t.Fatalf("membership-less participant delta = %v, want nil", *p.RatingDelta)
+			}
+			if wire[p.DiscordUserID].RatingDelta != nil {
+				t.Fatalf("wire delta for membership-less participant = %v, want nil", *wire[p.DiscordUserID].RatingDelta)
+			}
+			continue
+		}
+		if p.RatingDelta == nil {
+			t.Fatalf("participant %s has nil rating delta", p.DiscordUserID)
+		}
+		got := *p.RatingDelta
+		if (got > 0) != (wantSign > 0) || got == 0 {
+			t.Fatalf("participant %s delta = %v, want sign %v", p.DiscordUserID, got, wantSign)
+		}
+		if w := wire[p.DiscordUserID].GetRatingDelta(); w != got {
+			t.Fatalf("wire delta %v != stored delta %v for %s", w, got, p.DiscordUserID)
+		}
+	}
+
+	// The stored delta equals the membership's elo movement.
+	members, err := guildRepo.FindMembersByDiscordIDs(ctx, models.GameR6, guildID, []string{discordIDs[0]})
+	if err != nil || len(members) == 0 {
+		t.Fatalf("FindMembersByDiscordIDs: %v (len %d)", err, len(members))
+	}
+	var stored float64
+	for _, p := range rows {
+		if p.DiscordUserID == discordIDs[0] {
+			stored = *p.RatingDelta
+		}
+	}
+	if moved := members[0].InternalElo - 1000; moved != stored {
+		t.Fatalf("membership moved %v, stored delta %v", moved, stored)
+	}
+}
+
 // TestMatchmaking_GuildDefaultTeamFormatIsBounded covers the fallback
 // half of the team_size bound: when the request omits team_size, the
 // size comes from the guild's default_team_format, which is equally
