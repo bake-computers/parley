@@ -1,5 +1,4 @@
 import { Game } from "@parley/proto";
-import type { R2Bucket } from "@cloudflare/workers-types";
 import {
   ContainerBuilder,
   SectionBuilder,
@@ -11,7 +10,7 @@ import {
 import { getTournamentClient, type EngineTransportEnv } from "#/transport";
 import { UI_TOKENS } from "#/ui/tokens";
 import { replyV2 } from "#/ui/discord";
-import { createTournamentQrUrl } from "./qr";
+import { createTournamentQrUrl, hasTournamentQrStorage, type TournamentQrStorageEnv } from "./qr";
 
 const BASE_URL = "https://parley.bot/tournaments";
 
@@ -110,14 +109,12 @@ export const tournamentSlashCommand = new SlashCommand()
         return;
       }
       const targetUrl = `${BASE_URL}/create?handoff=${encodeURIComponent(payload)}`;
-      const env = interaction.context.env as EngineTransportEnv & {
-        PARLEY_CDN?: R2Bucket;
-      };
+      const env = interaction.context.env as EngineTransportEnv & TournamentQrStorageEnv;
       let qrUrl: string | undefined;
 
-      if (env.PARLEY_CDN) {
+      if (hasTournamentQrStorage(env)) {
         try {
-          qrUrl = await createTournamentQrUrl(targetUrl, env.PARLEY_CDN);
+          qrUrl = await createTournamentQrUrl(targetUrl, env);
         } catch (error) {
           console.warn("tournament.qr_generation_failed", error);
         }
