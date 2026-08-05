@@ -583,8 +583,41 @@
     transform: translateX(-50%) scaleX(1);
   }
 
+  .parley-footer {
+    background-image:
+      linear-gradient(color-mix(in srgb, var(--border) 55%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in srgb, var(--border) 55%, transparent) 1px, transparent 1px);
+    background-size: 48px 48px;
+    background-position: center top;
+    mask-image: linear-gradient(to bottom, transparent 0%, black 12%, black 100%);
+  }
+
+  .parley-footer-mark {
+    position: absolute;
+    left: 50%;
+    bottom: -0.12em;
+    z-index: 0;
+    margin: 0;
+    max-width: none;
+    transform: translateX(-50%);
+    font-size: clamp(5.5rem, 22vw, 13.5rem);
+    font-weight: 600;
+    letter-spacing: -0.06em;
+    line-height: 0.82;
+    white-space: nowrap;
+    user-select: none;
+    pointer-events: none;
+    color: color-mix(in srgb, var(--foreground) 5.5%, transparent);
+  }
+
+  .dark .parley-footer-mark {
+    color: color-mix(in srgb, var(--foreground) 7%, transparent);
+  }
+
   .parley-footer-link {
     position: relative;
+    display: inline-block;
+    width: fit-content;
   }
 
   .parley-footer-link::after {
