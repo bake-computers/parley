@@ -25,8 +25,7 @@
     "@parley/proto": "workspace:*",
     "@parley/runtime": "workspace:*",
     "discord-api-types": "^0.38.47",
-    "hono": "^4.7.0",
-    "qr": "0.6.0"
+    "hono": "^4.7.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260506.1",

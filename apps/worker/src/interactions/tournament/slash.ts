@@ -4,13 +4,11 @@ import {
   SectionBuilder,
   SlashCommand,
   TextDisplayBuilder,
-  ThumbnailBuilder,
   type ChatInputCommandInteraction,
 } from "@parley/runtime";
 import { getTournamentClient, type EngineTransportEnv } from "#/transport";
 import { UI_TOKENS } from "#/ui/tokens";
 import { editReplyV2, replyV2 } from "#/ui/discord";
-import { createTournamentQrUrl, hasTournamentQrStorage, type TournamentQrStorageEnv } from "./qr";
 
 const BASE_URL = "https://parley.bot/tournaments";
 
@@ -31,13 +29,7 @@ export function buildTournamentCreateCard(url: string, qrUrl?: string): Containe
 
   return new ContainerBuilder()
     .setAccentColor(UI_TOKENS.main)
-    .addComponents(
-      new SectionBuilder()
-        .addText(text)
-        .setAccessory(
-          new ThumbnailBuilder().setURL(qrUrl).setDescription("Scan to create a tournament"),
-        ),
-    );
+    .addComponents(new SectionBuilder().addText(text));
 }
 
 function toBase64Url(value: string): string {
@@ -114,18 +106,7 @@ export const tournamentSlashCommand = new SlashCommand()
         return;
       }
       const targetUrl = `${BASE_URL}/create?handoff=${encodeURIComponent(payload)}`;
-      const env = interaction.context.env as EngineTransportEnv & TournamentQrStorageEnv;
-      let qrUrl: string | undefined;
-
-      if (hasTournamentQrStorage(env)) {
-        try {
-          qrUrl = await createTournamentQrUrl(targetUrl, env);
-        } catch (error) {
-          console.warn("tournament.qr_generation_failed", error);
-        }
-      }
-
-      await editReplyV2(interaction, buildTournamentCreateCard(targetUrl, qrUrl));
+      await editReplyV2(interaction, buildTournamentCreateCard(targetUrl));
       return;
     }
     const code = String(interaction.options.getString("code") ?? "")

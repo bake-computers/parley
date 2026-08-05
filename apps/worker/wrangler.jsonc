@@ -24,7 +24,6 @@
     "AXIOM_ORG_ID": "parley-sf7e",
     "ENGINE_SERVICE_URL": "http://localhost:50051",
     "ENGINE_INTERNAL_URL": "http://localhost:50051",
-    "PARLEY_R2_ENDPOINT": "https://b65679d5664e84e29aa747ff7495d789.r2.cloudflarestorage.com",
     "USE_LOCAL_ENGINE": "0",
   },
 
