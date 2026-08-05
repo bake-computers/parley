@@ -38,7 +38,7 @@
   "r2_buckets": [
     {
       "binding": "PARLEY_CDN",
-      "bucket_name": "parley-cdn",
+      "bucket_name": "parley",
     },
   ],
 
