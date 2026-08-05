@@ -1,13 +1,13 @@
 ---
 title: /history
-description: See the last five Parley matches played in your server, with winners and MVPs.
+description: Page through recent Parley matches in your server, with per-player K/D/A and rating changes.
 sidebar:
   order: 3
 ---
 
-`/history` shows the five most recent Parley matches played in the server
-you run it from. It is a quick way to see how last night went without leaving
-Discord.
+`/history` shows the recent Parley matches played in the server you run it
+from, one match per page. Use the **Previous** and **Next** buttons under the
+card to flip through matches, newest first.
 
 <Aside type="caution" title="Servers only">
   `/history` does not work in direct messages. Run it in a channel of the server whose matches you
@@ -16,9 +16,12 @@ Discord.
 
 ## What you see
 
-The card lists each match as:
+Each page shows one match as:
 
-- **The two teams**, with the winner in bold.
+- **The two teams**, with the winner in bold and every player's reported
+  K/D/A next to their name.
+- **Rating change** per player — how the match moved their Parley rating.
+  Matches reported before rating tracking show K/D/A only.
 - **When it was played**, as a relative time that Discord keeps current for
   you.
 - **The MVP**, when a match produced one.
@@ -26,8 +29,8 @@ The card lists each match as:
 If the server has no Parley matches yet, the card says so and hints that
 matches will appear here once your team plays.
 
-<Aside type="note" title="Five at a time">
-  The card shows the five most recent matches and leaves out older ones.
+<Aside type="note" title="Twenty at a time">
+  `/history` pages through the twenty most recent matches in the server.
 </Aside>
 
 ## Related

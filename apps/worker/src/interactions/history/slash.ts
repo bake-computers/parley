@@ -6,6 +6,7 @@ import { buildHistoryCard, buildHistoryErrorCard } from "#/interactions/history/
 import {
   HISTORY_COMMAND_NAME,
   HISTORY_COMMAND_DESCRIPTION,
+  HISTORY_PAGE_WINDOW,
 } from "#/interactions/history/constants";
 import { Game } from "@parley/proto";
 import type { EngineTransportEnv } from "#/transport";
@@ -32,12 +33,11 @@ export const historyCommand = new SlashCommand()
       env,
       guildId,
       game: Game.R6,
-      limit: 5,
+      limit: HISTORY_PAGE_WINDOW,
       cursor: "",
     });
     if (result.isOk()) {
-      const card = buildHistoryCard(result.value.matches);
-      await editReplyV2(interaction, card);
+      await editReplyV2(interaction, buildHistoryCard(result.value.matches, 0));
     } else {
       await editReplyV2(
         interaction,

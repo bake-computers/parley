@@ -163,6 +163,7 @@ func matchToProto(
 			Kills:         p.Kills,
 			Deaths:        p.Deaths,
 			Assists:       p.Assists,
+			RatingDelta:   p.RatingDelta,
 		})
 	}
 	return out
@@ -535,6 +536,12 @@ func (s *MatchService) ReportMatchResult(
 	if row == nil {
 		return nil, apperr.NotFound("match not found")
 	}
+	// Same guard as ReportPlayerRoundStats: a second report would re-apply
+	// Glicko and overwrite rating_delta with a second-hop movement that no
+	// longer represents this match's pre→post rating change.
+	if row.Status != repos.MatchStatusActive {
+		return nil, apperr.FailedPrecondition("match is not active")
+	}
 
 	parts, err := s.match.Participants(ctx, row.ID)
 	if err != nil {
@@ -595,6 +602,10 @@ func (s *MatchService) ReportMatchResult(
 		if err := s.guild.UpdateMembershipRating(ctx, game, row.GuildID, p.DiscordUserID, newMu, newPhi, won); err != nil {
 			// Rating update is non-fatal in the Rust handler; the
 			// match still completes. Mirrors `let _ = ...await`.
+			continue
+		}
+		if err := s.match.SetRatingDelta(ctx, row.ID, p.DiscordUserID, newMu-member.InternalElo); err != nil {
+			// Non-fatal like the rating update above.
 			continue
 		}
 	}

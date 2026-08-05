@@ -43,12 +43,12 @@ func TestMigrations_ApplyAndGamesEnumExists(t *testing.T) {
 	}
 }
 
-// TestMigrations_BunMigrationsTableHasAll12Rows asserts the bun migration
-// tracker contains exactly the 12 embedded migrations registered in
-// internal/db/migrations_register.go. This guards against accidental
-// drop/add in the migrations/ folder — a missing or extra migration
-// would shift the count and surface as a CI failure.
-func TestMigrations_BunMigrationsTableHasAll12Rows(t *testing.T) {
+// TestMigrations_BunMigrationsTableHasOneRowPerMigration asserts the bun
+// migration tracker contains exactly the embedded migrations discovered
+// from the migrations/ folder. This guards against accidental drop/add —
+// a missing or extra migration would shift the count and surface as a CI
+// failure.
+func TestMigrations_BunMigrationsTableHasOneRowPerMigration(t *testing.T) {
 	bunDB, cleanup := newTestBunDB(t)
 	defer cleanup()
 
@@ -61,7 +61,7 @@ func TestMigrations_BunMigrationsTableHasAll12Rows(t *testing.T) {
 	if err != nil {
 		t.Fatalf("query bun_migrations: %v", err)
 	}
-	const want = 12
+	const want = 22
 	if count != want {
 		t.Fatalf("bun_migrations rows = %d, want %d", count, want)
 	}
@@ -122,7 +122,7 @@ func TestMigrations_PingReturnsOK(t *testing.T) {
 }
 
 // TestMigrations_ReApplyIsIdempotent applies migrations twice. The first
-// run inserts 12 rows into bun_migrations; the second run should be a
+// run inserts one row per embedded migration into bun_migrations; the second run should be a
 // no-op (bun/migrate skips already-applied migrations). If a migration
 // is non-idempotent (e.g. CREATE TABLE without IF NOT EXISTS), the second
 // run will fail with a duplicate-object error.

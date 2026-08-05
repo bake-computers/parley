@@ -677,6 +677,7 @@ type MatchParticipant struct {
 	Kills         *int32                 `protobuf:"varint,11,opt,name=kills,proto3,oneof" json:"kills,omitempty"`
 	Deaths        *int32                 `protobuf:"varint,12,opt,name=deaths,proto3,oneof" json:"deaths,omitempty"`
 	Assists       *int32                 `protobuf:"varint,13,opt,name=assists,proto3,oneof" json:"assists,omitempty"`
+	RatingDelta   *float64               `protobuf:"fixed64,14,opt,name=rating_delta,json=ratingDelta,proto3,oneof" json:"rating_delta,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -798,6 +799,13 @@ func (x *MatchParticipant) GetDeaths() int32 {
 func (x *MatchParticipant) GetAssists() int32 {
 	if x != nil && x.Assists != nil {
 		return *x.Assists
+	}
+	return 0
+}
+
+func (x *MatchParticipant) GetRatingDelta() float64 {
+	if x != nil && x.RatingDelta != nil {
+		return *x.RatingDelta
 	}
 	return 0
 }
@@ -1669,7 +1677,7 @@ const file_matchmaking_v1_matchmaking_proto_rawDesc = "" +
 	"\x0fwin_probability\x18\x05 \x01(\x01R\x0ewinProbability\x12\x1f\n" +
 	"\vbalance_gap\x18\x06 \x01(\x01R\n" +
 	"balanceGap\x12-\n" +
-	"\x05error\x18\a \x01(\v2\x17.parley.common.v1.ErrorR\x05error\"\x8a\x03\n" +
+	"\x05error\x18\a \x01(\v2\x17.parley.common.v1.ErrorR\x05error\"\xc3\x03\n" +
 	"\x10MatchParticipant\x12&\n" +
 	"\x0fdiscord_user_id\x18\x01 \x01(\tR\rdiscordUserId\x12\x1b\n" +
 	"\tplayer_id\x18\x02 \x01(\x05R\bplayerId\x12\x12\n" +
@@ -1684,11 +1692,13 @@ const file_matchmaking_v1_matchmaking_proto_rawDesc = "" +
 	" \x01(\tR\bplatform\x12\x19\n" +
 	"\x05kills\x18\v \x01(\x05H\x00R\x05kills\x88\x01\x01\x12\x1b\n" +
 	"\x06deaths\x18\f \x01(\x05H\x01R\x06deaths\x88\x01\x01\x12\x1d\n" +
-	"\aassists\x18\r \x01(\x05H\x02R\aassists\x88\x01\x01B\b\n" +
+	"\aassists\x18\r \x01(\x05H\x02R\aassists\x88\x01\x01\x12&\n" +
+	"\frating_delta\x18\x0e \x01(\x01H\x03R\vratingDelta\x88\x01\x01B\b\n" +
 	"\x06_killsB\t\n" +
 	"\a_deathsB\n" +
 	"\n" +
-	"\b_assists\"\x93\x03\n" +
+	"\b_assistsB\x0f\n" +
+	"\r_rating_delta\"\x93\x03\n" +
 	"\x05Match\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x05R\x02id\x12\x19\n" +
 	"\bguild_id\x18\x02 \x01(\tR\aguildId\x12\x1d\n" +
