@@ -5,13 +5,14 @@ import {
   type AxiomVariables,
 } from "@parley/axiom";
 import { configureLogSink, resetLogSink, type DiscordRuntimeEnv } from "@parley/runtime";
-import type { Fetcher } from "@cloudflare/workers-types";
+import type { Fetcher, KVNamespace } from "@cloudflare/workers-types";
 import { Hono } from "hono";
 import { createApp } from "#/app";
 
 type Bindings = DiscordRuntimeEnv &
   AxiomEnv & {
     VPC_SERVICE: Fetcher;
+    KV: KVNamespace;
     ENGINE_SERVICE_URL: string;
     ENGINE_INTERNAL_URL: string;
   };

@@ -8,6 +8,7 @@ import { DiscordRestClient } from "../rest.js";
 
 const APPLICATION_EMOJI_CACHE_KEY = "discord:application-emojis:v3";
 const APPLICATION_EMOJI_CACHE_TTL_SECONDS = 21_600;
+const APPLICATION_EMOJI_FAILURE_CACHE_TTL_SECONDS = 300;
 const APPLICATION_EMOJI_CACHE_VERSION = 1;
 
 export const APP_EMOJI_NAMES = [
@@ -218,6 +219,7 @@ async function readCachedApplicationEmojiCatalog(
 async function writeCachedApplicationEmojiCatalog(
   cache: KVNamespace | null | undefined,
   entries: ApplicationEmojiCatalog,
+  expirationTtl = APPLICATION_EMOJI_CACHE_TTL_SECONDS,
 ): Promise<boolean> {
   if (!cache) {
     return true;
@@ -231,7 +233,7 @@ async function writeCachedApplicationEmojiCatalog(
         fetchedAt: Date.now(),
         entries,
       } satisfies ApplicationEmojiCachePayload),
-      { expirationTtl: APPLICATION_EMOJI_CACHE_TTL_SECONDS },
+      { expirationTtl },
     );
     return true;
   } catch (error) {
@@ -273,6 +275,11 @@ export async function resolveApplicationEmojiCatalog(input: {
       applicationId: input.applicationId,
       error: result.error,
     });
+    await writeCachedApplicationEmojiCatalog(
+      input.cache,
+      {},
+      APPLICATION_EMOJI_FAILURE_CACHE_TTL_SECONDS,
+    );
     return {};
   }
 
@@ -281,6 +288,11 @@ export async function resolveApplicationEmojiCatalog(input: {
     logger.warn("discord.emoji.fetch_invalid", "Discord returned an invalid emoji payload", {
       applicationId: input.applicationId,
     });
+    await writeCachedApplicationEmojiCatalog(
+      input.cache,
+      {},
+      APPLICATION_EMOJI_FAILURE_CACHE_TTL_SECONDS,
+    );
     return {};
   }
 
