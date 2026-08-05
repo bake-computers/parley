@@ -21,7 +21,11 @@ export type Messages = {
     terms: string;
     docs: string;
     blog: string;
+    home: string;
+    productGroup: string;
+    communityGroup: string;
     legalGroup: string;
+    discordServer: string;
     poweredBy: string;
     notUbisoft: string;
     notDiscord: string;
