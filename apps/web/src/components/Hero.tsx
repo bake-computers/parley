@@ -12,7 +12,7 @@ const HeroShaderOverlay = lazy(() =>
 const ctaPrimary =
   "inline-flex h-12 min-h-12 w-full items-center justify-center rounded-full bg-zinc-50 px-8 text-sm font-medium text-zinc-900 transition-all hover:scale-[1.02] hover:bg-white active:scale-[0.98] sm:w-auto";
 const ctaOutline =
-  "inline-flex h-12 min-h-12 w-full items-center justify-center rounded-full border border-white/25 bg-white/10 px-8 text-sm font-medium text-zinc-100 backdrop-blur-sm transition-all hover:scale-[1.02] hover:bg-white/15 active:scale-[0.98] sm:w-auto";
+  "inline-flex h-12 min-h-12 w-full items-center justify-center rounded-full border border-white/25 bg-black/55 px-8 text-sm font-medium text-zinc-100 transition-all hover:scale-[1.02] hover:bg-black/65 active:scale-[0.98] sm:w-auto";
 
 function useDeferredShader() {
   const [ready, setReady] = useState(false);
@@ -81,13 +81,9 @@ export function Hero() {
         <div className="hero-fade-tail absolute inset-x-0 bottom-0" />
       </div>
 
-      <div className="relative z-10 mx-auto flex min-h-[100dvh] w-full max-w-6xl flex-col justify-end px-6 pb-28 pt-24 md:justify-center md:pb-[20vh]">
-        <div className="max-w-2xl">
-          {/* <p className="mb-5 inline-flex items-center gap-2 rounded-full border border-border/60 bg-background/50 px-3.5 py-1.5 text-xs font-medium text-muted-foreground backdrop-blur-sm animate-in fade-in slide-in-from-bottom-4 duration-1000">
-            <span className="size-1.5 rounded-full bg-accent-silver" aria-hidden="true" />
-            {h.betaBadge}
-          </p> */}
-          <h1 className="max-w-xl text-balance text-4xl font-semibold leading-[1.08] tracking-tight text-zinc-50 animate-in fade-in slide-in-from-bottom-4 duration-1000 md:text-5xl lg:text-6xl">
+      <div className="relative z-10 mx-auto flex min-h-[100dvh] w-full max-w-6xl flex-col justify-end px-6 pb-28 pt-24 text-left md:justify-center md:pb-[20vh]">
+        <div className="max-w-xl md:max-w-[28rem] lg:max-w-[32rem]">
+          <h1 className="text-balance text-4xl font-semibold leading-[1.1] tracking-[-0.02em] text-zinc-50 animate-in fade-in slide-in-from-bottom-4 duration-1000 md:text-5xl lg:text-[3.25rem]">
             {h.titleBefore}
             <span className="text-accent-silver">{h.titleHighlight}</span>
             {h.titleAfter}
@@ -111,7 +107,7 @@ export function Hero() {
       <button
         type="button"
         onClick={() => smoothScrollTo("#problem", 1800)}
-        className="absolute bottom-8 left-1/2 z-10 flex min-h-12 -translate-x-1/2 items-center gap-2 rounded-full border border-white/20 bg-black/35 px-5 py-3 text-xs font-medium text-zinc-300 backdrop-blur-md transition-colors hover:bg-black/45 hover:text-zinc-50 focus-visible:text-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
+        className="absolute bottom-8 left-1/2 z-10 flex min-h-12 -translate-x-1/2 items-center gap-2 rounded-full border border-white/20 bg-black/70 px-5 py-3 text-xs font-medium text-zinc-300 transition-colors hover:bg-black/80 hover:text-zinc-50 focus-visible:text-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
       >
         <ArrowDown className="size-3.5" aria-hidden="true" />
         {h.explore}

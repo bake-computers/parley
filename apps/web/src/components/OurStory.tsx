@@ -8,11 +8,6 @@ export function OurStory() {
 
   return (
     <div className="relative w-full">
-      <div
-        className="pointer-events-none absolute left-1/2 top-24 -z-10 h-72 w-[42rem] max-w-[90vw] -translate-x-1/2 rounded-full bg-[radial-gradient(closest-side,color-mix(in_srgb,var(--accent-silver)_9%,transparent),transparent)] blur-2xl"
-        aria-hidden="true"
-      />
-
       <div className="grid gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:gap-14">
         <Reveal direction="left">
           <h2 className="text-balance text-3xl font-semibold leading-[1.08] tracking-tight text-foreground md:text-4xl lg:text-[2.75rem]">

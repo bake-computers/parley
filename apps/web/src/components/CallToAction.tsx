@@ -35,15 +35,7 @@ export function DiscordCta({ variant = "panel" }: { variant?: "panel" | "band" }
 
   const c = m.home.discordCta;
   return (
-    <Reveal className="relative overflow-hidden rounded-3xl border border-border/70 px-6 py-12 sm:px-10 md:px-14 md:py-16">
-      <div
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_120%_at_85%_-10%,color-mix(in_srgb,var(--accent-silver)_16%,transparent),transparent_60%)]"
-        aria-hidden="true"
-      />
-      <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent-silver/40 to-transparent"
-        aria-hidden="true"
-      />
+    <Reveal className="relative overflow-hidden rounded-3xl border border-border/70 bg-muted/25 px-6 py-12 sm:px-10 md:px-14 md:py-16">
       <div className="relative grid gap-10 md:grid-cols-[1.3fr_0.7fr] md:items-center">
         <div>
           <h2 className="max-w-md text-balance text-3xl font-semibold tracking-tight text-foreground md:text-4xl">

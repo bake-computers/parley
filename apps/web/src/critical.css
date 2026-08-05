@@ -1,11 +1,3 @@
-@font-face {
-  font-family: "Geist Sans";
-  src: url("/assets/fonts/Geist-Variable.woff2") format("woff2");
-  font-weight: 100 900;
-  font-style: normal;
-  font-display: swap;
-}
-
 :root {
   --accent-silver: #d0d4dc;
   --background: #e8e6e3;
@@ -26,13 +18,10 @@
 
 html {
   font-family:
-    "Geist Sans",
-    ui-sans-serif,
-    system-ui,
     -apple-system,
     BlinkMacSystemFont,
     "Segoe UI",
-    Roboto,
+    system-ui,
     sans-serif;
 }
 
@@ -44,30 +33,15 @@ body {
 }
 
 .ambient-bg {
-  background:
-    radial-gradient(ellipse 80% 60% at 10% 20%, rgba(192, 197, 206, 0.18), transparent 60%),
-    var(--background);
-}
-
-.dark .ambient-bg {
-  background:
-    radial-gradient(ellipse 80% 60% at 10% 20%, rgba(192, 197, 206, 0.1), transparent 60%),
-    var(--background);
+  background: var(--background);
 }
 
 .glass-pill {
   border-radius: 9999px;
-  border: 1px solid color-mix(in srgb, var(--accent-silver) 20%, transparent);
-  background: color-mix(in srgb, rgba(255, 255, 255, 0.72) 88%, transparent);
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--background) 96%, var(--foreground) 4%);
 }
 
 .dark .glass-pill {
-  background: color-mix(in srgb, rgba(30, 30, 34, 0.72) 88%, transparent);
-}
-
-@media (max-width: 767px) {
-  .glass-pill {
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-  }
+  background: color-mix(in srgb, var(--background) 90%, #ffffff 10%);
 }
