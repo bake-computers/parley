@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { buildTournamentCreateCard } from "#/interactions/tournament/slash";
+import { ok } from "neverthrow";
+import { buildTournamentCreateCard, tournamentSlashCommand } from "#/interactions/tournament/slash";
 import { buildTournamentQrSvg, createTournamentQrUrl } from "#/interactions/tournament/qr";
 import { presignR2Object, type R2S3Config, type R2S3Fetch } from "#/interactions/tournament/r2-s3";
 
@@ -36,6 +37,14 @@ describe("tournament QR", () => {
     expect(json).toContain("https://account-id.r2.cloudflarestorage.com/parley/qr/qr-id.svg");
     expect(json).not.toContain("cdn.parley.bot/qr/");
     expect(json).not.toContain("quickchart.io");
+  });
+
+  test("renders a valid text-only card when QR storage is unavailable", () => {
+    const json = JSON.stringify(buildTournamentCreateCard(TARGET_URL).toJSON());
+
+    expect(json).toContain('"type":10');
+    expect(json).not.toContain('"type":9');
+    expect(json).toContain("Use the ");
   });
 
   test("matches Bun S3's R2 presign contract", async () => {
@@ -83,5 +92,28 @@ describe("tournament QR", () => {
       "cache-control": "public, max-age=86400, immutable",
       "content-type": "image/svg+xml",
     });
+  });
+
+  test("defers before handling the remote QR upload", async () => {
+    const calls: string[] = [];
+    const interaction = {
+      context: { env: { TOURNAMENT_HANDOFF_SECRET: "test-secret" } },
+      options: { getSubcommand: () => "create" },
+      guildId: "guild-id",
+      channelId: "channel-id",
+      user: { id: "user-id" },
+      deferReply: () => {
+        calls.push("defer");
+        return Promise.resolve(ok({}));
+      },
+      editReply: () => {
+        calls.push("edit");
+        return Promise.resolve(ok({}));
+      },
+    };
+
+    await tournamentSlashCommand.execute(interaction as never);
+
+    expect(calls).toEqual(["defer", "edit"]);
   });
 });

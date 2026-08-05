@@ -9,7 +9,7 @@ import {
 } from "@parley/runtime";
 import { getTournamentClient, type EngineTransportEnv } from "#/transport";
 import { UI_TOKENS } from "#/ui/tokens";
-import { replyV2 } from "#/ui/discord";
+import { editReplyV2, replyV2 } from "#/ui/discord";
 import { createTournamentQrUrl, hasTournamentQrStorage, type TournamentQrStorageEnv } from "./qr";
 
 const BASE_URL = "https://parley.bot/tournaments";
@@ -21,19 +21,23 @@ function card(title: string, text: string): ContainerBuilder {
 }
 
 export function buildTournamentCreateCard(url: string, qrUrl?: string): ContainerBuilder {
-  const section = new SectionBuilder().addText(
-    new TextDisplayBuilder().setContent(
-      `**Create a tournament**\n${qrUrl ? "Scan the QR code or " : "Use the "}[Parley website](${url}). Log in to choose the format, schedule, rules, and prizes.`,
-    ),
+  const text = new TextDisplayBuilder().setContent(
+    `**Create a tournament**\n${qrUrl ? "Scan the QR code or " : "Use the "}[Parley website](${url}). Log in to choose the format, schedule, rules, and prizes.`,
   );
 
-  if (qrUrl) {
-    section.setAccessory(
-      new ThumbnailBuilder().setURL(qrUrl).setDescription("Scan to create a tournament"),
-    );
+  if (!qrUrl) {
+    return new ContainerBuilder().setAccentColor(UI_TOKENS.main).addComponents(text);
   }
 
-  return new ContainerBuilder().setAccentColor(UI_TOKENS.main).addComponents(section);
+  return new ContainerBuilder()
+    .setAccentColor(UI_TOKENS.main)
+    .addComponents(
+      new SectionBuilder()
+        .addText(text)
+        .setAccessory(
+          new ThumbnailBuilder().setURL(qrUrl).setDescription("Scan to create a tournament"),
+        ),
+    );
 }
 
 function toBase64Url(value: string): string {
@@ -95,11 +99,12 @@ export const tournamentSlashCommand = new SlashCommand()
         );
         return;
       }
+      await interaction.deferReply();
       let payload: string;
       try {
         payload = await signedHandoff(interaction);
       } catch {
-        await replyV2(
+        await editReplyV2(
           interaction,
           card(
             "Tournament creation unavailable",
@@ -120,7 +125,7 @@ export const tournamentSlashCommand = new SlashCommand()
         }
       }
 
-      await replyV2(interaction, buildTournamentCreateCard(targetUrl, qrUrl));
+      await editReplyV2(interaction, buildTournamentCreateCard(targetUrl, qrUrl));
       return;
     }
     const code = String(interaction.options.getString("code") ?? "")
