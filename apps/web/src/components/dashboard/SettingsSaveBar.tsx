@@ -29,7 +29,7 @@ export function SettingsSaveBar({
       aria-label="Unsaved changes"
       aria-hidden={!visible}
     >
-      <div className="flex w-full max-w-2xl flex-col gap-2 rounded-xl border border-border/70 bg-card/95 px-4 py-3 shadow-2xl backdrop-blur-md sm:px-5">
+      <div className="flex w-full max-w-2xl flex-col gap-2 rounded-xl border border-border/70 bg-background px-4 py-3 shadow-2xl sm:px-5">
         <div className="flex items-center justify-between gap-4">
           <p className="text-foreground min-w-0 text-sm">
             {error ?? (validationError && !canSave ? validationError : "You have unsaved changes.")}

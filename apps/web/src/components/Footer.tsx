@@ -90,7 +90,7 @@ export function SiteFooter() {
           <div className="grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-4 sm:gap-x-6 lg:gap-x-10">
             {columns.map((column) => (
               <nav key={column.label} aria-label={column.label} className="flex flex-col gap-3.5">
-                <span className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground/55">
+                <span className="text-xs font-medium text-muted-foreground/70">
                   {column.label}
                 </span>
                 <ul className="flex flex-col gap-2.5">

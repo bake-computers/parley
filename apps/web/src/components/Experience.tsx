@@ -28,11 +28,6 @@ export function Experience() {
 
   return (
     <div className="relative w-full">
-      <div
-        className="pointer-events-none absolute -top-10 right-0 -z-10 h-64 w-[34rem] max-w-[90vw] rounded-full bg-[radial-gradient(closest-side,color-mix(in_srgb,var(--accent-silver)_8%,transparent),transparent)] blur-2xl"
-        aria-hidden="true"
-      />
-
       <Reveal>
         <h2 className="max-w-xl text-balance text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
           {ex.title}
