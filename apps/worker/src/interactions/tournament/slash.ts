@@ -1,12 +1,14 @@
 import { Game } from "@parley/proto";
 import {
   ContainerBuilder,
+  SectionBuilder,
   SlashCommand,
   TextDisplayBuilder,
   type ChatInputCommandInteraction,
 } from "@parley/runtime";
 import { getTournamentClient, type EngineTransportEnv } from "#/transport";
-import { replyV2 } from "#/ui/discord";
+import { UI_TOKENS } from "#/ui/tokens";
+import { editReplyV2, replyV2 } from "#/ui/discord";
 
 const BASE_URL = "https://parley.bot/tournaments";
 
@@ -14,6 +16,20 @@ function card(title: string, text: string): ContainerBuilder {
   return new ContainerBuilder().addComponents(
     new TextDisplayBuilder().setContent(`**${title}**\n${text}`),
   );
+}
+
+export function buildTournamentCreateCard(url: string, qrUrl?: string): ContainerBuilder {
+  const text = new TextDisplayBuilder().setContent(
+    `**Create a tournament**\n${qrUrl ? "Scan the QR code or " : "Use the "}[Parley website](${url}). Log in to choose the format, schedule, rules, and prizes.`,
+  );
+
+  if (!qrUrl) {
+    return new ContainerBuilder().setAccentColor(UI_TOKENS.main).addComponents(text);
+  }
+
+  return new ContainerBuilder()
+    .setAccentColor(UI_TOKENS.main)
+    .addComponents(new SectionBuilder().addText(text));
 }
 
 function toBase64Url(value: string): string {
@@ -75,11 +91,12 @@ export const tournamentSlashCommand = new SlashCommand()
         );
         return;
       }
+      await interaction.deferReply();
       let payload: string;
       try {
         payload = await signedHandoff(interaction);
       } catch {
-        await replyV2(
+        await editReplyV2(
           interaction,
           card(
             "Tournament creation unavailable",
@@ -88,13 +105,8 @@ export const tournamentSlashCommand = new SlashCommand()
         );
         return;
       }
-      await replyV2(
-        interaction,
-        card(
-          "Create a tournament",
-          `Tournament setup lives on the [Parley website](${BASE_URL}/create?handoff=${encodeURIComponent(payload)}). Log in to choose the format, schedule, rules, and prizes.`,
-        ),
-      );
+      const targetUrl = `${BASE_URL}/create?handoff=${encodeURIComponent(payload)}`;
+      await editReplyV2(interaction, buildTournamentCreateCard(targetUrl));
       return;
     }
     const code = String(interaction.options.getString("code") ?? "")

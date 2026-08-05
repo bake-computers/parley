@@ -144,7 +144,9 @@ func (r *GuildRepo) FindMembersByDiscordIDs(
 	return rows, err
 }
 
-// UpdateMembershipRating applies a post-match Glicko-style rating update.
+// UpdateMembershipRating applies a post-match Glicko-style rating update to
+// both the guild membership used for matchmaking and the linked player row
+// shown by identity/profile APIs.
 func (r *GuildRepo) UpdateMembershipRating(
 	ctx context.Context,
 	game models.Game,
@@ -153,39 +155,57 @@ func (r *GuildRepo) UpdateMembershipRating(
 	won bool,
 ) error {
 	now := NowMS()
-	var membership models.GuildMembership
-	err := r.db.NewSelect().
-		Model(&membership).
-		Where("game = ?", game).
-		Where("guild_id = ?", guildID).
-		Where("discord_user_id = ?", discordUserID).
-		Scan(ctx)
-	if err != nil {
+	return r.db.RunInTx(ctx, nil, func(ctx context.Context, tx bun.Tx) error {
+		var membership models.GuildMembership
+		if err := tx.NewSelect().
+			Model(&membership).
+			Where("game = ?", game).
+			Where("guild_id = ?", guildID).
+			Where("discord_user_id = ?", discordUserID).
+			Scan(ctx); err != nil {
+			return err
+		}
+
+		wins := membership.InternalWins
+		losses := membership.InternalLosses
+		if won {
+			wins++
+		} else {
+			losses++
+		}
+
+		if _, err := tx.NewUpdate().
+			Model((*models.GuildMembership)(nil)).
+			Set("internal_elo = ?", newElo).
+			Set("rating_deviation = ?", newPhi).
+			Set("internal_matches = ?", membership.InternalMatches+1).
+			Set("internal_wins = ?", wins).
+			Set("internal_losses = ?", losses).
+			Set("internal_updated_at = ?", now).
+			Set("updated_at = ?", now).
+			Where("game = ?", game).
+			Where("guild_id = ?", guildID).
+			Where("discord_user_id = ?", discordUserID).
+			Exec(ctx); err != nil {
+			return err
+		}
+
+		playerUpdate := tx.NewUpdate().
+			Model((*models.Player)(nil)).
+			Set("internal_elo = ?", newElo).
+			Set("internal_matches = internal_matches + 1").
+			Set("internal_updated_at = ?", now).
+			Set("updated_at = ?", now).
+			Where("id = ?", membership.PlayerID).
+			Where("game = ?", game)
+		if won {
+			playerUpdate = playerUpdate.Set("internal_wins = internal_wins + 1")
+		} else {
+			playerUpdate = playerUpdate.Set("internal_losses = internal_losses + 1")
+		}
+		_, err := playerUpdate.Exec(ctx)
 		return err
-	}
-
-	wins := membership.InternalWins
-	losses := membership.InternalLosses
-	if won {
-		wins++
-	} else {
-		losses++
-	}
-
-	_, err = r.db.NewUpdate().
-		Model((*models.GuildMembership)(nil)).
-		Set("internal_elo = ?", newElo).
-		Set("rating_deviation = ?", newPhi).
-		Set("internal_matches = ?", membership.InternalMatches+1).
-		Set("internal_wins = ?", wins).
-		Set("internal_losses = ?", losses).
-		Set("internal_updated_at = ?", now).
-		Set("updated_at = ?", now).
-		Where("game = ?", game).
-		Where("guild_id = ?", guildID).
-		Where("discord_user_id = ?", discordUserID).
-		Exec(ctx)
-	return err
+	})
 }
 
 // GuildIDsForPlayer returns guild IDs where a player is registered.

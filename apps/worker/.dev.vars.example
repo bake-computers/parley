@@ -6,3 +6,6 @@
 # DISCORD_BOT_TOKEN=your_bot_token_here
 # DISCORD_APPLICATION_ID=your_application_id_here
 # DISCORD_BOT_OWNER_ID=optional_user_id
+# PARLEY_R2_ENDPOINT=https://<account-id>.r2.cloudflarestorage.com
+# PARLEY_R2_ACCESS_KEY_ID=read-write-token-for-the-parley-bucket
+# PARLEY_R2_SECRET_ACCESS_KEY=secret-for-the-parley-bucket-token

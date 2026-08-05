@@ -82,16 +82,20 @@ export async function handleCreateTournament(
     );
   }
   try {
-    const tournament = await rpcCreateTournament(engineEnvFromCloudflare(env), {
-      guildId: handoff.guildId,
-      channelId: handoff.channelId,
-      createdByDiscordUserId: auth.session.user.id,
-      game: 1,
-      name: body.name,
-      format: body.format,
-      teamCap: body.teamCap,
-      rulesText: body.rulesText,
-    });
+    const tournament = await rpcCreateTournament(
+      engineEnvFromCloudflare(env),
+      {
+        guildId: handoff.guildId,
+        channelId: handoff.channelId,
+        createdByDiscordUserId: auth.session.user.id,
+        game: 1,
+        name: body.name,
+        format: body.format,
+        teamCap: body.teamCap,
+        rulesText: body.rulesText,
+      },
+      auth.session.user.id,
+    );
     return Response.json({ tournament }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Tournament creation failed";

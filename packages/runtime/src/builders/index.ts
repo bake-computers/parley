@@ -7,6 +7,7 @@ export { ActionRowBuilder } from "./action-row.js";
 export { ButtonBuilder } from "./button.js";
 export { TextDisplayBuilder } from "./text-display.js";
 export { SectionBuilder } from "./section.js";
+export { ThumbnailBuilder } from "./thumbnail.js";
 export { MediaGalleryBuilder } from "./media-gallery.js";
 export { SeparatorBuilder } from "./separator.js";
 export { ContainerBuilder } from "./container.js";

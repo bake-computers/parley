@@ -340,12 +340,13 @@ func TestMatchmaking_CustomMatchRoundStatsAccumulate(t *testing.T) {
 	}
 }
 
-// TestMatchmaking_ReportMatchResultPersistsRatingDelta covers the data
-// path behind /history rating +/-: ReportMatchResult stores each
-// participant's membership movement on the match_participants row and
-// exposes it on the wire Match. A participant without a guild membership
-// gets no delta and does not block completion.
-func TestMatchmaking_ReportMatchResultPersistsRatingDelta(t *testing.T) {
+// TestMatchmaking_ReportMatchResultPersistsRatingAndPlayerState covers the
+// post-match data path behind /history and /profile: ReportMatchResult stores
+// each participant's membership movement on match_participants, exposes it on
+// the wire Match, and mirrors the movement to the linked player row. A
+// participant without a guild membership gets no update and does not block
+// completion.
+func TestMatchmaking_ReportMatchResultPersistsRatingAndPlayerState(t *testing.T) {
 	bdb, cleanup := newTestBunDB(t)
 	defer cleanup()
 
@@ -400,6 +401,7 @@ func TestMatchmaking_ReportMatchResultPersistsRatingDelta(t *testing.T) {
 			PlayerID:      playerIDs[i],
 			Team:          teams[i],
 			Slot:          int32(i % 2),
+			BalanceRating: 1,
 			CreatedAt:     now,
 			UpdatedAt:     now,
 		})
@@ -418,8 +420,8 @@ func TestMatchmaking_ReportMatchResultPersistsRatingDelta(t *testing.T) {
 	if err != nil {
 		t.Fatalf("ReportMatchResult: %v", err)
 	}
-	if !resp.Msg.Success || resp.Msg.Match == nil {
-		t.Fatalf("ReportMatchResult response = %v", resp.Msg)
+	if !resp.Msg.Success || resp.Msg.Match == nil || resp.Msg.Match.Status != repos.MatchStatusCompleted {
+		t.Fatalf("ReportMatchResult response = %v, want completed match", resp.Msg)
 	}
 
 	rows, err := matchRepo.Participants(ctx, saved.ID)
@@ -431,6 +433,10 @@ func TestMatchmaking_ReportMatchResultPersistsRatingDelta(t *testing.T) {
 		wire[p.DiscordUserId] = p
 	}
 	for _, p := range rows {
+		wireParticipant, ok := wire[p.DiscordUserID]
+		if !ok {
+			t.Fatalf("wire participant %s missing", p.DiscordUserID)
+		}
 		wantSign := 0.0
 		if p.Team == "a" {
 			wantSign = 1.0 // winners gain
@@ -441,8 +447,8 @@ func TestMatchmaking_ReportMatchResultPersistsRatingDelta(t *testing.T) {
 			if p.RatingDelta != nil {
 				t.Fatalf("membership-less participant delta = %v, want nil", *p.RatingDelta)
 			}
-			if wire[p.DiscordUserID].RatingDelta != nil {
-				t.Fatalf("wire delta for membership-less participant = %v, want nil", *wire[p.DiscordUserID].RatingDelta)
+			if wireParticipant.RatingDelta != nil {
+				t.Fatalf("wire delta for membership-less participant = %v, want nil", *wireParticipant.RatingDelta)
 			}
 			continue
 		}
@@ -453,7 +459,7 @@ func TestMatchmaking_ReportMatchResultPersistsRatingDelta(t *testing.T) {
 		if (got > 0) != (wantSign > 0) || got == 0 {
 			t.Fatalf("participant %s delta = %v, want sign %v", p.DiscordUserID, got, wantSign)
 		}
-		if w := wire[p.DiscordUserID].GetRatingDelta(); w != got {
+		if w := wireParticipant.GetRatingDelta(); w != got {
 			t.Fatalf("wire delta %v != stored delta %v for %s", w, got, p.DiscordUserID)
 		}
 	}
@@ -466,11 +472,40 @@ func TestMatchmaking_ReportMatchResultPersistsRatingDelta(t *testing.T) {
 	var stored float64
 	for _, p := range rows {
 		if p.DiscordUserID == discordIDs[0] {
+			if p.RatingDelta == nil {
+				t.Fatalf("winner participant has nil rating delta")
+			}
 			stored = *p.RatingDelta
 		}
 	}
 	if moved := members[0].InternalElo - 1000; moved != stored {
 		t.Fatalf("membership moved %v, stored delta %v", moved, stored)
+	}
+
+	for i, playerID := range playerIDs {
+		player, err := identityRepo.FindPlayer(ctx, playerID)
+		if err != nil {
+			t.Fatalf("FindPlayer(%d): %v", playerID, err)
+		}
+		if player == nil {
+			t.Fatalf("FindPlayer(%d): player not found", playerID)
+		}
+		if i == 3 {
+			if player.InternalElo != 1000 || player.InternalMatches != 0 || player.InternalWins != 0 || player.InternalLosses != 0 {
+				t.Fatalf("membership-less player state = %+v, want untouched", player)
+			}
+			continue
+		}
+		if player.InternalMatches != 1 {
+			t.Fatalf("player %d matches = %d, want 1", playerID, player.InternalMatches)
+		}
+		if teams[i] == "a" {
+			if player.InternalElo <= 1000 || player.InternalWins != 1 || player.InternalLosses != 0 {
+				t.Fatalf("winner player state = %+v, want rating increase and 1 win", player)
+			}
+		} else if player.InternalElo >= 1000 || player.InternalWins != 0 || player.InternalLosses != 1 {
+			t.Fatalf("loser player state = %+v, want rating decrease and 1 loss", player)
+		}
 	}
 
 	// A second report must not re-apply ratings or rewrite deltas.
@@ -490,10 +525,8 @@ func TestMatchmaking_ReportMatchResultPersistsRatingDelta(t *testing.T) {
 		t.Fatalf("Participants after re-report: %v", err)
 	}
 	for _, p := range after {
-		if p.DiscordUserID == discordIDs[0] {
-			if p.RatingDelta == nil || *p.RatingDelta != stored {
-				t.Fatalf("re-report rewrote delta: got %v, want %v", p.RatingDelta, stored)
-			}
+		if p.DiscordUserID == discordIDs[0] && (p.RatingDelta == nil || *p.RatingDelta != stored) {
+			t.Fatalf("re-report rewrote delta: got %v, want %v", p.RatingDelta, stored)
 		}
 	}
 }

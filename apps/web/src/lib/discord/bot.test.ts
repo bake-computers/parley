@@ -3,7 +3,6 @@ import {
   botInstalledGuildIds,
   buildBotInviteUrl,
   fetchBotGuildIds,
-  fetchGuildMembers,
   PARLEY_BOT_PERMISSIONS,
 } from "./bot.js";
 import { cacheClearMemoryForTests } from "./discord-cache.js";
@@ -107,40 +106,5 @@ describe("fetchBotGuildIds", () => {
     expect(ids).toHaveLength(201);
     expect(ids[200]).toBe("g200");
     expect(calls).toBe(2);
-  });
-});
-
-describe("fetchGuildMembers", () => {
-  afterEach(() => {
-    vi.unstubAllGlobals();
-  });
-
-  test("maps nick over global name, drops bots, sorts by name", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(
-        async () =>
-          new Response(
-            JSON.stringify([
-              { nick: "Zed", user: { id: "1", username: "zed_user", global_name: "Zeddy" } },
-              { user: { id: "2", username: "anna", global_name: "Anna", bot: true } },
-              { user: { id: "3", username: "bob", global_name: null } },
-            ]),
-            { status: 200 },
-          ),
-      ),
-    );
-
-    const members = await fetchGuildMembers("bot-token", "guild-1");
-    expect(members.map((m) => `${m.id}:${m.name}`)).toEqual(["3:bob", "1:Zed"]);
-    expect(members[0]?.avatarUrl).toContain("cdn.discordapp.com");
-  });
-
-  test("throws on Discord API failure", async () => {
-    vi.stubGlobal(
-      "fetch",
-      vi.fn(async () => new Response("nope", { status: 403 })),
-    );
-    await expect(fetchGuildMembers("bot-token", "guild-1")).rejects.toThrow("(403)");
   });
 });

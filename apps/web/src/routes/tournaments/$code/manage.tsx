@@ -1,11 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, Play, Shield, Swords, XCircle } from "lucide-react";
+import { ArrowLeft, Brackets, Play, Shield, Swords, XCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { DashboardLoader } from "#/components/dashboard/DashboardLoader";
 import {
   bracketLabel,
   groupBracket,
   TournamentAuthGate,
+  TournamentBracket,
   TournamentHero,
   TournamentShell,
 } from "#/components/tournaments";
@@ -57,14 +58,15 @@ function ManageTournamentPage() {
     };
   }, [displayCode]);
 
-  if (me === undefined || loading)
-    {return (
+  if (me === undefined || loading) {
+    return (
       <TournamentShell>
         <DashboardLoader label="Loading tournament…" />
       </TournamentShell>
-    );}
-  if (!me)
-    {return (
+    );
+  }
+  if (!me) {
+    return (
       <TournamentShell
         hero={
           <TournamentHero
@@ -85,9 +87,10 @@ function ManageTournamentPage() {
           redirectTo={loginRedirect}
         />
       </TournamentShell>
-    );}
-  if (!tournament || tournament.createdByDiscordUserId !== me.user.id)
-    {return (
+    );
+  }
+  if (!tournament || tournament.createdByDiscordUserId !== me.user.id) {
+    return (
       <TournamentShell>
         <GlassPanel className="p-8">
           <p role="alert">{error ?? "Only the tournament host can manage this event."}</p>
@@ -100,7 +103,8 @@ function ManageTournamentPage() {
           </Link>
         </GlassPanel>
       </TournamentShell>
-    );}
+    );
+  }
   const canStart = tournament.status === "open" && tournament.teams.length >= tournament.minTeams;
   const teamNames = new Map(tournament.teams.map((team) => [team.id, team.teamName]));
   const actionable =
@@ -179,6 +183,20 @@ function ManageTournamentPage() {
                 </div>
               )}
             </GlassPanel>
+            {tournament.bracketMatches?.length ? (
+              <GlassPanel as="section" className="p-6 md:p-8">
+                <div className="mb-6 flex items-center gap-3">
+                  <div className="flex size-10 items-center justify-center rounded-2xl bg-accent-silver/15">
+                    <Brackets className="size-5 text-accent-silver" aria-hidden />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Bracket</p>
+                    <p className="text-xs text-muted-foreground">Live tournament progression</p>
+                  </div>
+                </div>
+                <TournamentBracket matches={tournament.bracketMatches} teams={tournament.teams} />
+              </GlassPanel>
+            ) : null}
             {actionable.length > 0 ? (
               <GlassPanel as="section" className="p-6 md:p-8">
                 <div className="mb-6 flex items-center gap-3">
@@ -294,14 +312,18 @@ function ManageTournamentPage() {
   );
 
   async function reportResult(bracketMatchId: number, winnerTeamId: number) {
-    if (busy) {return;}
+    if (busy) {
+      return;
+    }
     setBusy(`report:${bracketMatchId}`);
     setError(null);
     try {
       const updated = await tournamentAction({
         data: { code: displayCode, action: "report", bracketMatchId, winnerTeamId },
       });
-      if (updated) {setTournament(updated);}
+      if (updated) {
+        setTournament(updated);
+      }
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Result report failed");
     } finally {
@@ -310,13 +332,19 @@ function ManageTournamentPage() {
   }
 
   async function runAction(action: "start" | "cancel") {
-    if (busy) {return;}
-    if (action === "cancel" && !window.confirm("Cancel this tournament?")) {return;}
+    if (busy) {
+      return;
+    }
+    if (action === "cancel" && !window.confirm("Cancel this tournament?")) {
+      return;
+    }
     setBusy(action);
     setError(null);
     try {
       const updated = await tournamentAction({ data: { code: displayCode, action } });
-      if (updated) {setTournament(updated);}
+      if (updated) {
+        setTournament(updated);
+      }
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Tournament update failed");
     } finally {
