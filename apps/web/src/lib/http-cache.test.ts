@@ -2,12 +2,12 @@ import { describe, expect, test } from "vite-plus/test";
 import { privateNoStore, publicCache } from "./http-cache";
 
 describe("http-cache", () => {
-  test("publicCache sets max-age, swr, and optional tags", () => {
+  test("publicCache caps max-age, skips SWR, sets optional tags", () => {
     expect(publicCache(300, 3600)).toEqual({
-      "Cache-Control": "public, max-age=300, stale-while-revalidate=3600",
+      "Cache-Control": "public, max-age=60, must-revalidate",
     });
-    expect(publicCache(60, 600, "page:match")).toEqual({
-      "Cache-Control": "public, max-age=60, stale-while-revalidate=600",
+    expect(publicCache(30, 600, "page:match")).toEqual({
+      "Cache-Control": "public, max-age=30, must-revalidate",
       "Cache-Tag": "page:match",
     });
   });

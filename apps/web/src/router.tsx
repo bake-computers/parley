@@ -11,13 +11,19 @@ export function getRouter() {
     defaultNotFoundComponent: NotFound,
   });
 
-  // Deploys atomically swap hashed chunks, so a client holding a cached
-  // route chunk imports hashes that no longer exist. Reload once to pick
-  // up the fresh HTML; the time gate prevents reload loops on real errors.
+  // Deploys swap content-hashed chunks; edge-cached HTML can still point at
+  // deleted hashes. Bust the document cache once (query key misses Workers
+  // Cache) then strip the param so the URL stays clean.
   if (typeof window !== "undefined") {
+    const url = new URL(window.location.href);
+    if (url.searchParams.has("_r")) {
+      url.searchParams.delete("_r");
+      window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+    }
+
     window.addEventListener("unhandledrejection", (event) => {
       // oxlint-disable-next-line require-unicode-regexp
-      if (!/dynamically imported module/i.test(String(event.reason))) {
+      if (!/dynamically imported module|Importing a module script failed/i.test(String(event.reason))) {
         return;
       }
       const lastReload = Number(sessionStorage.getItem("parley:chunk-reload-at") ?? 0);
@@ -26,7 +32,9 @@ export function getRouter() {
       }
       sessionStorage.setItem("parley:chunk-reload-at", String(Date.now()));
       event.preventDefault();
-      window.location.reload();
+      const next = new URL(window.location.href);
+      next.searchParams.set("_r", String(Date.now()));
+      window.location.replace(`${next.pathname}${next.search}${next.hash}`);
     });
   }
 
