@@ -1,5 +1,5 @@
 /** Site path segments without leading slash (`` = home). */
-export type SitePath = "" | "blog" | "legal-notice" | "privacy" | "terms";
+export type SitePath = "" | "blog" | "docs" | "legal-notice" | "privacy" | "terms";
 
 export function siteHref(path: SitePath): string {
   if (path === "") {

@@ -10,6 +10,22 @@
 
 - [Why Parley is built the way it is](https://parley.bot/blog/why-parley-is-built-the-way-it-is): The reasoning behind Parley's stack: one Go engine that owns the truth, a protobuf wire contract, Cloudflare Workers at the edge, and a matchmaking model you can audit. ([Markdown version](https://parley.bot/blog/why-parley-is-built-the-way-it-is.md))
 
+## Docs
+
+User guides for players and server admins. Start with the Discord guide; the rest is the command and concept reference.
+
+- [Parley for Discord users](https://parley.bot/docs/discord-guide): The five-minute visual guide — add Parley, link your account, check your rank, and play balanced matches. ([Markdown version](https://parley.bot/docs/discord-guide.md))
+- [Docs home](https://parley.bot/docs)
+- [Getting started](https://parley.bot/docs/getting-started): Add Parley to your server, accept the terms, and link your account.
+- [Link your account](https://parley.bot/docs/getting-started/link-your-account): Walk through the /link wizard.
+- [Commands](https://parley.bot/docs/commands): Every slash command at a glance.
+- [/link](https://parley.bot/docs/commands/link) · [/profile](https://parley.bot/docs/commands/profile) · [/history](https://parley.bot/docs/commands/history) · [/user](https://parley.bot/docs/commands/user) · [/tournament](https://parley.bot/docs/commands/tournament) · [/team](https://parley.bot/docs/commands/team)
+- [Ranks and stats](https://parley.bot/docs/ranks-and-stats): The Parley Rank ladder and the stats behind it.
+- [Matchmaking](https://parley.bot/docs/matchmaking): How balanced teams are built, plus [eligibility](https://parley.bot/docs/matchmaking/eligibility).
+- [Tournaments](https://parley.bot/docs/tournaments): [Create](https://parley.bot/docs/tournaments/create-a-tournament) or [join](https://parley.bot/docs/tournaments/join-a-tournament) with a share code.
+- [Privacy and data](https://parley.bot/docs/privacy-and-data): What is stored and how to delete it.
+- [FAQ](https://parley.bot/docs/faq)
+
 ## Legal
 
 - [Terms of Service](https://parley.bot/terms)

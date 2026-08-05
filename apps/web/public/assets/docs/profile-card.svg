@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 330" role="img" aria-labelledby="profile-card-title">
+  <title id="profile-card-title">The Parley profile card in Discord showing linked accounts and Parley Rank per platform</title>
+  <rect width="720" height="330" rx="14" fill="#1e1f22"/>
+  <circle cx="38" cy="36" r="14" fill="#5865f2"/>
+  <text x="38" y="41" font-family="system-ui, -apple-system, sans-serif" font-size="13" font-weight="800" fill="#ffffff" text-anchor="middle">P</text>
+  <text x="62" y="41" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="700" fill="#f2f3f5">Parley</text>
+  <rect x="118" y="27" width="36" height="17" rx="4" fill="#5865f2"/>
+  <text x="136" y="39" font-family="system-ui, -apple-system, sans-serif" font-size="9" font-weight="700" fill="#ffffff" text-anchor="middle">APP</text>
+  <text x="164" y="41" font-family="system-ui, -apple-system, sans-serif" font-size="12" fill="#949ba4">used /profile</text>
+  <rect x="22" y="62" width="676" height="246" rx="10" fill="#2b2d31"/>
+  <text x="46" y="102" font-family="system-ui, -apple-system, sans-serif" font-size="18" font-weight="700" fill="#f2f3f5">Your Profiles</text>
+  <text x="46" y="126" font-family="system-ui, -apple-system, sans-serif" font-size="13" fill="#949ba4">Two platforms linked. Run /link to manage them.</text>
+  <line x1="46" y1="144" x2="674" y2="144" stroke="#3f4147" stroke-width="1"/>
+  <rect x="46" y="162" width="26" height="26" rx="6" fill="#1e1f22" stroke="#3f4147" stroke-width="1.5"/>
+  <text x="59" y="180" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="700" fill="#b5bac1" text-anchor="middle">PC</text>
+  <text x="88" y="180" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#f2f3f5">V1PER.STORM</text>
+  <rect x="540" y="160" width="134" height="30" rx="15" fill="#1e1f22" stroke="#c0c5ce" stroke-width="1.5"/>
+  <circle cx="560" cy="175" r="6" fill="#c0c5ce"/>
+  <text x="574" y="180" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="600" fill="#f2f3f5">Gold · 2,540</text>
+  <line x1="46" y1="206" x2="674" y2="206" stroke="#3f4147" stroke-width="1"/>
+  <rect x="46" y="224" width="26" height="26" rx="6" fill="#1e1f22" stroke="#3f4147" stroke-width="1.5"/>
+  <text x="59" y="242" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="700" fill="#b5bac1" text-anchor="middle">XB</text>
+  <text x="88" y="242" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#f2f3f5">ViperStormXB</text>
+  <rect x="540" y="222" width="134" height="30" rx="15" fill="#1e1f22" stroke="#c0c5ce" stroke-width="1.5"/>
+  <circle cx="560" cy="237" r="6" fill="#c0c5ce"/>
+  <text x="574" y="242" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="600" fill="#f2f3f5">Gold · 2,510</text>
+</svg>

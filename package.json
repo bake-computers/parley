@@ -13,7 +13,6 @@
     "dev": "vp run -r --parallel --no-cache dev",
     "dev:worker": "vp run --filter @parley/worker --no-cache dev",
     "dev:web": "vp run --filter web --no-cache dev",
-    "dev:docs": "vp run --filter @parley/docs --no-cache dev",
     "lint": "vp run -r lint",
     "lint:root": "vp lint",
     "format": "vp fmt --write .",

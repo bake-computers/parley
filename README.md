@@ -187,7 +187,7 @@ flowchart TB
 
     subgraph edge["Edge · Cloudflare Workers — stateless, global"]
         bot["Discord bot (Hono)<br/>app.parley.bot"]
-        web["Web (TanStack Start)<br/>parley.bot · docs.parley.bot"]
+        web["Web (TanStack Start)<br/>parley.bot · /docs"]
     end
 
     subgraph engine["Engine · Go (Fiber v3 + connect-go) — all domain logic"]
@@ -256,8 +256,8 @@ migrations are embedded and applied in-process when `RUN_MIGRATIONS=1`.
 | Component      | Runtime                    | Domain            |
 | -------------- | -------------------------- | ----------------- |
 | Discord Worker | Cloudflare Worker (Hono)   | `app.parley.bot`  |
-| Web            | TanStack Start, Cloudflare | `parley.bot`      |
-| Docs           | Static (Astro), Cloudflare | `docs.parley.bot` |
+| Web            | TanStack Start, Cloudflare | `parley.bot` (+ `/docs`) |
+| Docs redirect  | Cloudflare Worker (301)    | `docs.parley.bot` → `parley.bot/docs` |
 | Engine         | Container image, `ghcr.io` | origin, `:50051`  |
 
 Workers deploy via Wrangler (per-app `wrangler.jsonc`, secrets via
@@ -287,7 +287,7 @@ vp run dev                  # edge dev servers (or bun run dev)
 
 Contributor conventions — code style, testing expectations, migration rules,
 PR checklist — live in [`AGENTS.md`](AGENTS.md). Protocol notes live in
-`proto/` comments; user-facing docs live in `apps/docs`.
+`proto/` comments; user-facing docs live in `apps/web` at `/docs`.
 
 ## Appendix A. Repository layout
 
@@ -299,8 +299,8 @@ internal/               Domain logic: matchmaking (OVI, Glicko-2), stats,
 gen/parley/             buf-generated Go (do not edit)
 migrations/             Postgres SQL migrations
 apps/worker/            Discord bot Worker
-apps/web/               TanStack Start web app
-apps/docs/              User documentation
+apps/web/               TanStack Start web app (landing + /docs)
+apps/docs/              301 redirect: docs.parley.bot → parley.bot/docs
 packages/generated-ts/  @parley/proto — generated TS clients
 packages/runtime/       @parley/runtime — Discord embeds & components v2
 ```

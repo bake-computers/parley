@@ -3,6 +3,9 @@ import { cloudflare } from "@cloudflare/vite-plugin";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import mdx from "@mdx-js/rollup";
+import remarkFrontmatter from "remark-frontmatter";
+import remarkGfm from "remark-gfm";
 
 export default defineConfig(async ({ mode }) => {
   const devOnly: PluginOption[] = [];
@@ -14,6 +17,10 @@ export default defineConfig(async ({ mode }) => {
   const plugins: PluginOption[] = [
     ...devOnly,
     cloudflare({ viteEnvironment: { name: "ssr" }, remoteBindings: true }),
+    // Compiles docs content (.mdx) to plain JS before the React plugin sees it.
+    mdx({
+      remarkPlugins: [remarkGfm, remarkFrontmatter],
+    }),
     tailwindcss(),
     tanstackStart({
       sitemap: {
