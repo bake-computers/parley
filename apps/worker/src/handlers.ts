@@ -1,4 +1,5 @@
 import { helpCommand } from "#/interactions/help";
+import { historyButtonHandler } from "#/interactions/history/components";
 import { historyCommand } from "#/interactions/history/slash";
 import {
   linkSelectHandler,
@@ -23,6 +24,7 @@ import {
 
 export const workerHandlers = [
   helpCommand,
+  historyButtonHandler,
   historyCommand,
   linkSelectHandler,
   linkSlashCommand,

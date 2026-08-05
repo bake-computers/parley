@@ -1,8 +1,15 @@
 import { describe, test, expect } from "bun:test";
 import type { Match, MatchParticipant } from "@parley/proto/matchmaking/v1/matchmaking_pb.js";
+import { UI_TOKENS } from "#/ui/tokens";
 import { buildHistoryCard } from "#/interactions/history/ui";
 
-function makeParticipant(team: string, username: string, discordUserId: string): MatchParticipant {
+function makeParticipant(
+  team: string,
+  username: string,
+  discordUserId: string,
+  kda?: [number, number, number],
+  ratingDelta?: number,
+): MatchParticipant {
   return {
     $typeName: "parley.matchmaking.v1.MatchParticipant" as const,
     discordUserId,
@@ -11,129 +18,132 @@ function makeParticipant(team: string, username: string, discordUserId: string):
     playerId: 0,
     slot: 0,
     balanceRating: 1.0,
+    kills: kda?.[0],
+    deaths: kda?.[1],
+    assists: kda?.[2],
+    ratingDelta,
   } as unknown as MatchParticipant;
 }
 
-function makeMatch(overrides: Record<string, unknown> = {}): Match {
+function makeMatch(index: number, overrides: Record<string, unknown> = {}): Match {
   return {
     $typeName: "parley.matchmaking.v1.Match" as const,
-    id: 1,
+    id: index,
     guildId: "guild-123",
     channelId: "ch-123",
     status: "completed",
-    matchType: "ranked",
-    winningTeam: "team_a",
+    matchType: "internal",
+    winningTeam: "a",
     balanceGap: 0.5,
     createdAtMs: BigInt(1700000000000),
     participants: [
-      makeParticipant("team_a", "Alice", "user-1"),
-      makeParticipant("team_b", "Bob", "user-2"),
+      makeParticipant("a", `Alice${index}`, `a-${index}`, [4, 2, 3], 12),
+      makeParticipant("b", `Bob${index}`, `b-${index}`, [1, 5, 0], -8),
     ],
-    publicUuid: "match-uuid-1",
+    publicUuid: `uuid-${index}`,
     ...overrides,
   } as unknown as Match;
 }
 
+function navButtons(card: ReturnType<typeof buildHistoryCard>) {
+  const row = card[1]!.toJSON() as {
+    components: { custom_id: string; disabled?: boolean }[];
+  };
+  return row.components;
+}
+
 describe("buildHistoryCard", () => {
-  test("renders all matches", () => {
-    const matches = Array.from({ length: 5 }, (_, i) =>
-      makeMatch({
-        id: i,
-        publicUuid: `uuid-${i}`,
-        participants: [
-          makeParticipant("team_a", `Alice${i}`, `a-${i}`),
-          makeParticipant("team_b", `Bob${i}`, `b-${i}`),
-        ],
-      }),
-    );
-    const card = buildHistoryCard(matches);
-    const json = JSON.stringify(card.toJSON());
+  test("renders only the requested page", () => {
+    const matches = Array.from({ length: 3 }, (_, i) => makeMatch(i));
+    const json = JSON.stringify(buildHistoryCard(matches, 1).map((c) => c.toJSON()));
 
-    for (let i = 0; i < 5; i++) {
-      expect(json).toContain(`Alice${i}`);
-    }
-    expect(json).toContain("Recent Matches");
+    expect(json).toContain("Alice1");
+    expect(json).not.toContain("Alice0");
+    expect(json).not.toContain("Alice2");
+    expect(json).toContain("Page **2** of **3**");
   });
 
-  test("empty state", () => {
-    const card = buildHistoryCard([]);
-    const json = JSON.stringify(card.toJSON());
+  test("clamps out-of-range pages", () => {
+    const matches = Array.from({ length: 3 }, (_, i) => makeMatch(i));
+    const high = JSON.stringify(buildHistoryCard(matches, 99).map((c) => c.toJSON()));
+    expect(high).toContain("Alice2");
+    const low = JSON.stringify(buildHistoryCard(matches, -5).map((c) => c.toJSON()));
+    expect(low).toContain("Alice0");
+  });
+
+  test("renders KDA and rating delta per player", () => {
+    const json = JSON.stringify(buildHistoryCard([makeMatch(0)], 0).map((c) => c.toJSON()));
+
+    expect(json).toContain("4/2/3");
+    expect(json).toContain("(+12)");
+    expect(json).toContain("(-8)");
+  });
+
+  test("omits the delta suffix when ratingDelta is absent", () => {
+    const match = makeMatch(0, {
+      participants: [
+        makeParticipant("a", "Alice", "a-0", [1, 1, 1]),
+        makeParticipant("b", "Bob", "b-0"),
+      ],
+    });
+    const json = JSON.stringify(buildHistoryCard([match], 0).map((c) => c.toJSON()));
+
+    expect(json).toContain("1/1/1");
+    expect(json).not.toContain("(+");
+    expect(json).not.toContain("(-");
+  });
+
+  test("bolds the winning team", () => {
+    const json = JSON.stringify(buildHistoryCard([makeMatch(0)], 0).map((c) => c.toJSON()));
+    expect(json).toContain("**Team A — winner**");
+    expect(json).not.toContain("**Team B — winner**");
+  });
+
+  test("nav row disables Previous on the first page and Next on the last", () => {
+    const matches = Array.from({ length: 3 }, (_, i) => makeMatch(i));
+
+    const first = navButtons(buildHistoryCard(matches, 0));
+    expect(first[0]!.custom_id).toBe("history/page/-1");
+    expect(first[0]!.disabled).toBe(true);
+    expect(first[1]!.custom_id).toBe("history/page/1");
+    expect(first[1]!.disabled).toBe(false);
+
+    const last = navButtons(buildHistoryCard(matches, 2));
+    expect(last[0]!.custom_id).toBe("history/page/1");
+    expect(last[0]!.disabled).toBe(false);
+    expect(last[1]!.disabled).toBe(true);
+
+    const middle = navButtons(buildHistoryCard(matches, 1));
+    expect(middle[0]!.custom_id).toBe("history/page/0");
+    expect(middle[1]!.custom_id).toBe("history/page/2");
+  });
+
+  test("empty state has no nav row", () => {
+    const card = buildHistoryCard([], 0);
+    expect(card).toHaveLength(1);
+    const json = JSON.stringify(card[0]!.toJSON());
     expect(json).toContain("No matches played yet");
-    expect(card.toJSON()["accent_color"]).toBe(0x8a8a8e);
-  });
-
-  test("uses graphite accent and separators", () => {
-    const card = buildHistoryCard([makeMatch()]).toJSON();
-    expect(card["accent_color"]).toBe(0x8a8a8e);
-    expect(JSON.stringify(card)).toContain('"type":14');
   });
 
   test("handles missing participants without crashing", () => {
-    const card = buildHistoryCard([makeMatch({ participants: undefined })]);
-    const json = JSON.stringify(card.toJSON());
-    expect(json).toContain("vs —");
+    const card = buildHistoryCard([makeMatch(0, { participants: undefined })], 0);
+    const json = JSON.stringify(card.map((c) => c.toJSON()));
+    expect(json).toContain("Team A");
   });
 
-  test("respects character budget", () => {
-    const longName = "A".repeat(200);
-    const matches = Array.from({ length: 5 }, (_, i) =>
-      makeMatch({
-        id: i,
-        publicUuid: `uuid-${i}`,
-        participants: [
-          makeParticipant("team_a", `M${i}${longName}`, `a-${i}`),
-          makeParticipant("team_b", longName, `b-${i}`),
-        ],
-      }),
+  test("uses the main accent", () => {
+    const card = buildHistoryCard([makeMatch(0)], 0);
+    expect((card[0]!.toJSON() as { accent_color: number }).accent_color).toBe(UI_TOKENS.main);
+  });
+
+  test("shows MVP line when present, not when absent", () => {
+    const withMvp = makeMatch(0, { mvpUserId: "a-0" });
+    expect(JSON.stringify(buildHistoryCard([withMvp], 0).map((c) => c.toJSON()))).toContain(
+      "**MVP** Alice0",
     );
-    const card = buildHistoryCard(matches);
-    const json = JSON.stringify(card.toJSON());
-
-    // With 200-char usernames each match text is ~500 chars.
-    // Header (~28) + 3 matches (~1500) fits; match 4 would exceed the 2000 budget.
-    expect(json).toContain("M0");
-    expect(json).not.toContain("M4");
-  });
-
-  test("uses mvpUserId field when present, no badge when absent", () => {
-    // Match WITH MVP
-    const matchWithMvp = makeMatch({
-      publicUuid: "mvp-match",
-      mvpUserId: "user-1",
-      participants: [
-        makeParticipant("team_a", "Alice", "user-1"),
-        makeParticipant("team_b", "Bob", "user-2"),
-      ],
-    });
-    const cardWithMvp = buildHistoryCard([matchWithMvp]);
-    const jsonWithMvp = JSON.stringify(cardWithMvp.toJSON());
-    expect(jsonWithMvp).toContain("MVP");
-    expect(jsonWithMvp).toContain("Alice");
-
-    // Match WITHOUT MVP (future-proofing: mvpUserId undefined)
-    const matchWithoutMvp = makeMatch({
-      publicUuid: "no-mvp-match",
-      mvpUserId: undefined,
-      participants: [
-        makeParticipant("team_a", "Charlie", "user-3"),
-        makeParticipant("team_b", "Dave", "user-4"),
-      ],
-    });
-    const cardWithoutMvp = buildHistoryCard([matchWithoutMvp]);
-    const jsonWithoutMvp = JSON.stringify(cardWithoutMvp.toJSON());
-    expect(jsonWithoutMvp).not.toContain("MVP");
-
-    // Match with mvpUserId null (future-proofing)
-    const matchNullMvp = makeMatch({
-      publicUuid: "null-mvp-match",
-      mvpUserId: null,
-      participants: [
-        makeParticipant("team_a", "Eve", "user-5"),
-        makeParticipant("team_b", "Frank", "user-6"),
-      ],
-    });
-    const cardNullMvp = buildHistoryCard([matchNullMvp]);
-    const jsonNullMvp = JSON.stringify(cardNullMvp.toJSON());
-    expect(jsonNullMvp).not.toContain("MVP");
+    const withoutMvp = makeMatch(0, { mvpUserId: undefined });
+    expect(JSON.stringify(buildHistoryCard([withoutMvp], 0).map((c) => c.toJSON()))).not.toContain(
+      "MVP",
+    );
   });
 });

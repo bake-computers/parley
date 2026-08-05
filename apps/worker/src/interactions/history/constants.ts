@@ -1,3 +1,4 @@
 export const HISTORY_COMMAND_NAME = "history";
-export const HISTORY_COMMAND_DESCRIPTION = "Show the last 5 matches played in this server";
-export const HISTORY_DISCORD_CHARACTER_BUDGET = 2000;
+export const HISTORY_COMMAND_DESCRIPTION = "Show recent matches in this server, one match per page";
+export const HISTORY_PAGE_PREFIX = "history/page/";
+export const HISTORY_PAGE_WINDOW = 20;

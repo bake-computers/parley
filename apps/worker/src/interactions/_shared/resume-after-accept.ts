@@ -12,6 +12,7 @@ import { getIdentityClient, type EngineTransportEnv } from "#/transport";
 import { buildLinkHubCard } from "#/interactions/link/ui";
 import { invokeListMatches } from "#/interactions/history/rpc";
 import { buildHistoryCard, buildHistoryErrorCard } from "#/interactions/history/ui";
+import { HISTORY_PAGE_WINDOW } from "#/interactions/history/constants";
 import { invokeLookupByDiscord } from "#/interactions/profile";
 import { buildSettingsCard } from "#/interactions/user/ui";
 import type { ApplicationEmojiCatalog } from "@parley/runtime";
@@ -124,11 +125,11 @@ export async function resumeAfterAccept(
         env,
         guildId,
         game: Game.R6,
-        limit: 5,
+        limit: HISTORY_PAGE_WINDOW,
         cursor: "",
       });
       if (result.isOk()) {
-        await updateV2(interaction, buildHistoryCard(result.value.matches));
+        await updateV2(interaction, buildHistoryCard(result.value.matches, 0));
       } else {
         await updateV2(
           interaction,
