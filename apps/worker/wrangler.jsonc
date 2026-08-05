@@ -10,7 +10,8 @@
   "main": "src/index.ts",
   "compatibility_date": "2025-05-14",
   "compatibility_flags": ["nodejs_compat"],
-  "placement": { "mode": "smart" },
+  // we intentionally do this as our Backend is deployed on a Munich server
+  "placement": { "region": "aws:eu-central-1" },
   "workers_dev": false,
   "logpush": true,
   "observability": { "enabled": true },
@@ -36,7 +37,6 @@
   ],
 
   "routes": [{ "pattern": "app.parley.bot", "custom_domain": true }],
-
   "env": {
     "local": {
       "routes": [],
