@@ -1,24 +1,35 @@
 Linking connects your Discord identity to your Rainbow Six Siege profile so
-Parley can pull your stats and rate your skill. The whole flow is interactive:
-no command arguments, just menus.
+Parley can pull stats and rate your skill. The whole flow is menus only — no
+command arguments.
 
 ## Walk through the wizard
 
 <Steps>
   <Step title="Run /link">
-    Parley opens the **Link Your Accounts** hub, which lists every platform you have linked so far.
-    Choose **Add a platform** and pick PC, Xbox, or PlayStation.
+    Parley opens the **Link Your Accounts** hub. Choose **Add a platform** and
+    pick PC, Xbox, or PlayStation.
+
+    <LinkHubEmptyDemo />
   </Step>
+
   <Step title="Enter your in-game name">
-    A small form asks for your in-game username. Use the exact name from your platform, shown below.
+    A form asks for your username. Use the exact name for that platform (table
+    below).
   </Step>
+
   <Step title="Confirm">
-    Parley shows a confirmation card with your platform, username, and game. Select **Continue** to
-    link, or **Go back** to start over.
+    Check platform and username, then **Continue** — or **Go back** to start
+    over.
+
+    <LinkConfirmDemo />
   </Step>
+
   <Step title="Wait for your stats">
-    Parley fetches your profile from the stats provider. After a moment you get a **You're Ready To
-    Play** card with your Parley Rank, profile level, and current Rainbow Six rank and RP.
+    Parley fetches your profile. After a moment you get **You're Ready To Play**
+    with Parley Rank, level, and Rainbow Six rank.
+
+    <LinkFetchingDemo />
+    <LinkReadyDemo />
   </Step>
 </Steps>
 
@@ -37,24 +48,27 @@ no command arguments, just menus.
 
 <Aside type="tip" title="One account per platform">
   You can link one Rainbow Six profile per platform: one PC, one Xbox, and one PlayStation. If a
-  platform is already linked, the wizard simply returns you to the hub.
+  platform is already linked, the wizard returns you to the hub.
 </Aside>
 
 ## See your links again
 
-The `/link` hub is also where you manage existing links. It shows each linked
-profile with its platform, username, and Parley Rank, and it has a menu for
-removing a link.
+`/link` is also where you manage existing links — platform, username, Parley
+Rank, and a menu to remove a link.
+
+<LinkHubLinkedDemo />
 
 <Aside type="caution" title="Re-link cooldown">
   After you remove a link, Parley makes you wait before linking again on that platform. The hub
-  tells you exactly when re-linking becomes available. This keeps people from hopping between
-  accounts to reset their rating.
+  shows exactly when re-linking is available.
 </Aside>
 
 ## If linking fails
 
-<Aside type="note" title="Link Failed">
-  A red **Link Failed** card means the stats provider could not resolve your username. Check the
-  spelling, confirm the platform matches where you actually play, and try again.
-</Aside>
+<LinkFailedDemo />
+
+A red **Link Failed** card means the stats provider could not resolve your
+username. Check spelling, confirm the platform matches where you play, and try
+again.
+
+Full command reference: [/link](/docs/commands/link).

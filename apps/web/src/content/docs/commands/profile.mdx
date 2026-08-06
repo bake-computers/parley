@@ -1,30 +1,41 @@
-`/profile` shows every game account linked to your Discord user, one line per
-profile.
+`/profile` shows every game account linked to your Discord, with each platform's
+Parley Rank. Private reply — only you see it.
 
-## What you see
+## How to use it
 
-Each linked account appears as a row with:
+<Steps>
+  <Step title="Run /profile">
+    Type `/profile` in any channel or DM. No options needed.
+  </Step>
 
-| Field       | Example                                        |
-| ----------- | ---------------------------------------------- |
-| Game        | Rainbow Six Siege                              |
-| Username    | your in-game name                              |
-| Platform    | PC, Xbox, or PlayStation                       |
-| Parley Rank | your tier and points, for example Gold · 2,540 |
+  <Step title="Read your accounts">
+    Each linked platform is a line with game, username, platform, and Parley Rank.
 
-<Aside type="tip" title="No linked accounts?">
-  If the card says **No Linked Accounts**, run [/link](/docs/commands/link) to connect your first
-  platform. It takes about a minute.
-</Aside>
+    <ProfileLinkedDemo />
+  </Step>
+</Steps>
+
+## No accounts yet?
+
+If nothing is linked, Parley points you at `/link`.
+
+<ProfileEmptyDemo />
+
+Run [/link](/docs/commands/link) once — it takes about a minute — then `/profile`
+again.
 
 ## About the rank shown
 
-The Parley Rank is Parley's own rating. It starts from your Rainbow Six rank
-when you link and moves as you play Parley matches. It does not change your
-Ubisoft rank, and your Ubisoft rank does not change it. The full ladder is on
-the [Parley Rank](/docs/ranks-and-stats/parley-rank) page.
+Parley Rank is Parley's own skill ladder. It seeds from your Rainbow Six rank
+when you link and moves when you play Parley matches. It does **not** change
+your Ubisoft rank.
 
-<Aside type="note" title="Looking for deeper stats?">
-  Your level, current Rainbow Six rank, and RP appear on the card you get right after linking. See
-  [your stats](/docs/ranks-and-stats/your-stats) for what Parley tracks and how it is used.
-</Aside>
+| Field       | Example              |
+| ----------- | -------------------- |
+| Game        | Rainbow Six Siege    |
+| Username    | your in-game name    |
+| Platform    | PC, Xbox, PlayStation |
+| Parley Rank | Gold · 2,540         |
+
+Full ladder: [Parley Rank](/docs/ranks-and-stats/parley-rank). Deeper stats
+after linking: [your stats](/docs/ranks-and-stats/your-stats).

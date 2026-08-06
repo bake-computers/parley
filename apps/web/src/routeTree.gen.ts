@@ -19,6 +19,7 @@ import { Route as AuthLogoutRouteImport } from './routes/auth/logout'
 import { Route as BlogIndexRouteImport } from './routes/blog/index'
 import { Route as BlogWhyParleyIsBuiltTheWayItIsRouteImport } from './routes/blog/why-parley-is-built-the-way-it-is'
 import { Route as DashboardAccountRouteImport } from './routes/dashboard/account'
+import { Route as DevDiscordComponentsRouteImport } from './routes/dev/discord-components'
 import { Route as DocsIndexRouteImport } from './routes/docs/index'
 import { Route as DocsSplatRouteImport } from './routes/docs/$'
 import { Route as DocsDiscordGuideRouteImport } from './routes/docs/discord-guide'
@@ -87,6 +88,11 @@ const DashboardAccountRoute = DashboardAccountRouteImport.update({
   id: '/account',
   path: '/account',
   getParentRoute: () => DashboardRoute,
+} as any)
+const DevDiscordComponentsRoute = DevDiscordComponentsRouteImport.update({
+  id: '/dev/discord-components',
+  path: '/dev/discord-components',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const DocsIndexRoute = DocsIndexRouteImport.update({
   id: '/docs/',
@@ -190,6 +196,7 @@ export interface FileRoutesByFullPath {
   '/auth/logout': typeof AuthLogoutRoute
   '/blog/why-parley-is-built-the-way-it-is': typeof BlogWhyParleyIsBuiltTheWayItIsRoute
   '/dashboard/account': typeof DashboardAccountRoute
+  '/dev/discord-components': typeof DevDiscordComponentsRoute
   '/docs/$': typeof DocsSplatRoute
   '/docs/discord-guide': typeof DocsDiscordGuideRoute
   '/tournaments/$code': typeof TournamentsCodeRouteWithChildren
@@ -219,6 +226,7 @@ export interface FileRoutesByTo {
   '/auth/logout': typeof AuthLogoutRoute
   '/blog/why-parley-is-built-the-way-it-is': typeof BlogWhyParleyIsBuiltTheWayItIsRoute
   '/dashboard/account': typeof DashboardAccountRoute
+  '/dev/discord-components': typeof DevDiscordComponentsRoute
   '/docs/$': typeof DocsSplatRoute
   '/docs/discord-guide': typeof DocsDiscordGuideRoute
   '/tournaments/$code': typeof TournamentsCodeRouteWithChildren
@@ -248,6 +256,7 @@ export interface FileRoutesById {
   '/auth/logout': typeof AuthLogoutRoute
   '/blog/why-parley-is-built-the-way-it-is': typeof BlogWhyParleyIsBuiltTheWayItIsRoute
   '/dashboard/account': typeof DashboardAccountRoute
+  '/dev/discord-components': typeof DevDiscordComponentsRoute
   '/docs/$': typeof DocsSplatRoute
   '/docs/discord-guide': typeof DocsDiscordGuideRoute
   '/tournaments/$code': typeof TournamentsCodeRouteWithChildren
@@ -279,6 +288,7 @@ export interface FileRouteTypes {
     | '/auth/logout'
     | '/blog/why-parley-is-built-the-way-it-is'
     | '/dashboard/account'
+    | '/dev/discord-components'
     | '/docs/$'
     | '/docs/discord-guide'
     | '/tournaments/$code'
@@ -308,6 +318,7 @@ export interface FileRouteTypes {
     | '/auth/logout'
     | '/blog/why-parley-is-built-the-way-it-is'
     | '/dashboard/account'
+    | '/dev/discord-components'
     | '/docs/$'
     | '/docs/discord-guide'
     | '/tournaments/$code'
@@ -336,6 +347,7 @@ export interface FileRouteTypes {
     | '/auth/logout'
     | '/blog/why-parley-is-built-the-way-it-is'
     | '/dashboard/account'
+    | '/dev/discord-components'
     | '/docs/$'
     | '/docs/discord-guide'
     | '/tournaments/$code'
@@ -365,6 +377,7 @@ export interface RootRouteChildren {
   AuthLoginRoute: typeof AuthLoginRoute
   AuthLogoutRoute: typeof AuthLogoutRoute
   BlogWhyParleyIsBuiltTheWayItIsRoute: typeof BlogWhyParleyIsBuiltTheWayItIsRoute
+  DevDiscordComponentsRoute: typeof DevDiscordComponentsRoute
   DocsSplatRoute: typeof DocsSplatRoute
   DocsDiscordGuideRoute: typeof DocsDiscordGuideRoute
   TournamentsCodeRoute: typeof TournamentsCodeRouteWithChildren
@@ -450,6 +463,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/account'
       preLoaderRoute: typeof DashboardAccountRouteImport
       parentRoute: typeof DashboardRoute
+    }
+    '/dev/discord-components': {
+      id: '/dev/discord-components'
+      path: '/dev/discord-components'
+      fullPath: '/dev/discord-components'
+      preLoaderRoute: typeof DevDiscordComponentsRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/docs/': {
       id: '/docs/'
@@ -628,6 +648,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthLoginRoute: AuthLoginRoute,
   AuthLogoutRoute: AuthLogoutRoute,
   BlogWhyParleyIsBuiltTheWayItIsRoute: BlogWhyParleyIsBuiltTheWayItIsRoute,
+  DevDiscordComponentsRoute: DevDiscordComponentsRoute,
   DocsSplatRoute: DocsSplatRoute,
   DocsDiscordGuideRoute: DocsDiscordGuideRoute,
   TournamentsCodeRoute: TournamentsCodeRouteWithChildren,

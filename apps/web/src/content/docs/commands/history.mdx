@@ -1,32 +1,48 @@
-`/history` shows the recent Parley matches played in the server you run it
-from, one match per page. Use the **Previous** and **Next** buttons under the
-card to flip through matches, newest first.
+`/history` pages through recent Parley matches **in the server you run it from**
+— one match per page, newest first. Private to you.
 
 <Aside type="caution" title="Servers only">
-  `/history` does not work in direct messages. Run it in a channel of the server whose matches you
-  want to see.
+  `/history` does not work in DMs. Use a channel in the server whose matches you want to see.
 </Aside>
 
-## What you see
+## How to use it
 
-Each page shows one match as:
+<Steps>
+  <Step title="Run /history in a server channel">
+    Type `/history`. Parley loads up to the twenty most recent matches for that
+    server.
+  </Step>
 
-- **The two teams**, with the winner in bold and every player's reported
-  K/D/A next to their name.
-- **Rating change** per player — how the match moved their Parley rating.
-  Matches reported before rating tracking show K/D/A only.
-- **When it was played**, as a relative time that Discord keeps current for
-  you.
-- **The MVP**, when a match produced one.
+  <Step title="Read a match">
+    Each page is one match: both teams, K/D/A, rating changes, when it was played,
+    and the MVP when there is one. The winning team is marked.
 
-If the server has no Parley matches yet, the card says so and hints that
-matches will appear here once your team plays.
+    <HistoryMatchDemo />
+  </Step>
 
-<Aside type="note" title="Twenty at a time">
-  `/history` pages through the twenty most recent matches in the server.
-</Aside>
+  <Step title="Flip pages">
+    Use **Previous** and **Next** under the card to move through the list.
+  </Step>
+</Steps>
+
+## Empty server
+
+If nobody has played a Parley match here yet, you get a short empty state.
+
+<HistoryEmptyDemo />
+
+Custom `/team` matches show up here too once they are finished and ratings
+are updated.
+
+## What the numbers mean
+
+- **K/D/A** — kills / deaths / assists logged for that player in the match.
+- **(+18) / (−12)** — how the match moved their Parley rating. Older matches
+  without rating tracking show K/D/A only.
+- **MVP** — standout player when the match recorded one.
 
 ## Related
 
-- [Parley Rank](/docs/ranks-and-stats/parley-rank): how reported matches move your rating.
-- [Matchmaking](/docs/matchmaking): how the teams in these matches were built.
+- [Parley Rank](/docs/ranks-and-stats/parley-rank) — how reported matches move your rating
+- [Matchmaking](/docs/matchmaking) — how queued teams are built
+- [/team](/docs/commands/team) — custom matches that land in history

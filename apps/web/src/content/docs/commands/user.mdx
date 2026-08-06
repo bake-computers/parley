@@ -1,31 +1,40 @@
-`/user` is your settings panel. It has two subcommands: `/user settings`
-opens the panel, and `/user delete` jumps straight to data deletion.
+`/user` is your settings panel. Use `/user settings` for the full hub, or
+`/user delete` to jump straight into data deletion. Private to you.
 
-<Tabs>
-  <TabItem label="Preferences">
-    The first page covers how Parley treats you in play.
+## Preferences
 
-    | Setting | Options | What it does |
-    | --- | --- | --- |
-    | Matchmaking | Enabled, Disabled | Join the ranked queue, or pause it. Disabled means Parley never puts you into a match. |
-    | Visibility | Public, Hidden | Control who sees your profile and stats. |
+<Steps>
+  <Step title="Open settings">
+    Run `/user settings`. Page 1 is **Preferences**.
+  </Step>
 
-    Pick an option from each menu and the change saves immediately.
+  <Step title="Matchmaking and visibility">
+    Pick from each menu — changes save immediately.
 
-  </TabItem>
-  <TabItem label="Privacy and data">
-    The second page covers your data.
+    <UserPreferencesDemo />
 
-    - **Refresh stats** pulls the latest data from the stats provider for
-      your linked account.
-    - **Delete my data** anonymizes your Parley records. See below for what
-      that involves.
+    | Setting     | Options           | Effect                                              |
+    | ----------- | ----------------- | --------------------------------------------------- |
+    | Matchmaking | Enabled, Disabled | Join the ranked queue, or pause it entirely         |
+    | Visibility  | Public, Hidden    | Who can see your profile and stats                  |
+  </Step>
 
-    The page also shows your re-link cooldown when one is active, so you
-    always know when you could link again.
+  <Step title="Open Privacy">
+    Press **Privacy** to go to page 2 (stats refresh and data deletion).
+  </Step>
+</Steps>
 
-  </TabItem>
-</Tabs>
+## Privacy and data
+
+<UserPrivacyDemo />
+
+- **Refresh stats** — pull the latest snapshot from the stats provider for
+  your linked account.
+- **Delete my data** — anonymize every Parley record about you (see below).
+- **Preferences** — jump back to page 1.
+
+The card also shows any active re-link cooldown so you know when you could
+link again.
 
 ## Delete your data
 
@@ -35,18 +44,19 @@ opens the panel, and `/user delete` jumps straight to data deletion.
 </Aside>
 
 <Steps>
-  <Step title="Open the confirmation">
-    Use **Delete my data** on the privacy page, or run `/user delete`.
+  <Step title="Start deletion">
+    Press **Delete my data** on the privacy page, or run `/user delete`.
   </Step>
-  <Step title="Type your Discord username">
-    The form asks you to type your exact Discord username. Anything else is rejected and nothing is
-    deleted.
+  <Step title="Confirm with your Discord username">
+    Type your exact Discord username in the form. Anything else is rejected and
+    nothing is deleted.
   </Step>
-  <Step title="Get the summary">
-    Parley confirms with your anonymized id, the time your cooldown ends, and a count of every
-    record anonymized: players, identities, memberships, matches, participants, and tournament rows.
+  <Step title="Read the summary">
+    Parley confirms with an anonymized id, when the cooldown ends, and how many
+    rows were touched (players, identities, matches, tournaments, and so on).
+
+    <UserDeletedDemo />
   </Step>
 </Steps>
 
-More detail on what Parley stores lives on the
-[privacy and data](/docs/privacy-and-data) page.
+More on storage: [privacy and data](/docs/privacy-and-data).

@@ -16,6 +16,29 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "#/lib/shared/cn";
+import {
+  HelpDemo,
+  HistoryEmptyDemo,
+  HistoryMatchDemo,
+  LinkConfirmDemo,
+  LinkFailedDemo,
+  LinkFetchingDemo,
+  LinkHubEmptyDemo,
+  LinkHubLinkedDemo,
+  LinkReadyDemo,
+  ProfileEmptyDemo,
+  ProfileLinkedDemo,
+  TeamEndDemo,
+  TeamFinalDemo,
+  TeamScoreboardDemo,
+  TeamSetupDemo,
+  TournamentCreateDemo,
+  TournamentJoinDemo,
+  UserDeletedDemo,
+  UserPreferencesDemo,
+  UserPrivacyDemo,
+} from "./command-demos";
+import { DiscordDemo } from "./DiscordDemo";
 
 /** Maps the phosphor icon names used in docs content to installed lucide icons. */
 const ICONS: Record<string, LucideIcon> = {
@@ -189,4 +212,25 @@ export const mdxComponents: Record<string, unknown> = {
   Collapsible,
   CollapsibleTrigger,
   CollapsibleContent,
+  DiscordDemo,
+  LinkHubEmptyDemo,
+  LinkHubLinkedDemo,
+  LinkConfirmDemo,
+  LinkFetchingDemo,
+  LinkReadyDemo,
+  LinkFailedDemo,
+  ProfileEmptyDemo,
+  ProfileLinkedDemo,
+  HistoryEmptyDemo,
+  HistoryMatchDemo,
+  UserPreferencesDemo,
+  UserPrivacyDemo,
+  UserDeletedDemo,
+  TournamentCreateDemo,
+  TournamentJoinDemo,
+  TeamSetupDemo,
+  TeamScoreboardDemo,
+  TeamEndDemo,
+  TeamFinalDemo,
+  HelpDemo,
 };

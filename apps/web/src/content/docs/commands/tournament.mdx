@@ -1,49 +1,67 @@
-`/tournament` connects Discord to the tournament dashboard on the Parley
-website. Setup, registration, and brackets live there; Discord handles the
-hand-off.
+`/tournament` hands you from Discord to the tournament dashboard on the
+Parley website. Setup, registration, and brackets live on the site; Discord
+starts the flow.
 
-## /tournament create
+## Create a tournament
 
-Run it in the server that will host the tournament. Parley replies with a
-secure link to the creation page on [parley.bot](https://parley.bot), where
-you log in and choose the format, schedule, rules, and prizes.
+<Steps>
+  <Step title="Run /tournament create in a server">
+    Use a channel in the server that will host the event. Creation does **not**
+    work in DMs.
+  </Step>
+
+  <Step title="Open the hand-off link">
+    Parley replies with a private link to the website. Log in with Discord and
+    choose format, schedule, rules, and prizes.
+
+    <TournamentCreateDemo />
+  </Step>
+
+  <Step title="Finish on the site">
+    Complete setup before the link expires. Share the tournament code or page
+    with players when you are ready.
+  </Step>
+</Steps>
 
 <Aside type="caution" title="The link expires">
-  The hand-off link is valid for ten minutes and is tied to you and the server you ran it in. If it
-  expires, run the command again.
+  The hand-off is valid for **ten minutes** and is tied to you and the server you ran it in. If it
+  expires, run `/tournament create` again.
 </Aside>
 
-<Aside type="note" title="Servers only">
-  Like `/history`, tournament creation needs a server channel. It does not work in direct messages.
-</Aside>
+## Join a tournament
 
-## /tournament join
+<Steps>
+  <Step title="Get the code">
+    Organizers share a short code (ten characters, A–Z and 2–9; older events may
+    use six). Lowercase is fine — Parley uppercases it.
+  </Step>
 
-Takes one argument: the tournament code.
+  <Step title="Run /tournament join">
+    ```text
+    /tournament join code: ABC123XYZ4
+    ```
+  </Step>
 
-```text
-/tournament join code: ABC123XYZ4
-```
+  <Step title="Open the tournament page">
+    On success you see the name, status, and a link. Log in on the site and
+    pick your team.
 
-The code is ten characters, letters A through Z and digits 2 through 9
-(tournaments created before the code length changed use six).
-Lowercase input is uppercased for you. On success, Parley shows the
-tournament name and status with a link to its page, where you log in with
-Discord and pick your team.
+    <TournamentJoinDemo />
+  </Step>
+</Steps>
 
 <Aside type="tip" title="Tournament not found?">
-  Check the code with the organizer. Codes are short on purpose and easy to misread; a wrong or
-  expired code shows **Tournament not found**.
+  Double-check the code with the organizer. A wrong or expired code shows **Tournament not found**.
 </Aside>
 
 ## Full guides
 
 <CardGrid>
   <Card title="Create a tournament" icon="ph:plus-circle">
-    The organizer flow, from the Discord command to a shareable bracket. [Start
+    Organizer flow from Discord to a shareable bracket. [Start
     here](/docs/tournaments/create-a-tournament).
   </Card>
   <Card title="Join a tournament" icon="ph:sign-in">
-    The player flow, from code to roster. [Start here](/docs/tournaments/join-a-tournament).
+    Player flow from code to roster. [Start here](/docs/tournaments/join-a-tournament).
   </Card>
 </CardGrid>
