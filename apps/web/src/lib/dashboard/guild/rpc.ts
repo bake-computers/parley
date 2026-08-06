@@ -1,4 +1,4 @@
-import type { EngineTransportEnv } from "../../engine/transport.js";
+import type { EngineTransportEnv, RpcError } from "../../engine/transport.js";
 import { readEngineResponse, resolveEngineTransport } from "../../engine/transport.js";
 import type { GuildMatchmakingRulesJson, GuildMatchQuotaJson, GuildSettingsJson } from "./types.js";
 

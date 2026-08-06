@@ -18,7 +18,7 @@ export type EngineTransportConfig = {
   fetchImpl: EngineFetch;
 };
 
-type RpcErrorBody = { code?: string; message?: string };
+export type RpcError = { code?: string; message?: string };
 
 /**
  * Parse an engine HTTP response. Fiber auth failures return plain text
@@ -26,10 +26,10 @@ type RpcErrorBody = { code?: string; message?: string };
  */
 export async function readEngineResponse<T>(res: Response): Promise<T> {
   const text = await res.text();
-  let json: (T & { error?: RpcErrorBody; message?: string }) | null = null;
+  let json: (T & { error?: RpcError; message?: string }) | null = null;
   if (text) {
     try {
-      json = JSON.parse(text) as T & { error?: RpcErrorBody; message?: string };
+      json = JSON.parse(text) as T & { error?: RpcError; message?: string };
     } catch {
       json = null;
     }
