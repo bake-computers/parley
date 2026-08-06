@@ -33,9 +33,18 @@ export async function fetchGuildSettings(
 
   const promise = fetch(`/api/dashboard/guilds/${guildId}/settings`, { credentials: "include" })
     .then(async (res) => {
-      const data = (await res.json()) as GuildSettingsBundleJson & { error?: string };
+      let data: GuildSettingsBundleJson & { error?: string };
+      try {
+        data = (await res.json()) as GuildSettingsBundleJson & { error?: string };
+      } catch {
+        throw new Error(
+          res.ok
+            ? "Failed to load settings (invalid response)"
+            : `Failed to load settings (${res.status})`,
+        );
+      }
       if (!res.ok) {
-        throw new Error(data.error ?? "Failed to load settings");
+        throw new Error(data.error ?? `Failed to load settings (${res.status})`);
       }
       cache.set(guildId, { data, fetchedAt: Date.now() });
       return data;

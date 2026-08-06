@@ -25,9 +25,18 @@ export async function fetchUserSettings(): Promise<UserSettingsJson> {
 
   inflight = fetch("/api/dashboard/user/settings", { credentials: "include" })
     .then(async (res) => {
-      const data = (await res.json()) as { settings?: UserSettingsJson; error?: string };
+      let data: { settings?: UserSettingsJson; error?: string };
+      try {
+        data = (await res.json()) as { settings?: UserSettingsJson; error?: string };
+      } catch {
+        throw new Error(
+          res.ok
+            ? "Failed to load settings (invalid response)"
+            : `Failed to load settings (${res.status})`,
+        );
+      }
       if (!res.ok || !data.settings) {
-        throw new Error(data.error ?? "Failed to load settings");
+        throw new Error(data.error ?? `Failed to load settings (${res.status})`);
       }
       cache = { data: data.settings, fetchedAt: Date.now() };
       return data.settings;

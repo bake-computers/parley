@@ -35,7 +35,13 @@ async function authorizeGuild(
     return auth;
   }
   if (!(await sessionCanManageGuild(auth.session, guildId))) {
-    return Response.json({ error: "forbidden" }, { status: 403 });
+    return Response.json(
+      {
+        error:
+          "You do not have permission to manage this server (Manage Server / Administrator), or Discord did not return this guild for your session. Sign out and sign in again.",
+      },
+      { status: 403 },
+    );
   }
   return auth;
 }

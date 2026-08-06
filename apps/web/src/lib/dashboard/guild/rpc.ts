@@ -1,8 +1,6 @@
 import type { EngineTransportEnv } from "../../engine/transport.js";
-import { resolveEngineTransport } from "../../engine/transport.js";
+import { readEngineResponse, resolveEngineTransport } from "../../engine/transport.js";
 import type { GuildMatchmakingRulesJson, GuildMatchQuotaJson, GuildSettingsJson } from "./types.js";
-
-type RpcError = { code?: string; message?: string };
 
 async function engineCall<T>(env: EngineTransportEnv, path: string, body: unknown): Promise<T> {
   const { baseUrl, fetchImpl } = resolveEngineTransport(env);
@@ -12,12 +10,7 @@ async function engineCall<T>(env: EngineTransportEnv, path: string, body: unknow
     headers: { "content-type": "application/json" },
     body: JSON.stringify(body),
   });
-  const json = (await res.json()) as T & { error?: RpcError };
-  if (!res.ok) {
-    const msg = json.error?.message ?? `Engine ${res.status}`;
-    throw new Error(msg);
-  }
-  return json;
+  return readEngineResponse<T>(res);
 }
 
 const SVC = "/parley.guild.v1.GuildSettingsService";

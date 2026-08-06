@@ -18,6 +18,47 @@ export type EngineTransportConfig = {
   fetchImpl: EngineFetch;
 };
 
+type RpcErrorBody = { code?: string; message?: string };
+
+/**
+ * Parse an engine HTTP response. Fiber auth failures return plain text
+ * (e.g. "Unauthorized"); Connect errors return JSON. Map both to a clear Error.
+ */
+export async function readEngineResponse<T>(res: Response): Promise<T> {
+  const text = await res.text();
+  let json: (T & { error?: RpcErrorBody; message?: string }) | null = null;
+  if (text) {
+    try {
+      json = JSON.parse(text) as T & { error?: RpcErrorBody; message?: string };
+    } catch {
+      json = null;
+    }
+  }
+
+  if (!res.ok) {
+    const fromJson = json?.error?.message ?? json?.message;
+    if (fromJson) {
+      throw new Error(fromJson);
+    }
+    if (res.status === 401 || /^unauthorized$/i.test(text.trim())) {
+      throw new Error(
+        "Engine rejected authentication. Set ENGINE_SHARED_SECRET on the web worker to the same value as the engine and Discord worker (`wrangler secret put ENGINE_SHARED_SECRET`).",
+      );
+    }
+    if (res.status === 403 || /^forbidden$/i.test(text.trim())) {
+      throw new Error(
+        "Engine returned forbidden. Check ENGINE_SHARED_SECRET and that the web worker can reach the engine over VPC.",
+      );
+    }
+    throw new Error(text.trim() || `Engine ${res.status}`);
+  }
+
+  if (!json) {
+    throw new Error(text.trim() || "Engine returned an empty response");
+  }
+  return json;
+}
+
 /** Dashboard RPC always uses remote VPC to the Parley engine (same as production). */
 export function resolveEngineTransport(env: EngineTransportEnv): EngineTransportConfig {
   if (!env.VPC_SERVICE) {
@@ -28,10 +69,15 @@ export function resolveEngineTransport(env: EngineTransportEnv): EngineTransport
   if (!env.ENGINE_INTERNAL_URL) {
     throw new Error("ENGINE_INTERNAL_URL is not configured in wrangler vars.");
   }
+  const secret = env.ENGINE_SHARED_SECRET?.trim() ?? "";
+  if (!secret) {
+    throw new Error(
+      "ENGINE_SHARED_SECRET is not configured on the web worker. Set it with `wrangler secret put ENGINE_SHARED_SECRET` (same value as the engine and Discord worker).",
+    );
+  }
 
   const baseUrl = env.ENGINE_INTERNAL_URL;
   const vpc = env.VPC_SERVICE;
-  const secret = env.ENGINE_SHARED_SECRET ?? "";
   return {
     baseUrl,
     cacheKey: `vpc:${baseUrl}`,

@@ -178,14 +178,19 @@ function GuildDashboardLayout() {
   const shellProps = { guildId, guild: shellGuild, user: me.user };
 
   if (loadError) {
+    const engineHint =
+      /ENGINE_SHARED_SECRET|VPC_SERVICE|engine|authentication|forbidden/i.test(loadError);
     return (
       <GuildDashboardShell {...shellProps}>
         <div className="text-center">
           <p className="text-destructive text-sm">{loadError}</p>
-          <p className="text-muted-foreground mt-2 text-xs">
-            Dev uses remote VPC to the Parley engine. Check Cloudflare login, remote bindings, and
-            engine availability.
-          </p>
+          {engineHint ? (
+            <p className="text-muted-foreground mt-2 text-xs">
+              Dashboard settings load over the Cloudflare VPC binding to the Parley engine. Confirm
+              ENGINE_SHARED_SECRET is set on the web worker (same value as the engine), remote
+              bindings are available in dev, and the engine is reachable.
+            </p>
+          ) : null}
           <Link
             to="/dashboard"
             className="text-primary mt-6 inline-block text-sm underline-offset-4 hover:underline"

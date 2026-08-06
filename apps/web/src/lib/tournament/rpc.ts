@@ -1,7 +1,6 @@
 import type { EngineTransportEnv } from "../engine/transport.js";
-import { resolveEngineTransport } from "../engine/transport.js";
+import { readEngineResponse, resolveEngineTransport } from "../engine/transport.js";
 
-type RpcError = { code?: string; message?: string };
 const ACTING_USER_HEADER = "X-Parley-Acting-Discord-User-Id";
 const TOURNAMENT_SERVICE = "parley.tournament.v1.TournamentService";
 const MATCHMAKING_SERVICE = "parley.matchmaking.v1.MatchmakingService";
@@ -81,11 +80,7 @@ async function tournamentCall<T>(
     headers,
     body: JSON.stringify(body),
   });
-  const json = (await res.json()) as T & RpcError & { error?: RpcError };
-  if (!res.ok) {
-    throw new Error(json.error?.message ?? json.message ?? `Engine ${res.status}`);
-  }
-  return json;
+  return readEngineResponse<T>(res);
 }
 
 export async function rpcGetTournamentByCode(

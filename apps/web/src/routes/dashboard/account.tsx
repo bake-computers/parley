@@ -115,10 +115,13 @@ function AccountSettingsPage() {
       {loadError ? (
         <div className="text-center">
           <p className="text-destructive text-sm">{loadError}</p>
-          <p className="text-muted-foreground mt-2 text-xs">
-            Dev uses remote VPC to the Parley engine. Check Cloudflare login, remote bindings, and
-            engine availability.
-          </p>
+          {/ENGINE_SHARED_SECRET|VPC_SERVICE|engine|authentication|forbidden/i.test(loadError) ? (
+            <p className="text-muted-foreground mt-2 text-xs">
+              Account settings load over the Cloudflare VPC binding to the Parley engine. Confirm
+              ENGINE_SHARED_SECRET is set on the web worker (same value as the engine) and the
+              engine is reachable.
+            </p>
+          ) : null}
         </div>
       ) : settings ? (
         <UserSettingsForm settings={settings} onSaved={patchSettings} />

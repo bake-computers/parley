@@ -12,5 +12,10 @@ TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA
 # Same bot token as apps/worker — required for "Ready" vs "Add Parley" on /dashboard.
 DISCORD_BOT_TOKEN=
 
-# Engine/dashboard: `bun run dev` uses remote Cloudflare bindings (VPC_SERVICE, MATCH_KV).
+# Required: must match the engine and apps/worker ENGINE_SHARED_SECRET.
+# Production: `cd apps/web && npx wrangler secret put ENGINE_SHARED_SECRET`
+# Local remote VPC (`bun run dev`) also needs this secret in .dev.vars.
+ENGINE_SHARED_SECRET=
+
+# Engine/dashboard: `bun run dev` uses remote Cloudflare bindings (VPC_SERVICE).
 # Log in once: wrangler login
