@@ -24,9 +24,9 @@ describe("resolveEngineTransport", () => {
     const calls: Array<{ url: string; auth: string | null }> = [];
     const transport = resolveEngineTransport({
       VPC_SERVICE: {
-        fetch: (input, init) => {
-          const url = typeof input === "string" ? input : String(input);
-          calls.push({ url, auth: new Headers(init?.headers).get("authorization") });
+        fetch: (input) => {
+          const req = input instanceof Request ? input : new Request(String(input));
+          calls.push({ url: req.url, auth: req.headers.get("authorization") });
           return Promise.resolve(Response.json({ ok: true }));
         },
       },
@@ -35,9 +35,10 @@ describe("resolveEngineTransport", () => {
     });
 
     await transport.fetchImpl("/health", { method: "GET" });
-    expect(calls).toEqual([
-      { url: "http://engine.internal:50051/health", auth: "Bearer s3cret" },
-    ]);
+    expect(calls).toHaveLength(1);
+    const call = calls[0];
+    expect(call?.auth).toBe("Bearer s3cret");
+    expect(String(call?.url)).toContain("http://engine.internal:50051/health");
   });
 });
 

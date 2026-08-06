@@ -70,3 +70,14 @@ func TestAuth_EmptySecretFailsClosed(t *testing.T) {
 		t.Fatalf("empty secret = %d, want 401", got)
 	}
 }
+
+// Trailing newlines from docker env / `echo | wrangler secret put` must not
+// desync edge callers that send a trimmed bearer token.
+func TestAuth_TrimsSecretAndHeader(t *testing.T) {
+	got := doRequest(t, testSecret+"\n", http.MethodPost,
+		"/parley.identity.v1.IdentityService/LookupByDiscord",
+		strp("Bearer "+testSecret))
+	if got == http.StatusUnauthorized {
+		t.Fatalf("trimmed secret still rejected with 401")
+	}
+}

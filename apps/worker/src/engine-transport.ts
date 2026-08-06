@@ -36,9 +36,10 @@ function isTruthy(value: string | undefined): boolean {
 }
 
 function withEngineAuth(fetchImpl: EngineFetch, secret: string | undefined): EngineFetch {
+  const token = (secret ?? "").trim();
   return (input, init) => {
     const headers = new Headers(init?.headers);
-    headers.set("authorization", `Bearer ${secret ?? ""}`);
+    headers.set("Authorization", `Bearer ${token}`);
     return fetchImpl(input, { ...init, headers });
   };
 }

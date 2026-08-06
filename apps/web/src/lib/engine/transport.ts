@@ -84,9 +84,22 @@ export function resolveEngineTransport(env: EngineTransportEnv): EngineTransport
     fetchImpl: (input: string | URL | Request, init?: RequestInit) => {
       const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
       const resolved = url.startsWith("http") ? url : new URL(url, baseUrl).href;
+      // Use Request + plain header map (Cloudflare VPC docs). Headers objects
+      // have been flaky with some binding fetch paths.
       const headers = new Headers(init?.headers);
-      headers.set("authorization", `Bearer ${secret}`);
-      return vpc.fetch(resolved, { ...init, headers });
+      headers.set("Authorization", `Bearer ${secret}`);
+      const headerInit: Record<string, string> = {};
+      headers.forEach((value, key) => {
+        headerInit[key] = value;
+      });
+      return vpc.fetch(
+        new Request(resolved, {
+          method: init?.method ?? "GET",
+          headers: headerInit,
+          body: init?.body,
+          redirect: init?.redirect,
+        }),
+      );
     },
   };
 }
