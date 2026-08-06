@@ -119,7 +119,7 @@ export function DiscordContainer({
   return (
     <div
       className={cn("djs-container", className)}
-      data-accent={accentColor != null ? "true" : undefined}
+      data-accent={accent ? "true" : undefined}
       data-spoiler={spoiler ? "true" : undefined}
       style={{ ...accent, ...style }}
       {...rest}
@@ -145,9 +145,9 @@ export function DiscordSection({
   return (
     <div className={cn("djs-section", className)} {...rest}>
       <div className="djs-section-content">{children}</div>
-      {accessory != null ? (
+      {accessory === null || accessory === undefined ? null : (
         <div className="djs-section-accessory">{accessory}</div>
-      ) : null}
+      )}
     </div>
   );
 }
@@ -168,7 +168,7 @@ export function DiscordTextDisplay({
 }: DiscordTextDisplayProps) {
   return (
     <div className={cn("djs-text", className)} {...rest}>
-      {content != null ? <DiscordMarkdown content={content} /> : children}
+      {content === undefined ? children : <DiscordMarkdown content={content} />}
     </div>
   );
 }
@@ -374,13 +374,19 @@ export function DiscordSelect({
   const listId = useId();
 
   useEffect(() => {
-    if (value !== undefined) setSelected(value);
+    if (value !== undefined) {
+      setSelected(value);
+    }
   }, [value]);
 
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      return;
+    }
     const onDoc = (e: MouseEvent) => {
-      if (!wrapRef.current?.contains(e.target as Node)) setOpen(false);
+      if (!wrapRef.current?.contains(e.target as Node)) {
+        setOpen(false);
+      }
     };
     document.addEventListener("mousedown", onDoc);
     return () => document.removeEventListener("mousedown", onDoc);
@@ -405,7 +411,9 @@ export function DiscordSelect({
         aria-expanded={interactive ? open : undefined}
         aria-controls={interactive ? listId : undefined}
         onClick={() => {
-          if (!interactive || disabled) return;
+          if (!interactive || disabled) {
+            return;
+          }
           setOpen((v) => !v);
         }}
       >
@@ -564,9 +572,9 @@ export function DiscordFile({
       <div className="djs-file-icon">{ext}</div>
       <div className="djs-file-meta">
         <span className="djs-file-name">{name}</span>
-        {size != null ? (
+        {size === undefined ? null : (
           <span className="djs-file-size">{formatFileSize(size)}</span>
-        ) : null}
+        )}
       </div>
     </div>
   );

@@ -208,7 +208,9 @@ function tokenizeInline(text: string): ReactNode[] {
     last = m.index + tok.length;
   }
 
-  if (last < text.length) nodes.push(text.slice(last));
+  if (last < text.length) {
+    nodes.push(text.slice(last));
+  }
   return nodes;
 }
 
