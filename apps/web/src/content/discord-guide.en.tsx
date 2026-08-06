@@ -1,26 +1,19 @@
-interface FigureProps {
-  src: string;
-  alt: string;
-  caption: string;
-  width: number;
-  height: number;
-}
+import type { ReactNode } from "react";
+import {
+  HistoryMatchDemo,
+  LinkHubEmptyDemo,
+  LinkReadyDemo,
+  ProfileLinkedDemo,
+  TeamScoreboardDemo,
+} from "#/components/docs/command-demos";
 
-function Figure({ src, alt, caption, width, height }: FigureProps) {
+function Demo({ children, caption }: { children: ReactNode; caption: string }) {
   return (
     <figure className="my-8">
-      <div className="overflow-hidden rounded-xl border border-border/70">
-        <img
-          src={src}
-          alt={alt}
-          width={width}
-          height={height}
-          loading="lazy"
-          decoding="async"
-          className="h-auto w-full"
-        />
-      </div>
-      <figcaption className="mt-2.5 text-center text-xs text-muted-foreground/70">{caption}</figcaption>
+      {children}
+      <figcaption className="mt-2.5 text-center text-xs text-muted-foreground/70">
+        {caption}
+      </figcaption>
     </figure>
   );
 }
@@ -70,19 +63,18 @@ export function DiscordGuideContentEn() {
         the terms and it continues straight into the linking wizard. Pick your platform, enter your
         exact in-game name, and confirm.
       </p>
-      <Figure
-        src="/assets/docs/link-wizard.svg"
-        alt="The Parley link wizard as a Discord card: PC selected as the platform and an in-game name entered, with Continue and Go back buttons."
-        caption="The /link wizard: pick a platform, type your in-game name, confirm."
-        width={720}
-        height={400}
-      />
+      <Demo caption="The /link hub: pick a platform, then enter your in-game name.">
+        <LinkHubEmptyDemo />
+      </Demo>
       <p>
         After a moment you get a <strong>You're Ready To Play</strong> card with your Parley Rank,
         your profile level, and your current Siege rank and RP. Full details, including what to do
         when a link fails, are on the{" "}
         <a href="/docs/getting-started/link-your-account">link your account</a> page.
       </p>
+      <Demo caption="Success: Parley Rank, level, and Siege rank after a fresh link.">
+        <LinkReadyDemo />
+      </Demo>
 
       <h2 id="check-your-rank">3 · Check your rank with /profile</h2>
       <p>
@@ -90,13 +82,9 @@ export function DiscordGuideContentEn() {
         on each. The rank is Parley's own ladder — ten tiers from Iron to Challenger — and it moves
         only when you play Parley matches.
       </p>
-      <Figure
-        src="/assets/docs/profile-card.svg"
-        alt="The Parley profile card as a Discord card: two linked platforms, each with its username and a Gold rank with points."
-        caption="/profile lists each linked platform with its Parley Rank."
-        width={720}
-        height={330}
-      />
+      <Demo caption="/profile lists each linked platform with its Parley Rank.">
+        <ProfileLinkedDemo />
+      </Demo>
       <p>
         The full ladder and how points move are on the{" "}
         <a href="/docs/ranks-and-stats/parley-rank">Parley Rank</a> page.
@@ -108,18 +96,17 @@ export function DiscordGuideContentEn() {
         closest win odds on both sides. You see the teams, the scoreboard, and after the result is
         reported, everyone's rating movement — including yours.
       </p>
-      <Figure
-        src="/assets/docs/balanced-teams.svg"
-        alt="A Parley match card as a Discord card: Team A and Team B with five players and ratings each, and a balance meter showing even odds."
-        caption="Teams come pre-balanced from everyone's Parley Rank."
-        width={720}
-        height={420}
-      />
+      <Demo caption="Teams come pre-balanced from everyone's Parley Rank.">
+        <TeamScoreboardDemo />
+      </Demo>
       <p>
         Recent results live in <code>/history</code>, and <code>/team</code> runs the same balance
         for custom lobbies you pick yourself. Both are covered in the{" "}
         <a href="/docs/commands">command reference</a>.
       </p>
+      <Demo caption="/history pages through recent matches with K/D/A and rating changes.">
+        <HistoryMatchDemo />
+      </Demo>
 
       <h2 id="go-deeper">Go deeper</h2>
       <ul>

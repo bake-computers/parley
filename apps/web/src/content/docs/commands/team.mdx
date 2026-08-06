@@ -1,39 +1,56 @@
-`/team` runs a custom match with your own lobby. Parley's OVI model splits
-the players you pick into balanced teams, you log the rounds as you play,
-and ending the match updates everyone's rating — just like a queued match.
+`/team` runs a **custom match** with a lobby you choose. Parley splits the
+players into balanced teams, you log rounds as you play, and ending the match
+updates ratings — same idea as a queued match.
 
 <Aside type="caution" title="Servers only">
-  `/team` does not work in direct messages. Run it in a channel of the server the match belongs to.
+  `/team` does not work in DMs. Run it in a channel of the server the match belongs to.
 </Aside>
 
 ## How a match flows
 
-1. Run `/team` and pick **2–10 players** (an even number) from the picker.
-2. Parley assembles **Team A** and **Team B** and shows the scoreboard.
-3. After each round, click **Log round** for one of the teams and enter
-   each player's line as `kills deaths assists` — for example `4 5 2`.
-   Leave a player's field empty to count zeros.
-4. Repeat for as many rounds as you play. The scoreboard keeps running
-   K/D/A totals for every player.
-5. Click **End match**, pick the winning team, and the card flips to the
-   final result.
+<Steps>
+  <Step title="Start /team and pick players">
+    Run `/team`, then select **2–10 players** (even number) from the user picker.
 
-The finished match shows up in `/history` alongside queued matches, with
-its K/D/A totals attached.
+    <TeamSetupDemo />
+  </Step>
 
-<Aside type="note" title="Who can log and end">
-  Only players who were picked into the match can log rounds or end it — spectators clicking the
-  buttons get a polite no.
-</Aside>
+  <Step title="Play with the scoreboard">
+    Parley builds **Team A** and **Team B**. After each round, hit **Log round**
+    for that team and enter each player's line as `kills deaths assists`
+    (example: `4 5 2`). Leave a field empty for zeros.
 
-## How ratings work
+    <TeamScoreboardDemo />
 
-Ending the match updates each player's Glicko-2 rating from the outcome and
-the lobby's pre-match balance rating, exactly like queued matchmaking. The
-K/D/A you log is recorded for the match record and bragging rights; it does
-not change the rating math.
+    Only people in the match can log rounds or end it.
+  </Step>
+
+  <Step title="End the match">
+    When you are done, press **End match** and pick the winner.
+
+    <TeamEndDemo />
+  </Step>
+
+  <Step title="Ratings update">
+    The final card shows totals. Everyone's rating moves from the outcome.
+    The match also appears in `/history`.
+
+    <TeamFinalDemo />
+  </Step>
+</Steps>
+
+## Ratings vs K/D/A
+
+Ending the match updates Glicko-2 from the win/loss and lobby balance — same
+as queued matchmaking. The K/D/A you log is stored on the match for history
+and bragging rights; it does **not** drive the rating math.
 
 <Aside type="tip" title="Eligibility still applies">
-  Custom matches respect your server's matchmaking rules and daily quotas. If a picked player is not
-  eligible, the card tells you why.
+  Custom matches respect your server's matchmaking rules and daily quotas. If someone you pick is not
+  eligible, the card explains why.
 </Aside>
+
+## Related
+
+- [/history](/docs/commands/history) — find finished custom matches
+- [Matchmaking](/docs/matchmaking) — how balance works in general

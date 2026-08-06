@@ -1,0 +1,754 @@
+/* Discord Components v2 mock — isolated from host design system */
+@import url("https://fonts.googleapis.com/css2?family=Geologica:wght@400;500;600;700&display=swap");
+
+.djs-root {
+  --djs-font: "Geologica", "gg sans", "Noto Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --djs-bg: #313338;
+  --djs-bg-secondary: #2b2d31;
+  --djs-bg-tertiary: #1e1f22;
+  --djs-bg-mod-subtle: #232428;
+  --djs-bg-input: #1e1f22;
+  --djs-bg-button-secondary: #4e5058;
+  --djs-bg-button-secondary-hover: #6d6f78;
+  --djs-text: #dbdee1;
+  --djs-text-muted: #949ba4;
+  --djs-text-link: #00a8fc;
+  --djs-header-primary: #f2f3f5;
+  --djs-brand: #5865f2;
+  --djs-brand-hover: #4752c4;
+  --djs-success: #248046;
+  --djs-success-hover: #1a6334;
+  --djs-danger: #da373c;
+  --djs-danger-hover: #a12828;
+  --djs-mention-bg: rgba(88, 101, 242, 0.3);
+  --djs-mention-fg: #c9cdfb;
+  --djs-code-bg: #1e1f22;
+  --djs-border: #3f4147;
+  --djs-spoiler: #202225;
+  --djs-radius: 8px;
+  --djs-radius-sm: 4px;
+  --djs-radius-full: 9999px;
+
+  font-family: var(--djs-font);
+  font-size: 16px;
+  line-height: 1.375;
+  color: var(--djs-text);
+  background: var(--djs-bg);
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+}
+
+.djs-root *,
+.djs-root *::before,
+.djs-root *::after {
+  box-sizing: border-box;
+}
+
+.djs-root[data-theme="light"] {
+  --djs-bg: #ffffff;
+  --djs-bg-secondary: #f2f3f5;
+  --djs-bg-tertiary: #e3e5e8;
+  --djs-bg-mod-subtle: #ebedef;
+  --djs-bg-input: #e3e5e8;
+  --djs-bg-button-secondary: #6d6f78;
+  --djs-bg-button-secondary-hover: #4e5058;
+  --djs-text: #2e3338;
+  --djs-text-muted: #5c5e66;
+  --djs-header-primary: #060607;
+  --djs-mention-bg: rgba(88, 101, 242, 0.15);
+  --djs-mention-fg: #505cdc;
+  --djs-code-bg: #f2f3f5;
+  --djs-border: #e3e5e8;
+  --djs-spoiler: #e3e5e8;
+}
+
+/* ── Messages shell ── */
+
+.djs-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 1.0625rem;
+  padding: 1rem;
+  background: var(--djs-bg);
+  border-radius: var(--djs-radius);
+  width: 100%;
+  max-width: 100%;
+}
+
+/* ── Single message ── */
+
+.djs-message {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  position: relative;
+}
+
+.djs-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  object-fit: cover;
+  background: var(--djs-bg-tertiary);
+  margin-top: 2px;
+}
+
+.djs-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  background: var(--djs-brand);
+  user-select: none;
+}
+
+.djs-message-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.djs-message-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  line-height: 1.375;
+  min-height: 1.375rem;
+}
+
+.djs-author {
+  font-weight: 500;
+  font-size: 1rem;
+  color: var(--djs-header-primary);
+}
+
+.djs-author[data-role-color] {
+  color: var(--djs-role-color);
+}
+
+.djs-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15rem;
+  height: 15px;
+  padding: 0 4px;
+  border-radius: 3px;
+  font-size: 0.625rem;
+  font-weight: 600;
+  line-height: 15px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: #fff;
+  background: var(--djs-brand);
+  vertical-align: middle;
+  user-select: none;
+}
+
+.djs-badge svg {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+}
+
+.djs-timestamp {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--djs-text-muted);
+  margin-left: 0.125rem;
+}
+
+.djs-message-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  color: var(--djs-text);
+  font-size: 1rem;
+  font-weight: 400;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* ── Container (type 17) ── */
+
+.djs-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  background: var(--djs-bg-secondary);
+  border-radius: var(--djs-radius);
+  padding: 1rem;
+  position: relative;
+  overflow: hidden;
+  border-left: 4px solid transparent;
+  max-width: 100%;
+}
+
+.djs-container[data-accent] {
+  border-left-color: var(--djs-accent);
+}
+
+.djs-container[data-spoiler="true"] {
+  filter: blur(6px);
+  user-select: none;
+  pointer-events: none;
+}
+
+/* ── Section (type 9) ── */
+
+.djs-section {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.djs-section-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.djs-section-accessory {
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+}
+
+/* ── Text Display (type 10) ── */
+
+.djs-text {
+  color: var(--djs-text);
+  font-size: 1rem;
+  line-height: 1.375;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+}
+
+.djs-text strong {
+  font-weight: 700;
+}
+
+.djs-text em {
+  font-style: italic;
+}
+
+.djs-text u {
+  text-decoration: underline;
+}
+
+.djs-text s {
+  text-decoration: line-through;
+}
+
+.djs-text a {
+  color: var(--djs-text-link);
+  text-decoration: none;
+}
+
+.djs-text a:hover {
+  text-decoration: underline;
+}
+
+.djs-text code {
+  font-family: "gg mono", Consolas, "Andale Mono WT", "Andale Mono", "Lucida Console",
+    "Lucida Sans Typewriter", "DejaVu Sans Mono", "Bitstream Vera Sans Mono", "Liberation Mono",
+    "Nimbus Mono L", Monaco, "Courier New", Courier, monospace;
+  font-size: 0.875em;
+  background: var(--djs-code-bg);
+  padding: 0.15em 0.3em;
+  border-radius: 3px;
+  color: var(--djs-text);
+}
+
+.djs-text pre {
+  margin: 0.25rem 0;
+  padding: 0.5rem;
+  background: var(--djs-code-bg);
+  border: 1px solid var(--djs-border);
+  border-radius: var(--djs-radius-sm);
+  overflow-x: auto;
+}
+
+.djs-text pre code {
+  background: none;
+  padding: 0;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.djs-text h1,
+.djs-text h2,
+.djs-text h3 {
+  margin: 0.25rem 0 0.125rem;
+  font-weight: 700;
+  color: var(--djs-header-primary);
+  line-height: 1.25;
+}
+
+.djs-text h1 {
+  font-size: 1.5rem;
+}
+
+.djs-text h2 {
+  font-size: 1.25rem;
+}
+
+.djs-text h3 {
+  font-size: 1rem;
+}
+
+.djs-text .djs-subtext {
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: var(--djs-text-muted);
+}
+
+/* Spoilers: pure CSS via checkbox — SSR-safe, no JS state */
+.djs-text .djs-spoiler {
+  display: inline;
+  cursor: pointer;
+}
+
+.djs-text .djs-spoiler-check {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.djs-text .djs-spoiler-text {
+  background: var(--djs-spoiler);
+  color: transparent;
+  border-radius: 3px;
+  transition: color 0.1s, background 0.1s;
+}
+
+.djs-text .djs-spoiler:hover .djs-spoiler-text {
+  background: #2e3035;
+}
+
+.djs-text .djs-spoiler-check:checked + .djs-spoiler-text,
+.djs-text .djs-spoiler-check:focus-visible + .djs-spoiler-text {
+  color: var(--djs-text);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.djs-text .djs-spoiler-check:checked {
+  /* keep revealed; re-click still toggles via label (docs-friendly) */
+}
+
+.djs-text ul,
+.djs-text ol {
+  margin: 0.25rem 0;
+  padding-left: 1.5rem;
+}
+
+.djs-text li {
+  margin: 0.1rem 0;
+}
+
+.djs-text blockquote {
+  margin: 0.25rem 0;
+  padding: 0 0.5rem 0 0.75rem;
+  border-left: 4px solid var(--djs-border);
+  color: var(--djs-text);
+}
+
+/* ── Separator (type 14) ── */
+
+.djs-separator {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.djs-separator[data-spacing="small"] {
+  margin: 0.25rem 0;
+  min-height: 0.25rem;
+}
+
+.djs-separator[data-spacing="large"] {
+  margin: 0.75rem 0;
+  min-height: 0.75rem;
+}
+
+.djs-separator-line {
+  width: 100%;
+  height: 1px;
+  background: var(--djs-border);
+  border: none;
+  margin: 0;
+}
+
+/* ── Action Row (type 1) ── */
+
+.djs-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  width: 100%;
+  align-items: center;
+}
+
+.djs-action-row:has(.djs-select) {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+/* ── Button (type 2) ── */
+
+.djs-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  min-width: 60px;
+  min-height: 32px;
+  height: 32px;
+  padding: 2px 16px;
+  border: none;
+  border-radius: 3px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 16px;
+  cursor: pointer;
+  user-select: none;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.17s ease, color 0.17s ease, opacity 0.17s ease;
+  color: #fff;
+}
+
+.djs-button:disabled,
+.djs-button[data-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.djs-button[data-style="primary"] {
+  background: var(--djs-brand);
+}
+
+.djs-button[data-style="primary"]:not(:disabled):hover {
+  background: var(--djs-brand-hover);
+}
+
+.djs-button[data-style="secondary"] {
+  background: var(--djs-bg-button-secondary);
+}
+
+.djs-button[data-style="secondary"]:not(:disabled):hover {
+  background: var(--djs-bg-button-secondary-hover);
+}
+
+.djs-button[data-style="success"] {
+  background: var(--djs-success);
+}
+
+.djs-button[data-style="success"]:not(:disabled):hover {
+  background: var(--djs-success-hover);
+}
+
+.djs-button[data-style="danger"] {
+  background: var(--djs-danger);
+}
+
+.djs-button[data-style="danger"]:not(:disabled):hover {
+  background: var(--djs-danger-hover);
+}
+
+.djs-button[data-style="link"] {
+  background: var(--djs-bg-button-secondary);
+}
+
+.djs-button[data-style="link"]:not(:disabled):hover {
+  background: var(--djs-bg-button-secondary-hover);
+}
+
+.djs-button[data-style="premium"] {
+  background: linear-gradient(90deg, #8547c6, #b845c1, #ab5d8a);
+}
+
+.djs-button-emoji {
+  width: 1.375em;
+  height: 1.375em;
+  object-fit: contain;
+  vertical-align: middle;
+}
+
+.djs-button-link-icon {
+  width: 16px;
+  height: 16px;
+  opacity: 0.7;
+  margin-left: 2px;
+}
+
+/* ── Select menus (types 3, 5–8) ── */
+
+.djs-select {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 12px;
+  background: var(--djs-bg-input);
+  border: none;
+  border-radius: 4px;
+  color: var(--djs-text-muted);
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.25rem;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s ease;
+  outline: none;
+}
+
+.djs-select:hover:not(:disabled) {
+  border-color: #000;
+}
+
+.djs-select:disabled,
+.djs-select[data-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.djs-select[data-has-value="true"] {
+  color: var(--djs-text);
+}
+
+.djs-select-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.djs-select-chevron {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  color: var(--djs-text-muted);
+  opacity: 0.8;
+}
+
+.djs-select-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.djs-select-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  max-height: 240px;
+  overflow-y: auto;
+  background: var(--djs-bg-tertiary);
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.15), 0 8px 16px rgba(0, 0, 0, 0.24);
+  padding: 6px 8px;
+}
+
+.djs-select-option {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  padding: 8px;
+  border: none;
+  border-radius: 2px;
+  background: transparent;
+  color: var(--djs-text);
+  font-family: inherit;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.djs-select-option:hover,
+.djs-select-option[data-selected="true"] {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.djs-select-option-label {
+  font-weight: 500;
+}
+
+.djs-select-option-desc {
+  font-size: 12px;
+  color: var(--djs-text-muted);
+}
+
+/* ── Thumbnail (type 11) ── */
+
+.djs-thumbnail {
+  width: 80px;
+  height: 80px;
+  border-radius: var(--djs-radius-sm);
+  object-fit: cover;
+  display: block;
+  background: var(--djs-bg-tertiary);
+}
+
+.djs-thumbnail[data-spoiler="true"] {
+  filter: blur(20px);
+}
+
+/* ── Media Gallery (type 12) ── */
+
+.djs-gallery {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  max-width: 550px;
+  border-radius: var(--djs-radius);
+  overflow: hidden;
+}
+
+.djs-gallery[data-count="1"] {
+  grid-template-columns: 1fr;
+}
+
+.djs-gallery[data-count="2"] {
+  grid-template-columns: 1fr 1fr;
+}
+
+.djs-gallery[data-count="3"] {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+}
+
+.djs-gallery[data-count="3"] > :first-child {
+  grid-column: 1 / -1;
+}
+
+.djs-gallery[data-count="4"],
+.djs-gallery[data-count="5"],
+.djs-gallery[data-count="6"],
+.djs-gallery[data-count="7"],
+.djs-gallery[data-count="8"],
+.djs-gallery[data-count="9"],
+.djs-gallery[data-count="10"] {
+  grid-template-columns: 1fr 1fr;
+}
+
+.djs-gallery-item {
+  position: relative;
+  overflow: hidden;
+  background: var(--djs-bg-tertiary);
+  min-height: 120px;
+}
+
+.djs-gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  min-height: 120px;
+  max-height: 300px;
+}
+
+.djs-gallery-item[data-spoiler="true"] img {
+  filter: blur(20px);
+}
+
+/* ── File (type 13) ── */
+
+.djs-file {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: var(--djs-bg-mod-subtle);
+  border: 1px solid var(--djs-border);
+  border-radius: var(--djs-radius);
+  max-width: 100%;
+}
+
+.djs-file-icon {
+  width: 30px;
+  height: 40px;
+  flex-shrink: 0;
+  background: var(--djs-brand);
+  border-radius: 3px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  padding-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.djs-file-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.djs-file-name {
+  color: var(--djs-text-link);
+  font-size: 1rem;
+  font-weight: 400;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.djs-file-size {
+  color: var(--djs-text-muted);
+  font-size: 0.75rem;
+}
+
+/* ── Mentions ── */
+
+.djs-mention {
+  display: inline;
+  padding: 0 2px;
+  border-radius: 3px;
+  font-weight: 500;
+  background: var(--djs-mention-bg);
+  color: var(--djs-mention-fg);
+  cursor: pointer;
+  transition: background 0.05s;
+}
+
+.djs-mention:hover {
+  background: var(--djs-brand);
+  color: #fff;
+}
+
+.djs-mention[data-type="channel"]::before {
+  content: "#";
+}
+
+.djs-mention[data-type="role"] {
+  /* role color can be set via --djs-mention-color */
+  background: color-mix(in srgb, var(--djs-mention-color, var(--djs-brand)) 30%, transparent);
+  color: var(--djs-mention-color, var(--djs-mention-fg));
+}
+
+.djs-mention[data-type="role"]:hover {
+  background: var(--djs-mention-color, var(--djs-brand));
+  color: #fff;
+}
