@@ -31,7 +31,7 @@ export const DOC_PAGES: DocPage[] = [
     slug: "getting-started",
     title: "Getting started",
     description:
-      "Add Parley to your server, accept the terms, and link your Rainbow Six Siege account in a few minutes.",
+      "Add Parley to your server and link your Rainbow Six Siege account in a few minutes.",
     group: "Getting started",
     order: 1,
   },

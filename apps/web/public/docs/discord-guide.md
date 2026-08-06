@@ -28,9 +28,8 @@ players start using it.
 
 ## 2 · Link your account with /link
 
-Type `/link` in any channel. The first time, Parley shows a **Welcome to Parley** card: accept the
-terms and it continues straight into the linking wizard. Pick your platform, enter your exact
-in-game name, and confirm.
+Type `/link` in any channel. Parley takes you straight into the linking wizard. Pick your platform,
+enter your exact in-game name, and confirm.
 
 ![The /link wizard: pick a platform, type your in-game name, confirm.](https://parley.bot/assets/docs/link-wizard.svg)
 

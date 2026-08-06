@@ -16,7 +16,7 @@ User guides for players and server admins. Start with the Discord guide; the res
 
 - [Parley for Discord users](https://parley.bot/docs/discord-guide): The five-minute visual guide — add Parley, link your account, check your rank, and play balanced matches. ([Markdown version](https://parley.bot/docs/discord-guide.md))
 - [Docs home](https://parley.bot/docs)
-- [Getting started](https://parley.bot/docs/getting-started): Add Parley to your server, accept the terms, and link your account.
+- [Getting started](https://parley.bot/docs/getting-started): Add Parley to your server and link your account.
 - [Link your account](https://parley.bot/docs/getting-started/link-your-account): Walk through the /link wizard.
 - [Commands](https://parley.bot/docs/commands): Every slash command at a glance.
 - [/link](https://parley.bot/docs/commands/link) · [/profile](https://parley.bot/docs/commands/profile) · [/history](https://parley.bot/docs/commands/history) · [/user](https://parley.bot/docs/commands/user) · [/tournament](https://parley.bot/docs/commands/tournament) · [/team](https://parley.bot/docs/commands/team)

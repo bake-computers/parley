@@ -59,9 +59,8 @@ export function DiscordGuideContentEn() {
 
       <h2 id="link-your-account">2 · Link your account with /link</h2>
       <p>
-        Type <code>/link</code> in any channel. The first time, Parley shows a welcome card: accept
-        the terms and it continues straight into the linking wizard. Pick your platform, enter your
-        exact in-game name, and confirm.
+        Type <code>/link</code> in any channel. Parley takes you straight into the linking wizard.
+        Pick your platform, enter your exact in-game name, and confirm.
       </p>
       <Demo caption="The /link hub: pick a platform, then enter your in-game name.">
         <LinkHubEmptyDemo />
