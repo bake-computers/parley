@@ -19,6 +19,7 @@
   "dependencies": {
     "@base-ui/react": "^1.5.0",
     "@mdx-js/rollup": "^3.1.1",
+    "@parley/discord-components": "workspace:*",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/react-devtools": "latest",
     "@tanstack/react-router": "latest",

@@ -1,37 +1,82 @@
-`/link` opens your account hub. It takes no arguments and walks you through
-everything with menus.
+`/link` is your account hub. It takes **no arguments** — menus walk you through
+linking and unlinking Rainbow Six profiles. Replies are private to you.
 
-## The link hub
+## How to link
 
-The hub lists every platform you have linked, each with its username and
-Parley Rank. Two menus sit underneath:
+<Steps>
+  <Step title="Run /link">
+    Type `/link` in any channel (or DM Parley). You get a private hub listing
+    every platform you have linked so far.
 
-- **Add a platform** picks a platform you have not linked yet.
-- **Remove a link** unlinks one of your existing profiles.
+    <LinkHubEmptyDemo />
 
-New here? The full first-time walkthrough is on the
-[link your account](/docs/getting-started/link-your-account) page.
+    New here? The wizard starts empty with **Add a platform**.
+  </Step>
 
-## Remove a link
+  <Step title="Pick a platform">
+    Open **Add a platform** and choose **PC**, **Xbox**, or **PlayStation**.
+    Parley then asks for your in-game username in a small form.
 
-Select the profile under **Remove a link** and Parley unlinks it right away.
-The hub confirms the removal and shows when you can link that platform again.
+    | Platform    | Name to enter                                      |
+    | ----------- | -------------------------------------------------- |
+    | PC          | Ubisoft Connect username (not Steam)               |
+    | Xbox        | Xbox gamertag                                      |
+    | PlayStation | PlayStation Network online ID                      |
+  </Step>
+
+  <Step title="Confirm the account">
+    Double-check platform and username, then choose **Continue** — or **Go back**
+    if something looks wrong.
+
+    <LinkConfirmDemo />
+  </Step>
+
+  <Step title="Wait for stats">
+    Parley links the profile and pulls stats. This can take a moment.
+
+    <LinkFetchingDemo />
+  </Step>
+
+  <Step title="You're ready">
+    Success shows your Parley Rank, profile level, and current Rainbow Six rank.
+    You can `/link` again anytime to add another platform.
+
+    <LinkReadyDemo />
+  </Step>
+</Steps>
+
+## Manage existing links
+
+Run `/link` again after you already have a profile. The hub lists each link
+with username and Parley Rank, plus menus to add or remove platforms.
+
+<LinkHubLinkedDemo />
+
+### Remove a link
+
+Under **Remove a link**, pick the profile. Parley unlinks it immediately and
+shows when you can connect that platform again.
 
 <Aside type="caution" title="Re-link cooldown">
-  Removing a link starts a waiting period before that platform can be linked again. Parley shows the
-  exact date and time on the hub. The cooldown exists so ratings cannot be reset by hopping between
-  accounts.
+  Removing a link starts a waiting period before that platform can be linked again. The hub shows the
+  exact time. The cooldown stops people from hopping accounts to reset ratings.
 </Aside>
 
-## Errors you might see
+## If something goes wrong
 
-| Card                 | What it means                                   | What to do                                      |
-| -------------------- | ----------------------------------------------- | ----------------------------------------------- |
-| **Link Failed**      | The stats provider could not find that username | Check spelling and platform, then try again     |
-| **Re-link Cooldown** | You removed a link recently                     | Wait until the shown time, then link again      |
+| Card                 | Meaning                                         | What to do                                  |
+| -------------------- | ----------------------------------------------- | ------------------------------------------- |
+| **Link Failed**      | Stats provider could not find that username     | Check spelling and platform, try again      |
+| **Re-link Cooldown** | You removed a link recently                     | Wait until the time shown on the hub        |
 | **Already linked**   | That platform already has a profile             | Remove the old link first if you want to switch |
 
+<LinkFailedDemo />
+
 <Aside type="tip" title="One account per platform">
-  You can link one Rainbow Six profile per platform: one PC, one Xbox, and one PlayStation. If a
-  platform is already linked, the wizard simply returns you to the hub.
+  You can link one Rainbow Six profile per platform: one PC, one Xbox, and one PlayStation.
 </Aside>
+
+## Related
+
+- [Link your account](/docs/getting-started/link-your-account) — first-time walkthrough
+- [/profile](/docs/commands/profile) — see ranks after linking
