@@ -196,15 +196,7 @@ function buildPreferencesPage(
   );
 }
 
-function buildPrivacyPage(
-  settings: ProtoUserSettings,
-  emojis: ApplicationEmojiCatalog,
-  page: number,
-): ContainerBuilder {
-  const cooldownLine =
-    settings.termsAcceptedAtMs > 0
-      ? `${emojiOr(emojis, "calendar")} Re-link cooldown · none`
-      : `${emojiOr(emojis, "warning_orange")} Accept terms before linking`;
+function buildPrivacyPage(emojis: ApplicationEmojiCatalog, page: number): ContainerBuilder {
   return new ContainerBuilder()
     .setAccentColor(COLORS.main)
     .addComponents(
@@ -213,7 +205,7 @@ function buildPrivacyPage(
         `Page **${page + 1}** / **${USER_SETTINGS_PAGE_COUNT}** · Stats · Account data`,
       ),
       separator(),
-      new TextDisplayBuilder().setContent(cooldownLine),
+      new TextDisplayBuilder().setContent(`${emojiOr(emojis, "calendar")} Re-link cooldown · none`),
       separator(),
       new TextDisplayBuilder().setContent(sectionHeader("Stats snapshot")),
       new TextDisplayBuilder().setContent("Pull the latest data from the stats provider."),
@@ -232,9 +224,7 @@ export function buildSettingsCard(
 ): (ContainerBuilder | ActionRowBuilder)[] {
   const page = Math.min(USER_SETTINGS_PAGE_COUNT - 1, Math.max(0, view.page ?? 0));
   const container =
-    page === 0
-      ? buildPreferencesPage(settings, emojis, page)
-      : buildPrivacyPage(settings, emojis, page);
+    page === 0 ? buildPreferencesPage(settings, emojis, page) : buildPrivacyPage(emojis, page);
   const actions = page === 0 ? navRow(emojis, page) : privacyActionsRow(emojis);
   return [container, actions];
 }

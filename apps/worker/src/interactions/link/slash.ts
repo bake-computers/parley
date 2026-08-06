@@ -1,6 +1,5 @@
 import { SlashCommand, logger } from "@parley/runtime";
 import { Game, type LinkedIdentity } from "@parley/proto";
-import { assertAccepted } from "#/interactions/_shared/acceptance";
 import { editReplyV2 } from "#/ui/discord";
 import { resolveEmojis } from "#/ui/emojis";
 import { invokeLookupByDiscord } from "#/interactions/profile";
@@ -12,9 +11,6 @@ export const linkSlashCommand = new SlashCommand()
   .setDescription("Link your Discord to your in-game account")
   .addHandler(async (interaction) => {
     const env = interaction.context.env as EngineTransportEnv;
-    if (!(await assertAccepted(interaction, env as never, undefined, "link"))) {
-      return;
-    }
     const emojis = await resolveEmojis(interaction);
 
     let identities: LinkedIdentity[] = [];

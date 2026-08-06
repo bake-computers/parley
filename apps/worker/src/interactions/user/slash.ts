@@ -1,5 +1,4 @@
 import { SlashCommand, type ChatInputCommandInteraction } from "@parley/runtime";
-import { assertAccepted } from "#/interactions/_shared/acceptance";
 import { editReplyV2 } from "#/ui/discord";
 import { resolveEmojis } from "#/ui/emojis";
 import { getUserSettingsClient, type EngineTransportEnv } from "#/transport";
@@ -24,9 +23,6 @@ export const userSlashCommand = new SlashCommand()
     }
 
     const env = interaction.context.env as EngineTransportEnv;
-    if (!(await assertAccepted(interaction, env as never))) {
-      return;
-    }
 
     const client = getUserSettingsClient(env);
     const discordUserId = interaction.user?.id ?? "";

@@ -45,7 +45,6 @@ describe("invokeUpsertUserSettings", () => {
       {
         discordUserId: "u1",
         matchmakingEnabled: false,
-        termsAcceptedAtMs: 100,
         profilePublic: false,
       } as never,
     );

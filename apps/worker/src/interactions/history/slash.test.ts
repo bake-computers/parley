@@ -26,13 +26,7 @@ const { historyCommand } = await import("#/interactions/history/slash");
 
 // Helpers
 function makeMockInteraction(guildId?: string) {
-  // Pre-seed the acceptance settings cache so assertAccepted passes
-  // without touching the engine.
   const store = new Map<string, unknown>();
-  store.set("user-settings-cache:user-123", {
-    at: Date.now(),
-    value: { termsAcceptedAtMs: 1 },
-  });
   return {
     context: {
       env: { ENGINE_SERVICE_URL: "http://localhost:50051" },

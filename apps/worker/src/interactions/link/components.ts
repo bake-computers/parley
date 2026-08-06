@@ -30,7 +30,6 @@ import {
   buildUnlinkCooldownCard,
   isConfirmSelectCustomId,
 } from "#/interactions/link/ui";
-import { assertAccepted } from "#/interactions/_shared/acceptance";
 import { invokeLookupByDiscord } from "#/interactions/profile";
 import { getIdentityClient, type EngineTransportEnv } from "#/transport";
 import { parseCooldownUntilMs } from "#/ui/parley-rank";
@@ -69,11 +68,6 @@ async function safeEditReplyV2(
 
 export const linkSelectHandler = new ComponentHandler("link", COMPONENT_STRING_SELECT).addHandler(
   async (interaction: MessageComponentInteraction) => {
-    const env = interaction.context.env as EngineTransportEnv;
-    if (!(await assertAccepted(interaction, env as never, undefined, "link"))) {
-      return;
-    }
-
     const customId = interaction.customId;
     const selected = selectValues(interaction)[0]?.trim() ?? "";
     const emojis = await resolveEmojis(interaction);

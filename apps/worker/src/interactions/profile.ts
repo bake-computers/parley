@@ -9,7 +9,6 @@ import type { LinkedIdentity } from "@parley/proto";
 import type { LookupByDiscordResponse } from "@parley/proto";
 import { ConnectError } from "@connectrpc/connect";
 import { err, ok, type Result } from "neverthrow";
-import { assertAccepted } from "#/interactions/_shared/acceptance";
 import { getIdentityClient, type EngineTransportEnv } from "#/transport";
 import { editReplyV2 } from "#/ui/discord";
 import { resolveEmojis } from "#/ui/emojis";
@@ -58,9 +57,6 @@ export const profileCommand = new SlashCommand()
   .setDescription("View your linked game accounts and stats")
   .addHandler(async (interaction: ChatInputCommandInteraction) => {
     const env = interaction.context.env as EngineTransportEnv;
-    if (!(await assertAccepted(interaction, env as never))) {
-      return;
-    }
 
     if (!env.ENGINE_SERVICE_URL && !env.VPC_SERVICE) {
       await interaction.editReply({

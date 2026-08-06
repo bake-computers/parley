@@ -8,7 +8,7 @@ import {
 } from "@parley/runtime";
 import { type UserSettings as ProtoUserSettings } from "@parley/proto";
 import { getUserSettingsClient } from "#/transport";
-import { editReplyV2, updateV2 } from "#/ui/discord";
+import { editReplyV2 } from "#/ui/discord";
 import { resolveEmojis } from "#/ui/emojis";
 import { nowMs } from "#/interactions/user/helpers";
 import {
@@ -18,12 +18,9 @@ import {
   USER_MATCHMAKING_SELECT,
   USER_REFRESH_STATS,
   USER_VISIBILITY_SELECT,
-  USER_ACCEPT_BUTTON,
   USER_PAGE_PREFIX,
 } from "#/interactions/user/constants";
 import { buildDeleteConfirmModal, USER_DELETE_CONFIRM_INPUT } from "#/interactions/user/modal";
-import { parseAcceptSource, refreshSettingsCache } from "#/interactions/_shared/acceptance";
-import { resumeAfterAccept } from "#/interactions/_shared/resume-after-accept";
 import {
   buildDeleteResultCard,
   buildErrorCard,
@@ -41,16 +38,6 @@ const COMPONENT_STRING_SELECT = 3;
 
 function getClient(env: unknown) {
   return getUserSettingsClient(env as never);
-}
-
-function baseSettings(discordUserId: string): ProtoUserSettings {
-  return {
-    discordUserId,
-    updatedAtMs: 0,
-    matchmakingEnabled: true,
-    termsAcceptedAtMs: 0,
-    profilePublic: true,
-  } as unknown as ProtoUserSettings;
 }
 
 type UserSettingsView = { page: number };
@@ -128,32 +115,7 @@ async function loadCurrentSettings(
 export const userButtonHandler = new ComponentHandler("user", COMPONENT_BUTTON).addHandler(
   async (interaction: MessageComponentInteraction) => {
     const customId = interaction.customId;
-    const env = interaction.context.env;
     const discordUserId = interaction.user?.id ?? "";
-
-    if (customId === USER_ACCEPT_BUTTON || customId.startsWith(`${USER_ACCEPT_BUTTON}/`)) {
-      const source = parseAcceptSource(customId);
-      const settingsResult = await invokeGetUserSettings(getClient(env) as never, discordUserId);
-      const current =
-        settingsResult.isOk() && settingsResult.value.success
-          ? (settingsResult.value.settings ?? baseSettings(discordUserId))
-          : baseSettings(discordUserId);
-      const updated: ProtoUserSettings = {
-        ...current,
-        termsAcceptedAtMs: nowMs(),
-        updatedAtMs: nowMs(),
-      };
-      const r = await invokeUpsertUserSettings(getClient(env) as never, updated);
-      const emojis = await resolveEmojis(interaction);
-      if (r.isErr()) {
-        await updateV2(interaction, buildErrorCard(r.error.message, emojis));
-        return;
-      }
-      const settings = r.value.settings ?? updated;
-      refreshSettingsCache(interaction, settings);
-      await resumeAfterAccept(interaction, source, settings);
-      return;
-    }
 
     if (customId === USER_DELETE_OPEN) {
       const modal = buildDeleteConfirmModal(interaction.user?.username ?? "");
@@ -195,7 +157,6 @@ export const userButtonHandler = new ComponentHandler("user", COMPONENT_BUTTON).
     if (customId === USER_CANCEL) {
       const emojis = await resolveEmojis(interaction);
       await editReplyV2(interaction, buildSettingsCard(current, emojis, DEFAULT_VIEW));
-      return;
     }
   },
 );
@@ -246,7 +207,6 @@ export const userSelectHandler = new ComponentHandler("user", COMPONENT_STRING_S
         },
         DEFAULT_VIEW,
       );
-      return;
     }
   },
 );

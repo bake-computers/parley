@@ -11,7 +11,6 @@ import { UI_TOKENS } from "#/ui/tokens";
 const SETTINGS = {
   discordUserId: "u1",
   matchmakingEnabled: true,
-  termsAcceptedAtMs: Date.now(),
   profilePublic: true,
 } as never;
 

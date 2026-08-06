@@ -1,5 +1,4 @@
 import { SlashCommand, type ChatInputCommandInteraction } from "@parley/runtime";
-import { assertAccepted } from "#/interactions/_shared/acceptance";
 import { editReplyV2 } from "#/ui/discord";
 import { invokeListMatches } from "#/interactions/history/rpc";
 import { buildHistoryCard, buildHistoryErrorCard } from "#/interactions/history/ui";
@@ -16,9 +15,6 @@ export const historyCommand = new SlashCommand()
   .setDescription(HISTORY_COMMAND_DESCRIPTION)
   .addHandler(async (interaction: ChatInputCommandInteraction) => {
     const env = interaction.context.env as EngineTransportEnv;
-    if (!(await assertAccepted(interaction, env as never))) {
-      return;
-    }
 
     const guildId = interaction.guildId;
     if (!guildId) {
