@@ -1,7 +1,7 @@
-import { err, ok, type Result, fromPromise } from "neverthrow";
+import { err, ok, type Result } from "neverthrow";
 import type { JsonValue } from "~/types/index.js";
 
-const keyCache = new Map<string, CryptoKey>();
+const keyCache = new Map<string, Promise<CryptoKey>>();
 
 export type VerifyDiscordRequestError =
   | { kind: "missing-public-key"; message: string }
@@ -14,32 +14,36 @@ export interface VerifiedDiscordRequest {
   data: JsonValue;
 }
 
-function hexToBytes(value: string): Uint8Array {
-  const matches = value.match(/.{1,2}/gu);
-  if (!matches) {
-    throw new Error("Invalid hex string");
+function hexToBytes(value: string): Uint8Array<ArrayBuffer> {
+  // If the hex string is malformed or odd-length, return a dummy buffer
+  // so crypto.subtle.verify gracefully fails with a 401 instead of crashing.
+  if (value.length % 2 !== 0) {
+    return new Uint8Array(0);
   }
-  return new Uint8Array(matches.map((byte) => Number.parseInt(byte, 16)));
+
+  const len = value.length / 2;
+  const bytes = new Uint8Array(len);
+
+  for (let i = 0; i < len; i++) {
+    bytes[i] = Number.parseInt(value.slice(i * 2, i * 2 + 2), 16);
+  }
+
+  return bytes;
 }
 
-function toArrayBuffer(value: Uint8Array): ArrayBuffer {
-  const copy = new Uint8Array(value);
-  return copy.buffer as ArrayBuffer;
-}
-
-async function importPublicKey(publicKey: string): Promise<CryptoKey> {
+function importPublicKey(publicKey: string): Promise<CryptoKey> {
   const cached = keyCache.get(publicKey);
   if (cached) {
     return cached;
   }
 
-  const imported = await crypto.subtle.importKey(
-    "raw",
-    toArrayBuffer(hexToBytes(publicKey)),
-    { name: "Ed25519" },
-    false,
-    ["verify"],
-  );
+  const imported = crypto.subtle
+    .importKey("raw", hexToBytes(publicKey), { name: "Ed25519" }, false, ["verify"])
+    .catch((error: unknown) => {
+      keyCache.delete(publicKey);
+      throw error;
+    });
+
   keyCache.set(publicKey, imported);
   return imported;
 }
@@ -91,34 +95,27 @@ export async function verifyDiscordRequest(
     return err({ kind: "missing-signature", message: "Discord signature headers are missing" });
   }
 
-  const bodyText = await request.clone().text();
+  const bodyText = await request.text();
   const encoder = new TextEncoder();
   const timestampBytes = encoder.encode(timestamp);
   const bodyBytes = encoder.encode(bodyText);
-  const message = new Uint8Array(timestampBytes.length + bodyBytes.length);
+  const message = new Uint8Array(new ArrayBuffer(timestampBytes.length + bodyBytes.length));
   message.set(timestampBytes, 0);
   message.set(bodyBytes, timestampBytes.length);
 
-  const keyResult = await fromPromise(
-    importPublicKey(publicKey),
-    () =>
-      ({
-        kind: "invalid-signature",
-        message: "Discord request signature is invalid",
-      }) as VerifyDiscordRequestError,
-  );
-
-  if (keyResult.isErr()) {
-    return err(keyResult.error);
+  let key: CryptoKey;
+  try {
+    key = await importPublicKey(publicKey);
+  } catch {
+    return err({ kind: "invalid-signature", message: "Discord request signature is invalid" });
   }
 
-  const key = keyResult.value;
-  const valid = await crypto.subtle.verify(
-    { name: "Ed25519" },
-    key,
-    toArrayBuffer(hexToBytes(signature)),
-    toArrayBuffer(message),
-  );
+  let valid: boolean;
+  try {
+    valid = await crypto.subtle.verify({ name: "Ed25519" }, key, hexToBytes(signature), message);
+  } catch {
+    return err({ kind: "invalid-signature", message: "Discord request signature is invalid" });
+  }
 
   if (!valid) {
     return err({ kind: "invalid-signature", message: "Discord request signature is invalid" });
