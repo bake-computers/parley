@@ -49,7 +49,6 @@ func (s *UserSettingsService) UpsertUserSettings(
 		CreatedAt:          now,
 		UpdatedAt:          now,
 		MatchmakingEnabled: settings.GetMatchmakingEnabled(),
-		TermsAcceptedAtMs:  settings.GetTermsAcceptedAtMs(),
 		ProfilePublic:      settings.GetProfilePublic(),
 	}
 
@@ -109,7 +108,6 @@ func defaultSettings(discordUserID string) *userv1.UserSettings {
 		DiscordUserId:      discordUserID,
 		UpdatedAtMs:        0,
 		MatchmakingEnabled: true,
-		TermsAcceptedAtMs:  0,
 		ProfilePublic:      true,
 	}
 }
@@ -119,7 +117,6 @@ func rowToProto(row *models.UserSettings) *userv1.UserSettings {
 		DiscordUserId:      row.DiscordUserID,
 		UpdatedAtMs:        row.UpdatedAt,
 		MatchmakingEnabled: row.MatchmakingEnabled,
-		TermsAcceptedAtMs:  row.TermsAcceptedAtMs,
 		ProfilePublic:      row.ProfilePublic,
 	}
 }

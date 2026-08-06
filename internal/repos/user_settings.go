@@ -54,7 +54,6 @@ func (r *UserSettingsRepo) Upsert(
 		On("CONFLICT (discord_user_id) DO UPDATE").
 		Set("updated_at = EXCLUDED.updated_at").
 		Set("matchmaking_enabled = EXCLUDED.matchmaking_enabled").
-		Set("terms_accepted_at_ms = EXCLUDED.terms_accepted_at_ms").
 		Set("profile_public = EXCLUDED.profile_public").
 		Returning("*").
 		Exec(ctx, &out)

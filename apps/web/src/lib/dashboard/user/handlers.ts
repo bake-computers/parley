@@ -15,7 +15,6 @@ export function normalizeUserSettings(settings: UserSettingsJson): UserSettingsJ
     ...settings,
     matchmakingEnabled: settings.matchmakingEnabled ?? true,
     profilePublic: settings.profilePublic ?? true,
-    termsAcceptedAtMs: settings.termsAcceptedAtMs ?? 0,
     updatedAtMs: settings.updatedAtMs ?? 0,
   };
 }
@@ -29,7 +28,6 @@ function parseUserSettings(userId: string, payload: unknown): UserSettingsJson |
     discordUserId: userId,
     updatedAtMs: 0,
     matchmakingEnabled: Boolean(p.matchmakingEnabled ?? true),
-    termsAcceptedAtMs: Number(p.termsAcceptedAtMs ?? 0),
     profilePublic: Boolean(p.profilePublic ?? true),
   };
 }

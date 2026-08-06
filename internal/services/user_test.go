@@ -19,9 +19,6 @@ func TestDefaultSettings(t *testing.T) {
 	if !s.MatchmakingEnabled {
 		t.Error("MatchmakingEnabled should be true")
 	}
-	if s.TermsAcceptedAtMs != 0 {
-		t.Errorf("TermsAcceptedAtMs = %d, want 0", s.TermsAcceptedAtMs)
-	}
 	if !s.ProfilePublic {
 		t.Error("ProfilePublic should be true")
 	}
@@ -33,13 +30,9 @@ func TestRowToProtoCarriesNewFields(t *testing.T) {
 		CreatedAt:          1000,
 		UpdatedAt:          2000,
 		MatchmakingEnabled: false,
-		TermsAcceptedAtMs:  0,
 		ProfilePublic:      false,
 	}
 	p := rowToProto(row)
-	if p.TermsAcceptedAtMs != 0 {
-		t.Errorf("TermsAcceptedAtMs = %d, want 0", p.TermsAcceptedAtMs)
-	}
 	if p.ProfilePublic {
 		t.Error("ProfilePublic should be false")
 	}

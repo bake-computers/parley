@@ -27,7 +27,6 @@ type UserSettings struct {
 	DiscordUserId      string                 `protobuf:"bytes,1,opt,name=discord_user_id,json=discordUserId,proto3" json:"discord_user_id,omitempty"`
 	UpdatedAtMs        int64                  `protobuf:"varint,3,opt,name=updated_at_ms,json=updatedAtMs,proto3" json:"updated_at_ms,omitempty"`
 	MatchmakingEnabled bool                   `protobuf:"varint,4,opt,name=matchmaking_enabled,json=matchmakingEnabled,proto3" json:"matchmaking_enabled,omitempty"`
-	TermsAcceptedAtMs  int64                  `protobuf:"varint,5,opt,name=terms_accepted_at_ms,json=termsAcceptedAtMs,proto3" json:"terms_accepted_at_ms,omitempty"`
 	ProfilePublic      bool                   `protobuf:"varint,6,opt,name=profile_public,json=profilePublic,proto3" json:"profile_public,omitempty"`
 	unknownFields      protoimpl.UnknownFields
 	sizeCache          protoimpl.SizeCache
@@ -82,13 +81,6 @@ func (x *UserSettings) GetMatchmakingEnabled() bool {
 		return x.MatchmakingEnabled
 	}
 	return false
-}
-
-func (x *UserSettings) GetTermsAcceptedAtMs() int64 {
-	if x != nil {
-		return x.TermsAcceptedAtMs
-	}
-	return 0
 }
 
 func (x *UserSettings) GetProfilePublic() bool {
@@ -486,13 +478,12 @@ var File_user_v1_user_proto protoreflect.FileDescriptor
 
 const file_user_v1_user_proto_rawDesc = "" +
 	"\n" +
-	"\x12user/v1/user.proto\x12\x0eparley.user.v1\x1a\x15common/v1/types.proto\"\x9d\x02\n" +
+	"\x12user/v1/user.proto\x12\x0eparley.user.v1\x1a\x15common/v1/types.proto\"\x88\x02\n" +
 	"\fUserSettings\x12&\n" +
 	"\x0fdiscord_user_id\x18\x01 \x01(\tR\rdiscordUserId\x12\"\n" +
 	"\rupdated_at_ms\x18\x03 \x01(\x03R\vupdatedAtMs\x12/\n" +
-	"\x13matchmaking_enabled\x18\x04 \x01(\bR\x12matchmakingEnabled\x12/\n" +
-	"\x14terms_accepted_at_ms\x18\x05 \x01(\x03R\x11termsAcceptedAtMs\x12%\n" +
-	"\x0eprofile_public\x18\x06 \x01(\bR\rprofilePublicJ\x04\b\x02\x10\x03J\x04\b\a\x10\bJ\x04\b\b\x10\tR\blanguageR\btimezoneR\x12matchmaking_region\"@\n" +
+	"\x13matchmaking_enabled\x18\x04 \x01(\bR\x12matchmakingEnabled\x12%\n" +
+	"\x0eprofile_public\x18\x06 \x01(\bR\rprofilePublicJ\x04\b\x02\x10\x03J\x04\b\x05\x10\x06J\x04\b\a\x10\bJ\x04\b\b\x10\tR\blanguageR\x14terms_accepted_at_msR\btimezoneR\x12matchmaking_region\"@\n" +
 	"\x16GetUserSettingsRequest\x12&\n" +
 	"\x0fdiscord_user_id\x18\x01 \x01(\tR\rdiscordUserId\"U\n" +
 	"\x19UpsertUserSettingsRequest\x128\n" +

@@ -20,7 +20,8 @@ message UserSettings {
   reserved "language";
   int64  updated_at_ms                = 3;
   bool   matchmaking_enabled          = 4;
-  int64  terms_accepted_at_ms         = 5;
+  reserved 5;
+  reserved "terms_accepted_at_ms";
   bool   profile_public               = 6;
   reserved 7;
   reserved "timezone";

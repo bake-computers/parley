@@ -216,7 +216,6 @@ type UserSettings struct {
 	CreatedAt          int64  `bun:"created_at,notnull"`
 	UpdatedAt          int64  `bun:"updated_at,notnull"`
 	MatchmakingEnabled bool   `bun:"matchmaking_enabled,notnull"`
-	TermsAcceptedAtMs  int64  `bun:"terms_accepted_at_ms,notnull"`
 	ProfilePublic      bool   `bun:"profile_public,notnull"`
 }
 
@@ -228,7 +227,6 @@ type NewUserSettings struct {
 	CreatedAt          int64  `bun:"created_at,notnull"`
 	UpdatedAt          int64  `bun:"updated_at,notnull"`
 	MatchmakingEnabled bool   `bun:"matchmaking_enabled,notnull"`
-	TermsAcceptedAtMs  int64  `bun:"terms_accepted_at_ms,notnull"`
 	ProfilePublic      bool   `bun:"profile_public,notnull"`
 }
 
