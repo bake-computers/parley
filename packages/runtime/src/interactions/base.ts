@@ -124,6 +124,10 @@ export class BaseInteraction<Raw extends APIInteraction = APIInteraction> {
       return ok(payload);
     }
 
+    if (this.deferred) {
+      return this.editReply(data);
+    }
+
     const result = await this.rest.createInteractionResponse<JsonValue>(
       this.id,
       this.token,
@@ -146,6 +150,10 @@ export class BaseInteraction<Raw extends APIInteraction = APIInteraction> {
       type: InteractionResponseType.DeferredChannelMessageWithSource,
       data,
     } as JsonObject;
+
+    if (this.deferred) {
+      return ok(payload);
+    }
 
     if (!this.deferred && !this.replied && tryCaptureInitialResponse(this.context, payload)) {
       this.deferred = true;
@@ -173,23 +181,49 @@ export class BaseInteraction<Raw extends APIInteraction = APIInteraction> {
       type: InteractionResponseType.DeferredMessageUpdate,
     } as JsonObject;
 
+    if (this.deferred) {
+      return Promise.resolve(ok(payload));
+    }
+
     if (!this.deferred && !this.replied && tryCaptureInitialResponse(this.context, payload)) {
       this.deferred = true;
       return Promise.resolve(ok(payload));
     }
 
-    return this.rest.createInteractionResponse<JsonValue>(this.id, this.token, payload);
+    return this.rest
+      .createInteractionResponse<JsonValue>(this.id, this.token, payload)
+      .then((result) => {
+        if (result.isOk()) {
+          this.deferred = true;
+        }
+        return result;
+      });
   }
 
   async editReply(
     options: string | InteractionResponseOptions,
     messageId = "@original",
   ): Promise<Result<JsonValue, DiscordApiError>> {
+    const data = prepareResponsePayload(normalizePayload(options));
+    const initialPayload = {
+      type: InteractionResponseType.ChannelMessageWithSource,
+      data,
+    } as JsonObject;
+    if (
+      !this.deferred &&
+      !this.replied &&
+      messageId === "@original" &&
+      tryCaptureInitialResponse(this.context, initialPayload)
+    ) {
+      this.replied = true;
+      return ok(initialPayload);
+    }
+
     const result = await this.rest.editWebhookMessage<JsonValue>(
       this.applicationId,
       this.token,
       messageId,
-      prepareResponsePayload(normalizePayload(options)),
+      data,
     );
     if (result.isErr()) {
       logger.error("discord.interaction.edit_failed", "Failed to edit interaction reply", {
@@ -228,6 +262,10 @@ export class BaseInteraction<Raw extends APIInteraction = APIInteraction> {
       type: InteractionResponseType.UpdateMessage,
       data: prepareResponsePayload(normalizePayload(options)),
     } as JsonObject;
+
+    if (this.deferred) {
+      return this.editReply(options);
+    }
 
     if (!this.deferred && !this.replied && tryCaptureInitialResponse(this.context, payload)) {
       this.replied = true;

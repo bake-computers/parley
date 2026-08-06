@@ -26,6 +26,7 @@ import {
   RoleSelectInteraction,
   StringSelectInteraction,
   UserSelectInteraction,
+  type BaseInteraction,
 } from "./interactions/index.js";
 import { DiscordRestClient } from "./rest.js";
 import {
@@ -481,42 +482,84 @@ export class ParleyClient {
         commandName,
         ...(interaction.guild_id ? { guildId: interaction.guild_id } : {}),
       });
-      await this.runMiddleware(context, async () => {
-        await interactionObj.reply("Unknown command.", true);
-      });
+      const cancelAutomaticAcknowledgement = this.scheduleAutomaticAcknowledgement(
+        interactionObj,
+        "reply",
+      );
+      try {
+        await this.runMiddleware(context, async () => {
+          await interactionObj.reply("Unknown command.", true);
+        });
+      } finally {
+        cancelAutomaticAcknowledgement();
+      }
       return;
     }
 
-    await this.runMiddleware(context, async () => {
-      for (const handler of handlers) {
-        try {
-          if (
-            isSlashCommandHandler(handler) &&
-            interactionObj instanceof ChatInputCommandInteraction
-          ) {
+    const cancelAutomaticAcknowledgement = this.scheduleAutomaticAcknowledgement(
+      interactionObj,
+      "reply",
+    );
+    try {
+      await this.runMiddleware(context, async () => {
+        for (const handler of handlers) {
+          try {
+            if (
+              isSlashCommandHandler(handler) &&
+              interactionObj instanceof ChatInputCommandInteraction
+            ) {
+              // eslint-disable-next-line no-await-in-loop -- handlers must execute sequentially
+              await handler.execute(interactionObj);
+            } else if (
+              isContextCommandHandler(handler) &&
+              !(interactionObj instanceof ChatInputCommandInteraction)
+            ) {
+              // eslint-disable-next-line no-await-in-loop -- handlers must execute sequentially
+              await handler.execute(interactionObj);
+            }
+          } catch (error) {
+            context.set("analytics.outcome", "error");
+            logger.error("discord.command.handler_failed", "Command handler failed", {
+              requestId: context.requestId,
+              interactionId: interaction.id,
+              commandName,
+              ...(interaction.guild_id ? { guildId: interaction.guild_id } : {}),
+              error,
+            });
             // eslint-disable-next-line no-await-in-loop -- handlers must execute sequentially
-            await handler.execute(interactionObj);
-          } else if (
-            isContextCommandHandler(handler) &&
-            !(interactionObj instanceof ChatInputCommandInteraction)
-          ) {
-            // eslint-disable-next-line no-await-in-loop -- handlers must execute sequentially
-            await handler.execute(interactionObj);
+            await this.respondToHandlerFailure(interactionObj);
           }
-        } catch (error) {
-          context.set("analytics.outcome", "error");
-          logger.error("discord.command.handler_failed", "Command handler failed", {
-            requestId: context.requestId,
-            interactionId: interaction.id,
-            commandName,
-            ...(interaction.guild_id ? { guildId: interaction.guild_id } : {}),
-            error,
-          });
-          // eslint-disable-next-line no-await-in-loop -- handlers must execute sequentially
-          await this.respondToHandlerFailure(interactionObj);
         }
+      });
+    } finally {
+      cancelAutomaticAcknowledgement();
+    }
+  }
+
+  private scheduleAutomaticAcknowledgement(
+    interaction: BaseInteraction,
+    mode: "reply" | "update",
+  ): () => void {
+    const timer = setTimeout(() => {
+      if (interaction.replied || interaction.deferred) {
+        return;
       }
-    });
+
+      const acknowledgement =
+        mode === "reply" ? interaction.deferReply(true) : interaction.deferUpdate();
+      void acknowledgement.catch((error: unknown) => {
+        logger.error(
+          "discord.interaction.auto_ack_failed",
+          "Automatic interaction acknowledgement failed",
+          {
+            interactionId: interaction.id,
+            error,
+          },
+        );
+      });
+    }, 200);
+
+    return () => clearTimeout(timer);
   }
 
   private async handleAutocompleteInteraction(
@@ -626,9 +669,17 @@ export class ParleyClient {
       return;
     }
 
-    await this.runMiddleware(context, async () => {
-      await handler.execute(interactionObj);
-    });
+    const cancelAutomaticAcknowledgement = this.scheduleAutomaticAcknowledgement(
+      interactionObj,
+      "update",
+    );
+    try {
+      await this.runMiddleware(context, async () => {
+        await handler.execute(interactionObj);
+      });
+    } finally {
+      cancelAutomaticAcknowledgement();
+    }
   }
 
   private async handleModalInteraction(
@@ -659,9 +710,17 @@ export class ParleyClient {
       return;
     }
 
-    await this.runMiddleware(context, async () => {
-      await handler.execute(interactionObj);
-    });
+    const cancelAutomaticAcknowledgement = this.scheduleAutomaticAcknowledgement(
+      interactionObj,
+      "reply",
+    );
+    try {
+      await this.runMiddleware(context, async () => {
+        await handler.execute(interactionObj);
+      });
+    } finally {
+      cancelAutomaticAcknowledgement();
+    }
   }
 
   private async respondToHandlerFailure(
