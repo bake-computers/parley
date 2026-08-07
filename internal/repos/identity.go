@@ -399,6 +399,8 @@ func (r *IdentityRepo) ListDiscordIdentitiesByDiscord(
 }
 
 // AnonymizePlayer scrubs PII for all rows tied to discordUserID (GDPR deletion).
+// Web-only users (discord_profiles without game links) are still scrubbed so
+// public profile cache cannot outlive a deletion request.
 func (r *IdentityRepo) AnonymizePlayer(
 	ctx context.Context,
 	discordUserID, hmacSecret string,
@@ -407,8 +409,37 @@ func (r *IdentityRepo) AnonymizePlayer(
 	if err != nil {
 		return nil, err
 	}
+
+	// Profile-only path: OAuth cached a handle but the user never linked R6.
 	if len(identities) == 0 {
-		return &AnonymizationReport{}, nil
+		var hadProfile bool
+		err = r.db.RunInTx(ctx, nil, func(ctx context.Context, tx bun.Tx) error {
+			n, cerr := tx.NewSelect().
+				Model((*models.DiscordProfile)(nil)).
+				Where("discord_user_id = ?", discordUserID).
+				Count(ctx)
+			if cerr != nil {
+				return cerr
+			}
+			hadProfile = n > 0
+			if err := DeleteDiscordProfileData(ctx, tx, discordUserID); err != nil {
+				return err
+			}
+			_, err := tx.NewDelete().
+				Model((*models.UserSettings)(nil)).
+				Where("discord_user_id = ?", discordUserID).
+				Exec(ctx)
+			return err
+		})
+		if err != nil {
+			return nil, err
+		}
+		if !hadProfile {
+			return &AnonymizationReport{}, nil
+		}
+		return &AnonymizationReport{
+			AnonymizedDiscordUserID: fmt.Sprintf("deleted_%s", uuid.New().String()),
+		}, nil
 	}
 
 	sentinel := fmt.Sprintf("deleted_%s", uuid.New().String())
@@ -602,6 +633,10 @@ func (r *IdentityRepo) AnonymizePlayer(
 			Where("discord_user_id = ?", discordUserID).
 			Exec(ctx)
 		if err != nil {
+			return err
+		}
+
+		if err := DeleteDiscordProfileData(ctx, tx, discordUserID); err != nil {
 			return err
 		}
 
