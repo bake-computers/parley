@@ -73,3 +73,27 @@ func (r *UserSettingsRepo) Delete(
 		Exec(ctx)
 	return err
 }
+
+// GetMany loads settings rows for the given Discord user ids.
+// Missing rows are omitted from the map (callers apply defaults).
+func (r *UserSettingsRepo) GetMany(
+	ctx context.Context,
+	discordUserIDs []string,
+) (map[string]models.UserSettings, error) {
+	out := make(map[string]models.UserSettings, len(discordUserIDs))
+	if len(discordUserIDs) == 0 {
+		return out, nil
+	}
+	var rows []models.UserSettings
+	err := r.db.NewSelect().
+		Model(&rows).
+		Where("discord_user_id IN (?)", bun.In(discordUserIDs)).
+		Scan(ctx)
+	if err != nil {
+		return nil, err
+	}
+	for _, row := range rows {
+		out[row.DiscordUserID] = row
+	}
+	return out, nil
+}
