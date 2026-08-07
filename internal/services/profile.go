@@ -418,12 +418,20 @@ func matchPlayerToProto(
 	if v, ok := privacy[p.DiscordUserID]; ok {
 		public = v
 	}
+	if !public {
+		// Redact opted-out players: never expose their identifiers on
+		// other users' public profiles.
+		return &profilev1.ProfileMatchPlayer{
+			Platform:      platform,
+			ProfilePublic: false,
+		}
+	}
 	return &profilev1.ProfileMatchPlayer{
 		DiscordUserId:   p.DiscordUserID,
 		DiscordUsername: discordUser,
 		GameUsername:    gameUser,
 		Platform:        platform,
-		ProfilePublic:   public,
+		ProfilePublic:   true,
 	}
 }
 

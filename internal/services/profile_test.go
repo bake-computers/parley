@@ -73,6 +73,27 @@ func TestProfileMatchToProtoWinLoss(t *testing.T) {
 	}
 }
 
+func TestMatchPlayerToProtoRedactsPrivatePlayers(t *testing.T) {
+	p := models.MatchParticipantWithUsername{
+		DiscordUserID: "opp",
+		Team:          "b",
+		Username:      strPtr("OppR6"),
+		Platform:      strPtr("pc"),
+	}
+	discordProfiles := map[string]models.DiscordProfile{
+		"opp": {DiscordUserID: "opp", Username: "avqny"},
+	}
+	privacy := map[string]bool{"opp": false}
+
+	got := matchPlayerToProto(p, discordProfiles, privacy)
+	if got.ProfilePublic {
+		t.Fatal("expected profile_public=false")
+	}
+	if got.DiscordUserId != "" || got.DiscordUsername != "" || got.GameUsername != "" {
+		t.Fatalf("private player identifiers leaked: %+v", got)
+	}
+}
+
 func TestNormalizeDiscordUsernameInRepos(t *testing.T) {
 	if got := repos.NormalizeDiscordUsername("@Ryzm"); got != "ryzm" {
 		t.Fatalf("got %q", got)

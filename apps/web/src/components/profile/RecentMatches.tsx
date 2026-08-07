@@ -25,16 +25,17 @@ function formatDelta(delta: number | undefined): string | null {
 }
 
 function playerLabel(p: ProfileMatchPlayerJson): { text: string; href?: string } {
+  if (!p.profilePublic) {
+    return { text: "Private player" };
+  }
+
   const discord = p.discordUsername?.trim();
   const game = p.gameUsername?.trim();
-  if (discord && p.profilePublic) {
+  if (discord) {
     return {
       text: game ? `@${discord} (${game})` : `@${discord}`,
       href: `/@${encodeURIComponent(discord)}`,
     };
-  }
-  if (discord) {
-    return { text: game ? `@${discord} (${game})` : `@${discord}` };
   }
   if (game) {
     return { text: game };
