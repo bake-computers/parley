@@ -25,6 +25,8 @@ import { primeBotGuildsCache } from "./bot.js";
 import { oauthEnvFromSource, resolveBotToken, type OAuthEnvSource } from "./env.js";
 import { publicGuildsForDashboard } from "./guild-dashboard.js";
 import { turnstileEnabled, verifyTurnstileToken } from "../turnstile.js";
+import type { EngineTransportEnv } from "../engine/transport.js";
+import { rpcUpsertDiscordProfile } from "../profile/rpc.js";
 
 function readOAuthEnv(source: OAuthEnvSource | undefined): DiscordOAuthEnv | null {
   if (!source) {
@@ -135,9 +137,10 @@ export async function handleDiscordLogin(
 export async function handleDiscordCallback(
   request: Request,
   envSource: OAuthEnvSource,
+  engineEnv?: EngineTransportEnv,
 ): Promise<Response> {
   try {
-    return await handleDiscordCallbackImpl(request, envSource);
+    return await handleDiscordCallbackImpl(request, envSource, engineEnv);
   } catch (e) {
     const message = e instanceof Error ? e.message : "OAuth callback failed";
     return new Response(message, { status: 502 });
@@ -147,6 +150,7 @@ export async function handleDiscordCallback(
 async function handleDiscordCallbackImpl(
   request: Request,
   envSource: OAuthEnvSource,
+  engineEnv?: EngineTransportEnv,
 ): Promise<Response> {
   const cfg = readOAuthEnv(envSource);
   if (!cfg) {
@@ -224,6 +228,22 @@ async function handleDiscordCallbackImpl(
 
   if (oauthGuilds) {
     await primeSessionGuildsCache(user.id, cookieGuildsFromOAuth(oauthGuilds));
+  }
+
+  // Cache Discord username/avatar for public profile URLs (parley.bot/@user).
+  // Non-fatal: login must succeed even if the engine is briefly unreachable.
+  if (engineEnv) {
+    try {
+      await rpcUpsertDiscordProfile(engineEnv, {
+        discordUserId: user.id,
+        username: user.username,
+        globalName: user.global_name,
+        avatarHash: user.avatar,
+      });
+    } catch (err) {
+      // Non-fatal: login must succeed; profile URL may 404 until next login.
+      console.error("upsert discord profile failed", { userId: user.id, err });
+    }
   }
 
   const expiresAtMs = Date.now() + token.expires_in * 1000;
