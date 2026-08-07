@@ -11,3 +11,5 @@ export * from "./user/v1/user_pb.js";
 export * from "./matchmaking/v1/matchmaking_pb.js";
 
 export * from "./tournament/v1/tournament_pb.js";
+
+export * from "./profile/v1/profile_pb.js";
