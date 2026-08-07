@@ -1,0 +1,102 @@
+syntax = "proto3";
+
+package parley.profile.v1;
+
+import "common/v1/types.proto";
+
+option java_package = "bot.parley.profile.v1";
+option go_package = "github.com/bake-computers/parley/gen/parley/profile/v1;profilev1";
+
+// Public player profiles and Discord identity cache used by parley.bot/@{username}.
+service ProfileService {
+  // Cache Discord username/avatar after OAuth login (edge → engine).
+  rpc UpsertDiscordProfile(UpsertDiscordProfileRequest) returns (UpsertDiscordProfileResponse);
+  // Public read by Discord username (no auth). Honors profile_public.
+  rpc GetPublicProfile(GetPublicProfileRequest) returns (GetPublicProfileResponse);
+}
+
+message UpsertDiscordProfileRequest {
+  string discord_user_id = 1;
+  string username        = 2;
+  string global_name     = 3;
+  string avatar_hash     = 4;
+}
+
+message UpsertDiscordProfileResponse {
+  bool success               = 1;
+  parley.common.v1.Error error = 2;
+}
+
+message GetPublicProfileRequest {
+  // Discord username without leading @. Case-insensitive.
+  string username              = 1;
+  parley.common.v1.Game game   = 2;
+  int32 recent_match_limit     = 3;
+  int32 rating_history_limit   = 4;
+}
+
+message GetPublicProfileResponse {
+  bool found = 1;
+  // True when the user exists but opted out of a public profile.
+  bool is_private = 2;
+  // When set, the requested handle is stale; clients should 301 to /@{redirect_username}.
+  string redirect_username = 3;
+  PublicProfile profile = 4;
+  parley.common.v1.Error error = 5;
+}
+
+message PublicProfile {
+  string discord_user_id = 1;
+  string username        = 2;
+  string global_name     = 3;
+  string avatar_hash     = 4;
+  double internal_elo    = 5;
+  int32  matches         = 6;
+  int32  wins            = 7;
+  int32  losses          = 8;
+  // Aggregated from completed Parley match_participants (not stats.cc).
+  int32  kills           = 9;
+  int32  deaths          = 10;
+  int32  assists         = 11;
+  int64  member_since_ms = 12;
+  repeated RatingPoint rating_history = 13;
+  repeated ProfileMatch recent_matches = 14;
+  repeated ProfileGameIdentity identities = 15;
+}
+
+message RatingPoint {
+  int64  recorded_at_ms = 1;
+  double elo            = 2;
+  optional double delta = 3;
+  string source         = 4;
+}
+
+message ProfileMatch {
+  string public_uuid     = 1;
+  int64  created_at_ms   = 2;
+  // win | loss | draw | unknown
+  string result          = 3;
+  optional double rating_delta = 4;
+  optional int32 kills   = 5;
+  optional int32 deaths  = 6;
+  optional int32 assists = 7;
+  repeated ProfileMatchPlayer opponents = 8;
+  repeated ProfileMatchPlayer teammates = 9;
+}
+
+message ProfileMatchPlayer {
+  string discord_user_id   = 1;
+  string discord_username  = 2;
+  string game_username     = 3;
+  string platform          = 4;
+  bool   profile_public    = 5;
+}
+
+message ProfileGameIdentity {
+  string username     = 1;
+  string platform     = 2;
+  double internal_elo = 3;
+  int32  matches      = 4;
+  int32  wins         = 5;
+  int32  losses       = 6;
+}

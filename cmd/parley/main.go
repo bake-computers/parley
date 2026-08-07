@@ -67,6 +67,7 @@ func run() error {
 	matchRepo := repos.NewMatchRepo(bunDB)
 	snapshotRepo := repos.NewPlayerStatSnapshotRepo(bunDB)
 	userRepo := repos.NewUserSettingsRepo(bunDB)
+	profileRepo := repos.NewProfileRepo(bunDB)
 	tournRepo := repos.NewTournamentRepo(bunDB)
 	teamRepo := repos.NewTournamentTeamRepo(bunDB)
 	rosterRepo := repos.NewTournamentRosterRepo(bunDB)
@@ -118,6 +119,7 @@ func run() error {
 	matchSvc := services.NewMatchService(matchRepo, guildRepo, mmService)
 	statsSvc := services.NewStatsService(cacheStore)
 	userSvc := services.NewUserSettingsService(userRepo, guildRepo, identityRepo)
+	profileSvc := services.NewProfileService(profileRepo, userRepo, identityRepo, matchRepo)
 	tournSvc := services.NewTournamentService(bunDB, tournRepo, teamRepo, rosterRepo, bracketRepo, mmService)
 
 	deps := server.Deps{
@@ -127,6 +129,7 @@ func run() error {
 		Match:        matchSvc,
 		Tournament:   tournSvc,
 		Stats:        statsSvc,
+		Profile:      profileSvc,
 		SharedSecret: cfg.EngineSharedSecret,
 		ReadyCheck: func() error {
 			return db.Ping(ctx, bunDB)

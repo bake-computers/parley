@@ -59,7 +59,7 @@ export function UserSettingsForm({
         />
         <SettingsToggle
           label="Public profile"
-          description="Show your stats on your public profile."
+          description="Show your Parley rank, match history, and stats on parley.bot/@you. When off, visitors only see your name."
           checked={section.draft.profilePublic}
           onChange={(v) => section.setDraft((s) => ({ ...s, profilePublic: v }))}
         />

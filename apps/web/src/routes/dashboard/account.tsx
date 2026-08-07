@@ -105,7 +105,14 @@ function AccountSettingsPage() {
         />
         <div className="min-w-0 flex-1">
           <h1 className="truncate text-2xl font-semibold tracking-tight">{displayName}</h1>
-          <p className="text-muted-foreground mt-1 text-sm">@{me.user.username}</p>
+          <p className="text-muted-foreground mt-1 text-sm">
+            <a
+              href={`/@${encodeURIComponent(me.user.username)}`}
+              className="hover:text-foreground underline-offset-2 hover:underline"
+            >
+              @{me.user.username}
+            </a>
+          </p>
         </div>
         <GlassPanel className="px-4 py-2">
           <span className="text-muted-foreground text-xs">Account settings</span>

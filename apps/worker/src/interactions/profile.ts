@@ -9,6 +9,7 @@ import type { LinkedIdentity } from "@parley/proto";
 import type { LookupByDiscordResponse } from "@parley/proto";
 import { ConnectError } from "@connectrpc/connect";
 import { err, ok, type Result } from "neverthrow";
+import { cacheDiscordProfileFromUser } from "#/interactions/profile-cache";
 import { getIdentityClient, type EngineTransportEnv } from "#/transport";
 import { editReplyV2 } from "#/utils/discord";
 import { formatParleyRankLine } from "#/utils/parley-rank";
@@ -65,6 +66,9 @@ export const profileCommand = new SlashCommand()
       });
       return;
     }
+
+    // Refresh public web profile handle cache whenever they open /profile.
+    void cacheDiscordProfileFromUser(env, interaction.user);
 
     const client = getIdentityClient(env) as unknown as IdentityClient;
     const result = await invokeLookupByDiscord(client, {

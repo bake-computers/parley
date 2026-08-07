@@ -30,6 +30,7 @@ import {
   isConfirmSelectCustomId,
 } from "#/interactions/link/ui";
 import { invokeLookupByDiscord } from "#/interactions/profile";
+import { cacheDiscordProfileFromUser } from "#/interactions/profile-cache";
 import { getIdentityClient, type EngineTransportEnv } from "#/transport";
 import { parseCooldownUntilMs } from "#/utils/parley-rank";
 
@@ -227,6 +228,12 @@ export const linkSelectHandler = new ComponentHandler("link", COMPONENT_STRING_S
       await safeEditReplyV2(interaction, buildErrorCard(message), "link.error_card_failed");
       return;
     }
+
+    // Cache Discord @handle for public web profiles (non-fatal).
+    await cacheDiscordProfileFromUser(
+      interaction.context.env as EngineTransportEnv,
+      interaction.user,
+    );
 
     await safeEditReplyV2(interaction, buildFetchingStatsCard(), "link.fetching_card_failed");
 

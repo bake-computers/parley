@@ -146,16 +146,19 @@ func (r *GuildRepo) FindMembersByDiscordIDs(
 
 // UpdateMembershipRating applies a post-match Glicko-style rating update to
 // both the guild membership used for matchmaking and the linked player row
-// shown by identity/profile APIs.
+// shown by identity/profile APIs. rating_history is written best-effort after
+// the rating commit so a missing history table cannot block elo updates.
 func (r *GuildRepo) UpdateMembershipRating(
 	ctx context.Context,
 	game models.Game,
 	guildID, discordUserID string,
 	newElo, newPhi float64,
 	won bool,
+	matchID *int32,
 ) error {
 	now := NowMS()
-	return r.db.RunInTx(ctx, nil, func(ctx context.Context, tx bun.Tx) error {
+	var history *models.NewRatingHistory
+	err := r.db.RunInTx(ctx, nil, func(ctx context.Context, tx bun.Tx) error {
 		var membership models.GuildMembership
 		if err := tx.NewSelect().
 			Model(&membership).
@@ -203,9 +206,34 @@ func (r *GuildRepo) UpdateMembershipRating(
 		} else {
 			playerUpdate = playerUpdate.Set("internal_losses = internal_losses + 1")
 		}
-		_, err := playerUpdate.Exec(ctx)
-		return err
+		if _, err := playerUpdate.Exec(ctx); err != nil {
+			return err
+		}
+
+		delta := newElo - membership.InternalElo
+		rd := newPhi
+		history = &models.NewRatingHistory{
+			DiscordUserID:   discordUserID,
+			Game:            game,
+			PlayerID:        membership.PlayerID,
+			Elo:             newElo,
+			RatingDeviation: &rd,
+			Delta:           &delta,
+			Source:          models.RatingHistorySourceMatch,
+			MatchID:         matchID,
+			RecordedAt:      now,
+		}
+		return nil
 	})
+	if err != nil {
+		return err
+	}
+	// Best-effort: never roll back a successful rating update if history insert fails
+	// (e.g. engine rolled back before migration, or transient DB error).
+	if history != nil {
+		_, _ = r.db.NewInsert().Model(history).Exec(ctx)
+	}
+	return nil
 }
 
 // GuildIDsForPlayer returns guild IDs where a player is registered.

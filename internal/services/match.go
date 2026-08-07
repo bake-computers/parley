@@ -11,6 +11,7 @@ package services
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"strings"
 
 	"connectrpc.com/connect"
@@ -599,13 +600,24 @@ func (s *MatchService) ReportMatchResult(
 			p.BalanceRating,
 			lobbyCPR,
 		)
-		if err := s.guild.UpdateMembershipRating(ctx, game, row.GuildID, p.DiscordUserID, newMu, newPhi, won); err != nil {
+		matchID := row.ID
+		if err := s.guild.UpdateMembershipRating(ctx, game, row.GuildID, p.DiscordUserID, newMu, newPhi, won, &matchID); err != nil {
 			// Rating update is non-fatal in the Rust handler; the
 			// match still completes. Mirrors `let _ = ...await`.
+			slog.Warn("update membership rating failed",
+				"match_id", row.ID,
+				"discord_user_id", p.DiscordUserID,
+				"error", err,
+			)
 			continue
 		}
 		if err := s.match.SetRatingDelta(ctx, row.ID, p.DiscordUserID, newMu-member.InternalElo); err != nil {
 			// Non-fatal like the rating update above.
+			slog.Warn("set rating delta failed",
+				"match_id", row.ID,
+				"discord_user_id", p.DiscordUserID,
+				"error", err,
+			)
 			continue
 		}
 	}
