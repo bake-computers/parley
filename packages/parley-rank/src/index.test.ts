@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { formatElo, formatKd, formatWinRate, parleyRankForElo } from "./index";
+import { formatElo, formatKd, formatWinRate, parleyRankForElo } from "./index.js";
 
 describe("parleyRankForElo", () => {
   test("maps thresholds", () => {
