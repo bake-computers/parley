@@ -7,7 +7,7 @@ import {
   SeparatorBuilder,
   TextDisplayBuilder,
 } from "@parley/runtime";
-import { UI_TOKENS } from "#/ui/tokens";
+import { ColorPalette } from "#/utils/constants";
 import { formatKDA } from "#/interactions/team/helpers";
 import { HISTORY_PAGE_PREFIX } from "#/interactions/history/constants";
 
@@ -68,7 +68,7 @@ function renderTeam(participants: MatchParticipant[], label: string, won: boolea
 
 export function buildHistoryErrorCard(message: string): ContainerBuilder {
   return new ContainerBuilder()
-    .setAccentColor(UI_TOKENS.error)
+    .setAccentColor(ColorPalette.error)
     .addComponents(new TextDisplayBuilder().setContent(`**Match History**\n${message}`));
 }
 
@@ -81,7 +81,7 @@ export function buildHistoryCard(matches: Match[], page: number): Card {
   if (matches.length === 0) {
     return [
       new ContainerBuilder()
-        .setAccentColor(UI_TOKENS.main)
+        .setAccentColor(ColorPalette.main)
         .addComponents(
           new TextDisplayBuilder().setContent("**Match History**"),
           separator(),
@@ -97,7 +97,7 @@ export function buildHistoryCard(matches: Match[], page: number): Card {
   const match = matches[current]!;
   const participants = match.participants ?? [];
 
-  const container = new ContainerBuilder().setAccentColor(UI_TOKENS.main).addComponents(
+  const container = new ContainerBuilder().setAccentColor(ColorPalette.main).addComponents(
     new TextDisplayBuilder().setContent(
       `**Match History** — Page **${current + 1}** of **${matches.length}**`,
     ),

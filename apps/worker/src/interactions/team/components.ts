@@ -8,8 +8,7 @@ import {
   type ModalInteraction,
 } from "@parley/runtime";
 import { Game } from "@parley/proto";
-import { editReplyV2, updateV2 } from "#/ui/discord";
-import { resolveEmojis } from "#/ui/emojis";
+import { editReplyV2, updateV2 } from "#/utils/discord";
 import type { EngineTransportEnv } from "#/transport";
 import {
   TEAM_MAX_PLAYERS,
@@ -70,11 +69,10 @@ export const teamSelectHandler = new ComponentHandler("team", ComponentType.User
     }
 
     const env = envOf(interaction);
-    const emojis = await resolveEmojis(interaction);
     const guildId = interaction.guildId;
     const channelId = interaction.channelId;
     if (!guildId || !channelId) {
-      await editReplyV2(interaction, buildTeamErrorCard("Use /team in a server channel.", emojis));
+      await editReplyV2(interaction, buildTeamErrorCard("Use /team in a server channel."));
       return;
     }
 
@@ -82,17 +80,14 @@ export const teamSelectHandler = new ComponentHandler("team", ComponentType.User
     if (discordUserIds.length < TEAM_MIN_PLAYERS || discordUserIds.length > TEAM_MAX_PLAYERS) {
       await editReplyV2(
         interaction,
-        buildTeamErrorCard(
-          `Pick between ${TEAM_MIN_PLAYERS} and ${TEAM_MAX_PLAYERS} players.`,
-          emojis,
-        ),
+        buildTeamErrorCard(`Pick between ${TEAM_MIN_PLAYERS} and ${TEAM_MAX_PLAYERS} players.`),
       );
       return;
     }
     if (discordUserIds.length % 2 !== 0) {
       await editReplyV2(
         interaction,
-        buildTeamErrorCard("Pick an even number of players so the teams are equal.", emojis),
+        buildTeamErrorCard("Pick an even number of players so the teams are equal."),
       );
       return;
     }
@@ -106,23 +101,20 @@ export const teamSelectHandler = new ComponentHandler("team", ComponentType.User
       teamSize: discordUserIds.length / 2,
     });
     if (created.isErr()) {
-      await editReplyV2(interaction, buildTeamErrorCard(created.error.message, emojis));
+      await editReplyV2(interaction, buildTeamErrorCard(created.error.message));
       return;
     }
     if (!created.value.success || !created.value.matchId) {
       await editReplyV2(
         interaction,
-        buildTeamErrorCard(created.value.error?.message ?? "Could not assemble teams.", emojis),
+        buildTeamErrorCard(created.value.error?.message ?? "Could not assemble teams."),
       );
       return;
     }
 
     const fetched = await invokeGetMatch(env, created.value.matchId, Game.R6);
     if (fetched.isErr() || !fetched.value.success || !fetched.value.match) {
-      await editReplyV2(
-        interaction,
-        buildTeamErrorCard("Match created but could not be loaded.", emojis),
-      );
+      await editReplyV2(interaction, buildTeamErrorCard("Match created but could not be loaded."));
       return;
     }
     await editReplyV2(interaction, buildScoreboardCard(fetched.value.match));
@@ -151,11 +143,9 @@ export const teamButtonHandler = new ComponentHandler("team", ComponentType.Butt
 
     const env = envOf(interaction);
     const userId = interaction.user?.id ?? "";
-    const emojis = await resolveEmojis(interaction);
-
     const fetched = await invokeGetMatch(env, matchId, Game.R6);
     if (fetched.isErr() || !fetched.value.success || !fetched.value.match) {
-      await updateV2(interaction, buildTeamErrorCard("Could not load that match.", emojis));
+      await updateV2(interaction, buildTeamErrorCard("Could not load that match."));
       return;
     }
     const match = fetched.value.match;
@@ -166,7 +156,7 @@ export const teamButtonHandler = new ComponentHandler("team", ComponentType.Butt
     if (!isParticipant(match, userId)) {
       await updateV2(
         interaction,
-        buildTeamErrorCard("Only players in this match can log rounds or end it.", emojis),
+        buildTeamErrorCard("Only players in this match can log rounds or end it."),
       );
       return;
     }
@@ -207,13 +197,13 @@ export const teamButtonHandler = new ComponentHandler("team", ComponentType.Butt
       reportedByDiscordUserId: userId,
     });
     if (reported.isErr()) {
-      await editReplyV2(interaction, buildTeamErrorCard(reported.error.message, emojis));
+      await editReplyV2(interaction, buildTeamErrorCard(reported.error.message));
       return;
     }
     if (!reported.value.success || !reported.value.match) {
       await editReplyV2(
         interaction,
-        buildTeamErrorCard(reported.value.error?.message ?? "Could not end the match.", emojis),
+        buildTeamErrorCard(reported.value.error?.message ?? "Could not end the match."),
       );
       return;
     }
@@ -247,11 +237,9 @@ export const teamModalHandler = new ModalHandler(TEAM_ROUND_MODAL_PREFIX).addHan
 
     const env = envOf(interaction);
     const userId = interaction.user?.id ?? "";
-    const emojis = await resolveEmojis(interaction);
-
     const fetched = await invokeGetMatch(env, matchId, Game.R6);
     if (fetched.isErr() || !fetched.value.success || !fetched.value.match) {
-      await editReplyV2(interaction, buildTeamErrorCard("Could not load that match.", emojis));
+      await editReplyV2(interaction, buildTeamErrorCard("Could not load that match."));
       return;
     }
     const match = fetched.value.match;
@@ -262,7 +250,7 @@ export const teamModalHandler = new ModalHandler(TEAM_ROUND_MODAL_PREFIX).addHan
     if (!isParticipant(match, userId)) {
       await editReplyV2(
         interaction,
-        buildTeamErrorCard("Only players in this match can log rounds.", emojis),
+        buildTeamErrorCard("Only players in this match can log rounds."),
       );
       return;
     }
@@ -277,7 +265,7 @@ export const teamModalHandler = new ModalHandler(TEAM_ROUND_MODAL_PREFIX).addHan
         const name = player.username === "" ? `<@${player.discordUserId}>` : player.username;
         await editReplyV2(
           interaction,
-          buildTeamErrorCard(`**${name}** (${teamSideLabel(sideRaw)}): ${kda}`, emojis),
+          buildTeamErrorCard(`**${name}** (${teamSideLabel(sideRaw)}): ${kda}`),
         );
         return;
       }
@@ -296,13 +284,13 @@ export const teamModalHandler = new ModalHandler(TEAM_ROUND_MODAL_PREFIX).addHan
       reportedByDiscordUserId: userId,
     });
     if (reported.isErr()) {
-      await editReplyV2(interaction, buildTeamErrorCard(reported.error.message, emojis));
+      await editReplyV2(interaction, buildTeamErrorCard(reported.error.message));
       return;
     }
     if (!reported.value.success || !reported.value.match) {
       await editReplyV2(
         interaction,
-        buildTeamErrorCard(reported.value.error?.message ?? "Could not log that round.", emojis),
+        buildTeamErrorCard(reported.value.error?.message ?? "Could not log that round."),
       );
       return;
     }

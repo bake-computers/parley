@@ -6,8 +6,7 @@ import {
   type MessageComponentInteraction,
 } from "@parley/runtime";
 import { Game } from "@parley/proto";
-import { resolveEmojis } from "#/ui/emojis";
-import { editReplyV2 } from "#/ui/discord";
+import { editReplyV2 } from "#/utils/discord";
 import {
   CONFIRM_ACTION_BACK,
   CONFIRM_ACTION_CONTINUE,
@@ -32,7 +31,7 @@ import {
 } from "#/interactions/link/ui";
 import { invokeLookupByDiscord } from "#/interactions/profile";
 import { getIdentityClient, type EngineTransportEnv } from "#/transport";
-import { parseCooldownUntilMs } from "#/ui/parley-rank";
+import { parseCooldownUntilMs } from "#/utils/parley-rank";
 
 const COMPONENT_STRING_SELECT = 3;
 
@@ -70,8 +69,6 @@ export const linkSelectHandler = new ComponentHandler("link", COMPONENT_STRING_S
   async (interaction: MessageComponentInteraction) => {
     const customId = interaction.customId;
     const selected = selectValues(interaction)[0]?.trim() ?? "";
-    const emojis = await resolveEmojis(interaction);
-
     if (customId === PLATFORM_SELECT_CUSTOM_ID) {
       if (!isPlatform(selected)) {
         await interaction.reply("Unknown platform. Run `/link` again.", true);
@@ -100,7 +97,7 @@ export const linkSelectHandler = new ComponentHandler("link", COMPONENT_STRING_S
       if (!isPlatform(selected)) {
         await safeEditReplyV2(
           interaction,
-          buildErrorCard("Unknown platform. Run `/link` again.", emojis),
+          buildErrorCard("Unknown platform. Run `/link` again."),
           "link.unlink_select_invalid",
         );
         return;
@@ -118,7 +115,7 @@ export const linkSelectHandler = new ComponentHandler("link", COMPONENT_STRING_S
         });
         await safeEditReplyV2(
           interaction,
-          buildErrorCard(unlinkResult.error.message, emojis),
+          buildErrorCard(unlinkResult.error.message),
           "link.unlink_card_failed",
         );
         return;
@@ -134,7 +131,7 @@ export const linkSelectHandler = new ComponentHandler("link", COMPONENT_STRING_S
       }
       await safeEditReplyV2(
         interaction,
-        buildLinkHubCard(identities, emojis, notice),
+        buildLinkHubCard(identities, notice),
         "link.unlinked_hub_failed",
       );
       return;
@@ -152,7 +149,7 @@ export const linkSelectHandler = new ComponentHandler("link", COMPONENT_STRING_S
     if (typeof parsed === "string") {
       await safeEditReplyV2(
         interaction,
-        buildErrorCard("Invalid confirmation data. Please run `/link` again.", emojis),
+        buildErrorCard("Invalid confirmation data. Please run `/link` again."),
         "link.confirm_parse_failed",
       );
       return;
@@ -164,7 +161,7 @@ export const linkSelectHandler = new ComponentHandler("link", COMPONENT_STRING_S
     if (!platformValue || !isPlatform(platformValue) || !username) {
       await safeEditReplyV2(
         interaction,
-        buildErrorCard("Invalid confirmation data. Please run `/link` again.", emojis),
+        buildErrorCard("Invalid confirmation data. Please run `/link` again."),
         "link.confirm_invalid",
       );
       return;
@@ -173,18 +170,14 @@ export const linkSelectHandler = new ComponentHandler("link", COMPONENT_STRING_S
     if (selected === CONFIRM_ACTION_BACK) {
       const lookup = await loadIdentities(interaction);
       const identities = lookup.isOk() ? lookup.value.identities : [];
-      await safeEditReplyV2(
-        interaction,
-        buildLinkHubCard(identities, emojis),
-        "link.back_to_hub_failed",
-      );
+      await safeEditReplyV2(interaction, buildLinkHubCard(identities), "link.back_to_hub_failed");
       return;
     }
 
     if (selected !== CONFIRM_ACTION_CONTINUE) {
       await safeEditReplyV2(
         interaction,
-        buildConfirmCard(platformValue, username, emojis),
+        buildConfirmCard(platformValue, username),
         "link.confirm_unknown_action",
       );
       return;
@@ -204,7 +197,7 @@ export const linkSelectHandler = new ComponentHandler("link", COMPONENT_STRING_S
       if (cooldownUntilMs !== null) {
         await safeEditReplyV2(
           interaction,
-          buildUnlinkCooldownCard(cooldownUntilMs, emojis),
+          buildUnlinkCooldownCard(cooldownUntilMs),
           "link.cooldown_card_failed",
         );
         return;
@@ -214,7 +207,7 @@ export const linkSelectHandler = new ComponentHandler("link", COMPONENT_STRING_S
         if (lookup.isOk()) {
           await safeEditReplyV2(
             interaction,
-            buildLinkHubCard(lookup.value.identities, emojis),
+            buildLinkHubCard(lookup.value.identities),
             "link.already_linked_hub_failed",
           );
           return;
@@ -224,18 +217,18 @@ export const linkSelectHandler = new ComponentHandler("link", COMPONENT_STRING_S
         interactionId: interaction.id,
         error: rpcResult.error,
       });
-      await safeEditReplyV2(interaction, buildErrorCard(message, emojis), "link.error_card_failed");
+      await safeEditReplyV2(interaction, buildErrorCard(message), "link.error_card_failed");
       return;
     }
 
     const response = rpcResult.value;
     if (!response.success) {
       const message = response.error?.message ?? "Could not link your account.";
-      await safeEditReplyV2(interaction, buildErrorCard(message, emojis), "link.error_card_failed");
+      await safeEditReplyV2(interaction, buildErrorCard(message), "link.error_card_failed");
       return;
     }
 
-    await safeEditReplyV2(interaction, buildFetchingStatsCard(emojis), "link.fetching_card_failed");
+    await safeEditReplyV2(interaction, buildFetchingStatsCard(), "link.fetching_card_failed");
 
     const statsResult = await executeFetchStats({
       context: interaction.context,
@@ -254,7 +247,6 @@ export const linkSelectHandler = new ComponentHandler("link", COMPONENT_STRING_S
         interaction,
         buildLinkHubCard(
           identities,
-          emojis,
           "Account linked, but stats could not be fetched. Try `/profile` shortly.",
         ),
         "link.fetch_stats_card_failed",
@@ -270,7 +262,6 @@ export const linkSelectHandler = new ComponentHandler("link", COMPONENT_STRING_S
         interaction,
         buildLinkHubCard(
           identities,
-          emojis,
           statsResponse.error?.message ??
             "Account linked, but the stats provider returned an error. Try `/profile` shortly.",
         ),
@@ -281,15 +272,12 @@ export const linkSelectHandler = new ComponentHandler("link", COMPONENT_STRING_S
 
     await safeEditReplyV2(
       interaction,
-      buildReadyToPlayCard(
-        {
-          usernameNormalized: response.usernameNormalized,
-          playerId: response.playerId,
-          platform: platformValue,
-          stats: statsResponse,
-        },
-        emojis,
-      ),
+      buildReadyToPlayCard({
+        usernameNormalized: response.usernameNormalized,
+        playerId: response.playerId,
+        platform: platformValue,
+        stats: statsResponse,
+      }),
       "link.ready_card_failed",
     );
   },

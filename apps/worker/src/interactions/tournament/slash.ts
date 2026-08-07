@@ -7,8 +7,8 @@ import {
   type ChatInputCommandInteraction,
 } from "@parley/runtime";
 import { getTournamentClient, type EngineTransportEnv } from "#/transport";
-import { UI_TOKENS } from "#/ui/tokens";
-import { editReplyV2, replyV2 } from "#/ui/discord";
+import { ColorPalette } from "#/utils/constants";
+import { editReplyV2, replyV2 } from "#/utils/discord";
 
 const BASE_URL = "https://parley.bot/tournaments";
 
@@ -24,11 +24,11 @@ export function buildTournamentCreateCard(url: string, qrUrl?: string): Containe
   );
 
   if (!qrUrl) {
-    return new ContainerBuilder().setAccentColor(UI_TOKENS.main).addComponents(text);
+    return new ContainerBuilder().setAccentColor(ColorPalette.main).addComponents(text);
   }
 
   return new ContainerBuilder()
-    .setAccentColor(UI_TOKENS.main)
+    .setAccentColor(ColorPalette.main)
     .addComponents(new SectionBuilder().addText(text));
 }
 

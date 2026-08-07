@@ -8,9 +8,7 @@ import {
 } from "@parley/runtime";
 import { type UserSettings as ProtoUserSettings } from "@parley/proto";
 import { getUserSettingsClient } from "#/transport";
-import { editReplyV2 } from "#/ui/discord";
-import { resolveEmojis } from "#/ui/emojis";
-import { nowMs } from "#/interactions/user/helpers";
+import { editReplyV2 } from "#/utils/discord";
 import {
   USER_CANCEL,
   USER_DELETE_MODAL,
@@ -72,19 +70,18 @@ async function applyUpdate(
   const env = interaction.context.env;
   const client = getClient(env) as never;
   const result = await invokeUpsertUserSettings(client, newSettings);
-  const emojis = await resolveEmojis(interaction);
   if (result.isErr()) {
-    await editReplyV2(interaction, buildErrorCard(result.error.message, emojis));
+    await editReplyV2(interaction, buildErrorCard(result.error.message));
     return;
   }
   if (!result.value.success) {
     await editReplyV2(
       interaction,
-      buildErrorCard(result.value.error?.message ?? "Settings update failed", emojis),
+      buildErrorCard(result.value.error?.message ?? "Settings update failed"),
     );
     return;
   }
-  const card = buildSettingsCard(result.value.settings ?? newSettings, emojis, view);
+  const card = buildSettingsCard(result.value.settings ?? newSettings, view);
   await editReplyV2(interaction, card);
 }
 
@@ -105,8 +102,7 @@ async function loadCurrentSettings(
   const env = interaction.context.env;
   const settingsResult = await invokeGetUserSettings(getClient(env) as never, discordUserId);
   if (settingsResult.isErr() || !settingsResult.value.success || !settingsResult.value.settings) {
-    const emojis = await resolveEmojis(interaction);
-    await editReplyV2(interaction, buildErrorCard("Could not load your settings.", emojis));
+    await editReplyV2(interaction, buildErrorCard("Could not load your settings."));
     return undefined;
   }
   return settingsResult.value.settings;
@@ -140,8 +136,7 @@ export const userButtonHandler = new ComponentHandler("user", COMPONENT_BUTTON).
 
     const pageView = parseUserPageCustomId(customId);
     if (pageView) {
-      const emojis = await resolveEmojis(interaction);
-      await editReplyV2(interaction, buildSettingsCard(current, emojis, pageView));
+      await editReplyV2(interaction, buildSettingsCard(current, pageView));
       return;
     }
 
@@ -155,8 +150,7 @@ export const userButtonHandler = new ComponentHandler("user", COMPONENT_BUTTON).
       return;
     }
     if (customId === USER_CANCEL) {
-      const emojis = await resolveEmojis(interaction);
-      await editReplyV2(interaction, buildSettingsCard(current, emojis, DEFAULT_VIEW));
+      await editReplyV2(interaction, buildSettingsCard(current, DEFAULT_VIEW));
     }
   },
 );
@@ -191,7 +185,7 @@ export const userSelectHandler = new ComponentHandler("user", COMPONENT_STRING_S
         {
           ...current,
           matchmakingEnabled: selected === "on",
-          updatedAtMs: nowMs(),
+          updatedAtMs: BigInt(Date.now())
         },
         DEFAULT_VIEW,
       );
@@ -203,7 +197,7 @@ export const userSelectHandler = new ComponentHandler("user", COMPONENT_STRING_S
         {
           ...current,
           profilePublic: selected === "public",
-          updatedAtMs: nowMs(),
+          updatedAtMs: BigInt(Date.now())
         },
         DEFAULT_VIEW,
       );
@@ -222,27 +216,24 @@ export const userModalHandler = new ModalHandler(USER_DELETE_MODAL).addHandler(
       return;
     }
     if (confirmation !== expectedUsername) {
-      const emojis = await resolveEmojis(interaction);
       await editReplyV2(
         interaction,
         buildErrorCard(
           "Confirmation did not match your Discord username. Your data was not deleted.",
-          emojis,
         ),
       );
       return;
     }
     const client = getClient(env) as never;
     const result = await invokeDeleteUserData(client, discordUserId);
-    const emojis = await resolveEmojis(interaction);
     if (result.isErr()) {
-      await editReplyV2(interaction, buildErrorCard(result.error.message, emojis));
+      await editReplyV2(interaction, buildErrorCard(result.error.message));
       return;
     }
-    if (!result.value.success || !result.value.anonymizedDiscordUserId) {
+    if (!result.value.success || !result.value.anonymizedDiscordUserId || !result.value.tablesAffected) {
       await editReplyV2(
         interaction,
-        buildErrorCard(result.value.error?.message ?? "Could not delete your data.", emojis),
+        buildErrorCard(result.value.error?.message ?? "Could not delete your data."),
       );
       return;
     }
@@ -250,9 +241,8 @@ export const userModalHandler = new ModalHandler(USER_DELETE_MODAL).addHandler(
       {
         anonymizedDiscordUserId: result.value.anonymizedDiscordUserId,
         cooldownUntilMs: Number(result.value.cooldownUntilMs),
-        tablesAffected: result.value.tablesAffected!,
+        tablesAffected: result.value.tablesAffected,
       },
-      emojis,
     );
     await editReplyV2(interaction, card);
   },

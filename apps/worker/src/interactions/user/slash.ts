@@ -1,6 +1,5 @@
 import { SlashCommand, type ChatInputCommandInteraction } from "@parley/runtime";
-import { editReplyV2 } from "#/ui/discord";
-import { resolveEmojis } from "#/ui/emojis";
+import { editReplyV2 } from "#/utils/discord";
 import { getUserSettingsClient, type EngineTransportEnv } from "#/transport";
 import { invokeGetUserSettings } from "#/interactions/user/rpc";
 import { buildErrorCard, buildSettingsCard } from "#/interactions/user/ui";
@@ -31,11 +30,9 @@ export const userSlashCommand = new SlashCommand()
       const message = r.isErr()
         ? r.error.message
         : (r.value.error?.message ?? "Could not load settings.");
-      const emojis = await resolveEmojis(interaction);
-      await editReplyV2(interaction, buildErrorCard(message, emojis));
+      await editReplyV2(interaction, buildErrorCard(message));
       return;
     }
-    const emojis = await resolveEmojis(interaction);
-    const card = buildSettingsCard(r.value.settings, emojis);
+    const card = buildSettingsCard(r.value.settings);
     await editReplyV2(interaction, card);
   });

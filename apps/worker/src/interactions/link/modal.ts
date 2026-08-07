@@ -6,8 +6,7 @@ import {
   logger,
   parseCustomId,
 } from "@parley/runtime";
-import { updateV2 } from "#/ui/discord";
-import { resolveEmojis } from "#/ui/emojis";
+import { updateV2 } from "#/utils/discord";
 import {
   GAME_NAME,
   TextInputStyle,
@@ -29,8 +28,6 @@ import { buildConfirmCard } from "#/interactions/link/ui";
  */
 export const usernameModalHandler = new ModalHandler(USERNAME_MODAL_PREFIX).addHandler(
   async (interaction) => {
-    const emojis = await resolveEmojis(interaction);
-
     const parsed = parseCustomId(interaction.customId);
     if (typeof parsed === "string") {
       await interaction.reply("This form is no longer available.", true);
@@ -57,7 +54,7 @@ export const usernameModalHandler = new ModalHandler(USERNAME_MODAL_PREFIX).addH
       return;
     }
 
-    const result = await updateV2(interaction, buildConfirmCard(platformValue, username, emojis));
+    const result = await updateV2(interaction, buildConfirmCard(platformValue, username));
     if (result.isErr()) {
       logger.error("link.modal.update_failed", "Failed to render confirm card after modal submit", {
         interactionId: interaction.id,

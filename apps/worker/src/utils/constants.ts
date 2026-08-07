@@ -54,6 +54,22 @@ const rankMaster = staticEmoji("rank_master", "<:master:1517287558344871967>");
 const rankGrandmaster = staticEmoji("rank_grandmaster", "<:grandmaster:1517287555840606208>");
 const rankChallenger = staticEmoji("rank_challenger", "<:challenger:1517287552254738642>");
 
+export const WorldEmoji = world.markup;
+export const WarningEmoji = warning.markup;
+export const WarningOrangeEmoji = warningOrange.markup;
+export const ThumbsUpEmoji = thumbsUp.markup;
+export const ThumbsDownEmoji = thumbsDown.markup;
+export const SwordEmoji = sword.markup;
+export const StreakEmoji = streak.markup;
+export const StreakFireEmoji = streakFire.markup;
+export const StarEmoji = star.markup;
+export const SearchEmoji = search.markup;
+export const MissingEmoji = missing.markup;
+export const MissingOrangeEmoji = missingOrange.markup;
+export const InformationEmoji = information.markup;
+export const DonateEmoji = donate.markup;
+export const ConnectionEmoji = connection.markup;
+export const ClockEmoji = clock.markup;
 export const RankUnspecifiedEmoji = rankUnspecified.markup;
 export const RankIronEmoji = rankIron.markup;
 export const RankBronzeEmoji = rankBronze.markup;
@@ -93,3 +109,11 @@ export const PARLEY_EMOJI_CATALOG = {
   rank_grandmaster: rankGrandmaster.entry,
   rank_challenger: rankChallenger.entry,
 } satisfies ApplicationEmojiCatalog;
+
+export const ColorPalette = {
+  main: 0xb8b8bd,
+  warning: 0xffb020,
+  error: 0xff4d4d,
+} as const;
+
+export type ColorPalette = keyof typeof ColorPalette;

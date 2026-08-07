@@ -1,5 +1,5 @@
 import { SlashCommand, type ChatInputCommandInteraction } from "@parley/runtime";
-import { editReplyV2 } from "#/ui/discord";
+import { editReplyV2 } from "#/utils/discord";
 import { invokeListMatches } from "#/interactions/history/rpc";
 import { buildHistoryCard, buildHistoryErrorCard } from "#/interactions/history/ui";
 import {

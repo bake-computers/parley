@@ -4,8 +4,8 @@ import {
   SlashCommand,
   TextDisplayBuilder,
 } from "@parley/runtime";
-import { replyV2 } from "#/ui/discord";
-import { UI_TOKENS } from "#/ui/tokens";
+import { replyV2 } from "#/utils/discord";
+import { ColorPalette } from "#/utils/constants";
 
 const PARLEY_IMAGE_URL = "https://cdn.parley.bot/Help%20Banner%20640x120%402x.png";
 
@@ -37,7 +37,7 @@ export const helpCommand = new SlashCommand()
   .setDescription("List all available commands")
   .addHandler(async (interaction) => {
     const container = new ContainerBuilder()
-      .setAccentColor(UI_TOKENS.main)
+      .setAccentColor(ColorPalette.main)
       .addComponents(
         new TextDisplayBuilder().setContent("**Parley Commands**"),
         ...COMMANDS.map((entry) => new TextDisplayBuilder().setContent(formatLine(entry))),

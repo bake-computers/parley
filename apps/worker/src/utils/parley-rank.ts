@@ -1,14 +1,36 @@
 import {
-  formatApplicationEmoji,
-  type ApplicationEmojiCatalog,
-  type AppEmojiName,
-} from "@parley/runtime";
+  RankBronzeEmoji,
+  RankChallengerEmoji,
+  RankDiamondEmoji,
+  RankGoldEmoji,
+  RankGrandmasterEmoji,
+  RankIronEmoji,
+  RankMasterEmoji,
+  RankPlatinumEmoji,
+  RankSilverEmoji,
+  RankUnspecifiedEmoji,
+} from "#/utils/constants";
+
+const PARLEY_RANK_EMOJIS = {
+  rank_unspecified: RankUnspecifiedEmoji,
+  rank_iron: RankIronEmoji,
+  rank_bronze: RankBronzeEmoji,
+  rank_silver: RankSilverEmoji,
+  rank_gold: RankGoldEmoji,
+  rank_platinum: RankPlatinumEmoji,
+  rank_diamond: RankDiamondEmoji,
+  rank_master: RankMasterEmoji,
+  rank_grandmaster: RankGrandmasterEmoji,
+  rank_challenger: RankChallengerEmoji,
+} as const;
+
+type ParleyRankEmojiName = keyof typeof PARLEY_RANK_EMOJIS;
 
 export type ParleyRankTier = {
   id: string;
   label: string;
   minElo: number;
-  emojiName: AppEmojiName;
+  emojiName: ParleyRankEmojiName;
 };
 
 export const PARLEY_RANK_TIERS: readonly ParleyRankTier[] = [
@@ -34,12 +56,10 @@ export function parleyRankForElo(elo: number): ParleyRankTier {
   return tier;
 }
 
-export function formatParleyRankLine(catalog: ApplicationEmojiCatalog, elo: number): string {
+export function formatParleyRankLine(elo: number): string {
   const tier = parleyRankForElo(elo);
-  const emoji = formatApplicationEmoji(catalog, tier.emojiName);
   const points = Math.round(elo).toLocaleString("en-US");
-  const prefix = emoji ? `${emoji} ` : "";
-  return `${prefix}**${tier.label}** · ${points}`;
+  return `${PARLEY_RANK_EMOJIS[tier.emojiName]} **${tier.label}** · ${points}`;
 }
 
 export function parseCooldownUntilMs(message: string): number | null {

@@ -6,11 +6,9 @@ import {
   SeparatorBuilder,
   TextDisplayBuilder,
   UserSelectMenuBuilder,
-  formatApplicationEmoji,
-  type ApplicationEmojiCatalog,
 } from "@parley/runtime";
 import type { Match, MatchParticipant } from "@parley/proto/matchmaking/v1/matchmaking_pb.js";
-import { UI_TOKENS } from "#/ui/tokens";
+import { ColorPalette, WarningOrangeEmoji } from "#/utils/constants";
 import {
   TEAM_END_PREFIX,
   TEAM_MAX_PLAYERS,
@@ -42,7 +40,7 @@ function renderTeam(participants: MatchParticipant[], label: string, won: boolea
 /** Initial card: pick the players, OVI does the rest. */
 export function buildTeamSetupCard(): Card {
   const container = new ContainerBuilder()
-    .setAccentColor(UI_TOKENS.main)
+    .setAccentColor(ColorPalette.main)
     .addComponents(
       new TextDisplayBuilder().setContent("**Custom Match**"),
       separator(),
@@ -61,7 +59,7 @@ export function buildTeamSetupCard(): Card {
 /** Live scoreboard shown between rounds. */
 export function buildScoreboardCard(match: Match): Card {
   const participants = match.participants ?? [];
-  const container = new ContainerBuilder().setAccentColor(UI_TOKENS.main).addComponents(
+  const container = new ContainerBuilder().setAccentColor(ColorPalette.main).addComponents(
     new TextDisplayBuilder().setContent(`**Custom Match** — #${match.id}`),
     new TextDisplayBuilder().setContent("-# Log each round as it ends; K/D/A totals update below."),
     separator(),
@@ -102,7 +100,7 @@ export function buildScoreboardCard(match: Match): Card {
 /** "Who won?" step before reporting the result. */
 export function buildWinnerPromptCard(matchId: number): Card {
   const container = new ContainerBuilder()
-    .setAccentColor(UI_TOKENS.warning)
+    .setAccentColor(ColorPalette.warning)
     .addComponents(new TextDisplayBuilder().setContent("**End match**\nWhich team won?"));
   const row = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
@@ -122,7 +120,7 @@ export function buildFinalCard(match: Match): ContainerBuilder {
   const participants = match.participants ?? [];
   const teamAWon = match.winningTeam === "a";
   const teamBWon = match.winningTeam === "b";
-  return new ContainerBuilder().setAccentColor(UI_TOKENS.main).addComponents(
+  return new ContainerBuilder().setAccentColor(ColorPalette.main).addComponents(
     new TextDisplayBuilder().setContent(`**Custom Match** — #${match.id}`),
     separator(),
     new TextDisplayBuilder().setContent(
@@ -145,15 +143,12 @@ export function buildFinalCard(match: Match): ContainerBuilder {
   );
 }
 
-export function buildTeamErrorCard(
-  message: string,
-  emojis: ApplicationEmojiCatalog,
-): ContainerBuilder {
-  const icon = formatApplicationEmoji(emojis, "warning_orange");
-  const prefix = icon ? `${icon} ` : "";
+export function buildTeamErrorCard(message: string): ContainerBuilder {
   return new ContainerBuilder()
-    .setAccentColor(UI_TOKENS.error)
-    .addComponents(new TextDisplayBuilder().setContent(`${prefix}**Custom Match**\n${message}`));
+    .setAccentColor(ColorPalette.error)
+    .addComponents(
+      new TextDisplayBuilder().setContent(`${WarningOrangeEmoji} **Custom Match**\n${message}`),
+    );
 }
 
 export function teamSideLabel(side: TeamSide): string {

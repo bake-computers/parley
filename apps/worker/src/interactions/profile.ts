@@ -10,11 +10,9 @@ import type { LookupByDiscordResponse } from "@parley/proto";
 import { ConnectError } from "@connectrpc/connect";
 import { err, ok, type Result } from "neverthrow";
 import { getIdentityClient, type EngineTransportEnv } from "#/transport";
-import { editReplyV2 } from "#/ui/discord";
-import { resolveEmojis } from "#/ui/emojis";
-import { formatParleyRankLine } from "#/ui/parley-rank";
-import { UI_TOKENS } from "#/ui/tokens";
-import type { ApplicationEmojiCatalog } from "@parley/runtime";
+import { editReplyV2 } from "#/utils/discord";
+import { formatParleyRankLine } from "#/utils/parley-rank";
+import { ColorPalette } from "#/utils/constants";
 
 const GAME_NAMES: Record<number, string> = {
   [Game.R6]: "Rainbow Six Siege",
@@ -24,12 +22,9 @@ function gameName(game: number): string {
   return GAME_NAMES[game] ?? `Game ${game}`;
 }
 
-function formatLinkedIdentityLines(
-  catalog: ApplicationEmojiCatalog,
-  identities: LinkedIdentity[],
-): string[] {
+function formatLinkedIdentityLines(identities: LinkedIdentity[]): string[] {
   return identities.map((id) => {
-    const rank = formatParleyRankLine(catalog, id.internalElo);
+    const rank = formatParleyRankLine(id.internalElo);
     return `**${gameName(id.game)}** — ${id.username} (${id.platform}) — ${rank}`;
   });
 }
@@ -64,7 +59,7 @@ export const profileCommand = new SlashCommand()
           {
             title: "Configuration Error",
             description: "Engine service is not configured.",
-            color: UI_TOKENS.error,
+            color: ColorPalette.error,
           },
         ],
       });
@@ -83,7 +78,7 @@ export const profileCommand = new SlashCommand()
           {
             title: "Profile Lookup Failed",
             description: result.error.message,
-            color: UI_TOKENS.error,
+            color: ColorPalette.error,
           },
         ],
       });
@@ -93,7 +88,7 @@ export const profileCommand = new SlashCommand()
     const { identities } = result.value;
     if (identities.length === 0) {
       const container = new ContainerBuilder()
-        .setAccentColor(UI_TOKENS.main)
+        .setAccentColor(ColorPalette.main)
         .addComponents(
           new TextDisplayBuilder().setContent("**No Linked Accounts**"),
           new TextDisplayBuilder().setContent("No accounts linked. Use /link to get started!"),
@@ -102,10 +97,9 @@ export const profileCommand = new SlashCommand()
       return;
     }
 
-    const emojis = await resolveEmojis(interaction);
-    const lines = formatLinkedIdentityLines(emojis, identities);
+    const lines = formatLinkedIdentityLines(identities);
     const container = new ContainerBuilder()
-      .setAccentColor(UI_TOKENS.main)
+      .setAccentColor(ColorPalette.main)
       .addComponents(
         new TextDisplayBuilder().setContent("**Your Linked Accounts**"),
         new TextDisplayBuilder().setContent(lines.join("\n")),

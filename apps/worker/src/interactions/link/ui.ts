@@ -1,16 +1,21 @@
 import type { LinkedIdentity } from "@parley/proto";
 import type { FetchStatsResponse, ScrapedStats } from "@parley/proto/stats/v1/stats_pb.js";
-import { formatParleyRankLine } from "#/ui/parley-rank";
+import { formatParleyRankLine } from "#/utils/parley-rank";
 import {
   ActionRowBuilder,
   ContainerBuilder,
-  formatApplicationEmoji,
   SeparatorBuilder,
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
   TextDisplayBuilder,
-  type ApplicationEmojiCatalog,
 } from "@parley/runtime";
+import {
+  ClockEmoji,
+  ConnectionEmoji,
+  ThumbsUpEmoji,
+  WarningEmoji,
+  WarningOrangeEmoji,
+} from "#/utils/constants";
 import {
   CONFIRM_ACTION_BACK,
   CONFIRM_ACTION_CONTINUE,
@@ -32,15 +37,8 @@ import {
 
 const SEPARATOR_SPACING_SMALL = 1;
 
-function emojiOrFallback(
-  catalog: ApplicationEmojiCatalog,
-  name: Parameters<typeof formatApplicationEmoji>[1],
-): string {
-  return formatApplicationEmoji(catalog, name) ?? "";
-}
-
 function titleWith(emoji: string, title: string): string {
-  return emoji ? `${emoji} **${title}**` : `**${title}**`;
+  return `${emoji} **${title}**`;
 }
 
 function separator(): SeparatorBuilder {
@@ -104,19 +102,14 @@ function buildUnlinkSelectMenu(identities: LinkedIdentity[]): StringSelectMenuBu
 }
 
 /** Hub: linked accounts overview + platform / unlink select menus. */
-export function buildLinkHubCard(
-  identities: LinkedIdentity[],
-  catalog: ApplicationEmojiCatalog,
-  notice?: string,
-): ContainerBuilder {
-  const linkEmoji = emojiOrFallback(catalog, "linked");
+export function buildLinkHubCard(identities: LinkedIdentity[], notice?: string): ContainerBuilder {
   const linked = linkedPlatforms(identities);
   const available = PLATFORMS.filter((platform) => !linked.has(platform));
 
   const container = new ContainerBuilder()
     .setAccentColor(identities.length > 0 ? UI_MAIN_COLOR : UI_SUCCESS_COLOR)
     .addComponents(
-      new TextDisplayBuilder().setContent(titleWith(linkEmoji, "Link Your Accounts")),
+      new TextDisplayBuilder().setContent(titleWith(ConnectionEmoji, "Link Your Accounts")),
       new TextDisplayBuilder().setContent(
         `Connect Discord to **${GAME_NAME}**. You can link **PC** plus **console** accounts (Xbox and PlayStation) — one profile per platform.`,
       ),
@@ -133,7 +126,7 @@ export function buildLinkHubCard(
   } else {
     container.addComponents(new TextDisplayBuilder().setContent("**Linked accounts**"));
     for (const identity of identities) {
-      const rank = formatParleyRankLine(catalog, identity.internalElo);
+      const rank = formatParleyRankLine(identity.internalElo);
       container.addComponents(
         new TextDisplayBuilder().setContent(
           `**${identityPlatformLabel(identity)}** · \`${identity.username}\`\n${rank}`,
@@ -172,16 +165,11 @@ export function buildLinkHubCard(
 }
 
 /** @deprecated Use {@link buildLinkHubCard}. Kept for tests migrating off button picker. */
-export function buildPlatformSelectCard(catalog: ApplicationEmojiCatalog): ContainerBuilder {
-  return buildLinkHubCard([], catalog);
+export function buildPlatformSelectCard(): ContainerBuilder {
+  return buildLinkHubCard([]);
 }
 
-export function buildConfirmCard(
-  platform: Platform,
-  username: string,
-  catalog: ApplicationEmojiCatalog,
-): ContainerBuilder {
-  const warningEmoji = emojiOrFallback(catalog, "warning_orange");
+export function buildConfirmCard(platform: Platform, username: string): ContainerBuilder {
   const label = platformLabel(platform);
 
   const actionSelect = new StringSelectMenuBuilder()
@@ -203,7 +191,7 @@ export function buildConfirmCard(
   return new ContainerBuilder()
     .setAccentColor(UI_WARNING_COLOR)
     .addComponents(
-      new TextDisplayBuilder().setContent(titleWith(warningEmoji, "Confirm Your Account")),
+      new TextDisplayBuilder().setContent(titleWith(WarningOrangeEmoji, "Confirm Your Account")),
       new TextDisplayBuilder().setContent(
         `We'll look up your **${label}** profile and link it to Discord.`,
       ),
@@ -224,15 +212,13 @@ export function buildSuccessCard(
   usernameNormalized: string,
   playerId: number,
   platform: Platform,
-  catalog: ApplicationEmojiCatalog,
 ): ContainerBuilder {
-  const confirmEmoji = emojiOrFallback(catalog, "redirect");
   const label = platformLabel(platform);
 
   return new ContainerBuilder()
     .setAccentColor(UI_SUCCESS_COLOR)
     .addComponents(
-      new TextDisplayBuilder().setContent(titleWith(confirmEmoji, "Account Linked")),
+      new TextDisplayBuilder().setContent(titleWith(ThumbsUpEmoji, "Account Linked")),
       separator(),
       new TextDisplayBuilder().setContent(`### ${GAME_NAME}`),
       new TextDisplayBuilder().setContent(`**Username**\n\`${usernameNormalized}\``),
@@ -241,24 +227,17 @@ export function buildSuccessCard(
     );
 }
 
-export function buildAlreadyLinkedCard(
-  identity: LinkedIdentity,
-  catalog: ApplicationEmojiCatalog,
-): ContainerBuilder {
-  return buildLinkHubCard([identity], catalog);
+export function buildAlreadyLinkedCard(identity: LinkedIdentity): ContainerBuilder {
+  return buildLinkHubCard([identity]);
 }
 
-export function buildUnlinkCooldownCard(
-  cooldownUntilMs: number,
-  catalog: ApplicationEmojiCatalog,
-): ContainerBuilder {
-  const timerEmoji = emojiOrFallback(catalog, "timeout");
+export function buildUnlinkCooldownCard(cooldownUntilMs: number): ContainerBuilder {
   const discordTs = `<t:${Math.floor(cooldownUntilMs / 1000)}:R>`;
 
   return new ContainerBuilder()
     .setAccentColor(UI_WARNING_COLOR)
     .addComponents(
-      new TextDisplayBuilder().setContent(titleWith(timerEmoji, "Re-link Cooldown")),
+      new TextDisplayBuilder().setContent(titleWith(ClockEmoji, "Re-link Cooldown")),
       separator(),
       new TextDisplayBuilder().setContent(
         `You recently removed a link. You can link again ${discordTs}.`,
@@ -266,13 +245,9 @@ export function buildUnlinkCooldownCard(
     );
 }
 
-export function buildUnlinkedCard(
-  cooldownUntilMs: number,
-  catalog: ApplicationEmojiCatalog,
-): ContainerBuilder {
-  const confirmEmoji = emojiOrFallback(catalog, "redirect");
+export function buildUnlinkedCard(cooldownUntilMs: number): ContainerBuilder {
   const lines = [
-    new TextDisplayBuilder().setContent(titleWith(confirmEmoji, "Account Removed")),
+    new TextDisplayBuilder().setContent(titleWith(ThumbsUpEmoji, "Account Removed")),
     separator(),
     new TextDisplayBuilder().setContent("That platform is no longer linked to your Discord."),
   ];
@@ -287,28 +262,21 @@ export function buildUnlinkedCard(
   return new ContainerBuilder().setAccentColor(UI_SUCCESS_COLOR).addComponents(...lines);
 }
 
-export function buildErrorCard(
-  message: string,
-  catalog: ApplicationEmojiCatalog,
-): ContainerBuilder {
-  const cancelEmoji = emojiOrFallback(catalog, "ban_hammer_red");
-
+export function buildErrorCard(message: string): ContainerBuilder {
   return new ContainerBuilder()
     .setAccentColor(UI_ERROR_COLOR)
     .addComponents(
-      new TextDisplayBuilder().setContent(titleWith(cancelEmoji, "Link Failed")),
+      new TextDisplayBuilder().setContent(titleWith(WarningEmoji, "Link Failed")),
       separator(),
       new TextDisplayBuilder().setContent(message),
     );
 }
 
-export function buildFetchingStatsCard(catalog: ApplicationEmojiCatalog): ContainerBuilder {
-  const timerEmoji = emojiOrFallback(catalog, "timeout");
-
+export function buildFetchingStatsCard(): ContainerBuilder {
   return new ContainerBuilder()
     .setAccentColor(UI_SUCCESS_COLOR)
     .addComponents(
-      new TextDisplayBuilder().setContent(titleWith(timerEmoji, "Fetching Your Stats")),
+      new TextDisplayBuilder().setContent(titleWith(ClockEmoji, "Fetching Your Stats")),
       separator(),
       new TextDisplayBuilder().setContent(
         "Account linked. Pulling your stats from stats.cc — this can take a moment.",
@@ -316,16 +284,12 @@ export function buildFetchingStatsCard(catalog: ApplicationEmojiCatalog): Contai
     );
 }
 
-export function buildReadyToPlayCard(
-  args: {
-    usernameNormalized: string;
-    playerId: number;
-    platform: Platform;
-    stats: FetchStatsResponse;
-  },
-  catalog: ApplicationEmojiCatalog,
-): ContainerBuilder {
-  const confirmEmoji = emojiOrFallback(catalog, "redirect");
+export function buildReadyToPlayCard(args: {
+  usernameNormalized: string;
+  playerId: number;
+  platform: Platform;
+  stats: FetchStatsResponse;
+}): ContainerBuilder {
   const label = platformLabel(args.platform);
   const stats = args.stats.stats;
   const profile = stats?.profile;
@@ -334,13 +298,13 @@ export function buildReadyToPlayCard(
   return new ContainerBuilder()
     .setAccentColor(UI_SUCCESS_COLOR)
     .addComponents(
-      new TextDisplayBuilder().setContent(titleWith(confirmEmoji, "You're Ready To Play")),
+      new TextDisplayBuilder().setContent(titleWith(ThumbsUpEmoji, "You're Ready To Play")),
       separator(),
       new TextDisplayBuilder().setContent(`### ${GAME_NAME} · ${label}`),
       new TextDisplayBuilder().setContent(`**Username**\n\`${args.usernameNormalized}\``),
       new TextDisplayBuilder().setContent(`**Player ID**\n\`${args.playerId}\``),
       separator(),
-      ...buildStatsLines(catalog, profile, ranked),
+      ...buildStatsLines(profile, ranked),
       separator(),
       new TextDisplayBuilder().setContent(
         "-# Run `/link` again or use **Add a platform** to connect another profile.",
@@ -349,7 +313,6 @@ export function buildReadyToPlayCard(
 }
 
 function buildStatsLines(
-  catalog: ApplicationEmojiCatalog,
   profile: ScrapedStats["profile"],
   ranked: ScrapedStats["rankedStats"],
 ): TextDisplayBuilder[] {
@@ -357,9 +320,7 @@ function buildStatsLines(
   const seededElo = ranked && ranked.rankPoints > 0 ? ranked.rankPoints : 0;
   if (seededElo > 0) {
     lines.push(
-      new TextDisplayBuilder().setContent(
-        `**Parley Rank**\n${formatParleyRankLine(catalog, seededElo)}`,
-      ),
+      new TextDisplayBuilder().setContent(`**Parley Rank**\n${formatParleyRankLine(seededElo)}`),
     );
   }
   if (profile) {

@@ -1,7 +1,6 @@
 import { SlashCommand, logger } from "@parley/runtime";
 import { Game, type LinkedIdentity } from "@parley/proto";
-import { editReplyV2 } from "#/ui/discord";
-import { resolveEmojis } from "#/ui/emojis";
+import { editReplyV2 } from "#/utils/discord";
 import { invokeLookupByDiscord } from "#/interactions/profile";
 import { getIdentityClient, type EngineTransportEnv } from "#/transport";
 import { buildLinkHubCard } from "#/interactions/link/ui";
@@ -11,8 +10,6 @@ export const linkSlashCommand = new SlashCommand()
   .setDescription("Link your Discord to your in-game account")
   .addHandler(async (interaction) => {
     const env = interaction.context.env as EngineTransportEnv;
-    const emojis = await resolveEmojis(interaction);
-
     let identities: LinkedIdentity[] = [];
     if (env.ENGINE_SERVICE_URL || env.VPC_SERVICE) {
       const lookup = await invokeLookupByDiscord(getIdentityClient(env) as never, {
@@ -24,7 +21,7 @@ export const linkSlashCommand = new SlashCommand()
       }
     }
 
-    const result = await editReplyV2(interaction, buildLinkHubCard(identities, emojis));
+    const result = await editReplyV2(interaction, buildLinkHubCard(identities));
     if (result.isErr()) {
       logger.error("link.hub_failed", "Failed to send link hub", {
         error: result.error,
