@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as HandleRouteImport } from './routes/$handle'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as LegalNoticeRouteImport } from './routes/legal-notice'
 import { Route as PrivacyRouteImport } from './routes/privacy'
@@ -41,6 +42,11 @@ import { Route as ApiDashboardGuildsGuildIdSettingsRouteImport } from './routes/
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HandleRoute = HandleRouteImport.update({
+  id: '/$handle',
+  path: '/$handle',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -188,6 +194,7 @@ const ApiDashboardGuildsGuildIdSettingsRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/$handle': typeof HandleRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/legal-notice': typeof LegalNoticeRoute
   '/privacy': typeof PrivacyRoute
@@ -218,6 +225,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/$handle': typeof HandleRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/legal-notice': typeof LegalNoticeRoute
   '/privacy': typeof PrivacyRoute
@@ -248,6 +256,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/$handle': typeof HandleRoute
   '/dashboard': typeof DashboardRouteWithChildren
   '/legal-notice': typeof LegalNoticeRoute
   '/privacy': typeof PrivacyRoute
@@ -280,6 +289,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/$handle'
     | '/dashboard'
     | '/legal-notice'
     | '/privacy'
@@ -310,6 +320,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/$handle'
     | '/dashboard'
     | '/legal-notice'
     | '/privacy'
@@ -339,6 +350,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/$handle'
     | '/dashboard'
     | '/legal-notice'
     | '/privacy'
@@ -370,6 +382,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  HandleRoute: typeof HandleRoute
   DashboardRoute: typeof DashboardRouteWithChildren
   LegalNoticeRoute: typeof LegalNoticeRoute
   PrivacyRoute: typeof PrivacyRoute
@@ -399,6 +412,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/$handle': {
+      id: '/$handle'
+      path: '/$handle'
+      fullPath: '/$handle'
+      preLoaderRoute: typeof HandleRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -641,6 +661,7 @@ const TournamentsCodeRouteWithChildren = TournamentsCodeRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  HandleRoute: HandleRoute,
   DashboardRoute: DashboardRouteWithChildren,
   LegalNoticeRoute: LegalNoticeRoute,
   PrivacyRoute: PrivacyRoute,
