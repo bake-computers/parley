@@ -20,6 +20,7 @@ import (
 	"github.com/bake-computers/parley/gen/parley/guild/v1/guildv1connect"
 	"github.com/bake-computers/parley/gen/parley/identity/v1/identityv1connect"
 	"github.com/bake-computers/parley/gen/parley/matchmaking/v1/matchmakingv1connect"
+	"github.com/bake-computers/parley/gen/parley/profile/v1/profilev1connect"
 	"github.com/bake-computers/parley/gen/parley/stats/v1/statsv1connect"
 	"github.com/bake-computers/parley/gen/parley/tournament/v1/tournamentv1connect"
 	"github.com/bake-computers/parley/gen/parley/user/v1/userv1connect"
@@ -35,6 +36,7 @@ type Deps struct {
 	Match      *services.MatchService
 	Tournament *services.TournamentService // nil = skip tournament routes
 	Stats      *services.StatsService
+	Profile    *services.ProfileService // nil = skip profile routes
 
 	// SharedSecret authenticates edge callers (worker/web) on every
 	// non-probe route. Empty fails closed: all requests get 401.
@@ -99,6 +101,11 @@ func New(deps Deps) *fiber.App {
 
 	p, h = statsv1connect.NewStatsServiceHandler(handlers.NewStatsHandler(deps.Stats), connectOptions...)
 	mountConnect(app, p, h)
+
+	if deps.Profile != nil {
+		p, h = profilev1connect.NewProfileServiceHandler(handlers.NewProfileHandler(deps.Profile), connectOptions...)
+		mountConnect(app, p, h)
+	}
 
 	if deps.Tournament != nil {
 		p, h = tournamentv1connect.NewTournamentServiceHandler(handlers.NewTournamentHandler(deps.Tournament), connectOptions...)
