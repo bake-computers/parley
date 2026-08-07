@@ -5,8 +5,8 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/google/uuid"
 	"github.com/bake-computers/parley/internal/models"
+	"github.com/google/uuid"
 	"github.com/uptrace/bun"
 )
 
@@ -94,6 +94,26 @@ func (r *IdentityRepo) FindPlayer(ctx context.Context, id int32) (*models.Player
 	return &row, nil
 }
 
+// FindPlayersByIDs loads players keyed by id. Missing ids are omitted.
+func (r *IdentityRepo) FindPlayersByIDs(ctx context.Context, ids []int32) (map[int32]models.Player, error) {
+	out := make(map[int32]models.Player, len(ids))
+	if len(ids) == 0 {
+		return out, nil
+	}
+	var rows []models.Player
+	err := r.db.NewSelect().
+		Model(&rows).
+		Where("id IN (?)", bun.In(ids)).
+		Scan(ctx)
+	if err != nil {
+		return nil, err
+	}
+	for _, row := range rows {
+		out[row.ID] = row
+	}
+	return out, nil
+}
+
 // FindPlayerByIdentity loads a player by (game, username, platform).
 func (r *IdentityRepo) FindPlayerByIdentity(
 	ctx context.Context,
@@ -146,6 +166,7 @@ func (r *IdentityRepo) FindPlayerByUsernameNormalized(
 const maxSeedRankPoints = 10000
 
 // SeedEloIfUnrated sets internal_elo from rank_points when the player has no Parley matches.
+// On a successful seed it also writes a rating_history point for public profiles.
 func (r *IdentityRepo) SeedEloIfUnrated(ctx context.Context, playerID int32, rankPoints int32) error {
 	if rankPoints <= 0 {
 		return nil
@@ -156,30 +177,84 @@ func (r *IdentityRepo) SeedEloIfUnrated(ctx context.Context, playerID int32, ran
 	elo := float64(rankPoints)
 	now := NowMS()
 
-	res, err := r.db.NewUpdate().
-		Model((*models.Player)(nil)).
-		Set("internal_elo = ?", elo).
-		Set("updated_at = ?", now).
-		Where("id = ?", playerID).
-		Where("internal_matches = 0").
-		Exec(ctx)
+	var history *models.NewRatingHistory
+	err := r.db.RunInTx(ctx, nil, func(ctx context.Context, tx bun.Tx) error {
+		var player models.Player
+		if err := tx.NewSelect().
+			Model(&player).
+			Where("id = ?", playerID).
+			Scan(ctx); err != nil {
+			if err == sql.ErrNoRows {
+				return nil
+			}
+			return err
+		}
+		if player.InternalMatches != 0 {
+			return nil
+		}
+
+		res, err := tx.NewUpdate().
+			Model((*models.Player)(nil)).
+			Set("internal_elo = ?", elo).
+			Set("updated_at = ?", now).
+			Where("id = ?", playerID).
+			Where("internal_matches = 0").
+			Exec(ctx)
+		if err != nil {
+			return err
+		}
+		if n, err := res.RowsAffected(); err != nil {
+			return err
+		} else if n == 0 {
+			return nil
+		}
+
+		if _, err = tx.NewUpdate().
+			Model((*models.GuildMembership)(nil)).
+			Set("internal_elo = ?", elo).
+			Set("updated_at = ?", now).
+			Where("player_id = ?", playerID).
+			Where("internal_matches = 0").
+			Exec(ctx); err != nil {
+			return err
+		}
+
+		// Prefer any linked discord identity for history ownership.
+		var discordUserID string
+		err = tx.NewSelect().
+			Model((*models.DiscordIdentity)(nil)).
+			Column("discord_user_id").
+			Where("player_id = ?", playerID).
+			Limit(1).
+			Scan(ctx, &discordUserID)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				return nil
+			}
+			return err
+		}
+		if discordUserID == "" {
+			return nil
+		}
+		delta := elo - player.InternalElo
+		history = &models.NewRatingHistory{
+			DiscordUserID: discordUserID,
+			Game:          player.Game,
+			PlayerID:      playerID,
+			Elo:           elo,
+			Delta:         &delta,
+			Source:        models.RatingHistorySourceSeed,
+			RecordedAt:    now,
+		}
+		return nil
+	})
 	if err != nil {
 		return err
 	}
-	if n, err := res.RowsAffected(); err != nil {
-		return err
-	} else if n == 0 {
-		return nil
+	if history != nil {
+		_, _ = r.db.NewInsert().Model(history).Exec(ctx)
 	}
-
-	_, err = r.db.NewUpdate().
-		Model((*models.GuildMembership)(nil)).
-		Set("internal_elo = ?", elo).
-		Set("updated_at = ?", now).
-		Where("player_id = ?", playerID).
-		Where("internal_matches = 0").
-		Exec(ctx)
-	return err
+	return nil
 }
 
 // TouchPlayerInternalUpdatedAt sets internal_updated_at and updated_at on a player row.
