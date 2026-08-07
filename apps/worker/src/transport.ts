@@ -4,6 +4,7 @@ import {
   GuildSettingsService,
   IdentityService,
   MatchmakingService,
+  ProfileService,
   StatsService,
   TournamentService,
   UserSettingsService,
@@ -103,4 +104,8 @@ export function getTournamentClient(env: EngineTransportEnv) {
 
 export function getUserSettingsClient(env: EngineTransportEnv) {
   return getOrCreateClient(UserSettingsService, env);
+}
+
+export function getProfileClient(env: EngineTransportEnv) {
+  return getOrCreateClient(ProfileService, env);
 }
