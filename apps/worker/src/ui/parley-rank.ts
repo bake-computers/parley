@@ -13,7 +13,7 @@ export type ParleyRankTier = {
 
 export const PARLEY_RANK_TIERS: readonly ParleyRankTier[] = [
   { id: "unspecified", label: "Unspecified", minElo: 0, emojiName: "rank_unspecified" },
-  { id: "iron", label: "Iron", minElo: 1000, emojiName: "rank_iron" },
+  { id: "iron", label: "Iron", minElo: 1100, emojiName: "rank_iron" },
   { id: "bronze", label: "Bronze", minElo: 1400, emojiName: "rank_bronze" },
   { id: "silver", label: "Silver", minElo: 1900, emojiName: "rank_silver" },
   { id: "gold", label: "Gold", minElo: 2400, emojiName: "rank_gold" },
