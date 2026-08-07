@@ -7,10 +7,10 @@ import {
 } from "./emojis.js";
 
 const catalog: ApplicationEmojiCatalog = {
-  pin: {
-    id: "1515457667827503294",
-    name: "pin",
-    discordName: "pin",
+  world: {
+    id: "1535013544775651529",
+    name: "world",
+    discordName: "world",
     animated: false,
   },
   rank_gold: {
@@ -35,7 +35,7 @@ function memoryCache(): KVNamespace {
 
 describe("formatApplicationEmoji", () => {
   test("renders canonical emoji names", () => {
-    expect(formatApplicationEmoji(catalog, "pin")).toBe("<:pin:1515457667827503294>");
+    expect(formatApplicationEmoji(catalog, "world")).toBe("<:world:1535013544775651529>");
   });
 
   test("renders aliased rank emojis with their Discord-side name", () => {

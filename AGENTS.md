@@ -224,3 +224,13 @@ Keep exported Go symbols and package exports minimal. Avoid proliferating test-o
 ## graphify
 
 Knowledge graph at `graphify-out/`. Use `graphify query` for focused questions; run `graphify update .` after substantive code changes.
+
+## Agent skills
+
+### Issue tracker
+
+GitHub Issues on `bake-computers/parley` via `gh`. See `docs/agents/issue-tracker.md`.
+
+### Domain docs
+
+Single-context: root `CONTEXT.md` + `docs/adr/`. See `docs/agents/domain.md`.
