@@ -17,7 +17,7 @@ import type { ResolvedSelectedGuildMember } from "./types.js";
  * @param {Record<string, T> | undefined} value - The record to convert, or `undefined`.
  * @returns {Map<string, T>} A `Map` containing the same key-value pairs, or an empty `Map`.
  */
-export function collectionFromRecord<T>(value: Record<string, T> | undefined): Map<string, T> {
+function collectionFromRecord<T>(value: Record<string, T> | undefined): Map<string, T> {
   if (!value) {
     return new Map();
   }
@@ -34,7 +34,7 @@ export function collectionFromRecord<T>(value: Record<string, T> | undefined): M
  * @returns {APIApplicationCommandInteractionDataOption | null} The option if it exists, or `null` if it is absent and optional.
  * @throws {TypeError} When `required` is `true` and `option` is `undefined`.
  */
-export function requireOption(
+function requireOption(
   option: APIApplicationCommandInteractionDataOption | undefined,
   name: string,
   required: boolean,
