@@ -157,6 +157,29 @@ func (s *Service) LoadPlayers(
 	guildID string,
 	discordUserIDs []string,
 ) ([]LoadedPlayer, error) {
+	return s.loadPlayers(ctx, game, guildID, discordUserIDs, false)
+}
+
+// LoadPlayersForTournament is the roster/seeding variant of LoadPlayers.
+// When OVI telemetry is incomplete (stale snapshot, few season matches),
+// it falls back to a rank-point / elo balance score so registration is not
+// blocked for otherwise eligible linked players.
+func (s *Service) LoadPlayersForTournament(
+	ctx context.Context,
+	game models.Game,
+	guildID string,
+	discordUserIDs []string,
+) ([]LoadedPlayer, error) {
+	return s.loadPlayers(ctx, game, guildID, discordUserIDs, true)
+}
+
+func (s *Service) loadPlayers(
+	ctx context.Context,
+	game models.Game,
+	guildID string,
+	discordUserIDs []string,
+	allowSeedFallback bool,
+) ([]LoadedPlayer, error) {
 	if len(discordUserIDs) == 0 {
 		return nil, fmt.Errorf("discord_user_ids must not be empty")
 	}
@@ -200,30 +223,86 @@ func (s *Service) LoadPlayers(
 		if !ok {
 			return nil, fmt.Errorf("player %s needs a current stats snapshot for model matchmaking", m.Username)
 		}
-		features, roles, err := featuresFromSnapshot(snap, s.minSeasonMatches)
+		player, err := s.scoreLoadedPlayer(m, snap, allowSeedFallback)
 		if err != nil {
-			return nil, fmt.Errorf("player %s: %w", m.Username, err)
+			return nil, err
 		}
-		raw, err := s.model.Score(features)
-		if err != nil {
-			return nil, fmt.Errorf("player %s: %w", m.Username, err)
-		}
-		seeds := seedsFromSnapshot(snap)
-		loaded = append(loaded, LoadedPlayer{
-			Member: m,
-			Rated: RatedPlayer{
-				Mu:  m.InternalElo,
-				Phi: m.RatingDeviation,
-				CPR: ovi.Clamp(raw),
-			},
-			Seeds:    seeds,
-			Features: features, RawModelScore: raw, DisplayModelScore: ovi.Clamp(raw), Roles: roles,
-		})
+		loaded = append(loaded, player)
 	}
 
 	// Sort by the caller's original discord_user_id order.
 	sortLoadedByOrder(loaded, order)
 	return loaded, nil
+}
+
+func (s *Service) scoreLoadedPlayer(
+	m repos.GuildMemberRow,
+	snap models.PlayerStatSnapshot,
+	allowSeedFallback bool,
+) (LoadedPlayer, error) {
+	seeds := seedsFromSnapshot(snap)
+	features, roles, err := featuresFromSnapshot(snap, s.minSeasonMatches)
+	if err != nil {
+		if !allowSeedFallback {
+			return LoadedPlayer{}, fmt.Errorf("player %s: %w", m.Username, err)
+		}
+		score := tournamentBalanceFallback(snap.RankPoints, m.InternalElo)
+		return LoadedPlayer{
+			Member: m,
+			Rated: RatedPlayer{
+				Mu:  m.InternalElo,
+				Phi: m.RatingDeviation,
+				CPR: score,
+			},
+			Seeds:             seeds,
+			Features:          [ovi.FeatureCount]float64{},
+			RawModelScore:     score,
+			DisplayModelScore: score,
+			Roles:             [4]float64{0.25, 0.25, 0.25, 0.25},
+		}, nil
+	}
+	raw, err := s.model.Score(features)
+	if err != nil {
+		if !allowSeedFallback {
+			return LoadedPlayer{}, fmt.Errorf("player %s: %w", m.Username, err)
+		}
+		score := tournamentBalanceFallback(snap.RankPoints, m.InternalElo)
+		return LoadedPlayer{
+			Member: m,
+			Rated: RatedPlayer{
+				Mu:  m.InternalElo,
+				Phi: m.RatingDeviation,
+				CPR: score,
+			},
+			Seeds:             seeds,
+			Features:          features,
+			RawModelScore:     score,
+			DisplayModelScore: score,
+			Roles:             [4]float64{0.25, 0.25, 0.25, 0.25},
+		}, nil
+	}
+	return LoadedPlayer{
+		Member: m,
+		Rated: RatedPlayer{
+			Mu:  m.InternalElo,
+			Phi: m.RatingDeviation,
+			CPR: ovi.Clamp(raw),
+		},
+		Seeds:             seeds,
+		Features:          features,
+		RawModelScore:     raw,
+		DisplayModelScore: ovi.Clamp(raw),
+		Roles:             roles,
+	}, nil
+}
+
+// tournamentBalanceFallback maps rank points (preferred) or internal elo
+// into the same 0–1 band used by OVI display scores for stack seeding.
+func tournamentBalanceFallback(rankPoints int32, internalElo float64) float64 {
+	if rankPoints > 0 {
+		return ovi.Clamp(float64(rankPoints) / 4000.0)
+	}
+	return ovi.Clamp(internalElo / 2000.0)
 }
 
 func featuresFromSnapshot(snap models.PlayerStatSnapshot, minimumMatches int32) ([ovi.FeatureCount]float64, [4]float64, error) {

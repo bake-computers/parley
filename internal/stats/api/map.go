@@ -222,6 +222,14 @@ func buildRanked(
 		ranked.KDRatio = scrape.RoundTo(mode.KD, 4)
 		ranked.HeadshotPct = scrape.RoundTo(mode.HS, 2)
 		ranked.WinRate = scrape.RoundTo(mode.WR, 2)
+		if ranked.Matches <= 0 {
+			ranked.Matches = mode.Wins + mode.Losses + mode.Abandons
+		}
+	}
+	// Mode payloads occasionally omit match totals while the ranked match
+	// list still has season games — keep OVI eligibility aligned with cache.
+	if ranked.Matches <= 0 && matchCount > 0 {
+		ranked.Matches = int32(matchCount)
 	}
 	return ranked
 }
