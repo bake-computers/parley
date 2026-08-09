@@ -288,7 +288,10 @@ func (r *ProfileRepo) ListRatingHistory(
 	return newestFirst, nil
 }
 
-// CareerStatsFromMatches aggregates K/D/A across completed matches for a user.
+// CareerStatsFromMatches aggregates record + K/D/A across completed matches.
+// Wins/losses come from matches.winning_team vs the participant's team so the
+// public profile matches the recent-matches list even when players.internal_*
+// counters were never bumped.
 func (r *ProfileRepo) CareerStatsFromMatches(
 	ctx context.Context,
 	game models.Game,
@@ -296,6 +299,16 @@ func (r *ProfileRepo) CareerStatsFromMatches(
 ) (*models.PlayerCareerStats, error) {
 	var out models.PlayerCareerStats
 	err := r.db.NewSelect().
+		ColumnExpr("COUNT(*)::bigint AS matches").
+		ColumnExpr(`COUNT(*) FILTER (
+			WHERE m.winning_team IS NOT NULL
+			  AND m.winning_team = mp.team
+		)::bigint AS wins`).
+		ColumnExpr(`COUNT(*) FILTER (
+			WHERE m.winning_team IS NOT NULL
+			  AND m.winning_team IN ('a', 'b')
+			  AND m.winning_team <> mp.team
+		)::bigint AS losses`).
 		ColumnExpr("COALESCE(SUM(mp.kills), 0) AS kills").
 		ColumnExpr("COALESCE(SUM(mp.deaths), 0) AS deaths").
 		ColumnExpr("COALESCE(SUM(mp.assists), 0) AS assists").
@@ -309,6 +322,48 @@ func (r *ProfileRepo) CareerStatsFromMatches(
 		return nil, err
 	}
 	return &out, nil
+}
+
+// CareerRecordsByPlayerIDs aggregates completed-match records per player_id
+// for a Discord user (used for per-identity W/L on the public profile).
+func (r *ProfileRepo) CareerRecordsByPlayerIDs(
+	ctx context.Context,
+	game models.Game,
+	discordUserID string,
+	playerIDs []int32,
+) (map[int32]models.PlayerCareerRecord, error) {
+	out := make(map[int32]models.PlayerCareerRecord, len(playerIDs))
+	if len(playerIDs) == 0 {
+		return out, nil
+	}
+	var rows []models.PlayerCareerRecord
+	err := r.db.NewSelect().
+		ColumnExpr("mp.player_id AS player_id").
+		ColumnExpr("COUNT(*)::bigint AS matches").
+		ColumnExpr(`COUNT(*) FILTER (
+			WHERE m.winning_team IS NOT NULL
+			  AND m.winning_team = mp.team
+		)::bigint AS wins`).
+		ColumnExpr(`COUNT(*) FILTER (
+			WHERE m.winning_team IS NOT NULL
+			  AND m.winning_team IN ('a', 'b')
+			  AND m.winning_team <> mp.team
+		)::bigint AS losses`).
+		TableExpr("match_participants AS mp").
+		Join("INNER JOIN matches AS m ON m.id = mp.match_id").
+		Where("mp.game = ?", game).
+		Where("mp.discord_user_id = ?", discordUserID).
+		Where("mp.player_id IN (?)", bun.In(playerIDs)).
+		Where("m.status = ?", "completed").
+		GroupExpr("mp.player_id").
+		Scan(ctx, &rows)
+	if err != nil {
+		return nil, err
+	}
+	for _, row := range rows {
+		out[row.PlayerID] = row
+	}
+	return out, nil
 }
 
 // ListDiscordProfilesByIDs loads cached Discord profiles for a set of user ids.

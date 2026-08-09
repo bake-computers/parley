@@ -86,9 +86,23 @@ type NewRatingHistory struct {
 	RecordedAt      int64    `bun:"recorded_at,notnull"`
 }
 
-// PlayerCareerStats is an aggregate of Parley match_participants K/D/A.
+// PlayerCareerStats is an aggregate of completed Parley matches for a user.
+// Record (matches/wins/losses) is derived from match outcomes so the public
+// profile stays correct even when denormalized player counters were not updated
+// (e.g. missing guild membership during ReportMatchResult).
 type PlayerCareerStats struct {
+	Matches int64 `bun:"matches"`
+	Wins    int64 `bun:"wins"`
+	Losses  int64 `bun:"losses"`
 	Kills   int64 `bun:"kills"`
 	Deaths  int64 `bun:"deaths"`
 	Assists int64 `bun:"assists"`
+}
+
+// PlayerCareerRecord is career record for one linked player_id.
+type PlayerCareerRecord struct {
+	PlayerID int32 `bun:"player_id"`
+	Matches  int64 `bun:"matches"`
+	Wins     int64 `bun:"wins"`
+	Losses   int64 `bun:"losses"`
 }

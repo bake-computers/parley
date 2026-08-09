@@ -208,40 +208,31 @@ func (s *ProfileService) buildPublicProfile(
 		return nil, apperr.Internal(fmt.Sprintf("players: %v", err))
 	}
 
-	// Prefer player-row career totals (canonical Parley rank display).
+	// Prefer match-derived career totals so W/L/matches match recent matches
+	// even when players.internal_* was not updated (no guild membership at
+	// report time). Elo still comes from the linked player row.
 	var bestElo float64
-	var totalMatches, totalWins, totalLosses int32
 	var earliest int64 = profile.CreatedAt
 	for _, id := range identities {
 		player, ok := playersByID[id.PlayerID]
 		if !ok {
 			continue
 		}
-		out.Identities = append(out.Identities, &profilev1.ProfileGameIdentity{
-			Username:    player.Username,
-			Platform:    player.Platform,
-			InternalElo: player.InternalElo,
-			Matches:     player.InternalMatches,
-			Wins:        player.InternalWins,
-			Losses:      player.InternalLosses,
-		})
 		if player.InternalElo > bestElo {
 			bestElo = player.InternalElo
 		}
-		totalMatches += player.InternalMatches
-		totalWins += player.InternalWins
-		totalLosses += player.InternalLosses
 		if player.CreatedAt > 0 && (earliest == 0 || player.CreatedAt < earliest) {
 			earliest = player.CreatedAt
 		}
 	}
-	if bestElo == 0 && len(out.Identities) > 0 {
-		bestElo = out.Identities[0].InternalElo
+	if bestElo == 0 {
+		for _, player := range playersByID {
+			if player.InternalElo > bestElo {
+				bestElo = player.InternalElo
+			}
+		}
 	}
 	out.InternalElo = bestElo
-	out.Matches = totalMatches
-	out.Wins = totalWins
-	out.Losses = totalLosses
 	if earliest > 0 {
 		out.MemberSinceMs = earliest
 	}
@@ -251,9 +242,37 @@ func (s *ProfileService) buildPublicProfile(
 		return nil, apperr.Internal(fmt.Sprintf("career stats: %v", err))
 	}
 	if career != nil {
+		out.Matches = int32(career.Matches)
+		out.Wins = int32(career.Wins)
+		out.Losses = int32(career.Losses)
 		out.Kills = int32(career.Kills)
 		out.Deaths = int32(career.Deaths)
 		out.Assists = int32(career.Assists)
+	}
+
+	recordsByPlayer, err := s.profiles.CareerRecordsByPlayerIDs(ctx, game, profile.DiscordUserID, playerIDs)
+	if err != nil {
+		return nil, apperr.Internal(fmt.Sprintf("career records: %v", err))
+	}
+	for _, id := range identities {
+		player, ok := playersByID[id.PlayerID]
+		if !ok {
+			continue
+		}
+		ident := &profilev1.ProfileGameIdentity{
+			Username:    player.Username,
+			Platform:    player.Platform,
+			InternalElo: player.InternalElo,
+			Matches:     player.InternalMatches,
+			Wins:        player.InternalWins,
+			Losses:      player.InternalLosses,
+		}
+		if rec, ok := recordsByPlayer[id.PlayerID]; ok {
+			ident.Matches = int32(rec.Matches)
+			ident.Wins = int32(rec.Wins)
+			ident.Losses = int32(rec.Losses)
+		}
+		out.Identities = append(out.Identities, ident)
 	}
 
 	history, err := s.profiles.ListRatingHistory(ctx, game, profile.DiscordUserID, historyLimit)

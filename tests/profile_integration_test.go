@@ -233,6 +233,111 @@ func TestProfile_RatingHistoryOnMatchUpdate(t *testing.T) {
 	}
 }
 
+// TestProfile_CareerRecordFromCompletedMatches ensures public profile W/L is
+// derived from completed match outcomes, not only denormalized player counters
+// (which stay 0 when ReportMatchResult skips rating updates).
+func TestProfile_CareerRecordFromCompletedMatches(t *testing.T) {
+	svc, profileRepo, identityRepo, _, userRepo, matchRepo, cleanup := newProfileStack(t)
+	defer cleanup()
+	ctx := context.Background()
+
+	userID := fmt.Sprintf("career_%s", randomSuffix())
+	handle := fmt.Sprintf("career_%s", randomSuffix())
+	if err := profileRepo.UpsertDiscordProfile(ctx, userID, handle, "Career", ""); err != nil {
+		t.Fatalf("upsert: %v", err)
+	}
+	if _, err := userRepo.Upsert(ctx, &models.NewUserSettings{
+		DiscordUserID:      userID,
+		MatchmakingEnabled: true,
+		ProfilePublic:      true,
+		CreatedAt:          repos.NowMS(),
+		UpdatedAt:          repos.NowMS(),
+	}); err != nil {
+		t.Fatalf("settings: %v", err)
+	}
+
+	player, err := identityRepo.UpsertPlayerByIdentity(ctx, models.GameR6, "CareerR6_"+randomSuffix(), "pc", nil, nil)
+	if err != nil {
+		t.Fatalf("player: %v", err)
+	}
+	if _, err := identityRepo.LinkDiscordIdentity(ctx, models.GameR6, userID, player.ID); err != nil {
+		t.Fatalf("link: %v", err)
+	}
+
+	// Leave players.internal_* at zeros — simulate skipped rating update.
+	if player.InternalWins != 0 || player.InternalMatches != 0 {
+		t.Fatalf("fixture player counters not zero: %+v", player)
+	}
+
+	now := repos.NowMS()
+	mk := func(team, winning string, kills, deaths, assists int32) {
+		t.Helper()
+		k, d, a := kills, deaths, assists
+		saved, _, err := matchRepo.Create(ctx, &models.NewMatch{
+			Game:                   models.GameR6,
+			GuildID:                "g_career",
+			ChannelID:              "ch",
+			MessageID:              fmt.Sprintf("msg_%s", randomSuffix()),
+			CreatedByDiscordUserID: userID,
+			Status:                 repos.MatchStatusActive,
+			MatchType:              "internal",
+			ResolutionType:         "played",
+			CreatedAt:              now,
+			UpdatedAt:              now,
+		}, []models.NewMatchParticipant{{
+			Game:          models.GameR6,
+			DiscordUserID: userID,
+			PlayerID:      player.ID,
+			Team:          team,
+			Slot:          0,
+			Kills:         &k,
+			Deaths:        &d,
+			Assists:       &a,
+			CreatedAt:     now,
+			UpdatedAt:     now,
+		}})
+		if err != nil {
+			t.Fatalf("create match: %v", err)
+		}
+		if _, err := matchRepo.Complete(ctx, models.GameR6, saved.ID, winning); err != nil {
+			t.Fatalf("complete: %v", err)
+		}
+	}
+	mk("a", "a", 5, 2, 1) // win
+	mk("b", "a", 1, 4, 0) // loss
+	mk("a", "a", 3, 3, 2) // win
+
+	resp, err := svc.GetPublicProfile(ctx, connect.NewRequest(&profilev1.GetPublicProfileRequest{
+		Username:           handle,
+		Game:               commonv1.Game_GAME_R6,
+		RecentMatchLimit:   10,
+		RatingHistoryLimit: 10,
+	}))
+	if err != nil {
+		t.Fatalf("GetPublicProfile: %v", err)
+	}
+	p := resp.Msg.GetProfile()
+	if p == nil {
+		t.Fatal("expected profile")
+	}
+	if p.Matches != 3 || p.Wins != 2 || p.Losses != 1 {
+		t.Fatalf("record = %dM %dW %dL, want 3M 2W 1L", p.Matches, p.Wins, p.Losses)
+	}
+	if p.Kills != 9 || p.Deaths != 9 || p.Assists != 3 {
+		t.Fatalf("kda = %d/%d/%d, want 9/9/3", p.Kills, p.Deaths, p.Assists)
+	}
+	if len(p.RecentMatches) != 3 {
+		t.Fatalf("recent matches = %d, want 3", len(p.RecentMatches))
+	}
+	if len(p.Identities) != 1 {
+		t.Fatalf("identities = %d, want 1", len(p.Identities))
+	}
+	id := p.Identities[0]
+	if id.Matches != 3 || id.Wins != 2 || id.Losses != 1 {
+		t.Fatalf("identity record = %dM %dW %dL, want 3M 2W 1L", id.Matches, id.Wins, id.Losses)
+	}
+}
+
 func TestProfile_CanonicalCasingRedirect(t *testing.T) {
 	svc, repo, _, _, _, _, cleanup := newProfileStack(t)
 	defer cleanup()
