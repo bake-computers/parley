@@ -559,6 +559,7 @@ func (s *MatchService) ReportMatchResult(
 	}
 
 	var teamA, teamB []models.MatchParticipantWithUsername
+	discordIDs := make([]string, 0, len(parts))
 	for _, p := range parts {
 		switch p.Team {
 		case "a":
@@ -566,17 +567,26 @@ func (s *MatchService) ReportMatchResult(
 		case "b":
 			teamB = append(teamB, p)
 		}
+		discordIDs = append(discordIDs, p.DiscordUserID)
 	}
-	oppMuA, oppMuB := opponentMu(teamA), opponentMu(teamB)
+	memberships, err := s.guild.FindMembersByDiscordIDs(ctx, game, row.GuildID, discordIDs)
+	if err != nil {
+		return nil, apperr.Internal(fmt.Sprintf("guild memberships: %v", err))
+	}
+	memberByDiscord := make(map[string]repos.GuildMemberRow, len(memberships))
+	for _, m := range memberships {
+		memberByDiscord[m.DiscordUserID] = m
+	}
+	oppMuA := opponentMu(teamA, memberByDiscord)
+	oppMuB := opponentMu(teamB, memberByDiscord)
 	// Both phis are a fixed 350 in the Rust implementation.
 	const oppPhi = 350.0
 
 	for _, p := range parts {
-		memberships, err := s.guild.FindMembersByDiscordIDs(ctx, game, row.GuildID, []string{p.DiscordUserID})
-		if err != nil || len(memberships) == 0 {
+		member, ok := memberByDiscord[p.DiscordUserID]
+		if !ok {
 			continue
 		}
-		member := memberships[0]
 		won := p.Team == winning
 		var oppMu float64
 		switch p.Team {
@@ -640,13 +650,24 @@ func (s *MatchService) ReportMatchResult(
 	}), nil
 }
 
-// opponentMu mirrors the opponent_mu computation in
-// src/handlers/match_queue.rs. Empty teams fall back to 1000.
-func opponentMu(team []models.MatchParticipantWithUsername) float64 {
+// opponentMu is the mean internal elo of the opposing team. Empty teams and
+// teams with no guild memberships fall back to 1000 (default unrated mu).
+func opponentMu(team []models.MatchParticipantWithUsername, members map[string]repos.GuildMemberRow) float64 {
 	if len(team) == 0 {
 		return 1000.0
 	}
-	return float64(len(team)) * 1000.0 / float64(len(team))
+	var sum float64
+	var n int
+	for _, p := range team {
+		if m, ok := members[p.DiscordUserID]; ok {
+			sum += m.InternalElo
+			n++
+		}
+	}
+	if n == 0 {
+		return 1000.0
+	}
+	return sum / float64(n)
 }
 
 // --- ReportPlayerRoundStats ---
