@@ -27,7 +27,13 @@ export type TournamentJson = {
   createdByGuildId: string;
   createdByChannelId: string;
   createdByDiscordUserId: string;
-  teams: Array<{ id: number; teamName: string; captainDiscordUserId: string; status: string }>;
+  teams: Array<{
+    id: number;
+    teamName: string;
+    captainDiscordUserId: string;
+    status: string;
+    seedNumber?: number;
+  }>;
   bracketMatches: BracketMatchJson[];
 };
 
