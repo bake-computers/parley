@@ -98,8 +98,8 @@ function memberDisplayName(member: RawGuildMember): string | null {
 }
 
 /**
- * Lists non-bot guild members for roster selection. Bot tokens need no
- * privileged intent for the REST members endpoint.
+ * Lists non-bot guild members for roster selection. Requires the privileged
+ * Server Members Intent — the REST members endpoint returns 403 without it.
  */
 export async function fetchGuildMembers(botToken: string, guildId: string): Promise<GuildMember[]> {
   const headers = { Authorization: `Bot ${botToken}` };
@@ -114,6 +114,11 @@ export async function fetchGuildMembers(botToken: string, guildId: string): Prom
     }
     const res = await fetch(url.href, { headers });
     if (!res.ok) {
+      if (res.status === 403) {
+        throw new Error(
+          "Discord guild members failed (403) — the bot needs the Server Members Intent enabled",
+        );
+      }
       throw new Error(`Discord guild members failed (${res.status})`);
     }
     const batch = (await res.json()) as RawGuildMember[];
