@@ -1,8 +1,7 @@
 import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router";
-import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
-import { TanStackDevtools } from "@tanstack/react-devtools";
 
 import { CookieBanner } from "#/components/CookieBanner";
+import { Devtools } from "#/components/Devtools";
 import appCss from "../styles.css?url";
 
 import criticalCss from "../critical.css?raw";
@@ -12,7 +11,6 @@ const SITE_DESCRIPTION =
   "Parley is the Rainbow Six Siege Discord bot for fair, skill-matched lobbies, automated scrims, and tournaments. Telemetry-driven matchmaking with Glicko-2 balancing. Open beta.";
 const SITE_URL = "https://parley.bot";
 const OG_IMAGE = "/assets/parley-banner.png";
-const HERO_PRELOAD = "/assets/hero/hero-cinematic-768.webp";
 
 const THEME_SCRIPT = `(function(){try{var c=localStorage.getItem('parley_cookie_consent');var p=false;if(c){var j=JSON.parse(c);p=j&&j.version==='v1'&&j.preferences===true}var d;if(p){var t=localStorage.getItem('parley-theme');d=t==='dark'||(t!=='light'&&matchMedia('(prefers-color-scheme:dark)').matches)}else{d=matchMedia('(prefers-color-scheme:dark)').matches}document.documentElement.classList.toggle('dark',d)}catch(e){}})()`;
 
@@ -79,22 +77,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
         <style dangerouslySetInnerHTML={{ __html: criticalCss }} />
-        <link
-          rel="preload"
-          href={HERO_PRELOAD}
-          as="image"
-          type="image/webp"
-          fetchPriority="high"
-          media="(max-width: 767px)"
-        />
-        <link
-          rel="preload"
-          href="/assets/hero/hero-cinematic-1280.webp"
-          as="image"
-          type="image/webp"
-          fetchPriority="high"
-          media="(min-width: 768px)"
-        />
         <link rel="preload" href={appCss} as="style" />
         <link rel="stylesheet" href={appCss} />
         <HeadContent />
@@ -103,19 +85,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
         <div aria-hidden="true" className="ambient-bg fixed inset-0 -z-10" />
         {children}
         <CookieBanner />
-        {import.meta.env.DEV ? (
-          <TanStackDevtools
-            config={{
-              position: "bottom-right",
-            }}
-            plugins={[
-              {
-                name: "Tanstack Router",
-                render: <TanStackRouterDevtoolsPanel />,
-              },
-            ]}
-          />
-        ) : null}
+        {import.meta.env.DEV ? <Devtools /> : null}
         <Scripts />
       </body>
     </html>

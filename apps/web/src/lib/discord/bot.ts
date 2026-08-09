@@ -132,7 +132,7 @@ export async function fetchGuildMembers(botToken: string, guildId: string): Prom
         members.push({
           id,
           name,
-          avatarUrl: discordAvatarUrl(id, member.user?.avatar ?? null),
+          avatarUrl: discordAvatarUrl(id, member.user?.avatar ?? null, 64),
         });
       }
     }

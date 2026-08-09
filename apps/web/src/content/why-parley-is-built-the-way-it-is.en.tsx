@@ -24,8 +24,12 @@ export function WhyParleyIsBuiltTheWayItIsContentEn() {
 
       <figure className="mx-auto mt-12 w-full max-w-6xl">
         <img
-          src="/assets/parley-architecture-overview.webp"
+          src="/assets/parley-architecture-overview-1280.webp"
+          srcSet="/assets/parley-architecture-overview-800.webp 800w, /assets/parley-architecture-overview-1280.webp 1280w"
+          sizes="(max-width: 1280px) 100vw, 1280px"
           alt="Overview diagram of Parley's architecture"
+          width={1280}
+          height={488}
           className="h-auto w-full"
           loading="lazy"
         />

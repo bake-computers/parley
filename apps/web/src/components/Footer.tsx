@@ -1,4 +1,3 @@
-import { Image } from "@unpic/react";
 import { Reveal } from "#/components/ui/reveal";
 import { homeSectionHref, siteHref, type SitePath } from "#/lib/content/paths";
 import { useMessages } from "#/lib/content/messages/use-messages";
@@ -71,7 +70,7 @@ export function SiteFooter() {
               href={siteHref("")}
               className="inline-flex w-fit items-center gap-3 rounded-xl transition-opacity hover:opacity-80"
             >
-              <Image
+              <img
                 src="/parley-logo.svg"
                 alt="Parley logo"
                 width={36}

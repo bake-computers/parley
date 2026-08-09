@@ -1,6 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { ArrowLeft, Brackets, Play, Shield, Swords, XCircle } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { DashboardLoader } from "#/components/dashboard/DashboardLoader";
 import {
   bracketLabel,
@@ -15,11 +15,27 @@ import { Button, buttonVariants } from "#/components/ui/button";
 import { GlassPanel } from "#/components/ui/glass-panel";
 import { Reveal } from "#/components/ui/reveal";
 import { useAuthMe } from "#/hooks/useAuthMe";
+import { privateNoStore } from "#/lib/http-cache";
 import { cn } from "#/lib/shared/cn";
 import type { BracketMatchJson } from "#/lib/tournament/rpc";
 import { getTournament, tournamentAction } from "#/lib/tournament/server";
 
 export const Route = createFileRoute("/tournaments/$code/manage")({
+  headers: () => privateNoStore,
+  loader: async ({ params }): Promise<{
+    tournament: Tournament | null;
+    error: string | null;
+  }> => {
+    try {
+      const tournament = await getTournament({ data: params.code.toUpperCase() });
+      return { tournament, error: null };
+    } catch (reason) {
+      return {
+        tournament: null,
+        error: reason instanceof Error ? reason.message : "Could not load tournament",
+      };
+    }
+  },
   component: ManageTournamentPage,
 });
 
@@ -38,65 +54,19 @@ type Tournament = {
 
 function ManageTournamentPage() {
   const { code } = Route.useParams();
+  const { tournament, error } = Route.useLoaderData();
   const { me } = useAuthMe();
-  const [tournament, setTournament] = useState<Tournament | null>(null);
-  const [loading, setLoading] = useState(true);
+  const router = useRouter();
   const [busy, setBusy] = useState<"start" | "cancel" | `report:${number}` | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
   const displayCode = code.toUpperCase();
   const loginRedirect = `/tournaments/${code}/manage`;
 
-  useEffect(() => {
-    let cancelled = false;
-    getTournament({ data: displayCode })
-      .then((tournament) => !cancelled && setTournament(tournament))
-      .catch(
-        (reason) =>
-          !cancelled &&
-          setError(reason instanceof Error ? reason.message : "Could not load tournament"),
-      )
-      .finally(() => !cancelled && setLoading(false));
-    return () => {
-      cancelled = true;
-    };
-  }, [displayCode]);
-
-  if (me === undefined || loading) {
-    return (
-      <TournamentShell>
-        <DashboardLoader label="Loading tournament…" />
-      </TournamentShell>
-    );
-  }
-  if (!me) {
-    return (
-      <TournamentShell
-        hero={
-          <TournamentHero
-            eyebrow="Host controls"
-            title={
-              <>
-                Manage{" "}
-                <span className="text-accent-silver font-mono tracking-wide">{displayCode}</span>
-              </>
-            }
-            description="Review teams and control the event."
-          />
-        }
-      >
-        <TournamentAuthGate
-          title="Host sign-in required"
-          description="Log in with Discord to manage this tournament."
-          redirectTo={loginRedirect}
-        />
-      </TournamentShell>
-    );
-  }
-  if (!tournament || tournament.createdByDiscordUserId !== me.user.id) {
+  if (!tournament) {
     return (
       <TournamentShell>
         <GlassPanel className="p-8">
-          <p role="alert">{error ?? "Only the tournament host can manage this event."}</p>
+          <p role="alert">{error ?? "Tournament not found"}</p>
           <Link
             to="/tournaments/$code"
             params={{ code }}
@@ -108,6 +78,119 @@ function ManageTournamentPage() {
       </TournamentShell>
     );
   }
+
+  const isHost = me?.user.id === tournament.createdByDiscordUserId;
+
+  return (
+    <TournamentShell
+      hero={
+        <TournamentHero
+          eyebrow="Host controls"
+          title={
+            <>
+              Manage{" "}
+              <span className="text-accent-silver font-mono tracking-wide">{displayCode}</span>
+            </>
+          }
+          description="Review confirmed teams, start manually when ready, or cancel the event."
+          meta={
+            me ? (
+              <div className="glass-chip inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-muted-foreground">
+                <span className="size-1.5 rounded-full bg-accent-silver" aria-hidden />
+                Host · {me.user.globalName ?? me.user.username}
+              </div>
+            ) : undefined
+          }
+        />
+      }
+    >
+      {me === undefined ? (
+        <GlassPanel className="p-8">
+          <DashboardLoader label="Checking host session…" />
+        </GlassPanel>
+      ) : me === null ? (
+        <TournamentAuthGate
+          title="Host sign-in required"
+          description="Log in with Discord to manage this tournament."
+          redirectTo={loginRedirect}
+        />
+      ) : isHost ? (
+        <HostControls
+          tournament={tournament}
+          code={code}
+          busy={busy}
+          error={actionError}
+          onReport={reportResult}
+          onAction={runAction}
+        />
+      ) : (
+        <GlassPanel className="p-8">
+          <p role="alert">Only the tournament host can manage this event.</p>
+          <Link
+            to="/tournaments/$code"
+            params={{ code }}
+            className="mt-4 inline-block text-sm underline"
+          >
+            Back to event
+          </Link>
+        </GlassPanel>
+      )}
+    </TournamentShell>
+  );
+
+  async function reportResult(bracketMatchId: number, winnerTeamId: number) {
+    if (busy) {
+      return;
+    }
+    setBusy(`report:${bracketMatchId}`);
+    setActionError(null);
+    try {
+      await tournamentAction({
+        data: { code: displayCode, action: "report", bracketMatchId, winnerTeamId },
+      });
+      await router.invalidate();
+    } catch (reason) {
+      setActionError(reason instanceof Error ? reason.message : "Result report failed");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function runAction(action: "start" | "cancel") {
+    if (busy) {
+      return;
+    }
+    if (action === "cancel" && !window.confirm("Cancel this tournament?")) {
+      return;
+    }
+    setBusy(action);
+    setActionError(null);
+    try {
+      await tournamentAction({ data: { code: displayCode, action } });
+      await router.invalidate();
+    } catch (reason) {
+      setActionError(reason instanceof Error ? reason.message : "Tournament update failed");
+    } finally {
+      setBusy(null);
+    }
+  }
+}
+
+function HostControls({
+  tournament,
+  code,
+  busy,
+  error,
+  onReport,
+  onAction,
+}: {
+  tournament: Tournament;
+  code: string;
+  busy: "start" | "cancel" | `report:${number}` | null;
+  error: string | null;
+  onReport: (bracketMatchId: number, winnerTeamId: number) => void;
+  onAction: (action: "start" | "cancel") => void;
+}) {
   const canStart = tournament.status === "open" && tournament.teams.length >= tournament.minTeams;
   const teamNames = new Map(tournament.teams.map((team) => [team.id, team.teamName]));
   const bracketIsLive = (tournament.bracketMatches?.length ?? 0) > 0;
@@ -126,26 +209,7 @@ function ManageTournamentPage() {
       : [];
 
   return (
-    <TournamentShell
-      hero={
-        <TournamentHero
-          eyebrow="Host controls"
-          title={
-            <>
-              Manage{" "}
-              <span className="text-accent-silver font-mono tracking-wide">{displayCode}</span>
-            </>
-          }
-          description="Review confirmed teams, start manually when ready, or cancel the event."
-          meta={
-            <div className="glass-chip inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-muted-foreground">
-              <span className="size-1.5 rounded-full bg-accent-silver" aria-hidden />
-              Host · {me.user.globalName ?? me.user.username}
-            </div>
-          }
-        />
-      }
-    >
+    <>
       <div className="mb-6">
         <Link
           to="/tournaments/$code"
@@ -234,7 +298,7 @@ function ManageTournamentPage() {
                           variant="outline"
                           size="sm"
                           disabled={busy !== null}
-                          onClick={() => reportResult(match.id, match.teamAId!)}
+                          onClick={() => onReport(match.id, match.teamAId!)}
                           className="rounded-full"
                         >
                           {teamNames.get(match.teamAId!) ?? `Team ${match.teamAId}`}
@@ -245,7 +309,7 @@ function ManageTournamentPage() {
                           variant="outline"
                           size="sm"
                           disabled={busy !== null}
-                          onClick={() => reportResult(match.id, match.teamBId!)}
+                          onClick={() => onReport(match.id, match.teamBId!)}
                           className="rounded-full"
                         >
                           {teamNames.get(match.teamBId!) ?? `Team ${match.teamBId}`}
@@ -272,7 +336,7 @@ function ManageTournamentPage() {
                   type="button"
                   size="lg"
                   disabled={!canStart || busy !== null}
-                  onClick={() => runAction("start")}
+                  onClick={() => onAction("start")}
                   className="h-11 w-full rounded-full bg-foreground text-background hover:bg-foreground/90"
                 >
                   <Play data-icon="inline-start" className="size-4" aria-hidden />
@@ -283,7 +347,7 @@ function ManageTournamentPage() {
                   variant="destructive"
                   size="lg"
                   disabled={tournament.status !== "open" || busy !== null}
-                  onClick={() => runAction("cancel")}
+                  onClick={() => onAction("cancel")}
                   className="h-11 w-full rounded-full"
                 >
                   <XCircle data-icon="inline-start" className="size-4" aria-hidden />
@@ -319,47 +383,6 @@ function ManageTournamentPage() {
           </div>
         </Reveal>
       </div>
-    </TournamentShell>
+    </>
   );
-
-  async function reportResult(bracketMatchId: number, winnerTeamId: number) {
-    if (busy) {
-      return;
-    }
-    setBusy(`report:${bracketMatchId}`);
-    setError(null);
-    try {
-      const updated = await tournamentAction({
-        data: { code: displayCode, action: "report", bracketMatchId, winnerTeamId },
-      });
-      if (updated) {
-        setTournament(updated);
-      }
-    } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "Result report failed");
-    } finally {
-      setBusy(null);
-    }
-  }
-
-  async function runAction(action: "start" | "cancel") {
-    if (busy) {
-      return;
-    }
-    if (action === "cancel" && !window.confirm("Cancel this tournament?")) {
-      return;
-    }
-    setBusy(action);
-    setError(null);
-    try {
-      const updated = await tournamentAction({ data: { code: displayCode, action } });
-      if (updated) {
-        setTournament(updated);
-      }
-    } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "Tournament update failed");
-    } finally {
-      setBusy(null);
-    }
-  }
 }

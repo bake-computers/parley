@@ -1,8 +1,7 @@
 /* Discord Components v2 mock — isolated from host design system */
-@import url("https://fonts.googleapis.com/css2?family=Geologica:wght@400;500;600;700&display=swap");
 
 .djs-root {
-  --djs-font: "Geologica", "gg sans", "Noto Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --djs-font: "gg sans", "Noto Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
   --djs-bg: #313338;
   --djs-bg-secondary: #2b2d31;
   --djs-bg-tertiary: #1e1f22;

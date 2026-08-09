@@ -4,11 +4,15 @@ import { canManageCookieGuild } from "./permissions.js";
 import {
   buildDiscordAuthorizeUrl,
   cookieUsesSecure,
+  clearSignedInCookieHeader,
   DISCORD_OAUTH_SCOPES,
+  discordAvatarUrl,
+  discordGuildIconUrl,
   primeSessionGuildsCache,
   resolveSessionGuilds,
   sealOAuthState,
   sealSession,
+  signedInCookieHeader,
   stateCookieHeader,
   unsealOAuthState,
   unsealSession,
@@ -43,6 +47,39 @@ describe("discord oauth", () => {
     expect(cookieUsesSecure("http://localhost:3000/auth/discord")).toBe(false);
     expect(stateCookieHeader("a.b", "http://localhost:3000/x")).not.toContain("Secure");
     expect(stateCookieHeader("a.b", "https://parley.bot/x")).toContain("Secure");
+  });
+
+  test("signed-in presence cookie is never HttpOnly and mirrors Secure", () => {
+    const http = signedInCookieHeader(600, "http://localhost:3000/x");
+    expect(http).toBe("parley_signed_in=1; Max-Age=600; Path=/; SameSite=Lax");
+    expect(http).not.toContain("HttpOnly");
+
+    const https = signedInCookieHeader(600, "https://parley.bot/x");
+    expect(https).toContain("Secure");
+    expect(https).not.toContain("HttpOnly");
+
+    const cleared = clearSignedInCookieHeader("https://parley.bot/x");
+    expect(cleared).toContain("parley_signed_in=");
+    expect(cleared).toContain("Max-Age=0");
+    expect(cleared).not.toContain("HttpOnly");
+  });
+
+  test("avatar and guild icon URLs use webp/gif by hash with size param", () => {
+    expect(discordAvatarUrl("1", "abc123", 64)).toBe(
+      "https://cdn.discordapp.com/avatars/1/abc123.webp?size=64",
+    );
+    expect(discordAvatarUrl("1", "abc123")).toBe(
+      "https://cdn.discordapp.com/avatars/1/abc123.webp?size=128",
+    );
+    // Animated hashes keep the gif so the animation plays.
+    expect(discordAvatarUrl("1", "a_abc123")).toBe(
+      "https://cdn.discordapp.com/avatars/1/a_abc123.gif?size=128",
+    );
+    expect(discordAvatarUrl("1", null)).toBe("https://cdn.discordapp.com/embed/avatars/1.png");
+    expect(discordGuildIconUrl("9", "iconhash", 128)).toBe(
+      "https://cdn.discordapp.com/icons/9/iconhash.webp?size=128",
+    );
+    expect(discordGuildIconUrl("9", null)).toBeNull();
   });
 
   test("seal and unseal session respects expiry", async () => {

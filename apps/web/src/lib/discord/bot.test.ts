@@ -116,7 +116,7 @@ describe("fetchGuildMembers", () => {
       {
         id: "111",
         name: "Pretty Name",
-        avatarUrl: "https://cdn.discordapp.com/avatars/111/abcd.png?size=128",
+        avatarUrl: "https://cdn.discordapp.com/avatars/111/abcd.webp?size=64",
       },
     ]);
   });

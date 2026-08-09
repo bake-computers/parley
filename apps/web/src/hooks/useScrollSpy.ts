@@ -10,12 +10,16 @@ export function useScrollSpy({ sectionIds, offset = 128 }: UseScrollSpyOptions) 
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 8);
+    let raf = 0;
+    let lastActive: string | null = null;
+    let lastScrolled = false;
+
+    const update = () => {
+      raf = 0;
+      const nextScrolled = window.scrollY > 8;
 
       const scrollPosition = window.scrollY + offset;
       let current: string | null = null;
-
       for (const id of sectionIds) {
         const element = document.querySelector<HTMLElement>(`#${id}`);
         if (!element) {
@@ -26,12 +30,32 @@ export function useScrollSpy({ sectionIds, offset = 128 }: UseScrollSpyOptions) 
         }
       }
 
-      setActiveId(current);
+      if (current !== lastActive) {
+        lastActive = current;
+        setActiveId(current);
+      }
+      if (nextScrolled !== lastScrolled) {
+        lastScrolled = nextScrolled;
+        setScrolled(nextScrolled);
+      }
     };
 
-    handleScroll();
+    // Coalesce scroll events into one update per frame.
+    const handleScroll = () => {
+      if (raf) {
+        return;
+      }
+      raf = requestAnimationFrame(update);
+    };
+
+    update();
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => {
+      if (raf) {
+        cancelAnimationFrame(raf);
+      }
+      window.removeEventListener("scroll", handleScroll);
+    };
   }, [sectionIds, offset]);
 
   return { activeId, scrolled };

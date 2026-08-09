@@ -13,7 +13,7 @@ type GuildDashboardShellProps = {
 
 export function GuildDashboardShell({ guildId, guild, user, children }: GuildDashboardShellProps) {
   const iconUrl = discordGuildIconUrl(guild.id, guild.icon);
-  const avatar = discordAvatarUrl(user.id, user.avatar);
+  const avatar = discordAvatarUrl(user.id, user.avatar, 64);
 
   return (
     <div className="flex min-h-screen flex-col">

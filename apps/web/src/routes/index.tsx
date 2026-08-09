@@ -1,24 +1,15 @@
-import { lazy, Suspense } from "react";
 import { createFileRoute } from "@tanstack/react-router";
+import { DiscordCta } from "#/components/CallToAction";
+import { Experience } from "#/components/Experience";
+import { Faq } from "#/components/Faq";
 import { SiteHeader } from "#/components/Header";
 import { Hero } from "#/components/Hero";
 import { SiteFooter } from "#/components/Footer";
+import { Matchmaking } from "#/components/Matchmaking";
+import { OurStory } from "#/components/OurStory";
+import { Problem } from "#/components/Problem";
 import { PageSection, PageSections } from "#/components/ui/page-section";
-import { SectionSkeleton } from "#/components/ui/skeleton";
 import { publicCache } from "#/lib/http-cache";
-
-const Problem = lazy(() => import("#/components/Problem").then((m) => ({ default: m.Problem })));
-const OurStory = lazy(() => import("#/components/OurStory").then((m) => ({ default: m.OurStory })));
-const Matchmaking = lazy(() =>
-  import("#/components/Matchmaking").then((m) => ({ default: m.Matchmaking })),
-);
-const Experience = lazy(() =>
-  import("#/components/Experience").then((m) => ({ default: m.Experience })),
-);
-const DiscordCta = lazy(() =>
-  import("#/components/CallToAction").then((m) => ({ default: m.DiscordCta })),
-);
-const Faq = lazy(() => import("#/components/Faq").then((m) => ({ default: m.Faq })));
 
 // Structured data for search engines and AI answer engines. Kept in sync with
 // the homepage FAQ copy in lib/content/messages/en.ts.
@@ -98,7 +89,26 @@ export const Route = createFileRoute("/")({
   // Marketing shell changes rarely; SWR keeps hits after max-age.
   headers: () => publicCache(300, 3600, "page:home"),
   head: () => ({
-    links: [{ rel: "canonical", href: "https://parley.bot/" }],
+    links: [
+      { rel: "canonical", href: "https://parley.bot/" },
+      // LCP hero image — preloaded only on the home page, not globally.
+      {
+        rel: "preload",
+        href: "/assets/hero/hero-cinematic-768.webp",
+        as: "image",
+        type: "image/webp",
+        fetchPriority: "high",
+        media: "(max-width: 767px)",
+      },
+      {
+        rel: "preload",
+        href: "/assets/hero/hero-cinematic-1280.webp",
+        as: "image",
+        type: "image/webp",
+        fetchPriority: "high",
+        media: "(min-width: 768px)",
+      },
+    ],
   }),
   component: Home,
 });
@@ -118,41 +128,27 @@ function Home() {
             id="problem"
             className="-mt-[min(22vh,12rem)] pt-[min(30vh,16rem)] md:pt-[min(34vh,18rem)]"
           >
-            <Suspense fallback={<SectionSkeleton />}>
-              <Problem />
-            </Suspense>
+            <Problem />
           </PageSection>
           <PageSection id="story">
-            <Suspense fallback={<SectionSkeleton />}>
-              <OurStory />
-            </Suspense>
+            <OurStory />
           </PageSection>
           <PageSection id="matchmaking">
-            <Suspense fallback={<SectionSkeleton />}>
-              <Matchmaking />
-            </Suspense>
+            <Matchmaking />
           </PageSection>
           <section className="px-4 py-12 md:px-6 md:py-20">
             <div className="mx-auto w-full max-w-6xl">
-              <Suspense fallback={<SectionSkeleton />}>
-                <DiscordCta variant="band" />
-              </Suspense>
+              <DiscordCta variant="band" />
             </div>
           </section>
           <PageSection id="experience">
-            <Suspense fallback={<SectionSkeleton />}>
-              <Experience />
-            </Suspense>
+            <Experience />
           </PageSection>
           <PageSection id="discord">
-            <Suspense fallback={<SectionSkeleton />}>
-              <DiscordCta />
-            </Suspense>
+            <DiscordCta />
           </PageSection>
           <PageSection id="faq">
-            <Suspense fallback={<SectionSkeleton />}>
-              <Faq />
-            </Suspense>
+            <Faq />
           </PageSection>
         </PageSections>
       </main>
