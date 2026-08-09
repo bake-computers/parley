@@ -266,6 +266,12 @@ path changes and pushed to GHCR; runtime rollout is outside CI. When
 `AXIOM_TOKEN` is set, engine and edges emit structured logs to a shared Axiom
 dataset.
 
+Every push to `main` also cuts a GitHub Release
+([`.github/workflows/release.yml`](.github/workflows/release.yml)): semver is
+bumped from Conventional Commits since the previous tag (`feat` → minor,
+`BREAKING`/`type!:` → major, otherwise patch), and the release body lists
+exactly those commit subjects plus which Workers/engine need redeploying.
+
 ## 6. Development
 
 ```bash
