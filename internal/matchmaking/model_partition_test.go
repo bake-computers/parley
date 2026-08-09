@@ -3,9 +3,11 @@ package matchmaking
 import (
 	"encoding/json"
 	"math"
+	"strings"
 	"testing"
 
 	"github.com/bake-computers/parley/internal/models"
+	"github.com/bake-computers/parley/internal/repos"
 )
 
 func TestPartitionModelTeamsBalancesRoles(t *testing.T) {
@@ -85,5 +87,40 @@ func TestFeaturesFromSnapshotRejectsMissingRollupKeys(t *testing.T) {
 	_, _, err := featuresFromSnapshot(models.PlayerStatSnapshot{Matches: 10, Metadata: meta}, 3)
 	if err == nil {
 		t.Fatal("expected missing rollup keys to fail")
+	}
+}
+
+func TestTournamentBalanceFallbackPrefersRankPoints(t *testing.T) {
+	got := tournamentBalanceFallback(2537, 1200)
+	want := 2537.0 / 4000.0
+	if math.Abs(got-want) > 1e-12 {
+		t.Fatalf("fallback=%v want %v", got, want)
+	}
+	if got := tournamentBalanceFallback(0, 1500); math.Abs(got-0.75) > 1e-12 {
+		t.Fatalf("elo fallback=%v want 0.75", got)
+	}
+}
+
+func TestScoreLoadedPlayerTournamentFallback(t *testing.T) {
+	s := &Service{minSeasonMatches: 3}
+	member := repos.GuildMemberRow{
+		Username:        "Avqny",
+		InternalElo:     1200,
+		RatingDeviation: 350,
+	}
+	snap := models.PlayerStatSnapshot{Matches: 1, RankPoints: 2537}
+
+	got, err := s.scoreLoadedPlayer(member, snap, true)
+	if err != nil {
+		t.Fatalf("fallback score: %v", err)
+	}
+	want := tournamentBalanceFallback(2537, 1200)
+	if got.DisplayModelScore != want || got.Rated.CPR != want {
+		t.Fatalf("display=%v cpr=%v want %v", got.DisplayModelScore, got.Rated.CPR, want)
+	}
+
+	_, err = s.scoreLoadedPlayer(member, snap, false)
+	if err == nil || !strings.Contains(err.Error(), "needs at least 3 current-season ranked matches") {
+		t.Fatalf("strict error=%v", err)
 	}
 }

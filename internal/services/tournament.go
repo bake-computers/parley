@@ -228,7 +228,7 @@ func (s *TournamentService) buildTournamentProto(
 			for _, m := range teamRoster {
 				ids = append(ids, m.DiscordUserID)
 			}
-			loaded, _ = s.match.LoadPlayers(ctx, game, team.GuildID, ids)
+			loaded, _ = s.match.LoadPlayersForTournament(ctx, game, team.GuildID, ids)
 		}
 		roster := teamToProto(team, loaded)
 		roster.Roster = buildRosterAssignments(teamRoster, loaded)
@@ -591,7 +591,7 @@ func (s *TournamentService) registerTeamInner(
 		return nil, apperr.FailedPrecondition(fmt.Sprintf("expected %d players for this tournament format", teamSize))
 	}
 
-	players, err := s.match.LoadPlayers(ctx, game, guildID, discordUserIDs)
+	players, err := s.match.LoadPlayersForTournament(ctx, game, guildID, discordUserIDs)
 	if err != nil {
 		return nil, apperr.FailedPrecondition(err.Error())
 	}
@@ -690,7 +690,7 @@ func (s *TournamentService) UpdateTeamRoster(
 		return nil, apperr.InvalidArgument(fmt.Sprintf("expected %d players", teamSize))
 	}
 
-	players, err := s.match.LoadPlayers(ctx, game, team.GuildID, msg.GetDiscordUserIds())
+	players, err := s.match.LoadPlayersForTournament(ctx, game, team.GuildID, msg.GetDiscordUserIds())
 	if err != nil {
 		return nil, apperr.InvalidArgument(err.Error())
 	}

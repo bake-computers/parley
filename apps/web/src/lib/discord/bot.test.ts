@@ -3,6 +3,7 @@ import {
   botInstalledGuildIds,
   buildBotInviteUrl,
   fetchBotGuildIds,
+  fetchGuildMembers,
   PARLEY_BOT_PERMISSIONS,
 } from "./bot.js";
 import { cacheClearMemoryForTests } from "./discord-cache.js";
@@ -78,6 +79,46 @@ describe("botInstalledGuildIds", () => {
     await botInstalledGuildIds("bot-token", ["g1"]);
     await botInstalledGuildIds("bot-token", ["g1"]);
     expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("fetchGuildMembers", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  test("maps discord display names and avatars", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        new Response(
+          JSON.stringify([
+            {
+              nick: null,
+              user: {
+                id: "111",
+                username: "plain",
+                global_name: "Pretty Name",
+                avatar: "abcd",
+                bot: false,
+              },
+            },
+            {
+              user: { id: "222", username: "botty", bot: true },
+            },
+          ]),
+          { status: 200 },
+        ),
+      ),
+    );
+
+    await expect(fetchGuildMembers("bot-token", "guild-1")).resolves.toEqual([
+      {
+        id: "111",
+        name: "Pretty Name",
+        avatarUrl: "https://cdn.discordapp.com/avatars/111/abcd.png?size=128",
+      },
+    ]);
   });
 });
 

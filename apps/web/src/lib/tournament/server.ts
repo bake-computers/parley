@@ -2,8 +2,12 @@ import { createServerFn } from "@tanstack/react-start";
 import { getRequest } from "@tanstack/react-start/server";
 import { env } from "cloudflare:workers";
 import { requireDashboardSession, type DashboardSession } from "../dashboard/auth.js";
-import { discordAvatarUrl, resolveSessionGuilds } from "../discord/oauth.js";
+import { fetchGuildMembers } from "../discord/bot.js";
+import { cacheGetJson, cachePutJson } from "../discord/discord-cache.js";
+import { resolveBotToken } from "../discord/env.js";
+import { resolveSessionGuilds } from "../discord/oauth.js";
 import { engineEnvFromCloudflare } from "../engine/env.js";
+import { mergeTournamentMembers, type TournamentPickerMember } from "./members.js";
 import {
   rpcGetTournamentByCode,
   rpcListGuildMembers,
@@ -12,11 +16,7 @@ import {
   type TournamentJson,
 } from "./rpc.js";
 
-type TournamentMember = {
-  id: string;
-  name: string;
-  avatarUrl: string;
-};
+const GUILD_MEMBERS_TTL_SEC = 120;
 
 function validateTournamentCode(code: string): string {
   const normalized = code.trim().toUpperCase();
@@ -169,19 +169,23 @@ export const tournamentAction = createServerFn({ method: "POST" })
 /** Eligible linked host-guild roster for the registration picker. */
 export const listTournamentMembers = createServerFn({ method: "POST" })
   .inputValidator(validateTournamentCode)
-  .handler(async ({ data: code }): Promise<TournamentMember[]> => {
+  .handler(async ({ data: code }): Promise<TournamentPickerMember[]> => {
     const session = await requireSession();
+    const botToken = resolveBotToken(env);
+    if (!botToken) {
+      throw new Error("Member lookup is not configured");
+    }
     const engine = engineEnvFromCloudflare(env);
     const tournament = await rpcGetTournamentByCode(engine, code);
     if (!(await sessionIsGuildMember(session, tournament.createdByGuildId))) {
       throw new Error("You must be a member of the host server to view members");
     }
-    const members = await rpcListGuildMembers(engine, tournament.createdByGuildId);
-    return members
-      .map((member) => ({
-        id: member.discordUserId,
-        name: member.username,
-        avatarUrl: discordAvatarUrl(member.discordUserId, null),
-      }))
-      .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
+    const linked = await rpcListGuildMembers(engine, tournament.createdByGuildId);
+    const cacheKey = `guild-members:v2:${tournament.createdByGuildId}`;
+    let discordMembers = await cacheGetJson<Awaited<ReturnType<typeof fetchGuildMembers>>>(cacheKey);
+    if (!discordMembers) {
+      discordMembers = await fetchGuildMembers(botToken, tournament.createdByGuildId);
+      await cachePutJson(cacheKey, discordMembers, GUILD_MEMBERS_TTL_SEC);
+    }
+    return mergeTournamentMembers(linked, discordMembers);
   });
