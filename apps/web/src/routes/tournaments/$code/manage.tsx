@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { DashboardLoader } from "#/components/dashboard/DashboardLoader";
 import {
   bracketLabel,
+  buildPlaceholderBracket,
   groupBracket,
   TournamentAuthGate,
   TournamentBracket,
@@ -25,11 +26,13 @@ export const Route = createFileRoute("/tournaments/$code/manage")({
 type Tournament = {
   id: number;
   name: string;
+  format: string;
   status: string;
   publicCode: string;
   minTeams: number;
+  teamCap: number;
   createdByDiscordUserId: string;
-  teams: Array<{ id: number; teamName: string; status: string }>;
+  teams: Array<{ id: number; teamName: string; status: string; seedNumber?: number }>;
   bracketMatches?: BracketMatchJson[];
 };
 
@@ -107,6 +110,14 @@ function ManageTournamentPage() {
   }
   const canStart = tournament.status === "open" && tournament.teams.length >= tournament.minTeams;
   const teamNames = new Map(tournament.teams.map((team) => [team.id, team.teamName]));
+  const bracketIsLive = (tournament.bracketMatches?.length ?? 0) > 0;
+  // The Go engine sizes the live bracket from the registered team count, so
+  // the preview should match instead of always showing the full teamCap tree.
+  const bracketSizeSource =
+    tournament.teams.length >= 2 ? tournament.teams.length : tournament.teamCap;
+  const bracketMatches = bracketIsLive
+    ? (tournament.bracketMatches ?? [])
+    : buildPlaceholderBracket({ teamCount: bracketSizeSource, format: tournament.format });
   const actionable =
     tournament.status === "in_progress"
       ? groupBracket(tournament.bracketMatches ?? [])
@@ -183,20 +194,20 @@ function ManageTournamentPage() {
                 </div>
               )}
             </GlassPanel>
-            {tournament.bracketMatches?.length ? (
-              <GlassPanel as="section" className="p-6 md:p-8">
-                <div className="mb-6 flex items-center gap-3">
-                  <div className="flex size-10 items-center justify-center rounded-2xl bg-accent-silver/15">
-                    <Brackets className="size-5 text-accent-silver" aria-hidden />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-foreground">Bracket</p>
-                    <p className="text-xs text-muted-foreground">Live tournament progression</p>
-                  </div>
+            <GlassPanel as="section" className="p-6 md:p-8">
+              <div className="mb-6 flex items-center gap-3">
+                <div className="flex size-10 items-center justify-center rounded-2xl bg-accent-silver/15">
+                  <Brackets className="size-5 text-accent-silver" aria-hidden />
                 </div>
-                <TournamentBracket matches={tournament.bracketMatches} teams={tournament.teams} />
-              </GlassPanel>
-            ) : null}
+                <div>
+                  <p className="text-sm font-medium text-foreground">Bracket</p>
+                  <p className="text-xs text-muted-foreground">
+                    {bracketIsLive ? "Live tournament progression" : "Preview — fills in when the host starts"}
+                  </p>
+                </div>
+              </div>
+              <TournamentBracket matches={bracketMatches} teams={tournament.teams} />
+            </GlassPanel>
             {actionable.length > 0 ? (
               <GlassPanel as="section" className="p-6 md:p-8">
                 <div className="mb-6 flex items-center gap-3">
