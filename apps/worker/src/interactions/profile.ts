@@ -1,14 +1,16 @@
 import {
   ContainerBuilder,
+  err,
+  ok,
   SlashCommand,
   TextDisplayBuilder,
   type ChatInputCommandInteraction,
+  type Result,
 } from "@parley/runtime";
 import { Game } from "@parley/proto";
 import type { LinkedIdentity } from "@parley/proto";
 import type { LookupByDiscordResponse } from "@parley/proto";
 import { ConnectError } from "@connectrpc/connect";
-import { err, ok, type Result } from "neverthrow";
 import { cacheDiscordProfileFromUser } from "#/interactions/profile-cache";
 import { getIdentityClient, type EngineTransportEnv } from "#/transport";
 import { editReplyV2 } from "#/utils/discord";

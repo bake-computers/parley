@@ -9,8 +9,6 @@ import type {
   APIModalInteractionResponseCallbackData,
   RESTAPIPartialCurrentUserGuild,
 } from "discord-api-types/v10";
-import type { Result } from "neverthrow";
-
 export type JsonPrimitive = string | number | boolean | null;
 export type JsonValue = JsonPrimitive | JsonObject | JsonValue[];
 export type JsonObject = { [key: string]: JsonValue };
@@ -43,8 +41,6 @@ export interface DiscordApiError {
   body?: string;
   cause?: unknown;
 }
-
-export type DiscordResult<T> = Result<T, DiscordApiError>;
 
 export type ResponseInput = string | APIInteractionResponseCallbackData;
 export type ModalInput = APIModalInteractionResponseCallbackData;

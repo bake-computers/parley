@@ -1,4 +1,4 @@
-import { err, ok, type Result } from "neverthrow";
+import { err, ok, type Result } from "./result.js";
 import { discordRequest } from "./rest.js";
 import {
   flattenHandlers,

@@ -1,7 +1,7 @@
 import type { APIModalSubmitInteraction } from "discord-api-types/v10";
 import { DiscordRestClient } from "../rest.js";
 import type { DiscordRequestContext, DiscordRuntimeEnv } from "../types/index.js";
-import { ModalComponentResolver } from "../utils/handlers/index.js";
+import { ModalComponentResolver } from "../utils/handlers/modal-resolver.js";
 import { BaseInteraction } from "./base.js";
 
 export class ModalInteraction extends BaseInteraction<APIModalSubmitInteraction> {

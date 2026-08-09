@@ -12,8 +12,7 @@
     "test": "echo 'No tests yet'"
   },
   "dependencies": {
-    "discord-api-types": "^0.38.47",
-    "neverthrow": "^8.2.0"
+    "discord-api-types": "^0.38.47"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260506.1",

@@ -1,12 +1,8 @@
-import { err, type Result } from "neverthrow";
-import { isJSONEncodable, type JSONEncodable } from "../builders/index.js";
-import type {
-  DiscordApiError,
-  DiscordRequestContext,
-  JsonObject,
-  JsonValue,
-} from "../types/index.js";
-import { INITIAL_RESPONSE_CONTEXT_KEY, INITIAL_RESPONSE_RESOLVE_CONTEXT_KEY } from "./constants.js";
+import { isJSONEncodable, type JSONEncodable } from "../builders/types.js";
+import type { DiscordRequestContext, JsonObject, JsonValue } from "../types/index.js";
+
+export const INITIAL_RESPONSE_CONTEXT_KEY = "__discord_initial_response__";
+export const INITIAL_RESPONSE_RESOLVE_CONTEXT_KEY = "__discord_initial_response_resolve__";
 
 type InitialResponseResolver = (response: JsonObject | null) => void;
 
@@ -22,95 +18,96 @@ export interface InteractionResponseOptions {
   [key: string]: unknown;
 }
 
-function isJsonValue(value: unknown): value is JsonValue {
-  return (
+/** Drop undefined keys recursively so Discord payloads stay compact. */
+export function compactJson(value: unknown): JsonValue | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+  if (
     value === null ||
     typeof value === "string" ||
     typeof value === "number" ||
-    typeof value === "boolean" ||
-    Array.isArray(value) ||
-    (typeof value === "object" && value !== null)
-  );
+    typeof value === "boolean"
+  ) {
+    return value;
+  }
+  if (isJSONEncodable(value)) {
+    return compactJson(value.toJSON());
+  }
+  if (Array.isArray(value)) {
+    return value.map((item) => compactJson(item) ?? null);
+  }
+  if (typeof value === "object") {
+    const out: JsonObject = {};
+    for (const [key, item] of Object.entries(value as Record<string, unknown>)) {
+      const compacted = compactJson(item);
+      if (compacted !== undefined) {
+        out[key] = compacted;
+      }
+    }
+    return out;
+  }
+  return undefined;
 }
 
-function normalizePayload(input: string | InteractionResponseOptions): InteractionResponseOptions {
+export function normalizePayload(
+  input: string | InteractionResponseOptions,
+): InteractionResponseOptions {
   return typeof input === "string" ? { content: input } : { ...input };
 }
 
-function resolveArray(value: unknown): JsonValue[] | undefined {
-  if (!Array.isArray(value)) {
-    return undefined;
-  }
-  return value.map((item: unknown) =>
-    isJSONEncodable(item) ? item.toJSON() : (item as JsonValue),
-  );
-}
-
-function prepareResponsePayload(options: InteractionResponseOptions): JsonObject {
+export function prepareResponsePayload(options: InteractionResponseOptions): JsonObject {
   const payload: JsonObject = {};
 
   for (const [key, value] of Object.entries(options)) {
     if (value === undefined) {
       continue;
     }
+
     if (key === "embeds" || key === "components") {
-      const resolved = resolveArray(value);
-      if (resolved && resolved.length > 0) {
+      if (!Array.isArray(value)) {
+        continue;
+      }
+      const resolved: JsonValue[] = [];
+      for (const item of value) {
+        const compacted = compactJson(isJSONEncodable(item) ? item.toJSON() : item);
+        if (compacted !== undefined) {
+          resolved.push(compacted);
+        }
+      }
+      if (resolved.length > 0) {
         payload[key] = resolved;
       }
       continue;
     }
-    if (isJsonValue(value)) {
-      payload[key] = value;
+
+    const compacted = compactJson(value);
+    if (compacted !== undefined) {
+      payload[key] = compacted;
     }
   }
 
   return payload;
 }
 
-function interactionErrorResult(
-  method: string,
-  path: string,
-  message: string,
-): Result<never, DiscordApiError> {
-  return err({
-    kind: "discord-api",
-    method,
-    path,
-    message,
-    retryable: false,
-  });
-}
-
-function resolveInitialResponse(context: DiscordRequestContext, response: JsonObject | null): void {
-  const resolver = context.get<InitialResponseResolver | undefined>(
-    INITIAL_RESPONSE_RESOLVE_CONTEXT_KEY,
-  );
-  if (!resolver) {
-    return;
-  }
-
-  context.set(INITIAL_RESPONSE_RESOLVE_CONTEXT_KEY, undefined);
-  resolver(response);
-}
-
-function tryCaptureInitialResponse(context: DiscordRequestContext, response: JsonObject): boolean {
+export function tryCaptureInitialResponse(
+  context: DiscordRequestContext,
+  response: JsonObject,
+): boolean {
   const existing = context.get<JsonObject | undefined>(INITIAL_RESPONSE_CONTEXT_KEY);
   if (existing) {
     return false;
   }
 
   context.set(INITIAL_RESPONSE_CONTEXT_KEY, response);
-  resolveInitialResponse(context, response);
+
+  const resolver = context.get<InitialResponseResolver | undefined>(
+    INITIAL_RESPONSE_RESOLVE_CONTEXT_KEY,
+  );
+  if (resolver) {
+    context.set(INITIAL_RESPONSE_RESOLVE_CONTEXT_KEY, undefined);
+    resolver(response);
+  }
+
   return true;
 }
-
-export {
-  isJsonValue,
-  normalizePayload,
-  resolveArray,
-  prepareResponsePayload,
-  interactionErrorResult,
-  resolveInitialResponse,
-  tryCaptureInitialResponse,
-};

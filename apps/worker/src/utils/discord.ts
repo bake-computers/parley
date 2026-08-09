@@ -1,6 +1,11 @@
 import { InteractionResponseType } from "discord-api-types/v10";
-import type { DiscordApiError, JSONEncodable, JsonObject, JsonValue } from "@parley/runtime";
-import { type Result } from "neverthrow";
+import type {
+  DiscordApiError,
+  JSONEncodable,
+  JsonObject,
+  JsonValue,
+  Result,
+} from "@parley/runtime";
 
 // discord-api-types/v10: Ephemeral (64) | IsComponentsV2 (32768)
 export const COMPONENTS_V2_ONLY = 32768;

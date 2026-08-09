@@ -2,7 +2,7 @@ import {
   InteractionResponseType,
   type APIApplicationCommandAutocompleteInteraction,
 } from "discord-api-types/v10";
-import { ok, type Result } from "neverthrow";
+import { ok, type Result } from "../result.js";
 import { DiscordRestClient } from "../rest.js";
 import type {
   DiscordApiError,
@@ -11,7 +11,7 @@ import type {
   JsonObject,
   JsonValue,
 } from "../types/index.js";
-import { CommandInteractionOptionResolver } from "../utils/handlers/index.js";
+import { CommandInteractionOptionResolver } from "../utils/handlers/resolver.js";
 import { tryCaptureInitialResponse } from "./helpers.js";
 import { BaseInteraction } from "./base.js";
 
@@ -35,10 +35,10 @@ export class AutocompleteInteraction extends BaseInteraction<APIApplicationComma
   async respond(
     choices: { name: string; value: string | number }[],
   ): Promise<Result<JsonValue, DiscordApiError>> {
-    const payload = {
+    const payload: JsonObject = {
       type: InteractionResponseType.ApplicationCommandAutocompleteResult,
       data: { choices },
-    } as JsonObject;
+    };
 
     if (!this.responded && tryCaptureInitialResponse(this.context, payload)) {
       this.responded = true;
