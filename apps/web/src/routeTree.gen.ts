@@ -31,6 +31,7 @@ import { Route as ApiTournamentsCreateRouteImport } from './routes/api/tournamen
 import { Route as AuthDiscordIndexRouteImport } from './routes/auth/discord/index'
 import { Route as AuthDiscordCallbackRouteImport } from './routes/auth/discord/callback'
 import { Route as DashboardGuildsGuildIdRouteImport } from './routes/dashboard/guilds/$guildId'
+import { Route as TournamentsCodeIndexRouteImport } from './routes/tournaments/$code/index'
 import { Route as TournamentsCodeManageRouteImport } from './routes/tournaments/$code/manage'
 import { Route as ApiDashboardUserSettingsRouteImport } from './routes/api/dashboard/user/settings'
 import { Route as DashboardGuildsGuildIdIndexRouteImport } from './routes/dashboard/guilds/$guildId/index'
@@ -150,6 +151,11 @@ const DashboardGuildsGuildIdRoute = DashboardGuildsGuildIdRouteImport.update({
   path: '/guilds/$guildId',
   getParentRoute: () => DashboardRoute,
 } as any)
+const TournamentsCodeIndexRoute = TournamentsCodeIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => TournamentsCodeRoute,
+} as any)
 const TournamentsCodeManageRoute = TournamentsCodeManageRouteImport.update({
   id: '/manage',
   path: '/manage',
@@ -216,6 +222,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/guilds/$guildId': typeof DashboardGuildsGuildIdRouteWithChildren
   '/tournaments/$code/manage': typeof TournamentsCodeManageRoute
   '/auth/discord/': typeof AuthDiscordIndexRoute
+  '/tournaments/$code/': typeof TournamentsCodeIndexRoute
   '/api/dashboard/user/settings': typeof ApiDashboardUserSettingsRoute
   '/dashboard/guilds/$guildId/general': typeof DashboardGuildsGuildIdGeneralRoute
   '/dashboard/guilds/$guildId/quota': typeof DashboardGuildsGuildIdQuotaRoute
@@ -237,7 +244,6 @@ export interface FileRoutesByTo {
   '/dev/discord-components': typeof DevDiscordComponentsRoute
   '/docs/$': typeof DocsSplatRoute
   '/docs/discord-guide': typeof DocsDiscordGuideRoute
-  '/tournaments/$code': typeof TournamentsCodeRouteWithChildren
   '/tournaments/create': typeof TournamentsCreateRoute
   '/blog': typeof BlogIndexRoute
   '/docs': typeof DocsIndexRoute
@@ -246,6 +252,7 @@ export interface FileRoutesByTo {
   '/auth/discord/callback': typeof AuthDiscordCallbackRoute
   '/tournaments/$code/manage': typeof TournamentsCodeManageRoute
   '/auth/discord': typeof AuthDiscordIndexRoute
+  '/tournaments/$code': typeof TournamentsCodeIndexRoute
   '/api/dashboard/user/settings': typeof ApiDashboardUserSettingsRoute
   '/dashboard/guilds/$guildId/general': typeof DashboardGuildsGuildIdGeneralRoute
   '/dashboard/guilds/$guildId/quota': typeof DashboardGuildsGuildIdQuotaRoute
@@ -278,6 +285,7 @@ export interface FileRoutesById {
   '/dashboard/guilds/$guildId': typeof DashboardGuildsGuildIdRouteWithChildren
   '/tournaments/$code/manage': typeof TournamentsCodeManageRoute
   '/auth/discord/': typeof AuthDiscordIndexRoute
+  '/tournaments/$code/': typeof TournamentsCodeIndexRoute
   '/api/dashboard/user/settings': typeof ApiDashboardUserSettingsRoute
   '/dashboard/guilds/$guildId/general': typeof DashboardGuildsGuildIdGeneralRoute
   '/dashboard/guilds/$guildId/quota': typeof DashboardGuildsGuildIdQuotaRoute
@@ -311,6 +319,7 @@ export interface FileRouteTypes {
     | '/dashboard/guilds/$guildId'
     | '/tournaments/$code/manage'
     | '/auth/discord/'
+    | '/tournaments/$code/'
     | '/api/dashboard/user/settings'
     | '/dashboard/guilds/$guildId/general'
     | '/dashboard/guilds/$guildId/quota'
@@ -332,7 +341,6 @@ export interface FileRouteTypes {
     | '/dev/discord-components'
     | '/docs/$'
     | '/docs/discord-guide'
-    | '/tournaments/$code'
     | '/tournaments/create'
     | '/blog'
     | '/docs'
@@ -341,6 +349,7 @@ export interface FileRouteTypes {
     | '/auth/discord/callback'
     | '/tournaments/$code/manage'
     | '/auth/discord'
+    | '/tournaments/$code'
     | '/api/dashboard/user/settings'
     | '/dashboard/guilds/$guildId/general'
     | '/dashboard/guilds/$guildId/quota'
@@ -372,6 +381,7 @@ export interface FileRouteTypes {
     | '/dashboard/guilds/$guildId'
     | '/tournaments/$code/manage'
     | '/auth/discord/'
+    | '/tournaments/$code/'
     | '/api/dashboard/user/settings'
     | '/dashboard/guilds/$guildId/general'
     | '/dashboard/guilds/$guildId/quota'
@@ -561,6 +571,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardGuildsGuildIdRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/tournaments/$code/': {
+      id: '/tournaments/$code/'
+      path: '/'
+      fullPath: '/tournaments/$code/'
+      preLoaderRoute: typeof TournamentsCodeIndexRouteImport
+      parentRoute: typeof TournamentsCodeRoute
+    }
     '/tournaments/$code/manage': {
       id: '/tournaments/$code/manage'
       path: '/manage'
@@ -649,10 +666,12 @@ const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
 
 interface TournamentsCodeRouteChildren {
   TournamentsCodeManageRoute: typeof TournamentsCodeManageRoute
+  TournamentsCodeIndexRoute: typeof TournamentsCodeIndexRoute
 }
 
 const TournamentsCodeRouteChildren: TournamentsCodeRouteChildren = {
   TournamentsCodeManageRoute: TournamentsCodeManageRoute,
+  TournamentsCodeIndexRoute: TournamentsCodeIndexRoute,
 }
 
 const TournamentsCodeRouteWithChildren = TournamentsCodeRoute._addFileChildren(

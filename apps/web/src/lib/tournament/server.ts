@@ -171,21 +171,32 @@ export const listTournamentMembers = createServerFn({ method: "POST" })
   .inputValidator(validateTournamentCode)
   .handler(async ({ data: code }): Promise<TournamentPickerMember[]> => {
     const session = await requireSession();
-    const botToken = resolveBotToken(env);
-    if (!botToken) {
-      throw new Error("Member lookup is not configured");
-    }
     const engine = engineEnvFromCloudflare(env);
     const tournament = await rpcGetTournamentByCode(engine, code);
     if (!(await sessionIsGuildMember(session, tournament.createdByGuildId))) {
       throw new Error("You must be a member of the host server to view members");
     }
     const linked = await rpcListGuildMembers(engine, tournament.createdByGuildId);
-    const cacheKey = `guild-members:v2:${tournament.createdByGuildId}`;
-    let discordMembers = await cacheGetJson<Awaited<ReturnType<typeof fetchGuildMembers>>>(cacheKey);
-    if (!discordMembers) {
-      discordMembers = await fetchGuildMembers(botToken, tournament.createdByGuildId);
-      await cachePutJson(cacheKey, discordMembers, GUILD_MEMBERS_TTL_SEC);
+    // Discord enrichment is best-effort: without a bot token or the Server
+    // Members Intent the members endpoint fails. Linked engine members alone
+    // still power the picker, so a missing token or a failed fetch just drops
+    // the Discord layer instead of failing the request.
+    let discordMembers: Awaited<ReturnType<typeof fetchGuildMembers>> = [];
+    const botToken = resolveBotToken(env);
+    if (botToken) {
+      const cacheKey = `guild-members:v2:${tournament.createdByGuildId}`;
+      try {
+        const cached = await cacheGetJson<Awaited<ReturnType<typeof fetchGuildMembers>>>(cacheKey);
+        if (cached) {
+          discordMembers = cached;
+        } else {
+          discordMembers = await fetchGuildMembers(botToken, tournament.createdByGuildId);
+          await cachePutJson(cacheKey, discordMembers, GUILD_MEMBERS_TTL_SEC);
+        }
+      } catch (error) {
+        console.error("[tournament] discord guild members enrichment failed", error);
+        discordMembers = [];
+      }
     }
     return mergeTournamentMembers(linked, discordMembers);
   });

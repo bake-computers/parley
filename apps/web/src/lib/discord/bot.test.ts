@@ -120,6 +120,14 @@ describe("fetchGuildMembers", () => {
       },
     ]);
   });
+
+  test("403 error calls out the Server Members Intent", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("{}", { status: 403 })));
+
+    await expect(fetchGuildMembers("bot-token", "guild-1")).rejects.toThrow(
+      /Server Members Intent/,
+    );
+  });
 });
 
 describe("fetchBotGuildIds", () => {
