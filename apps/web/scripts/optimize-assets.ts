@@ -37,16 +37,6 @@ async function optimizeHero(source: string) {
     "-o",
     join(heroDir, "hero-cinematic-768.webp"),
   ]);
-  await cwebp([
-    "-q",
-    "75",
-    "-resize",
-    "1280",
-    "720",
-    source,
-    "-o",
-    join(webRoot, "public/assets/hero-cinematic.webp"),
-  ]);
 }
 
 async function optimizeFounder(slug: string) {
@@ -73,9 +63,32 @@ async function optimizeFounder(slug: string) {
   ]);
 }
 
+/** Responsive widths for the architecture diagram blog figure. */
+async function optimizeArchitecture() {
+  const source = join(webRoot, "public/assets/parley-architecture-overview.webp");
+  await Promise.all(
+    [800, 1280].map((width) =>
+      cwebp([
+        "-q",
+        "80",
+        "-resize",
+        String(width),
+        "0",
+        source,
+        "-o",
+        join(webRoot, `public/assets/parley-architecture-overview-${width}.webp`),
+      ]),
+    ),
+  );
+}
+
 async function main() {
-  const heroSource = process.argv[2] ?? join(webRoot, "public/assets/hero-cinematic.webp");
-  await optimizeHero(heroSource);
+  // Hero source was removed with the other raw assets; pass one explicitly to regenerate.
+  const heroSource = process.argv[2];
+  if (heroSource) {
+    await optimizeHero(heroSource);
+  }
+  await optimizeArchitecture();
   for (const slug of ["ryzm", "co-founder"]) {
     await optimizeFounder(slug);
   }

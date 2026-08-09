@@ -57,10 +57,6 @@ export default defineConfig(async ({ mode }) => {
             if (id.includes("HeroShaderOverlay") || id.includes("hero-shader")) {
               return "hero-shader";
             }
-
-            if (id.includes("@unpic/react")) {
-              return "unpic";
-            }
           },
         },
       },

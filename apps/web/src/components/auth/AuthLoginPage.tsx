@@ -165,7 +165,7 @@ export function AuthLoginPage({
         </header>
 
         <main className="relative z-10 flex flex-1 flex-col justify-center px-6 sm:px-10 lg:px-12">
-          <div className="mx-auto w-full max-w-[22rem] motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-2 motion-safe:duration-500">
+          <div className="parley-enter mx-auto w-full max-w-[22rem]">
             <h1 className="text-[2rem] font-semibold tracking-tight sm:text-[2.15rem]">Sign in</h1>
             <p className="text-muted-foreground mt-3 text-sm leading-relaxed">
               Authorize with Discord to access guild settings and matchmaking rules.

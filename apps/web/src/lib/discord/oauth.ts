@@ -283,6 +283,8 @@ export async function unsealSession(token: string, secret: string): Promise<Cook
 
 export const SESSION_COOKIE = "parley_discord_session";
 export const STATE_COOKIE = "parley_discord_oauth_state";
+/** Non-HttpOnly presence marker so the client can skip /api/auth/me when anonymous. */
+export const SIGNED_IN_COOKIE = "parley_signed_in";
 
 export function cookieUsesSecure(requestUrl: string): boolean {
   return new URL(requestUrl).protocol === "https:";
@@ -320,6 +322,24 @@ export function stateCookieHeader(value: string, requestUrl: string): string {
 export function clearStateCookieHeader(requestUrl: string): string {
   const parts = [`${STATE_COOKIE}=`, "Max-Age=0"];
   appendCookieFlags(parts, requestUrl);
+  return parts.join("; ");
+}
+
+// Presence cookie mirroring the HttpOnly session cookie (same lifetime). Not
+// HttpOnly, so the client can use it to skip /api/auth/me when anonymous.
+export function signedInCookieHeader(maxAgeSeconds: number, requestUrl: string): string {
+  const parts = [`${SIGNED_IN_COOKIE}=1`, `Max-Age=${maxAgeSeconds}`, "Path=/", "SameSite=Lax"];
+  if (cookieUsesSecure(requestUrl)) {
+    parts.push("Secure");
+  }
+  return parts.join("; ");
+}
+
+export function clearSignedInCookieHeader(requestUrl: string): string {
+  const parts = [`${SIGNED_IN_COOKIE}=`, "Max-Age=0", "Path=/", "SameSite=Lax"];
+  if (cookieUsesSecure(requestUrl)) {
+    parts.push("Secure");
+  }
   return parts.join("; ");
 }
 
@@ -417,16 +437,28 @@ export type PublicGuild = {
   inviteUrl: string | null;
 };
 
-export function discordGuildIconUrl(guildId: string, icon: string | null): string | null {
+export function discordGuildIconUrl(
+  guildId: string,
+  icon: string | null,
+  size: 32 | 64 | 128 | 256 = 64,
+): string | null {
   if (!icon) {
     return null;
   }
-  return `https://cdn.discordapp.com/icons/${guildId}/${icon}.png?size=64`;
+  const ext = icon.startsWith("a_") ? "gif" : "webp";
+  return `https://cdn.discordapp.com/icons/${guildId}/${icon}.${ext}?size=${size}`;
 }
 
-export function discordAvatarUrl(userId: string, avatar: string | null): string {
+export function discordAvatarUrl(
+  userId: string,
+  avatar: string | null,
+  size: 32 | 64 | 128 | 256 = 128,
+): string {
   if (avatar) {
-    return `https://cdn.discordapp.com/avatars/${userId}/${avatar}.png?size=128`;
+    // Animated avatars are stored with an `a_` prefix; keep the gif so the
+    // animation plays. Static hashes are served as webp (smaller than png).
+    const ext = avatar.startsWith("a_") ? "gif" : "webp";
+    return `https://cdn.discordapp.com/avatars/${userId}/${avatar}.${ext}?size=${size}`;
   }
   const index = Number(BigInt(userId) % 6n);
   return `https://cdn.discordapp.com/embed/avatars/${index}.png`;

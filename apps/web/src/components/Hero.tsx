@@ -83,17 +83,17 @@ export function Hero() {
 
       <div className="relative z-10 mx-auto flex min-h-[100dvh] w-full max-w-6xl flex-col justify-end px-6 pb-28 pt-24 text-left md:justify-center md:pb-[20vh]">
         <div className="max-w-xl md:max-w-[28rem] lg:max-w-[32rem]">
-          <h1 className="text-balance text-4xl font-semibold leading-[1.1] tracking-[-0.02em] text-zinc-50 animate-in fade-in slide-in-from-bottom-4 duration-1000 md:text-5xl lg:text-[3.25rem]">
+          <h1 className="text-balance text-4xl font-semibold leading-[1.1] tracking-[-0.02em] text-zinc-50 parley-enter md:text-5xl lg:text-[3.25rem]">
             {h.titleBefore}
             <span className="text-accent-silver">{h.titleHighlight}</span>
             {h.titleAfter}
           </h1>
 
-          <p className="mt-5 max-w-md text-pretty text-base leading-relaxed text-zinc-300 animate-in fade-in slide-in-from-bottom-4 duration-1000 md:text-lg">
+          <p className="mt-5 max-w-md text-pretty text-base leading-relaxed text-zinc-300 parley-enter md:text-lg">
             {h.subtitle}
           </p>
 
-          <div className="mt-8 flex w-full flex-col gap-3 animate-in fade-in slide-in-from-bottom-4 duration-1000 sm:flex-row sm:w-auto">
+          <div className="mt-8 flex w-full flex-col gap-3 parley-enter sm:flex-row sm:w-auto">
             <a href="#discord" className={ctaPrimary}>
               {h.ctaDiscord}
             </a>

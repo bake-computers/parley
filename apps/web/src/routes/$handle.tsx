@@ -1,6 +1,6 @@
+import { lazy, Suspense } from "react";
 import { createFileRoute, notFound, redirect } from "@tanstack/react-router";
 import { Trophy, Swords, Target, Percent } from "lucide-react";
-import { EloHistoryChart } from "#/components/profile/EloHistoryChart";
 import { ProfileShell } from "#/components/profile/ProfileShell";
 import { RecentMatches } from "#/components/profile/RecentMatches";
 import { GlassPanel } from "#/components/ui/glass-panel";
@@ -16,6 +16,11 @@ import {
 import { profileJsonLd, profilePageHead, serializeJsonLd } from "#/lib/profile/head";
 import { getPublicProfile } from "#/lib/profile/server";
 import type { GetPublicProfileResult, PublicProfileJson } from "#/lib/profile/rpc";
+
+// Heavy charting libs — load only when there is history to draw.
+const EloHistoryChart = lazy(() =>
+  import("#/components/profile/EloHistoryChart").then((m) => ({ default: m.EloHistoryChart })),
+);
 
 /**
  * Public profiles live at /@{discordUsername}. Other single-segment paths
@@ -98,7 +103,7 @@ function PrivateProfile({
   };
 }) {
   const display = profile.globalName || profile.username;
-  const avatar = discordAvatarUrl(profile.discordUserId, profile.avatarHash || null);
+  const avatar = discordAvatarUrl(profile.discordUserId, profile.avatarHash || null, 128);
 
   return (
     <ProfileShell
@@ -132,7 +137,7 @@ function PrivateProfile({
 
 function PublicProfileView({ profile }: { profile: PublicProfileJson }) {
   const display = profile.globalName || profile.username;
-  const avatar = discordAvatarUrl(profile.discordUserId, profile.avatarHash || null);
+  const avatar = discordAvatarUrl(profile.discordUserId, profile.avatarHash || null, 128);
   const tier = parleyRankForElo(profile.internalElo);
   const winRate = formatWinRate(profile.wins, profile.losses);
   const kd = formatKd(profile.kills, profile.deaths);
@@ -238,7 +243,17 @@ function PublicProfileView({ profile }: { profile: PublicProfileJson }) {
                 Parley Rank over time from completed matches
               </p>
             </div>
-            <EloHistoryChart points={profile.ratingHistory} />
+            {profile.ratingHistory.length >= 2 ? (
+              <Suspense fallback={<div className="h-64" aria-hidden />}>
+                <EloHistoryChart points={profile.ratingHistory} />
+              </Suspense>
+            ) : (
+              <div className="text-muted-foreground flex h-64 items-center justify-center text-sm">
+                {profile.ratingHistory.length === 1
+                  ? `Current rank: ${formatElo(profile.ratingHistory[0]?.elo ?? 0)} — play matches to build history.`
+                  : "No rank history yet."}
+              </div>
+            )}
           </GlassPanel>
         </Reveal>
 

@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Brackets, Users } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
-import { DashboardLoader } from "#/components/dashboard/DashboardLoader";
 import {
   buildPlaceholderBracket,
   PlayerPicker,
@@ -13,11 +12,29 @@ import { Button, buttonVariants } from "#/components/ui/button";
 import { GlassPanel } from "#/components/ui/glass-panel";
 import { Reveal } from "#/components/ui/reveal";
 import { useAuthMe } from "#/hooks/useAuthMe";
+import { privateNoStore } from "#/lib/http-cache";
 import { cn } from "#/lib/shared/cn";
 import type { BracketMatchJson } from "#/lib/tournament/rpc";
 import { getTournament, tournamentAction } from "#/lib/tournament/server";
 
-export const Route = createFileRoute("/tournaments/$code/")({ component: TournamentPage });
+export const Route = createFileRoute("/tournaments/$code/")({
+  headers: () => privateNoStore,
+  loader: async ({ params }): Promise<{
+    tournament: Tournament | null;
+    error: string | null;
+  }> => {
+    try {
+      const tournament = await getTournament({ data: params.code.toUpperCase() });
+      return { tournament, error: null };
+    } catch (reason) {
+      return {
+        tournament: null,
+        error: reason instanceof Error ? reason.message : "Could not load tournament",
+      };
+    }
+  },
+  component: TournamentPage,
+});
 
 type Tournament = {
   id: number;
@@ -33,30 +50,14 @@ type Tournament = {
 
 function TournamentPage() {
   const { code } = Route.useParams();
+  const { tournament, error } = Route.useLoaderData();
   const { me } = useAuthMe();
-  const [tournament, setTournament] = useState<Tournament | null>(null);
-  const [loading, setLoading] = useState(true);
   const [showRegistration, setShowRegistration] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [registerError, setRegisterError] = useState<string | null>(null);
   const [rosterIds, setRosterIds] = useState<string[]>([]);
   const displayCode = code.toUpperCase();
   const loginRedirect = `/tournaments/${code}`;
-
-  useEffect(() => {
-    let cancelled = false;
-    getTournament({ data: displayCode })
-      .then((tournament) => !cancelled && setTournament(tournament))
-      .catch(
-        (reason) =>
-          !cancelled &&
-          setError(reason instanceof Error ? reason.message : "Could not load tournament"),
-      )
-      .finally(() => !cancelled && setLoading(false));
-    return () => {
-      cancelled = true;
-    };
-  }, [displayCode]);
 
   useEffect(() => {
     if (me) {
@@ -64,13 +65,6 @@ function TournamentPage() {
     }
   }, [me]);
 
-  if (me === undefined || loading) {
-    return (
-      <TournamentShell>
-        <DashboardLoader label="Loading tournament…" />
-      </TournamentShell>
-    );
-  }
   if (!tournament) {
     return (
       <TournamentShell>
@@ -191,9 +185,9 @@ function TournamentPage() {
                         Cancel
                       </Button>
                     </div>
-                    {error ? (
+                    {registerError ? (
                       <p role="alert" className="text-sm text-destructive">
-                        {error}
+                        {registerError}
                       </p>
                     ) : null}
                   </form>
@@ -203,7 +197,7 @@ function TournamentPage() {
                     size="lg"
                     disabled={tournament.status !== "open"}
                     onClick={() => {
-                      setError(null);
+                      setRegisterError(null);
                       setShowRegistration(true);
                     }}
                     className="h-11 rounded-full bg-foreground px-6 text-background hover:bg-foreground/90"
@@ -270,7 +264,7 @@ function TournamentPage() {
     }
     const form = new FormData(event.currentTarget);
     setSubmitting(true);
-    setError(null);
+    setRegisterError(null);
     try {
       await tournamentAction({
         data: {
@@ -282,7 +276,7 @@ function TournamentPage() {
       });
       window.location.reload();
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "Team registration failed");
+      setRegisterError(reason instanceof Error ? reason.message : "Team registration failed");
       setSubmitting(false);
     }
   }

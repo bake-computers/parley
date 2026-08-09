@@ -22,6 +22,19 @@ export const Route = createFileRoute("/auth/login")({
     error: typeof search.error === "string" ? search.error : undefined,
   }),
   headers: () => privateNoStore,
+  head: () => ({
+    // AuthLoginPage shows the hero image only on lg+ screens.
+    links: [
+      {
+        rel: "preload",
+        href: "/assets/hero/hero-cinematic-1280.webp",
+        as: "image",
+        type: "image/webp",
+        fetchPriority: "high",
+        media: "(min-width: 1024px)",
+      },
+    ],
+  }),
   loader: async () => ({
     turnstileSiteKey: await getTurnstileSiteKey(),
   }),

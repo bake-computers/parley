@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Image } from "@unpic/react";
 import { ChevronDown, Menu, X } from "lucide-react";
 import { ThemeToggle } from "#/components/ui/theme-toggle";
 import { clearAuthMeCache, useAuthMe } from "#/hooks/useAuthMe";
@@ -135,7 +134,7 @@ function HeaderProfileMenu({
   }
 
   const displayName = me.user.globalName ?? me.user.username;
-  const avatar = discordAvatarUrl(me.user.id, me.user.avatar);
+  const avatar = discordAvatarUrl(me.user.id, me.user.avatar, 64);
 
   const close = () => {
     setOpen(false);
@@ -301,7 +300,7 @@ export function SiteHeader() {
             href={siteHref("")}
             className="flex shrink-0 items-center gap-2 rounded-full px-2 py-1.5 transition-colors hover:bg-muted/50"
           >
-            <Image
+            <img
               src="/parley-logo.svg"
               alt="Parley logo"
               width={28}

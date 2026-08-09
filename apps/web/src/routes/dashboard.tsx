@@ -1,13 +1,12 @@
 import { createFileRoute, Link, Navigate, Outlet, useRouterState } from "@tanstack/react-router";
 import { ChevronDown } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { AuthMeProvider, useAuthMeContext } from "#/components/dashboard/AuthMeProvider";
 import { DashboardLoader } from "#/components/dashboard/DashboardLoader";
 import { DashboardSessionError } from "#/components/dashboard/DashboardSessionError";
 import { GuildCard } from "#/components/dashboard/GuildCard";
 import { GlassPanel } from "#/components/ui/glass-panel";
 import { useAuthMe, type AuthMeGuild } from "#/hooks/useAuthMe";
-import { prefetchGuildSettings } from "#/lib/dashboard/guild-settings-cache";
 import { partitionDashboardGuilds } from "#/lib/discord/guild-dashboard";
 import { discordAvatarUrl } from "#/lib/discord/oauth";
 import { privateNoStore } from "#/lib/http-cache";
@@ -82,23 +81,12 @@ function DashboardIndex() {
     };
   }, [primary, other]);
 
-  useEffect(() => {
-    if (!me) {
-      return;
-    }
-    for (const g of me.guilds) {
-      if (g.canManage && g.parleyInstalled) {
-        prefetchGuildSettings(g.id);
-      }
-    }
-  }, [me]);
-
   if (!me) {
     return null;
   }
 
   const displayName = me.user.globalName ?? me.user.username;
-  const avatar = discordAvatarUrl(me.user.id, me.user.avatar);
+  const avatar = discordAvatarUrl(me.user.id, me.user.avatar, 256);
 
   return (
     <main className="dashboard-fade-in mx-auto min-h-[50vh] max-w-6xl px-6 py-12 pb-20">

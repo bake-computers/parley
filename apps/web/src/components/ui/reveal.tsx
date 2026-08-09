@@ -31,7 +31,9 @@ export function Reveal({
   as = "div",
 }: RevealProps) {
   const ref = useRef<HTMLElement | null>(null);
-  const [visible, setVisible] = useState(false);
+  // SSR and first paint show content; only below-fold elements hide and
+  // animate in on scroll.
+  const [visible, setVisible] = useState(true);
 
   useEffect(() => {
     const node = ref.current;
@@ -39,12 +41,18 @@ export function Reveal({
       return;
     }
 
-    // Respect users who prefer reduced motion.
+    // Respect users who prefer reduced motion — keep content visible.
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      setVisible(true);
       return;
     }
 
+    // Already in view (e.g. above the fold on load): no animation needed.
+    const rect = node.getBoundingClientRect();
+    if (rect.top < window.innerHeight * 0.9 && rect.bottom > 0) {
+      return;
+    }
+
+    setVisible(false);
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -56,24 +64,9 @@ export function Reveal({
       },
       { threshold: 0.15, rootMargin: "0px 0px -10% 0px" },
     );
-
     observer.observe(node);
 
-    // In bundled/SSR builds the observer can be created before first layout and
-    // report an already-visible element as not intersecting, then never fire
-    // again (nothing scrolls). Reveal anything already in view so content can
-    // never get stuck hidden; below-fold elements still animate on scroll.
-    const revealIfInView = () => {
-      const rect = node.getBoundingClientRect();
-      if (rect.top < window.innerHeight * 0.9 && rect.bottom > 0) {
-        setVisible(true);
-        observer.disconnect();
-      }
-    };
-    const raf = requestAnimationFrame(() => requestAnimationFrame(revealIfInView));
-
     return () => {
-      cancelAnimationFrame(raf);
       observer.disconnect();
     };
   }, []);

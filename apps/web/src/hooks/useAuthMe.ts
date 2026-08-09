@@ -31,6 +31,9 @@ export type AuthMeState = {
 
 const CACHE_TTL_MS = 60_000;
 
+/** The HttpOnly session cookie is invisible to JS; this presence cookie mirrors it. */
+const SIGNED_IN_COOKIE = "parley_signed_in";
+
 type AuthMeCache = {
   data: AuthMeResponse | null;
   fetchedAt: number;
@@ -44,6 +47,14 @@ export function clearAuthMeCache(): void {
   inflight = null;
 }
 
+// True when the non-HttpOnly signed-in presence cookie is set (browser only).
+export function hasSignedInHint(): boolean {
+  if (typeof document === "undefined") {
+    return false;
+  }
+  return document.cookie.split("; ").includes(`${SIGNED_IN_COOKIE}=1`);
+}
+
 function cacheIsFresh(): boolean {
   return authCache !== null && Date.now() - authCache.fetchedAt < CACHE_TTL_MS;
 }
@@ -51,6 +62,11 @@ function cacheIsFresh(): boolean {
 async function loadAuthMe(): Promise<AuthMeResponse | null> {
   const res = await fetch("/api/auth/me", { credentials: "include" });
   if (res.status === 401) {
+    // Signed out: drop the presence cookie so subsequent loads skip the
+    // /api/auth/me round trip instead of re-401ing.
+    if (typeof document !== "undefined") {
+      document.cookie = "parley_signed_in=; Max-Age=0; Path=/; SameSite=Lax";
+    }
     return null;
   }
   if (!res.ok) {
@@ -79,9 +95,13 @@ async function fetchAuthMe(force = false): Promise<AuthMeResponse | null> {
 }
 
 export function useAuthMe(): AuthMeState {
-  const [me, setMe] = useState<AuthMeResponse | null | undefined>(
-    () => authCache?.data ?? undefined,
-  );
+  const [me, setMe] = useState<AuthMeResponse | null | undefined>(() => {
+    // Same initializer on server and client: cached session if any, else
+    // undefined (SSR always starts undefined, so the client must too to
+    // avoid a hydration mismatch). The effect below then sets null without
+    // fetching when no presence cookie is set.
+    return authCache?.data ?? undefined;
+  });
   const [error, setError] = useState(false);
   const [attempt, setAttempt] = useState(0);
 
@@ -95,6 +115,12 @@ export function useAuthMe(): AuthMeState {
   useEffect(() => {
     let cancelled = false;
     const force = attempt > 0;
+
+    if (!force && !hasSignedInHint()) {
+      setMe(null);
+      setError(false);
+      return;
+    }
 
     if (!force && cacheIsFresh()) {
       setMe(authCache!.data);

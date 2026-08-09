@@ -1,6 +1,7 @@
 import {
   buildDiscordAuthorizeUrl,
   clearSessionCookieHeader,
+  clearSignedInCookieHeader,
   clearStateCookieHeader,
   discordRedirectUri,
   exchangeDiscordCode,
@@ -12,6 +13,7 @@ import {
   sealOAuthState,
   sealSession,
   sessionCookieHeader,
+  signedInCookieHeader,
   stateCookieHeader,
   unsealOAuthState,
   unsealSession,
@@ -158,10 +160,16 @@ async function handleDiscordCallbackImpl(
   }
 
   const existingSession = cookieValue(request, SESSION_COOKIE);
-  if (existingSession && (await unsealSession(existingSession, cfg.AUTH_SECRET))) {
-    const headers = new Headers({ Location: "/dashboard" });
-    headers.append("Set-Cookie", clearStateCookieHeader(request.url));
-    return new Response(null, { status: 302, headers });
+  if (existingSession) {
+    const session = await unsealSession(existingSession, cfg.AUTH_SECRET);
+    if (session) {
+      const headers = new Headers({ Location: "/dashboard" });
+      headers.append("Set-Cookie", clearStateCookieHeader(request.url));
+      // Refresh the presence cookie for legacy sessions created before it existed.
+      const remaining = Math.max(1, Math.floor((session.expiresAtMs - Date.now()) / 1000));
+      headers.append("Set-Cookie", signedInCookieHeader(remaining, request.url));
+      return new Response(null, { status: 302, headers });
+    }
   }
 
   const url = new URL(request.url);
@@ -257,6 +265,7 @@ async function handleDiscordCallbackImpl(
     "Cache-Control": "no-store",
   });
   headers.append("Set-Cookie", sessionCookieHeader(sessionToken, token.expires_in, request.url));
+  headers.append("Set-Cookie", signedInCookieHeader(token.expires_in, request.url));
   headers.append("Set-Cookie", clearStateCookieHeader(request.url));
   return new Response(null, { status: 302, headers });
 }
@@ -264,6 +273,7 @@ async function handleDiscordCallbackImpl(
 export async function handleDiscordLogout(request: Request): Promise<Response> {
   const headers = new Headers({ Location: "/" });
   headers.append("Set-Cookie", clearSessionCookieHeader(request.url));
+  headers.append("Set-Cookie", clearSignedInCookieHeader(request.url));
   return new Response(null, { status: 302, headers });
 }
 

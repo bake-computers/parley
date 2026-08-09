@@ -15,13 +15,19 @@ export function HeroShaderOverlay() {
     let handle: Awaited<ReturnType<typeof startHeroShader>> = null;
     let cancelled = false;
 
-    startHeroShader(canvas).then((result) => {
-      if (cancelled) {
-        result?.stop();
-        return;
-      }
-      handle = result;
-    });
+    startHeroShader(canvas)
+      .then((result) => {
+        if (cancelled) {
+          result?.stop();
+          return;
+        }
+        handle = result;
+      })
+      .catch(() => {
+        // WebGPU unavailable or device lost — the hero falls back to the
+        // static gradient, which is the intended graceful degradation.
+        handle = null;
+      });
 
     return () => {
       cancelled = true;

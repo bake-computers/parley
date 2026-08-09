@@ -39,12 +39,24 @@ export async function startHeroShader(canvas: HTMLCanvasElement): Promise<HeroSh
     return null;
   }
 
-  const adapter = await navigator.gpu.requestAdapter({ powerPreference: "low-power" });
-  if (!adapter) {
+  let adapter: GPUAdapter;
+  try {
+    const result = await navigator.gpu.requestAdapter({ powerPreference: "low-power" });
+    if (!result) {
+      return null;
+    }
+    adapter = result;
+  } catch {
     return null;
   }
 
-  const device = await adapter.requestDevice();
+  let device: GPUDevice;
+  try {
+    device = await adapter.requestDevice();
+  } catch {
+    return null;
+  }
+
   const context = canvas.getContext("webgpu");
   if (!context) {
     return null;
@@ -99,9 +111,14 @@ export async function startHeroShader(canvas: HTMLCanvasElement): Promise<HeroSh
   ro.observe(canvas);
 
   let raf = 0;
+  let running = false;
+  let isIntersecting = true;
   const start = performance.now();
 
   const draw = () => {
+    if (!running) {
+      return;
+    }
     const time = (performance.now() - start) / 1000;
     device.queue.writeBuffer(
       uniformBuffer,
@@ -128,12 +145,51 @@ export async function startHeroShader(canvas: HTMLCanvasElement): Promise<HeroSh
     raf = requestAnimationFrame(draw);
   };
 
-  draw();
+  // Only animate while the tab is visible and the canvas is on screen.
+  const schedule = () => {
+    if (running || document.hidden || !isIntersecting) {
+      return;
+    }
+    running = true;
+    raf = requestAnimationFrame(draw);
+  };
+  const pause = () => {
+    running = false;
+    cancelAnimationFrame(raf);
+  };
+
+  const onVisibilityChange = () => {
+    if (document.hidden) {
+      pause();
+    } else {
+      schedule();
+    }
+  };
+  document.addEventListener("visibilitychange", onVisibilityChange);
+
+  const io = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        isIntersecting = entry.isIntersecting;
+        if (entry.isIntersecting) {
+          schedule();
+        } else {
+          pause();
+        }
+      }
+    },
+    { threshold: 0.05 },
+  );
+  io.observe(canvas);
+
+  schedule();
 
   return {
     stop: () => {
-      cancelAnimationFrame(raf);
+      pause();
       ro.disconnect();
+      io.disconnect();
+      document.removeEventListener("visibilitychange", onVisibilityChange);
       device.destroy();
     },
   };

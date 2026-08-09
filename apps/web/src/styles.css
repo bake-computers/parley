@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
 @custom-variant dark (&:is(.dark *));
@@ -395,6 +394,21 @@
     background: color-mix(in srgb, var(--background) 92%, var(--foreground) 8%);
   }
 
+  @keyframes parley-fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(1rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .parley-enter {
+    animation: parley-fade-up 1s ease-out both;
+  }
+
   @keyframes parley-bar {
     from {
       transform: scaleX(0);
@@ -685,6 +699,10 @@
     .parley-balance-pulse,
     .parley-line-grow,
     .parley-bell-ring {
+      animation: none;
+    }
+
+    .parley-enter {
       animation: none;
     }
 

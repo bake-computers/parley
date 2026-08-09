@@ -83,7 +83,7 @@ function AccountSettingsPage() {
   }
 
   const displayName = me.user.globalName ?? me.user.username;
-  const avatar = discordAvatarUrl(me.user.id, me.user.avatar);
+  const avatar = discordAvatarUrl(me.user.id, me.user.avatar, 256);
 
   return (
     <main className="dashboard-fade-in mx-auto max-w-3xl px-6 py-12 pb-24">
