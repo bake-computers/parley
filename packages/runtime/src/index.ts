@@ -3,7 +3,6 @@ export type {
   DiscordRuntimeEnv,
   DiscordRequestContext,
   DiscordApiError,
-  DiscordResult,
   ResponseInput,
   ModalInput,
   MiddlewareFunction,
@@ -21,6 +20,9 @@ export type {
   JsonObject,
   JsonValue,
 } from "./types/index.js";
+
+// Result
+export { ok, err, type Result, Ok, Err } from "./result.js";
 
 // Client
 export { ParleyClient } from "./client.js";
@@ -54,7 +56,6 @@ export {
   SlashCommandSubcommandGroup,
   SlashCommandOptionContainer,
   isJSONEncodable,
-  resolveJson,
   type JSONEncodable,
 } from "./builders/index.js";
 
@@ -90,7 +91,6 @@ export {
   ModalComponentResolver,
   flattenHandlers,
   parseCustomId,
-  autocompleteChoice,
   isSlashCommandHandler,
   isContextCommandHandler,
   isRegisterableApplicationCommand,
@@ -124,14 +124,3 @@ export {
   type VerifyDiscordRequestError,
   type VerifiedDiscordRequest,
 } from "./utils/verify.js";
-
-// Emojis
-export {
-  resolveApplicationEmojiCatalog,
-  formatApplicationEmoji,
-  toComponentEmoji,
-  APP_EMOJI_NAMES,
-  type AppEmojiName,
-  type ApplicationEmojiEntry,
-  type ApplicationEmojiCatalog,
-} from "./utils/emojis.js";

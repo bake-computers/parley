@@ -4,6 +4,7 @@ export interface JSONEncodable<T extends JsonValue = JsonObject> {
   toJSON(): T;
 }
 
+/** Encode a value as JSON, omitting undefined object keys. */
 export function encodeValue(value: unknown): JsonValue {
   if (
     value === null ||
@@ -19,7 +20,7 @@ export function encodeValue(value: unknown): JsonValue {
   }
 
   if (Array.isArray(value)) {
-    return value.map((item) => encodeValue(item));
+    return value.map((item) => (item === undefined ? null : encodeValue(item)));
   }
 
   if (isJSONEncodable(value)) {
@@ -27,9 +28,14 @@ export function encodeValue(value: unknown): JsonValue {
   }
 
   if (typeof value === "object" && value) {
-    return Object.fromEntries(
-      Object.entries(value).map(([key, item]) => [key, encodeValue(item)]),
-    ) as JsonObject;
+    const out: JsonObject = {};
+    for (const [key, item] of Object.entries(value)) {
+      if (item === undefined) {
+        continue;
+      }
+      out[key] = encodeValue(item);
+    }
+    return out;
   }
 
   return null;
@@ -42,8 +48,4 @@ export function isJSONEncodable(value: unknown): value is JSONEncodable {
     "toJSON" in value &&
     typeof value.toJSON === "function"
   );
-}
-
-export function resolveJson<T extends JsonValue>(value: T | JSONEncodable<T>): T {
-  return isJSONEncodable(value) ? (value.toJSON() as T) : (value as T);
 }

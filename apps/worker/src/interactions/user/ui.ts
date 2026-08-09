@@ -7,7 +7,6 @@ import {
   StringSelectMenuBuilder,
   StringSelectMenuOptionBuilder,
   TextDisplayBuilder,
-  type AppEmojiName,
 } from "@parley/runtime";
 import { type AnonymizationCounts, type UserSettings as ProtoUserSettings } from "@parley/proto";
 import {
@@ -29,7 +28,6 @@ function separator(): SeparatorBuilder {
 type SettingSelectOption = {
   label: string;
   value: string;
-  emojiName?: AppEmojiName;
   isDefault?: boolean;
 };
 

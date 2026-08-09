@@ -1,6 +1,6 @@
 import type { ListMatchesResponse } from "@parley/proto/matchmaking/v1/matchmaking_pb.js";
 import { ConnectError } from "@connectrpc/connect";
-import { err, ok, type Result } from "neverthrow";
+import { err, ok, type Result } from "@parley/runtime";
 import { getMatchmakingClient, type EngineTransportEnv } from "#/transport";
 import type { Game } from "@parley/proto";
 

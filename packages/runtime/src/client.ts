@@ -33,16 +33,13 @@ import {
   ComponentHandler,
   ContextCommand,
   flattenHandlers,
-  isComponentHandler,
-  isContextCommandHandler,
-  isModalHandler,
   isSlashCommandHandler,
-  isWebhookHandler,
   ModalHandler,
   parseCustomId,
   SlashCommand,
   WebhookEventHandler,
   type AnyHandler,
+  type ConcreteHandler,
 } from "./utils/handlers/index.js";
 import type {
   DiscordRequestContext,
@@ -57,17 +54,29 @@ interface DiscordBotOptions {
   apiBaseUrl?: string;
 }
 
+const JSON_HEADERS = { "content-type": "application/json" } as const;
+const TEXT_HEADERS = { "content-type": "text/plain; charset=utf-8" } as const;
+// Precomputed PING ACK — Discord requires type 1 (Pong) within 3s.
+const PONG_BODY = JSON.stringify({ type: InteractionResponseType.Pong });
+
 function jsonResponse(body: JsonObject, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { "content-type": "application/json" },
+    headers: JSON_HEADERS,
+  });
+}
+
+function pongResponse(): Response {
+  return new Response(PONG_BODY, {
+    status: 200,
+    headers: JSON_HEADERS,
   });
 }
 
 function textResponse(body: string, status = 200): Response {
   return new Response(body, {
     status,
-    headers: { "content-type": "text/plain; charset=utf-8" },
+    headers: TEXT_HEADERS,
   });
 }
 
@@ -232,44 +241,54 @@ export class ParleyClient {
     throw new Error(`Duplicate ${label} handler registration for key "${key}"`);
   }
 
-  private registerSingleHandler(handler: AnyHandler): void {
-    if (isSlashCommandHandler(handler) || isContextCommandHandler(handler)) {
-      if (handler.isGuildCommand()) {
-        for (const guildId of handler.guildIds) {
-          const key = `${guildId}:${handler.name}`;
-          this.assertNoHandlerConflict(this.guildCommandHandlers, key, handler, "guild command", {
-            guildId,
-            commandName: handler.name,
-          });
-          this.guildCommandHandlers.set(key, handler);
+  private registerSingleHandler(handler: ConcreteHandler): void {
+    switch (handler.handlerType) {
+      case "slash":
+      case "context": {
+        if (handler.isGuildCommand()) {
+          for (const guildId of handler.guildIds) {
+            const key = `${guildId}:${handler.name}`;
+            this.assertNoHandlerConflict(this.guildCommandHandlers, key, handler, "guild command", {
+              guildId,
+              commandName: handler.name,
+            });
+            this.guildCommandHandlers.set(key, handler);
+          }
+        } else {
+          this.assertNoHandlerConflict(
+            this.globalCommandHandlers,
+            handler.name,
+            handler,
+            "global command",
+            { commandName: handler.name },
+          );
+          this.globalCommandHandlers.set(handler.name, handler);
         }
-      } else {
-        this.assertNoHandlerConflict(
-          this.globalCommandHandlers,
-          handler.name,
-          handler,
-          "global command",
-          { commandName: handler.name },
-        );
-        this.globalCommandHandlers.set(handler.name, handler);
+        break;
       }
-    } else if (isComponentHandler(handler)) {
-      const key = this.componentHandlerKey(handler.prefix, handler.componentType);
-      this.assertNoHandlerConflict(this.componentHandlers, key, handler, "component", {
-        prefix: handler.prefix,
-        componentType: handler.componentType,
-      });
-      this.componentHandlers.set(key, handler);
-    } else if (isModalHandler(handler)) {
-      this.assertNoHandlerConflict(this.modalHandlers, handler.prefix, handler, "modal", {
-        prefix: handler.prefix,
-      });
-      this.modalHandlers.set(handler.prefix, handler);
-    } else if (isWebhookHandler(handler)) {
-      this.assertNoHandlerConflict(this.webhookHandlers, handler.eventType, handler, "webhook", {
-        eventType: handler.eventType,
-      });
-      this.webhookHandlers.set(handler.eventType, handler);
+      case "component": {
+        const key = this.componentHandlerKey(handler.prefix, handler.componentType);
+        this.assertNoHandlerConflict(this.componentHandlers, key, handler, "component", {
+          prefix: handler.prefix,
+          componentType: handler.componentType,
+        });
+        this.componentHandlers.set(key, handler);
+        break;
+      }
+      case "modal": {
+        this.assertNoHandlerConflict(this.modalHandlers, handler.prefix, handler, "modal", {
+          prefix: handler.prefix,
+        });
+        this.modalHandlers.set(handler.prefix, handler);
+        break;
+      }
+      case "webhook": {
+        this.assertNoHandlerConflict(this.webhookHandlers, handler.eventType, handler, "webhook", {
+          eventType: handler.eventType,
+        });
+        this.webhookHandlers.set(handler.eventType, handler);
+        break;
+      }
     }
   }
 
@@ -313,18 +332,20 @@ export class ParleyClient {
       return textResponse("Bad request signature.", 401);
     }
 
-    if (!isDiscordInteraction(verified.value.data)) {
+    const payload = verified.value.data;
+    // PING is the latency-critical path — ACK immediately after verify, before heavier checks.
+    if (isObject(payload) && payload["type"] === InteractionType.Ping) {
+      return pongResponse();
+    }
+
+    if (!isDiscordInteraction(payload)) {
       logger.warn("discord.request.invalid_body", "Discord request body is not an interaction", {
         requestId: context.requestId,
       });
       return textResponse("Invalid interaction body.", 400);
     }
 
-    const interaction = verified.value.data;
-    if (interaction.type === InteractionType.Ping) {
-      logger.info("discord.ping", "Received Discord ping", { requestId: context.requestId });
-      return jsonResponse({ type: InteractionResponseType.Pong });
-    }
+    const interaction = payload;
 
     const initialResponse = new Promise<JsonObject | null>((resolve) => {
       context.set(INITIAL_RESPONSE_RESOLVE_CONTEXT_KEY, resolve);
@@ -505,13 +526,13 @@ export class ParleyClient {
         for (const handler of handlers) {
           try {
             if (
-              isSlashCommandHandler(handler) &&
+              handler.handlerType === "slash" &&
               interactionObj instanceof ChatInputCommandInteraction
             ) {
               // eslint-disable-next-line no-await-in-loop -- handlers must execute sequentially
               await handler.execute(interactionObj);
             } else if (
-              isContextCommandHandler(handler) &&
+              handler.handlerType === "context" &&
               !(interactionObj instanceof ChatInputCommandInteraction)
             ) {
               // eslint-disable-next-line no-await-in-loop -- handlers must execute sequentially
@@ -646,15 +667,12 @@ export class ParleyClient {
     context.set("component", interactionObj);
     setInteractionAnalyticsMetadata(context, {
       surface: "component",
-      name: typeof prefix === "string" ? prefix : "unknown",
+      name: prefix,
       interaction,
     });
-    const handler =
-      typeof prefix === "string"
-        ? this.componentHandlers.get(
-            this.componentHandlerKey(prefix, interaction.data.component_type),
-          )
-        : undefined;
+    const handler = this.componentHandlers.get(
+      this.componentHandlerKey(prefix, interaction.data.component_type),
+    );
 
     if (!handler) {
       context.set("analytics.outcome", "missing_handler");
@@ -692,10 +710,10 @@ export class ParleyClient {
     context.set("modal", interactionObj);
     setInteractionAnalyticsMetadata(context, {
       surface: "modal",
-      name: typeof prefix === "string" ? prefix : "unknown",
+      name: prefix,
       interaction,
     });
-    const handler = typeof prefix === "string" ? this.modalHandlers.get(prefix) : undefined;
+    const handler = this.modalHandlers.get(prefix);
 
     if (!handler) {
       context.set("analytics.outcome", "missing_handler");
@@ -749,7 +767,7 @@ export class ParleyClient {
 
     const type = verified.value.data["type"];
     if (type === 1) {
-      return jsonResponse({ type: 1 });
+      return pongResponse();
     }
 
     const event = isObject(verified.value.data["event"]) ? verified.value.data["event"] : null;

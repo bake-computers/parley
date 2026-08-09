@@ -4,7 +4,7 @@ import type {
 } from "@parley/proto/identity/v1/identity_pb.js";
 import { Game } from "@parley/proto";
 import { ConnectError } from "@connectrpc/connect";
-import { err, ok, type Result } from "neverthrow";
+import { err, ok, type Result } from "@parley/runtime";
 import { getIdentityClient, type EngineTransportEnv } from "#/transport";
 import type { Platform } from "#/interactions/link/constants";
 

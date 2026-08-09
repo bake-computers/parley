@@ -1,5 +1,5 @@
 import { ConnectError } from "@connectrpc/connect";
-import { err, ok, type Result } from "neverthrow";
+import { err, ok, type Result } from "@parley/runtime";
 import type {
   DeleteUserDataResponse,
   UserSettings as ProtoUserSettings,

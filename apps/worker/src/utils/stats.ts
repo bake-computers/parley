@@ -1,7 +1,7 @@
 import type { FetchStatsResponse } from "@parley/proto/stats/v1/stats_pb.js";
 import { Game, StatsPlatform } from "@parley/proto";
 import { ConnectError } from "@connectrpc/connect";
-import { err, ok, type Result } from "neverthrow";
+import { err, ok, type Result } from "@parley/runtime";
 import { getStatsClient, type EngineTransportEnv } from "#/transport";
 
 export type FetchStatsPlatform = "pc" | "xbox" | "playstation";

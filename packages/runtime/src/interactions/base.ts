@@ -7,7 +7,7 @@ import {
   type APIInteraction,
   type APIUser,
 } from "discord-api-types/v10";
-import { ok, type Result } from "neverthrow";
+import { ok, type Result } from "../result.js";
 import { logger } from "../utils/logger.js";
 import { DiscordRestClient } from "../rest.js";
 import type {
@@ -17,14 +17,14 @@ import type {
   JsonObject,
   JsonValue,
 } from "../types/index.js";
+import { isJSONEncodable, type JSONEncodable } from "../builders/types.js";
 import {
   normalizePayload,
   prepareResponsePayload,
   tryCaptureInitialResponse,
   type InteractionResponseOptions,
 } from "./helpers.js";
-import type { CommandInteraction } from "./command.js";
-import type { ChatInputCommandInteraction } from "./chat-input.js";
+import type { ChatInputCommandInteraction, CommandInteraction } from "./command.js";
 import type { MessageComponentInteraction } from "./component.js";
 import type { ModalInteraction } from "./modal.js";
 
@@ -33,9 +33,6 @@ type InteractionWithCommonFields = APIInteraction & {
   token: string;
   id: string;
   guild_id?: string;
-  // Some contexts (like certain guild interactions) may provide channel data via
-  // a lightweight object or via a flat field in the payload. To improve reliability
-  // for channel resolution we also allow an optional top-level channel_id field.
   channel?: { id: string };
   channel_id?: string;
   member?: { user?: APIUser };
@@ -67,9 +64,6 @@ export class BaseInteraction<Raw extends APIInteraction = APIInteraction> {
   }
 
   get channelId(): string | undefined {
-    // Fall back to the legacy flat field when the channel object is missing.
-    // This helps handle Discord payloads where channel_id is provided instead
-    // of a populated channel object.
     return this.common.channel?.id ?? this.common.channel_id;
   }
 
@@ -114,10 +108,11 @@ export class BaseInteraction<Raw extends APIInteraction = APIInteraction> {
       data.flags = (data.flags ?? 0) | MessageFlags.Ephemeral;
     }
 
-    const payload = {
+    const responseData = prepareResponsePayload(data);
+    const payload: JsonObject = {
       type: InteractionResponseType.ChannelMessageWithSource,
-      data: prepareResponsePayload(data),
-    } satisfies JsonObject;
+      data: responseData,
+    };
 
     if (!this.deferred && !this.replied && tryCaptureInitialResponse(this.context, payload)) {
       this.replied = true;
@@ -145,17 +140,18 @@ export class BaseInteraction<Raw extends APIInteraction = APIInteraction> {
   }
 
   async deferReply(forceEphemeral = true): Promise<Result<JsonValue, DiscordApiError>> {
-    const data: JsonObject = forceEphemeral ? { flags: MessageFlags.Ephemeral } : {};
-    const payload = {
-      type: InteractionResponseType.DeferredChannelMessageWithSource,
-      data,
-    } as JsonObject;
+    const payload: JsonObject = forceEphemeral
+      ? {
+          type: InteractionResponseType.DeferredChannelMessageWithSource,
+          data: { flags: MessageFlags.Ephemeral },
+        }
+      : { type: InteractionResponseType.DeferredChannelMessageWithSource };
 
     if (this.deferred) {
       return ok(payload);
     }
 
-    if (!this.deferred && !this.replied && tryCaptureInitialResponse(this.context, payload)) {
+    if (!this.replied && tryCaptureInitialResponse(this.context, payload)) {
       this.deferred = true;
       return ok(payload);
     }
@@ -177,15 +173,15 @@ export class BaseInteraction<Raw extends APIInteraction = APIInteraction> {
   }
 
   deferUpdate(): Promise<Result<JsonValue, DiscordApiError>> {
-    const payload = {
+    const payload: JsonObject = {
       type: InteractionResponseType.DeferredMessageUpdate,
-    } as JsonObject;
+    };
 
     if (this.deferred) {
       return Promise.resolve(ok(payload));
     }
 
-    if (!this.deferred && !this.replied && tryCaptureInitialResponse(this.context, payload)) {
+    if (!this.replied && tryCaptureInitialResponse(this.context, payload)) {
       this.deferred = true;
       return Promise.resolve(ok(payload));
     }
@@ -205,10 +201,10 @@ export class BaseInteraction<Raw extends APIInteraction = APIInteraction> {
     messageId = "@original",
   ): Promise<Result<JsonValue, DiscordApiError>> {
     const data = prepareResponsePayload(normalizePayload(options));
-    const initialPayload = {
+    const initialPayload: JsonObject = {
       type: InteractionResponseType.ChannelMessageWithSource,
       data,
-    } as JsonObject;
+    };
     if (
       !this.deferred &&
       !this.replied &&
@@ -258,16 +254,16 @@ export class BaseInteraction<Raw extends APIInteraction = APIInteraction> {
   async update(
     options: string | InteractionResponseOptions,
   ): Promise<Result<JsonValue, DiscordApiError>> {
-    const payload = {
+    const payload: JsonObject = {
       type: InteractionResponseType.UpdateMessage,
       data: prepareResponsePayload(normalizePayload(options)),
-    } as JsonObject;
+    };
 
     if (this.deferred) {
       return this.editReply(options);
     }
 
-    if (!this.deferred && !this.replied && tryCaptureInitialResponse(this.context, payload)) {
+    if (!this.replied && tryCaptureInitialResponse(this.context, payload)) {
       this.replied = true;
       return ok(payload);
     }
@@ -300,5 +296,25 @@ export class BaseInteraction<Raw extends APIInteraction = APIInteraction> {
 
   isModal(): this is ModalInteraction {
     return this.raw.type === InteractionType.ModalSubmit;
+  }
+}
+
+/** Interactions that can open a modal (commands + message components). */
+export class ModalCapableInteraction<
+  Raw extends APIInteraction = APIInteraction,
+> extends BaseInteraction<Raw> {
+  showModal(data: JsonObject | JSONEncodable<JsonObject>): Promise<Result<JsonValue, DiscordApiError>> {
+    const modal = isJSONEncodable(data) ? data.toJSON() : data;
+    const payload: JsonObject = {
+      type: InteractionResponseType.Modal,
+      data: modal,
+    };
+
+    if (!this.deferred && !this.replied && tryCaptureInitialResponse(this.context, payload)) {
+      this.replied = true;
+      return Promise.resolve(ok(payload));
+    }
+
+    return this.rest.createInteractionResponse<JsonValue>(this.id, this.token, payload);
   }
 }
