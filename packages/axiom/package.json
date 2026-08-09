@@ -25,7 +25,7 @@
     "hono": "^4.7.0"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260506.1",
+    "@cloudflare/workers-types": "^5.20260804.1",
     "@parley/tsconfig-base": "workspace:*"
   }
 }
