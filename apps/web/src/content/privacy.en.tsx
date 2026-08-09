@@ -1,4 +1,5 @@
 import { LegalDocFooter } from "#/components/LegalDocFooter";
+import { LegalNoticeInlineLink } from "#/components/LegalNoticeInlineLink";
 
 export function PrivacyContentEn() {
   return (
@@ -9,9 +10,13 @@ export function PrivacyContentEn() {
           Parley (&ldquo;we,&rdquo; &ldquo;our,&rdquo; or &ldquo;us&rdquo;) is committed to
           protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and
           safeguard your information when you interact with our Discord matchmaking bot and related
-          services (collectively, the &ldquo;Service&rdquo;). Because our primary database
-          infrastructure is hosted in the European Union (Amsterdam), we align our data practices
-          with the principles of the General Data Protection Regulation (GDPR).
+          services (collectively, the &ldquo;Service&rdquo;).
+        </p>
+        <p className="mt-2">
+          The Service is operated from Germany as a non-commercial hobby project. Full operator
+          details are published in our <LegalNoticeInlineLink />. We do not sell personal data. Our
+          primary application and database servers are located in Munich, Germany, and we align our
+          data practices with the General Data Protection Regulation (GDPR).
         </p>
       </section>
 
@@ -39,25 +44,27 @@ export function PrivacyContentEn() {
         </p>
 
         <h3 className="mt-4 mb-2 text-sm font-medium text-foreground/90">
-          2.2 Telemetry, AI Matchmaking, and Third-Party Controllers
+          2.2 Matchmaking, Game Stats, and Automated Decisions
         </h3>
         <p>
-          To power our matchmaking, bracket generation, and auto-balancing, we utilize an artificial
-          intelligence model hosted via OVI.run. Our AI analyzes gameplay telemetry to evaluate
-          skill levels and assign brackets.
+          To power matchmaking, bracket generation, and auto-balancing, we run an in-house skill
+          and team-balance model on our own servers in Munich. The model evaluates skill levels and
+          assigns brackets using gameplay telemetry and your internal Parley match history. Model
+          artifacts may be stored encrypted on Cloudflare R2 (EU jurisdiction); they are not a
+          third-party AI hosting service processing your profile on our behalf.
         </p>
         <p className="mt-2">
           Because Ubisoft does not provide direct public APIs for all necessary metrics, we transmit
           your provided gaming username to <strong>stats.cc</strong>, an independent third-party
           data controller. We use their closed API to retrieve your public Rainbow Six Siege
           statistics (e.g., Rank points, K/D ratio, win rates). We do not share your internal Parley
-          match history or ELO with <strong>stats.cc</strong>.
+          match history or rating with <strong>stats.cc</strong>.
         </p>
         <p className="mt-2">
           <strong>Automated Profiling:</strong> Under the GDPR and the EU AI Act, our matchmaking
-          constitutes automated profiling. Our AI model bases its decisions strictly on the
-          performance telemetry retrieved from <strong>stats.cc</strong> and your internal Parley
-          match history. It does not use demographic or sensitive personal data.
+          constitutes automated profiling. Decisions are based strictly on public performance
+          telemetry retrieved from <strong>stats.cc</strong> and your internal Parley match history.
+          The model does not use demographic or sensitive personal data.
         </p>
 
         <h3 className="mt-4 mb-2 text-sm font-medium text-foreground/90">
@@ -65,9 +72,11 @@ export function PrivacyContentEn() {
         </h3>
         <p>
           When you interact with our bot or companion dashboard, requests are processed through
-          Cloudflare Workers. During this routing, standard network data such as IP addresses,
-          browser types, and interaction timestamps are temporarily processed at edge nodes for
-          security, caching, and abuse prevention.
+          Cloudflare (including DNS, CDN, Cloudflare Workers, and Workers KV where used for edge
+          operational data such as short-lived caching or coordination). During this routing,
+          standard network data such as IP addresses, browser types, and interaction timestamps may
+          be temporarily processed at edge nodes for security, caching, and abuse prevention. We do
+          not use Workers KV as a primary store for user profiles or match history.
         </p>
         <p className="mt-2">
           We use only the following cookies and browser storage on our website. We do not use
@@ -106,8 +115,8 @@ export function PrivacyContentEn() {
         <p>We use your data exclusively to operate and improve Parley:</p>
         <ul className="mt-2 list-inside list-disc space-y-1.5 pl-1">
           <li>
-            <strong>Matchmaking:</strong> Processing gameplay telemetry through our AI model (hosted
-            via OVI.run) and your internal Parley match history to evaluate skill levels, assign
+            <strong>Matchmaking:</strong> Running our in-house skill and balance model on gameplay
+            telemetry and your internal Parley match history to evaluate skill levels, assign
             brackets, and generate balanced team distributions.
           </li>
           <li>
@@ -118,23 +127,36 @@ export function PrivacyContentEn() {
             <strong>Service Delivery:</strong> Sending automated match results and tournament
             announcements directly to your Discord channels.
           </li>
+          <li>
+            <strong>Security and Reliability:</strong> Protecting authentication flows, preventing
+            abuse, monitoring service health, and restoring from encrypted backups if needed.
+          </li>
         </ul>
       </section>
 
       <section>
         <h2 className="mb-3 text-base font-medium text-foreground">
-          4. Data Storage and Third-Party Sharing
+          4. Data Storage, Hosting, and Recipients
         </h2>
         <p>
-          Your persistent data is stored on heavily secured database infrastructure hosted by
-          24fire.de, located in Amsterdam, Netherlands. We do not sell your personal data. We share
-          data only with the following entities to operate the Service:
+          Persistent Service data (player profiles, linked game identities, match and tournament
+          records, and settings) is stored on our application and PostgreSQL infrastructure hosted
+          by Contabo in Munich, Germany. Encrypted backups and matchmaking model artifacts are
+          stored on Cloudflare R2 with EU jurisdiction enabled. We do not sell your personal data.
+          We do not offer paid data access to third parties. We share or expose data only as needed
+          to operate the Service, with the following recipients and processors:
         </p>
         <ul className="mt-2 list-inside list-disc space-y-1.5 pl-1">
           <li>
-            <span className="font-medium text-foreground/80">Cloudflare:</span> For edge computing,
-            DNS routing, DDoS protection, and Turnstile bot protection on our web sign-in page
-            (infrastructure and security). See{" "}
+            <span className="font-medium text-foreground/80">Contabo:</span> Virtual server hosting
+            in Munich, Germany, for the primary application backend and PostgreSQL database
+            (infrastructure).
+          </li>
+          <li>
+            <span className="font-medium text-foreground/80">Cloudflare:</span> DNS and domain
+            services, CDN, DDoS protection, Cloudflare Workers, Workers KV, Turnstile bot
+            protection on our web sign-in page, and R2 object storage (EU jurisdiction) for
+            encrypted backups and model artifacts. See{" "}
             <a
               href="https://www.cloudflare.com/privacypolicy/"
               className="underline underline-offset-4 transition-colors hover:text-accent-silver"
@@ -146,17 +168,29 @@ export function PrivacyContentEn() {
             .
           </li>
           <li>
-            <span className="font-medium text-foreground/80">24fire.de:</span> For primary database
-            hosting within the European Union (infrastructure).
-          </li>
-          <li>
-            <span className="font-medium text-foreground/80">OVI.run:</span> For processing
-            matchmaking telemetry via our AI model (processor).
+            <span className="font-medium text-foreground/80">Discord:</span> Authentication (OAuth2)
+            and delivery of bot interactions, match results, and announcements in Discord. Discord
+            processes data under its own terms and privacy policy when you use Discord.
           </li>
           <li>
             <span className="font-medium text-foreground/80">Stats.cc:</span> We transmit your
             gaming username to this independent data controller solely to retrieve your public
             gameplay statistics.
+          </li>
+          <li>
+            <span className="font-medium text-foreground/80">Axiom:</span> Operational application
+            and Worker logs, ingested via an EU edge endpoint. Used for debugging and reliability,
+            not for advertising.
+          </li>
+          <li>
+            <span className="font-medium text-foreground/80">Grafana Cloud:</span> Infrastructure
+            metrics only (for example Prometheus metrics for PostgreSQL, the backend, and the
+            server). We do not send application logs, traces, or user content to Grafana Cloud. The
+            metrics backend we use is located in the United States (US East). Legal basis: Art.
+            6(1)(f) GDPR (legitimate interest in operating a reliable Service). Where personal data
+            is transferred to the United States, we rely on appropriate safeguards under Chapter V
+            GDPR (including the provider&rsquo;s standard contractual clauses / data processing
+            terms where applicable).
           </li>
         </ul>
       </section>
@@ -177,10 +211,10 @@ export function PrivacyContentEn() {
       <section>
         <h2 className="mb-3 text-base font-medium text-foreground">6. Security</h2>
         <p>
-          We implement rigorous technical measures to protect your data, relying on modern
-          encryption in transit (TLS) and strict access controls to our Amsterdam servers. While we
-          take every reasonable precaution to secure our database queries and API endpoints, no
-          electronic transmission is completely infallible.
+          We implement technical measures to protect your data, including encryption in transit
+          (TLS), encrypted backups on R2, and access controls on our Munich servers. While we take
+          every reasonable precaution to secure our database queries and API endpoints, no
+          electronic transmission or storage system is completely infallible.
         </p>
       </section>
 
@@ -217,30 +251,33 @@ export function PrivacyContentEn() {
             Forgotten&rdquo;).
           </li>
           <li>
+            <strong>Restriction and objection:</strong> Object to processing based on legitimate
+            interests, or request restriction where applicable.
+          </li>
+          <li>
             <strong>Explainability:</strong> Because you are subject to automated matchmaking
-            decisions by our AI, you have the right to request an explanation of how your bracket
-            was determined or request human intervention if you believe the AI made a significant
-            error.
+            decisions by our in-house model, you have the right to request an explanation of how
+            your bracket was determined or request human intervention if you believe the model made
+            a significant error.
+          </li>
+          <li>
+            <strong>Complaint:</strong> Lodge a complaint with a supervisory authority. In Germany
+            this is typically your state data protection authority (Landesdatenschutzbehörde); the
+            lead contact details for the operator are in our <LegalNoticeInlineLink />.
           </li>
         </ul>
         <p className="mt-2">
           To exercise any of these rights, please contact us via the instructions in our{" "}
-          <a
-            href="/legal-notice"
-            className="underline underline-offset-4 transition-colors hover:text-accent-silver"
-          >
-            Legal Notice
-          </a>
-          . We will process your request within 30 days.
+          <LegalNoticeInlineLink />. We will process your request within 30 days.
         </p>
       </section>
 
       <section>
         <h2 className="mb-3 text-base font-medium text-foreground">9. Changes to This Policy</h2>
         <p>
-          We may update this Privacy Policy as we alter our matchmaking algorithms or integrate new
-          third-party data sources. Material changes to how we handle your telemetry or Discord data
-          will be announced via our bot in your Discord server before taking effect.
+          We may update this Privacy Policy as we alter our matchmaking algorithms, hosting layout,
+          or third-party processors. Material changes to how we handle your telemetry or Discord
+          data will be announced via our bot in your Discord server before taking effect.
         </p>
       </section>
 
