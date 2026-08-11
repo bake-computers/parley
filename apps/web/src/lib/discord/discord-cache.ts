@@ -104,6 +104,19 @@ export async function cachePutJson(key: string, value: unknown, ttlSeconds: numb
   }
 }
 
+export async function cacheDelete(key: string): Promise<void> {
+  memory.delete(key);
+  const store = defaultCache();
+  if (!store) {
+    return;
+  }
+  try {
+    await store.delete(cacheUrl(key));
+  } catch {
+    // best-effort
+  }
+}
+
 export function cacheClearMemoryForTests(): void {
   memory.clear();
 }
@@ -113,6 +126,10 @@ export const BOT_GUILDS_TTL_SEC = 180;
 
 export function userGuildsCacheKey(userId: string): string {
   return `user-guilds:v1:${userId}`;
+}
+
+export function deleteUserGuildsCache(userId: string): Promise<void> {
+  return cacheDelete(userGuildsCacheKey(userId));
 }
 
 export const BOT_GUILDS_CACHE_KEY = "bot-guild-ids:v1";

@@ -1,10 +1,14 @@
-import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
+import { GuildSettingsCatalog } from "#/components/dashboard/GuildSettingsCatalog";
 
 export const Route = createFileRoute("/dashboard/guilds/$guildId/")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    section: typeof search.section === "string" ? search.section : undefined,
+  }),
   component: GuildSettingsIndex,
 });
 
 function GuildSettingsIndex() {
-  const { guildId } = Route.useParams();
-  return <Navigate to="/dashboard/guilds/$guildId/general" params={{ guildId }} replace />;
+  const { section } = Route.useSearch();
+  return <GuildSettingsCatalog initialSection={section} />;
 }

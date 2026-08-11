@@ -1,10 +1,17 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { GeneralSettingsForm } from "#/components/dashboard/GeneralSettingsForm";
+import { createFileRoute, Navigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/dashboard/guilds/$guildId/general")({
-  component: GeneralSettingsPage,
+  component: GeneralSettingsRedirect,
 });
 
-function GeneralSettingsPage() {
-  return <GeneralSettingsForm />;
+function GeneralSettingsRedirect() {
+  const { guildId } = Route.useParams();
+  return (
+    <Navigate
+      to="/dashboard/guilds/$guildId"
+      params={{ guildId }}
+      search={{ section: "general" }}
+      replace
+    />
+  );
 }

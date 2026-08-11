@@ -1,10 +1,17 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { RulesSettingsForm } from "#/components/dashboard/RulesSettingsForm";
+import { createFileRoute, Navigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/dashboard/guilds/$guildId/rules")({
-  component: RulesSettingsPage,
+  component: RulesSettingsRedirect,
 });
 
-function RulesSettingsPage() {
-  return <RulesSettingsForm />;
+function RulesSettingsRedirect() {
+  const { guildId } = Route.useParams();
+  return (
+    <Navigate
+      to="/dashboard/guilds/$guildId"
+      params={{ guildId }}
+      search={{ section: "matchmakingRules" }}
+      replace
+    />
+  );
 }

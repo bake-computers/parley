@@ -24,6 +24,7 @@ import {
   type DiscordUser,
 } from "./oauth.js";
 import { primeBotGuildsCache } from "./bot.js";
+import { deleteUserGuildsCache } from "./discord-cache.js";
 import { oauthEnvFromSource, resolveBotToken, type OAuthEnvSource } from "./env.js";
 import { publicGuildsForDashboard } from "./guild-dashboard.js";
 import { turnstileEnabled, verifyTurnstileToken } from "../turnstile.js";
@@ -296,7 +297,14 @@ export async function handleDiscordMe(
     return Response.json({ user: null }, { status: 401 });
   }
 
-  const cookieGuilds = await resolveSessionGuilds(session);
+  const url = new URL(request.url);
+  const wantsRefresh =
+    url.searchParams.get("refresh") === "1" || url.searchParams.get("refresh") === "true";
+
+  if (wantsRefresh) {
+    await deleteUserGuildsCache(session.user.id);
+  }
+  const cookieGuilds = await resolveSessionGuilds(session, { refresh: wantsRefresh });
   let guilds;
   try {
     guilds = await publicGuildsForDashboard(

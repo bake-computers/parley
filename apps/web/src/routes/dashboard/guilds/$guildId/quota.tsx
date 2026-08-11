@@ -1,10 +1,17 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { QuotaSettingsForm } from "#/components/dashboard/QuotaSettingsForm";
+import { createFileRoute, Navigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/dashboard/guilds/$guildId/quota")({
-  component: QuotaSettingsPage,
+  component: QuotaSettingsRedirect,
 });
 
-function QuotaSettingsPage() {
-  return <QuotaSettingsForm />;
+function QuotaSettingsRedirect() {
+  const { guildId } = Route.useParams();
+  return (
+    <Navigate
+      to="/dashboard/guilds/$guildId"
+      params={{ guildId }}
+      search={{ section: "matchQuota" }}
+      replace
+    />
+  );
 }

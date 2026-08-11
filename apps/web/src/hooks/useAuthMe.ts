@@ -27,6 +27,8 @@ export type AuthMeState = {
   me: AuthMeResponse | null | undefined;
   error: boolean;
   retry: () => void;
+  /** Busts the cached guild list and refetches /api/auth/me?refresh=1. */
+  refresh: () => Promise<void>;
 };
 
 const CACHE_TTL_MS = 60_000;
@@ -59,8 +61,10 @@ function cacheIsFresh(): boolean {
   return authCache !== null && Date.now() - authCache.fetchedAt < CACHE_TTL_MS;
 }
 
-async function loadAuthMe(): Promise<AuthMeResponse | null> {
-  const res = await fetch("/api/auth/me", { credentials: "include" });
+async function loadAuthMe(refresh = false): Promise<AuthMeResponse | null> {
+  const res = await fetch(refresh ? "/api/auth/me?refresh=1" : "/api/auth/me", {
+    credentials: "include",
+  });
   if (res.status === 401) {
     // Signed out: drop the presence cookie so subsequent loads skip the
     // /api/auth/me round trip instead of re-401ing.
@@ -74,6 +78,14 @@ async function loadAuthMe(): Promise<AuthMeResponse | null> {
   }
   const data = (await res.json()) as AuthMeResponse;
   return data?.user ? data : null;
+}
+
+export async function refreshAuthMe(): Promise<AuthMeResponse | null> {
+  authCache = null;
+  inflight = null;
+  const data = await loadAuthMe(true);
+  authCache = { data, fetchedAt: Date.now() };
+  return data;
 }
 
 async function fetchAuthMe(force = false): Promise<AuthMeResponse | null> {
@@ -110,6 +122,13 @@ export function useAuthMe(): AuthMeState {
     setError(false);
     setMe(undefined);
     setAttempt((n) => n + 1);
+  }, []);
+
+  const refresh = useCallback(async () => {
+    // Rethrow so callers (e.g. the dashboard refresh button) can surface failures.
+    const data = await refreshAuthMe();
+    setMe(data);
+    setError(false);
   }, []);
 
   useEffect(() => {
@@ -150,5 +169,5 @@ export function useAuthMe(): AuthMeState {
     };
   }, [attempt]);
 
-  return { me, error, retry };
+  return { me, error, retry, refresh };
 }
