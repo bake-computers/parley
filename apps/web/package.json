@@ -22,7 +22,7 @@
     "@parley/discord-components": "workspace:*",
     "@parley/parley-rank": "workspace:*",
     "@tailwindcss/vite": "^4.1.18",
-    "@tanstack/charts": "^0.6.5",
+    "@tanstack/charts": "^0.7.2",
     "@tanstack/charts-scales": "^0.6.5",
     "@tanstack/react-charts": "^0.6.5",
     "@tanstack/react-devtools": "latest",
