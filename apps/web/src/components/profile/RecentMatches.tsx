@@ -8,19 +8,31 @@ type RecentMatchesProps = {
 function relativeTime(ms: number): string {
   const delta = Date.now() - ms;
   const minutes = Math.floor(delta / 60_000);
-  if (minutes < 1) return "just now";
-  if (minutes < 60) return `${minutes}m ago`;
+  if (minutes < 1) {
+    return "just now";
+  }
+  if (minutes < 60) {
+    return `${minutes}m ago`;
+  }
   const hours = Math.floor(minutes / 60);
-  if (hours < 48) return `${hours}h ago`;
+  if (hours < 48) {
+    return `${hours}h ago`;
+  }
   const days = Math.floor(hours / 24);
-  if (days < 30) return `${days}d ago`;
+  if (days < 30) {
+    return `${days}d ago`;
+  }
   return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(new Date(ms));
 }
 
 function formatDelta(delta: number | undefined): string | null {
-  if (delta === undefined || Number.isNaN(delta)) return null;
+  if (delta === undefined || Number.isNaN(delta)) {
+    return null;
+  }
   const rounded = Math.round(delta);
-  if (rounded > 0) return `+${rounded}`;
+  if (rounded > 0) {
+    return `+${rounded}`;
+  }
   return String(rounded);
 }
 
@@ -86,6 +98,7 @@ export function RecentMatches({ matches }: RecentMatchesProps) {
         const isWin = match.result === "win";
         const isLoss = match.result === "loss";
         const delta = formatDelta(match.ratingDelta);
+        const gained = delta !== null && Number(delta) > 0;
         const verb = isWin ? "Won against" : isLoss ? "Lost to" : "Played";
         const kda =
           match.kills !== undefined || match.deaths !== undefined
@@ -93,34 +106,43 @@ export function RecentMatches({ matches }: RecentMatchesProps) {
             : null;
 
         return (
-          <li key={match.publicUuid} className="flex flex-col gap-1 py-4 first:pt-0 last:pb-0">
-            <div className="flex flex-wrap items-center justify-between gap-2">
+          <li
+            key={match.publicUuid}
+            className="flex flex-col gap-2.5 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:gap-5"
+          >
+            <span
+              className={cn(
+                "inline-flex w-fit shrink-0 items-center justify-center rounded-md border px-2 py-0.5 text-[11px] font-semibold tracking-wider sm:w-16",
+                isWin && "border-emerald-500/30 bg-emerald-500/10 text-emerald-400",
+                isLoss && "border-rose-500/30 bg-rose-500/10 text-rose-400",
+                !isWin && !isLoss && "border-border bg-muted text-muted-foreground",
+              )}
+            >
+              {isWin ? "Win" : isLoss ? "Loss" : match.result}
+            </span>
+
+            <div className="min-w-0 flex-1">
               <p className="text-sm leading-relaxed">
-                <span
-                  className={cn(
-                    "mr-2 inline-flex rounded-full px-2 py-0.5 text-xs font-medium",
-                    isWin && "bg-emerald-500/15 text-emerald-400",
-                    isLoss && "bg-rose-500/15 text-rose-400",
-                    !isWin && !isLoss && "bg-muted text-muted-foreground",
-                  )}
-                >
-                  {isWin ? "Win" : isLoss ? "Loss" : match.result}
-                </span>
                 <span className="text-muted-foreground">{verb} </span>
                 <OpponentList players={match.opponents} />
               </p>
-              <span className="text-muted-foreground text-xs tabular-nums">
-                {relativeTime(match.createdAtMs)}
-              </span>
+              <div className="text-muted-foreground mt-1 flex flex-wrap items-center gap-x-4 gap-y-0.5 text-xs tabular-nums">
+                {kda ? (
+                  <span>
+                    <span className="text-foreground/45">K/D/A</span> {kda}
+                  </span>
+                ) : null}
+                {delta ? (
+                  <span className={cn(gained ? "text-emerald-400" : "text-rose-400")}>
+                    <span className="text-foreground/45">Rank</span> {delta}
+                  </span>
+                ) : null}
+              </div>
             </div>
-            <div className="text-muted-foreground flex flex-wrap gap-3 text-xs tabular-nums">
-              {kda ? <span>K/D/A {kda}</span> : null}
-              {delta ? (
-                <span className={cn(match.ratingDelta! > 0 ? "text-emerald-400" : "text-rose-400")}>
-                  Rank {delta}
-                </span>
-              ) : null}
-            </div>
+
+            <span className="text-muted-foreground shrink-0 text-xs tabular-nums sm:text-right">
+              {relativeTime(match.createdAtMs)}
+            </span>
           </li>
         );
       })}

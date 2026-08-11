@@ -15,7 +15,7 @@ export function ProfileShell({ children, hero, className }: ProfileShellProps) {
       <SiteHeader />
       <main>
         {hero ? (
-          <section className="relative overflow-hidden py-14 md:py-20">
+          <section className="relative overflow-hidden py-12 md:py-16">
             <SectionBackdrop glow="center" />
             <div className="relative mx-auto w-full max-w-5xl px-6">{hero}</div>
           </section>
