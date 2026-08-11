@@ -68,10 +68,7 @@ export function GuildDashboardShell({ guildId, guild, user, children }: GuildDas
         </aside>
 
         <main className="min-w-0 flex-1 overflow-y-auto">
-          <div className="border-border/60 border-b px-4 py-4 lg:hidden">
-            <GuildSettingsNav guildId={guildId} layout="tabs" />
-          </div>
-          <div className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 lg:px-10 lg:py-10 xl:max-w-5xl">
+          <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-10 lg:py-10">
             {children}
           </div>
         </main>

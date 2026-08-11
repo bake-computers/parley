@@ -86,7 +86,7 @@ function AccountSettingsPage() {
   const avatar = discordAvatarUrl(me.user.id, me.user.avatar, 256);
 
   return (
-    <main className="dashboard-fade-in mx-auto max-w-3xl px-6 py-12 pb-24">
+    <main className="dashboard-fade-in mx-auto max-w-7xl px-6 py-10 pb-24">
       <Link
         to="/dashboard"
         className="text-muted-foreground hover:text-foreground mb-8 inline-flex items-center gap-2 text-sm transition-colors"
@@ -131,7 +131,7 @@ function AccountSettingsPage() {
           ) : null}
         </div>
       ) : settings ? (
-        <UserSettingsForm settings={settings} onSaved={patchSettings} />
+        <UserSettingsForm user={me.user} settings={settings} onSaved={patchSettings} />
       ) : (
         <AccountSettingsSkeleton />
       )}

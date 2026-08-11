@@ -135,8 +135,18 @@ export async function fetchDiscordUser(accessToken: string): Promise<DiscordUser
   return (await res.json()) as DiscordUser;
 }
 
-export async function fetchDiscordGuilds(accessToken: string): Promise<DiscordOAuthGuild[]> {
-  const res = await fetch(`${DISCORD_API}/users/@me/guilds`, {
+const GUILDS_PAGE_SIZE = 200;
+
+async function fetchDiscordGuildsPage(
+  accessToken: string,
+  after?: string,
+): Promise<DiscordOAuthGuild[]> {
+  const url = new URL(`${DISCORD_API}/users/@me/guilds`);
+  url.searchParams.set("limit", String(GUILDS_PAGE_SIZE));
+  if (after) {
+    url.searchParams.set("after", after);
+  }
+  const res = await fetch(url, {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
   if (!res.ok) {
@@ -145,17 +155,61 @@ export async function fetchDiscordGuilds(accessToken: string): Promise<DiscordOA
   return (await res.json()) as DiscordOAuthGuild[];
 }
 
+/** Fetch every guild the user is in. Discord caps pages at 200, so page until a short page. */
+export async function fetchDiscordGuilds(accessToken: string): Promise<DiscordOAuthGuild[]> {
+  const seen = new Set<string>();
+  const guilds: DiscordOAuthGuild[] = [];
+  let after: string | undefined;
+  for (;;) {
+    const page = await fetchDiscordGuildsPage(accessToken, after);
+    for (const g of page) {
+      if (!seen.has(g.id)) {
+        seen.add(g.id);
+        guilds.push(g);
+      }
+    }
+    if (page.length < GUILDS_PAGE_SIZE) {
+      break;
+    }
+    after = page[page.length - 1]?.id;
+  }
+  return guilds;
+}
+
 /** Retry only on network / 5xx — not on 401/403. */
-async function fetchDiscordGuildsResilient(accessToken: string): Promise<DiscordOAuthGuild[]> {
+async function fetchDiscordGuildsPageResilient(
+  accessToken: string,
+  after?: string,
+): Promise<DiscordOAuthGuild[]> {
   try {
-    return await fetchDiscordGuilds(accessToken);
+    return await fetchDiscordGuildsPage(accessToken, after);
   } catch (e) {
     const msg = e instanceof Error ? e.message : "";
     if (msg.includes("(401)") || msg.includes("(403)") || msg.includes("(400)")) {
       throw e;
     }
-    return await fetchDiscordGuilds(accessToken);
+    return await fetchDiscordGuildsPage(accessToken, after);
   }
+}
+
+async function fetchDiscordGuildsResilient(accessToken: string): Promise<DiscordOAuthGuild[]> {
+  const seen = new Set<string>();
+  const guilds: DiscordOAuthGuild[] = [];
+  let after: string | undefined;
+  for (;;) {
+    const page = await fetchDiscordGuildsPageResilient(accessToken, after);
+    for (const g of page) {
+      if (!seen.has(g.id)) {
+        seen.add(g.id);
+        guilds.push(g);
+      }
+    }
+    if (page.length < GUILDS_PAGE_SIZE) {
+      break;
+    }
+    after = page[page.length - 1]?.id;
+  }
+  return guilds;
 }
 
 function bytesToBase64Url(bytes: Uint8Array): string {
@@ -356,12 +410,24 @@ export function toPublicSession(session: CookieSession, guilds: PublicGuild[]) {
   };
 }
 
-function normalizeCookieGuilds(guilds: CookieGuild[]): CookieGuild[] {
+type CookieGuildInput = Omit<CookieGuild, "permissions"> & {
+  permissions?: string | number | bigint | null;
+};
+
+/**
+ * Normalize a guild list from any source (cache, cookie, API). Permissions
+ * are string bitsets in Discord's API; legacy cookies may hold numbers.
+ * Missing/invalid permissions fail closed to "0" (no manage access).
+ */
+export function normalizeCookieGuilds(guilds: readonly CookieGuildInput[]): CookieGuild[] {
   return guilds.map((g) => ({
     ...g,
-    // Missing/invalid permissions fail closed to "0" (no access). Defaulting to a
-    // manage bit here would offer "Add Parley" on servers the user cannot manage.
-    permissions: typeof g.permissions === "string" ? g.permissions : "0",
+    permissions:
+      typeof g.permissions === "string"
+        ? g.permissions
+        : g.permissions == null
+          ? "0"
+          : String(g.permissions),
   }));
 }
 
@@ -379,21 +445,26 @@ export async function primeSessionGuildsCache(
   );
 }
 
-export async function resolveSessionGuilds(session: CookieSession): Promise<CookieGuild[]> {
+export async function resolveSessionGuilds(
+  session: CookieSession,
+  opts: { refresh?: boolean } = {},
+): Promise<CookieGuild[]> {
   if (!session.accessToken) {
     return normalizeCookieGuilds(session.guilds ?? []);
   }
 
   const userId = session.user.id;
   const cacheKey = userGuildsCacheKey(userId);
-  const cached = await cacheGetJson<CookieGuild[]>(cacheKey);
-  if (cached) {
-    return normalizeCookieGuilds(cached);
-  }
+  if (!opts.refresh) {
+    const cached = await cacheGetJson<CookieGuild[]>(cacheKey);
+    if (cached) {
+      return normalizeCookieGuilds(cached);
+    }
 
-  const pending = userGuildsInflight.get(userId);
-  if (pending) {
-    return pending;
+    const pending = userGuildsInflight.get(userId);
+    if (pending) {
+      return pending;
+    }
   }
 
   const load = (async (): Promise<CookieGuild[]> => {

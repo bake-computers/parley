@@ -8,6 +8,8 @@ import {
   DISCORD_OAUTH_SCOPES,
   discordAvatarUrl,
   discordGuildIconUrl,
+  fetchDiscordGuilds,
+  normalizeCookieGuilds,
   primeSessionGuildsCache,
   resolveSessionGuilds,
   sealOAuthState,
@@ -125,6 +127,92 @@ describe("discord oauth", () => {
     expect(unsealed?.guilds?.[0]?.permissions).toBe("0");
     expect(canManageCookieGuild(unsealed!.guilds![0])).toBe(false);
   });
+
+  test("normalizeCookieGuilds coerces numeric permissions to string, fails closed otherwise", () => {
+    expect(
+      normalizeCookieGuilds([
+        { id: "1", name: "A", icon: null, owner: false, permissions: "8" },
+        { id: "2", name: "B", icon: null, owner: false, permissions: 8 },
+        { id: "3", name: "C", icon: null, owner: true, permissions: 8n },
+        { id: "4", name: "D", icon: null, owner: false, permissions: null },
+        { id: "5", name: "E", icon: null, owner: false, permissions: undefined },
+      ]),
+    ).toEqual([
+      { id: "1", name: "A", icon: null, owner: false, permissions: "8" },
+      { id: "2", name: "B", icon: null, owner: false, permissions: "8" },
+      { id: "3", name: "C", icon: null, owner: true, permissions: "8" },
+      { id: "4", name: "D", icon: null, owner: false, permissions: "0" },
+      { id: "5", name: "E", icon: null, owner: false, permissions: "0" },
+    ]);
+  });
+});
+
+describe("fetchDiscordGuilds pagination", () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  test("pages with limit=200 and after cursor until a short page, deduping by id", async () => {
+    const firstPage = Array.from({ length: 200 }, (_, i) => ({
+      id: String(1000 + i),
+      name: `G${i}`,
+      icon: null,
+      owner: false,
+      permissions: "0",
+    }));
+    const secondPage = Array.from({ length: 50 }, (_, i) => ({
+      id: String(1200 + i),
+      name: `H${i}`,
+      icon: null,
+      owner: false,
+      permissions: "0",
+    }));
+    // Duplicate of a first-page guild: must be dropped, not double-counted.
+    secondPage.push(firstPage[0]);
+
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify(firstPage), {
+          headers: { "Content-Type": "application/json" },
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify(secondPage), {
+          headers: { "Content-Type": "application/json" },
+        }),
+      );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const guilds = await fetchDiscordGuilds("tok");
+    expect(guilds).toHaveLength(250);
+
+    const urls = fetchMock.mock.calls.map((c) => String(c[0]));
+    expect(urls).toHaveLength(2);
+    expect(urls[0]).toContain("limit=200");
+    expect(urls[1]).toContain("limit=200");
+    expect(urls[1]).toContain(`after=${firstPage[199].id}`);
+  });
+
+  test("single page when Discord returns fewer than 200 guilds", async () => {
+    const page = Array.from({ length: 5 }, (_, i) => ({
+      id: String(i),
+      name: `G${i}`,
+      icon: null,
+      owner: false,
+      permissions: "0",
+    }));
+    const fetchMock = vi.fn(async () =>
+      new Response(JSON.stringify(page), {
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const guilds = await fetchDiscordGuilds("tok");
+    expect(guilds).toHaveLength(5);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe("resolveSessionGuilds", () => {
@@ -183,6 +271,38 @@ describe("resolveSessionGuilds", () => {
       { id: "g1", name: "Cached", icon: null, owner: true, permissions: "8" },
     ]);
     expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  test("refresh=true bypasses the cache and refetches from Discord", async () => {
+    const fetchMock = vi.fn(async () =>
+      new Response(
+        JSON.stringify([{ id: "g1", name: "Fresh", icon: null, owner: true, permissions: "8" }]),
+        { headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    await primeSessionGuildsCache("user-r", [
+      { id: "g1", name: "Stale", icon: null, owner: true, permissions: "8" },
+    ]);
+
+    const session: CookieSession = {
+      user: {
+        id: "user-r",
+        username: "u",
+        global_name: null,
+        avatar: null,
+        discriminator: "0",
+      },
+      accessToken: "tok",
+      expiresAtMs: Date.now() + 60_000,
+    };
+
+    const guilds = await resolveSessionGuilds(session, { refresh: true });
+    expect(guilds).toEqual([
+      { id: "g1", name: "Fresh", icon: null, owner: true, permissions: "8" },
+    ]);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
   test("does not retry on 401", async () => {

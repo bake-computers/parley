@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Navigate, Outlet, useRouterState } from "@tanstack/react-router";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, RefreshCw } from "lucide-react";
 import { useMemo, useState } from "react";
 import { AuthMeProvider, useAuthMeContext } from "#/components/dashboard/AuthMeProvider";
 import { DashboardLoader } from "#/components/dashboard/DashboardLoader";
@@ -43,7 +43,7 @@ function DashboardPage() {
 
 function GuildGrid({ guilds }: { guilds: AuthMeGuild[] }) {
   return (
-    <ul className="grid auto-rows-fr grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3">
+    <ul className="grid auto-rows-fr grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3 2xl:grid-cols-4">
       {guilds.map((g) => (
         <li key={g.id} className="min-h-0">
           <GuildCard
@@ -62,8 +62,10 @@ function GuildGrid({ guilds }: { guilds: AuthMeGuild[] }) {
 }
 
 function DashboardIndex() {
-  const { me } = useAuthMeContext();
+  const { me, refresh } = useAuthMeContext();
   const [showOtherGuilds, setShowOtherGuilds] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [refreshFailed, setRefreshFailed] = useState(false);
 
   const { primary, other } = useMemo(
     () => partitionDashboardGuilds(me?.guilds ?? []),
@@ -88,8 +90,20 @@ function DashboardIndex() {
   const displayName = me.user.globalName ?? me.user.username;
   const avatar = discordAvatarUrl(me.user.id, me.user.avatar, 256);
 
+  const handleRefreshServers = async () => {
+    setRefreshing(true);
+    setRefreshFailed(false);
+    try {
+      await refresh();
+    } catch {
+      setRefreshFailed(true);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
   return (
-    <main className="dashboard-fade-in mx-auto min-h-[50vh] max-w-6xl px-6 py-12 pb-20">
+    <main className="dashboard-fade-in mx-auto min-h-[50vh] max-w-7xl px-6 py-12 pb-20">
       <header className="mb-10 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex items-center gap-4">
           <Link to="/dashboard/account" className="transition-opacity hover:opacity-90">
@@ -137,7 +151,7 @@ function DashboardIndex() {
             </p>
           </div>
           {counts.total > 0 ? (
-            <div className="flex flex-wrap gap-2 text-xs">
+            <div className="flex flex-wrap items-center gap-2 text-xs">
               <span className="bg-primary/10 text-primary rounded-full px-3 py-1 font-medium">
                 {counts.ready} configured
               </span>
@@ -147,7 +161,24 @@ function DashboardIndex() {
               <span className="bg-muted text-muted-foreground rounded-full px-3 py-1 font-medium">
                 {counts.locked} locked
               </span>
+              <button
+                type="button"
+                onClick={() => void handleRefreshServers()}
+                disabled={refreshing}
+                className="text-muted-foreground hover:text-foreground hover:bg-muted/60 inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-medium transition-colors disabled:opacity-60"
+              >
+                <RefreshCw
+                  className={cn("size-3.5", refreshing && "animate-spin")}
+                  aria-hidden
+                />
+                {refreshing ? "Refreshing…" : "Refresh servers"}
+              </button>
             </div>
+          ) : null}
+          {refreshFailed ? (
+            <p className="text-destructive mt-1 text-xs">
+              Couldn't refresh servers. Try again in a moment.
+            </p>
           ) : null}
         </div>
 

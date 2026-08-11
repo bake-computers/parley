@@ -3,8 +3,8 @@ import { cn } from "#/lib/shared/cn";
 
 const SECTIONS = [
   { slug: "general", label: "General" },
-  { slug: "rules", label: "Matchmaking rules" },
-  { slug: "quota", label: "Match quota" },
+  { slug: "matchmakingRules", label: "Matchmaking rules" },
+  { slug: "matchQuota", label: "Match quota" },
 ] as const;
 
 type GuildSettingsNavProps = {
@@ -12,16 +12,15 @@ type GuildSettingsNavProps = {
   layout?: "tabs" | "sidebar";
 };
 
-function sectionTo(slug: (typeof SECTIONS)[number]["slug"]) {
-  return slug === "general"
-    ? "/dashboard/guilds/$guildId/general"
-    : slug === "rules"
-      ? "/dashboard/guilds/$guildId/rules"
-      : "/dashboard/guilds/$guildId/quota";
-}
-
 export function GuildSettingsNav({ guildId, layout = "tabs" }: GuildSettingsNavProps) {
-  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const activeSection = useRouterState({
+    select: (s) => {
+      const section = s.location.search.section;
+      if (section === "rules") return "matchmakingRules";
+      if (section === "quota") return "matchQuota";
+      return typeof section === "string" && section ? section : "general";
+    },
+  });
 
   return (
     <nav
@@ -29,14 +28,14 @@ export function GuildSettingsNav({ guildId, layout = "tabs" }: GuildSettingsNavP
       className={cn(layout === "sidebar" ? "flex flex-col gap-1" : "flex flex-wrap gap-2")}
     >
       {SECTIONS.map((section) => {
-        const href = `/dashboard/guilds/${guildId}/${section.slug}`;
-        const active = pathname === href || pathname.endsWith(`/${section.slug}`);
+        const active = activeSection === section.slug;
 
         return (
           <Link
             key={section.slug}
-            to={sectionTo(section.slug)}
+            to="/dashboard/guilds/$guildId"
             params={{ guildId }}
+            search={{ section: section.slug }}
             className={cn(
               "text-sm font-medium transition-colors",
               layout === "sidebar"
