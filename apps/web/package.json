@@ -24,7 +24,7 @@
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/charts": "^0.6.5",
     "@tanstack/charts-scales": "^0.6.5",
-    "@tanstack/react-charts": "^0.6.5",
+    "@tanstack/react-charts": "^0.7.2",
     "@tanstack/react-devtools": "latest",
     "@tanstack/react-router": "latest",
     "@tanstack/react-router-devtools": "latest",
