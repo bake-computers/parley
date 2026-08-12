@@ -124,11 +124,6 @@ export const messagesEn: Messages = {
           detail: ["Skill + role-fit balancing", "Solo or stack friendly", "No captain picks"],
         },
         {
-          title: "Scrims on demand",
-          body: "Structured scrims against evenly-rated teams, scheduled without endless DMs.",
-          detail: ["Evenly-rated opponents", "Auto-scheduled slots", "Zero DM coordination"],
-        },
-        {
           title: "Tournament brackets",
           body: "Seeding, check-ins, and progression run themselves so events stay fair and on time.",
           detail: ["Automatic seeding", "Self-running check-ins", "Live progression"],

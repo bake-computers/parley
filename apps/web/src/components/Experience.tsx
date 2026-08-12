@@ -1,12 +1,12 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Users, Swords, Trophy } from "lucide-react";
+import { Users, Trophy } from "lucide-react";
 import { Reveal } from "#/components/ui/reveal";
 import { useMessages } from "#/lib/content/messages/use-messages";
 import { cn } from "#/lib/shared/cn";
 
-const stepIcons = [Users, Swords, Trophy] as const;
+const stepIcons = [Users, Trophy] as const;
 
 export function Experience() {
   const [active, setActive] = useState(0);
@@ -57,7 +57,7 @@ export function Experience() {
               >
                 <span
                   className={cn(
-                    "absolute inset-y-2 left-0 w-0.5 origin-top rounded-full bg-accent-silver transition-transform duration-300 ease-out",
+                    "absolute inset-y-2 left-0 w-0.5 origin-top rounded-full transition-transform duration-300 ease-out",
                     isActive ? "scale-y-100" : "scale-y-0",
                   )}
                   aria-hidden="true"
