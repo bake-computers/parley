@@ -1,28 +1,28 @@
+/**
+ * Thin augmentation of the generated `Cloudflare.Env`
+ * (apps/web/worker-configuration.d.ts, produced by `wrangler types`).
+ *
+ * Only declare bindings the generated types cannot see: secrets from
+ * `.dev.vars` / `wrangler secret put` (wrangler only sees vars, and a local
+ * `.dev.vars` may not exist at typegen time), plus env-local vars. Keep in
+ * sync with `.dev.vars.example`; do not duplicate generated bindings here.
+ */
 declare namespace Cloudflare {
   interface Env {
-    DISCORD_APPLICATION_ID: string;
-    DISCORD_CLIENT_SECRET: string;
-    DISCORD_BOT_TOKEN?: string;
-    DISCORD_TOKEN?: string;
-    AUTH_SECRET: string;
-    TOURNAMENT_HANDOFF_SECRET?: string;
-    DISCORD_OAUTH_REDIRECT_ORIGIN?: string;
-    TURNSTILE_SITE_KEY?: string;
-    TURNSTILE_SECRET_KEY?: string;
-    VPC_SERVICE?: Fetcher;
-    ENGINE_INTERNAL_URL?: string;
+    /** Shared engine auth secret; set via .dev.vars / `wrangler secret put`. */
     ENGINE_SHARED_SECRET?: string;
+    /** Discord OAuth client secret. */
+    DISCORD_CLIENT_SECRET?: string;
+    /** Session cookie signing secret. */
+    AUTH_SECRET?: string;
+    /** Same bot token as apps/worker ("Ready" vs "Add Parley" on /dashboard). */
+    DISCORD_BOT_TOKEN?: string;
+    /** Legacy alias for DISCORD_BOT_TOKEN (runtime fallback). */
+    DISCORD_TOKEN?: string;
+    DISCORD_OAUTH_REDIRECT_ORIGIN?: string;
+    /** Cloudflare Turnstile verification secret. */
+    TURNSTILE_SECRET_KEY?: string;
+    /** Tournament create-handoff HMAC secret (shared with apps/worker). */
+    TOURNAMENT_HANDOFF_SECRET?: string;
   }
-}
-
-interface Env extends Cloudflare.Env {}
-
-declare module "*.mdx" {
-  import type { ReactElement } from "react";
-
-  export interface MDXComponents {
-    [tagName: string]: unknown;
-  }
-
-  export default function MDXContent(props: { components?: MDXComponents }): ReactElement;
 }

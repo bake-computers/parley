@@ -282,6 +282,14 @@ RUN_MIGRATIONS=1 make run   # boot with boot-time migrations
 vp run dev                  # edge dev servers (or bun run dev)
 ```
 
+Edge dev is local-first: `apps/web` `bun run dev` sets `CLOUDFLARE_ENV=local`,
+which selects wrangler `env.local` — no VPC binding, and
+`ENGINE_INTERNAL_URL=http://127.0.0.1:50051` — so worker and web talk to the
+engine on your machine. No flag needed: without `env.local` (e.g.
+`bun run dev:remote`, which sets `PARLEY_REMOTE_BINDINGS=1`) the top-level
+config keeps the VPC binding and `ENGINE_INTERNAL_URL`
+(`api.internal.parley.bot`), so the engine is reached over the remote VPC.
+
 | Task                 | Command                          |
 | -------------------- | -------------------------------- |
 | Go unit tests        | `make test`                      |

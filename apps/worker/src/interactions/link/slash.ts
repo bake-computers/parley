@@ -11,7 +11,7 @@ export const linkSlashCommand = new SlashCommand()
   .addHandler(async (interaction) => {
     const env = interaction.context.env as EngineTransportEnv;
     let identities: LinkedIdentity[] = [];
-    if (env.ENGINE_SERVICE_URL || env.VPC_SERVICE) {
+    if (env.ENGINE_INTERNAL_URL || env.VPC_SERVICE) {
       const lookup = await invokeLookupByDiscord(getIdentityClient(env) as never, {
         discordUserId: interaction.user?.id ?? "",
         game: Game.R6,
