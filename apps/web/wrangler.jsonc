@@ -31,7 +31,10 @@
   "env": {
     "local": {
       "vars": {
+        "SERVICE_NAME": "web",
+        "DISCORD_APPLICATION_ID": "1495122091165618358",
         "ENGINE_INTERNAL_URL": "http://127.0.0.1:50051",
+        "TURNSTILE_SITE_KEY": "0x4AAAAAADp6daoSm0g2pBC_",
       },
     },
   },
