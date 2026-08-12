@@ -6,7 +6,8 @@
     "#/*": "./src/*"
   },
   "scripts": {
-    "dev": "vp dev --port 3000 --strictPort",
+    "dev": "CLOUDFLARE_ENV=local vp dev --port 3000 --strictPort",
+    "dev:remote": "PARLEY_REMOTE_BINDINGS=1 vp dev --port 3000 --strictPort",
     "build": "vp build",
     "preview": "bun run build && vp preview",
     "test": "vp test run",

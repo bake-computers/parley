@@ -1,11 +1,18 @@
+# Copy to .dev.vars (gitignored) for local development.
+# Required secrets:
+DISCORD_PUBLIC_KEY=your_discord_application_public_key
+DISCORD_BOT_TOKEN=your_bot_token_here
+# Required by `bun run register-commands` (it reads this from .dev.vars).
+# Also set as a wrangler var, so `wrangler dev` works without it.
+DISCORD_APPLICATION_ID=your_application_id_here
+# Must match the engine and apps/web ENGINE_SHARED_SECRET.
+ENGINE_SHARED_SECRET=
+# Must match apps/web TOURNAMENT_HANDOFF_SECRET; verifies /tournament create handoffs.
+TOURNAMENT_HANDOFF_SECRET=
+
+# Optional:
+# DISCORD_BOT_OWNER_ID=optional_user_id
 # AXIOM_TOKEN=your_axiom_ingest_token
 # AXIOM_DATASET=parley
 # AXIOM_ORG_ID=optional_org_id
 # AXIOM_EDGE=eu-central-1.aws.edge.axiom.co
-# DISCORD_PUBLIC_KEY=your_discord_application_public_key
-# DISCORD_BOT_TOKEN=your_bot_token_here
-# DISCORD_APPLICATION_ID=your_application_id_here
-# DISCORD_BOT_OWNER_ID=optional_user_id
-# PARLEY_R2_ENDPOINT=https://<account-id>.r2.cloudflarestorage.com
-# PARLEY_R2_ACCESS_KEY_ID=read-write-token-for-the-parley-bucket
-# PARLEY_R2_SECRET_ACCESS_KEY=secret-for-the-parley-bucket-token

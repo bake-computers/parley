@@ -10,8 +10,8 @@
   "scripts": {
     "build": "tsc",
     "deploy": "wrangler deploy",
-    "dev": "wrangler dev --port 8787 --tunnel --tunnel-name parley",
-    "dev:local": "wrangler dev --env local --port 8787 --tunnel --tunnel-name parley",
+    "dev": "wrangler dev --env local --port 8787 --tunnel --tunnel-name parley",
+    "dev:remote": "wrangler dev --port 8787 --tunnel --tunnel-name parley",
     "typecheck": "tsc --noEmit && wrangler types --check",
     "cf-typegen": "wrangler types",
     "lint": "vp lint .",

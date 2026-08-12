@@ -2,21 +2,14 @@ import type { Fetcher } from "@cloudflare/workers-types";
 
 export type EngineTransportEnv = {
   VPC_SERVICE?: Fetcher;
+  /** Internal engine URL over the VPC binding (production) or local engine (dev). */
   ENGINE_INTERNAL_URL?: string;
-  ENGINE_SERVICE_URL?: string;
   /**
    * Shared secret the engine requires on every non-probe route
    * (`Authorization: Bearer <secret>`). Must match the engine's
    * ENGINE_SHARED_SECRET.
    */
   ENGINE_SHARED_SECRET?: string;
-  /**
-   * When set to `"1"` or `"true"`, force the local engine at
-   * `ENGINE_SERVICE_URL ?? http://localhost:50051` even if a VPC binding is
-   * configured. Use this for `wrangler dev` against `cargo run` so requests
-   * don't bounce through the production VPC.
-   */
-  USE_LOCAL_ENGINE?: string;
 };
 
 export type EngineFetch = (input: string | URL | Request, init?: RequestInit) => Promise<Response>;
@@ -26,14 +19,6 @@ export type EngineTransportConfig = {
   cacheKey: string;
   fetchImpl: EngineFetch;
 };
-
-function isTruthy(value: string | undefined): boolean {
-  if (value === undefined) {
-    return false;
-  }
-  const normalized = value.trim().toLowerCase();
-  return normalized === "1" || normalized === "true" || normalized === "yes" || normalized === "on";
-}
 
 function withEngineAuth(fetchImpl: EngineFetch, secret: string | undefined): EngineFetch {
   const token = (secret ?? "").trim();
@@ -45,7 +30,7 @@ function withEngineAuth(fetchImpl: EngineFetch, secret: string | undefined): Eng
 }
 
 export function resolveEngineTransport(env: EngineTransportEnv): EngineTransportConfig {
-  if (!isTruthy(env.USE_LOCAL_ENGINE) && env.VPC_SERVICE && env.ENGINE_INTERNAL_URL) {
+  if (env.VPC_SERVICE && env.ENGINE_INTERNAL_URL) {
     const baseUrl = env.ENGINE_INTERNAL_URL;
     const vpc = env.VPC_SERVICE;
     return {
@@ -63,7 +48,7 @@ export function resolveEngineTransport(env: EngineTransportEnv): EngineTransport
     };
   }
 
-  const baseUrl = env.ENGINE_SERVICE_URL ?? "http://localhost:50051";
+  const baseUrl = env.ENGINE_INTERNAL_URL ?? "http://127.0.0.1:50051";
   return {
     baseUrl,
     cacheKey: `local:${baseUrl}`,

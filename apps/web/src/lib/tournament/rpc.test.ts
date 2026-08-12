@@ -2,7 +2,9 @@ import { describe, expect, test } from "vite-plus/test";
 import { rpcListGuildMembers, rpcTournamentAction } from "./rpc.js";
 
 type EngineCall = {
-  input: string | URL | Request;
+  url: string;
+  headers: Headers;
+  bodyText: string;
   init?: RequestInit;
 };
 
@@ -16,18 +18,27 @@ function testEnv(
   };
 }
 
+// The VPC transport passes a Request (plain header map) rather than string+init.
+function capture(fetchImpl: (input: string | URL | Request, init?: RequestInit) => Promise<Response>) {
+  const calls: EngineCall[] = [];
+  const wrapped = async (input: string | URL | Request, init?: RequestInit) => {
+    const req = input instanceof Request ? input : new Request(String(input), init);
+    calls.push({ url: req.url, headers: req.headers, bodyText: await req.text(), init });
+    return fetchImpl(input, init);
+  };
+  return { calls, wrapped };
+}
+
 describe("tournament RPC transport", () => {
   test("forwards the verified acting user for lifecycle actions", async () => {
-    const calls: EngineCall[] = [];
-    const fetchImpl = (input: string | URL | Request, init?: RequestInit) => {
-      calls.push({ input, init });
-      return Promise.resolve(
+    const { calls, wrapped } = capture(() =>
+      Promise.resolve(
         Response.json({ success: true, tournament: { teams: [], bracketMatches: [] } }),
-      );
-    };
+      ),
+    );
 
     await rpcTournamentAction(
-      testEnv(fetchImpl),
+      testEnv(wrapped),
       "StartTournament",
       { tournamentId: 42, game: 1, minTeams: 2 },
       " user-1 ",
@@ -38,27 +49,25 @@ describe("tournament RPC transport", () => {
     if (!call) {
       return;
     }
-    expect(String(call.input)).toBe(
+    expect(call.init).toBeUndefined();
+    expect(call.url).toBe(
       "https://engine.example/parley.tournament.v1.TournamentService/StartTournament",
     );
-    const headers = new Headers(call.init?.headers);
-    expect(headers.get("authorization")).toBe("Bearer engine-secret");
-    expect(headers.get("x-parley-acting-discord-user-id")).toBe("user-1");
+    expect(call.headers.get("authorization")).toBe("Bearer engine-secret");
+    expect(call.headers.get("x-parley-acting-discord-user-id")).toBe("user-1");
   });
 
   test("loads eligible linked members through the engine", async () => {
-    const calls: EngineCall[] = [];
-    const fetchImpl = (input: string | URL | Request, init?: RequestInit) => {
-      calls.push({ input, init });
-      return Promise.resolve(
+    const { calls, wrapped } = capture(() =>
+      Promise.resolve(
         Response.json({
           success: true,
           members: [{ discordUserId: "user-1", username: "Alpha", platform: "pc" }],
         }),
-      );
-    };
+      ),
+    );
 
-    await expect(rpcListGuildMembers(testEnv(fetchImpl), "guild-1")).resolves.toEqual([
+    await expect(rpcListGuildMembers(testEnv(wrapped), "guild-1")).resolves.toEqual([
       { discordUserId: "user-1", username: "Alpha", platform: "pc" },
     ]);
 
@@ -67,10 +76,10 @@ describe("tournament RPC transport", () => {
     if (!call) {
       return;
     }
-    expect(String(call.input)).toBe(
+    expect(call.url).toBe(
       "https://engine.example/parley.matchmaking.v1.MatchmakingService/ListGuildMembers",
     );
-    expect(JSON.parse(String(call.init?.body))).toEqual({
+    expect(JSON.parse(call.bodyText)).toEqual({
       guildId: "guild-1",
       game: 1,
       limit: 2000,

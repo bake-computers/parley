@@ -52,14 +52,14 @@ const workerDir = join(scriptDir, "..");
 const repoRoot = join(workerDir, "../..");
 
 await loadEnvFile(join(repoRoot, ".env"));
-await loadEnvFile(join(workerDir, ".env"));
+await loadEnvFile(join(workerDir, ".dev.vars"));
 
 const token = process.env["DISCORD_BOT_TOKEN"];
 const applicationId = process.env["DISCORD_APPLICATION_ID"];
 
 if (!token || !applicationId) {
   console.error("Error: DISCORD_BOT_TOKEN and DISCORD_APPLICATION_ID must be set");
-  console.error("Set them in apps/worker/.env or the repo root .env file.");
+  console.error("Set them in apps/worker/.dev.vars or the repo root .env file.");
   process.exit(1);
 }
 

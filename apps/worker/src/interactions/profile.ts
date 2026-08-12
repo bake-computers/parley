@@ -56,7 +56,7 @@ export const profileCommand = new SlashCommand()
   .addHandler(async (interaction: ChatInputCommandInteraction) => {
     const env = interaction.context.env as EngineTransportEnv;
 
-    if (!env.ENGINE_SERVICE_URL && !env.VPC_SERVICE) {
+    if (!env.ENGINE_INTERNAL_URL && !env.VPC_SERVICE) {
       await interaction.editReply({
         embeds: [
           {

@@ -16,7 +16,7 @@ export default defineConfig(async ({ mode }) => {
 
   const plugins: PluginOption[] = [
     ...devOnly,
-    cloudflare({ viteEnvironment: { name: "ssr" }, remoteBindings: true }),
+    cloudflare({ viteEnvironment: { name: "ssr" }, remoteBindings: process.env.PARLEY_REMOTE_BINDINGS === "1" }),
     // Compiles docs content (.mdx) to plain JS before the React plugin sees it.
     mdx({
       remarkPlugins: [remarkGfm, remarkFrontmatter],

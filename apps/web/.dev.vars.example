@@ -1,4 +1,4 @@
-# Copy to .dev.vars (gitignored) for local OAuth.
+# Copy to .dev.vars (gitignored) for local development.
 DISCORD_CLIENT_SECRET=
 AUTH_SECRET=
 # Must match the secret configured for apps/worker; it verifies /tournament create handoffs.
@@ -14,8 +14,11 @@ DISCORD_BOT_TOKEN=
 
 # Required: must match the engine and apps/worker ENGINE_SHARED_SECRET.
 # Production: `cd apps/web && npx wrangler secret put ENGINE_SHARED_SECRET`
-# Local remote VPC (`bun run dev`) also needs this secret in .dev.vars.
 ENGINE_SHARED_SECRET=
 
-# Engine/dashboard: `bun run dev` uses remote Cloudflare bindings (VPC_SERVICE).
-# Log in once: wrangler login
+# Local-first: `bun run dev` (CLOUDFLARE_ENV=local) talks to the engine on
+# your machine at 127.0.0.1:50051 — set via wrangler env.local in
+# wrangler.jsonc; no flag needed. Without env.local the top-level config keeps
+# the VPC binding and ENGINE_INTERNAL_URL (api.internal.parley.bot) → VPC.
+# Remote VPC web dev instead: `wrangler login` once, then `bun run dev:remote`
+# (PARLEY_REMOTE_BINDINGS=1) — no env.local, so top-level VPC config applies.

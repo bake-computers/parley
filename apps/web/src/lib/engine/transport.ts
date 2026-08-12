@@ -1,6 +1,7 @@
 export type EngineTransportEnv = {
   /** Service binding (Fetcher); structurally typed so wrangler-generated and workers-types env shapes both satisfy it. */
   VPC_SERVICE?: { fetch: EngineFetch };
+  /** Internal engine URL over the VPC binding (production) or local engine (dev). */
   ENGINE_INTERNAL_URL?: string;
   /**
    * Shared secret the engine requires on every non-probe route
@@ -19,6 +20,24 @@ export type EngineTransportConfig = {
 };
 
 export type RpcError = { code?: string; message?: string };
+
+function requireEngineSecret(env: EngineTransportEnv): string {
+  const secret = env.ENGINE_SHARED_SECRET?.trim() ?? "";
+  if (!secret) {
+    throw new Error(
+      "ENGINE_SHARED_SECRET is not configured on the web worker. Set it with `wrangler secret put ENGINE_SHARED_SECRET` (same value as the engine and Discord worker).",
+    );
+  }
+  return secret;
+}
+
+function withEngineAuth(fetchImpl: EngineFetch, secret: string): EngineFetch {
+  return (input, init) => {
+    const headers = new Headers(init?.headers);
+    headers.set("Authorization", `Bearer ${secret}`);
+    return fetchImpl(input, { ...init, headers });
+  };
+}
 
 /**
  * Parse an engine HTTP response. Fiber auth failures return plain text
@@ -47,7 +66,7 @@ export async function readEngineResponse<T>(res: Response): Promise<T> {
     }
     if (res.status === 403 || /^forbidden$/i.test(text.trim())) {
       throw new Error(
-        "Engine returned forbidden. Check ENGINE_SHARED_SECRET and that the web worker can reach the engine over VPC.",
+        "Engine returned forbidden. Check ENGINE_SHARED_SECRET and that the web worker can reach the engine (VPC or local ENGINE_INTERNAL_URL).",
       );
     }
     throw new Error(text.trim() || `Engine ${res.status}`);
@@ -59,47 +78,54 @@ export async function readEngineResponse<T>(res: Response): Promise<T> {
   return json;
 }
 
-/** Dashboard RPC always uses remote VPC to the Parley engine (same as production). */
+/**
+ * Resolve how the dashboard reaches the engine:
+ *
+ * - VPC: when a `VPC_SERVICE` binding plus `ENGINE_INTERNAL_URL` are present
+ *   (production, remote dev without `env.local`).
+ * - Local: plain `fetch` to `ENGINE_INTERNAL_URL ?? http://127.0.0.1:50051`
+ *   (local engine dev; `env.local` sets ENGINE_INTERNAL_URL to 127.0.0.1:50051
+ *   and drops the VPC binding, so no flag is needed).
+ *
+ * Always attaches `Authorization: Bearer <ENGINE_SHARED_SECRET>`.
+ */
 export function resolveEngineTransport(env: EngineTransportEnv): EngineTransportConfig {
-  if (!env.VPC_SERVICE) {
-    throw new Error(
-      "VPC_SERVICE is not available. Run `bun run dev` with remote bindings enabled and ensure you are logged in to Cloudflare (`wrangler login`).",
-    );
-  }
-  if (!env.ENGINE_INTERNAL_URL) {
-    throw new Error("ENGINE_INTERNAL_URL is not configured in wrangler vars.");
-  }
-  const secret = env.ENGINE_SHARED_SECRET?.trim() ?? "";
-  if (!secret) {
-    throw new Error(
-      "ENGINE_SHARED_SECRET is not configured on the web worker. Set it with `wrangler secret put ENGINE_SHARED_SECRET` (same value as the engine and Discord worker).",
-    );
+  const secret = requireEngineSecret(env);
+
+  if (env.VPC_SERVICE && env.ENGINE_INTERNAL_URL) {
+    const baseUrl = env.ENGINE_INTERNAL_URL;
+    const vpc = env.VPC_SERVICE;
+    return {
+      baseUrl,
+      cacheKey: `vpc:${baseUrl}`,
+      fetchImpl: (input, init) => {
+        const url =
+          typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
+        const resolved = url.startsWith("http") ? url : new URL(url, baseUrl).href;
+        // Pass a Request with a plain header map (Cloudflare VPC docs); Headers
+        // objects have been flaky with some VPC binding fetch paths.
+        const headers = new Headers(init?.headers);
+        headers.set("Authorization", `Bearer ${secret}`);
+        const headerInit: Record<string, string> = {};
+        headers.forEach((value, key) => {
+          headerInit[key] = value;
+        });
+        return vpc.fetch(
+          new Request(resolved, {
+            method: init?.method ?? "GET",
+            headers: headerInit,
+            body: init?.body,
+            redirect: init?.redirect,
+          }),
+        );
+      },
+    };
   }
 
-  const baseUrl = env.ENGINE_INTERNAL_URL;
-  const vpc = env.VPC_SERVICE;
+  const baseUrl = env.ENGINE_INTERNAL_URL ?? "http://127.0.0.1:50051";
   return {
     baseUrl,
-    cacheKey: `vpc:${baseUrl}`,
-    fetchImpl: (input: string | URL | Request, init?: RequestInit) => {
-      const url = typeof input === "string" ? input : input instanceof URL ? input.href : input.url;
-      const resolved = url.startsWith("http") ? url : new URL(url, baseUrl).href;
-      // Use Request + plain header map (Cloudflare VPC docs). Headers objects
-      // have been flaky with some binding fetch paths.
-      const headers = new Headers(init?.headers);
-      headers.set("Authorization", `Bearer ${secret}`);
-      const headerInit: Record<string, string> = {};
-      headers.forEach((value, key) => {
-        headerInit[key] = value;
-      });
-      return vpc.fetch(
-        new Request(resolved, {
-          method: init?.method ?? "GET",
-          headers: headerInit,
-          body: init?.body,
-          redirect: init?.redirect,
-        }),
-      );
-    },
+    cacheKey: `local:${baseUrl}`,
+    fetchImpl: withEngineAuth((input, init) => fetch(input, init), secret),
   };
 }
