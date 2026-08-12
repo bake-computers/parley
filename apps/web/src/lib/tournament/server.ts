@@ -46,9 +46,11 @@ async function sessionIsGuildMember(session: DashboardSession, guildId: string):
 
 /** Public tournament view (teams + bracket) by share code. */
 export const getTournament = createServerFn({ method: "GET" })
-  .inputValidator(validateTournamentCode)
+  .validator((data: { code: string }) => {
+    return { code: validateTournamentCode(data.code) };
+  })
   .handler(
-    ({ data: code }): Promise<TournamentJson> =>
+    ({ data: { code } }): Promise<TournamentJson> =>
       rpcGetTournamentByCode(engineEnvFromCloudflare(env), code),
   );
 
@@ -105,7 +107,9 @@ function validateActionInput(input: TournamentActionInput): TournamentActionBody
 
 /** Authenticated registration and host-only start/cancel/report. */
 export const tournamentAction = createServerFn({ method: "POST" })
-  .inputValidator(validateActionInput)
+  .validator((data: TournamentActionInput) => {
+    return validateActionInput(data);
+  })
   .handler(async ({ data: body }): Promise<TournamentJson | undefined> => {
     const session = await requireSession();
     const engine = engineEnvFromCloudflare(env);
@@ -168,8 +172,10 @@ export const tournamentAction = createServerFn({ method: "POST" })
 
 /** Eligible linked host-guild roster for the registration picker. */
 export const listTournamentMembers = createServerFn({ method: "POST" })
-  .inputValidator(validateTournamentCode)
-  .handler(async ({ data: code }): Promise<TournamentPickerMember[]> => {
+  .validator((data: { code: string }) => {
+    return { code: validateTournamentCode(data.code) };
+  })
+  .handler(async ({ data: { code } }): Promise<TournamentPickerMember[]> => {
     const session = await requireSession();
     const engine = engineEnvFromCloudflare(env);
     const tournament = await rpcGetTournamentByCode(engine, code);
