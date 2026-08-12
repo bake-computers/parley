@@ -39,7 +39,7 @@ export function OurStory() {
 
       <RevealStagger as="ul" itemAs="li" interval={120} className="mt-14 grid gap-4 sm:grid-cols-2">
         {founders.map((founder) => (
-          <li
+          <div
             key={founder.id}
             className="problem-card group relative flex items-center gap-4 overflow-hidden rounded-2xl border border-border/60 bg-muted/25 p-4 transition-colors duration-300 hover:border-accent-silver/35 focus-within:border-accent-silver/35 md:p-5"
           >
@@ -64,7 +64,7 @@ export function OurStory() {
                 {founder.role === "Founder" ? s.founderRole : s.coFounderRole}
               </p>
             </div>
-          </li>
+          </div>
         ))}
       </RevealStagger>
     </div>
