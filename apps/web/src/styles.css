@@ -406,7 +406,7 @@
   }
 
   .parley-enter {
-    animation: parley-fade-up 1s ease-out both;
+    animation: parley-fade-up 1s ease-out;
   }
 
   @keyframes parley-bar {
@@ -649,7 +649,7 @@
   }
 
   .dashboard-fade-in {
-    animation: dashboard-fade-in 0.22s ease-out both;
+    animation: dashboard-fade-in 0.22s ease-out;
   }
 
   @keyframes dashboard-fade-in {
@@ -704,6 +704,8 @@
 
     .parley-enter {
       animation: none;
+      opacity: 1;
+      transform: none;
     }
 
     .group:hover .parley-arrow-nudge,

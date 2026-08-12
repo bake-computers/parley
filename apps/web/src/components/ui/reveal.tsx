@@ -46,27 +46,50 @@ export function Reveal({
       return;
     }
 
-    // Already in view (e.g. above the fold on load): no animation needed.
-    const rect = node.getBoundingClientRect();
-    if (rect.top < window.innerHeight * 0.9 && rect.bottom > 0) {
-      return;
-    }
-
-    setVisible(false);
+    let cancelled = false;
+    let timeoutId: number | undefined;
     const observer = new IntersectionObserver(
       (entries) => {
-        entries.forEach((entry) => {
+        for (const entry of entries) {
           if (entry.isIntersecting) {
             setVisible(true);
             observer.unobserve(entry.target);
           }
-        });
+        }
       },
-      { threshold: 0.15, rootMargin: "0px 0px -10% 0px" },
+      // threshold 0: any pixel counts; mild bottom inset only
+      { threshold: 0, rootMargin: "0px 0px -8% 0px" },
     );
-    observer.observe(node);
+
+    // Wait for layout before deciding to hide (double rAF). Never hide based on pre-paint rects.
+    const raf1 = requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if (cancelled) return;
+        const rect = node.getBoundingClientRect();
+        const inView = rect.top < window.innerHeight * 0.92 && rect.bottom > 0;
+        if (inView) {
+          // stay visible — no hide flash for above-fold
+          return;
+        }
+        setVisible(false);
+        observer.observe(node);
+
+        // Safety net: if still not revealed shortly after, force visible so content can never stick hidden
+        timeoutId = window.setTimeout(() => {
+          if (cancelled) return;
+          const r = node.getBoundingClientRect();
+          if (r.top < window.innerHeight && r.bottom > 0) {
+            setVisible(true);
+            observer.disconnect();
+          }
+        }, 400);
+      });
+    });
 
     return () => {
+      cancelled = true;
+      cancelAnimationFrame(raf1);
+      if (timeoutId !== undefined) window.clearTimeout(timeoutId);
       observer.disconnect();
     };
   }, []);
