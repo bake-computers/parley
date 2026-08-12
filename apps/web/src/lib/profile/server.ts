@@ -15,7 +15,9 @@ function validateUsername(raw: string): string {
 
 /** Public profile fetch by Discord username (no auth). */
 export const getPublicProfile = createServerFn({ method: "GET" })
-  .inputValidator(validateUsername)
-  .handler(({ data: username }): Promise<GetPublicProfileResult> => {
+  .validator((data: { username: string }) => {
+    return { username: validateUsername(data.username) };
+  })
+  .handler(({ data: { username } }): Promise<GetPublicProfileResult> => {
     return rpcGetPublicProfile(engineEnvFromCloudflare(env), username);
   });
