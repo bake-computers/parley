@@ -109,6 +109,7 @@ export { discordRequest, DiscordRestClient, type DiscordRequestOptions } from ".
 export {
   logger,
   log,
+  runWithLogSink,
   configureLogSink,
   resetLogSink,
   setLogSinkForTests,

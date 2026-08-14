@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -48,8 +49,11 @@ func TestNew_AlwaysJSONIncludingDebug(t *testing.T) {
 	log := logging.NewWithWriter("debug", &buf, logging.AxiomOptions{Enabled: false})
 	log.Debug("hello")
 	line := strings.TrimSpace(buf.String())
-	if !strings.Contains(line, `"msg"`) || !strings.Contains(line, "hello") {
+	if !strings.Contains(line, `"message"`) || !strings.Contains(line, "hello") {
 		t.Fatalf("expected JSON debug line, got %q", line)
+	}
+	if !strings.Contains(line, `"ts"`) {
+		t.Fatalf("expected ts key for Axiom, got %q", line)
 	}
 	if !strings.Contains(line, `"level":"debug"`) {
 		t.Fatalf("expected lowercase debug level for Axiom, got %q", line)
@@ -65,7 +69,7 @@ func TestNew_InfoUsesJSONHandler(t *testing.T) {
 	log := logging.NewWithWriter("info", &buf, logging.AxiomOptions{Enabled: false})
 	log.Info("hello")
 	line := strings.TrimSpace(buf.String())
-	if !strings.Contains(line, `"msg"`) || !strings.Contains(line, "hello") {
+	if !strings.Contains(line, `"message"`) || !strings.Contains(line, "hello") {
 		t.Fatalf("expected JSON log line, got %q", line)
 	}
 	if !strings.Contains(line, `"level":"info"`) {
@@ -138,7 +142,19 @@ func TestAxiomHandler_FlushesBatchOnShutdown(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	logging.LogHTTP(h, "GET", "/health", 200, 1.5, nil, nil, nil)
+	log := logging.NewWithAxiom("info", h)
+	log.Info("POST /parley.matchmaking.v1.MatchmakingService/CreateMatch 200 (12.4ms)",
+		"event", "request.completed",
+		"where", "engine POST /parley.matchmaking.v1.MatchmakingService/CreateMatch",
+		"request_id", "req-1",
+		"outcome", "success",
+		"duration_ms", 12.4,
+		"http", slog.GroupValue(
+			slog.String("method", "POST"),
+			slog.String("path", "/parley.matchmaking.v1.MatchmakingService/CreateMatch"),
+			slog.Int("status", 200),
+		),
+	)
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -158,11 +174,34 @@ func TestAxiomHandler_FlushesBatchOnShutdown(t *testing.T) {
 	if len(batch) < 1 {
 		t.Fatalf("batch len %d", len(batch))
 	}
-	if batch[0]["event"] != "http" {
-		t.Fatalf("event %v", batch[0]["event"])
+	ev := batch[0]
+	if ev["event"] != "request.completed" {
+		t.Fatalf("event %v", ev["event"])
 	}
-	if batch[0]["level"] != "info" {
-		t.Fatalf("http 200 should be level info, got %v", batch[0]["level"])
+	if ev["level"] != "info" {
+		t.Fatalf("expected level info, got %v", ev["level"])
+	}
+	if ev["message"] != "POST /parley.matchmaking.v1.MatchmakingService/CreateMatch 200 (12.4ms)" {
+		t.Fatalf("message %v", ev["message"])
+	}
+	if ev["where"] != "engine POST /parley.matchmaking.v1.MatchmakingService/CreateMatch" {
+		t.Fatalf("where %v", ev["where"])
+	}
+	if ev["request_id"] != "req-1" {
+		t.Fatalf("request_id %v", ev["request_id"])
+	}
+	if ev["outcome"] != "success" {
+		t.Fatalf("outcome %v", ev["outcome"])
+	}
+	if ev["ts"] == "" || ev["ts"] == nil {
+		t.Fatalf("missing ts key, got %v", ev)
+	}
+	httpGroup, ok := ev["http"].(map[string]any)
+	if !ok {
+		t.Fatalf("expected http group, got %v", ev["http"])
+	}
+	if httpGroup["method"] != "POST" || httpGroup["path"] != "/parley.matchmaking.v1.MatchmakingService/CreateMatch" || httpGroup["status"] != float64(200) {
+		t.Fatalf("http group %v", httpGroup)
 	}
 }
 
@@ -218,127 +257,5 @@ func TestAxiomHandler_SlogLevelsLowercase(t *testing.T) {
 	}
 	if !levels["debug"] || !levels["error"] {
 		t.Fatalf("want debug+error levels, got %v", levels)
-	}
-}
-
-func TestDomainEvents_ErrorLevel(t *testing.T) {
-	t.Parallel()
-	var mu sync.Mutex
-	var body []byte
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		b, _ := io.ReadAll(r.Body)
-		mu.Lock()
-		body = b
-		mu.Unlock()
-		w.WriteHeader(http.StatusOK)
-	}))
-	defer srv.Close()
-
-	h, err := logging.NewAxiomHandler(logging.AxiomOptions{
-		Token:     "tok",
-		Enabled:   true,
-		BatchSize: 1,
-		IngestURL: srv.URL,
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	path := "/rpc"
-	logging.LogError(h, "MatchService", "FAILED_PRECONDITION", "bad input", &path)
-	logging.LogHTTP(h, "POST", "/x", 500, 1, nil, nil, nil)
-
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-	defer cancel()
-	_ = h.Shutdown(ctx)
-
-	mu.Lock()
-	defer mu.Unlock()
-	// Last flush may be either event; parse all by reusing helper path via second call
-	// Shutdown already flushed; body is last batch (size 1).
-	var batch []map[string]any
-	if err := json.Unmarshal(body, &batch); err != nil {
-		t.Fatal(err)
-	}
-	if len(batch) != 1 {
-		t.Fatalf("batch %d", len(batch))
-	}
-	if batch[0]["level"] != "error" {
-		t.Fatalf("expected error level on domain events, got %v", batch[0])
-	}
-}
-
-func TestAxiomHandler_NoOpWhenDisabled(t *testing.T) {
-	t.Parallel()
-	h, err := logging.NewAxiomHandler(logging.AxiomOptions{Enabled: false})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if h.EnabledForHelpers() {
-		t.Fatal("disabled handler should not be enabled for helpers")
-	}
-	// Should not panic
-	logging.LogHTTP(h, "GET", "/", 200, 0, nil, nil, nil)
-	logging.LogDB(h, "SELECT", "t", 0, nil)
-	logging.LogCache(h, "hit", "r6", nil)
-	logging.LogError(h, "svc", "code", "msg", nil)
-}
-
-func TestHelpers_EnqueueAllEventTypes(t *testing.T) {
-	t.Parallel()
-	var mu sync.Mutex
-	var bodies [][]byte
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		b, _ := io.ReadAll(r.Body)
-		mu.Lock()
-		bodies = append(bodies, b)
-		mu.Unlock()
-		w.WriteHeader(http.StatusOK)
-	}))
-	defer srv.Close()
-
-	h, err := logging.NewAxiomHandler(logging.AxiomOptions{
-		Token:     "tok",
-		Enabled:   true,
-		BatchSize: 1, // flush after each enqueue
-		IngestURL: srv.URL,
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	strp := func(s string) *string { return &s }
-	logging.LogHTTP(h, "POST", "/api/test", 201, 42.0, strp("agent"), strp("app/json"), strp("origin"))
-	logging.LogDB(h, "SELECT", "users", 5.0, nil)
-	logging.LogCache(h, "hit", "r6", strp("hash123"))
-	logging.LogError(h, "api", "ERR_TEST", "something broke", strp("/path"))
-
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
-	defer cancel()
-	if err := h.Shutdown(ctx); err != nil {
-		t.Fatal(err)
-	}
-
-	mu.Lock()
-	defer mu.Unlock()
-	if len(bodies) < 4 {
-		t.Fatalf("expected at least 4 POSTs, got %d", len(bodies))
-	}
-
-	events := make(map[string]bool)
-	for _, body := range bodies {
-		var batch []map[string]any
-		if err := json.Unmarshal(body, &batch); err != nil {
-			t.Fatal(err)
-		}
-		for _, ev := range batch {
-			if e, ok := ev["event"].(string); ok {
-				events[e] = true
-			}
-		}
-	}
-	for _, want := range []string{"http", "db", "cache", "error"} {
-		if !events[want] {
-			t.Errorf("missing event type %q", want)
-		}
 	}
 }

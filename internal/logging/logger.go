@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"os"
 	"strings"
+	"time"
 )
 
 const ServiceEngine = "engine"
@@ -81,12 +82,18 @@ func jsonHandlerOptions(level string) *slog.HandlerOptions {
 	lvl := parseLevel(level)
 	return &slog.HandlerOptions{
 		Level: lvl,
-		// Lowercase level so Axiom severity mapping matches worker/discord events.
+		// Axiom-friendly keys matching the wide-event schema: lowercase level,
+		// msg→message, time→ts.
 		ReplaceAttr: func(_ []string, a slog.Attr) slog.Attr {
-			if a.Key == slog.LevelKey {
+			switch a.Key {
+			case slog.LevelKey:
 				if l, ok := a.Value.Any().(slog.Level); ok {
 					return slog.String(slog.LevelKey, levelString(l))
 				}
+			case slog.MessageKey:
+				return slog.String("message", a.Value.String())
+			case slog.TimeKey:
+				return slog.String("ts", a.Value.Time().UTC().Format(time.RFC3339Nano))
 			}
 			return a
 		},
@@ -106,7 +113,11 @@ func newLogger(level string, stdout slog.Handler, axiom *AxiomHandler) *slog.Log
 	if axiom != nil && axiom.enabled {
 		h = &multiHandler{handlers: []slog.Handler{stdout, axiom}}
 	}
-	return slog.New(h).With("service", ServiceEngine)
+	log := slog.New(h).With("service", ServiceEngine)
+	if host, err := os.Hostname(); err == nil && host != "" {
+		log = log.With("env", slog.GroupValue(slog.String("hostname", host)))
+	}
+	return log
 }
 
 // New builds the root JSON logger; tees to Axiom when opts are configured.

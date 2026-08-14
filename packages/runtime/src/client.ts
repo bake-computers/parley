@@ -183,7 +183,8 @@ function createRequestContext<Env>(
   executionContext: ExecutionContext,
 ): DiscordRequestContext<Env> {
   const values = new Map<string, unknown>();
-  const requestId = request.headers.get("cf-ray") ?? crypto.randomUUID();
+  const requestId =
+    request.headers.get("x-request-id") ?? request.headers.get("cf-ray") ?? crypto.randomUUID();
 
   return {
     env,
@@ -324,17 +325,24 @@ export class ParleyClient {
 
     const verified = await verifyDiscordRequest(request, runtimeEnv.DISCORD_PUBLIC_KEY);
     if (verified.isErr()) {
-      logger.warn("discord.request.invalid", "Rejected Discord interaction request", {
+      logger.warn("discord.request.invalid", "Rejected Discord interaction", {
         requestId: context.requestId,
         path: url.pathname,
-        error: verified.error,
+        error: verified.error.message,
       });
       return textResponse("Bad request signature.", 401);
     }
 
     const payload = verified.value.data;
-    // PING is the latency-critical path — ACK immediately after verify, before heavier checks.
+    // PING is the latency-critical path — one terminal log, then ACK immediately after verify, before heavier checks.
     if (isObject(payload) && payload["type"] === InteractionType.Ping) {
+      logger.info("discord.interaction.ping", "PING acknowledged", {
+        requestId: context.requestId,
+        interactionType: InteractionType.Ping,
+        surface: "ping",
+        name: "ping",
+        outcome: "ok",
+      });
       return pongResponse();
     }
 
@@ -448,12 +456,20 @@ export class ParleyClient {
       });
     } finally {
       const outcome = context.get<string | undefined>("analytics.outcome");
-      const level = outcome === "error" || outcome === "missing_handler" ? "warn" : "info";
+      const level = outcome === "error" ? "error" : "info";
+      const detail = context.get<string | undefined>("analytics.detail");
+      const guildId = context.get<string | undefined>("analytics.guildId");
+      const userId = context.get<string | undefined>("analytics.userId");
+      const channelId = context.get<string | undefined>("analytics.channelId");
       logger[level]("discord.interaction.completed", "Interaction processing completed", {
         requestId: context.requestId,
         interactionType: interaction.type,
         surface: context.get<string | undefined>("analytics.surface"),
         name: context.get<string | undefined>("analytics.name"),
+        ...(detail !== undefined ? { detail } : {}),
+        ...(guildId !== undefined ? { guildId } : {}),
+        ...(userId !== undefined ? { userId } : {}),
+        ...(channelId !== undefined ? { channelId } : {}),
         outcome,
         durationMs: Date.now() - startedAt,
         ...("id" in interaction ? { interactionId: interaction.id } : {}),

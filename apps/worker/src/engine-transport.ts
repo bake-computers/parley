@@ -1,4 +1,5 @@
 import type { Fetcher } from "@cloudflare/workers-types";
+import { getRequestContext } from "#/request-context";
 
 export type EngineTransportEnv = {
   VPC_SERVICE?: Fetcher;
@@ -25,6 +26,11 @@ function withEngineAuth(fetchImpl: EngineFetch, secret: string | undefined): Eng
   return (input, init) => {
     const headers = new Headers(init?.headers);
     headers.set("Authorization", `Bearer ${token}`);
+    // Forward the incoming request id so the engine wide event matches ours.
+    const requestId = getRequestContext()?.requestId;
+    if (requestId && !headers.has("X-Request-ID")) {
+      headers.set("X-Request-ID", requestId);
+    }
     return fetchImpl(input, { ...init, headers });
   };
 }

@@ -7,12 +7,16 @@ afterEach(() => {
 
 describe("resolveEngineTransport", () => {
   test("uses plain fetch to ENGINE_INTERNAL_URL when no VPC binding (local)", async () => {
-    const calls: Array<{ url: string; auth: string | null }> = [];
+    const calls: Array<{ url: string; auth: string | null; requestId: string | null }> = [];
     vi.stubGlobal(
       "fetch",
       vi.fn((input: RequestInfo | URL, init?: RequestInit) => {
         const req = new Request(new URL(String(input), "http://127.0.0.1:50051"), init);
-        calls.push({ url: req.url, auth: req.headers.get("authorization") });
+        calls.push({
+          url: req.url,
+          auth: req.headers.get("authorization"),
+          requestId: req.headers.get("x-request-id"),
+        });
         return Promise.resolve(Response.json({ ok: true }));
       }),
     );
@@ -26,6 +30,7 @@ describe("resolveEngineTransport", () => {
     await transport.fetchImpl("/health", { method: "GET" });
     expect(calls).toHaveLength(1);
     expect(calls[0]?.auth).toBe("Bearer s3cret");
+    expect(calls[0]?.requestId).toBeTruthy();
     expect(String(calls[0]?.url)).toBe("http://127.0.0.1:50051/health");
   });
 
@@ -60,6 +65,7 @@ describe("resolveEngineTransport", () => {
     // VPC path must pass a Request (with a plain header map), not a string+init.
     expect(calls[0]?.init).toBeUndefined();
     expect(calls[0]?.req.headers.get("authorization")).toBe("Bearer s3cret");
+    expect(calls[0]?.req.headers.get("x-request-id")).toBeTruthy();
     expect(calls[0]?.req.url).toContain("http://engine.internal:50051/health");
   });
 

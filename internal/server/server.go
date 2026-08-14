@@ -62,6 +62,7 @@ func New(deps Deps) *fiber.App {
 
 	// Middleware
 	app.Use(recover.New())
+	// requestid.New() honors an inbound valid X-Request-ID and generates one otherwise.
 	app.Use(requestid.New())
 	app.Use(requestLogMiddleware())
 	app.Use(compress.New())
@@ -169,8 +170,65 @@ func mountConnect(app *fiber.App, path string, handler http.Handler) {
 	app.Post(path+"*", h)
 }
 
-// requestLogMiddleware emits structured JSON request logs via slog (tees to Axiom).
-// Status drives level so 5xx/4xx are not misread as info in Axiom.
+// requestLogEvent builds the one wide event per engine request hop: a readable
+// message plus queryable fields matching the shared schema. Pure so tests can
+// assert the shape without slog.
+func requestLogEvent(
+	method, path string,
+	status int,
+	durationMS float64,
+	requestID, clientIP, userAgent string,
+	bytesOut int,
+	errMsg string,
+) (slog.Level, string, []any) {
+	level := slog.LevelInfo
+	outcome := "success"
+	switch {
+	case status >= 500:
+		// Server-side failure → error level.
+		level = slog.LevelError
+		outcome = "error"
+	case status >= 400:
+		// 4xx is a client problem, not an engine failure — even when a fiber
+		// error (e.g. 404 ErrNotFound) produced an errMsg.
+		outcome = "client_error"
+	case errMsg != "":
+		// Unexpected handler failure on an otherwise-successful status.
+		level = slog.LevelError
+		outcome = "error"
+	}
+
+	msg := fmt.Sprintf("%s %s %d (%.1fms)", method, path, status, durationMS)
+
+	httpAttrs := []slog.Attr{
+		slog.String("method", method),
+		slog.String("path", path),
+		slog.Int("status", status),
+		slog.Int("bytes_out", bytesOut),
+	}
+	if clientIP != "" {
+		httpAttrs = append(httpAttrs, slog.String("client_ip", clientIP))
+	}
+	if userAgent != "" {
+		httpAttrs = append(httpAttrs, slog.String("user_agent", userAgent))
+	}
+
+	attrs := []any{
+		"event", "request.completed",
+		"where", "engine " + method + " " + path,
+		"request_id", requestID,
+		"outcome", outcome,
+		"duration_ms", durationMS,
+		"http", slog.GroupValue(httpAttrs...),
+	}
+	if errMsg != "" {
+		attrs = append(attrs, "error", slog.GroupValue(slog.String("message", errMsg)))
+	}
+	return level, msg, attrs
+}
+
+// requestLogMiddleware emits the one wide event per engine request hop via slog
+// (teed to Axiom). 5xx/error → error level; 4xx stays info with outcome=client_error.
 func requestLogMiddleware() fiber.Handler {
 	return func(c fiber.Ctx) error {
 		start := time.Now()
@@ -186,39 +244,26 @@ func requestLogMiddleware() fiber.Handler {
 		}
 
 		durationMS := float64(time.Since(start).Microseconds()) / 1000
-		attrs := []any{
-			"event", "http",
-			"method", c.Method(),
-			"path", c.Path(),
-			"status", status,
-			"duration_ms", durationMS,
-			"request_id", c.GetRespHeader(fiber.HeaderXRequestID),
-			"bytes_out", len(c.Response().Body()),
-		}
-		if ip := c.IP(); ip != "" {
-			attrs = append(attrs, "client_ip", ip)
-		}
-		if ua := c.Get(fiber.HeaderUserAgent); ua != "" {
-			attrs = append(attrs, "user_agent", ua)
-		}
+		errMsg := ""
 		if err != nil {
-			attrs = append(attrs, "error", err.Error())
+			errMsg = err.Error()
 		}
-
-		msg := "http request"
-		switch {
-		case status >= 500:
-			slog.Error(msg, attrs...)
-		case status >= 400:
-			slog.Warn(msg, attrs...)
-		default:
-			// Health probes stay quiet at debug so info is usable for RPC traffic.
-			if c.Path() == "/health" || c.Path() == "/ready" {
-				slog.Debug(msg, attrs...)
-			} else {
-				slog.Info(msg, attrs...)
-			}
+		level, msg, attrs := requestLogEvent(
+			c.Method(),
+			c.Path(),
+			status,
+			durationMS,
+			c.GetRespHeader(fiber.HeaderXRequestID),
+			c.IP(),
+			c.Get(fiber.HeaderUserAgent),
+			len(c.Response().Body()),
+			errMsg,
+		)
+		// Health probes stay quiet at debug so info is usable for RPC traffic.
+		if level == slog.LevelInfo && (c.Path() == "/health" || c.Path() == "/ready") {
+			level = slog.LevelDebug
 		}
+		slog.Log(c.Context(), level, msg, attrs...)
 		return err
 	}
 }

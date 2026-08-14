@@ -220,10 +220,10 @@ func (h *AxiomHandler) recordJSON(r slog.Record) []byte {
 	m := map[string]any{
 		"event":   "log",
 		"service": ServiceEngine,
-		"time":    r.Time.UTC().Format(time.RFC3339Nano),
+		"ts":      r.Time.UTC().Format(time.RFC3339Nano),
 		// Lowercase: Axiom severity UI treats unknown/missing as info.
-		"level": levelString(r.Level),
-		"msg":   r.Message,
+		"level":   levelString(r.Level),
+		"message": r.Message,
 	}
 	if h.group != "" {
 		m["group"] = h.group
@@ -321,21 +321,6 @@ func (h *AxiomHandler) Shutdown(ctx context.Context) error {
 	}
 }
 
-// EnabledForHelpers reports whether domain helpers should enqueue events.
-func (h *AxiomHandler) EnabledForHelpers() bool {
-	return h != nil && h.enabled
-}
-
-func (h *AxiomHandler) enqueueDomain(b []byte) {
-	if h == nil || !h.enabled || b == nil {
-		return
-	}
-	h.enqueue(b)
-}
-
 // EnqueueRaw is used by tests to inject payloads.
-func (h *AxiomHandler) EnqueueRaw(b []byte) {
-	h.enqueueDomain(b)
-}
 
 var _ slog.Handler = (*AxiomHandler)(nil)
