@@ -21,6 +21,7 @@ import (
 	"github.com/bake-computers/parley/internal/stats/cache"
 	"github.com/bake-computers/parley/internal/stats/fetch"
 	"github.com/bake-computers/parley/internal/stats/persist"
+	"github.com/gofiber/fiber/v3"
 )
 
 func main() {
@@ -148,7 +149,7 @@ func run() error {
 	serverErr := make(chan error, 2)
 	go func() {
 		slog.Info("engine-service listening", "addr", cfg.EngineServiceAddr)
-		if err := app.Listen(cfg.EngineServiceAddr); err != nil {
+		if err := app.Listen(cfg.EngineServiceAddr, fiber.ListenConfig{DisableStartupMessage: true}); err != nil {
 			serverErr <- err
 		}
 	}()
