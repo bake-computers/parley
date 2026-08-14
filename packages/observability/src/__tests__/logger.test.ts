@@ -1,57 +1,22 @@
 import { afterEach, describe, expect, test, vi } from "bun:test";
-import { resolveAxiomConfig, resolveAxiomIngestUrl } from "#/config";
-import { AxiomLogger } from "#/logger";
+import { resolvePipelineConfig } from "#/config";
+import { EventLogger } from "#/logger";
 
 afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe("resolveAxiomIngestUrl", () => {
-  test("uses legacy US API by default", () => {
-    expect(resolveAxiomIngestUrl({ dataset: "parley" })).toBe(
-      "https://api.axiom.co/v1/datasets/parley/ingest",
-    );
-  });
-
-  test("uses edge domain for regional datasets", () => {
-    expect(
-      resolveAxiomIngestUrl({
-        dataset: "parley",
-        edge: "eu-central-1.aws.edge.axiom.co",
-      }),
-    ).toBe("https://eu-central-1.aws.edge.axiom.co/v1/ingest/parley");
-  });
-
-  test("strips quotes from dev var values", () => {
-    const config = resolveAxiomConfig(
-      {
-        AXIOM_TOKEN: '"test-token"',
-        AXIOM_EDGE: '"eu-central-1.aws.edge.axiom.co"',
-        AXIOM_DATASET: '"parley"',
-      },
-      "bridge",
-    );
-
-    expect(config.ingestUrl).toBe("https://eu-central-1.aws.edge.axiom.co/v1/ingest/parley");
-  });
-});
-
-function configuredLogger(service = "worker"): AxiomLogger {
-  const config = resolveAxiomConfig(
-    {
-      AXIOM_TOKEN: "test-token",
-      AXIOM_DATASET: "parley-workers",
-      SERVICE_NAME: service,
-    },
-    "worker",
+function configuredLogger(service = "worker") {
+  const stream = { send: vi.fn(async () => {}) };
+  const logger = new EventLogger(
+    resolvePipelineConfig({ STREAM: stream, SERVICE_NAME: service }, "worker"),
   );
-  return new AxiomLogger(config);
+  return { logger, stream };
 }
 
-describe("AxiomLogger", () => {
-  test("falls back to console JSON when token is missing", () => {
-    const config = resolveAxiomConfig({}, "bridge");
-    const logger = new AxiomLogger(config);
+describe("EventLogger", () => {
+  test("no binding => unconfigured, finish() console.logs one wide event, flush() never sends", async () => {
+    const logger = new EventLogger(resolvePipelineConfig({}, "bridge"));
 
     expect(logger.configured).toBe(false);
     expect(logger.service).toBe("bridge");
@@ -60,8 +25,10 @@ describe("AxiomLogger", () => {
     logger.begin({ request_id: "req-1", http: { method: "GET", path: "/health" } });
     logger.merge({ http: { status: 200 }, duration_ms: 1.2 });
     logger.finish();
-
     expect(logged).toHaveBeenCalledTimes(1);
+
+    await logger.flush();
+
     const event = JSON.parse(String(logged.mock.calls[0]?.[0]));
     expect(event.event).toBe("request.completed");
     expect(event.message).toBe("GET /health 200 (1.2ms)");
@@ -73,8 +40,8 @@ describe("AxiomLogger", () => {
     logged.mockRestore();
   });
 
-  test("queues exactly one wide event when configured", async () => {
-    const logger = configuredLogger();
+  test("binding present => finish+flush sends exactly one event via stream.send", async () => {
+    const { logger, stream } = configuredLogger();
 
     expect(logger.configured).toBe(true);
     logger.begin({
@@ -91,16 +58,12 @@ describe("AxiomLogger", () => {
     logger.finish();
     logger.finish(); // idempotent
 
-    const fetchMock = vi
-      .spyOn(globalThis, "fetch")
-      .mockResolvedValue(new Response("{}", { status: 200 }));
     await logger.flush();
 
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-    const body = fetchMock.mock.calls[0]?.[1]?.body;
-    const events = JSON.parse(String(body));
+    expect(stream.send).toHaveBeenCalledTimes(1);
+    const events = stream.send.mock.calls[0]?.[0] as unknown[];
     expect(events).toHaveLength(1);
-    const event = events[0];
+    const event = events[0] as Record<string, unknown>;
     expect(event.event).toBe("request.completed");
     expect(event.message).toBe("slash link completed");
     expect(event.service).toBe("worker");
@@ -112,11 +75,16 @@ describe("AxiomLogger", () => {
     expect(event.outcome).toBe("success");
     expect(event.level).toBe("info");
     expect(event.duration_ms).toBe(4.2);
-    fetchMock.mockRestore();
+  });
+
+  test("flush() with no pending events does not call stream.send", async () => {
+    const { logger, stream } = configuredLogger();
+    await logger.flush();
+    expect(stream.send).not.toHaveBeenCalled();
   });
 
   test("error outcome drives error level and message", async () => {
-    const logger = configuredLogger();
+    const { logger, stream } = configuredLogger();
     logger.begin({
       request_id: "req-2",
       http: { method: "POST", path: "/interactions" },
@@ -131,38 +99,32 @@ describe("AxiomLogger", () => {
     logger.merge({ http: { status: 200 } });
     logger.finish();
 
-    const fetchMock = vi
-      .spyOn(globalThis, "fetch")
-      .mockResolvedValue(new Response("{}", { status: 200 }));
     await logger.flush();
-    const events = JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body));
+    const events = stream.send.mock.calls[0]?.[0] as unknown[];
 
     expect(events).toHaveLength(1);
-    expect(events[0].level).toBe("error");
-    expect(events[0].outcome).toBe("error");
-    expect(events[0].message).toBe("slash unlink failed: unlinkAccount RPC failed");
-    expect(events[0].error).toMatchObject({ message: "unlinkAccount RPC failed" });
-    fetchMock.mockRestore();
+    const event = events[0] as Record<string, unknown>;
+    expect(event.level).toBe("error");
+    expect(event.outcome).toBe("error");
+    expect(event.message).toBe("slash unlink failed: unlinkAccount RPC failed");
+    expect(event.error).toMatchObject({ message: "unlinkAccount RPC failed" });
   });
 
   test("emitStandalone queues a full record without begin", async () => {
-    const logger = configuredLogger();
+    const { logger, stream } = configuredLogger();
     logger.emitStandalone({
       event: "startup",
       message: "worker booted",
       where: "worker startup",
     });
 
-    const fetchMock = vi
-      .spyOn(globalThis, "fetch")
-      .mockResolvedValue(new Response("{}", { status: 200 }));
     await logger.flush();
-    const events = JSON.parse(String(fetchMock.mock.calls[0]?.[1]?.body));
+    const events = stream.send.mock.calls[0]?.[0] as unknown[];
 
     expect(events).toHaveLength(1);
-    expect(events[0].event).toBe("startup");
-    expect(events[0].message).toBe("worker booted");
-    expect(events[0].service).toBe("worker");
-    fetchMock.mockRestore();
+    const event = events[0] as Record<string, unknown>;
+    expect(event.event).toBe("startup");
+    expect(event.message).toBe("worker booted");
+    expect(event.service).toBe("worker");
   });
 });

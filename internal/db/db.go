@@ -2,8 +2,10 @@ package db
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/bake-computers/parley/internal/config"
@@ -127,6 +129,11 @@ func New(ctx context.Context, cfg *config.Config) (*bun.DB, error) {
 		}
 	}
 
+	// Log slow (>50ms) or failed queries as event=db.query records. SQL text
+	// and bind values are never logged. Installed after migrations so boot
+	// migrations are not logged.
+	db.AddQueryHook(queryLogHook{})
+
 	return db, nil
 }
 
@@ -137,4 +144,51 @@ func Ping(ctx context.Context, db *bun.DB) error {
 	}
 	var one int
 	return db.NewSelect().ColumnExpr("1").Scan(ctx, &one)
+}
+
+// queryLogHook emits one event=db.query slog record when a query took longer
+// than 50ms or failed. The message stays generic; only op/table metadata is
+// attached, never the SQL text or bind values.
+type queryLogHook struct{}
+
+func (queryLogHook) BeforeQuery(ctx context.Context, _ *bun.QueryEvent) context.Context {
+	return ctx
+}
+
+func (queryLogHook) AfterQuery(_ context.Context, event *bun.QueryEvent) {
+	duration := time.Since(event.StartTime)
+	// sql.ErrNoRows is control flow (e.g. "not found" lookups), not a
+	// failure. Emit only when the query was slow or actually failed.
+	isNoRows := errors.Is(event.Err, sql.ErrNoRows)
+	if duration <= 50*time.Millisecond && (event.Err == nil || isNoRows) {
+		return
+	}
+
+	op := "query"
+	table := ""
+	if event.IQuery != nil {
+		op = event.IQuery.Operation()
+		table = event.IQuery.GetTableName()
+	}
+
+	dbGroup := []slog.Attr{slog.String("op", op)}
+	if table != "" {
+		dbGroup = append(dbGroup, slog.String("table", table))
+	}
+
+	attrs := []any{
+		"event", "db.query",
+		"where", "engine db",
+		"duration_ms", float64(duration.Microseconds()) / 1000,
+		"db", slog.GroupValue(dbGroup...),
+	}
+	if event.Err != nil && !isNoRows {
+		attrs = append(attrs,
+			"outcome", "error",
+			"error", slog.GroupValue(slog.String("message", event.Err.Error())),
+		)
+	} else {
+		attrs = append(attrs, "outcome", "success")
+	}
+	slog.Info("db query", attrs...)
 }

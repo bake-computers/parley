@@ -21,7 +21,7 @@
   "dependencies": {
     "@connectrpc/connect": "^2.0.0",
     "@connectrpc/connect-web": "^2.0.0",
-    "@parley/axiom": "workspace:*",
+    "@parley/observability": "workspace:*",
     "@parley/parley-rank": "workspace:*",
     "@parley/proto": "workspace:*",
     "@parley/runtime": "workspace:*",

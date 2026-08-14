@@ -1,8 +1,8 @@
 {
-  "name": "@parley/axiom",
+  "name": "@parley/observability",
   "version": "0.0.0",
   "private": true,
-  "description": "Structured Axiom logging for Parley Cloudflare Workers.",
+  "description": "Structured event logging for Parley Cloudflare Workers: wide request events shipped to Cloudflare Pipelines when a stream binding exists.",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

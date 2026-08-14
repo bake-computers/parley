@@ -19,12 +19,12 @@
   "vars": {
     "DISCORD_APPLICATION_ID": "1495122091165618358",
     "SERVICE_NAME": "worker",
-    "AXIOM_DATASET": "parley",
-    "AXIOM_ENABLED": "true",
-    "AXIOM_EDGE": "eu-central-1.aws.edge.axiom.co",
-    "AXIOM_ORG_ID": "parley-sf7e",
     "ENGINE_INTERNAL_URL": "http://api.internal.parley.bot:50051",
   },
+
+  // Production-only pipelines binding for the worker event stream. REPLACE_ME
+  // with the real stream id once the stream exists; local envs never get this.
+  "pipelines": [{ "binding": "STREAM", "stream": "REPLACE_ME" }],
 
   "vpc_services": [
     {

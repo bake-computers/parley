@@ -37,21 +37,17 @@ func run() error {
 		return fmt.Errorf("load config: %w", err)
 	}
 
-	axiomOpts := logging.AxiomOptions{
-		Token:   cfg.AxiomToken,
-		Dataset: cfg.AxiomDataset,
-		OrgID:   cfg.AxiomOrgID,
-		Edge:    cfg.AxiomEdge,
-		Enabled: cfg.AxiomEnabled,
-		Level:   cfg.LogLevel,
+	pipelineOpts := logging.PipelineOptions{
+		IngestURL: cfg.PipelinesIngestURL,
+		Token:     cfg.PipelinesToken,
 	}
-	// One Axiom handler shared by slog + domain helpers; previously New() and
-	// NewAxiomHandler each created a flusher, so slog never reached the shutdown path.
-	axiomHandler, err := logging.NewAxiomHandler(axiomOpts)
-	logger := logging.NewWithAxiom(cfg.LogLevel, axiomHandler)
+	// One pipeline handler shared by slog + domain helpers; previously New() and
+	// NewPipelineHandler each created a flusher, so slog never reached the shutdown path.
+	pipelineHandler, err := logging.NewPipelineHandler(pipelineOpts)
+	logger := logging.NewWithPipeline(cfg.LogLevel, pipelineHandler)
 	slog.SetDefault(logger)
 	if err != nil {
-		slog.Warn("axiom handler init failed", "error", err)
+		slog.Warn("pipelines handler init failed", "error", err)
 	}
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
@@ -177,11 +173,11 @@ func run() error {
 		slog.Error("metrics shutdown error", "error", err)
 	}
 
-	if axiomHandler != nil {
-		axiomCtx, axiomCancel := context.WithTimeout(context.Background(), 5*time.Second)
-		defer axiomCancel()
-		if err := axiomHandler.Shutdown(axiomCtx); err != nil {
-			slog.Warn("axiom shutdown error", "error", err)
+	if pipelineHandler != nil {
+		pipelineCtx, pipelineCancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer pipelineCancel()
+		if err := pipelineHandler.Shutdown(pipelineCtx); err != nil {
+			slog.Warn("pipelines shutdown error", "error", err)
 		}
 	}
 

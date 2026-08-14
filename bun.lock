@@ -71,7 +71,7 @@
       "dependencies": {
         "@connectrpc/connect": "^2.0.0",
         "@connectrpc/connect-web": "^2.0.0",
-        "@parley/axiom": "workspace:*",
+        "@parley/observability": "workspace:*",
         "@parley/parley-rank": "workspace:*",
         "@parley/proto": "workspace:*",
         "@parley/runtime": "workspace:*",
@@ -83,17 +83,6 @@
         "@parley/tsconfig-base": "workspace:*",
         "@types/node": "^25.9.3",
         "wrangler": "^4.98.0",
-      },
-    },
-    "packages/axiom": {
-      "name": "@parley/axiom",
-      "version": "0.0.0",
-      "dependencies": {
-        "hono": "^4.7.0",
-      },
-      "devDependencies": {
-        "@cloudflare/workers-types": "^4.20260506.1",
-        "@parley/tsconfig-base": "workspace:*",
       },
     },
     "packages/discord-components": {
@@ -121,6 +110,17 @@
       "devDependencies": {
         "@bufbuild/buf": "^1.47.2",
         "@bufbuild/protoc-gen-es": "^2.2.3",
+      },
+    },
+    "packages/observability": {
+      "name": "@parley/observability",
+      "version": "0.0.0",
+      "dependencies": {
+        "hono": "^4.7.0",
+      },
+      "devDependencies": {
+        "@cloudflare/workers-types": "^4.20260506.1",
+        "@parley/tsconfig-base": "workspace:*",
       },
     },
     "packages/parley-rank": {
@@ -606,11 +606,11 @@
 
     "@oxlint/plugins": ["@oxlint/plugins@1.73.0", "", {}, "sha512-OhgMQeMmZA0dcFcX4/priaJZWdFECxiClgq6mRX6aatZEcV9PbKC3P3/v8U1hVjviT1i5U+vR8lAtBV6m4FXAA=="],
 
-    "@parley/axiom": ["@parley/axiom@workspace:packages/axiom"],
-
     "@parley/discord-components": ["@parley/discord-components@workspace:packages/discord-components"],
 
     "@parley/docs": ["@parley/docs@workspace:apps/docs"],
+
+    "@parley/observability": ["@parley/observability@workspace:packages/observability"],
 
     "@parley/parley-rank": ["@parley/parley-rank@workspace:packages/parley-rank"],
 

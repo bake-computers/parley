@@ -178,9 +178,11 @@ export function PrivacyContentEn() {
             gameplay statistics.
           </li>
           <li>
-            <span className="font-medium text-foreground/80">Axiom:</span> Operational application
-            and Worker logs, ingested via an EU edge endpoint. Used for debugging and reliability,
-            not for advertising.
+            <span className="font-medium text-foreground/80">Cloudflare Pipelines / R2:</span>{" "}
+            Operational events only (requests, slow or failed database queries, matchmaking
+            calculations, and errors), stored in Cloudflare R2. Matchmaking events may include
+            Discord user IDs used to calculate the lobby. Used for reliability, not for
+            advertising.
           </li>
           <li>
             <span className="font-medium text-foreground/80">Grafana Cloud:</span> Infrastructure

@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"log/slog"
 	"strings"
+	"time"
 
 	"connectrpc.com/connect"
 	commonv1 "github.com/bake-computers/parley/gen/parley/common/v1"
@@ -258,10 +259,12 @@ func (s *MatchService) BuildTeams(
 		}
 	}
 
+	partitionStart := time.Now()
 	partition := s.matchmaking.PartitionModelTeams(players, int(teamSize))
 	if partition == nil {
 		return nil, apperr.Internal("team partition failed")
 	}
+	emitPartitionEvent(game, guildID, int(teamSize), partition, players, time.Since(partitionStart))
 	teamA, teamB := assignmentsFromPartition(players, partition.TeamA, partition.TeamB)
 
 	return connect.NewResponse(&matchv1.BuildTeamsResponse{
@@ -400,10 +403,12 @@ func (s *MatchService) CreateCustomMatch(
 		return nil, apperr.FailedPrecondition(err.Error())
 	}
 
+	partitionStart := time.Now()
 	partition := s.matchmaking.PartitionModelTeams(players, int(teamSize))
 	if partition == nil {
 		return nil, apperr.Internal("team partition failed")
 	}
+	emitPartitionEvent(game, guildID, int(teamSize), partition, players, time.Since(partitionStart))
 
 	now := NowMS()
 	var teamACPR, teamBCPR, teamASeed, teamBSeed float64
@@ -505,6 +510,54 @@ func absFloat(x float64) float64 {
 		return -x
 	}
 	return x
+}
+
+// emitPartitionEvent logs one event=matchmaking.partitioned record per
+// successful partition: lobby identity, fairness metrics, team display-score
+// totals, partition duration, and a compact player list (discord user id +
+// display score per team).
+func emitPartitionEvent(
+	game models.Game,
+	guildID string,
+	teamSize int,
+	partition *matchmaking.TeamPartition,
+	players []matchmaking.LoadedPlayer,
+	duration time.Duration,
+) {
+	teamA := make([]any, 0, len(partition.TeamA))
+	var teamAScore float64
+	for _, idx := range partition.TeamA {
+		p := players[idx]
+		teamAScore += p.DisplayModelScore
+		teamA = append(teamA, map[string]any{
+			"discord_user_id": p.Member.DiscordUserID,
+			"display_score":   p.DisplayModelScore,
+		})
+	}
+	teamB := make([]any, 0, len(partition.TeamB))
+	var teamBScore float64
+	for _, idx := range partition.TeamB {
+		p := players[idx]
+		teamBScore += p.DisplayModelScore
+		teamB = append(teamB, map[string]any{
+			"discord_user_id": p.Member.DiscordUserID,
+			"display_score":   p.DisplayModelScore,
+		})
+	}
+
+	slog.Info("matchmaking partition completed",
+		"event", "matchmaking.partitioned",
+		"where", "engine matchmaking",
+		"guild_id", guildID,
+		"game", string(game),
+		"team_size", teamSize,
+		"win_probability", partition.WinProbability,
+		"balance_gap", partition.BalanceGap,
+		"team_a_score", teamAScore,
+		"team_b_score", teamBScore,
+		"duration_ms", float64(duration.Microseconds())/1000,
+		"players", map[string]any{"a": teamA, "b": teamB},
+	)
 }
 
 func parsePublicUUID(s string) (uuid.UUID, error) {

@@ -1,4 +1,4 @@
-import type { AxiomLogger } from "#/logger";
+import type { EventLogger } from "#/logger";
 import type { WideEvent } from "#/events";
 
 type RuntimeLogRecord = {
@@ -193,14 +193,14 @@ function buildMessage(record: RuntimeLogRecord, outcome: WideEvent["outcome"] | 
  * Bridges the runtime logger into the in-flight wide event: no current event →
  * standalone emit; otherwise merge the record and finish+flush on terminal
  * events only. Never emits a second event:error/discord pair. When waitUntil is
- * provided the flush promise is handed to it so the ingest POST is covered.
+ * provided the flush promise is handed to it so the stream send is covered.
  */
 export function createRuntimeLogSink(
-  axiom: AxiomLogger,
+  logger: EventLogger,
   waitUntil?: (promise: Promise<unknown>) => void,
 ): (record: RuntimeLogRecord) => void {
   const flush = (): void => {
-    const flushed = axiom.flush();
+    const flushed = logger.flush();
     if (waitUntil) {
       waitUntil(flushed);
     } else {
@@ -215,12 +215,12 @@ export function createRuntimeLogSink(
     if (record.event === "discord.webhook.handler_failed") {
       const requestId = str(record.requestId);
       const error = mapError(record);
-      axiom.emitStandalone({
+      logger.emitStandalone({
         ts: record.timestamp,
         level: "error",
         event: record.event,
         message: buildMessage(record, "error"),
-        where: `${axiom.service} discord webhook`,
+        where: `${logger.service} discord webhook`,
         ...(requestId ? { request_id: requestId } : {}),
         ...(error ? { error } : {}),
       });
@@ -228,8 +228,8 @@ export function createRuntimeLogSink(
       return;
     }
 
-    if (!axiom.hasCurrent) {
-      axiom.emitStandalone({
+    if (!logger.hasCurrent) {
+      logger.emitStandalone({
         ts: record.timestamp,
         level: normalizeLevel(record.level) === "error" ? "error" : "info",
         event: record.event,
@@ -244,14 +244,14 @@ export function createRuntimeLogSink(
     const error = mapError(record);
     const discord = mapDiscord(record);
     const where = discord?.name
-      ? `${axiom.service} ${discord.surface ?? "discord"} ${discord.name}`
+      ? `${logger.service} ${discord.surface ?? "discord"} ${discord.name}`
       : discord
-        ? `${axiom.service} discord ${record.event}`
+        ? `${logger.service} discord ${record.event}`
         : undefined;
     const requestId = str(record.requestId);
     const durationMs = num(record.durationMs);
 
-    axiom.merge({
+    logger.merge({
       ...(terminal ? { event: record.event } : {}),
       message: buildMessage(record, outcome),
       ...(where ? { where } : {}),
@@ -263,7 +263,7 @@ export function createRuntimeLogSink(
     });
 
     if (terminal) {
-      axiom.finish();
+      logger.finish();
       flush();
     }
   };

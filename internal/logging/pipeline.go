@@ -17,31 +17,34 @@ const (
 	defaultBufferSize    = 2048
 )
 
-// AxiomOptions configures batched HTTP ingest to Axiom (no official SDK).
-type AxiomOptions struct {
-	Token   string
-	Dataset string
-	OrgID   string
-	Edge    string
-	EdgeURL string
-	Enabled bool
-	// Level is the minimum slog level to ship (debug/info/warn/error). Empty = info.
-	Level         string
+// allowlistedEvents are the info-level event attrs shipped to Pipelines.
+// Everything at warn or above ships regardless; everything else stays local.
+var allowlistedEvents = map[string]bool{
+	"request.completed":       true,
+	"db.query":                true,
+	"matchmaking.partitioned": true,
+}
+
+// PipelineOptions configures batched HTTP ingest to Cloudflare Pipelines.
+type PipelineOptions struct {
+	Token     string
+	IngestURL string
+
+	// BatchSize is the max records per POST. FlushInterval bounds the time a
+	// record waits. BufferSize bounds the in-memory queue; overflow is dropped.
 	BatchSize     int
 	FlushInterval time.Duration
 	BufferSize    int
 
-	// IngestURL overrides resolved URL (tests only).
-	IngestURL string
 	// HTTPClient overrides default client (tests only).
 	HTTPClient *http.Client
 }
 
-func (o AxiomOptions) configured() bool {
-	return o.Enabled && o.Token != ""
+func (o PipelineOptions) configured() bool {
+	return o.IngestURL != "" && o.Token != ""
 }
 
-func (o AxiomOptions) withDefaults() AxiomOptions {
+func (o PipelineOptions) withDefaults() PipelineOptions {
 	out := o
 	if out.BatchSize <= 0 {
 		out.BatchSize = defaultBatchSize
@@ -52,17 +55,13 @@ func (o AxiomOptions) withDefaults() AxiomOptions {
 	if out.BufferSize <= 0 {
 		out.BufferSize = defaultBufferSize
 	}
-	if out.Dataset == "" {
-		out.Dataset = "parley"
-	}
 	return out
 }
 
-// AxiomHandler implements slog.Handler and ships records/events via batched POST.
-type AxiomHandler struct {
+// PipelineHandler implements slog.Handler and ships records/events via batched POST.
+type PipelineHandler struct {
 	enabled bool
 	enqueue func([]byte)
-	level   slog.Leveler
 
 	attrs []slog.Attr
 	group string
@@ -73,12 +72,11 @@ type AxiomHandler struct {
 	shutdown func()
 }
 
-// NewAxiomHandler starts a background flusher when configured; otherwise returns a no-op handler.
-func NewAxiomHandler(opts AxiomOptions) (*AxiomHandler, error) {
+// NewPipelineHandler starts a background flusher when configured; otherwise returns a no-op handler.
+func NewPipelineHandler(opts PipelineOptions) (*PipelineHandler, error) {
 	opts = opts.withDefaults()
-	h := &AxiomHandler{
+	h := &PipelineHandler{
 		enabled: opts.configured(),
-		level:   parseLevel(opts.Level),
 	}
 	if !h.enabled {
 		h.enqueue = func([]byte) {}
@@ -88,10 +86,6 @@ func NewAxiomHandler(opts AxiomOptions) (*AxiomHandler, error) {
 		return h, nil
 	}
 
-	ingestURL := opts.IngestURL
-	if ingestURL == "" {
-		ingestURL = ResolveIngestURL(opts.Dataset, opts.Edge, opts.EdgeURL)
-	}
 	client := opts.HTTPClient
 	if client == nil {
 		client = http.DefaultClient
@@ -105,6 +99,7 @@ func NewAxiomHandler(opts AxiomOptions) (*AxiomHandler, error) {
 	stop := make(chan struct{})
 	flushCtx, cancelFlush := context.WithCancel(context.Background())
 	const shutdownFlushTimeout = 30 * time.Second
+	const flushTimeout = 10 * time.Second
 	h.shutdown = func() { close(stop) }
 
 	h.enqueue = func(b []byte) {
@@ -135,16 +130,13 @@ func NewAxiomHandler(opts AxiomOptions) (*AxiomHandler, error) {
 				batch = batch[:0]
 				return
 			}
-			req, err := http.NewRequestWithContext(ctx, http.MethodPost, ingestURL, bytes.NewReader(body))
+			req, err := http.NewRequestWithContext(ctx, http.MethodPost, opts.IngestURL, bytes.NewReader(body))
 			if err != nil {
 				batch = batch[:0]
 				return
 			}
 			req.Header.Set("Authorization", "Bearer "+opts.Token)
 			req.Header.Set("Content-Type", "application/json")
-			if opts.OrgID != "" {
-				req.Header.Set("X-Axiom-Org-Id", opts.OrgID)
-			}
 			resp, err := client.Do(req)
 			if err != nil {
 				batch = batch[:0]
@@ -160,11 +152,18 @@ func NewAxiomHandler(opts AxiomOptions) (*AxiomHandler, error) {
 			defer cancel()
 			flush(ctx)
 		}
+		// Regular flushes get a hard 10s cap so a hung ingest endpoint can
+		// never stall the pipeline forever.
+		flushWithTimeout := func() {
+			ctx, cancel := context.WithTimeout(flushCtx, flushTimeout)
+			defer cancel()
+			flush(ctx)
+		}
 
 		for {
 			select {
 			case <-ticker.C:
-				flush(flushCtx)
+				flushWithTimeout()
 			case b, ok := <-ch:
 				if !ok {
 					shutdownFlush()
@@ -172,7 +171,7 @@ func NewAxiomHandler(opts AxiomOptions) (*AxiomHandler, error) {
 				}
 				batch = append(batch, json.RawMessage(b))
 				if len(batch) >= opts.BatchSize {
-					flush(flushCtx)
+					flushWithTimeout()
 				}
 			case <-stop:
 				for {
@@ -184,7 +183,7 @@ func NewAxiomHandler(opts AxiomOptions) (*AxiomHandler, error) {
 						}
 						batch = append(batch, json.RawMessage(b))
 						if len(batch) >= opts.BatchSize {
-							flush(flushCtx)
+							flushWithTimeout()
 						}
 					default:
 						shutdownFlush()
@@ -198,17 +197,23 @@ func NewAxiomHandler(opts AxiomOptions) (*AxiomHandler, error) {
 	return h, nil
 }
 
-// Enabled reports whether the handler handles records at the given level.
-func (h *AxiomHandler) Enabled(_ context.Context, level slog.Level) bool {
+// Enabled reports whether the handler may receive records at the given level.
+// Info and above are inspected so allowlisted info events (request.completed,
+// db.query, matchmaking.partitioned) can ship; debug never ships anywhere.
+func (h *PipelineHandler) Enabled(_ context.Context, level slog.Level) bool {
 	if !h.enabled {
 		return false
 	}
-	return level >= h.level.Level()
+	return level >= slog.LevelInfo
 }
 
-// Handle enqueues a slog record without blocking.
-func (h *AxiomHandler) Handle(_ context.Context, r slog.Record) error {
+// Handle enqueues a slog record without blocking, applying the allowlist:
+// warn/error always ship, info ships only for allowlisted event attrs.
+func (h *PipelineHandler) Handle(_ context.Context, r slog.Record) error {
 	if !h.enabled {
+		return nil
+	}
+	if r.Level < slog.LevelWarn && !allowlisted(r) {
 		return nil
 	}
 	b := h.recordJSON(r)
@@ -216,12 +221,26 @@ func (h *AxiomHandler) Handle(_ context.Context, r slog.Record) error {
 	return nil
 }
 
-func (h *AxiomHandler) recordJSON(r slog.Record) []byte {
+// allowlisted reports whether the record carries an allowlisted event attr.
+func allowlisted(r slog.Record) bool {
+	var event string
+	r.Attrs(func(a slog.Attr) bool {
+		if a.Key == "event" {
+			if s, ok := a.Value.Any().(string); ok {
+				event = s
+			}
+			return false
+		}
+		return true
+	})
+	return allowlistedEvents[event]
+}
+
+func (h *PipelineHandler) recordJSON(r slog.Record) []byte {
 	m := map[string]any{
 		"event":   "log",
 		"service": ServiceEngine,
 		"ts":      r.Time.UTC().Format(time.RFC3339Nano),
-		// Lowercase: Axiom severity UI treats unknown/missing as info.
 		"level":   levelString(r.Level),
 		"message": r.Message,
 	}
@@ -236,14 +255,6 @@ func (h *AxiomHandler) recordJSON(r slog.Record) []byte {
 		return true
 	})
 	return encodeEvent(m)
-}
-
-// setMinLevel updates the minimum level for shipping (used by NewWithAxiom).
-func (h *AxiomHandler) setMinLevel(level slog.Level) {
-	if h == nil {
-		return
-	}
-	h.level = level
 }
 
 func putAttr(m map[string]any, a slog.Attr) {
@@ -264,19 +275,18 @@ func putAttr(m map[string]any, a slog.Attr) {
 	}
 }
 
-// WithAttrs returns a handler with additional pre-record attributes.
-func (h *AxiomHandler) withDerived(attrs []slog.Attr, group string) *AxiomHandler {
-	return &AxiomHandler{
+// withDerived returns a handler with additional pre-record attributes.
+func (h *PipelineHandler) withDerived(attrs []slog.Attr, group string) *PipelineHandler {
+	return &PipelineHandler{
 		enabled: h.enabled,
 		enqueue: h.enqueue,
-		level:   h.level,
 		attrs:   attrs,
 		group:   group,
 	}
 }
 
 // WithAttrs returns a handler with additional pre-record attributes.
-func (h *AxiomHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
+func (h *PipelineHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
 	if len(attrs) == 0 {
 		return h
 	}
@@ -285,7 +295,7 @@ func (h *AxiomHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
 }
 
 // WithGroup returns a handler with a group name for nested attributes.
-func (h *AxiomHandler) WithGroup(name string) slog.Handler {
+func (h *PipelineHandler) WithGroup(name string) slog.Handler {
 	if name == "" {
 		return h
 	}
@@ -297,7 +307,7 @@ func (h *AxiomHandler) WithGroup(name string) slog.Handler {
 }
 
 // Shutdown drains the batch channel and waits for the worker to exit.
-func (h *AxiomHandler) Shutdown(ctx context.Context) error {
+func (h *PipelineHandler) Shutdown(ctx context.Context) error {
 	h.mu.Lock()
 	if h.closed {
 		h.mu.Unlock()
@@ -321,6 +331,4 @@ func (h *AxiomHandler) Shutdown(ctx context.Context) error {
 	}
 }
 
-// EnqueueRaw is used by tests to inject payloads.
-
-var _ slog.Handler = (*AxiomHandler)(nil)
+var _ slog.Handler = (*PipelineHandler)(nil)

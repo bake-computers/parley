@@ -8,13 +8,8 @@ interface __BaseEnv_Env {
 	DISCORD_BOT_TOKEN: string;
 	DISCORD_APPLICATION_ID: string;
 	DISCORD_BOT_OWNER_ID: string;
-	AXIOM_TOKEN: string;
-	AXIOM_DATASET: string;
-	AXIOM_ORG_ID: string;
-	AXIOM_EDGE: string;
 	VPC_SERVICE?: Fetcher;
 	SERVICE_NAME?: "worker";
-	AXIOM_ENABLED?: "true";
 }
 declare namespace Cloudflare {
 	interface GlobalProps {
@@ -27,10 +22,6 @@ declare namespace Cloudflare {
 		DISCORD_BOT_TOKEN: string;
 		DISCORD_APPLICATION_ID: string;
 		DISCORD_BOT_OWNER_ID: string;
-		AXIOM_TOKEN: string;
-		AXIOM_DATASET: string;
-		AXIOM_ORG_ID: string;
-		AXIOM_EDGE: string;
 	}
 	interface Env extends __BaseEnv_Env {}
 }
@@ -39,7 +30,7 @@ type StringifyValues<EnvType extends Record<string, unknown>> = {
 	[Binding in keyof EnvType]: EnvType[Binding] extends string ? EnvType[Binding] : string;
 };
 declare namespace NodeJS {
-	interface ProcessEnv extends StringifyValues<Pick<Cloudflare.Env, "ENGINE_INTERNAL_URL" | "ENGINE_SERVICE_URL" | "DISCORD_PUBLIC_KEY" | "DISCORD_BOT_TOKEN" | "DISCORD_APPLICATION_ID" | "DISCORD_BOT_OWNER_ID" | "AXIOM_TOKEN" | "AXIOM_DATASET" | "AXIOM_ORG_ID" | "AXIOM_EDGE" | "SERVICE_NAME" | "AXIOM_ENABLED">> {}
+	interface ProcessEnv extends StringifyValues<Pick<Cloudflare.Env, "ENGINE_INTERNAL_URL" | "ENGINE_SERVICE_URL" | "DISCORD_PUBLIC_KEY" | "DISCORD_BOT_TOKEN" | "DISCORD_APPLICATION_ID" | "DISCORD_BOT_OWNER_ID" | "SERVICE_NAME">> {}
 }
 
 // Begin runtime types
