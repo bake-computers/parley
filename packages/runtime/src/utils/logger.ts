@@ -1,3 +1,5 @@
+import { AsyncLocalStorage } from "node:async_hooks";
+
 /**
  * Log severity levels in ascending order of severity.
  * - `debug`: Detailed debugging information, typically only enabled during development
@@ -70,6 +72,19 @@ const defaultLogSink: LogSink = (record) => {
 
 let logSink: LogSink = defaultLogSink;
 
+// Per-request sink (worker path): runWithLogSink binds a request's Axiom sink
+// to the current async context so concurrent requests never share one.
+const logSinkStorage = new AsyncLocalStorage<LogSink>();
+
+/**
+ * Runs fn with the given log sink bound to the current async context.
+ * Concurrent requests each write to their own sink; outside the scope the
+ * module sink (tests / standalone) is used.
+ */
+export function runWithLogSink<T>(sink: LogSink, fn: () => T): T {
+  return logSinkStorage.run(sink, fn);
+}
+
 function serializeError(error: unknown): SerializedError {
   if (error instanceof Error) {
     return {
@@ -136,7 +151,8 @@ export function log(level: LogLevel, event: string, message: string, fields: Log
   };
 
   try {
-    logSink(record);
+    const sink = logSinkStorage.getStore() ?? logSink;
+    sink(record);
   } catch {
     console.log(JSON.stringify(record));
   }

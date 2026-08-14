@@ -39,6 +39,17 @@ function withEngineAuth(fetchImpl: EngineFetch, secret: string): EngineFetch {
   };
 }
 
+/** Tag outgoing engine requests with a request id for correlation. */
+function withRequestId(fetchImpl: EngineFetch): EngineFetch {
+  return (input, init) => {
+    const headers = new Headers(init?.headers);
+    if (!headers.has("X-Request-ID")) {
+      headers.set("X-Request-ID", crypto.randomUUID());
+    }
+    return fetchImpl(input, { ...init, headers });
+  };
+}
+
 /**
  * Parse an engine HTTP response. Fiber auth failures return plain text
  * (e.g. "Unauthorized"); Connect errors return JSON. Map both to a clear Error.
@@ -106,6 +117,9 @@ export function resolveEngineTransport(env: EngineTransportEnv): EngineTransport
         // objects have been flaky with some VPC binding fetch paths.
         const headers = new Headers(init?.headers);
         headers.set("Authorization", `Bearer ${secret}`);
+        if (!headers.has("X-Request-ID")) {
+          headers.set("X-Request-ID", crypto.randomUUID());
+        }
         const headerInit: Record<string, string> = {};
         headers.forEach((value, key) => {
           headerInit[key] = value;
@@ -126,6 +140,6 @@ export function resolveEngineTransport(env: EngineTransportEnv): EngineTransport
   return {
     baseUrl,
     cacheKey: `local:${baseUrl}`,
-    fetchImpl: withEngineAuth((input, init) => fetch(input, init), secret),
+    fetchImpl: withEngineAuth(withRequestId((input, init) => fetch(input, init)), secret),
   };
 }
