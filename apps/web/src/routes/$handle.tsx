@@ -24,7 +24,7 @@ export const Route = createFileRoute("/$handle")({
     const username = handle.slice(1);
     let result: GetPublicProfileResult;
     try {
-      result = await getPublicProfile({ data: username });
+      result = await getPublicProfile({ data: { username } });
     } catch {
       throw notFound();
     }
