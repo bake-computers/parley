@@ -21,7 +21,7 @@
     "SERVICE_NAME": "worker",
     "ENGINE_INTERNAL_URL": "http://api.internal.parley.bot:50051",
   },
-  
+
   "pipelines": [
     {
       "binding": "STREAM",
@@ -44,6 +44,9 @@
       "vars": {
         "ENGINE_INTERNAL_URL": "http://127.0.0.1:50051",
       },
+    },
+    "staging": {
+      "routes": [{ "pattern": "staging.app.parley.bot", "custom_domain": true }],
     },
   },
 }

@@ -27,7 +27,10 @@
     },
   ],
 
-  "routes": [{ "pattern": "parley.bot", "custom_domain": true }],
+  "routes": [
+    { "pattern": "parley.bot", "custom_domain": true },
+    { "pattern": "www.parley.bot", "custom_domain": true },
+  ],
   "env": {
     "local": {
       "vars": {
@@ -36,6 +39,9 @@
         "ENGINE_INTERNAL_URL": "http://127.0.0.1:50051",
         "TURNSTILE_SITE_KEY": "0x4AAAAAADp6daoSm0g2pBC_",
       },
+    },
+    "staging": {
+      "routes": [{ "pattern": "staging.parley.bot", "custom_domain": true }],
     },
   },
 }
