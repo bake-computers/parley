@@ -54,7 +54,7 @@ func New(deps Deps) *fiber.App {
 		WriteTimeout: 30 * time.Second,
 		IdleTimeout:  120 * time.Second,
 		// Copy path/method strings out of the reused request buffers. Metrics
-		// and the async Axiom log handler keep these values past the request
+		// and the async pipeline log handler keep these values past the request
 		// lifetime; the zero-copy default corrupts them once the buffer is
 		// recycled.
 		Immutable: true,
@@ -228,7 +228,8 @@ func requestLogEvent(
 }
 
 // requestLogMiddleware emits the one wide event per engine request hop via slog
-// (teed to Axiom). 5xx/error → error level; 4xx stays info with outcome=client_error.
+// (teed to the pipeline handler). 5xx/error → error level; 4xx stays info with
+// outcome=client_error.
 func requestLogMiddleware() fiber.Handler {
 	return func(c fiber.Ctx) error {
 		start := time.Now()

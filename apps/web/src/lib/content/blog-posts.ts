@@ -9,6 +9,16 @@ export interface BlogPost {
   dateDisplay: string;
 }
 
+export const whyWeLeftAxiom: BlogPost = {
+  slug: "why-we-left-axiom",
+  title: "Why we left Axiom",
+  author: "ryzm",
+  description:
+    "We replaced Axiom with Cloudflare Pipelines and now keep only the events that matter: requests, slow queries, matchmaking, and failures.",
+  date: "2026-08-15",
+  dateDisplay: "August 15, 2026",
+};
+
 export const whyParleyIsBuiltTheWayItIs: BlogPost = {
   slug: "why-parley-is-built-the-way-it-is",
   title: "Why Parley is built the way it is",
@@ -20,4 +30,4 @@ export const whyParleyIsBuiltTheWayItIs: BlogPost = {
 };
 
 /** Newest first. */
-export const blogPosts: BlogPost[] = [whyParleyIsBuiltTheWayItIs];
+export const blogPosts: BlogPost[] = [whyWeLeftAxiom, whyParleyIsBuiltTheWayItIs];

@@ -263,8 +263,9 @@ migrations are embedded and applied in-process when `RUN_MIGRATIONS=1`.
 Workers deploy via Wrangler (per-app `wrangler.jsonc`, secrets via
 `wrangler secret put`). The engine image is built by CI from `main` on engine
 path changes and pushed to GHCR; runtime rollout is outside CI. When
-`AXIOM_TOKEN` is set, engine and edges emit structured logs to a shared Axiom
-dataset.
+`PIPELINES_INGEST_URL` and `PIPELINES_TOKEN` are set, the engine ships
+allowlisted events to Cloudflare Pipelines; the Discord worker uses a
+production pipeline binding. Local development stays on stderr.
 
 Every push to `main` also cuts a GitHub Release
 ([`.github/workflows/release.yml`](.github/workflows/release.yml)): semver is

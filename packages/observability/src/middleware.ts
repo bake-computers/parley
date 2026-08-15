@@ -1,10 +1,10 @@
 import type { Context, MiddlewareHandler } from "hono";
-import type { AxiomEnv } from "#/config";
-import { resolveAxiomConfig } from "#/config";
-import { AxiomLogger } from "#/logger";
+import type { PipelineEnv } from "#/config";
+import { resolvePipelineConfig } from "#/config";
+import { EventLogger } from "#/logger";
 
-export type AxiomVariables = {
-  axiom: AxiomLogger;
+export type EventVariables = {
+  events: EventLogger;
 };
 
 function extractClientIp(c: Context): string | undefined {
@@ -16,8 +16,8 @@ function extractClientIp(c: Context): string | undefined {
   );
 }
 
-export function createAxiomLogger(env: AxiomEnv, fallbackService: string): AxiomLogger {
-  return new AxiomLogger(resolveAxiomConfig(env, fallbackService));
+export function createEventLogger(env: PipelineEnv, fallbackService: string): EventLogger {
+  return new EventLogger(resolvePipelineConfig(env, fallbackService));
 }
 
 function outcomeForStatus(status: number): "success" | "client_error" | "error" {
@@ -36,12 +36,12 @@ function outcomeForStatus(status: number): "success" | "client_error" | "error" 
  * emit (Discord interaction POST that returned 200/204 — processing continues
  * in waitUntil, so the runtime sink finishes).
  */
-export function axiomMiddleware(
+export function eventMiddleware(
   fallbackService: string,
-): MiddlewareHandler<{ Bindings: AxiomEnv; Variables: AxiomVariables }> {
+): MiddlewareHandler<{ Bindings: PipelineEnv; Variables: EventVariables }> {
   return async (c, next) => {
-    const logger = createAxiomLogger(c.env, fallbackService);
-    c.set("axiom", logger);
+    const logger = createEventLogger(c.env, fallbackService);
+    c.set("events", logger);
 
     const cf = (c.req.raw as Request & { cf?: { colo?: string; country?: string } }).cf;
     const clientIp = extractClientIp(c);
@@ -104,8 +104,8 @@ export function axiomMiddleware(
   };
 }
 
-export async function withAxiomFlush(
-  logger: AxiomLogger,
+export async function withEventFlush(
+  logger: EventLogger,
   ctx: Pick<ExecutionContext, "waitUntil">,
   fn: () => Promise<void>,
 ): Promise<void> {

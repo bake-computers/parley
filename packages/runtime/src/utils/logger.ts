@@ -72,7 +72,7 @@ const defaultLogSink: LogSink = (record) => {
 
 let logSink: LogSink = defaultLogSink;
 
-// Per-request sink (worker path): runWithLogSink binds a request's Axiom sink
+// Per-request sink (worker path): runWithLogSink binds a request's event sink
 // to the current async context so concurrent requests never share one.
 const logSinkStorage = new AsyncLocalStorage<LogSink>();
 

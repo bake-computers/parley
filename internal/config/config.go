@@ -32,11 +32,8 @@ type Config struct {
 	StatsCCProfileBatchSize    uint64
 	StatsCCProfileBatchDelayMS uint64
 
-	AxiomToken   string
-	AxiomDataset string
-	AxiomOrgID   string
-	AxiomEdge    string
-	AxiomEnabled bool
+	PipelinesIngestURL string
+	PipelinesToken     string
 
 	AccountDeletionHMACSecret string
 
@@ -92,11 +89,8 @@ func Load() (*Config, error) {
 		// self-DoS profile lookups.
 		StatsCCProfileBatchDelayMS: clampUint64(readMinUint64("STATS_CC_PROFILE_BATCH_DELAY_MS", 25, 1), 1, 2000),
 
-		AxiomToken:   os.Getenv("AXIOM_TOKEN"),
-		AxiomDataset: getenv("AXIOM_DATASET", "parley"),
-		AxiomOrgID:   os.Getenv("AXIOM_ORG_ID"),
-		AxiomEdge:    os.Getenv("AXIOM_EDGE"),
-		AxiomEnabled: readAxiomEnabled(),
+		PipelinesIngestURL: os.Getenv("PIPELINES_INGEST_URL"),
+		PipelinesToken:     os.Getenv("PIPELINES_TOKEN"),
 
 		AccountDeletionHMACSecret: os.Getenv("ACCOUNT_DELETION_HMAC_SECRET"),
 
@@ -186,14 +180,6 @@ func clampUint64(n, minVal, maxVal uint64) uint64 {
 		return maxVal
 	}
 	return n
-}
-
-func readAxiomEnabled() bool {
-	v, ok := os.LookupEnv("AXIOM_ENABLED")
-	if !ok {
-		return true
-	}
-	return v != "false"
 }
 
 func readLogLevel() string {

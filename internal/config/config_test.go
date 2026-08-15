@@ -21,11 +21,8 @@ func TestLoad(t *testing.T) {
 	t.Setenv("STATS_TTL_R6_MS", "120000")
 	t.Setenv("STATS_CC_PROFILE_BATCH_SIZE", "7")
 	t.Setenv("STATS_CC_PROFILE_BATCH_DELAY_MS", "1500")
-	t.Setenv("AXIOM_TOKEN", "tok")
-	t.Setenv("AXIOM_DATASET", "ds")
-	t.Setenv("AXIOM_ORG_ID", "org")
-	t.Setenv("AXIOM_EDGE", "eu-central-1.aws.edge.axiom.co")
-	t.Setenv("AXIOM_ENABLED", "false")
+	t.Setenv("PIPELINES_INGEST_URL", "https://ingest.example.com")
+	t.Setenv("PIPELINES_TOKEN", "tok")
 	t.Setenv("ACCOUNT_DELETION_HMAC_SECRET", "secret")
 	t.Setenv("MATCHMAKING_MODEL_R2_SHA256", "0af3")
 	t.Setenv("LOG_LEVEL", "debug")
@@ -77,20 +74,11 @@ func TestLoad(t *testing.T) {
 	if cfg.StatsCCProfileBatchDelayMS != 1500 {
 		t.Errorf("StatsCCProfileBatchDelayMS = %d, want 1500", cfg.StatsCCProfileBatchDelayMS)
 	}
-	if cfg.AxiomToken != "tok" {
-		t.Errorf("AxiomToken = %q", cfg.AxiomToken)
+	if cfg.PipelinesIngestURL != "https://ingest.example.com" {
+		t.Errorf("PipelinesIngestURL = %q", cfg.PipelinesIngestURL)
 	}
-	if cfg.AxiomDataset != "ds" {
-		t.Errorf("AxiomDataset = %q, want ds", cfg.AxiomDataset)
-	}
-	if cfg.AxiomOrgID != "org" {
-		t.Errorf("AxiomOrgID = %q", cfg.AxiomOrgID)
-	}
-	if cfg.AxiomEdge != "eu-central-1.aws.edge.axiom.co" {
-		t.Errorf("AxiomEdge = %q", cfg.AxiomEdge)
-	}
-	if cfg.AxiomEnabled {
-		t.Error("AxiomEnabled = true, want false")
+	if cfg.PipelinesToken != "tok" {
+		t.Errorf("PipelinesToken = %q", cfg.PipelinesToken)
 	}
 	if cfg.AccountDeletionHMACSecret != "secret" {
 		t.Errorf("AccountDeletionHMACSecret = %q", cfg.AccountDeletionHMACSecret)
@@ -112,8 +100,6 @@ func TestLoad_defaults(t *testing.T) {
 		"STATS_TTL_R6_MS",
 		"STATS_CC_PROFILE_BATCH_SIZE",
 		"STATS_CC_PROFILE_BATCH_DELAY_MS",
-		"AXIOM_DATASET",
-		"AXIOM_ENABLED",
 		"LOG_LEVEL",
 		"RUST_LOG",
 	} {
@@ -150,11 +136,11 @@ func TestLoad_defaults(t *testing.T) {
 	if cfg.StatsCCProfileBatchDelayMS != 25 {
 		t.Errorf("StatsCCProfileBatchDelayMS = %d, want 25", cfg.StatsCCProfileBatchDelayMS)
 	}
-	if cfg.AxiomDataset != "parley" {
-		t.Errorf("AxiomDataset = %q", cfg.AxiomDataset)
+	if cfg.PipelinesIngestURL != "" {
+		t.Errorf("PipelinesIngestURL = %q, want empty default", cfg.PipelinesIngestURL)
 	}
-	if !cfg.AxiomEnabled {
-		t.Error("AxiomEnabled should default true")
+	if cfg.PipelinesToken != "" {
+		t.Errorf("PipelinesToken = %q, want empty default", cfg.PipelinesToken)
 	}
 	if cfg.LogLevel != "info" {
 		t.Errorf("LogLevel = %q, want info", cfg.LogLevel)

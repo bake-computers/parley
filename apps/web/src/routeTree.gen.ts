@@ -19,6 +19,7 @@ import { Route as AuthLoginRouteImport } from './routes/auth/login'
 import { Route as AuthLogoutRouteImport } from './routes/auth/logout'
 import { Route as BlogIndexRouteImport } from './routes/blog/index'
 import { Route as BlogWhyParleyIsBuiltTheWayItIsRouteImport } from './routes/blog/why-parley-is-built-the-way-it-is'
+import { Route as BlogWhyWeLeftAxiomRouteImport } from './routes/blog/why-we-left-axiom'
 import { Route as DashboardAccountRouteImport } from './routes/dashboard/account'
 import { Route as DevDiscordComponentsRouteImport } from './routes/dev/discord-components'
 import { Route as DocsIndexRouteImport } from './routes/docs/index'
@@ -91,6 +92,11 @@ const BlogWhyParleyIsBuiltTheWayItIsRoute =
     path: '/blog/why-parley-is-built-the-way-it-is',
     getParentRoute: () => rootRouteImport,
   } as any)
+const BlogWhyWeLeftAxiomRoute = BlogWhyWeLeftAxiomRouteImport.update({
+  id: '/blog/why-we-left-axiom',
+  path: '/blog/why-we-left-axiom',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardAccountRoute = DashboardAccountRouteImport.update({
   id: '/account',
   path: '/account',
@@ -208,6 +214,7 @@ export interface FileRoutesByFullPath {
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
   '/blog/why-parley-is-built-the-way-it-is': typeof BlogWhyParleyIsBuiltTheWayItIsRoute
+  '/blog/why-we-left-axiom': typeof BlogWhyWeLeftAxiomRoute
   '/dashboard/account': typeof DashboardAccountRoute
   '/dev/discord-components': typeof DevDiscordComponentsRoute
   '/docs/$': typeof DocsSplatRoute
@@ -240,6 +247,7 @@ export interface FileRoutesByTo {
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
   '/blog/why-parley-is-built-the-way-it-is': typeof BlogWhyParleyIsBuiltTheWayItIsRoute
+  '/blog/why-we-left-axiom': typeof BlogWhyWeLeftAxiomRoute
   '/dashboard/account': typeof DashboardAccountRoute
   '/dev/discord-components': typeof DevDiscordComponentsRoute
   '/docs/$': typeof DocsSplatRoute
@@ -271,6 +279,7 @@ export interface FileRoutesById {
   '/auth/login': typeof AuthLoginRoute
   '/auth/logout': typeof AuthLogoutRoute
   '/blog/why-parley-is-built-the-way-it-is': typeof BlogWhyParleyIsBuiltTheWayItIsRoute
+  '/blog/why-we-left-axiom': typeof BlogWhyWeLeftAxiomRoute
   '/dashboard/account': typeof DashboardAccountRoute
   '/dev/discord-components': typeof DevDiscordComponentsRoute
   '/docs/$': typeof DocsSplatRoute
@@ -305,6 +314,7 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/logout'
     | '/blog/why-parley-is-built-the-way-it-is'
+    | '/blog/why-we-left-axiom'
     | '/dashboard/account'
     | '/dev/discord-components'
     | '/docs/$'
@@ -337,6 +347,7 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/logout'
     | '/blog/why-parley-is-built-the-way-it-is'
+    | '/blog/why-we-left-axiom'
     | '/dashboard/account'
     | '/dev/discord-components'
     | '/docs/$'
@@ -367,6 +378,7 @@ export interface FileRouteTypes {
     | '/auth/login'
     | '/auth/logout'
     | '/blog/why-parley-is-built-the-way-it-is'
+    | '/blog/why-we-left-axiom'
     | '/dashboard/account'
     | '/dev/discord-components'
     | '/docs/$'
@@ -400,6 +412,7 @@ export interface RootRouteChildren {
   AuthLoginRoute: typeof AuthLoginRoute
   AuthLogoutRoute: typeof AuthLogoutRoute
   BlogWhyParleyIsBuiltTheWayItIsRoute: typeof BlogWhyParleyIsBuiltTheWayItIsRoute
+  BlogWhyWeLeftAxiomRoute: typeof BlogWhyWeLeftAxiomRoute
   DevDiscordComponentsRoute: typeof DevDiscordComponentsRoute
   DocsSplatRoute: typeof DocsSplatRoute
   DocsDiscordGuideRoute: typeof DocsDiscordGuideRoute
@@ -485,6 +498,13 @@ declare module '@tanstack/react-router' {
       path: '/blog/why-parley-is-built-the-way-it-is'
       fullPath: '/blog/why-parley-is-built-the-way-it-is'
       preLoaderRoute: typeof BlogWhyParleyIsBuiltTheWayItIsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/why-we-left-axiom': {
+      id: '/blog/why-we-left-axiom'
+      path: '/blog/why-we-left-axiom'
+      fullPath: '/blog/why-we-left-axiom'
+      preLoaderRoute: typeof BlogWhyWeLeftAxiomRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard/account': {
@@ -688,6 +708,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthLoginRoute: AuthLoginRoute,
   AuthLogoutRoute: AuthLogoutRoute,
   BlogWhyParleyIsBuiltTheWayItIsRoute: BlogWhyParleyIsBuiltTheWayItIsRoute,
+  BlogWhyWeLeftAxiomRoute: BlogWhyWeLeftAxiomRoute,
   DevDiscordComponentsRoute: DevDiscordComponentsRoute,
   DocsSplatRoute: DocsSplatRoute,
   DocsDiscordGuideRoute: DocsDiscordGuideRoute,

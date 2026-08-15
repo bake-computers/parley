@@ -30,6 +30,18 @@ export type WideEvent = {
     channel_id?: string;
     interaction_type?: number;
   };
+  db?: {
+    op?: string;
+    table?: string;
+    rows?: number;
+  };
+  matchmaking?: {
+    guild_id?: string;
+    game?: string;
+    team_size?: number;
+    win_probability?: number;
+    balance_gap?: number;
+  };
   error?: {
     type?: string;
     message?: string;

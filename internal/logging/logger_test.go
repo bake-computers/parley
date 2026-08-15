@@ -16,47 +16,20 @@ import (
 	"github.com/bake-computers/parley/internal/logging"
 )
 
-func TestResolveIngestURL_DefaultUS(t *testing.T) {
-	t.Parallel()
-	got := logging.ResolveIngestURL("parley", "", "")
-	want := "https://api.axiom.co/v1/datasets/parley/ingest"
-	if got != want {
-		t.Fatalf("got %q want %q", got, want)
-	}
-}
-
-func TestResolveIngestURL_EdgeDomain(t *testing.T) {
-	t.Parallel()
-	got := logging.ResolveIngestURL("parley", "eu-central-1.aws.edge.axiom.co", "")
-	want := "https://eu-central-1.aws.edge.axiom.co/v1/ingest/parley"
-	if got != want {
-		t.Fatalf("got %q want %q", got, want)
-	}
-}
-
-func TestResolveIngestURL_EdgeURL(t *testing.T) {
-	t.Parallel()
-	got := logging.ResolveIngestURL("ds", "", "https://custom.edge.example")
-	want := "https://custom.edge.example/v1/ingest/ds"
-	if got != want {
-		t.Fatalf("got %q want %q", got, want)
-	}
-}
-
 func TestNew_AlwaysJSONIncludingDebug(t *testing.T) {
 	t.Parallel()
 	var buf bytes.Buffer
-	log := logging.NewWithWriter("debug", &buf, logging.AxiomOptions{Enabled: false})
+	log := logging.NewWithWriter("debug", &buf, logging.PipelineOptions{})
 	log.Debug("hello")
 	line := strings.TrimSpace(buf.String())
 	if !strings.Contains(line, `"message"`) || !strings.Contains(line, "hello") {
 		t.Fatalf("expected JSON debug line, got %q", line)
 	}
 	if !strings.Contains(line, `"ts"`) {
-		t.Fatalf("expected ts key for Axiom, got %q", line)
+		t.Fatalf("expected ts key, got %q", line)
 	}
 	if !strings.Contains(line, `"level":"debug"`) {
-		t.Fatalf("expected lowercase debug level for Axiom, got %q", line)
+		t.Fatalf("expected lowercase debug level, got %q", line)
 	}
 	if !strings.Contains(line, `"service":"engine"`) {
 		t.Fatalf("expected service=engine, got %q", line)
@@ -66,7 +39,7 @@ func TestNew_AlwaysJSONIncludingDebug(t *testing.T) {
 func TestNew_InfoUsesJSONHandler(t *testing.T) {
 	t.Parallel()
 	var buf bytes.Buffer
-	log := logging.NewWithWriter("info", &buf, logging.AxiomOptions{Enabled: false})
+	log := logging.NewWithWriter("info", &buf, logging.PipelineOptions{})
 	log.Info("hello")
 	line := strings.TrimSpace(buf.String())
 	if !strings.Contains(line, `"message"`) || !strings.Contains(line, "hello") {
@@ -80,7 +53,7 @@ func TestNew_InfoUsesJSONHandler(t *testing.T) {
 func TestNew_SetsLevel(t *testing.T) {
 	t.Parallel()
 	var buf bytes.Buffer
-	log := logging.NewWithWriter("warn", &buf, logging.AxiomOptions{Enabled: false})
+	log := logging.NewWithWriter("warn", &buf, logging.PipelineOptions{})
 	log.Info("should not appear")
 	log.Warn("should appear")
 	if strings.Contains(buf.String(), "should not appear") {
@@ -91,13 +64,13 @@ func TestNew_SetsLevel(t *testing.T) {
 	}
 }
 
-func TestNewWithAxiom_DisabledNoop(t *testing.T) {
+func TestNewWithPipeline_DisabledNoop(t *testing.T) {
 	t.Parallel()
-	h, err := logging.NewAxiomHandler(logging.AxiomOptions{Enabled: false})
+	h, err := logging.NewPipelineHandler(logging.PipelineOptions{})
 	if err != nil {
 		t.Fatal(err)
 	}
-	log := logging.NewWithAxiom("info", h)
+	log := logging.NewWithPipeline("info", h)
 	log.Info("should not panic")
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
@@ -106,7 +79,7 @@ func TestNewWithAxiom_DisabledNoop(t *testing.T) {
 	}
 }
 
-func TestAxiomHandler_FlushesBatchOnShutdown(t *testing.T) {
+func TestPipelineHandler_FlushesBatchOnShutdown(t *testing.T) {
 	t.Parallel()
 	var mu sync.Mutex
 	var bodies [][]byte
@@ -128,21 +101,19 @@ func TestAxiomHandler_FlushesBatchOnShutdown(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	opts := logging.AxiomOptions{
+	opts := logging.PipelineOptions{
 		Token:         "test-token",
-		Dataset:       "parley",
-		Enabled:       true,
+		IngestURL:     srv.URL,
 		BatchSize:     10,
 		FlushInterval: time.Hour,
 		BufferSize:    64,
-		IngestURL:     srv.URL,
 	}
 
-	h, err := logging.NewAxiomHandler(opts)
+	h, err := logging.NewPipelineHandler(opts)
 	if err != nil {
 		t.Fatal(err)
 	}
-	log := logging.NewWithAxiom("info", h)
+	log := logging.NewWithPipeline("info", h)
 	log.Info("POST /parley.matchmaking.v1.MatchmakingService/CreateMatch 200 (12.4ms)",
 		"event", "request.completed",
 		"where", "engine POST /parley.matchmaking.v1.MatchmakingService/CreateMatch",
@@ -174,7 +145,12 @@ func TestAxiomHandler_FlushesBatchOnShutdown(t *testing.T) {
 	if len(batch) < 1 {
 		t.Fatalf("batch len %d", len(batch))
 	}
-	ev := batch[0]
+	// Pipelines ingests an unstructured stream: each shipped record is wrapped as {"value": <record>}.
+	wrapped, ok := batch[0]["value"].(map[string]any)
+	if !ok {
+		t.Fatalf("expected wrapped record, got %v", batch[0])
+	}
+	ev := wrapped
 	if ev["event"] != "request.completed" {
 		t.Fatalf("event %v", ev["event"])
 	}
@@ -205,11 +181,14 @@ func TestAxiomHandler_FlushesBatchOnShutdown(t *testing.T) {
 	}
 }
 
-func TestAxiomHandler_SlogLevelsLowercase(t *testing.T) {
+func TestPipelineHandler_Allowlist(t *testing.T) {
 	t.Parallel()
 	var mu sync.Mutex
 	var bodies [][]byte
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if got := r.Header.Get("Authorization"); got != "Bearer test-token" {
+			t.Errorf("auth %q", got)
+		}
 		b, _ := io.ReadAll(r.Body)
 		mu.Lock()
 		bodies = append(bodies, b)
@@ -218,19 +197,28 @@ func TestAxiomHandler_SlogLevelsLowercase(t *testing.T) {
 	}))
 	defer srv.Close()
 
-	h, err := logging.NewAxiomHandler(logging.AxiomOptions{
-		Token:     "tok",
-		Enabled:   true,
-		Level:     "debug",
-		BatchSize: 1,
-		IngestURL: srv.URL,
+	h, err := logging.NewPipelineHandler(logging.PipelineOptions{
+		Token:         "test-token",
+		IngestURL:     srv.URL,
+		BatchSize:     10,
+		FlushInterval: time.Hour,
+		BufferSize:    64,
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	log := logging.NewWithAxiom("debug", h)
-	log.Debug("dbg")
-	log.Error("err")
+	log := logging.NewWithPipeline("info", h)
+	// Plain boot info must not ship.
+	log.Info("engine-service listening", "addr", "0.0.0.0:50051")
+	// Allowlisted info event must ship.
+	log.Info("POST /parley.matchmaking.v1.MatchmakingService/BuildTeams 200 (3.1ms)",
+		"event", "request.completed",
+		"where", "engine POST /parley.matchmaking.v1.MatchmakingService/BuildTeams",
+		"outcome", "success",
+		"duration_ms", 3.1,
+	)
+	// Warn always ships, even without an allowlisted event attr.
+	log.Warn("db query failed", "event", "db.query", "outcome", "error")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
@@ -240,22 +228,43 @@ func TestAxiomHandler_SlogLevelsLowercase(t *testing.T) {
 
 	mu.Lock()
 	defer mu.Unlock()
-	if len(bodies) < 2 {
-		t.Fatalf("expected >=2 posts, got %d", len(bodies))
-	}
-	levels := map[string]bool{}
+	var events []map[string]any
 	for _, body := range bodies {
 		var batch []map[string]any
 		if err := json.Unmarshal(body, &batch); err != nil {
 			t.Fatal(err)
 		}
-		for _, ev := range batch {
-			if lv, ok := ev["level"].(string); ok {
-				levels[lv] = true
+		for _, rec := range batch {
+			wrapped, ok := rec["value"].(map[string]any)
+			if !ok {
+				t.Fatalf("expected wrapped record, got %v", rec)
 			}
+			events = append(events, wrapped)
 		}
 	}
-	if !levels["debug"] || !levels["error"] {
-		t.Fatalf("want debug+error levels, got %v", levels)
+	if len(events) != 2 {
+		t.Fatalf("expected 2 shipped events, got %d: %v", len(events), events)
+	}
+	if events[0]["event"] != "request.completed" {
+		t.Fatalf("first event %v", events[0]["event"])
+	}
+	if events[1]["event"] != "db.query" {
+		t.Fatalf("second event %v", events[1]["event"])
+	}
+	if events[1]["level"] != "warn" {
+		t.Fatalf("expected warn level for second event, got %v", events[1]["level"])
+	}
+}
+
+func TestPipelineHandler_UnconfiguredNeverPosts(t *testing.T) {
+	t.Parallel()
+	var buf bytes.Buffer
+	log := logging.NewWithWriter("debug", &buf, logging.PipelineOptions{})
+	log.Debug("health check")
+	log.Info("engine-service listening")
+	log.Warn("something")
+	// Nothing configured: only the writer JSON exists, no POSTs happened.
+	if !strings.Contains(buf.String(), `"message":"health check"`) {
+		t.Fatalf("expected debug line on the writer, got %q", buf.String())
 	}
 }

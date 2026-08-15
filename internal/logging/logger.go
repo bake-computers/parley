@@ -64,7 +64,7 @@ func parseLevel(level string) slog.Level {
 	}
 }
 
-// levelString returns Axiom-friendly lowercase severity text.
+// levelString returns lowercase severity text matching the wide-event schema.
 func levelString(level slog.Level) string {
 	switch {
 	case level >= slog.LevelError:
@@ -82,8 +82,8 @@ func jsonHandlerOptions(level string) *slog.HandlerOptions {
 	lvl := parseLevel(level)
 	return &slog.HandlerOptions{
 		Level: lvl,
-		// Axiom-friendly keys matching the wide-event schema: lowercase level,
-		// msg→message, time→ts.
+		// Keys matching the wide-event schema: lowercase level, msg→message,
+		// time→ts.
 		ReplaceAttr: func(_ []string, a slog.Attr) slog.Attr {
 			switch a.Key {
 			case slog.LevelKey:
@@ -108,10 +108,10 @@ func jsonWriterHandler(level string, w io.Writer) slog.Handler {
 	return slog.NewJSONHandler(w, jsonHandlerOptions(level))
 }
 
-func newLogger(level string, stdout slog.Handler, axiom *AxiomHandler) *slog.Logger {
+func newLogger(level string, stdout slog.Handler, pipeline *PipelineHandler) *slog.Logger {
 	var h = stdout
-	if axiom != nil && axiom.enabled {
-		h = &multiHandler{handlers: []slog.Handler{stdout, axiom}}
+	if pipeline != nil && pipeline.enabled {
+		h = &multiHandler{handlers: []slog.Handler{stdout, pipeline}}
 	}
 	log := slog.New(h).With("service", ServiceEngine)
 	if host, err := os.Hostname(); err == nil && host != "" {
@@ -120,32 +120,27 @@ func newLogger(level string, stdout slog.Handler, axiom *AxiomHandler) *slog.Log
 	return log
 }
 
-// New builds the root JSON logger; tees to Axiom when opts are configured.
-// Prefer NewWithAxiom when you need to Shutdown the handler.
-func New(level string, opts AxiomOptions) *slog.Logger {
-	opts.Level = level
-	axiom, err := NewAxiomHandler(opts)
+// New builds the root JSON logger; tees to the pipeline handler when opts are
+// configured. Prefer NewWithPipeline when you need to Shutdown the handler.
+func New(level string, opts PipelineOptions) *slog.Logger {
+	pipeline, err := NewPipelineHandler(opts)
 	if err != nil {
 		return slog.New(stderrHandler(level)).With("service", ServiceEngine)
 	}
-	return newLogger(level, stderrHandler(level), axiom)
+	return newLogger(level, stderrHandler(level), pipeline)
 }
 
 // NewWithWriter is like New but writes logs to w (for tests). Always JSON.
-func NewWithWriter(level string, w io.Writer, opts AxiomOptions) *slog.Logger {
-	opts.Level = level
+func NewWithWriter(level string, w io.Writer, opts PipelineOptions) *slog.Logger {
 	stdout := jsonWriterHandler(level, w)
-	axiom, err := NewAxiomHandler(opts)
+	pipeline, err := NewPipelineHandler(opts)
 	if err != nil {
 		return slog.New(stdout).With("service", ServiceEngine)
 	}
-	return newLogger(level, stdout, axiom)
+	return newLogger(level, stdout, pipeline)
 }
 
-// NewWithAxiom attaches an existing Axiom handler (caller owns Shutdown).
-func NewWithAxiom(level string, axiom *AxiomHandler) *slog.Logger {
-	if axiom != nil {
-		axiom.setMinLevel(parseLevel(level))
-	}
-	return newLogger(level, stderrHandler(level), axiom)
+// NewWithPipeline attaches an existing pipeline handler (caller owns Shutdown).
+func NewWithPipeline(level string, pipeline *PipelineHandler) *slog.Logger {
+	return newLogger(level, stderrHandler(level), pipeline)
 }

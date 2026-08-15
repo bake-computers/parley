@@ -1,4 +1,4 @@
-import { type AxiomConfig, isAxiomConfigured } from "#/config";
+import { type PipelineConfig, isPipelineConfigured } from "#/config";
 import type { StandaloneEvent, WideEvent } from "#/events";
 
 /** Fields that can be merged into the in-flight wide event. Nested groups are partial. */
@@ -11,6 +11,8 @@ export type WideEventMerge = {
   duration_ms?: number;
   http?: Partial<WideEvent["http"]>;
   discord?: Partial<WideEvent["discord"]>;
+  db?: Partial<WideEvent["db"]>;
+  matchmaking?: Partial<WideEvent["matchmaking"]>;
   env?: Partial<WideEvent["env"]>;
   error?: Partial<WideEvent["error"]>;
 };
@@ -31,15 +33,15 @@ function formatDuration(ms: number): string {
  * begin()/merge()/finish() track the current request event; finish() enqueues
  * it once. emitStandalone() covers unscoped logs (startup, registration).
  */
-export class AxiomLogger {
-  private readonly config: AxiomConfig;
+export class EventLogger {
+  private readonly config: PipelineConfig;
   private readonly pending: Array<WideEvent | StandaloneEvent> = [];
   private current: WideEvent | undefined;
   private finished = false;
   private inflight: Promise<void> | undefined;
   private finishWaiters: Array<() => void> | undefined;
 
-  constructor(config: AxiomConfig) {
+  constructor(config: PipelineConfig) {
     this.config = config;
   }
 
@@ -48,7 +50,7 @@ export class AxiomLogger {
   }
 
   get configured(): boolean {
-    return isAxiomConfigured(this.config);
+    return isPipelineConfigured(this.config);
   }
 
   /** Request id of the in-flight event (forwarded as X-Request-ID to the engine). */
@@ -130,6 +132,12 @@ export class AxiomLogger {
     }
     if (fields.http) {
       cur.http = { ...cur.http, ...fields.http };
+    }
+    if (fields.db) {
+      cur.db = { ...cur.db, ...fields.db };
+    }
+    if (fields.matchmaking) {
+      cur.matchmaking = { ...cur.matchmaking, ...fields.matchmaking };
     }
     if (fields.env) {
       cur.env = { ...cur.env, ...fields.env };
@@ -220,7 +228,7 @@ export class AxiomLogger {
     if (events.length === 0) {
       // Nothing new to send, but a flush may already be in flight (terminal
       // sink finish+flush while the response is still being handled): resolve
-      // only after the actual ingest POST so waitUntil covers the wire.
+      // only after the actual stream send so waitUntil covers the wire.
       if (this.inflight) {
         return this.inflight;
       }
@@ -232,45 +240,22 @@ export class AxiomLogger {
     }
 
     const run = (async () => {
-      // Defer serialization by one macrotask so late merges land before the wire
-      // snapshot: the runtime sink may finish()+flush() while the response is
-      // still in flight (bad-signature 401, empty-response 204) and the
+      // Defer serialization by one macrotask so late merges land before the
+      // wire snapshot: the runtime sink may finish()+flush() while the response
+      // is still in flight (bad-signature 401, empty-response 204) and the
       // middleware finally merges http.status right after.
       await new Promise((resolve) => setTimeout(resolve, 0));
 
-      const headers: Record<string, string> = {
-        Authorization: `Bearer ${this.config.token}`,
-        "Content-Type": "application/json",
-      };
-      if (this.config.orgId) {
-        headers["X-Axiom-Org-Id"] = this.config.orgId;
-      }
-
       try {
-        const response = await fetch(this.config.ingestUrl, {
-          method: "POST",
-          headers,
-          body: JSON.stringify(events),
-        });
-
-        if (!response.ok) {
-          const body = await response.text().catch(() => "");
-          console.warn(
-            JSON.stringify({
-              level: "warn",
-              event: "axiom.ingest_failed",
-              status: response.status,
-              count: events.length,
-              ingest_url: this.config.ingestUrl,
-              body,
-            }),
-          );
-        }
+        // Pipelines ingests an unstructured stream: each record must be
+        // wrapped as { value: <event> }.
+        await this.config.stream!.send(events.map((event) => ({ value: event })));
       } catch (error) {
         console.warn(
           JSON.stringify({
             level: "warn",
-            event: "axiom.ingest_failed",
+            event: "pipelines.ingest_failed",
+            count: events.length,
             error: error instanceof Error ? error.message : String(error),
           }),
         );
