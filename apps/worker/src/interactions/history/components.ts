@@ -27,6 +27,15 @@ export const historyButtonHandler = new ComponentHandler("history", COMPONENT_BU
       return;
     }
 
+    const discordUserId = interaction.user?.id;
+    if (!discordUserId) {
+      await editReplyV2(
+        interaction,
+        buildHistoryErrorCard("Could not identify the user running this command."),
+      );
+      return;
+    }
+
     const deferred = await interaction.deferUpdate();
     if (deferred.isErr()) {
       logger.error("history.defer_failed", "Failed to defer component interaction", {
@@ -40,6 +49,7 @@ export const historyButtonHandler = new ComponentHandler("history", COMPONENT_BU
     const result = await invokeListMatches({
       env,
       guildId,
+      discordUserId,
       game: Game.R6,
       limit: HISTORY_PAGE_WINDOW,
       cursor: "",

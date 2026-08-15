@@ -433,7 +433,7 @@ export function HelpDemo() {
         <DiscordTextDisplay content="**Parley Commands**" />
         <DiscordTextDisplay content="`/link` — Link your game accounts" />
         <DiscordTextDisplay content="`/profile` — View linked accounts & rank" />
-        <DiscordTextDisplay content="`/history` — Recent matches in this server" />
+        <DiscordTextDisplay content="`/history` — Your recent matches in this server" />
         <DiscordTextDisplay content="`/user` — Matchmaking & privacy settings" />
         <DiscordTextDisplay content="`/team` — Custom balanced match" />
         <DiscordTextDisplay content="`/tournament` — Create or join a tournament" />

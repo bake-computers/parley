@@ -7,6 +7,7 @@ import type { Game } from "@parley/proto";
 export type InvokeListMatchesInput = {
   env: EngineTransportEnv;
   guildId: string;
+  discordUserId: string;
   game: Game;
   limit: number;
   cursor: string;
@@ -15,6 +16,7 @@ export type InvokeListMatchesInput = {
 type MatchmakingClient = {
   listMatches: (req: {
     guildId: string;
+    discordUserId: string;
     game: Game;
     limit: number;
     cursor: string;
@@ -35,6 +37,7 @@ export function invokeListMatches(
   return client
     .listMatches({
       guildId: input.guildId,
+      discordUserId: input.discordUserId,
       game: input.game,
       limit: input.limit,
       cursor: input.cursor,

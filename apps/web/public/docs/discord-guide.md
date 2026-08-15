@@ -74,7 +74,7 @@ yourself.
 | -------------------- | --------------------------------------------- |
 | `/link`              | Link your Discord to your in-game account     |
 | `/profile`           | View your linked accounts and stats           |
-| `/history`           | Show recent Parley matches in this server     |
+| `/history`           | Show your recent Parley matches in this server |
 | `/team`              | Run a balanced custom match with your lobby   |
 | `/user`              | Manage matchmaking, visibility, and data      |
 | `/tournament create` | Start a tournament on the Parley website      |

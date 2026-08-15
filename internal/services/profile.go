@@ -300,7 +300,7 @@ func (s *ProfileService) buildPublicProfile(
 		})
 	}
 
-	matches, err := s.match.ListForUser(ctx, game, profile.DiscordUserID, int64(matchLimit), nil)
+	matches, err := s.match.ListForUser(ctx, game, profile.DiscordUserID, "", int64(matchLimit), nil)
 	if err != nil {
 		return nil, apperr.Internal(fmt.Sprintf("list matches: %v", err))
 	}
