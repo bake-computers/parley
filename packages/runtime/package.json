@@ -15,7 +15,7 @@
     "discord-api-types": "^0.38.47"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260506.1",
+    "@cloudflare/workers-types": "^5.20260812.1",
     "@parley/tsconfig-base": "workspace:*"
   }
 }
