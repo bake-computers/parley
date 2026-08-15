@@ -24,8 +24,8 @@
   
   "pipelines": [
     {
-      "pipeline": "32a3ed776e154caabb5964618a1325bc",
       "binding": "STREAM",
+      "stream": "32a3ed776e154caabb5964618a1325bc",
     },
   ],
 
