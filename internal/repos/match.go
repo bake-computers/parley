@@ -295,10 +295,12 @@ func (r *MatchRepo) ListForGuild(
 }
 
 // ListForUser returns keyset-paginated matches the user joined, newest first.
+// When guildID is non-empty, results are restricted to that guild.
 func (r *MatchRepo) ListForUser(
 	ctx context.Context,
 	game models.Game,
 	discordUserID string,
+	guildID string,
 	limit int64,
 	cursor *KeysetCursor,
 ) ([]models.MatchRow, error) {
@@ -306,8 +308,11 @@ func (r *MatchRepo) ListForUser(
 		Model((*models.MatchRow)(nil)).
 		Join("INNER JOIN match_participants AS mp ON mp.match_id = m.id").
 		Where("mp.game = ?", game).
-		Where("mp.discord_user_id = ?", discordUserID).
-		Order("m.created_at DESC", "m.id DESC").
+		Where("mp.discord_user_id = ?", discordUserID)
+	if guildID != "" {
+		q = q.Where("m.guild_id = ?", guildID)
+	}
+	q = q.Order("m.created_at DESC", "m.id DESC").
 		Limit(int(limit))
 	if cursor != nil {
 		q = q.Where(

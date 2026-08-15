@@ -338,6 +338,26 @@ func TestMatchmaking_CustomMatchRoundStatsAccumulate(t *testing.T) {
 	if history[0].ID != saved.ID {
 		t.Fatalf("history match = %d, want %d", history[0].ID, saved.ID)
 	}
+
+	// A participant's history is scoped to the guild: the user sees the
+	// completed match, a non-participant sees nothing.
+	userHistory, err := matchRepo.ListForUser(ctx, models.GameR6, discordIDs[0], guildID, 10, nil)
+	if err != nil {
+		t.Fatalf("ListForUser(participant): %v", err)
+	}
+	if got := len(userHistory); got != 1 {
+		t.Fatalf("user history len = %d, want 1", got)
+	}
+	if userHistory[0].ID != saved.ID {
+		t.Fatalf("user history match = %d, want %d", userHistory[0].ID, saved.ID)
+	}
+	noHistory, err := matchRepo.ListForUser(ctx, models.GameR6, "nobody", guildID, 10, nil)
+	if err != nil {
+		t.Fatalf("ListForUser(non-participant): %v", err)
+	}
+	if got := len(noHistory); got != 0 {
+		t.Fatalf("non-participant history len = %d, want 0", got)
+	}
 }
 
 // TestMatchmaking_ReportMatchResultPersistsRatingAndPlayerState covers the

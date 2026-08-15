@@ -25,9 +25,19 @@ export const historyCommand = new SlashCommand()
       return;
     }
 
+    const discordUserId = interaction.user?.id;
+    if (!discordUserId) {
+      await editReplyV2(
+        interaction,
+        buildHistoryErrorCard("Could not identify the user running this command."),
+      );
+      return;
+    }
+
     const result = await invokeListMatches({
       env,
       guildId,
+      discordUserId,
       game: Game.R6,
       limit: HISTORY_PAGE_WINDOW,
       cursor: "",

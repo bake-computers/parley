@@ -865,7 +865,7 @@ func (s *MatchService) ListMatches(
 
 	var rows []models.MatchRow
 	if userID := strings.TrimSpace(msg.GetDiscordUserId()); userID != "" {
-		rows, err = s.match.ListForUser(ctx, game, userID, limit, cursor)
+		rows, err = s.match.ListForUser(ctx, game, userID, guildID, limit, cursor)
 	} else {
 		rows, err = s.match.ListForGuild(ctx, game, guildID, limit, cursor)
 	}
