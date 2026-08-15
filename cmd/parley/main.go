@@ -143,15 +143,19 @@ func run() error {
 	go statsClient.Warmup(context.Background())
 
 	serverErr := make(chan error, 2)
+
+	// this is just to disable this annoying startup message from fiber, since we log our own
+	startupMsg := fiber.ListenConfig{DisableStartupMessage: true}
+
 	go func() {
 		slog.Info("engine-service listening", "addr", cfg.EngineServiceAddr)
-		if err := app.Listen(cfg.EngineServiceAddr, fiber.ListenConfig{DisableStartupMessage: true}); err != nil {
+		if err := app.Listen(cfg.EngineServiceAddr, startupMsg); err != nil {
 			serverErr <- err
 		}
 	}()
 	go func() {
 		slog.Info("metrics listening", "addr", cfg.MetricsAddr)
-		if err := metricsApp.Listen(cfg.MetricsAddr); err != nil {
+		if err := metricsApp.Listen(cfg.MetricsAddr, startupMsg); err != nil {
 			serverErr <- err
 		}
 	}()
