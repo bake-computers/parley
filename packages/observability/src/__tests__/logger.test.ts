@@ -63,7 +63,8 @@ describe("EventLogger", () => {
     expect(stream.send).toHaveBeenCalledTimes(1);
     const events = stream.send.mock.calls[0]?.[0] as unknown[];
     expect(events).toHaveLength(1);
-    const event = events[0] as Record<string, unknown>;
+    // Pipelines ingests an unstructured stream: records are wrapped as { value: <event> }.
+    const event = (events[0] as { value: Record<string, unknown> }).value;
     expect(event.event).toBe("request.completed");
     expect(event.message).toBe("slash link completed");
     expect(event.service).toBe("worker");
@@ -103,7 +104,7 @@ describe("EventLogger", () => {
     const events = stream.send.mock.calls[0]?.[0] as unknown[];
 
     expect(events).toHaveLength(1);
-    const event = events[0] as Record<string, unknown>;
+    const event = (events[0] as { value: Record<string, unknown> }).value;
     expect(event.level).toBe("error");
     expect(event.outcome).toBe("error");
     expect(event.message).toBe("slash unlink failed: unlinkAccount RPC failed");
@@ -122,7 +123,7 @@ describe("EventLogger", () => {
     const events = stream.send.mock.calls[0]?.[0] as unknown[];
 
     expect(events).toHaveLength(1);
-    const event = events[0] as Record<string, unknown>;
+    const event = (events[0] as { value: Record<string, unknown> }).value;
     expect(event.event).toBe("startup");
     expect(event.message).toBe("worker booted");
     expect(event.service).toBe("worker");

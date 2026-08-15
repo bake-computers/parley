@@ -247,7 +247,9 @@ export class EventLogger {
       await new Promise((resolve) => setTimeout(resolve, 0));
 
       try {
-        await this.config.stream!.send(events);
+        // Pipelines ingests an unstructured stream: each record must be
+        // wrapped as { value: <event> }.
+        await this.config.stream!.send(events.map((event) => ({ value: event })));
       } catch (error) {
         console.warn(
           JSON.stringify({

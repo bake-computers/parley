@@ -125,7 +125,13 @@ func NewPipelineHandler(opts PipelineOptions) (*PipelineHandler, error) {
 			if len(batch) == 0 {
 				return
 			}
-			body, err := json.Marshal(batch)
+			// Pipelines ingests an unstructured stream: each record must be
+			// wrapped as {"value": <record>}.
+			wrapped := make([]map[string]json.RawMessage, 0, len(batch))
+			for _, b := range batch {
+				wrapped = append(wrapped, map[string]json.RawMessage{"value": b})
+			}
+			body, err := json.Marshal(wrapped)
 			if err != nil {
 				batch = batch[:0]
 				return

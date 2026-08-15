@@ -145,7 +145,12 @@ func TestPipelineHandler_FlushesBatchOnShutdown(t *testing.T) {
 	if len(batch) < 1 {
 		t.Fatalf("batch len %d", len(batch))
 	}
-	ev := batch[0]
+	// Pipelines ingests an unstructured stream: each shipped record is wrapped as {"value": <record>}.
+	wrapped, ok := batch[0]["value"].(map[string]any)
+	if !ok {
+		t.Fatalf("expected wrapped record, got %v", batch[0])
+	}
+	ev := wrapped
 	if ev["event"] != "request.completed" {
 		t.Fatalf("event %v", ev["event"])
 	}
@@ -229,7 +234,13 @@ func TestPipelineHandler_Allowlist(t *testing.T) {
 		if err := json.Unmarshal(body, &batch); err != nil {
 			t.Fatal(err)
 		}
-		events = append(events, batch...)
+		for _, rec := range batch {
+			wrapped, ok := rec["value"].(map[string]any)
+			if !ok {
+				t.Fatalf("expected wrapped record, got %v", rec)
+			}
+			events = append(events, wrapped)
+		}
 	}
 	if len(events) != 2 {
 		t.Fatalf("expected 2 shipped events, got %d: %v", len(events), events)

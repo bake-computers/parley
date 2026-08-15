@@ -21,10 +21,13 @@
     "SERVICE_NAME": "worker",
     "ENGINE_INTERNAL_URL": "http://api.internal.parley.bot:50051",
   },
-
-  // Production-only pipelines binding for the worker event stream. REPLACE_ME
-  // with the real stream id once the stream exists; local envs never get this.
-  "pipelines": [{ "binding": "STREAM", "stream": "REPLACE_ME" }],
+  
+  "pipelines": [
+    {
+      "pipeline": "32a3ed776e154caabb5964618a1325bc",
+      "binding": "STREAM",
+    },
+  ],
 
   "vpc_services": [
     {
