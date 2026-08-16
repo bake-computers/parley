@@ -33,7 +33,6 @@ type MatchmakingClient = {
 export async function invokeListMatches(
   input: InvokeListMatchesInput,
 ): Promise<Result<ListMatchesResponse, ConnectError>> {
-
   const data = (await input.env.KV.get(
     `matchmaking:${input.guildId}:${input.discordUserId}:${input.game}`,
     { type: "json" },
@@ -44,6 +43,13 @@ export async function invokeListMatches(
   }
 
   const client = getMatchmakingClient(input.env) as unknown as MatchmakingClient;
+
+  await input.env.KV.put(
+    `matchmaking:${input.guildId}:${input.discordUserId}:${input.game}`,
+    JSON.stringify(data),
+    // we are currently experiencing a lot of 503s from the engine, so cache for 5 minutes to reduce load
+    { expirationTtl: 300 },
+  );
 
   return client
     .listMatches({
