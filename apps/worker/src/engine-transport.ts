@@ -1,4 +1,4 @@
-import type { Fetcher } from "@cloudflare/workers-types";
+import type { Fetcher, KVNamespace } from "@cloudflare/workers-types";
 import { getRequestContext } from "#/request-context";
 
 export type EngineTransportEnv = {
@@ -11,6 +11,7 @@ export type EngineTransportEnv = {
    * ENGINE_SHARED_SECRET.
    */
   ENGINE_SHARED_SECRET?: string;
+  KV: KVNamespace;
 };
 
 export type EngineFetch = (input: string | URL | Request, init?: RequestInit) => Promise<Response>;
