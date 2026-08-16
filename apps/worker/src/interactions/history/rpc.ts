@@ -30,10 +30,21 @@ type MatchmakingClient = {
  * than returning a `Result`, so we wrap the call and convert any throw into
  * an `Err` for the caller.
  */
-export function invokeListMatches(
+export async function invokeListMatches(
   input: InvokeListMatchesInput,
 ): Promise<Result<ListMatchesResponse, ConnectError>> {
+
+  const data = (await input.env.KV.get(
+    `matchmaking:${input.guildId}:${input.discordUserId}:${input.game}`,
+    { type: "json" },
+  )) as ListMatchesResponse | null;
+
+  if (!data) {
+    return err(new ConnectError("No data found", 5, {}));
+  }
+
   const client = getMatchmakingClient(input.env) as unknown as MatchmakingClient;
+
   return client
     .listMatches({
       guildId: input.guildId,
