@@ -47,6 +47,7 @@ export default defineConfig({
       nursery: "off",
     },
     rules: {
+      "jsdoc/require-returns": "off",
       "vite-plus/prefer-vite-plus-imports": "error",
       "no-console": "off",
       "no-debugger": "error",
