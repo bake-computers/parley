@@ -11,6 +11,8 @@ export type EngineTransportEnv = {
    * ENGINE_SHARED_SECRET.
    */
   ENGINE_SHARED_SECRET?: string;
+  /** Deployment environment; scopes the KV cache namespace per env. */
+  SERVICE_ENV?: "production" | "staging" | "local";
   KV?: KVNamespace;
 };
 
@@ -74,9 +76,14 @@ function asHashableBody(body: RequestInit["body"] | null | undefined): HashableB
   return null;
 }
 
-async function buildCacheKey(method: string, pathname: string, body: HashableBody): Promise<string> {
+async function buildCacheKey(
+  method: string,
+  pathname: string,
+  body: HashableBody,
+  serviceEnv: string | undefined,
+): Promise<string> {
   const enc = new TextEncoder();
-  const prefix = enc.encode(`${pathname}\n`);
+  const prefix = enc.encode(`${serviceEnv ?? ""}\n${pathname}\n`);
   let payload: Uint8Array;
   if (typeof body === "string") {
     payload = enc.encode(body);
@@ -133,9 +140,14 @@ function parseCached(text: string | null): CachedEntry | null {
  *   5xx or thrown fetch, replay the last cached entry as a 200.
  * - anything else : no caching.
  *
- * The cache key is `engine:{Method}:{sha256hex(pathname + "\n" + body)}`
- * where Method is the last URL path segment. Only string / ArrayBuffer /
+ * The cache key is `engine:{Method}:{sha256hex(SERVICE_ENV + "\n" + pathname +
+ * "\n" + body)}` where Method is the last URL path segment. Keys are scoped
+ * per SERVICE_ENV so staging/local traffic never collides with production
+ * entries (all envs share one KV namespace). Only string / ArrayBuffer /
  * Uint8Array bodies can be hashed; streams pass through unread.
+ *
+ * List/Fetch entries live for 300s. Get/Lookup stale-if-error entries
+ * expire after 24h.
  *
  * // ponytail: no write invalidation; add if stale Get/Lookup after a
  * // successful write is a product bug.
@@ -143,6 +155,7 @@ function parseCached(text: string | null): CachedEntry | null {
 function withEngineKvCache(
   fetchImpl: EngineFetch,
   kv: KVNamespace | undefined,
+  serviceEnv: string | undefined,
 ): EngineFetch {
   if (!kv) {
     return fetchImpl;
@@ -174,10 +187,15 @@ function withEngineKvCache(
       return fetchImpl(input, init);
     }
 
-    const key = await buildCacheKey(method, pathname, hashable);
+    const key = await buildCacheKey(method, pathname, hashable, serviceEnv);
 
     if (isListFetch) {
-      const cached = parseCached(await kv.get(key, { type: "text" }));
+      let cached: CachedEntry | null = null;
+      try {
+        cached = parseCached(await kv.get(key, { type: "text" }));
+      } catch {
+        // KV read failure degrades to a cache miss; the engine stays authoritative.
+      }
       if (cached) {
         return replayCached(cached);
       }
@@ -188,9 +206,13 @@ function withEngineKvCache(
       response = await fetchImpl(input, init);
     } catch (cause) {
       if (isGetLookup) {
-        const cached = parseCached(await kv.get(key, { type: "text" }));
-        if (cached) {
-          return replayCached(cached);
+        try {
+          const cached = parseCached(await kv.get(key, { type: "text" }));
+          if (cached) {
+            return replayCached(cached);
+          }
+        } catch {
+          // KV read failure must not mask the original engine error.
         }
       }
       throw cause;
@@ -213,9 +235,13 @@ function withEngineKvCache(
     }
 
     if (isGetLookup && response.status >= 500) {
-      const cached = parseCached(await kv.get(key, { type: "text" }));
-      if (cached) {
-        return replayCached(cached);
+      try {
+        const cached = parseCached(await kv.get(key, { type: "text" }));
+        if (cached) {
+          return replayCached(cached);
+        }
+      } catch {
+        // KV read failure must not mask the original 5xx response.
       }
     }
 
@@ -236,7 +262,10 @@ export function resolveEngineTransport(env: EngineTransportEnv): EngineTransport
     return {
       baseUrl,
       cacheKey: `vpc:${baseUrl}`,
-      fetchImpl: withEngineAuth(withEngineKvCache(baseFetch, env.KV), env.ENGINE_SHARED_SECRET),
+      fetchImpl: withEngineAuth(
+        withEngineKvCache(baseFetch, env.KV, env.SERVICE_ENV),
+        env.ENGINE_SHARED_SECRET,
+      ),
     };
   }
 
@@ -245,6 +274,9 @@ export function resolveEngineTransport(env: EngineTransportEnv): EngineTransport
   return {
     baseUrl,
     cacheKey: `local:${baseUrl}`,
-    fetchImpl: withEngineAuth(withEngineKvCache(baseFetch, env.KV), env.ENGINE_SHARED_SECRET),
+    fetchImpl: withEngineAuth(
+      withEngineKvCache(baseFetch, env.KV, env.SERVICE_ENV),
+      env.ENGINE_SHARED_SECRET,
+    ),
   };
 }

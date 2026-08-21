@@ -20,6 +20,7 @@
     "DISCORD_APPLICATION_ID": "1495122091165618358",
     "SERVICE_NAME": "worker",
     "ENGINE_INTERNAL_URL": "http://api.internal.parley.bot:50051",
+    "SERVICE_ENV": "production",
   },
 
   "pipelines": [
@@ -43,10 +44,14 @@
       "routes": [],
       "vars": {
         "ENGINE_INTERNAL_URL": "http://127.0.0.1:50051",
+        "SERVICE_ENV": "local",
       },
     },
     "staging": {
       "routes": [{ "pattern": "staging.app.parley.bot", "custom_domain": true }],
+      "vars": {
+        "SERVICE_ENV": "staging",
+      },
     },
   },
   "kv_namespaces": [
