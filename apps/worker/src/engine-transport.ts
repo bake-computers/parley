@@ -58,10 +58,18 @@ function pathnameOf(url: string): string {
 }
 
 function asHashableBody(body: RequestInit["body"] | null | undefined): HashableBody | null {
-  if (body === null || body === undefined) return "";
-  if (typeof body === "string") return body;
-  if (body instanceof ArrayBuffer) return body;
-  if (body instanceof Uint8Array) return body;
+  if (body === null || body === undefined) {
+    return "";
+  }
+  if (typeof body === "string") {
+    return body;
+  }
+  if (body instanceof ArrayBuffer) {
+    return body;
+  }
+  if (body instanceof Uint8Array) {
+    return body;
+  }
   // Blob / ReadableStream / FormData etc. cannot be hashed without reading: pass through unread.
   return null;
 }
@@ -99,7 +107,9 @@ function replayCached(entry: CachedEntry): Response {
 }
 
 function parseCached(text: string | null): CachedEntry | null {
-  if (text === null) return null;
+  if (text === null) {
+    return null;
+  }
   try {
     const parsed = JSON.parse(text) as unknown;
     if (
@@ -134,7 +144,9 @@ function withEngineKvCache(
   fetchImpl: EngineFetch,
   kv: KVNamespace | undefined,
 ): EngineFetch {
-  if (!kv) return fetchImpl;
+  if (!kv) {
+    return fetchImpl;
+  }
 
   return async (input, init) => {
     let url: string;
@@ -166,7 +178,9 @@ function withEngineKvCache(
 
     if (isListFetch) {
       const cached = parseCached(await kv.get(key, { type: "text" }));
-      if (cached) return replayCached(cached);
+      if (cached) {
+        return replayCached(cached);
+      }
     }
 
     let response: Response;
@@ -175,7 +189,9 @@ function withEngineKvCache(
     } catch (cause) {
       if (isGetLookup) {
         const cached = parseCached(await kv.get(key, { type: "text" }));
-        if (cached) return replayCached(cached);
+        if (cached) {
+          return replayCached(cached);
+        }
       }
       throw cause;
     }
@@ -188,7 +204,7 @@ function withEngineKvCache(
         if (isListFetch) {
           await kv.put(key, JSON.stringify(entry), { expirationTtl: CACHE_TTL });
         } else {
-          await kv.put(key, JSON.stringify(entry));
+          await kv.put(key, JSON.stringify(entry), { expirationTtl: 86400 });
         }
       } catch {
         // cache write must not fail the live response
@@ -198,7 +214,9 @@ function withEngineKvCache(
 
     if (isGetLookup && response.status >= 500) {
       const cached = parseCached(await kv.get(key, { type: "text" }));
-      if (cached) return replayCached(cached);
+      if (cached) {
+        return replayCached(cached);
+      }
     }
 
     return response;
