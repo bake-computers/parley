@@ -1,7 +1,7 @@
 {
-  "id": "b833121d-9b81-457d-91ef-41ff9d1a9e30",
-  "user_id": "b833121d-9b81-457d-91ef-41ff9d1a9e30",
-  "username": "Avqny",
+  "id": "00000000-0000-4000-8000-000000000001",
+  "user_id": "00000000-0000-4000-8000-000000000001",
+  "username": "SamplePlayer",
   "platform": "pc",
   "level": 202,
   "hs": 41.725136,
@@ -9,7 +9,7 @@
   "last_played_at": "2026-06-14T12:35:57.592Z",
   "fetched_at": "2026-06-15T15:24:33.441Z",
   "updated_at": "2026-06-15T15:24:32.971Z",
-  "username_history": [{ "username": "NJxwhzxx.", "created_at": "2025-10-11T22:21:42.484Z" }],
+  "username_history": [{ "username": "OldHandle.", "created_at": "2025-10-11T22:21:42.484Z" }],
   "settings": {
     "all_aliases_hidden": false,
     "username_aliases": { "all_hidden": false, "some_hidden": false }
@@ -671,9 +671,9 @@
   },
   "platform_profiles": [
     {
-      "id": "9514d1d0-8a51-4939-bc70-75a2bd36acad",
-      "user_id": "b833121d-9b81-457d-91ef-41ff9d1a9e30",
-      "username": "avqny",
+      "id": "00000000-0000-4000-8000-000000000002",
+      "user_id": "00000000-0000-4000-8000-000000000001",
+      "username": "sampleplayer",
       "platform": "xbox",
       "level": 202,
       "hs": 41.725136

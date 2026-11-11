@@ -60,9 +60,6 @@ export type Messages = {
       titleHighlight: string;
       paragraphs: string[];
       pullQuote: string;
-      founderRole: string;
-      coFounderRole: string;
-      avatarAlt: string;
     };
     matchmaking: {
       title: string;
@@ -104,7 +101,6 @@ export type Messages = {
     legalNoticeTitle: string;
     privacyUpdated: string;
     termsUpdated: string;
-    legalNoticeUpdated: string;
     termsFooter: string;
     privacyFooter: string;
   };

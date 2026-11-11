@@ -13,16 +13,16 @@
   <text x="674" y="158" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="700" letter-spacing="1" fill="#c0c5ce" text-anchor="end">TEAM B</text>
   <text x="360" y="158" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="700" fill="#949ba4" text-anchor="middle">VS</text>
   <g font-family="system-ui, -apple-system, sans-serif" font-size="13" fill="#dbdfe4">
-    <text x="46" y="186">V1PER.STORM</text>
-    <text x="46" y="214">NOVA_RUSH</text>
-    <text x="46" y="242">clutchless</text>
-    <text x="46" y="270">BreachQueen</text>
-    <text x="46" y="298">smoke.and.mirrors</text>
-    <text x="674" y="186" text-anchor="end">IRON.SIGHTS</text>
-    <text x="674" y="214" text-anchor="end">flashbangFred</text>
-    <text x="674" y="242" text-anchor="end">kapitank</text>
-    <text x="674" y="270" text-anchor="end">EchoDrop</text>
-    <text x="674" y="298" text-anchor="end">wampei</text>
+    <text x="46" y="186">Player A1</text>
+    <text x="46" y="214">Player A2</text>
+    <text x="46" y="242">Player A3</text>
+    <text x="46" y="270">Player A4</text>
+    <text x="46" y="298">Player A5</text>
+    <text x="674" y="186" text-anchor="end">Player B1</text>
+    <text x="674" y="214" text-anchor="end">Player B2</text>
+    <text x="674" y="242" text-anchor="end">Player B3</text>
+    <text x="674" y="270" text-anchor="end">Player B4</text>
+    <text x="674" y="298" text-anchor="end">Player B5</text>
   </g>
   <g font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#949ba4">
     <text x="240" y="186" text-anchor="end">2,610</text>

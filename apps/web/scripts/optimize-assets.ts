@@ -5,7 +5,6 @@ import { join } from "node:path";
 const __dirname = import.meta.dirname;
 const webRoot = join(__dirname, "..");
 const heroDir = join(webRoot, "public/assets/hero");
-const foundersDir = join(webRoot, "public/assets/founders");
 
 function cwebp(args: string[]): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -39,30 +38,6 @@ async function optimizeHero(source: string) {
   ]);
 }
 
-async function optimizeFounder(slug: string) {
-  const source = join(foundersDir, `${slug}.webp`);
-  await cwebp([
-    "-q",
-    "80",
-    "-resize",
-    "64",
-    "64",
-    source,
-    "-o",
-    join(foundersDir, `${slug}-64.webp`),
-  ]);
-  await cwebp([
-    "-q",
-    "82",
-    "-resize",
-    "128",
-    "128",
-    source,
-    "-o",
-    join(foundersDir, `${slug}-128.webp`),
-  ]);
-}
-
 /** Responsive widths for the architecture diagram blog figure. */
 async function optimizeArchitecture() {
   const source = join(webRoot, "public/assets/parley-architecture-overview.webp");
@@ -89,9 +64,6 @@ async function main() {
     await optimizeHero(heroSource);
   }
   await optimizeArchitecture();
-  for (const slug of ["ryzm", "co-founder"]) {
-    await optimizeFounder(slug);
-  }
   console.log("Assets optimized.");
 }
 

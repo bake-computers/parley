@@ -1,6 +1,6 @@
 # Why Parley is built the way it is
 
-By ryzm / August 4, 2026
+By Parley engineering / August 4, 2026
 
 The reasoning behind the stack: the decisions and their trade-offs, not the documentation. The diagram below shows how the pieces fit together.
 

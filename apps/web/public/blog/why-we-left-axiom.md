@@ -1,6 +1,6 @@
 # Why we left Axiom
 
-By ryzm / August 15, 2026
+By Parley engineering / August 15, 2026
 
 The logging setup grew until it cost more to run than the events were worth. This post is the reasoning behind the swap and the short list of what we kept.
 

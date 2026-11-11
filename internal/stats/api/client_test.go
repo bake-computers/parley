@@ -31,11 +31,11 @@ func TestClient_HeadersAndEndpoints(t *testing.T) {
 		searchHits++
 		http.ServeFile(w, r, "testdata/search.json")
 	})
-	mux.HandleFunc("/v2/profiles/b833121d-9b81-457d-91ef-41ff9d1a9e30", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/v2/profiles/00000000-0000-4000-8000-000000000001", func(w http.ResponseWriter, r *http.Request) {
 		profileHits++
 		http.ServeFile(w, r, "testdata/profile.json")
 	})
-	mux.HandleFunc("/v2/profiles/b833121d-9b81-457d-91ef-41ff9d1a9e30/matches", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/v2/profiles/00000000-0000-4000-8000-000000000001/matches", func(w http.ResponseWriter, r *http.Request) {
 		matchHits++
 		http.ServeFile(w, r, "testdata/matches.json")
 	})
@@ -49,7 +49,7 @@ func TestClient_HeadersAndEndpoints(t *testing.T) {
 	if _, err := client.GetConfig(ctx); err != nil {
 		t.Fatalf("GetConfig: %v", err)
 	}
-	hits, err := client.Search(ctx, "Avqny", "pc", 5)
+	hits, err := client.Search(ctx, "SamplePlayer", "pc", 5)
 	if err != nil || len(hits) == 0 {
 		t.Fatalf("Search: %v len=%d", err, len(hits))
 	}

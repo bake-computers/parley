@@ -1,19 +1,22 @@
 version: v2
+# Remote generators are pinned: unpinned "latest" drifts (e.g. connectrpc/go
+# v2 emits connectrpc.com/connect/v2 imports that break go vet against go.mod's
+# connect v1). Bump a pin only with a matching go.mod / bun.lock change.
 plugins:
   # Protobuf-ES v2 generates both message types and service descriptors.
   # Connect-ES v2 no longer needs its own code generator plugin.
   # See: https://github.com/connectrpc/connect-es/blob/main/MIGRATING.md
-  - remote: buf.build/bufbuild/es
+  - remote: buf.build/bufbuild/es:v2.13.0
     out: packages/generated-ts/src
     include_imports: true
     opt:
       - target=ts
       - import_extension=js
-  - remote: buf.build/protocolbuffers/go
+  - remote: buf.build/protocolbuffers/go:v1.36.11
     out: gen/parley
     opt:
       - paths=source_relative
-  - remote: buf.build/connectrpc/go
+  - remote: buf.build/connectrpc/go:v1.20.0
     out: gen/parley
     opt:
       - paths=source_relative

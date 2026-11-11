@@ -13,14 +13,14 @@
   <line x1="46" y1="144" x2="674" y2="144" stroke="#3f4147" stroke-width="1"/>
   <rect x="46" y="162" width="26" height="26" rx="6" fill="#1e1f22" stroke="#3f4147" stroke-width="1.5"/>
   <text x="59" y="180" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="700" fill="#b5bac1" text-anchor="middle">PC</text>
-  <text x="88" y="180" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#f2f3f5">V1PER.STORM</text>
+  <text x="88" y="180" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#f2f3f5">Player One</text>
   <rect x="540" y="160" width="134" height="30" rx="15" fill="#1e1f22" stroke="#c0c5ce" stroke-width="1.5"/>
   <circle cx="560" cy="175" r="6" fill="#c0c5ce"/>
   <text x="574" y="180" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="600" fill="#f2f3f5">Gold · 2,540</text>
   <line x1="46" y1="206" x2="674" y2="206" stroke="#3f4147" stroke-width="1"/>
   <rect x="46" y="224" width="26" height="26" rx="6" fill="#1e1f22" stroke="#3f4147" stroke-width="1.5"/>
   <text x="59" y="242" font-family="system-ui, -apple-system, sans-serif" font-size="11" font-weight="700" fill="#b5bac1" text-anchor="middle">XB</text>
-  <text x="88" y="242" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#f2f3f5">ViperStormXB</text>
+  <text x="88" y="242" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#f2f3f5">Player One (XB)</text>
   <rect x="540" y="222" width="134" height="30" rx="15" fill="#1e1f22" stroke="#c0c5ce" stroke-width="1.5"/>
   <circle cx="560" cy="237" r="6" fill="#c0c5ce"/>
   <text x="574" y="242" font-family="system-ui, -apple-system, sans-serif" font-size="12" font-weight="600" fill="#f2f3f5">Gold · 2,510</text>

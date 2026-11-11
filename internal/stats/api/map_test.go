@@ -30,10 +30,10 @@ func TestMapCollection_FromFixtures(t *testing.T) {
 		Config:   cfg,
 		Profile:  profile,
 		Matches:  matches,
-		Username: "Avqny",
+		Username: "SamplePlayer",
 	})
 
-	if collection.Latest.Profile.Username != "Avqny" {
+	if collection.Latest.Profile.Username != "SamplePlayer" {
 		t.Fatalf("username = %q", collection.Latest.Profile.Username)
 	}
 	if collection.Latest.Profile.ProfileID == "" {

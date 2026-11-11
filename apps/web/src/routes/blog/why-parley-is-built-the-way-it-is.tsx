@@ -17,7 +17,7 @@ const STRUCTURED_DATA = {
   image: OG_IMAGE,
   datePublished: whyParleyIsBuiltTheWayItIs.date,
   dateModified: whyParleyIsBuiltTheWayItIs.date,
-  author: { "@type": "Person", name: whyParleyIsBuiltTheWayItIs.author },
+  author: { "@type": "Organization", name: whyParleyIsBuiltTheWayItIs.author },
   publisher: { "@type": "Organization", name: "Parley", url: "https://parley.bot" },
   mainEntityOfPage: POST_URL,
 };

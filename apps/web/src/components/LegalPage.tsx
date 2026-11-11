@@ -5,7 +5,8 @@ import { useMessages } from "#/lib/content/messages/use-messages";
 interface LegalPageProps {
   label: string;
   title: string;
-  lastUpdated?: string;
+  /** ISO-ish display date, or null to hide it (e.g. undated archive notices). */
+  lastUpdated?: string | null;
   children: React.ReactNode;
 }
 
@@ -22,7 +23,7 @@ export function LegalPage({ label, title, lastUpdated, children }: LegalPageProp
             <h1 className="mt-4 text-balance text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
               {title}
             </h1>
-            {lastUpdated !== null && (
+            {lastUpdated != null && (
               <p className="mt-3 text-xs text-muted-foreground/60">
                 {m.legal.lastUpdated} {lastUpdated}
               </p>

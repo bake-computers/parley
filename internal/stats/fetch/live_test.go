@@ -11,10 +11,16 @@ import (
 	"github.com/bake-computers/parley/internal/stats/api"
 )
 
-func TestLiveStatsCCAPI_Avqny(t *testing.T) {
+func TestLiveStatsCCAPI(t *testing.T) {
 	key := os.Getenv("STATS_CC_API_KEY")
 	if key == "" {
 		t.Skip("STATS_CC_API_KEY unset")
+	}
+	// The live API only answers for existing accounts, so the handle under test
+	// is supplied by the caller instead of being checked in.
+	username := os.Getenv("STATS_CC_LIVE_USERNAME")
+	if username == "" {
+		t.Skip("STATS_CC_LIVE_USERNAME unset")
 	}
 
 	cache := api.NewConfigCache(nil, 7*time.Minute)
@@ -27,7 +33,7 @@ func TestLiveStatsCCAPI_Avqny(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
-	collection, err := client.FetchStatsCollection(ctx, "Avqny", StatsPlatformPC)
+	collection, err := client.FetchStatsCollection(ctx, username, StatsPlatformPC)
 	if err != nil {
 		t.Fatalf("FetchStatsCollection: %v", err)
 	}

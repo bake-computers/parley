@@ -13,10 +13,12 @@ export function PrivacyContentEn() {
           services (collectively, the &ldquo;Service&rdquo;).
         </p>
         <p className="mt-2">
-          The Service is operated from Germany as a non-commercial hobby project. Full operator
-          details are published in our <LegalNoticeInlineLink />. We do not sell personal data. Our
-          primary application and database servers are located in Munich, Germany, and we align our
-          data practices with the General Data Protection Regulation (GDPR).
+          This policy documents the deployment of Parley that was previously operated and is kept in
+          the public source archive as historical documentation. It records the practices of that
+          deployment, not necessarily those of any other deployment of this code. During that
+          operation the Service ran from Germany as a non-commercial hobby project, did not sell
+          personal data, and aligned its data practices with the General Data Protection Regulation
+          (GDPR). Details about the archive and its licensing are in the <LegalNoticeInlineLink />.
         </p>
       </section>
 
@@ -47,8 +49,8 @@ export function PrivacyContentEn() {
           2.2 Matchmaking, Game Stats, and Automated Decisions
         </h3>
         <p>
-          To power matchmaking, bracket generation, and auto-balancing, we run an in-house skill
-          and team-balance model on our own servers in Munich. The model evaluates skill levels and
+          To power matchmaking, bracket generation, and auto-balancing, we run an in-house skill and
+          team-balance model on our own servers in Munich. The model evaluates skill levels and
           assigns brackets using gameplay telemetry and your internal Parley match history. Model
           artifacts may be stored encrypted on Cloudflare R2 (EU jurisdiction); they are not a
           third-party AI hosting service processing your profile on our behalf.
@@ -154,9 +156,9 @@ export function PrivacyContentEn() {
           </li>
           <li>
             <span className="font-medium text-foreground/80">Cloudflare:</span> DNS and domain
-            services, CDN, DDoS protection, Cloudflare Workers, Workers KV, Turnstile bot
-            protection on our web sign-in page, and R2 object storage (EU jurisdiction) for
-            encrypted backups and model artifacts. See{" "}
+            services, CDN, DDoS protection, Cloudflare Workers, Workers KV, Turnstile bot protection
+            on our web sign-in page, and R2 object storage (EU jurisdiction) for encrypted backups
+            and model artifacts. See{" "}
             <a
               href="https://www.cloudflare.com/privacypolicy/"
               className="underline underline-offset-4 transition-colors hover:text-accent-silver"
@@ -181,8 +183,7 @@ export function PrivacyContentEn() {
             <span className="font-medium text-foreground/80">Cloudflare Pipelines / R2:</span>{" "}
             Operational events only (requests, slow or failed database queries, matchmaking
             calculations, and errors), stored in Cloudflare R2. Matchmaking events may include
-            Discord user IDs used to calculate the lobby. Used for reliability, not for
-            advertising.
+            Discord user IDs used to calculate the lobby. Used for reliability, not for advertising.
           </li>
           <li>
             <span className="font-medium text-foreground/80">Grafana Cloud:</span> Infrastructure
@@ -264,13 +265,14 @@ export function PrivacyContentEn() {
           </li>
           <li>
             <strong>Complaint:</strong> Lodge a complaint with a supervisory authority. In Germany
-            this is typically your state data protection authority (Landesdatenschutzbehörde); the
-            lead contact details for the operator are in our <LegalNoticeInlineLink />.
+            this is typically your state data protection authority (Landesdatenschutzbehörde).
           </li>
         </ul>
         <p className="mt-2">
-          To exercise any of these rights, please contact us via the instructions in our{" "}
-          <LegalNoticeInlineLink />. We will process your request within 30 days.
+          The contact details published with this policy are omitted from the archive and are kept
+          as historical documentation rather than as a current contact channel. Anyone who hosts a
+          fork or another deployment of this code is responsible for publishing their own privacy
+          policy and contact details for data subject requests.
         </p>
       </section>
 
