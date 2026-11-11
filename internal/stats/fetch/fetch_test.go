@@ -29,10 +29,10 @@ func mockAPIServer(t *testing.T) *httptest.Server {
 	mux.HandleFunc("/v2/profiles/search", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, apiTestdata(t, "search.json"))
 	})
-	mux.HandleFunc("/v2/profiles/b833121d-9b81-457d-91ef-41ff9d1a9e30", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/v2/profiles/00000000-0000-4000-8000-000000000001", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, apiTestdata(t, "profile.json"))
 	})
-	mux.HandleFunc("/v2/profiles/b833121d-9b81-457d-91ef-41ff9d1a9e30/matches", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("/v2/profiles/00000000-0000-4000-8000-000000000001/matches", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, apiTestdata(t, "matches.json"))
 	})
 	return httptest.NewServer(mux)
@@ -40,7 +40,7 @@ func mockAPIServer(t *testing.T) *httptest.Server {
 
 func TestFetchStatsCollection_APINotConfigured(t *testing.T) {
 	c := NewStatsClientFromOptions(ClientOptions{}).WithRetry(NoRetryPolicy())
-	_, err := c.FetchStatsCollection(context.Background(), "Avqny", StatsPlatformPC)
+	_, err := c.FetchStatsCollection(context.Background(), "SamplePlayer", StatsPlatformPC)
 	if err == nil {
 		t.Fatal("expected error")
 	}
@@ -59,7 +59,7 @@ func TestFetchStatsCollection_HappyPath(t *testing.T) {
 		HTTPClient:          srv.Client(),
 		DisableProfileBatch: true,
 	}).WithRetry(NoRetryPolicy())
-	col, err := c.FetchStatsCollection(context.Background(), "Avqny", StatsPlatformPC)
+	col, err := c.FetchStatsCollection(context.Background(), "SamplePlayer", StatsPlatformPC)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -111,7 +111,7 @@ func TestFetchStatsCollection_RetryableThenFail(t *testing.T) {
 	c := NewStatsClientFromOptions(ClientOptions{
 		APIKey: "k", APIBaseURL: srv.URL, HTTPClient: srv.Client(), DisableProfileBatch: true,
 	}).WithRetry(RetryPolicy{MaxAttempts: 2, InitialBackoffMS: 1, MaxBackoffMS: 2})
-	_, err := c.FetchStatsCollection(context.Background(), "Avqny", StatsPlatformPC)
+	_, err := c.FetchStatsCollection(context.Background(), "SamplePlayer", StatsPlatformPC)
 	if err == nil {
 		t.Fatal("expected error")
 	}
@@ -126,7 +126,7 @@ func TestFetchStats_SeasonSelector(t *testing.T) {
 	c := NewStatsClientFromOptions(ClientOptions{
 		APIKey: "k", APIBaseURL: srv.URL, HTTPClient: srv.Client(), DisableProfileBatch: true,
 	}).WithRetry(NoRetryPolicy())
-	col, err := c.FetchStatsCollection(context.Background(), "Avqny", StatsPlatformPC)
+	col, err := c.FetchStatsCollection(context.Background(), "SamplePlayer", StatsPlatformPC)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -138,7 +138,7 @@ func TestFetchStats_SeasonSelector(t *testing.T) {
 		slug = s
 		break
 	}
-	got, err := c.FetchStats(context.Background(), "Avqny", StatsPlatformPC, &slug)
+	got, err := c.FetchStats(context.Background(), "SamplePlayer", StatsPlatformPC, &slug)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -148,7 +148,7 @@ func TestFetchStats_SeasonSelector(t *testing.T) {
 		}
 	}
 	missing := "no-such-season-xyz"
-	_, err = c.FetchStats(context.Background(), "Avqny", StatsPlatformPC, &missing)
+	_, err = c.FetchStats(context.Background(), "SamplePlayer", StatsPlatformPC, &missing)
 	if err == nil {
 		t.Fatal("expected season not found")
 	}

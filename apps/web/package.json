@@ -12,7 +12,6 @@
     "preview": "bun run build && vp preview",
     "test": "vp test run",
     "typecheck": "tsc --noEmit",
-    "cache:founders": "bun run scripts/cache-founder-avatars.ts",
     "optimize:assets": "bun run scripts/optimize-assets.ts",
     "deploy": "wrangler deploy",
     "cf-typegen": "wrangler types"

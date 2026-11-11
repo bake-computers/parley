@@ -14,11 +14,7 @@ function LegalNoticePage() {
   const lp = m.legalPages;
 
   return (
-    <LegalPage
-      label={lp.legalNoticeLabel}
-      title={lp.legalNoticeTitle}
-      lastUpdated={lp.legalNoticeUpdated}
-    >
+    <LegalPage label={lp.legalNoticeLabel} title={lp.legalNoticeTitle} lastUpdated={null}>
       <LegalNoticeContentEn />
     </LegalPage>
   );

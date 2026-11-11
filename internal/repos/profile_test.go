@@ -7,9 +7,9 @@ func TestNormalizeDiscordUsername(t *testing.T) {
 		in   string
 		want string
 	}{
-		{"ryzm", "ryzm"},
-		{"@ryzm", "ryzm"},
-		{"  @Ryzm  ", "ryzm"},
+		{"sampleplayer", "sampleplayer"},
+		{"@sampleplayer", "sampleplayer"},
+		{"  @SamplePlayer  ", "sampleplayer"},
 		{"@@foo", "@foo"},
 		{"", ""},
 		{"   ", ""},
@@ -28,8 +28,8 @@ func TestIsParkedDiscordUsername(t *testing.T) {
 	if !IsParkedDiscordUsername("PARKED_abc") {
 		t.Fatal("expected parked handle case-insensitive")
 	}
-	if IsParkedDiscordUsername("ryzm") {
-		t.Fatal("real handle must not be parked")
+	if IsParkedDiscordUsername("sampleplayer") {
+		t.Fatal("a normal handle must not be parked")
 	}
 	if IsParkedDiscordUsername("") {
 		t.Fatal("empty is not parked")

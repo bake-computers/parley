@@ -10,29 +10,43 @@
   "main": "src/index.ts",
   "compatibility_date": "2025-05-14",
   "compatibility_flags": ["nodejs_compat"],
-  // we intentionally do this as our Backend is deployed on a Munich server
+  // Pin the worker to an EU region so it sits close to the engine.
   "placement": { "region": "aws:eu-central-1" },
   "workers_dev": false,
   "logpush": true,
   "observability": { "enabled": true },
 
+  // Sample values: replace the Discord application ID, the engine host, the
+  // Pipelines stream, and the VPC service ID with your own before deploying.
   "vars": {
-    "DISCORD_APPLICATION_ID": "1495122091165618358",
+    "DISCORD_APPLICATION_ID": "000000000000000000",
     "SERVICE_NAME": "worker",
-    "ENGINE_INTERNAL_URL": "http://api.internal.parley.bot:50051",
+    "ENGINE_INTERNAL_URL": "http://engine.internal.example:50051",
+  },
+
+  // Secret names only, never values. Declaring them replaces .dev.vars/.env
+  // inference for `wrangler types`, so generated env types are deterministic in
+  // CI, where no local secret files exist. Not inherited by named envs.
+  "secrets": {
+    "required": [
+      "DISCORD_PUBLIC_KEY",
+      "DISCORD_BOT_TOKEN",
+      "TOURNAMENT_HANDOFF_SECRET",
+      "ENGINE_SHARED_SECRET",
+    ],
   },
 
   "pipelines": [
     {
       "binding": "STREAM",
-      "stream": "32a3ed776e154caabb5964618a1325bc",
+      "stream": "00000000000000000000000000000000",
     },
   ],
 
   "vpc_services": [
     {
       "binding": "VPC_SERVICE",
-      "service_id": "019e56b4-32d2-7843-bf2b-ec4b056d4400",
+      "service_id": "00000000-0000-0000-0000-000000000000",
       "remote": true,
     },
   ],
@@ -44,9 +58,25 @@
       "vars": {
         "ENGINE_INTERNAL_URL": "http://127.0.0.1:50051",
       },
+      "secrets": {
+        "required": [
+          "DISCORD_PUBLIC_KEY",
+          "DISCORD_BOT_TOKEN",
+          "TOURNAMENT_HANDOFF_SECRET",
+          "ENGINE_SHARED_SECRET",
+        ],
+      },
     },
     "staging": {
       "routes": [{ "pattern": "staging.app.parley.bot", "custom_domain": true }],
+      "secrets": {
+        "required": [
+          "DISCORD_PUBLIC_KEY",
+          "DISCORD_BOT_TOKEN",
+          "TOURNAMENT_HANDOFF_SECRET",
+          "ENGINE_SHARED_SECRET",
+        ],
+      },
     },
   },
 }

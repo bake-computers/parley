@@ -80,9 +80,6 @@ export const messagesEn: Messages = {
         "So we built the tool we wished we had: automatic balance before the first round starts.",
       ],
       pullQuote: "Ten players. Two teams. Forty-five minutes of arguing, every Saturday.",
-      founderRole: "Founder",
-      coFounderRole: "Co-founder",
-      avatarAlt: "avatar",
     },
     matchmaking: {
       title: "Matchmaking driven by skill and telemetry.",
@@ -182,7 +179,6 @@ export const messagesEn: Messages = {
     legalNoticeTitle: "Legal Notice",
     privacyUpdated: "August 9, 2026",
     termsUpdated: "June 7, 2026",
-    legalNoticeUpdated: "June 21, 2026",
     termsFooter:
       "This document was last updated on June 7, 2026. By continuing to use the Service, you acknowledge that you have read, understood, and agree to be bound by these Terms.",
     privacyFooter:

@@ -104,7 +104,7 @@ func TestTournamentBalanceFallbackPrefersRankPoints(t *testing.T) {
 func TestScoreLoadedPlayerTournamentFallback(t *testing.T) {
 	s := &Service{minSeasonMatches: 3}
 	member := repos.GuildMemberRow{
-		Username:        "Avqny",
+		Username:        "SamplePlayer",
 		InternalElo:     1200,
 		RatingDeviation: 350,
 	}

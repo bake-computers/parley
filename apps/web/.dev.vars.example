@@ -18,7 +18,9 @@ ENGINE_SHARED_SECRET=
 
 # Local-first: `bun run dev` (CLOUDFLARE_ENV=local) talks to the engine on
 # your machine at 127.0.0.1:50051 — set via wrangler env.local in
-# wrangler.jsonc; no flag needed. Without env.local the top-level config keeps
-# the VPC binding and ENGINE_INTERNAL_URL (api.internal.parley.bot) → VPC.
+# wrangler.jsonc; no flag needed. Without env.local the top-level sample config
+# keeps the VPC binding and its placeholder ENGINE_INTERNAL_URL → VPC.
 # Remote VPC web dev instead: `wrangler login` once, then `bun run dev:remote`
 # (PARLEY_REMOTE_BINDINGS=1) — no env.local, so top-level VPC config applies.
+# The top-level vars in wrangler.jsonc are sanitized samples; point them at your
+# own Discord application, Turnstile widget, and VPC service before deploying.

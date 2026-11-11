@@ -16,7 +16,7 @@ permissions:
 jobs:
   changes:
     name: Detect changed paths
-    runs-on: blacksmith-2vcpu-ubuntu-2404
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       pull-requests: read
@@ -58,7 +58,7 @@ jobs:
     name: Lint and typecheck
     needs: changes
     if: needs.changes.outputs.typescript == 'true'
-    runs-on: blacksmith-2vcpu-ubuntu-2404
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -106,7 +106,7 @@ jobs:
     name: Vet and test engine-service
     needs: changes
     if: needs.changes.outputs.go == 'true'
-    runs-on: blacksmith-2vcpu-ubuntu-2404
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - name: Checkout Code

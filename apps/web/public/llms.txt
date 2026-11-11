@@ -30,7 +30,7 @@ User guides for players and server admins. Start with the Discord guide; the res
 
 - [Terms of Service](https://parley.bot/terms)
 - [Privacy Policy](https://parley.bot/privacy)
-- [Legal Notice / Impressum](https://parley.bot/legal-notice)
+- [Legal Notice (source archive)](https://parley.bot/legal-notice)
 
 ## Key Features
 

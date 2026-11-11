@@ -5,6 +5,16 @@ export function TermsContentEn() {
   return (
     <>
       <section>
+        <h2 className="mb-3 text-base font-medium text-foreground">Historical documentation</h2>
+        <p>
+          These Terms are kept in the public source archive as historical documentation of the
+          hosted Parley service. They record the terms that applied while that service was operated
+          and are not current terms of any deployment you may run. Reuse of the source code is
+          governed by the MIT License (see the <code>LICENSE</code> file), not by these Terms.
+        </p>
+      </section>
+
+      <section>
         <h2 className="mb-3 text-base font-medium text-foreground">1. Acceptance of Terms</h2>
         <p>
           By accessing or using Parley (&ldquo;the Service&rdquo;), you agree to be bound by these
@@ -74,9 +84,10 @@ export function TermsContentEn() {
           5. Intellectual Property Rights
         </h2>
         <p>
-          The Service, including the Parley brand, matchmaking algorithms, database schemas, and
-          custom code, are the intellectual property of Parley and its developers. You may not
-          reproduce, distribute, or create derivative works without prior written consent.
+          The code in this repository is licensed under the MIT License; the full text is in the{" "}
+          <code>LICENSE</code> file at the repository root. The license permits use, modification,
+          and redistribution on its terms. It does not grant rights to the Parley name, logo, or
+          other marks, and it does not cover the content and data the Service displayed.
         </p>
         <p className="mt-3">
           Rainbow Six Siege, Ubisoft, and related marks are trademarks of Ubisoft Entertainment.
@@ -142,8 +153,9 @@ export function TermsContentEn() {
       <section>
         <h2 className="mb-3 text-base font-medium text-foreground">10. Contact</h2>
         <p>
-          For legal inquiries regarding these Terms of Service, please refer to our{" "}
-          <LegalNoticeInlineLink /> for official contact information.
+          The contact details published with these Terms are omitted from the archive and are kept
+          as historical documentation rather than as a current contact channel. Details about the
+          archive and its licensing are in the <LegalNoticeInlineLink />.
         </p>
       </section>
 

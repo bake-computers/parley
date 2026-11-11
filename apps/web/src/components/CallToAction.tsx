@@ -4,8 +4,9 @@ import { ArrowRight } from "lucide-react";
 import { Reveal } from "#/components/ui/reveal";
 import { useMessages } from "#/lib/content/messages/use-messages";
 
+// Placeholder Discord application ID; use your own application's ID.
 const DISCORD_URL =
-  "https://discord.com/oauth2/authorize?client_id=1495122091165618358&permissions=379968&integration_type=0&scope=bot+applications.commands";
+  "https://discord.com/oauth2/authorize?client_id=000000000000000000&permissions=379968&integration_type=0&scope=bot+applications.commands";
 
 const ctaButton =
   "group inline-flex h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-foreground px-7 text-sm font-medium text-background transition-all hover:scale-[1.02] hover:bg-foreground/90 active:scale-[0.98]";

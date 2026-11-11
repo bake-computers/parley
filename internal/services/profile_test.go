@@ -48,7 +48,7 @@ func TestProfileMatchToProtoWinLoss(t *testing.T) {
 		},
 	}
 	discordProfiles := map[string]models.DiscordProfile{
-		"opp": {DiscordUserID: "opp", Username: "avqny"},
+		"opp": {DiscordUserID: "opp", Username: "sampleplayer"},
 	}
 	privacy := map[string]bool{"opp": true, "viewer": true}
 
@@ -62,7 +62,7 @@ func TestProfileMatchToProtoWinLoss(t *testing.T) {
 	if len(pm.Opponents) != 1 {
 		t.Fatalf("opponents = %d, want 1", len(pm.Opponents))
 	}
-	if pm.Opponents[0].DiscordUsername != "avqny" {
+	if pm.Opponents[0].DiscordUsername != "sampleplayer" {
 		t.Fatalf("opponent discord = %q", pm.Opponents[0].DiscordUsername)
 	}
 	if pm.Opponents[0].GameUsername != "OppR6" {
@@ -81,7 +81,7 @@ func TestMatchPlayerToProtoRedactsPrivatePlayers(t *testing.T) {
 		Platform:      strPtr("pc"),
 	}
 	discordProfiles := map[string]models.DiscordProfile{
-		"opp": {DiscordUserID: "opp", Username: "avqny"},
+		"opp": {DiscordUserID: "opp", Username: "sampleplayer"},
 	}
 	privacy := map[string]bool{"opp": false}
 
@@ -95,7 +95,7 @@ func TestMatchPlayerToProtoRedactsPrivatePlayers(t *testing.T) {
 }
 
 func TestNormalizeDiscordUsernameInRepos(t *testing.T) {
-	if got := repos.NormalizeDiscordUsername("@Ryzm"); got != "ryzm" {
+	if got := repos.NormalizeDiscordUsername("@SamplePlayer"); got != "sampleplayer" {
 		t.Fatalf("got %q", got)
 	}
 }

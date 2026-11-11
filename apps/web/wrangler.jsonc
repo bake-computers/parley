@@ -12,17 +12,34 @@
   "logpush": true,
   "observability": { "enabled": true },
 
+  // Sample values: replace the Discord application ID, the engine host, the
+  // Turnstile key, and the VPC service ID with your own before deploying.
+  // The Turnstile value here is Cloudflare's documented always-pass test key.
   "vars": {
     "SERVICE_NAME": "web",
-    "DISCORD_APPLICATION_ID": "1495122091165618358",
-    "ENGINE_INTERNAL_URL": "http://api.internal.parley.bot:50051",
-    "TURNSTILE_SITE_KEY": "0x4AAAAAADp6daoSm0g2pBC_",
+    "DISCORD_APPLICATION_ID": "000000000000000000",
+    "ENGINE_INTERNAL_URL": "http://engine.internal.example:50051",
+    "TURNSTILE_SITE_KEY": "1x00000000000000000000AA",
+  },
+
+  // Secret names only, never values. Declaring them replaces .dev.vars/.env
+  // inference for `wrangler types`, so generated env types are deterministic in
+  // CI, where no local secret files exist. Not inherited by named envs.
+  "secrets": {
+    "required": [
+      "DISCORD_CLIENT_SECRET",
+      "AUTH_SECRET",
+      "TOURNAMENT_HANDOFF_SECRET",
+      "TURNSTILE_SECRET_KEY",
+      "DISCORD_BOT_TOKEN",
+      "ENGINE_SHARED_SECRET",
+    ],
   },
 
   "vpc_services": [
     {
       "binding": "VPC_SERVICE",
-      "service_id": "019e56b4-32d2-7843-bf2b-ec4b056d4400",
+      "service_id": "00000000-0000-0000-0000-000000000000",
       "remote": true,
     },
   ],
@@ -35,13 +52,33 @@
     "local": {
       "vars": {
         "SERVICE_NAME": "web",
-        "DISCORD_APPLICATION_ID": "1495122091165618358",
+        "DISCORD_APPLICATION_ID": "000000000000000000",
         "ENGINE_INTERNAL_URL": "http://127.0.0.1:50051",
-        "TURNSTILE_SITE_KEY": "0x4AAAAAADp6daoSm0g2pBC_",
+        "TURNSTILE_SITE_KEY": "1x00000000000000000000AA",
+      },
+      "secrets": {
+        "required": [
+          "DISCORD_CLIENT_SECRET",
+          "AUTH_SECRET",
+          "TOURNAMENT_HANDOFF_SECRET",
+          "TURNSTILE_SECRET_KEY",
+          "DISCORD_BOT_TOKEN",
+          "ENGINE_SHARED_SECRET",
+        ],
       },
     },
     "staging": {
       "routes": [{ "pattern": "staging.parley.bot", "custom_domain": true }],
+      "secrets": {
+        "required": [
+          "DISCORD_CLIENT_SECRET",
+          "AUTH_SECRET",
+          "TOURNAMENT_HANDOFF_SECRET",
+          "TURNSTILE_SECRET_KEY",
+          "DISCORD_BOT_TOKEN",
+          "ENGINE_SHARED_SECRET",
+        ],
+      },
     },
   },
 }

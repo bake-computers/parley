@@ -1,192 +1,21 @@
-Parley Proprietary License
-Version 1.0 — 2026
+MIT License
 
-Copyright (c) 2026 Bake Computers. All rights reserved.
+Copyright (c) 2026 Bake Computers
 
-This software and associated documentation files (the "Software") are the
-exclusive property of Bake Computers (the "Licensor"). The Software is made
-available for limited private inspection and non-commercial personal use only.
-It is not open source. No rights are granted except those expressly stated
-below. All rights not expressly granted are reserved by the Licensor.
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-1. Definitions
-
-  "You" means the individual or legal entity exercising permissions under
-  this License.
-
-  "Private Use" means use of the Software solely for your own personal,
-  non-commercial purposes, on systems you control, without providing the
-  Software or any service powered by it to any third party.
-
-  "Commercial Use" means any use intended for or resulting in commercial
-  advantage or monetary compensation, directly or indirectly, including
-  without limitation: selling, renting, leasing, or licensing the Software;
-  offering the Software or any service powered by it to others (whether free
-  or paid); operating the Software for a business, organization, community,
-  guild, team, or group in connection with revenue, donations, sponsorships,
-  advertising, affiliate income, or any other form of consideration;
-  embedding the Software in a product or service offered to third parties;
-  or using the Software to provide matchmaking, tournament, stats, or
-  related services to others.
-
-  "Modify" means to adapt, alter, translate, create derivative works of,
-  reverse engineer (except to the limited extent mandatory local law
-  prohibits restriction), decompile, disassemble, or otherwise change the
-  Software in any way.
-
-  "Distribute" means to publish, share, upload, host, transmit, transfer,
-  make available, or otherwise provide the Software (in source or binary
-  form) to any third party, publicly or privately.
-
-
-2. Limited Grant — Private Use Only
-
-  Subject to the terms of this License, the Licensor grants You a personal,
-  non-exclusive, non-transferable, non-sublicensable, revocable, royalty-free
-  license to:
-
-    (a) download and run the Software for Private Use; and
-    (b) view the source code for the sole purpose of evaluating Private Use.
-
-  No other rights are granted.
-
-
-3. Prohibited Uses
-
-  You may NOT, without a separate written commercial license from the
-  Licensor signed by an authorized representative:
-
-    (a) use the Software for Commercial Use of any kind;
-    (b) Modify the Software, or create derivative works based on it;
-    (c) Distribute, sublicense, sell, rent, lease, or otherwise transfer
-        the Software to any third party;
-    (d) host, deploy, or operate the Software as a public service, SaaS,
-        bot, API, or multi-tenant product for anyone other than yourself
-        in a purely private capacity;
-    (e) remove, obscure, or alter any copyright, trademark, patent, or
-        proprietary notices in the Software;
-    (f) use the Software to build, train, or improve a competing product
-        or service;
-    (g) use the Licensor's names, logos, trademarks, or product names
-        (including "Parley") in a way that suggests endorsement, affiliation,
-        or that You are the source of the Software, except for factual
-        attribution required by this License;
-    (h) circumvent, disable, or interfere with any technical restrictions,
-        license checks, or access controls in the Software; or
-    (i) encourage, assist, or enable any third party to do any of the above.
-
-
-4. No Open Source Rights
-
-  This License does not grant rights under the OSI Open Source Definition,
-  the Free Software Definition, or any similar standard. The Software is
-  proprietary. Publication of the source code (if any) does not waive the
-  Licensor's rights or convert this License into an open-source grant.
-
-
-5. Feedback
-
-  If You provide ideas, suggestions, bug reports, or other feedback about
-  the Software ("Feedback"), You assign to the Licensor all right, title,
-  and interest in that Feedback, or, where assignment is not effective,
-  You grant the Licensor a perpetual, irrevocable, worldwide, royalty-free,
-  fully paid-up, transferable, sublicensable license to use, reproduce,
-  modify, distribute, and commercialize the Feedback for any purpose
-  without obligation or attribution to You.
-
-
-6. Ownership
-
-  The Software is licensed, not sold. The Licensor retains all title,
-  ownership, and intellectual property rights in and to the Software,
-  including all copies, improvements, and Feedback. No ownership interest
-  is transferred to You under this License.
-
-
-7. Patents
-
-  No patent license is granted by implication, estoppel, or otherwise.
-  If You assert a patent claim against the Licensor or any user of the
-  Software alleging that the Software infringes a patent, all licenses
-  granted to You under this License terminate immediately.
-
-
-8. Termination
-
-  This License terminates automatically and immediately if You breach any
-  term. Upon termination You must cease all use of the Software and destroy
-  all copies in your possession or control. Sections 5, 6, 7, 9, 10, 11,
-  and 12 survive termination. The Licensor may also terminate this License
-  for convenience with notice. Termination does not limit the Licensor's
-  other rights or remedies, including claims for damages and injunctive
-  relief.
-
-
-9. No Warranty
-
-  THE SOFTWARE IS PROVIDED "AS IS" AND "AS AVAILABLE", WITHOUT WARRANTY OF
-  ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-  OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND
-  NON-INFRINGEMENT. YOU USE THE SOFTWARE AT YOUR OWN RISK. THE LICENSOR
-  DOES NOT WARRANT THAT THE SOFTWARE WILL BE UNINTERRUPTED, ERROR-FREE,
-  SECURE, OR COMPATIBLE WITH YOUR SYSTEMS OR THIRD-PARTY SERVICES.
-
-
-10. Limitation of Liability
-
-  TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, IN NO EVENT SHALL THE
-  LICENSOR BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL,
-  EXEMPLARY, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS, REVENUE, DATA,
-  GOODWILL, OR BUSINESS OPPORTUNITY, ARISING OUT OF OR RELATED TO THIS
-  LICENSE OR THE SOFTWARE, WHETHER IN CONTRACT, TORT (INCLUDING NEGLIGENCE),
-  STRICT LIABILITY, OR OTHERWISE, EVEN IF ADVISED OF THE POSSIBILITY OF
-  SUCH DAMAGES. THE LICENSOR'S TOTAL AGGREGATE LIABILITY UNDER THIS LICENSE
-  SHALL NOT EXCEED THE GREATER OF (A) THE AMOUNT YOU PAID THE LICENSOR FOR
-  THE SOFTWARE IN THE TWELVE (12) MONTHS PRECEDING THE CLAIM, OR (B) TEN
-  US DOLLARS (USD $10).
-
-
-11. Indemnity
-
-  You will defend, indemnify, and hold harmless the Licensor and its
-  officers, directors, employees, and agents from and against any claims,
-  damages, losses, liabilities, costs, and expenses (including reasonable
-  attorneys' fees) arising out of or related to your use of the Software
-  or your breach of this License.
-
-
-12. Governing Law and Venue
-
-  This License is governed by the laws of Germany, without regard to
-  conflict-of-law principles. Exclusive venue for any dispute arising under
-  this License lies in the courts of Berlin, Germany, unless mandatory law
-  requires otherwise. The United Nations Convention on Contracts for the
-  International Sale of Goods does not apply.
-
-
-13. Commercial Licensing
-
-  Commercial Use, modification, distribution, hosting for others, or any
-  other use not expressly permitted by Section 2 requires a separate paid
-  commercial license from the Licensor. Contact: hi@ryzm.cc (or the contact
-  method published by Bake Computers for Parley licensing).
-
-
-14. Entire Agreement; Severability; No Waiver
-
-  This License is the entire agreement between You and the Licensor
-  regarding the Software and supersedes prior or contemporaneous
-  understandings on that subject. If any provision is held unenforceable,
-  the remaining provisions remain in full force. Failure to enforce any
-  provision is not a waiver of future enforcement. You may not assign this
-  License without the Licensor's prior written consent; the Licensor may
-  assign freely. This License may be updated for future versions of the
-  Software; the version that accompanies the copy You obtained governs
-  that copy unless You accept a later version.
-
-
-END OF TERMS
-
-For commercial licensing inquiries: hi@ryzm.cc
-Website / project: https://parley.bot
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

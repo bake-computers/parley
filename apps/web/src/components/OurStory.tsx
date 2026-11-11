@@ -1,5 +1,4 @@
 import { Reveal, RevealStagger } from "#/components/ui/reveal";
-import { founders } from "#/lib/shared/founders";
 import { useMessages } from "#/lib/content/messages/use-messages";
 
 export function OurStory() {
@@ -36,37 +35,6 @@ export function OurStory() {
           </blockquote>
         </figure>
       </Reveal>
-
-      <RevealStagger as="ul" itemAs="li" interval={120} className="mt-14 grid gap-4 sm:grid-cols-2">
-        {founders.map((founder) => (
-          <div
-            key={founder.id}
-            className="problem-card group relative flex items-center gap-4 overflow-hidden rounded-2xl border border-border/60 bg-muted/25 p-4 transition-colors duration-300 hover:border-accent-silver/35 focus-within:border-accent-silver/35 md:p-5"
-          >
-            <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl">
-              <div className="problem-spotlight pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-within:opacity-100" />
-            </div>
-            <div className="size-16 shrink-0 overflow-hidden rounded-xl ring-1 ring-border/60">
-              <img
-                src={founder.avatarSrc.replace(".webp", "-64.webp")}
-                srcSet={`${founder.avatarSrc.replace(".webp", "-64.webp")} 1x, ${founder.avatarSrc.replace(".webp", "-128.webp")} 2x`}
-                alt={`${founder.handle} ${s.avatarAlt}`}
-                width={64}
-                height={64}
-                loading="lazy"
-                decoding="async"
-                className="size-full object-cover"
-              />
-            </div>
-            <div className="relative">
-              <p className="font-medium text-foreground">{founder.handle}</p>
-              <p className="mt-0.5 text-xs text-muted-foreground">
-                {founder.role === "Founder" ? s.founderRole : s.coFounderRole}
-              </p>
-            </div>
-          </div>
-        ))}
-      </RevealStagger>
     </div>
   );
 }

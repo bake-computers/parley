@@ -3,7 +3,7 @@ import { useMessages } from "#/lib/content/messages/use-messages";
 
 export function LegalNoticeInlineLink({ children }: { children?: React.ReactNode }) {
   const m = useMessages();
-  const label = children ?? `${m.legalPages.legalNoticeTitle} (Impressum)`;
+  const label = children ?? m.legalPages.legalNoticeTitle;
   return (
     <a
       href={siteHref("legal-notice")}

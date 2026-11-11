@@ -432,7 +432,7 @@ func TestIdentityLink_OwnerBypassesRelinkCooldown(t *testing.T) {
 	rig := newEngineWithDB(t)
 	ctx := context.Background()
 
-	discordID := "980859238630948886"
+	discordID := "100000000000000001"
 
 	link := func() error {
 		_, err := rig.IdentityClient.LinkAccount(ctx, connect.NewRequest(&identityv1.LinkAccountRequest{

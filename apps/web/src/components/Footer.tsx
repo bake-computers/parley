@@ -4,8 +4,9 @@ import { useMessages } from "#/lib/content/messages/use-messages";
 
 // Our discord isnt finished yet, so we're not linking to it
 // const DISCORD_INVITE = "https://discord.gg/parley";
+// Placeholder Discord application ID; use your own application's ID.
 const BOT_AUTHORIZE =
-  "https://discord.com/oauth2/authorize?client_id=1495122091165618358&permissions=379968&integration_type=0&scope=bot+applications.commands";
+  "https://discord.com/oauth2/authorize?client_id=000000000000000000&permissions=379968&integration_type=0&scope=bot+applications.commands";
 
 const poweredBy = [
   {
